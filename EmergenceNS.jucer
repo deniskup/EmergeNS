@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="ahcSKJ" name="EmergenceNS" projectType="guiapp" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1">
+  <MAINGROUP id="wpK5db" name="EmergenceNS">
+    <GROUP id="{5644C93F-D830-ABEA-7B3B-D680ED5AD24D}" name="Source">
+      <FILE id="qwKT9J" name="Data.h" compile="0" resource="0" file="Source/Data.h"/>
+      <FILE id="fwipg6" name="Data.cpp" compile="1" resource="0" file="Source/Data.cpp"/>
+      <FILE id="aTodaX" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+      <FILE id="kMQl2t" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="aXSDv8" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="EmergenceNS"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="EmergenceNS"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="~/Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="~/Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="~/Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../Prog/JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="EmergenceNS"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="EmergenceNS"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="~/Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../Prog/JUCE/modules"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+</JUCERPROJECT>
