@@ -48,8 +48,7 @@ public:
 };
 
 class Simulation : 
-public ChangeBroadcaster,
-public Thread
+  public Thread
 {
 public:
   juce_DeclareSingleton(Simulation, true);
@@ -70,4 +69,17 @@ public:
   void cancel();
   
   void run() override;
+
+  class  SimulationListener
+	{
+	public:
+		/** Destructor. */
+		virtual ~SimulationListener() {}
+		virtual void newStep(Simulation *) {};
+		virtual void simulationFinished(Simulation *) {};
+	};
+
+	ListenerList<SimulationListener> listeners;
+	void addSimulationListener(SimulationListener* newListener) { listeners.add(newListener); }
+	void removeSimulationListener(SimulationListener* listener) { listeners.remove(listener); }
 };

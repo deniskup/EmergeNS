@@ -12,7 +12,7 @@ using namespace juce;
 */
 class MainComponent : public juce::Component,
                       public Slider::Listener,
-                      public ChangeListener,
+                      public Simulation::SimulationListener,
                       public Timer
 
 {
@@ -21,13 +21,16 @@ public:
     MainComponent();
     ~MainComponent();
 
+    
     //==============================================================================
     void paint(juce::Graphics &) override;
     void resized() override;
     void sliderValueChanged(Slider *slider) override;
     void timerCallback() override;
+    bool keyPressed(const KeyPress& e) override;
 
-    void changeListenerCallback(ChangeBroadcaster *);
+    void newStep(Simulation*);
+    void simulationFinished(Simulation*);
 
 private:
     //==============================================================================
@@ -36,5 +39,6 @@ private:
     juce::Label maxStepsLabel;
     Simulation *simul;
     bool shouldRepaint;
+    Array<Array<float>> entityHistory;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

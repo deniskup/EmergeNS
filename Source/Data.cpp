@@ -47,7 +47,9 @@ Simulation::~Simulation()
 void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
 {
   maxSteps = m;
+  entities.clear();
   entities.addArray(e);
+  reactions.clear();
   reactions.addArray(r);
   nbReactions = reactions.size();
 }
@@ -100,7 +102,7 @@ void Simulation::nextStep()
   }
 
   curStep++;
-  sendChangeMessage();
+  listeners.call(&SimulationListener::newStep, this);
 }
 
 void Simulation::stop()
@@ -120,9 +122,9 @@ void Simulation::run()
   while (!finished && !threadShouldExit())
   {
     nextStep();
-    wait(100);
+    wait(20);
   }
 
   DBG("End thread");
-  sendChangeMessage();
+  listeners.call(&SimulationListener::simulationFinished, this);
 }
