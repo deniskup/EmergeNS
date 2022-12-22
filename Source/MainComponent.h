@@ -11,7 +11,10 @@ using namespace juce;
     your controls and content.
 */
 class MainComponent : public juce::Component,
-                      public Slider::Listener
+                      public Slider::Listener,
+                      public ChangeListener,
+                      public Timer
+
 {
 public:
     //==============================================================================
@@ -22,6 +25,9 @@ public:
     void paint(juce::Graphics &) override;
     void resized() override;
     void sliderValueChanged(Slider *slider) override;
+    void timerCallback() override;
+
+    void changeListenerCallback(ChangeBroadcaster *);
 
 private:
     //==============================================================================
@@ -29,5 +35,6 @@ private:
     juce::Slider maxStepsSlider;
     juce::Label maxStepsLabel;
     Simulation *simul;
+    bool shouldRepaint;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

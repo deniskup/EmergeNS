@@ -33,13 +33,15 @@ void Entity::decrease(float decr)
 
 juce_ImplementSingleton(Simulation)
 
-    Simulation::Simulation() : maxSteps(0)
+Simulation::Simulation() :
+  Thread("Simulation")
 {
 }
 
 Simulation::~Simulation()
 {
   //Destructor
+  stopThread(500);
 }
 
 void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
@@ -52,12 +54,7 @@ void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
 
 void Simulation::start()
 {
-  curStep = 0;
-  finished = false;
-  while (!finished)
-  {
-    nextStep();
-  }
+  startThread();
 }
 
 void Simulation::nextStep()
@@ -103,9 +100,29 @@ void Simulation::nextStep()
   }
 
   curStep++;
+  sendChangeMessage();
 }
 
 void Simulation::stop()
 {
   finished = true;
+}
+
+void Simulation::cancel()
+{
+  stopThread(500);
+}
+
+void Simulation::run()
+{
+  curStep = 0;
+  finished = false;
+  while (!finished && !threadShouldExit())
+  {
+    nextStep();
+    wait(100);
+  }
+
+  DBG("End thread");
+  sendChangeMessage();
 }

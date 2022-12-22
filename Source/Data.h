@@ -47,14 +47,16 @@ public:
   ~Reaction() {}
 };
 
-class Simulation
+class Simulation : 
+public ChangeBroadcaster,
+public Thread
 {
 public:
   juce_DeclareSingleton(Simulation, true);
   Simulation();
   ~Simulation();
 
-  int maxSteps;
+  int maxSteps = 0;
   int curStep = 0;
   bool finished = false;
   OwnedArray<Entity> entities;    // all entities
@@ -65,4 +67,7 @@ public:
   void start();
   void nextStep();
   void stop();
+  void cancel();
+  
+  void run() override;
 };
