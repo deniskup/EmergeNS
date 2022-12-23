@@ -39,9 +39,9 @@ void MainComponent::paint(juce::Graphics &g)
     int index = 0;
     for (auto &ent : simul->entities)
     {
-        g.setColour(Colour::fromHSV(index * .32f, 1, 1, 1));
-        g.drawText("Ent " + String(ent->id) + " : " + String(ent->concent), r.removeFromTop(20), juce::Justification::centred, true);
-        r.removeFromTop(8);
+       // g.setColour(Colour::fromHSV(index * .32f, 1, 1, 1));
+        //g.drawText("Ent " + String(ent->id) + " : " + String(ent->concent), r.removeFromTop(20), juce::Justification::centred, true);
+        //r.removeFromTop(8);
         index++;
     }
 
@@ -117,16 +117,17 @@ bool MainComponent::keyPressed(const KeyPress &e)
         {
             entityHistory.clear();
 
-            int nbEnt = 3;
+            int nbEnt = 7;
             Array<Entity *> ents;
             Random r;
             for (int i = 0; i < nbEnt; i++)
-                ents.add(new Entity(1, true, r.nextFloat(), r.nextFloat(), r.nextFloat()));
+                ents.add(new Entity(i+1, true, r.nextFloat(), 0, 0));
 
 
-            Reaction *reac = new Reaction({ents[0], ents[1]}, {ents[2]}, .3f, .2f);
+            Reaction *reac = new Reaction({ents[0], ents[1]}, {ents[2]}, r.nextFloat(), .0f);
+            Reaction *reac2 = new Reaction({ents[3], ents[4]}, {ents[5],ents[6]}, r.nextFloat(), .0f);
 
-            simul->setup(simul->maxSteps, ents, {reac});
+            simul->setup(simul->maxSteps, ents, {reac,reac2});
             simul->start();
         }
     }
