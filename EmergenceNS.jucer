@@ -1,11 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="ahcSKJ" name="EmergenceNS" projectType="guiapp" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1"
+              headerPath="../../Source">
   <MAINGROUP id="wpK5db" name="EmergenceNS">
     <GROUP id="{5644C93F-D830-ABEA-7B3B-D680ED5AD24D}" name="Source">
-      <FILE id="qwKT9J" name="Data.h" compile="0" resource="0" file="Source/Data.h"/>
-      <FILE id="fwipg6" name="Data.cpp" compile="1" resource="0" file="Source/Data.cpp"/>
+      <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
+        <FILE id="Ca4F3q" name="EmergenceNSEngine.cpp" compile="1" resource="0"
+              file="Source/Engine/EmergenceNSEngine.cpp"/>
+        <FILE id="uteUss" name="EmergenceNSEngine.h" compile="0" resource="0"
+              file="Source/Engine/EmergenceNSEngine.h"/>
+      </GROUP>
+      <GROUP id="{87A9DC7B-5819-AD03-3D54-9A82506A3449}" name="Simulation">
+        <GROUP id="{FC51C38D-0EB8-27ED-53D6-8BBCA209472A}" name="ui">
+          <FILE id="CMLWSw" name="EntityManagerUI.cpp" compile="1" resource="0"
+                file="Source/Simulation/ui/EntityManagerUI.cpp"/>
+          <FILE id="uRXJan" name="EntityManagerUI.h" compile="0" resource="0"
+                file="Source/Simulation/ui/EntityManagerUI.h"/>
+          <FILE id="knvYq4" name="EntityUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/EntityUI.cpp"/>
+          <FILE id="KH8Re0" name="EntityUI.h" compile="0" resource="0" file="Source/Simulation/ui/EntityUI.h"/>
+        </GROUP>
+        <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
+        <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
+              file="Source/Simulation/EntityManager.cpp"/>
+        <FILE id="L9QJVJ" name="EntityManager.h" compile="0" resource="0" file="Source/Simulation/EntityManager.h"/>
+        <FILE id="H8bR8k" name="Simulation.h" compile="0" resource="0" file="Source/Simulation/Simulation.h"/>
+        <FILE id="p4F7v6" name="Simulation.cpp" compile="1" resource="0" file="Source/Simulation/Simulation.cpp"/>
+        <FILE id="AWGQTF" name="Entity.h" compile="0" resource="0" file="Source/Simulation/Entity.h"/>
+      </GROUP>
+      <FILE id="DhDFEv" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="aTodaX" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="kMQl2t" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="aXSDv8" name="MainComponent.cpp" compile="1" resource="0"
@@ -27,6 +50,9 @@
         <MODULEPATH id="juce_gui_basics" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_organicui" path="Modules"/>
+        <MODULEPATH id="juce_osc" path="../../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../Prog/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -42,16 +68,22 @@
         <MODULEPATH id="juce_gui_basics" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_organicui" path="Modules"/>
+        <MODULEPATH id="juce_osc" path="../../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../../Prog/JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
   <MODULES>
     <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_cryptography" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_organicui" showAllCode="1" useLocalCopy="0" useGlobalPath="0"/>
+    <MODULE id="juce_osc" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
 </JUCERPROJECT>
