@@ -12,5 +12,7 @@ public:
 	EntityManager();
 	~EntityManager();
 
-	//Trigger* generateTrigger();
+	Trigger* generateTrigger;
+
+	void onContainerTriggerTriggered(Trigger* t) override;
 };

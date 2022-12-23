@@ -19,7 +19,19 @@
                 file="Source/Simulation/ui/EntityManagerUI.h"/>
           <FILE id="knvYq4" name="EntityUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/EntityUI.cpp"/>
           <FILE id="KH8Re0" name="EntityUI.h" compile="0" resource="0" file="Source/Simulation/ui/EntityUI.h"/>
+          <FILE id="bEc5aT" name="ReactionManagerUI.cpp" compile="1" resource="0"
+                file="Source/Simulation/ui/ReactionManagerUI.cpp"/>
+          <FILE id="CfFFYB" name="ReactionManagerUI.h" compile="0" resource="0"
+                file="Source/Simulation/ui/ReactionManagerUI.h"/>
+          <FILE id="IGAWYe" name="ReactionUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/ReactionUI.cpp"/>
+          <FILE id="W7Zen3" name="ReactionUI.h" compile="0" resource="0" file="Source/Simulation/ui/ReactionUI.h"/>
         </GROUP>
+        <FILE id="dgHatY" name="ReactionManager.h" compile="0" resource="0"
+              file="Source/Simulation/ReactionManager.h"/>
+        <FILE id="CnfZvw" name="ReactionManager.cpp" compile="1" resource="0"
+              file="Source/Simulation/ReactionManager.cpp"/>
+        <FILE id="DJcwAj" name="Reaction.cpp" compile="1" resource="0" file="Source/Simulation/Reaction.cpp"/>
+        <FILE id="jvdyYs" name="Reaction.h" compile="0" resource="0" file="Source/Simulation/Reaction.h"/>
         <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
         <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
               file="Source/Simulation/EntityManager.cpp"/>

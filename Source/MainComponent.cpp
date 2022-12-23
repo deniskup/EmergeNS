@@ -1,5 +1,6 @@
 #include "MainComponent.h"
 #include "Simulation/ui/EntityManagerUI.h"
+#include "Simulation/ui/ReactionManagerUI.h"
 
 String getAppVersion();
 
@@ -17,6 +18,7 @@ void MainContentComponent::init()
 {
 	//creer le panel
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Entities", &EntityManagerUI::create));
+	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Reactions", &ReactionManagerUI::create));
 
 
 	//ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_playout);

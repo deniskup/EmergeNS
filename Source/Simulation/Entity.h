@@ -21,3 +21,4 @@ public:
 
 DECLARE_TYPE("Entity");
 };
+
