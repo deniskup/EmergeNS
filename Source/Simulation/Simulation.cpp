@@ -1,115 +1,110 @@
 
 
 #include "Simulation.h"
+#include "Entity.h"
+#include "Reaction.h"
 
 using namespace std;
 
-// Entity::Entity(int x, bool b, float s, float c, float d)
-// {
-//   id = x;
-//   basic = b;
-//   concent = s;
-//   creationRate = c;
-//   destructionRate = d;
-// }
-
-
-
 juce_ImplementSingleton(Simulation)
 
-Simulation::Simulation() :
-  ControllableContainer("Simulation"),
-  Thread("Simulation")
+    Simulation::Simulation() : ControllableContainer("Simulation"),
+                               Thread("Simulation")
 {
 }
 
 Simulation::~Simulation()
 {
-  //Destructor
+  // Destructor
   stopThread(500);
 }
 
-// void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
-// {
-//   maxSteps = m;
-//   entities.clear();
-//   entities.addArray(e);
-//   reactions.clear();
-//   reactions.addArray(r);
-//   nbReactions = reactions.size();
-// }
+void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
+{
+  maxSteps->setValue(m);
+  entities.clear();
+  entities.addArray(e);
+  reactions.clear();
+  reactions.addArray(r);
+}
 
-// void Simulation::start()
-// {
-//   startThread();
-// }
+void Simulation::start()
+{
+  startThread();
+}
 
-// void Simulation::nextStep()
-// {
-//   if (curStep >= maxSteps)
-//   {
-//     stop();
-//     return;
-//   }
-//   // add basic entities
-//   for (auto &ent : entities)
-//   {
-//     if (ent->basic)
-//     {
-//       ent->concent += ent->creationRate;
-//     }
-//     ent->decrease(ent->concent * ent->destructionRate);
-//   }
+void Simulation::nextStep()
+{
+  if (curStep >= maxSteps)
+  {
+    stop();
+    return;
+  }
+  // add primary->boolValue() entities
+  for (auto &ent : entities)
+  {
+    if (ent->primary->boolValue())
+    {
+      ent->concent->setValue(ent->concent->floatValue()+ent->creationRate->floatValue());
+    }
+    ent->decrease(ent->concent->floatValue() * ent->destructionRate->floatValue());
+  }
 
-//   // loop through reactions
-//   for (auto &reac : reactions)
-//   { 
+  // loop through reactions
+  for (auto &reac : reactions)
+  {
 
-//     // compute product of reactants concentrations
-//     float reacConcent = 1;
-//     for (auto consom : reac->reactants) reacConcent *= consom->concent;
-//      // compute product of products concentrations
-//     float prodConcent = 1;
-//     for (auto prod : reac->products) prodConcent *= prod->concent;
+    Entity *e1 = dynamic_cast<Entity *>(reac->reactant1->targetContainer.get());
+    if (e1 == nullptr)
+      continue;
+    Entity *e2 = dynamic_cast<Entity *>(reac->reactant2->targetContainer.get());
+    if (e2 == nullptr)
+      continue;
+    Entity *p = dynamic_cast<Entity *>(reac->product->targetContainer.get());
+    if (p == nullptr)
+      continue;
 
+    // compute product of reactants concentrations
+    float reacConcent = e1->concent->floatValue() * e2->concent->floatValue();
+    // compute product of products concentrations
+    float prodConcent = p->concent->floatValue();
 
-//     // remove reactants
-//     for (auto consom : reac->reactants) {
-//       consom->decrease(reacConcent*reac->assocRate);
-//       consom->increase(prodConcent*reac->dissocRate);
-//     }
-    
-//      // add products
-//     for (auto prod : reac->products){
-//       prod->increase(reacConcent*reac->assocRate);
-//       prod->decrease(prodConcent*reac->dissocRate);
-//     } 
-//   }
+    // remove reactants
 
-//   curStep++;
-//   listeners.call(&SimulationListener::newStep, this);
-// }
+    e1->decrease(reacConcent * reac->assocRate->floatValue());
+    e1->increase(prodConcent * reac->dissocRate->floatValue());
+    e2->decrease(reacConcent * reac->assocRate->floatValue());
+    e2->increase(prodConcent * reac->dissocRate->floatValue());
 
-// void Simulation::stop()
-// {
-//   finished = true;
-// }
+    // add products
+    p->increase(reacConcent * reac->assocRate->floatValue());
+    p->decrease(prodConcent * reac->dissocRate->floatValue());
+  }
 
-// void Simulation::cancel()
-// {
-//   stopThread(500);
-// }
+  curStep++;
+  listeners.call(&SimulationListener::newStep, this);
+}
+
+void Simulation::stop()
+{
+  finished->setValue(true);
+}
+
+void Simulation::cancel()
+{
+  stopThread(500);
+}
 
 void Simulation::run()
 {
-  // curStep = 0;
-  // finished = false;
-  // while (!finished && !threadShouldExit())
-  // {
-  //   nextStep();
-  //   wait(20);
-  // }
+  curStep->setValue(0);
+  finished->setValue(false);
+  while (!finished->boolValue() && !threadShouldExit())
+  {
+    nextStep();
+    wait(20);
+  }
 
-  // DBG("End thread");
-  // listeners.call(&SimulationListener::simulationFinished, this);
+  DBG("End thread");
+  listeners.call(&SimulationListener::simulationFinished, this);
 }

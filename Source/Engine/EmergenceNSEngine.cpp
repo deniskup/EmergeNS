@@ -1,12 +1,4 @@
-/*
-  ==============================================================================
 
-	EmergenceNSEngine.cpp
-	Created: 5 Apr 2022 10:35:04am
-	Author:  bkupe
-
-  ==============================================================================
-*/
 
 #include "EmergenceNSEngine.h"
 #include "Simulation/EntityManager.h"

@@ -25,6 +25,9 @@
                 file="Source/Simulation/ui/ReactionManagerUI.h"/>
           <FILE id="IGAWYe" name="ReactionUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/ReactionUI.cpp"/>
           <FILE id="W7Zen3" name="ReactionUI.h" compile="0" resource="0" file="Source/Simulation/ui/ReactionUI.h"/>
+          <FILE id="HQjadc" name="SimulationUI.cpp" compile="1" resource="0"
+                file="Source/Simulation/ui/SimulationUI.cpp"/>
+          <FILE id="o6wALL" name="SimulationUI.h" compile="0" resource="0" file="Source/Simulation/ui/SimulationUI.h"/>
         </GROUP>
         <FILE id="dgHatY" name="ReactionManager.h" compile="0" resource="0"
               file="Source/Simulation/ReactionManager.h"/>
