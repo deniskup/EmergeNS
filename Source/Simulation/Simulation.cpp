@@ -1,8 +1,8 @@
 
 
 #include "Simulation.h"
-#include "Entity.h"
-#include "Reaction.h"
+#include "EntityManager.h"
+#include "ReactionManager.h"
 
 using namespace std;
 
@@ -11,6 +11,14 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation")
 {
+  maxSteps = addIntParameter("Max Steps", "Max Steps", 50, 0);
+  curStep = addIntParameter("Cur Step", "Current step in the simulation", 0, 0, maxSteps->intValue());
+  curStep->setControllableFeedbackOnly(true);
+  finished = addBoolParameter("Finished", "Finished", false);
+  finished->setControllableFeedbackOnly(true);
+
+  startTrigger = addTrigger("Start", "Start");
+  cancelTrigger = addTrigger("Cancel", "Cancel");
 }
 
 Simulation::~Simulation()
@@ -19,23 +27,33 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-void Simulation::setup(int m, Array<Entity *> e, Array<Reaction *> r)
-{
-  maxSteps->setValue(m);
-  entities.clear();
-  entities.addArray(e);
-  reactions.clear();
-  reactions.addArray(r);
-}
-
 void Simulation::start()
 {
+  listeners.call(&SimulationListener::simulationStarted, this);
+  entities.clear();
+  reactions.clear();
+
+  for (auto &e : EntityManager::getInstance()->items)
+  {
+    if (!e->enabled->boolValue())
+      continue;
+    entities.add(new SimEntity(e));
+  }
+  
+  for (auto &r : ReactionManager::getInstance()->items)
+  {
+    if (!r->shouldIncludeInSimulation())
+      continue;
+    reactions.add(new SimReaction(r));
+  }
+
   startThread();
 }
 
 void Simulation::nextStep()
 {
-  if (curStep >= maxSteps)
+  NLOG(niceName, "New Step : " << curStep->intValue());
+  if (curStep->intValue() >= maxSteps->intValue())
   {
     stop();
     return;
@@ -43,45 +61,40 @@ void Simulation::nextStep()
   // add primary->boolValue() entities
   for (auto &ent : entities)
   {
-    if (ent->primary->boolValue())
+    if (ent->primary)
     {
-      ent->concent->setValue(ent->concent->floatValue()+ent->creationRate->floatValue());
+      ent->concent += ent->creationRate;
     }
-    ent->decrease(ent->concent->floatValue() * ent->destructionRate->floatValue());
+    ent->decrease(ent->concent * ent->destructionRate);
   }
 
   // loop through reactions
   for (auto &reac : reactions)
   {
-
-    Entity *e1 = dynamic_cast<Entity *>(reac->reactant1->targetContainer.get());
-    if (e1 == nullptr)
-      continue;
-    Entity *e2 = dynamic_cast<Entity *>(reac->reactant2->targetContainer.get());
-    if (e2 == nullptr)
-      continue;
-    Entity *p = dynamic_cast<Entity *>(reac->product->targetContainer.get());
-    if (p == nullptr)
-      continue;
-
     // compute product of reactants concentrations
-    float reacConcent = e1->concent->floatValue() * e2->concent->floatValue();
+    float reacConcent = reac->reactant1->concent * reac->reactant2->concent;
     // compute product of products concentrations
-    float prodConcent = p->concent->floatValue();
+    float prodConcent = reac->product->concent;
+
+    float directSpeed = reacConcent * reac->assocRate;
+    float reverseSpeed = prodConcent * reac->dissocRate;
 
     // remove reactants
-
-    e1->decrease(reacConcent * reac->assocRate->floatValue());
-    e1->increase(prodConcent * reac->dissocRate->floatValue());
-    e2->decrease(reacConcent * reac->assocRate->floatValue());
-    e2->increase(prodConcent * reac->dissocRate->floatValue());
+    reac->reactant1->decrease(directSpeed);
+    reac->reactant1->increase(reverseSpeed);
+    reac->reactant2->decrease(directSpeed);
+    reac->reactant2->increase(reverseSpeed);
 
     // add products
-    p->increase(reacConcent * reac->assocRate->floatValue());
-    p->decrease(prodConcent * reac->dissocRate->floatValue());
+    reac->product->increase(directSpeed);
+    reac->product->decrease(reverseSpeed);
   }
 
-  curStep++;
+  curStep->setValue(curStep->intValue() + 1);
+
+  for (auto &e : entities)
+    NLOG(niceName, " > Entity " << e->toString());
+
   listeners.call(&SimulationListener::newStep, this);
 }
 
@@ -97,6 +110,7 @@ void Simulation::cancel()
 
 void Simulation::run()
 {
+
   curStep->setValue(0);
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
@@ -105,6 +119,70 @@ void Simulation::run()
     wait(20);
   }
 
-  DBG("End thread");
+  NLOG(niceName, "End thread");
   listeners.call(&SimulationListener::simulationFinished, this);
+}
+
+SimEntity *Simulation::getSimEntityForEntity(Entity *e)
+{
+  for (auto &se : entities)
+  {
+    if (se->entity == e)
+      return se;
+  }
+  return nullptr;
+}
+
+void Simulation::onContainerTriggerTriggered(Trigger *t)
+{
+  if (t == startTrigger)
+    start();
+  else if (t == cancelTrigger)
+    cancel();
+}
+
+void Simulation::onContainerParameterChanged(Parameter *p)
+{
+  ControllableContainer::onContainerParameterChanged(p);
+  if (p == maxSteps)
+    curStep->setRange(0, maxSteps->intValue());
+}
+
+SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue())
+{
+  name = e->niceName;
+  entity = e;
+  color = e->itemColor->getColor();
+}
+
+SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate),
+                                                                                name("New entity"), entity(nullptr)
+{
+}
+
+void SimEntity::increase(float incr)
+{
+  concent += incr;
+}
+
+void SimEntity::decrease(float decr)
+{
+  concent = jmax(0.f, concent - decr);
+}
+
+String SimEntity::toString() const
+{
+  return "[Entity " + name + " : " + String(concent) + "]";
+}
+
+SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
+                                        dissocRate(r->dissocRate->floatValue())
+{
+  reactant1 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant1->targetContainer.get()));
+  reactant2 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant2->targetContainer.get()));
+  product = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->product->targetContainer.get()));
+}
+
+SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate)
+{
 }

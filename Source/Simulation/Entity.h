@@ -16,8 +16,6 @@ public:
    FloatParameter* creationRate; // absolute
    FloatParameter* destructionRate; // proportional to concentration
 
-   void increase(float incr);
-   void decrease(float decr);
 
 DECLARE_TYPE("Entity");
 };

@@ -21,8 +21,16 @@ public:
    WeakReference<ControllableContainer> linkedR1;
    WeakReference<ControllableContainer> linkedR2;
    WeakReference<ControllableContainer> linkedP;
+   
+   void updateWarnings();
 
+   bool shouldIncludeInSimulation();  
+   //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
    void onContainerParameterChangedInternal(Parameter* p) override;
+   //External refers to the parameter not being a direct child of this container
+   void onExternalParameterValueChanged(Parameter* p) override;
+
+   void afterLoadJSONDataInternal() override;
 
 DECLARE_TYPE("Reaction");
 };

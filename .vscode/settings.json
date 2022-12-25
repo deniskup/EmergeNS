@@ -5,6 +5,11 @@
         "initializer_list": "cpp",
         "string_view": "cpp",
         "utility": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "cmath": "cpp",
+        "*.tcc": "cpp",
+        "future": "cpp",
+        "istream": "cpp",
+        "tuple": "cpp"
     }
 }

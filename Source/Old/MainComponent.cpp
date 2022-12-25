@@ -76,7 +76,28 @@ void MainComponent::paint(juce::Graphics &g)
         }
 
         for (int i = 0; i < paths.size(); i++)
-        {
+        {void MainComponent::paint(juce::Graphics &g)
+{
+    // (Our component is opaque, so we must completely fill the background with a solid colour)
+    g.fillAll(Colours::black.brighter(.2f));
+
+    Rectangle<int> r = getLocalBounds().withTop(maxStepsSlider.getBottom() + 10);
+
+    g.setFont(12);
+    int index = 0;
+    for (auto &ent : simul->entities)
+    {
+       // g.setColour(Colour::fromHSV(index * .32f, 1, 1, 1));
+        //g.drawText("Ent " + String(ent->id) + " : " + String(ent->concent), r.removeFromTop(20), juce::Justification::centred, true);
+        //r.removeFromTop(8);
+        index++;
+    }
+
+    r.reduce(10, 10);
+    g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .3f : .1f));
+    g.fillRoundedRectangle(r.toFloat(), 8);
+    g.setColour(Colours::white.withAlpha(.3f));
+    g.drawRoundedRectangle(r
             g.setColour(Colour::fromHSV(i * .32f, 1, 1, 1));
             g.strokePath(*paths[i], PathStrokeType(2));
         }
