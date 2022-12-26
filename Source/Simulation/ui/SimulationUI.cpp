@@ -136,6 +136,15 @@ void SimulationUI::simulationStarted(Simulation *)
 {
     entityHistory.clear();
     entityRefs.clear();
+    //pour commencer le graphe avant de faire le premier pas. Fait crasher.
+    Array<float> entityValues;
+    for (auto &ent : Simulation::getInstance()->entities)
+    {
+        entityValues.add(ent->concent);
+        entityRefs.addIfNotAlreadyThere(ent);
+    }
+    entityHistory.add(entityValues);
+
 }
 
 void SimulationUI::simulationFinished(Simulation *)

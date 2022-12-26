@@ -23,7 +23,7 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Reactions", &ReactionManagerUI::create));
 
 
-	//ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_playout);
+	ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_nslayout);
 	ShapeShifterManager::getInstance()->setLayoutInformations("nslayout", ProjectInfo::projectName + String("/layouts"));
 
 	OrganicMainContentComponent::init();

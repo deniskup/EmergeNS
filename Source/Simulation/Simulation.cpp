@@ -29,7 +29,7 @@ Simulation::~Simulation()
 
 void Simulation::start()
 {
-  listeners.call(&SimulationListener::simulationStarted, this);
+  
   entities.clear();
   reactions.clear();
 
@@ -46,7 +46,7 @@ void Simulation::start()
       continue;
     reactions.add(new SimReaction(r));
   }
-
+  listeners.call(&SimulationListener::simulationStarted, this);
   startThread();
 }
 
