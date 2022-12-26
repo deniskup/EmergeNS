@@ -19,7 +19,7 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
   product->maxDefaultSearchLevel = 0;
 
   assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f, .0f, 1.f);
-  dissocRate = addFloatParameter("Destruction rate", "Reaction speed right to left", .2f, .0f, 1.f);
+  dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .2f, .0f, 1.f);
 
   showWarningInUI = true;
 }

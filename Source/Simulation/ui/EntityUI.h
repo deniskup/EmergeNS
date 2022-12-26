@@ -13,4 +13,5 @@ public:
     std::unique_ptr<FloatSliderUI> concentUI;
 
     void resizedInternalHeader(Rectangle<int> &r) override;
+    void controllableFeedbackUpdateInternal(Controllable* c) override;
 };

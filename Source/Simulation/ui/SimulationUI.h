@@ -27,6 +27,7 @@ public:
     bool keyPressed(const KeyPress &e) override;
 
     void newStep(Simulation *) override;
+    void simulationWillStart(Simulation *) override;
     void simulationStarted(Simulation *) override;
     void simulationFinished(Simulation *) override;
     

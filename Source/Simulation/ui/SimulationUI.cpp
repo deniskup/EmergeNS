@@ -45,11 +45,11 @@ void SimulationUI::paint(juce::Graphics &g)
     g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
     g.fillRoundedRectangle(r.toFloat(), 8);
     g.setColour(Colours::white.withAlpha(.3f));
-    g.drawRoundedRectangle(r.toFloat(), 8, 2.f);
+    g.drawRoundedRectangle(r.toFloat(), 8, 1.f);
 
     if (!entityHistory.isEmpty())
     {
-        float stepX = 1.0f / jmax(simul->maxSteps->intValue() - 1, 1);
+        float stepX = 1.0f / jmax(simul->maxSteps->intValue(), 1);
         float maxConcent = 5;
         OwnedArray<Path> paths;
         for (auto &e : entityHistory[0])
@@ -73,8 +73,8 @@ void SimulationUI::paint(juce::Graphics &g)
         jassert(entityRefs.size() >= paths.size());
         for (int i = 0; i < paths.size(); i++)
         {
-            g.setColour(entityRefs[i]->color);
-            g.strokePath(*paths[i], PathStrokeType(1));
+            g.setColour(entityRefs[i]->color.brighter(.3f).withSaturation(1));
+            g.strokePath(*paths[i], PathStrokeType(2));
         }
     }
 }
@@ -132,10 +132,14 @@ void SimulationUI::newStep(Simulation *)
     shouldRepaint = true;
 }
 
-void SimulationUI::simulationStarted(Simulation *)
+void SimulationUI::simulationWillStart(Simulation *)
 {
     entityHistory.clear();
     entityRefs.clear();
+}
+
+void SimulationUI::simulationStarted(Simulation *)
+{
     //pour commencer le graphe avant de faire le premier pas. Fait crasher.
     Array<float> entityValues;
     for (auto &ent : Simulation::getInstance()->entities)
@@ -149,4 +153,5 @@ void SimulationUI::simulationStarted(Simulation *)
 
 void SimulationUI::simulationFinished(Simulation *)
 {
+    shouldRepaint=true;
 }

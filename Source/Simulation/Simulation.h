@@ -83,6 +83,7 @@ public:
   public:
     virtual ~SimulationListener() {}
     virtual void newStep(Simulation *){};
+    virtual void simulationWillStart(Simulation *){};
     virtual void simulationStarted(Simulation *){};
     virtual void simulationFinished(Simulation *){};
   };

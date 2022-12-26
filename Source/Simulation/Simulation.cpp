@@ -30,6 +30,8 @@ Simulation::~Simulation()
 void Simulation::start()
 {
   
+  listeners.call(&SimulationListener::simulationWillStart, this);
+  
   entities.clear();
   reactions.clear();
 
