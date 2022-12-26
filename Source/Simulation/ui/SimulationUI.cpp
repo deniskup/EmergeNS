@@ -92,8 +92,8 @@ void SimulationUI::resized()
     Rectangle<int> hr = r.removeFromTop(25).reduced(2);
     //maxStepsUI->setBounds(hr.removeFromLeft(200));
     hr.removeFromLeft(50);
-    dtUI->setBounds(hr.removeFromLeft(150));
-    hr.removeFromLeft(30);
+    dtUI->setBounds(hr.removeFromLeft(getWidth()/2-90).removeFromRight(100));
+    //hr.removeFromLeft(30);
     totalTimeUI->setBounds(hr.removeFromLeft(200));
     //hr.removeFromTop(24)
     hr = r.removeFromTop(30);

@@ -61,6 +61,7 @@ public:
   BoolParameter *finished;
   FloatParameter *dt; //milliseconds
   FloatParameter *totalTime; //seconds
+  //Boolparameter *realTime; //do we slow down to print curves in real time ?
 
   Trigger *startTrigger;
   Trigger *cancelTrigger;

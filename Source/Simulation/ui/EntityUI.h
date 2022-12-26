@@ -12,6 +12,8 @@ public:
 
     std::unique_ptr<FloatSliderUI> concentUI;
 
+    void updateTextColor();
     void resizedInternalHeader(Rectangle<int> &r) override;
     void controllableFeedbackUpdateInternal(Controllable* c) override;
+    
 };
