@@ -16,7 +16,9 @@ public:
     Array<Array<float>> entityHistory;
     Array<SimEntity*> entityRefs;
 
-    std::unique_ptr<IntStepperUI> maxStepsUI;
+    //std::unique_ptr<IntStepperUI> maxStepsUI;
+    std::unique_ptr<FloatParameterLabelUI> dtUI;
+    std::unique_ptr<FloatParameterLabelUI> totalTimeUI;
     std::unique_ptr<IntSliderUI> curStepUI;
     std::unique_ptr<TriggerUI> startUI;
     std::unique_ptr<TriggerUI> cancelUI;

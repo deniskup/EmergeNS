@@ -4,15 +4,20 @@
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
                                simul(Simulation::getInstance())
 {
-    maxStepsUI.reset(simul->maxSteps->createStepper());
+    //maxStepsUI.reset(simul->maxSteps->createStepper());
+    dtUI.reset(simul->dt->createLabelParameter());
+    totalTimeUI.reset(simul->totalTime->createLabelParameter());
     curStepUI.reset(simul->curStep->createSlider());
     startUI.reset(simul->startTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
 
-    addAndMakeVisible(maxStepsUI.get());
+    addAndMakeVisible(dtUI.get());
+    addAndMakeVisible(totalTimeUI.get());
     addAndMakeVisible(curStepUI.get());
     addAndMakeVisible(startUI.get());
     addAndMakeVisible(cancelUI.get());
+
+    //curStepUI->customLabel = "Progress";
 
     startTimerHz(30);
     simul->addSimulationListener(this);
@@ -29,7 +34,7 @@ void SimulationUI::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
-    Rectangle<int> r = getLocalBounds().withTop(30);
+    Rectangle<int> r = getLocalBounds().withTop(60);
 
     g.setFont(12);
     int index = 0;
@@ -81,14 +86,22 @@ void SimulationUI::paint(juce::Graphics &g)
 
 void SimulationUI::resized()
 {
-    Rectangle<int> hr = getLocalBounds().removeFromTop(24).reduced(2);
-    maxStepsUI->setBounds(hr.removeFromLeft(200));
-    hr.removeFromLeft(10);
-    curStepUI->setBounds(hr.removeFromLeft(150));
-    hr.removeFromLeft(10);
+    Rectangle<int> r = getLocalBounds();
+    Rectangle<int> hr = r.removeFromTop(25).reduced(2);
+    //maxStepsUI->setBounds(hr.removeFromLeft(200));
+    hr.removeFromLeft(50);
+    dtUI->setBounds(hr.removeFromLeft(150));
+    hr.removeFromLeft(30);
+    totalTimeUI->setBounds(hr.removeFromLeft(200));
+    //hr.removeFromTop(24)
+    hr = r.removeFromTop(30);
+    
+    hr.removeFromLeft(50);
     startUI->setBounds(hr.removeFromLeft(100));
-    hr.removeFromLeft(10);
+    hr.removeFromLeft(30);
     cancelUI->setBounds(hr.removeFromLeft(100));
+    hr.removeFromLeft(30);
+    curStepUI->setBounds(hr.removeFromLeft(150));
 }
 
 void SimulationUI::timerCallback()

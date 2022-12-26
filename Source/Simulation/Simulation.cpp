@@ -11,8 +11,10 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation")
 {
-  maxSteps = addIntParameter("Max Steps", "Max Steps", 50, 0);
-  curStep = addIntParameter("Cur Step", "Current step in the simulation", 0, 0, maxSteps->intValue());
+  dt= addFloatParameter("dt (ms)", "time step in ms",10,0);
+  totalTime= addFloatParameter("Total Time (s)", "Total simulated time in seconds",1,0);
+  maxSteps = addIntParameter("Max Steps", "Max Steps", 100, 0);
+  curStep = addIntParameter("Progress", "Current step in the simulation", 0, 0, maxSteps->intValue());
   curStep->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
   finished->setControllableFeedbackOnly(true);
@@ -34,7 +36,6 @@ void Simulation::start()
   
   entities.clear();
   reactions.clear();
-
   for (auto &e : EntityManager::getInstance()->items)
   {
     if (!e->enabled->boolValue())
@@ -95,7 +96,7 @@ void Simulation::nextStep()
   curStep->setValue(curStep->intValue() + 1);
 
   for (auto &e : entities)
-    NLOG(niceName, " > Entity " << e->toString());
+    NLOG(niceName, e->toString());
 
   listeners.call(&SimulationListener::newStep, this);
 }
@@ -146,6 +147,9 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
 void Simulation::onContainerParameterChanged(Parameter *p)
 {
   ControllableContainer::onContainerParameterChanged(p);
+  if(p==dt || p==totalTime){
+    maxSteps->setValue(1+(int)((totalTime->floatValue()*1000)/dt->floatValue()));
+  }
   if (p == maxSteps)
     curStep->setRange(0, maxSteps->intValue());
 }

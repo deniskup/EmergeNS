@@ -59,6 +59,8 @@ public:
   IntParameter *maxSteps;
   IntParameter *curStep;
   BoolParameter *finished;
+  FloatParameter *dt; //milliseconds
+  FloatParameter *totalTime; //seconds
 
   Trigger *startTrigger;
   Trigger *cancelTrigger;
