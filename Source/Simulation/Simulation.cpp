@@ -11,9 +11,9 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation")
 {
-  dt= addFloatParameter("dt (ms)", "time step in ms",10,0);
-  totalTime= addFloatParameter("Total Time (s)", "Total simulated time in seconds",1,0);
-  maxSteps = addIntParameter("Max Steps", "Max Steps", 100, 0);
+  dt = addFloatParameter("dt", "time step in ms", .001, 0);
+  totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1, 0);
+  maxSteps = addIntParameter("Max Steps", "Max Steps", 1000, 0);
   curStep = addIntParameter("Progress", "Current step in the simulation", 0, 0, maxSteps->intValue());
   curStep->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
@@ -31,9 +31,9 @@ Simulation::~Simulation()
 
 void Simulation::start()
 {
-  
+
   listeners.call(&SimulationListener::simulationWillStart, this);
-  
+
   entities.clear();
   reactions.clear();
   for (auto &e : EntityManager::getInstance()->items)
@@ -42,7 +42,7 @@ void Simulation::start()
       continue;
     entities.add(new SimEntity(e));
   }
-  
+
   for (auto &r : ReactionManager::getInstance()->items)
   {
     if (!r->shouldIncludeInSimulation())
@@ -79,18 +79,18 @@ void Simulation::nextStep()
     // compute product of products concentrations
     float prodConcent = reac->product->concent;
 
-    float directSpeed = reacConcent * reac->assocRate;
-    float reverseSpeed = prodConcent * reac->dissocRate;
+    float directIncr = reacConcent * reac->assocRate * dt->floatValue();
+    float reverseInr = prodConcent * reac->dissocRate * dt->floatValue();
 
     // remove reactants
-    reac->reactant1->decrease(directSpeed);
-    reac->reactant1->increase(reverseSpeed);
-    reac->reactant2->decrease(directSpeed);
-    reac->reactant2->increase(reverseSpeed);
+    reac->reactant1->decrease(directIncr);
+    reac->reactant1->increase(reverseInr);
+    reac->reactant2->decrease(directIncr);
+    reac->reactant2->increase(reverseInr);
 
     // add products
-    reac->product->increase(directSpeed);
-    reac->product->decrease(reverseSpeed);
+    reac->product->increase(directIncr);
+    reac->product->decrease(reverseInr);
   }
 
   curStep->setValue(curStep->intValue() + 1);
@@ -119,7 +119,7 @@ void Simulation::run()
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
-    wait(20);
+    //wait((int)(dt->floatValue()));
   }
 
   NLOG(niceName, "End thread");
@@ -147,8 +147,9 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
 void Simulation::onContainerParameterChanged(Parameter *p)
 {
   ControllableContainer::onContainerParameterChanged(p);
-  if(p==dt || p==totalTime){
-    maxSteps->setValue(1+(int)((totalTime->floatValue()*1000)/dt->floatValue()));
+  if (p == dt || p == totalTime)
+  {
+    maxSteps->setValue((int)(totalTime->floatValue()/ dt->floatValue()));
   }
   if (p == maxSteps)
     curStep->setRange(0, maxSteps->intValue());

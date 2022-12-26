@@ -6,7 +6,9 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 {
     //maxStepsUI.reset(simul->maxSteps->createStepper());
     dtUI.reset(simul->dt->createLabelParameter());
+    dtUI->setSuffix("s");
     totalTimeUI.reset(simul->totalTime->createLabelParameter());
+    totalTimeUI->setSuffix("s");
     curStepUI.reset(simul->curStep->createSlider());
     startUI.reset(simul->startTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
@@ -79,7 +81,7 @@ void SimulationUI::paint(juce::Graphics &g)
         for (int i = 0; i < paths.size(); i++)
         {
             g.setColour(entityRefs[i]->color.brighter(.3f).withSaturation(1));
-            g.strokePath(*paths[i], PathStrokeType(2));
+            g.strokePath(*paths[i], PathStrokeType(1.2));
         }
     }
 }
