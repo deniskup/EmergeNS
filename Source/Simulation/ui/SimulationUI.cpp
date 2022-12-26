@@ -4,11 +4,11 @@
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
                                simul(Simulation::getInstance())
 {
-    //maxStepsUI.reset(simul->maxSteps->createStepper());
+    // maxStepsUI.reset(simul->maxSteps->createStepper());
     dtUI.reset(simul->dt->createLabelParameter());
-    dtUI->setSuffix("s");
+    dtUI->setSuffix(" s");
     totalTimeUI.reset(simul->totalTime->createLabelParameter());
-    totalTimeUI->setSuffix("s");
+    totalTimeUI->setSuffix(" s");
     curStepUI.reset(simul->curStep->createSlider());
     startUI.reset(simul->startTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
@@ -19,7 +19,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(startUI.get());
     addAndMakeVisible(cancelUI.get());
 
-    //curStepUI->customLabel = "Progress";
+    // curStepUI->customLabel = "Progress";
 
     startTimerHz(30);
     simul->addSimulationListener(this);
@@ -89,20 +89,19 @@ void SimulationUI::paint(juce::Graphics &g)
 void SimulationUI::resized()
 {
     Rectangle<int> r = getLocalBounds();
-    Rectangle<int> hr = r.removeFromTop(25).reduced(2);
-    //maxStepsUI->setBounds(hr.removeFromLeft(200));
-    hr.removeFromLeft(50);
-    dtUI->setBounds(hr.removeFromLeft(getWidth()/2-90).removeFromRight(100));
-    //hr.removeFromLeft(30);
+    Rectangle<int> hr = r.removeFromTop(27).reduced(2);
+    // maxStepsUI->setBounds(hr.removeFromLeft(200));
+    hr=hr.withSizeKeepingCentre(330,25);
+    dtUI->setBounds(hr.removeFromLeft(100));
+    // hr.removeFromLeft(30);
     totalTimeUI->setBounds(hr.removeFromLeft(200));
-    //hr.removeFromTop(24)
-    hr = r.removeFromTop(30);
-    
-    hr.removeFromLeft(50);
+    r.removeFromTop(10);
+    hr = r.removeFromTop(25);
+    hr= hr.withSizeKeepingCentre(420,25);
     startUI->setBounds(hr.removeFromLeft(100));
     hr.removeFromLeft(30);
     cancelUI->setBounds(hr.removeFromLeft(100));
-    hr.removeFromLeft(30);
+    hr.removeFromLeft(40);
     curStepUI->setBounds(hr.removeFromLeft(150));
 }
 
@@ -155,7 +154,7 @@ void SimulationUI::simulationWillStart(Simulation *)
 
 void SimulationUI::simulationStarted(Simulation *)
 {
-    //pour commencer le graphe avant de faire le premier pas. Fait crasher.
+    // pour commencer le graphe avant de faire le premier pas. Fait crasher.
     Array<float> entityValues;
     for (auto &ent : Simulation::getInstance()->entities)
     {
@@ -163,10 +162,9 @@ void SimulationUI::simulationStarted(Simulation *)
         entityRefs.addIfNotAlreadyThere(ent);
     }
     entityHistory.add(entityValues);
-
 }
 
 void SimulationUI::simulationFinished(Simulation *)
 {
-    shouldRepaint=true;
+    shouldRepaint = true;
 }
