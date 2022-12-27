@@ -4,8 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/home/denis/Prog/JUCE/**",
-                "${workspaceFolder}/Modules/juce_organicui/**"
+                "/home/denis/Prog/JUCE/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

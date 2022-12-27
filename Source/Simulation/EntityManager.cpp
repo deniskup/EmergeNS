@@ -16,7 +16,7 @@ EntityManager::~EntityManager()
 void EntityManager::addItemInternal(Entity *e, var params)
 {
 	if(isCurrentlyLoadingData) return;
-	Colour c=Colour::fromHSV(.3f* items.size(),.8f,.8f,1);
+	Colour c=Colour::fromHSV(.3f* items.size(),.95f,.95f,1);
 
 	e->itemColor->setColor(c);
 }

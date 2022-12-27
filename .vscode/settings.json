@@ -11,5 +11,8 @@
         "future": "cpp",
         "istream": "cpp",
         "tuple": "cpp"
-    }
+    },
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "C_Cpp.intelliSenseEngineFallback": "disabled"
+    //"C_Cpp.intelliSenseEngine" : "Default"
 }

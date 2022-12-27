@@ -80,7 +80,7 @@ void SimulationUI::paint(juce::Graphics &g)
         jassert(entityRefs.size() >= paths.size());
         for (int i = 0; i < paths.size(); i++)
         {
-            g.setColour(entityRefs[i]->color.brighter(.3f).withSaturation(1));
+             g.setColour(entityRefs[i]->color);  //g.setColour(entityRefs[i]->color.brighter(.3f).withSaturation(1));
             g.strokePath(*paths[i], PathStrokeType(1.2));
         }
     }
