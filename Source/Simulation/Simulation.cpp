@@ -66,9 +66,9 @@ void Simulation::nextStep()
   {
     if (ent->primary)
     {
-      ent->concent += ent->creationRate;
+      ent->concent += ent->creationRate * dt->floatValue();
     }
-    ent->decrease(ent->concent * ent->destructionRate);
+    ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
 
   // loop through reactions
@@ -119,7 +119,7 @@ void Simulation::run()
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
-    //wait((int)(dt->floatValue()));
+    // wait((int)(dt->floatValue()));
   }
 
   NLOG(niceName, "End thread");
@@ -149,7 +149,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   ControllableContainer::onContainerParameterChanged(p);
   if (p == dt || p == totalTime)
   {
-    maxSteps->setValue((int)(totalTime->floatValue()/ dt->floatValue()));
+    maxSteps->setValue((int)(totalTime->floatValue() / dt->floatValue()));
   }
   if (p == maxSteps)
     curStep->setRange(0, maxSteps->intValue());
