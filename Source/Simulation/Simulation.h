@@ -59,9 +59,13 @@ public:
   IntParameter *maxSteps;
   IntParameter *curStep;
   BoolParameter *finished;
-  FloatParameter *dt; //milliseconds
-  FloatParameter *totalTime; //seconds
-  //Boolparameter *realTime; //do we slow down to print curves in real time ?
+  FloatParameter *dt; 
+  FloatParameter *totalTime; 
+  
+
+  //these ones are for display
+  FloatParameter *maxConcent;
+  BoolParameter *realTime; //do we print intermediary steps ?
 
   Trigger *startTrigger;
   Trigger *cancelTrigger;

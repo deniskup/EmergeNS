@@ -18,7 +18,8 @@ juce_ImplementSingleton(Simulation)
   curStep->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
   finished->setControllableFeedbackOnly(true);
-
+  maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
+  realTime = addBoolParameter("Real Time","Print intermediary steps of the simulation",false);
   startTrigger = addTrigger("Start", "Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
 }
@@ -80,17 +81,17 @@ void Simulation::nextStep()
     float prodConcent = reac->product->concent;
 
     float directIncr = reacConcent * reac->assocRate * dt->floatValue();
-    float reverseInr = prodConcent * reac->dissocRate * dt->floatValue();
+    float reverseIncr = prodConcent * reac->dissocRate * dt->floatValue();
 
     // remove reactants
     reac->reactant1->decrease(directIncr);
-    reac->reactant1->increase(reverseInr);
+    reac->reactant1->increase(reverseIncr);
     reac->reactant2->decrease(directIncr);
-    reac->reactant2->increase(reverseInr);
+    reac->reactant2->increase(reverseIncr);
 
     // add products
     reac->product->increase(directIncr);
-    reac->product->decrease(reverseInr);
+    reac->product->decrease(reverseIncr);
   }
 
   curStep->setValue(curStep->intValue() + 1);
