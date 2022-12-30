@@ -57,8 +57,8 @@ void Simulation::start()
 
 void Simulation::nextStep()
 {
-  //TODO cap the concentration to absolute maximum, interrupt the simulation if reached.
-  
+  // TODO cap the concentration to absolute maximum, interrupt the simulation if reached.
+
   bool displayLog = (curStep->intValue() % checkPoint == 0);
   if (displayLog)
   {
@@ -73,12 +73,10 @@ void Simulation::nextStep()
   // add primary->boolValue() entities
   for (auto &ent : entities)
   {
-    if (ent->concent > recordConcent)
-      recordConcent = ent->concent;
     if (ent->primary)
     {
       ent->concent += ent->creationRate * dt->floatValue();
-    }
+    }    
     ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
 
@@ -105,6 +103,20 @@ void Simulation::nextStep()
   }
 
   curStep->setValue(curStep->intValue() + 1);
+
+  for(auto &ent : entities){
+    if (isinf(ent->concent))
+    {
+      NLOG(niceName, "Concentration of entity " << ent->name << " exceeded capacity");
+      finished->setValue(true);
+      return;
+    }
+    if (ent->concent > recordConcent)
+    {
+      recordConcent = ent->concent;
+      recordEntity = ent->name;
+    }
+  }
 
   if (displayLog)
   {
@@ -134,7 +146,7 @@ void Simulation::run()
   }
 
   NLOG(niceName, "End thread");
-  NLOG(niceName, "Record Concentration: " << recordConcent);
+  NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
   listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }

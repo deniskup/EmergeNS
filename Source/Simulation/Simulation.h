@@ -15,10 +15,9 @@ public:
   SimEntity(Entity *e);
   SimEntity(bool isPrimary, float concent, float cRate, float dRate);
 
-
   String name;
-  Entity* entity; //sourceEntity
-  
+  Entity *entity; // sourceEntity
+
   Colour color;
   bool primary;
   float concent;
@@ -35,13 +34,11 @@ class SimReaction
 {
 public:
   SimReaction(Reaction *e);
-  SimReaction(SimEntity* r1, SimEntity* r2, SimEntity* p, float assocRate, float dissocRate);
-  
-  SimEntity* reactant1;
-  SimEntity* reactant2;
-  SimEntity* product;
+  SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate);
 
-  
+  SimEntity *reactant1;
+  SimEntity *reactant2;
+  SimEntity *product;
 
   float assocRate;
   float dissocRate;
@@ -59,15 +56,16 @@ public:
   IntParameter *maxSteps;
   IntParameter *curStep;
   BoolParameter *finished;
-  FloatParameter *dt; 
-  FloatParameter *totalTime; 
-  
-  float recordConcent; //record the higher concentration reached
-  int checkPoint; //every checkPoint steps, wait and log
+  FloatParameter *dt;
+  FloatParameter *totalTime;
 
-  //these ones are for display
+  float recordConcent; // record the higher concentration reached
+  String recordEntity;
+  int checkPoint; // every checkPoint steps, wait and log
+
+  // these ones are for display
   FloatParameter *maxConcent;
-  BoolParameter *realTime; //do we print intermediary steps ?
+  BoolParameter *realTime; // do we print intermediary steps ?
 
   Trigger *startTrigger;
   Trigger *cancelTrigger;
@@ -82,7 +80,7 @@ public:
 
   void run() override;
 
-  SimEntity* getSimEntityForEntity(Entity* e);
+  SimEntity *getSimEntityForEntity(Entity *e);
 
   void onContainerTriggerTriggered(Trigger *t) override;
   void onContainerParameterChanged(Parameter *p) override;

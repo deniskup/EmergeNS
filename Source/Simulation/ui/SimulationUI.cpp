@@ -180,7 +180,6 @@ void SimulationUI::simulationWillStart(Simulation *)
 
 void SimulationUI::simulationStarted(Simulation *)
 {
-    // pour commencer le graphe avant de faire le premier pas. Fait crasher.
     Array<float> entityValues;
     for (auto &ent : Simulation::getInstance()->entities)
     {
