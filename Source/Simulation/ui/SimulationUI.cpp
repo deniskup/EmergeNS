@@ -173,5 +173,5 @@ void SimulationUI::simulationStarted(Simulation *)
 
 void SimulationUI::simulationFinished(Simulation *)
 {
-   // shouldRepaint = true;
+    shouldRepaint = true;
 }
