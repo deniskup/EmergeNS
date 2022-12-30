@@ -13,6 +13,7 @@ public:
 
     Simulation *simul;
     bool shouldRepaint;
+    bool toClear; //remember if a clear is due.
     Array<Array<float>> entityHistory;
     Array<SimEntity*> entityRefs;
 
@@ -24,6 +25,11 @@ public:
     std::unique_ptr<TriggerUI> startUI;
     std::unique_ptr<TriggerUI> cancelUI;
     std::unique_ptr<BoolToggleUI> realTimeUI;
+
+    
+    //local floatparameter
+    //std::unique_ptr<FloatParameter> maxC;
+    //std::unique_ptr<FloatParameterLabelUI> maxCUI;
 
     void paint(juce::Graphics &) override;
     void resized() override;

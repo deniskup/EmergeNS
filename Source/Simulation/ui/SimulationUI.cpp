@@ -15,6 +15,10 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
     realTimeUI.reset(simul->realTime->createToggle());
 
+    // local parameter, won't be saved in the file.
+    // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
+    // maxCUI.reset(maxC->createLabelParameter())
+
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
     addAndMakeVisible(maxConcentUI.get());
@@ -24,7 +28,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 
     // curStepUI->customLabel = "Progress";
 
-    startTimerHz(50);
+    startTimerHz(20);
     simul->addSimulationListener(this);
 }
 
@@ -57,6 +61,14 @@ void SimulationUI::paint(juce::Graphics &g)
     g.setColour(Colours::white.withAlpha(.3f));
     g.drawRoundedRectangle(r.toFloat(), 8, 1.f);
 
+    if (toClear)
+    {
+        toClear = false;
+        DBG("cleared");
+        return;
+    }
+    if (simul->isThreadRunning() && !simul->realTime->boolValue())
+        return;
     if (entityHistory.isEmpty())
         return;
 
@@ -76,6 +88,8 @@ void SimulationUI::paint(juce::Graphics &g)
         Array<float> values = entityHistory[i];
         for (int j = 0; j < values.size(); j++)
         {
+            if (values[j] > simul->maxConcent->floatValue())
+                continue;
             Point<float> ep = r.getRelativePoint(i * stepX, 1 - values[j] / simul->maxConcent->floatValue()).toFloat();
             // g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
             paths[j]->lineTo(ep);
@@ -88,7 +102,6 @@ void SimulationUI::paint(juce::Graphics &g)
         g.strokePath(*paths[i], PathStrokeType(1.2));
     }
 }
-
 
 void SimulationUI::resized()
 {
@@ -112,11 +125,16 @@ void SimulationUI::resized()
 
 void SimulationUI::timerCallback()
 {
-    if (!shouldRepaint)
-        return;
-
-    repaint();
-    shouldRepaint = false;
+    if (shouldRepaint)
+    {
+        repaint();
+        shouldRepaint = false;
+    }
+    if (toClear)
+    {
+        DBG("clear call");
+        repaint();
+    }
 }
 
 bool SimulationUI::keyPressed(const KeyPress &e)
@@ -128,8 +146,7 @@ bool SimulationUI::keyPressed(const KeyPress &e)
         else
         {
             entityHistory.clear();
-
-            int nbEnt = 7;
+            entityRefs.clear();
             simul->startTrigger->trigger();
         }
     }
@@ -148,15 +165,16 @@ void SimulationUI::newStep(Simulation *)
     }
     entityHistory.add(entityValues);
 
-    shouldRepaint = simul->realTime->boolValue();
+    shouldRepaint = true; //seul qui marche pour l'instant
+    //shouldRepaint = simul->realTime->boolValue(); //ce qu'on voudrait pour gagner du temps
 }
 
 void SimulationUI::simulationWillStart(Simulation *)
 {
     entityHistory.clear();
     entityRefs.clear();
-    repaint();
-    shouldRepaint = simul->realTime->boolValue();
+    DBG("to clear");
+    toClear = true;
 }
 
 void SimulationUI::simulationStarted(Simulation *)

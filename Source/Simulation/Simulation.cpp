@@ -19,7 +19,7 @@ juce_ImplementSingleton(Simulation)
   finished = addBoolParameter("Finished", "Finished", false);
   finished->setControllableFeedbackOnly(true);
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
-  realTime = addBoolParameter("Real Time","Print intermediary steps of the simulation",false);
+  realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
   startTrigger = addTrigger("Start", "Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
 }
@@ -32,9 +32,8 @@ Simulation::~Simulation()
 
 void Simulation::start()
 {
-
+  startTrigger->setEnabled(false);
   listeners.call(&SimulationListener::simulationWillStart, this);
-
   entities.clear();
   reactions.clear();
   for (auto &e : EntityManager::getInstance()->items)
@@ -56,7 +55,10 @@ void Simulation::start()
 
 void Simulation::nextStep()
 {
-  NLOG(niceName, "New Step : " << curStep->intValue());
+  int checkPoint = maxSteps->intValue()/10; //100 checkpoints
+  bool displayLog = (curStep->intValue() % checkPoint == 0);
+  if (displayLog)
+    NLOG(niceName, "New Step : " << curStep->intValue());
   if (curStep->intValue() >= maxSteps->intValue())
   {
     stop();
@@ -96,9 +98,11 @@ void Simulation::nextStep()
 
   curStep->setValue(curStep->intValue() + 1);
 
-  for (auto &e : entities)
-    NLOG(niceName, e->toString());
-
+  if (displayLog)
+  {
+    for (auto &e : entities)
+      NLOG(niceName, e->toString());
+  }
   listeners.call(&SimulationListener::newStep, this);
 }
 
@@ -120,11 +124,12 @@ void Simulation::run()
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
-    // wait((int)(dt->floatValue()));
+    wait(1);
   }
 
   NLOG(niceName, "End thread");
   listeners.call(&SimulationListener::simulationFinished, this);
+  startTrigger->setEnabled(true);
 }
 
 SimEntity *Simulation::getSimEntityForEntity(Entity *e)
@@ -140,7 +145,7 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
-    start();
+    start(); // todo disable the trigger when simulation running
   else if (t == cancelTrigger)
     cancel();
 }
