@@ -112,7 +112,7 @@ void SimulationUI::resized()
 
 void SimulationUI::timerCallback()
 {
-    if (!shouldRepaint || !simul->realTime->boolValue())
+    if (!shouldRepaint)
         return;
 
     repaint();
