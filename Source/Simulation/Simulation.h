@@ -62,6 +62,8 @@ public:
   FloatParameter *dt; 
   FloatParameter *totalTime; 
   
+  float recordConcent; //record the higher concentration reached
+  int checkPoint; //every checkPoint steps, wait and log
 
   //these ones are for display
   FloatParameter *maxConcent;

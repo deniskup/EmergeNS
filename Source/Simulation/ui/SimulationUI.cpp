@@ -90,6 +90,7 @@ void SimulationUI::paint(juce::Graphics &g)
         {
             if (values[j] > simul->maxConcent->floatValue())
                 continue;
+            //TODO avoid ugly horizontal line if curve goes out and back in.
             Point<float> ep = r.getRelativePoint(i * stepX, 1 - values[j] / simul->maxConcent->floatValue()).toFloat();
             // g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
             paths[j]->lineTo(ep);

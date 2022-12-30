@@ -50,15 +50,21 @@ void Simulation::start()
     reactions.add(new SimReaction(r));
   }
   listeners.call(&SimulationListener::simulationStarted, this);
+  recordConcent = 0.;
+  checkPoint = maxSteps->intValue() / 10; // 100 checkpoints
   startThread();
 }
 
 void Simulation::nextStep()
 {
-  int checkPoint = maxSteps->intValue()/10; //100 checkpoints
+  //TODO cap the concentration to absolute maximum, interrupt the simulation if reached.
+  
   bool displayLog = (curStep->intValue() % checkPoint == 0);
   if (displayLog)
+  {
     NLOG(niceName, "New Step : " << curStep->intValue());
+    wait(1);
+  }
   if (curStep->intValue() >= maxSteps->intValue())
   {
     stop();
@@ -67,6 +73,8 @@ void Simulation::nextStep()
   // add primary->boolValue() entities
   for (auto &ent : entities)
   {
+    if (ent->concent > recordConcent)
+      recordConcent = ent->concent;
     if (ent->primary)
     {
       ent->concent += ent->creationRate * dt->floatValue();
@@ -118,16 +126,15 @@ void Simulation::cancel()
 
 void Simulation::run()
 {
-
   curStep->setValue(0);
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
-    wait(1);
   }
 
   NLOG(niceName, "End thread");
+  NLOG(niceName, "Record Concentration: " << recordConcent);
   listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
