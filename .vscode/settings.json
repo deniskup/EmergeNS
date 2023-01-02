@@ -65,7 +65,8 @@
         "string": "cpp",
         "*.mm": "cpp"
     },
-    "C_Cpp.intelliSenseEngine": "Tag Parser",
+   // "C_Cpp.intelliSenseEngine": "Tag Parser",
+  //  "C_Cpp.intelliSenseEngine" : "default",
     "C_Cpp.intelliSenseEngineFallback": "disabled"
-    //"C_Cpp.intelliSenseEngine" : "Default"
+    
 }

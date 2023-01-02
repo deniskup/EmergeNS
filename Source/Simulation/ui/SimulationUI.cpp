@@ -192,4 +192,6 @@ void SimulationUI::simulationStarted(Simulation *)
 void SimulationUI::simulationFinished(Simulation *)
 {
     shouldRepaint = true;
+   // DBG("history of size "<<entityHistory.size());
+    //DBG("entityrefs of size "<<entityRefs.size());
 }

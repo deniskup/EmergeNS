@@ -10,6 +10,14 @@
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "gnu++14",
+            // "browse": {
+            //     "limitSymbolsToIncludedHeaders": true,
+            //     "databaseFilename": "${default}",
+            //     "path": [
+            //         "${workspaceFolder}/**",
+            //         "/home/denis/Prog/JUCE/**",
+            //     ]
+            // },
             "intelliSenseMode": "linux-gcc-x64",
             "configurationProvider": "ms-vscode.makefile-tools"
         }
