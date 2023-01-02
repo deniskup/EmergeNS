@@ -1,6 +1,6 @@
 -------------Emergence of Natural Selection-------------
 
-1) Clone the repository
+1) Clone the repository with option --recurse-submodule  (or after clone, do "git init submodule" and "git update submodule")
 2) Install Juce from https://www.juce.com/get-juce
 3) Open Projucer (in the Juce folder) and load EmergenceNS.jucer
 4) In File>Global path, you can add the Path to Juce if necessary.
