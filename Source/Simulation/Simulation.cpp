@@ -76,35 +76,42 @@ void Simulation::nextStep()
     if (ent->primary)
     {
       ent->concent += ent->creationRate * dt->floatValue();
-    }    
+    }
     ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
 
   // loop through reactions
   for (auto &reac : reactions)
   {
-    // compute product of reactants concentrations
-    float reacConcent = reac->reactant1->concent * reac->reactant2->concent;
-    // compute product of products concentrations
+    // shorter names
+    float reac1Concent = reac->reactant1->concent;
+    float reac2Concent = reac->reactant2->concent;
     float prodConcent = reac->product->concent;
+    // compute product of reactants concentrations
+    float reacConcent = reac1Concent * reac2Concent;
 
     float directIncr = reacConcent * reac->assocRate * dt->floatValue();
     float reverseIncr = prodConcent * reac->dissocRate * dt->floatValue();
 
-    // remove reactants
-    reac->reactant1->decrease(directIncr);
-    reac->reactant1->increase(reverseIncr);
-    reac->reactant2->decrease(directIncr);
-    reac->reactant2->increase(reverseIncr);
+    // adjust the increments depending on available entities
+    directIncr = jmin(directIncr, reac1Concent, reac2Concent);
+    reverseIncr = jmin(reverseIncr, prodConcent);
 
-    // add products
+    // increase entities
+    reac->reactant1->increase(reverseIncr);
+    reac->reactant2->increase(reverseIncr);
     reac->product->increase(directIncr);
+
+    // decrease entities
+    reac->reactant1->decrease(directIncr);
+    reac->reactant2->decrease(directIncr);
     reac->product->decrease(reverseIncr);
   }
 
   curStep->setValue(curStep->intValue() + 1);
 
-  for(auto &ent : entities){
+  for (auto &ent : entities)
+  {
     if (isinf(ent->concent))
     {
       NLOG(niceName, "Concentration of entity " << ent->name << " exceeded capacity");
