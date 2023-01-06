@@ -15,6 +15,7 @@ public:
    FloatParameter* concent;
    FloatParameter* creationRate; // absolute
    FloatParameter* destructionRate; // proportional to concentration
+   FloatParameter* freeEnergy; 
 
 
 DECLARE_TYPE("Entity");

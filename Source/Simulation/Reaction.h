@@ -10,10 +10,10 @@ public:
     Reaction(var params = var());
     ~Reaction();
 
-  // int id;
    TargetParameter* reactant1;
    TargetParameter* reactant2;
    TargetParameter* product;
+   FloatParameter* energy;
    
    FloatParameter* assocRate; // reactants to product
    FloatParameter* dissocRate; // product to reactants
@@ -22,7 +22,7 @@ public:
    WeakReference<ControllableContainer> linkedR2;
    WeakReference<ControllableContainer> linkedP;
    
-   void updateWarnings();
+   void updateWarnAndRates();
 
    bool shouldIncludeInSimulation();  
    //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
