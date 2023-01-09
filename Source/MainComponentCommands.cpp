@@ -1,7 +1,5 @@
 #include "MainComponent.h"
 
-ApplicationProperties &getAppProperties();
-ApplicationCommandManager &getCommandManager();
 
 namespace NSCommandIDs
 {
@@ -29,8 +27,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 	OrganicMainContentComponent::getAllCommands(commands);
 
 	const CommandID ids[] = {
-
-		NSCommandIDs::normalizeEnergies};
+		NSCommandIDs::normalizeEnergies
+		};
 
 	commands.addArray(ids, numElementsInArray(ids));
 	// for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);

@@ -2,6 +2,9 @@
 
 #include <JuceHeader.h>
 
+ApplicationProperties &getAppProperties();
+ApplicationCommandManager &getCommandManager();
+
 class MainContentComponent : public OrganicMainContentComponent
 {
 public:
