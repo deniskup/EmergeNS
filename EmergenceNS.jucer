@@ -52,9 +52,9 @@
       <FILE id="kMQl2t" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="aXSDv8" name="MainComponent.cpp" compile="1" resource="0"
             file="Source/MainComponent.cpp"/>
+      <FILE id="iFGZPr" name="MainComponentCommands.cpp" compile="1" resource="0"
+            file="Source/MainComponentCommands.cpp"/>
     </GROUP>
-    <FILE id="iFGZPr" name="MainComponentCommands.cpp" compile="1" resource="0"
-          file="Source/MainComponentCommands.cpp"/>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
   <EXPORTFORMATS>

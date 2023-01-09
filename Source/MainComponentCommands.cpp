@@ -1,18 +1,15 @@
 #include "MainComponent.h"
 
-ApplicationProperties& getAppProperties();
-ApplicationCommandManager& getCommandManager();
+ApplicationProperties &getAppProperties();
+ApplicationCommandManager &getCommandManager();
 
 namespace NSCommandIDs
 {
 	static const int normalizeEnergies = 0x60000;
-
 }
 
-void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) 
+void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
 {
-
-
 	switch (commandID)
 	{
 	case NSCommandIDs::normalizeEnergies:
@@ -26,23 +23,20 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 	}
 }
 
-
-
-void MainContentComponent::getAllCommands(Array<CommandID>& commands) {
+void MainContentComponent::getAllCommands(Array<CommandID> &commands)
+{
 
 	OrganicMainContentComponent::getAllCommands(commands);
 
 	const CommandID ids[] = {
 
-		NSCommandIDs::normalizeEnergies
-	};
+		NSCommandIDs::normalizeEnergies};
 
 	commands.addArray(ids, numElementsInArray(ids));
-	//for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);
+	// for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);
 }
 
-
-PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const String& menuName) 
+PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const String &menuName)
 {
 	PopupMenu menu = OrganicMainContentComponent::getMenuForIndex(topLevelMenuIndex, menuName);
 
@@ -53,25 +47,22 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 	return menu;
 }
 
-
-
-bool MainContentComponent::perform(const InvocationInfo& info)
+bool MainContentComponent::perform(const InvocationInfo &info)
 {
 
-	//if (info.commandID >= NSCommandIDs::guideStart && info.commandID < NSCommandIDs::guideStart + 100)
+	// if (info.commandID >= NSCommandIDs::guideStart && info.commandID < NSCommandIDs::guideStart + 100)
 	//{
 	//	Guider::getInstance()->launchGuideAtIndex(info.commandID - NSCommandIDs::guideStart);
 	//	return true;
-	//}
+	// }
 
 	switch (info.commandID)
 	{
 
-
 	case NSCommandIDs::normalizeEnergies:
 	{
-		//normalize the energies;
-		//call a method of the engine
+		// normalize the energies;
+		// call a method of the engine
 	}
 	break;
 
