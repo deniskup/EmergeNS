@@ -28,6 +28,8 @@ public:
   void decrease(float decr);
 
   String toString() const;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };
 
 class SimReaction
@@ -42,6 +44,8 @@ public:
 
   float assocRate;
   float dissocRate;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
 
 class Simulation : public ControllableContainer,

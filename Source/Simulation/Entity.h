@@ -17,6 +17,8 @@ public:
    FloatParameter* destructionRate; // proportional to concentration
    FloatParameter* freeEnergy; 
 
+   void onContainerParameterChangedInternal(Parameter *p) override;
+
 
 DECLARE_TYPE("Entity");
 };
