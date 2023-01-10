@@ -3,7 +3,9 @@
 #include "EntityManager.h"
 #include "ReactionManager.h"
 
-bool computeCompositions()
+#define DBOOL(V) (V ? "true" : "false")
+
+int computeCompositions()
 {
     int curId = 0;
     Array<Entity *> primaryEntities;
@@ -41,12 +43,13 @@ bool computeCompositions()
     {
         progress = false;
         for (int ir = 0; ir < reacToCheck.size(); ir++)
-        {
+        {         
             Reaction *r = reacToCheck[ir];
-            Entity *r1 = (Entity *)r->reactant1;
-            Entity *r2 = (Entity *)r->reactant2;
-            Entity *p = (Entity *)r->product;
-
+            Entity *r1 = (Entity *)r->linkedR1.get();
+            Entity *r2 = (Entity *)r->linkedR2.get();
+            Entity *p = (Entity *)r->linkedP.get();
+            DBG("Looking at "+ r->niceName);
+            DBG(DBOOL(r2->compHasBeenSet) << " & " << DBOOL(r2->compHasBeenSet)<<" & "<<DBOOL(p->compHasBeenSet));
             if (r1->compHasBeenSet && r2->compHasBeenSet && !p->compHasBeenSet)
             {
                 progress = true;
@@ -54,8 +57,10 @@ bool computeCompositions()
                 {
                     p->composition.set(prim, r1->composition[prim] + r2->composition[prim]);
                 }
+                p->compHasBeenSet=true;
                 reacToCheck.remove(ir);
                 DBG("Reaction " + r->niceName + " used");
+                break;
             }
             else if (r1->compHasBeenSet && r2->compHasBeenSet && p->compHasBeenSet)
             {
@@ -65,11 +70,12 @@ bool computeCompositions()
                     if (p->composition[prim] != r1->composition[prim] + r2->composition[prim])
                     {
                         AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Unbalanced reactions", "Reaction " + r->niceName + " does not preserve primary entities, unable to compute compositions", "OK");
-                        return false;
+                        return -1;
                     }
                 }
                 reacToCheck.remove(ir);
                 DBG("Reaction " + r->niceName + " OK");
+                break;
             }
         }
         if (!progress)
@@ -78,7 +84,7 @@ bool computeCompositions()
     if (!reacToCheck.isEmpty())
     {
         AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Unverified reactions", "Reaction " + reacToCheck[0]->niceName + " could not be verified", "OK");
-        return false;
+        return -1;
     }
     // optional: check that composition of everyone has been done
     /*for (auto &e:EntityManager::getInstance()->items){
@@ -87,12 +93,28 @@ bool computeCompositions()
         }
     }
     */
-    return true;
+    return curId;
 }
 
 void normEnergies()
 {
-    if (!computeCompositions())
-        return;
-    // we must know the composition in terms of primary entities
+    int nbPrim=computeCompositions();
+    if (nbPrim==-1) return;
+    // Now that we know the composition, it suffices to perform the algorithm
+    Array<float> primEnergies;
+    primEnergies.resize(nbPrim);
+    for (auto &e : EntityManager::getInstance()->items)
+    {
+        if(e->primary->boolValue()){
+            primEnergies.set(e->id,e->freeEnergy->floatValue());
+        }
+    }
+    for (auto &e : EntityManager::getInstance()->items)
+    {
+        float energ=e->freeEnergy->floatValue();
+        for(int i=0;i<nbPrim;i++){
+            energ -= e->composition[i] * primEnergies[i];
+        }
+        e->freeEnergy->setValue(energ);
+    }
 }
