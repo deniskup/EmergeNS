@@ -8,7 +8,7 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
   destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 1.f);
   ; // proportional to concentration
   concent = addFloatParameter("Concentration", "Concentration of the entity", .5f, .0f, 2.f);
-  freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 5.f, .0f, 10.f);
+  freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -10.f, 10.f);
   ; // proportional to concentration
   setHasCustomColor(true);
 }

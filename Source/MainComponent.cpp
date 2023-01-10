@@ -9,6 +9,7 @@ String getAppVersion();
 MainContentComponent::MainContentComponent() :
 	OrganicMainContentComponent()
 {
+	getCommandManager().registerAllCommandsForTarget(this);
 }
 
 MainContentComponent::~MainContentComponent()

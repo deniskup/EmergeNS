@@ -40,6 +40,9 @@
         <FILE id="DJcwAj" name="Reaction.cpp" compile="1" resource="0" file="Source/Simulation/Reaction.cpp"/>
         <FILE id="jvdyYs" name="Reaction.h" compile="0" resource="0" file="Source/Simulation/Reaction.h"/>
         <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
+        <FILE id="M7kBzD" name="GlobalActions.cpp" compile="1" resource="0"
+              file="Source/Simulation/GlobalActions.cpp"/>
+        <FILE id="RLf9hJ" name="GlobalActions.h" compile="0" resource="0" file="Source/Simulation/GlobalActions.h"/>
         <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
               file="Source/Simulation/EntityManager.cpp"/>
         <FILE id="L9QJVJ" name="EntityManager.h" compile="0" resource="0" file="Source/Simulation/EntityManager.h"/>

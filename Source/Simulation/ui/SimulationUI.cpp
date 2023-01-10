@@ -64,7 +64,7 @@ void SimulationUI::paint(juce::Graphics &g)
     if (toClear)
     {
         toClear = false;
-        DBG("cleared");
+       // DBG("cleared");
         return;
     }
     if (simul->isThreadRunning() && !simul->realTime->boolValue())
@@ -133,7 +133,7 @@ void SimulationUI::timerCallback()
     }
     if (toClear)
     {
-        DBG("clear call");
+       // DBG("clear call");
         repaint();
     }
 }
@@ -174,7 +174,7 @@ void SimulationUI::simulationWillStart(Simulation *)
 {
     entityHistory.clear();
     entityRefs.clear();
-    DBG("to clear");
+   // DBG("to clear");
     toClear = true;
 }
 
