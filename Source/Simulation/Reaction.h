@@ -35,6 +35,7 @@ public:
 DECLARE_TYPE("Reaction");
 };
 
+//old version without limitations in reactants and products
 // class Reaction
 // {
 // public:
