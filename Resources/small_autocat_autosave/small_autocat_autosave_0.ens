@@ -28,26 +28,26 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1601,
-      "height": 873,
+      "width": 1920,
+      "height": 1126,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1601,
-          "height": 873,
+          "width": 1920,
+          "height": 1126,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
-              "width": 512,
-              "height": 873,
+              "width": 500,
+              "height": 1126,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 512,
-                  "height": 435,
+                  "width": 500,
+                  "height": 561,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -57,8 +57,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 512,
-                  "height": 432,
+                  "width": 500,
+                  "height": 558,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -70,31 +70,50 @@
             },
             {
               "type": 1,
-              "width": 1083,
-              "height": 873,
+              "width": 1413,
+              "height": 1126,
               "direction": 1,
               "shifters": [
                 {
-                  "type": 0,
-                  "width": 657,
-                  "height": 873,
-                  "currentContent": "Simulation",
-                  "tabs": [
+                  "type": 1,
+                  "width": 973,
+                  "height": 1126,
+                  "direction": 2,
+                  "shifters": [
                     {
-                      "name": "Simulation"
+                      "type": 0,
+                      "width": 973,
+                      "height": 790,
+                      "currentContent": "Simulation",
+                      "tabs": [
+                        {
+                          "name": "Simulation"
+                        }
+                      ]
+                    },
+                    {
+                      "type": 0,
+                      "width": 973,
+                      "height": 329,
+                      "currentContent": "Generation",
+                      "tabs": [
+                        {
+                          "name": "Generation"
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": 1,
-                  "width": 420,
-                  "height": 873,
+                  "width": 434,
+                  "height": 1126,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 420,
-                      "height": 650,
+                      "width": 434,
+                      "height": 776,
                       "currentContent": "Inspector",
                       "tabs": [
                         {
@@ -104,8 +123,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 420,
-                      "height": 217,
+                      "width": 434,
+                      "height": 343,
                       "currentContent": "Logger",
                       "tabs": [
                         {

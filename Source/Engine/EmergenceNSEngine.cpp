@@ -4,6 +4,7 @@
 #include "Simulation/EntityManager.h"
 #include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
+#include "Simulation/Generation.h"
 
 EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
@@ -13,6 +14,7 @@ EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens"
 	addChildControllableContainer(Simulation::getInstance());
 	addChildControllableContainer(EntityManager::getInstance());
 	addChildControllableContainer(ReactionManager::getInstance());
+	addChildControllableContainer(Generation::getInstance());
 }
 
 EmergenceNSEngine::~EmergenceNSEngine()
@@ -22,6 +24,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 	Simulation::deleteInstance();
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
+	Generation::deleteInstance();
 }
 
 void EmergenceNSEngine::clearInternal()
@@ -29,6 +32,7 @@ void EmergenceNSEngine::clearInternal()
 	// Simulation::getInstance()->cancel();
 	EntityManager::getInstance()->clear();
 	ReactionManager::getInstance()->clear();
+	Generation::getInstance()->clear();
 }
 
 var EmergenceNSEngine::getJSONData()
@@ -37,6 +41,7 @@ var EmergenceNSEngine::getJSONData()
 	data.getDynamicObject()->setProperty(Simulation::getInstance()->shortName, Simulation::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(EntityManager::getInstance()->shortName, EntityManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(ReactionManager::getInstance()->shortName, ReactionManager::getInstance()->getJSONData());
+	data.getDynamicObject()->setProperty(Generation::getInstance()->shortName, Generation::getInstance()->getJSONData());
 
 	return data;
 }
@@ -46,6 +51,7 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadi
 	Simulation::getInstance()->loadJSONData(data.getProperty(Simulation::getInstance()->shortName, var()));
 	EntityManager::getInstance()->loadJSONData(data.getProperty(EntityManager::getInstance()->shortName, var()));
 	ReactionManager::getInstance()->loadJSONData(data.getProperty(ReactionManager::getInstance()->shortName, var()));
+	Generation::getInstance()->loadJSONData(data.getProperty(Generation::getInstance()->shortName, var()));
 }
 
 String EmergenceNSEngine::getMinimumRequiredFileVersion()

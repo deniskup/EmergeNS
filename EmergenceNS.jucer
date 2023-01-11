@@ -23,6 +23,9 @@
                 file="Source/Simulation/ui/EntityManagerUI.h"/>
           <FILE id="knvYq4" name="EntityUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/EntityUI.cpp"/>
           <FILE id="KH8Re0" name="EntityUI.h" compile="0" resource="0" file="Source/Simulation/ui/EntityUI.h"/>
+          <FILE id="R0amcJ" name="GenerationUI.cpp" compile="1" resource="0"
+                file="Source/Simulation/ui/GenerationUI.cpp"/>
+          <FILE id="cvKJaz" name="GenerationUI.h" compile="0" resource="0" file="Source/Simulation/ui/GenerationUI.h"/>
           <FILE id="bEc5aT" name="ReactionManagerUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/ReactionManagerUI.cpp"/>
           <FILE id="CfFFYB" name="ReactionManagerUI.h" compile="0" resource="0"
@@ -40,6 +43,8 @@
         <FILE id="DJcwAj" name="Reaction.cpp" compile="1" resource="0" file="Source/Simulation/Reaction.cpp"/>
         <FILE id="jvdyYs" name="Reaction.h" compile="0" resource="0" file="Source/Simulation/Reaction.h"/>
         <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
+        <FILE id="sDu7fQ" name="Generation.cpp" compile="1" resource="0" file="Source/Simulation/Generation.cpp"/>
+        <FILE id="qDam7y" name="Generation.h" compile="0" resource="0" file="Source/Simulation/Generation.h"/>
         <FILE id="M7kBzD" name="GlobalActions.cpp" compile="1" resource="0"
               file="Source/Simulation/GlobalActions.cpp"/>
         <FILE id="RLf9hJ" name="GlobalActions.h" compile="0" resource="0" file="Source/Simulation/GlobalActions.h"/>
