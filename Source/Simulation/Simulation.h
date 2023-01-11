@@ -77,6 +77,8 @@ public:
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
 
+  void generate();
+  void fetchManual();
   void start();
   void nextStep();
   void stop();

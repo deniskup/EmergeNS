@@ -30,13 +30,9 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-void Simulation::start()
-{
-  startTrigger->setEnabled(false);
-  listeners.call(&SimulationListener::simulationWillStart, this);
-  entities.clear();
-  reactions.clear();
-  for (auto &e : EntityManager::getInstance()->items)
+
+void Simulation::fetchManual(){
+for (auto &e : EntityManager::getInstance()->items)
   {
     if (!e->enabled->boolValue())
       continue;
@@ -49,6 +45,15 @@ void Simulation::start()
       continue;
     reactions.add(new SimReaction(r));
   }
+}
+
+void Simulation::start()
+{
+  startTrigger->setEnabled(false);
+  listeners.call(&SimulationListener::simulationWillStart, this);
+  entities.clear();
+  reactions.clear();
+  fetchManual();
   listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   checkPoint = maxSteps->intValue() / 10; // 100 checkpoints
