@@ -1,0 +1,141 @@
+{
+  "metaData": {
+    "version": "1.0.0",
+    "versionNumber": 65536
+  },
+  "projectSettings": {
+    "containers": {
+      "dashboardSettings": {
+      },
+      "customDefinitions": {
+      }
+    }
+  },
+  "dashboardManager": {
+    "parameters": [
+      {
+        "value": true,
+        "controlAddress": "/editMode"
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "parrots": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "layout": {
+    "mainLayout": {
+      "type": 1,
+      "width": 1601,
+      "height": 873,
+      "direction": 2,
+      "shifters": [
+        {
+          "type": 1,
+          "width": 1601,
+          "height": 873,
+          "direction": 1,
+          "shifters": [
+            {
+              "type": 0,
+              "width": 262,
+              "height": 873,
+              "currentContent": "Generation",
+              "tabs": [
+                {
+                  "name": "Generation"
+                }
+              ]
+            },
+            {
+              "type": 0,
+              "width": 768,
+              "height": 873,
+              "currentContent": "Simulation",
+              "tabs": [
+                {
+                  "name": "Simulation"
+                }
+              ]
+            },
+            {
+              "type": 1,
+              "width": 559,
+              "height": 873,
+              "direction": 2,
+              "shifters": [
+                {
+                  "type": 0,
+                  "width": 559,
+                  "height": 650,
+                  "currentContent": "Inspector",
+                  "tabs": [
+                    {
+                      "name": "Inspector"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 559,
+                  "height": 217,
+                  "currentContent": "Logger",
+                  "tabs": [
+                    {
+                      "name": "Logger"
+                    },
+                    {
+                      "name": "Warnings"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "windows": null
+  },
+  "simulation": {
+    "parameters": [
+      {
+        "value": 0.01,
+        "controlAddress": "/dt"
+      },
+      {
+        "value": 500.0,
+        "controlAddress": "/totalTime"
+      },
+      {
+        "value": 50000,
+        "hexMode": false,
+        "controlAddress": "/maxSteps"
+      }
+    ]
+  },
+  "entities": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "reactions": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "generation": {
+  }
+}

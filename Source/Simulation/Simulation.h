@@ -13,7 +13,7 @@ class SimEntity
 {
 public:
   SimEntity(Entity *e);
-  SimEntity(bool isPrimary, float concent, float cRate, float dRate);
+  SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
 
   String name;
   Entity *entity; // sourceEntity
@@ -23,6 +23,7 @@ public:
   float concent;
   float creationRate;
   float destructionRate;
+  float freeEnergy;
 
   void increase(float incr);
   void decrease(float decr);
@@ -77,7 +78,7 @@ public:
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
 
-  void generate();
+  void fetchGenerate();
   void fetchManual();
   void start();
   void nextStep();

@@ -3,6 +3,7 @@
 #include "Simulation.h"
 #include "EntityManager.h"
 #include "ReactionManager.h"
+#include "Generation.h"
 
 using namespace std;
 
@@ -30,9 +31,9 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-
-void Simulation::fetchManual(){
-for (auto &e : EntityManager::getInstance()->items)
+void Simulation::fetchManual()
+{
+  for (auto &e : EntityManager::getInstance()->items)
   {
     if (!e->enabled->boolValue())
       continue;
@@ -44,6 +45,23 @@ for (auto &e : EntityManager::getInstance()->items)
     if (!r->shouldIncludeInSimulation())
       continue;
     reactions.add(new SimReaction(r));
+  }
+}
+
+void Simulation::fetchGenerate()
+{
+  Generation *gen = Generation::getInstance();
+  
+  int numLevels=  gen->numLevels->intValue();
+  int entitiesPerLevel= gen->entitiesPerLevel->intValue();
+  int maxReacperEnt= gen->maxReactionsPerEntity->intValue();
+
+  for (int level = 0; level < numLevels; level++)
+  {
+    for (int ide = 0; ide < entitiesPerLevel; ide++)
+    {
+      //TODO generate SimEntities and SimReactions
+    }
   }
 }
 
@@ -192,14 +210,14 @@ void Simulation::onContainerParameterChanged(Parameter *p)
     curStep->setRange(0, maxSteps->intValue());
 }
 
-SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue())
+SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue(), e->freeEnergy->floatValue())
 {
   name = e->niceName;
   entity = e;
   color = e->itemColor->getColor();
 }
 
-SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate),
+SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate),freeEnergy(freeEnergy),
                                                                                 name("New entity"), entity(nullptr)
 {
 }
