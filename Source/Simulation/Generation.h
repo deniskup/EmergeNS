@@ -15,6 +15,9 @@ public:
 
     IntParameter *numLevels;
     IntParameter *maxReactionsPerEntity;
+
+    
+    IntParameter *avgNumShow;
     // FloatParameter *minG;
     // FloatParameter *maxG;
     // FloatParameter *maxAddGstar;

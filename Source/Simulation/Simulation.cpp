@@ -60,6 +60,10 @@ void Simulation::fetchGenerate()
   int maxReacperEnt = gen->maxReactionsPerEntity->intValue();
   // primary entities
   int primEnts = entitiesPerLevel; // will be dissociated later
+
+  int totalEnts = numLevels * entitiesPerLevel;
+  float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
+
   for (int idp = 0; idp < primEnts; idp++)
   {
     // to pick randomly later, just testing
@@ -70,7 +74,7 @@ void Simulation::fetchGenerate()
     e->level = 0;
     e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
     e->name = "prim" + String(idp);
-    e->draw = (Random::getSystemRandom().nextFloat() < .1); //proba to draw prim entity
+    e->draw = (Random::getSystemRandom().nextFloat() < propShow); // proba to draw prim entity
     entities.add(e);
   }
 
@@ -87,7 +91,7 @@ void Simulation::fetchGenerate()
       e->level = level;
       e->color = Colour::fromHSV((Random::getSystemRandom().nextFloat()), 1, 1, 1); // random color
       e->name = String(level) + "-" + String(ide);
-      e->draw = Random::getSystemRandom().nextFloat() < .1; //proba to draw composite entity
+      e->draw = Random::getSystemRandom().nextFloat() < propShow; // proba to draw composite entity
       entities.add(e);
 
       // reaction producing e, no constraint for now just testing
@@ -207,7 +211,10 @@ void Simulation::nextStep()
   if (displayLog)
   {
     for (auto &e : entities)
-      NLOG(niceName, e->toString());
+    {
+      if (e->draw)
+        NLOG(niceName, e->toString());
+    }
   }
   listeners.call(&SimulationListener::newStep, this);
 }

@@ -14,6 +14,7 @@ public:
     std::unique_ptr<IntStepperUI> numLevelsUI;
     std::unique_ptr<IntStepperUI> entitiesPerLevelUI;
     std::unique_ptr<IntStepperUI> maxReactionsPerEntityUI;
+    std::unique_ptr<IntStepperUI> avgNumShowUI;
     
     //local floatparameter
     //std::unique_ptr<FloatParameter> maxC;
