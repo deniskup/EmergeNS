@@ -17,10 +17,13 @@ juce_ImplementSingleton(Simulation)
   maxSteps = addIntParameter("Max Steps", "Max Steps", 1000, 0);
   curStep = addIntParameter("Progress", "Current step in the simulation", 0, 0, maxSteps->intValue());
   curStep->setControllableFeedbackOnly(true);
+  perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
+  perCent->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
   finished->setControllableFeedbackOnly(true);
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
+  generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
   startTrigger = addTrigger("Start", "Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
 }
@@ -51,16 +54,60 @@ void Simulation::fetchManual()
 void Simulation::fetchGenerate()
 {
   Generation *gen = Generation::getInstance();
-  
-  int numLevels=  gen->numLevels->intValue();
-  int entitiesPerLevel= gen->entitiesPerLevel->intValue();
-  int maxReacperEnt= gen->maxReactionsPerEntity->intValue();
 
-  for (int level = 0; level < numLevels; level++)
+  int numLevels = gen->numLevels->intValue();
+  int entitiesPerLevel = gen->entitiesPerLevel->intValue();
+  int maxReacperEnt = gen->maxReactionsPerEntity->intValue();
+  // primary entities
+  int primEnts = entitiesPerLevel; // will be dissociated later
+  for (int idp = 0; idp < primEnts; idp++)
+  {
+    // to pick randomly later, just testing
+    float concent = 1.;
+    float cRate = .5;
+    float dRate = .3;
+    SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
+    e->level = 0;
+    e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
+    e->name = "prim" + String(idp);
+    e->draw = (Random::getSystemRandom().nextFloat() < .1); //proba to draw prim entity
+    entities.add(e);
+  }
+
+  // composite entities
+  for (int level = 1; level < numLevels; level++)
   {
     for (int ide = 0; ide < entitiesPerLevel; ide++)
     {
-      //TODO generate SimEntities and SimReactions
+      float concent = 1.;
+      float cRate = .5;
+      float dRate = .3;
+      float energy = -level / 10.;
+      SimEntity *e = new SimEntity(true, concent, cRate, dRate, energy);
+      e->level = level;
+      e->color = Colour::fromHSV((Random::getSystemRandom().nextFloat()), 1, 1, 1); // random color
+      e->name = String(level) + "-" + String(ide);
+      e->draw = Random::getSystemRandom().nextFloat() < .1; //proba to draw composite entity
+      entities.add(e);
+
+      // reaction producing e, no constraint for now just testing
+      int id1 = Random::getSystemRandom().nextInt(entities.size() - 1);
+      int id2 = Random::getSystemRandom().nextInt(entities.size() - 1);
+      SimEntity *e1 = entities[id1];
+      SimEntity *e2 = entities[id2];
+
+      float barrier = Random::getSystemRandom().nextFloat();
+      // GA+GB
+      float energyLeft = e1->freeEnergy + e2->freeEnergy;
+      // GAB
+      float energyRight = e->freeEnergy;
+      // total energy G* of the reaction: activation + max of GA+GB and GAB.
+      float energyStar = barrier + jmax(energyLeft, energyRight);
+      // k1=exp(GA+GB-G*)
+      float aRate = exp(energyLeft - energyStar);
+      // k2=exp(GAB-G*)
+      float disRate = exp(energyRight - energyStar);
+      reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
     }
   }
 }
@@ -71,10 +118,18 @@ void Simulation::start()
   listeners.call(&SimulationListener::simulationWillStart, this);
   entities.clear();
   reactions.clear();
-  fetchManual();
+  if (generated->boolValue())
+  {
+    fetchGenerate();
+  }
+  else
+  {
+    fetchManual();
+  }
+
   listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
-  checkPoint = maxSteps->intValue() / 10; // 100 checkpoints
+  checkPoint = 20; // 20 checkpoints
   startThread();
 }
 
@@ -132,6 +187,7 @@ void Simulation::nextStep()
   }
 
   curStep->setValue(curStep->intValue() + 1);
+  perCent->setValue((int)((curStep->intValue() * 100) / maxSteps->intValue()));
 
   for (auto &ent : entities)
   {
@@ -217,8 +273,8 @@ SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent-
   color = e->itemColor->getColor();
 }
 
-SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate),freeEnergy(freeEnergy),
-                                                                                name("New entity"), entity(nullptr)
+SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate), freeEnergy(freeEnergy),
+                                                                                                  name("New entity"), entity(nullptr)
 {
 }
 

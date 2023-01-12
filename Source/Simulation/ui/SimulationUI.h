@@ -20,11 +20,11 @@ public:
     //std::unique_ptr<IntStepperUI> maxStepsUI;
     std::unique_ptr<FloatParameterLabelUI> dtUI;
     std::unique_ptr<FloatParameterLabelUI> totalTimeUI;
-    std::unique_ptr<IntSliderUI> curStepUI;
+    std::unique_ptr<IntSliderUI> perCentUI;
     std::unique_ptr<FloatParameterLabelUI> maxConcentUI;
     std::unique_ptr<TriggerUI> startUI;
     std::unique_ptr<TriggerUI> cancelUI;
-    std::unique_ptr<BoolToggleUI> realTimeUI;
+    std::unique_ptr<BoolToggleUI> generatedUI;
 
     
     //local floatparameter

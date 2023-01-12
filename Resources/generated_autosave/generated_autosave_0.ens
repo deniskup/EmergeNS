@@ -12,12 +12,6 @@
     }
   },
   "dashboardManager": {
-    "parameters": [
-      {
-        "value": true,
-        "controlAddress": "/editMode"
-      }
-    ],
     "viewOffset": [
       0,
       0
@@ -34,20 +28,20 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1601,
-      "height": 873,
+      "width": 1200,
+      "height": 859,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1601,
-          "height": 873,
+          "width": 1200,
+          "height": 859,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 262,
-              "height": 873,
+              "width": 225,
+              "height": 859,
               "currentContent": "Generation",
               "tabs": [
                 {
@@ -57,8 +51,8 @@
             },
             {
               "type": 0,
-              "width": 768,
-              "height": 873,
+              "width": 619,
+              "height": 859,
               "currentContent": "Simulation",
               "tabs": [
                 {
@@ -68,14 +62,14 @@
             },
             {
               "type": 1,
-              "width": 559,
-              "height": 873,
+              "width": 344,
+              "height": 859,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 559,
-                  "height": 650,
+                  "width": 344,
+                  "height": 643,
                   "currentContent": "Inspector",
                   "tabs": [
                     {
@@ -85,8 +79,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 559,
-                  "height": 217,
+                  "width": 344,
+                  "height": 210,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -112,13 +106,17 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 500.0,
+        "value": 10.0,
         "controlAddress": "/totalTime"
       },
       {
-        "value": 50000,
+        "value": 1000,
         "hexMode": false,
         "controlAddress": "/maxSteps"
+      },
+      {
+        "value": true,
+        "controlAddress": "/generated"
       }
     ]
   },
@@ -137,5 +135,17 @@
     "viewZoom": 1.0
   },
   "generation": {
+    "parameters": [
+      {
+        "value": 10,
+        "hexMode": false,
+        "controlAddress": "/entitiesPerLevel"
+      },
+      {
+        "value": 50,
+        "hexMode": false,
+        "controlAddress": "/levels"
+      }
+    ]
   }
 }

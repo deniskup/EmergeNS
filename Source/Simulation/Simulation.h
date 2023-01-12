@@ -25,6 +25,9 @@ public:
   float destructionRate;
   float freeEnergy;
 
+  int level;
+  bool draw=true;
+
   void increase(float incr);
   void decrease(float decr);
 
@@ -60,9 +63,11 @@ public:
 
   IntParameter *maxSteps;
   IntParameter *curStep;
+  IntParameter *perCent;
   BoolParameter *finished;
   FloatParameter *dt;
   FloatParameter *totalTime;
+  BoolParameter *generated;
 
   float recordConcent; // record the higher concentration reached
   String recordEntity;
