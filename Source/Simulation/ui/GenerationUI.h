@@ -11,15 +11,9 @@ public:
 
     Generation *gener;
 
-    //std::unique_ptr<IntStepperUI> maxStepsUI;
-    // std::unique_ptr<FloatParameterLabelUI> dtUI;
-    // std::unique_ptr<FloatParameterLabelUI> totalTimeUI;
-    // std::unique_ptr<IntSliderUI> curStepUI;
-    // std::unique_ptr<FloatParameterLabelUI> maxConcentUI;
-    // std::unique_ptr<TriggerUI> startUI;
-    // std::unique_ptr<TriggerUI> cancelUI;
-    // std::unique_ptr<BoolToggleUI> realTimeUI;
-
+    std::unique_ptr<IntStepperUI> numLevelsUI;
+    std::unique_ptr<IntStepperUI> entitiesPerLevelUI;
+    std::unique_ptr<IntStepperUI> maxReactionsPerEntityUI;
     
     //local floatparameter
     //std::unique_ptr<FloatParameter> maxC;

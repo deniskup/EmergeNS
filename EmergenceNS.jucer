@@ -2,7 +2,7 @@
 
 <JUCERPROJECT id="ahcSKJ" name="EmergenceNS" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1"
-              headerPath="../../Source">
+              headerPath="../../Source&#10;../../Modules">
   <MAINGROUP id="wpK5db" name="EmergenceNS">
     <GROUP id="{DF178DBA-ECB2-8788-FFF9-2D18FED903E1}" name="Resources">
       <FILE id="sj05sO" name="default.nslayout" compile="0" resource="1"

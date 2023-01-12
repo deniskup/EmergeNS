@@ -32,7 +32,7 @@ void EmergenceNSEngine::clearInternal()
 	// Simulation::getInstance()->cancel();
 	EntityManager::getInstance()->clear();
 	ReactionManager::getInstance()->clear();
-	Generation::getInstance()->clear();
+	//Generation::getInstance()->clear();
 }
 
 var EmergenceNSEngine::getJSONData()
