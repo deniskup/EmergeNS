@@ -168,7 +168,6 @@ void Simulation::start()
 
 void Simulation::nextStep()
 {
-  // TODO cap the concentration to absolute maximum, interrupt the simulation if reached.
 
   bool isCheck = (curStep->intValue() % checkPoint == 0);
   if (displayLog && isCheck)
@@ -286,7 +285,7 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
-    start(); // todo disable the trigger when simulation running
+    start(); 
   else if (t == cancelTrigger)
     cancel();
 }

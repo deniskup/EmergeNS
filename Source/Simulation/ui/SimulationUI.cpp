@@ -95,7 +95,6 @@ void SimulationUI::paint(juce::Graphics &g)
         {
             float v = 1 - values[j] / maxC;
             v = jmax(v, 0.f);
-            // TODO avoid ugly horizontal line if curve goes out and back in.
             Point<float> ep = r.getRelativePoint(i * stepX, v).toFloat();
             // g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
             paths[j]->lineTo(ep);

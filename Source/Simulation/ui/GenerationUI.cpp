@@ -10,7 +10,6 @@ GenerationUI::GenerationUI() : ShapeShifterContentComponent(Generation::getInsta
     // entitiesPerLevelUI.reset(gener->entitiesPerLevel->createStepper());
     // maxReactionsPerEntityUI.reset(gener->maxReactionsPerEntity->createStepper());
     // avgNumShowUI.reset(gener->avgNumShow->createStepper());
-    // // TODO: add default UI like for BaseITems
 
     // addAndMakeVisible(numLevelsUI.get());
     // addAndMakeVisible(entitiesPerLevelUI.get());
