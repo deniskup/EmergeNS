@@ -62,8 +62,8 @@ public:
   Simulation();
   ~Simulation();
 
-  IntParameter *maxSteps;
-  IntParameter *curStep;
+  int maxSteps;
+  int curStep;
   IntParameter *perCent;
   BoolParameter *finished;
   FloatParameter *dt;
@@ -75,7 +75,8 @@ public:
   String recordEntity;
   int checkPoint; // every checkPoint steps, wait and log
   bool displayLog=false;
-  
+  Array<SimEntity *> entitiesDrawn;
+
   // these ones are for display
   FloatParameter *maxConcent;
   BoolParameter *realTime; // do we print intermediary steps ?
@@ -113,4 +114,30 @@ public:
   ListenerList<SimulationListener> listeners;
   void addSimulationListener(SimulationListener *newListener) { listeners.add(newListener); }
   void removeSimulationListener(SimulationListener *listener) { listeners.remove(listener); }
+
+  	// ASYNC
+	class  SimulationEvent
+	{
+	public:
+		enum Type { WILL_START, STARTED, NEWSTEP, FINISHED };
+
+		SimulationEvent(Type t, Simulation* sim, int curStep=0, Array<float> entityValues=Array<float>(), Array<Colour> entityColors=Array<Colour>()) :
+			type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
+		{
+		}
+
+		Type type;
+		Simulation* sim;
+		int curStep;
+    Array<float> entityValues;
+    Array<Colour> entityColors;
+	};
+
+	QueuedNotifier<SimulationEvent> simNotifier;
+	typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
+
+
+	void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
+	void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
+	void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
 };

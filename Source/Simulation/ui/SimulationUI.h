@@ -4,7 +4,7 @@
 #include "../Simulation.h"
 
 class SimulationUI : public ShapeShifterContentComponent,
-                     public Simulation::SimulationListener,
+                     public Simulation::AsyncSimListener,
                      public Timer,
                      public ContainerAsyncListener
 {
@@ -15,7 +15,7 @@ public:
     Simulation *simul;
     bool shouldRepaint;
     Array<Array<float>> entityHistory;
-    Array<SimEntity*> entityRefs;
+    Array<Colour> entityColors;
 
     //std::unique_ptr<IntStepperUI> maxStepsUI;
     std::unique_ptr<FloatParameterLabelUI> dtUI;
@@ -27,7 +27,8 @@ public:
     std::unique_ptr<BoolToggleUI> generatedUI;
     std::unique_ptr<BoolToggleUI> autoScaleUI;
 
-    
+    int uiStep;
+    Rectangle<int> simBounds;
     
     //local floatparameter
     //std::unique_ptr<FloatParameter> maxC;
@@ -38,11 +39,14 @@ public:
     void timerCallback() override;
     bool keyPressed(const KeyPress &e) override;
 
-    void newStep(Simulation *) override;
-    void simulationWillStart(Simulation *) override;
-    void simulationStarted(Simulation *) override;
-    void simulationFinished(Simulation *) override;
+    // void newStep(Simulation *) override;
+    // void simulationWillStart(Simulation *) override;
+    // void simulationStarted(Simulation *) override;
+    // void simulationFinished(Simulation *) override;
     
+
+    void newMessage(const Simulation::SimulationEvent &e) override;
+
     void newMessage(const ContainerAsyncEvent &e) override;
 
     static SimulationUI *create(const String &name) { return new SimulationUI(); }

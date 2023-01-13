@@ -94,21 +94,18 @@ void Reaction::onExternalParameterValueChanged(Parameter *p)
   {
     Entity *r1 = (Entity *)linkedR1.get();
     if (p == r1->enabled || p == r1->freeEnergy)
-      ;
     updateWarnAndRates();
   }
   if (linkedR2 != nullptr)
   {
     Entity *r2 = (Entity *)linkedR2.get();
     if (p == r2->enabled || p == r2->freeEnergy)
-      ;
     updateWarnAndRates();
   }
   if (linkedP != nullptr)
   {
     Entity *pr = (Entity *)linkedP.get();
     if (p == pr->enabled || p == pr->freeEnergy)
-      ;
     updateWarnAndRates();
   }
 }

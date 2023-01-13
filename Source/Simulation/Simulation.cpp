@@ -10,13 +10,14 @@ using namespace std;
 juce_ImplementSingleton(Simulation)
 
     Simulation::Simulation() : ControllableContainer("Simulation"),
-                               Thread("Simulation")
+                               Thread("Simulation"),
+                               curStep(0),
+                               simNotifier(1000) // max messages async that can be sent at once
 {
-  dt = addFloatParameter("dt", "time step in ms", .001, 0);
-  totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1, 0);
-  maxSteps = addIntParameter("Max Steps", "Max Steps", 1000, 0);
-  curStep = addIntParameter("Progress", "Current step in the simulation", 0, 0, maxSteps->intValue());
-  curStep->setControllableFeedbackOnly(true);
+  simNotifier.dropMessageOnOverflow = false;
+  
+  dt = addFloatParameter("dt", "time step in ms", .001, 0.f);
+  totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
   perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
   perCent->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
@@ -148,8 +149,12 @@ void Simulation::fetchGenerate()
 void Simulation::start()
 {
   startTrigger->setEnabled(false);
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   listeners.call(&SimulationListener::simulationWillStart, this);
+
   entities.clear();
+  entitiesDrawn.clear();
+
   reactions.clear();
   if (generated->boolValue())
   {
@@ -160,6 +165,20 @@ void Simulation::start()
     fetchManual();
   }
 
+  Array<float> entityValues;
+  Array<Colour> entityColors;
+  
+  for (auto &ent : entities)
+  {
+    if (ent->draw)
+    {
+      entitiesDrawn.add(ent);
+      entityValues.add(ent->concent);
+      entityColors.add(ent->color);
+    }
+  }
+
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues,entityColors));
   listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   checkPoint = 20; // 20 checkpoints
@@ -169,13 +188,13 @@ void Simulation::start()
 void Simulation::nextStep()
 {
 
-  bool isCheck = (curStep->intValue() % checkPoint == 0);
+  bool isCheck = (curStep % checkPoint == 0);
   if (displayLog && isCheck)
   {
-    NLOG(niceName, "New Step : " << curStep->intValue());
+    NLOG(niceName, "New Step : " << curStep);
     wait(1);
   }
-  if (curStep->intValue() >= maxSteps->intValue())
+  if (curStep >= maxSteps)
   {
     stop();
     return;
@@ -218,8 +237,8 @@ void Simulation::nextStep()
     reac->product->decrease(reverseIncr);
   }
 
-  curStep->setValue(curStep->intValue() + 1);
-  perCent->setValue((int)((curStep->intValue() * 100) / maxSteps->intValue()));
+  curStep++;
+  perCent->setValue((int)((curStep * 100) / maxSteps));
 
   for (auto &ent : entities)
   {
@@ -244,6 +263,14 @@ void Simulation::nextStep()
         NLOG(niceName, e->toString());
     }
   }
+
+  Array<float> entityValues;
+  for (auto &ent : entitiesDrawn)
+  {
+      entityValues.add(ent->concent);
+  }
+
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
   listeners.call(&SimulationListener::newStep, this);
 }
 
@@ -259,7 +286,7 @@ void Simulation::cancel()
 
 void Simulation::run()
 {
-  curStep->setValue(0);
+  curStep = 0;
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
@@ -268,6 +295,7 @@ void Simulation::run()
 
   NLOG(niceName, "End thread");
   NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
@@ -285,7 +313,7 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
-    start(); 
+    start();
   else if (t == cancelTrigger)
     cancel();
 }
@@ -295,10 +323,8 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   ControllableContainer::onContainerParameterChanged(p);
   if (p == dt || p == totalTime)
   {
-    maxSteps->setValue((int)(totalTime->floatValue() / dt->floatValue()));
+    maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
   }
-  if (p == maxSteps)
-    curStep->setRange(0, maxSteps->intValue());
 }
 
 SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue(), e->freeEnergy->floatValue())
