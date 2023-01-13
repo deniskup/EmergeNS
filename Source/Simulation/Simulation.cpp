@@ -94,7 +94,7 @@ void Simulation::fetchGenerate()
       e->draw = Random::getSystemRandom().nextFloat() < propShow; // proba to draw composite entity
       entities.add(e);
 
-      // reaction producing e, no constraint for now just testing
+      // reaction producing e, only level constraint for now, to add preservation of primitive entities
       int id1 = Random::getSystemRandom().nextInt(entities.size() - 1);
       int id2 = Random::getSystemRandom().nextInt(entities.size() - 1);
       SimEntity *e1 = entities[id1];

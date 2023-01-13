@@ -47,7 +47,7 @@
                 {
                   "type": 0,
                   "width": 499,
-                  "height": 573,
+                  "height": 471,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -58,11 +58,22 @@
                 {
                   "type": 0,
                   "width": 499,
-                  "height": 570,
+                  "height": 366,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
                       "name": "Reactions"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 499,
+                  "height": 300,
+                  "currentContent": "Generation",
+                  "tabs": [
+                    {
+                      "name": "Generation"
                     }
                   ]
                 }
@@ -129,20 +140,24 @@
   "simulation": {
     "parameters": [
       {
-        "value": 0.01,
+        "value": 0.1,
         "controlAddress": "/dt"
       },
       {
-        "value": 500.0,
+        "value": 1000.0,
         "controlAddress": "/totalTime"
       },
       {
-        "value": 50000,
+        "value": 10000,
         "hexMode": false,
         "controlAddress": "/maxSteps"
       },
       {
-        "value": true,
+        "value": 10.0,
+        "controlAddress": "/maxConcent"
+      },
+      {
+        "value": false,
         "controlAddress": "/generated"
       }
     ]
@@ -230,7 +245,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": -1.122448921203613,
+            "value": -1.326530456542969,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -300,7 +315,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": -0.918367862701416,
+            "value": -1.122449398040771,
             "controlAddress": "/freeEnergy"
           },
           {

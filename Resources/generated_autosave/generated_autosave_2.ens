@@ -137,14 +137,24 @@
   "generation": {
     "parameters": [
       {
-        "value": 20,
+        "value": 29,
         "hexMode": false,
         "controlAddress": "/entitiesPerLevel"
       },
       {
-        "value": 1000,
+        "value": 5,
+        "hexMode": false,
+        "controlAddress": "/reactionsPerEntity"
+      },
+      {
+        "value": 70,
         "hexMode": false,
         "controlAddress": "/levels"
+      },
+      {
+        "value": 15,
+        "hexMode": false,
+        "controlAddress": "/avgNumOfCurves"
       }
     ]
   }
