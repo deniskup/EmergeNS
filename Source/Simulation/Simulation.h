@@ -28,6 +28,7 @@ public:
   int level;
   bool draw=true;
 
+
   void increase(float incr);
   void decrease(float decr);
 
@@ -72,7 +73,8 @@ public:
   float recordConcent; // record the higher concentration reached
   String recordEntity;
   int checkPoint; // every checkPoint steps, wait and log
-
+  bool displayLog=false;
+  
   // these ones are for display
   FloatParameter *maxConcent;
   BoolParameter *realTime; // do we print intermediary steps ?

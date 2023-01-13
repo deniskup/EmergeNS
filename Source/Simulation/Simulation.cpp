@@ -51,68 +51,93 @@ void Simulation::fetchManual()
   }
 }
 
+int randInt(int i,int j){
+  jassert(i<=j);
+  if(i==j) return i;
+  return Random::getSystemRandom().nextInt(Range(i,j+1));
+}
+
+float randFloat(){
+  return Random::getSystemRandom().nextFloat();
+}
+
 void Simulation::fetchGenerate()
 {
   Generation *gen = Generation::getInstance();
 
   int numLevels = gen->numLevels->intValue();
   int entitiesPerLevel = gen->entitiesPerLevel->intValue();
-  int maxReacperEnt = gen->maxReactionsPerEntity->intValue();
+  int maxReacPerEnt = gen->maxReactionsPerEntity->intValue();
   // primary entities
   int primEnts = entitiesPerLevel; // will be dissociated later
 
   int totalEnts = numLevels * entitiesPerLevel;
   float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
 
+  Array<Array<SimEntity *>> hierarchyEnt;
+  Array<SimEntity *> primEnt;
   for (int idp = 0; idp < primEnts; idp++)
   {
+
     // to pick randomly later, just testing
     float concent = 1.;
-    float cRate = .5;
-    float dRate = .3;
+    float dRate = randFloat() / 2.;
+    float cRate = dRate + (1 - dRate) * randFloat();
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
     e->name = "prim" + String(idp);
-    e->draw = (Random::getSystemRandom().nextFloat() < propShow); // proba to draw prim entity
+    e->draw = (randFloat() < propShow); // proba to draw prim entity
     entities.add(e);
+    primEnt.add(e);
   }
+  hierarchyEnt.add(primEnt);
 
-  // composite entities
-  for (int level = 1; level < numLevels; level++)
+  // composite entities (temporary tests, to refine)
+  for (int level = 1; level < numLevels ; level++)
   {
+    Array<SimEntity *> levelEnt;
     for (int ide = 0; ide < entitiesPerLevel; ide++)
     {
-      float concent = 1.;
-      float cRate = .5;
-      float dRate = .3;
-      float energy = -level / 10.;
-      SimEntity *e = new SimEntity(true, concent, cRate, dRate, energy);
+      float concent = 0.;
+      float dRate = randFloat() / 10.;
+      float energy = -level/2.;
+      SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
-      e->color = Colour::fromHSV((Random::getSystemRandom().nextFloat()), 1, 1, 1); // random color
+      e->color = Colour::fromHSV((randFloat()), 1, 1, 1); // random color
       e->name = String(level) + "-" + String(ide);
-      e->draw = Random::getSystemRandom().nextFloat() < propShow; // proba to draw composite entity
+      e->draw = randFloat() < propShow; // proba to draw composite entity
       entities.add(e);
+      levelEnt.add(e);
+      // reaction producing e, no constraint for now just testing
+      int nbReac = 1;
+      if (maxReacPerEnt > 1)
+        nbReac = randInt(1,maxReacPerEnt);
+      for (int ir = 0; ir < nbReac; ir++)
+      {
+        int lev1 = randInt(0,level-1);
+        int lev2 = level - lev1 -1;
+        int id1 = randInt(0,hierarchyEnt[lev1].size()-1);
+        int id2 = randInt(0,hierarchyEnt[lev2].size()-1);
+        SimEntity *e1 = hierarchyEnt[lev1][id1];
+        SimEntity *e2 = hierarchyEnt[lev2][id2];
 
-      // reaction producing e, only level constraint for now, to add preservation of primitive entities
-      int id1 = Random::getSystemRandom().nextInt(entities.size() - 1);
-      int id2 = Random::getSystemRandom().nextInt(entities.size() - 1);
-      SimEntity *e1 = entities[id1];
-      SimEntity *e2 = entities[id2];
-
-      float barrier = Random::getSystemRandom().nextFloat();
-      // GA+GB
-      float energyLeft = e1->freeEnergy + e2->freeEnergy;
-      // GAB
-      float energyRight = e->freeEnergy;
-      // total energy G* of the reaction: activation + max of GA+GB and GAB.
-      float energyStar = barrier + jmax(energyLeft, energyRight);
-      // k1=exp(GA+GB-G*)
-      float aRate = exp(energyLeft - energyStar);
-      // k2=exp(GAB-G*)
-      float disRate = exp(energyRight - energyStar);
-      reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
+        float barrier = randFloat()/10.;
+        // GA+GB
+        float energyLeft = e1->freeEnergy + e2->freeEnergy;
+        // GAB
+        float energyRight = e->freeEnergy;
+        // total energy G* of the reaction: activation + max of GA+GB and GAB.
+        float energyStar = barrier + jmax(energyLeft, energyRight);
+        // k1=exp(GA+GB-G*)
+        float aRate = exp(energyLeft - energyStar);
+        // k2=exp(GAB-G*)
+        float disRate = exp(energyRight - energyStar);
+        reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
+        NLOG(niceName, e1->name + " + "+e2->name+ " -> "+e->name); 
+      }
     }
+    hierarchyEnt.add(levelEnt);
   }
 }
 
@@ -141,8 +166,8 @@ void Simulation::nextStep()
 {
   // TODO cap the concentration to absolute maximum, interrupt the simulation if reached.
 
-  bool displayLog = (curStep->intValue() % checkPoint == 0);
-  if (displayLog)
+  bool isCheck = (curStep->intValue() % checkPoint == 0);
+  if (displayLog && isCheck)
   {
     NLOG(niceName, "New Step : " << curStep->intValue());
     wait(1);
@@ -212,7 +237,7 @@ void Simulation::nextStep()
   {
     for (auto &e : entities)
     {
-      if (e->draw)
+      if (e->draw && displayLog)
         NLOG(niceName, e->toString());
     }
   }
