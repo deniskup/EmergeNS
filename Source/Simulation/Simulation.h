@@ -69,6 +69,7 @@ public:
   FloatParameter *dt;
   FloatParameter *totalTime;
   BoolParameter *generated;
+  BoolParameter *autoScale;
 
   float recordConcent; // record the higher concentration reached
   String recordEntity;

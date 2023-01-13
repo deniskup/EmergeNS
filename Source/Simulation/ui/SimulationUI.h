@@ -5,7 +5,8 @@
 
 class SimulationUI : public ShapeShifterContentComponent,
                      public Simulation::SimulationListener,
-                     public Timer
+                     public Timer,
+                     public ContainerAsyncListener
 {
 public:
     SimulationUI();
@@ -13,7 +14,6 @@ public:
 
     Simulation *simul;
     bool shouldRepaint;
-    bool toClear; //remember if a clear is due.
     Array<Array<float>> entityHistory;
     Array<SimEntity*> entityRefs;
 
@@ -25,7 +25,9 @@ public:
     std::unique_ptr<TriggerUI> startUI;
     std::unique_ptr<TriggerUI> cancelUI;
     std::unique_ptr<BoolToggleUI> generatedUI;
+    std::unique_ptr<BoolToggleUI> autoScaleUI;
 
+    
     
     //local floatparameter
     //std::unique_ptr<FloatParameter> maxC;
@@ -41,6 +43,7 @@ public:
     void simulationStarted(Simulation *) override;
     void simulationFinished(Simulation *) override;
     
+    void newMessage(const ContainerAsyncEvent &e) override;
 
     static SimulationUI *create(const String &name) { return new SimulationUI(); }
 };

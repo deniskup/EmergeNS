@@ -15,33 +15,48 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     startUI.reset(simul->startTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
     generatedUI.reset(simul->generated->createToggle());
+    autoScaleUI.reset(simul->autoScale->createToggle());
 
     // local parameter, won't be saved in the file.
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
     // maxCUI.reset(maxC->createLabelParameter())
+
+    dtUI->setSize(100, 20);
+    totalTimeUI->setSize(200, 20);
+    perCentUI->setSize(100, 20);
+    maxConcentUI->setSize(150, 20);
+    startUI->setSize(100, 20);
+    cancelUI->setSize(100, 20);
+    generatedUI->setSize(100, 20);
+    autoScaleUI->setSize(100, 20);
 
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
     addAndMakeVisible(maxConcentUI.get());
     addAndMakeVisible(startUI.get());
     addAndMakeVisible(cancelUI.get());
+    addAndMakeVisible(autoScaleUI.get());
     addAndMakeVisible(generatedUI.get());
     addAndMakeVisible(perCentUI.get());
 
+    maxConcentUI->setVisible(!simul->autoScale->boolValue());
     perCentUI->customLabel = "Progress";
 
     startTimerHz(20);
     simul->addSimulationListener(this);
+    simul->addAsyncContainerListener(this);
 }
 
 SimulationUI::~SimulationUI()
 {
     simul->removeSimulationListener(this);
+    simul->removeAsyncContainerListener(this);
 }
 
 //==============================================================================
 void SimulationUI::paint(juce::Graphics &g)
 {
+    float maxC=simul->autoScale->boolValue()? simul->recordConcent: simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
@@ -51,16 +66,9 @@ void SimulationUI::paint(juce::Graphics &g)
 
     r.reduce(10, 10);
     g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
-    g.fillRoundedRectangle(r.toFloat(), 8);
-    g.setColour(Colours::white.withAlpha(.3f));
-    g.drawRoundedRectangle(r.toFloat(), 8, 1.f);
+    g.fillRoundedRectangle(r.toFloat(), 4);
 
-    if (toClear)
-    {
-        toClear = false;
-        // DBG("cleared");
-        return;
-    }
+
     if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si option realTime
         return;
     if (entityHistory.isEmpty())
@@ -71,8 +79,11 @@ void SimulationUI::paint(juce::Graphics &g)
     OwnedArray<Path> paths;
     for (auto &e : entityHistory[0])
     {
+        float v = 1 - e / maxC;
+        v = jmax(v, 0.f);
+            
         Path *p = new Path();
-        Point<float> ep = r.getRelativePoint(0.f, 1 - e / simul->maxConcent->floatValue()).toFloat();
+        Point<float> ep = r.getRelativePoint(0.f, v).toFloat();
         p->startNewSubPath(ep);
         paths.add(p); // add one path per entity
     }
@@ -82,10 +93,10 @@ void SimulationUI::paint(juce::Graphics &g)
         Array<float> values = entityHistory[i];
         for (int j = 0; j < values.size(); j++)
         {
-            if (values[j] > simul->maxConcent->floatValue())
-                continue;
+            float v = 1 - values[j] / maxC;
+            v = jmax(v, 0.f);
             // TODO avoid ugly horizontal line if curve goes out and back in.
-            Point<float> ep = r.getRelativePoint(i * stepX, 1 - values[j] / simul->maxConcent->floatValue()).toFloat();
+            Point<float> ep = r.getRelativePoint(i * stepX, v).toFloat();
             // g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
             paths[j]->lineTo(ep);
         }
@@ -96,27 +107,44 @@ void SimulationUI::paint(juce::Graphics &g)
         g.setColour(entityRefs[i]->color); // g.setColour(entityRefs[i]->color.brighter(.3f).withSaturation(1));
         g.strokePath(*paths[i], PathStrokeType(1.2));
     }
+
+    g.setColour(BG_COLOR);
+    g.drawRect(r.toFloat(),1.f);
+    g.setColour(NORMAL_COLOR);
+    g.drawRoundedRectangle(r.toFloat(), 4, 3.f);
 }
 
 void SimulationUI::resized()
 {
     Rectangle<int> r = getLocalBounds();
-    Rectangle<int> hr = r.removeFromTop(27).reduced(2);
+    Rectangle<int> hr = r.removeFromTop(27);
     // maxStepsUI->setBounds(hr.removeFromLeft(200));
-    hr = hr.withSizeKeepingCentre(500, 25);
-    dtUI->setBounds(hr.removeFromLeft(100));
+
+    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 50 + generatedUI->getWidth();
+
+    hr.reduce((hr.getWidth() - width1) / 2, 0);
+
+    dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
     hr.removeFromLeft(20);
-    totalTimeUI->setBounds(hr.removeFromLeft(200));
-    generatedUI->setBounds(hr.removeFromRight(100));
-    r.removeFromTop(10);
-    hr = r.removeFromTop(25);
-    hr = hr.withSizeKeepingCentre(420, 25);
-    startUI->setBounds(hr.removeFromLeft(100));
+    totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
     hr.removeFromLeft(30);
-    cancelUI->setBounds(hr.removeFromLeft(100));
-    hr.removeFromLeft(40);
-    maxConcentUI->setBounds(hr.removeFromLeft(150));
-    r.removeFromTop(5);
+    generatedUI->setBounds(hr.removeFromRight(generatedUI->getWidth()));
+    
+    r.removeFromTop(8);
+    hr = r.removeFromTop(30);
+
+    int width2 = startUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    hr.reduce((hr.getWidth() - width2) / 2, 0);
+
+    startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
+    hr.removeFromLeft(20);
+    cancelUI->setBounds(hr.removeFromLeft(cancelUI->getWidth()));
+    hr.removeFromLeft(50);
+    autoScaleUI->setBounds(hr.removeFromLeft(autoScaleUI->getWidth()));
+    hr.removeFromLeft(10);
+    maxConcentUI->setBounds(hr.removeFromLeft(maxConcentUI->getWidth()));
+
+    r.removeFromTop(8);
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 }
 
@@ -126,11 +154,6 @@ void SimulationUI::timerCallback()
     {
         repaint();
         shouldRepaint = false;
-    }
-    if (toClear)
-    {
-        // DBG("clear call");
-        repaint();
     }
 }
 
@@ -153,7 +176,6 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 
 void SimulationUI::newStep(Simulation *)
 {
-
     Array<float> entityValues;
     for (auto &ent : entityRefs)
     {
@@ -161,17 +183,13 @@ void SimulationUI::newStep(Simulation *)
     }
 
     entityHistory.add(entityValues);
-
-    shouldRepaint = true; // seul qui marche pour l'instant
-    // shouldRepaint = simul->realTime->boolValue(); //ce qu'on voudrait pour gagner du temps
 }
 
 void SimulationUI::simulationWillStart(Simulation *)
 {
     entityHistory.clear();
     entityRefs.clear();
-    // DBG("to clear");
-    toClear = true;
+    repaint();
 }
 
 void SimulationUI::simulationStarted(Simulation *)
@@ -190,7 +208,21 @@ void SimulationUI::simulationStarted(Simulation *)
 
 void SimulationUI::simulationFinished(Simulation *)
 {
+    
     shouldRepaint = true;
     // DBG("history of size "<<entityHistory.size());
     // DBG("entityrefs of size "<<entityRefs.size());
+}
+
+void SimulationUI::newMessage(const ContainerAsyncEvent &e)
+{
+    if(e.type==ContainerAsyncEvent::EventType::ControllableFeedbackUpdate){
+        if(e.targetControllable==simul->autoScale){
+            maxConcentUI->setVisible(!simul->autoScale->boolValue()); 
+            repaint();           
+        }
+        else if (e.targetControllable==simul->maxConcent){
+            shouldRepaint=true;
+        }
+    }
 }

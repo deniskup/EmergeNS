@@ -10,11 +10,13 @@ public:
     ~GenerationUI();
 
     Generation *gener;
+    
+    std::unique_ptr<GenericControllableContainerEditor> editorUI;
 
-    std::unique_ptr<IntStepperUI> numLevelsUI;
-    std::unique_ptr<IntStepperUI> entitiesPerLevelUI;
-    std::unique_ptr<IntStepperUI> maxReactionsPerEntityUI;
-    std::unique_ptr<IntStepperUI> avgNumShowUI;
+    // std::unique_ptr<IntStepperUI> numLevelsUI;
+    // std::unique_ptr<IntStepperUI> entitiesPerLevelUI;
+    // std::unique_ptr<IntStepperUI> maxReactionsPerEntityUI;
+    // std::unique_ptr<IntStepperUI> avgNumShowUI;
     
     //local floatparameter
     //std::unique_ptr<FloatParameter> maxC;

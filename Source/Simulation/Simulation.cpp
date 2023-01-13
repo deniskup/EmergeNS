@@ -26,6 +26,7 @@ juce_ImplementSingleton(Simulation)
   generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
   startTrigger = addTrigger("Start", "Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
+  autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
 }
 
 Simulation::~Simulation()
@@ -51,13 +52,16 @@ void Simulation::fetchManual()
   }
 }
 
-int randInt(int i,int j){
-  jassert(i<=j);
-  if(i==j) return i;
-  return Random::getSystemRandom().nextInt(Range(i,j+1));
+int randInt(int i, int j)
+{
+  jassert(i <= j);
+  if (i == j)
+    return i;
+  return Random::getSystemRandom().nextInt(Range(i, j + 1));
 }
 
-float randFloat(){
+float randFloat()
+{
   return Random::getSystemRandom().nextFloat();
 }
 
@@ -94,14 +98,14 @@ void Simulation::fetchGenerate()
   hierarchyEnt.add(primEnt);
 
   // composite entities (temporary tests, to refine)
-  for (int level = 1; level < numLevels ; level++)
+  for (int level = 1; level < numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
     for (int ide = 0; ide < entitiesPerLevel; ide++)
     {
       float concent = 0.;
       float dRate = randFloat() / 10.;
-      float energy = -level/2.;
+      float energy = -level / 2.;
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
       e->color = Colour::fromHSV((randFloat()), 1, 1, 1); // random color
@@ -112,17 +116,17 @@ void Simulation::fetchGenerate()
       // reaction producing e, no constraint for now just testing
       int nbReac = 1;
       if (maxReacPerEnt > 1)
-        nbReac = randInt(1,maxReacPerEnt);
+        nbReac = randInt(1, maxReacPerEnt);
       for (int ir = 0; ir < nbReac; ir++)
       {
-        int lev1 = randInt(0,level-1);
-        int lev2 = level - lev1 -1;
-        int id1 = randInt(0,hierarchyEnt[lev1].size()-1);
-        int id2 = randInt(0,hierarchyEnt[lev2].size()-1);
+        int lev1 = randInt(0, level - 1);
+        int lev2 = level - lev1 - 1;
+        int id1 = randInt(0, hierarchyEnt[lev1].size() - 1);
+        int id2 = randInt(0, hierarchyEnt[lev2].size() - 1);
         SimEntity *e1 = hierarchyEnt[lev1][id1];
         SimEntity *e2 = hierarchyEnt[lev2][id2];
 
-        float barrier = randFloat()/10.;
+        float barrier = randFloat() / 10.;
         // GA+GB
         float energyLeft = e1->freeEnergy + e2->freeEnergy;
         // GAB
@@ -134,7 +138,7 @@ void Simulation::fetchGenerate()
         // k2=exp(GAB-G*)
         float disRate = exp(energyRight - energyStar);
         reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
-        NLOG(niceName, e1->name + " + "+e2->name+ " -> "+e->name); 
+        NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
       }
     }
     hierarchyEnt.add(levelEnt);
