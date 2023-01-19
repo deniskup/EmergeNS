@@ -15,7 +15,7 @@ juce_ImplementSingleton(Simulation)
                                simNotifier(1000) // max messages async that can be sent at once
 {
   simNotifier.dropMessageOnOverflow = false;
-  
+
   dt = addFloatParameter("dt", "time step in ms", .001, 0.f);
   totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
   perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
@@ -66,6 +66,15 @@ float randFloat()
   return Random::getSystemRandom().nextFloat();
 }
 
+float randFloat(float a, float b)
+{
+  jassert(a <= b);
+  if (a == b)
+    return a;
+  float r = randFloat();
+  return (r * a + (1 - r) * b);
+}
+
 void Simulation::fetchGenerate()
 {
   Generation *gen = Generation::getInstance();
@@ -85,9 +94,9 @@ void Simulation::fetchGenerate()
   {
 
     // to pick randomly later, just testing
-    float concent = 1.;
-    float dRate = randFloat() / 2.;
-    float cRate = dRate + (1 - dRate) * randFloat();
+    float concent = randFloat(gen->concentRange->x, gen->concentRange->y);
+    float dRate = randFloat(0., gen->maxDestructionRate->floatValue());
+    float cRate = randFloat(0., gen->maxCreationRate->floatValue());
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
@@ -104,9 +113,10 @@ void Simulation::fetchGenerate()
     Array<SimEntity *> levelEnt;
     for (int ide = 0; ide < entitiesPerLevel; ide++)
     {
-      float concent = 0.;
-      float dRate = randFloat() / 10.;
-      float energy = -level / 2.;
+      float concent = 0.; // no initial presence of composite entities
+      float dRate = 0.;   // do not destroy composite entities
+      float uncert = gen->energyUncertainty->floatValue();
+      float energy = -level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
       e->color = Colour::fromHSV((randFloat()), 1, 1, 1); // random color
@@ -127,7 +137,7 @@ void Simulation::fetchGenerate()
         SimEntity *e1 = hierarchyEnt[lev1][id1];
         SimEntity *e2 = hierarchyEnt[lev2][id2];
 
-        float barrier = randFloat() / 10.;
+        float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
         // GA+GB
         float energyLeft = e1->freeEnergy + e2->freeEnergy;
         // GAB
@@ -139,7 +149,7 @@ void Simulation::fetchGenerate()
         // k2=exp(GAB-G*)
         float disRate = exp(energyRight - energyStar);
         reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
-        NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
+        //NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
       }
     }
     hierarchyEnt.add(levelEnt);
@@ -167,7 +177,7 @@ void Simulation::start()
 
   Array<float> entityValues;
   Array<Colour> entityColors;
-  
+
   for (auto &ent : entities)
   {
     if (ent->draw)
@@ -178,9 +188,10 @@ void Simulation::start()
     }
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues,entityColors));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
   listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
+  recordDrawn = 0.;
   checkPoint = 20; // 20 checkpoints
   startThread();
 }
@@ -253,6 +264,12 @@ void Simulation::nextStep()
       recordConcent = ent->concent;
       recordEntity = ent->name;
     }
+
+    if (ent->draw && ent->concent > recordDrawn)
+    {
+      recordDrawn = ent->concent;
+      recordDrawnEntity= ent->name;
+    }
   }
 
   if (displayLog)
@@ -267,7 +284,7 @@ void Simulation::nextStep()
   Array<float> entityValues;
   for (auto &ent : entitiesDrawn)
   {
-      entityValues.add(ent->concent);
+    entityValues.add(ent->concent);
   }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
@@ -295,6 +312,7 @@ void Simulation::run()
 
   NLOG(niceName, "End thread");
   NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
+  NLOG(niceName, "Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);

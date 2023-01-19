@@ -73,6 +73,9 @@ public:
 
   float recordConcent; // record the higher concentration reached
   String recordEntity;
+  float recordDrawn; //same but only for drawn entities for autoscale
+  String recordDrawnEntity;
+
   int checkPoint; // every checkPoint steps, wait and log
   bool displayLog=false;
   Array<SimEntity *> entitiesDrawn;
