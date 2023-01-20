@@ -114,7 +114,7 @@ void Simulation::fetchGenerate()
     for (int ide = 0; ide < entitiesPerLevel; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
-      float dRate = 0.;   // do not destroy composite entities
+      float dRate = randFloat(0., gen->maxDestructionRate->floatValue())/level; 
       float uncert = gen->energyUncertainty->floatValue();
       float energy = -level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);

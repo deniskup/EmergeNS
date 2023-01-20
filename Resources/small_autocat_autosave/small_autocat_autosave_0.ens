@@ -28,26 +28,26 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1126,
+      "width": 1278,
+      "height": 749,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1126,
+          "width": 1278,
+          "height": 749,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
-              "width": 500,
-              "height": 1126,
+              "width": 324,
+              "height": 749,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 500,
-                  "height": 561,
+                  "width": 324,
+                  "height": 373,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -57,8 +57,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 500,
-                  "height": 558,
+                  "width": 324,
+                  "height": 370,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -70,68 +70,46 @@
             },
             {
               "type": 1,
-              "width": 1413,
-              "height": 1126,
+              "width": 948,
+              "height": 749,
               "direction": 1,
               "shifters": [
                 {
+                  "type": 0,
+                  "width": 695,
+                  "height": 749,
+                  "currentContent": "Simulation",
+                  "tabs": [
+                    {
+                      "name": "Simulation"
+                    }
+                  ]
+                },
+                {
                   "type": 1,
-                  "width": 973,
-                  "height": 1126,
+                  "width": 246,
+                  "height": 749,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 973,
-                      "height": 790,
-                      "currentContent": "Simulation",
-                      "tabs": [
-                        {
-                          "name": "Simulation"
-                        }
-                      ]
-                    },
-                    {
-                      "type": 0,
-                      "width": 973,
-                      "height": 329,
+                      "width": 246,
+                      "height": 372,
                       "currentContent": "Generation",
                       "tabs": [
                         {
                           "name": "Generation"
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": 1,
-                  "width": 434,
-                  "height": 1126,
-                  "direction": 2,
-                  "shifters": [
-                    {
-                      "type": 0,
-                      "width": 434,
-                      "height": 776,
-                      "currentContent": "Inspector",
-                      "tabs": [
-                        {
-                          "name": "Inspector"
-                        }
-                      ]
                     },
                     {
                       "type": 0,
-                      "width": 434,
-                      "height": 343,
+                      "width": 246,
+                      "height": 371,
                       "currentContent": "Logger",
                       "tabs": [
                         {
                           "name": "Logger"
-                        },
-                        {
-                          "name": "Warnings"
                         }
                       ]
                     }
@@ -148,7 +126,7 @@
   "simulation": {
     "parameters": [
       {
-        "value": 0.01,
+        "value": 0.1,
         "controlAddress": "/dt"
       },
       {
@@ -156,9 +134,16 @@
         "controlAddress": "/totalTime"
       },
       {
-        "value": 50000,
-        "hexMode": false,
-        "controlAddress": "/maxSteps"
+        "value": 0.3999991416931152,
+        "controlAddress": "/maxConcent"
+      },
+      {
+        "value": true,
+        "controlAddress": "/generated"
+      },
+      {
+        "value": true,
+        "controlAddress": "/autoScale"
       }
     ]
   },
@@ -434,5 +419,40 @@
       0
     ],
     "viewZoom": 1.0
+  },
+  "generation": {
+    "parameters": [
+      {
+        "value": 10,
+        "hexMode": false,
+        "controlAddress": "/entitiesPerLevel"
+      },
+      {
+        "value": 5,
+        "hexMode": false,
+        "controlAddress": "/reactionsPerEntity"
+      },
+      {
+        "value": 50,
+        "hexMode": false,
+        "controlAddress": "/levels"
+      },
+      {
+        "value": [
+          0.0,
+          1.0
+        ],
+        "controlAddress": "/initConcentrationRange"
+      },
+      {
+        "value": 0.2,
+        "controlAddress": "/maxDestructionRate"
+      },
+      {
+        "value": 13,
+        "hexMode": false,
+        "controlAddress": "/avgNumOfCurves"
+      }
+    ]
   }
 }
