@@ -13,9 +13,11 @@ Generation::Generation() : ControllableContainer("Generation")
 
     entPerLevNum = addIntParameter("Num n #entities", "Base number of entities per level", 5, 0);
     entPerLevA = addFloatParameter("Coef a #entities", "Maximal creation rate of primary entities", 2., 0.);
-    ;
+    entPerLevA->hideInEditor=true;
+    
     entPerLevB = addFloatParameter("Param b #entities", "Exponent or base of growth for poly/exp", 2., 0.);
-    ;
+    entPerLevB->hideInEditor=true;
+    
     entPerLevUncert = addIntParameter("Plus minus u", "Uncertainty on entity per level: +range[-u,u]", 5, 0);
 
     maxReactionsPerEntity = addIntParameter("Reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
@@ -59,6 +61,7 @@ void Generation::onContainerParameterChanged(Parameter *p)
         default:
             break;
         }
+        listeners.call(&GenerationListener::updateGrowth, this);
         //a faire : send message to listener GenerationUI to update
     }
 }

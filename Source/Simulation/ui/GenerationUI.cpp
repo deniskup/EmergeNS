@@ -16,12 +16,16 @@ GenerationUI::GenerationUI() : ShapeShifterContentComponent(Generation::getInsta
     // addAndMakeVisible(maxReactionsPerEntityUI.get());
     // addAndMakeVisible(avgNumShowUI.get());
 
+    gener->addGenerationListener(this);
+
     editorUI.reset(new GenericControllableContainerEditor(gener, true));
     addAndMakeVisible(editorUI.get());
+
 }
 
 GenerationUI::~GenerationUI()
 {
+    gener->removeGenerationListener(this);
 }
 
 void GenerationUI::resized()
@@ -39,3 +43,10 @@ void GenerationUI::resized()
     // r.removeFromTop(10);
     // avgNumShowUI->setBounds(r.removeFromTop(25));
 }
+
+void GenerationUI::updateGrowth(Generation *){
+    //NLOG("GenerationUI","Repaint");
+    //repaint();
+    editorUI->resetAndBuild();
+}
+   

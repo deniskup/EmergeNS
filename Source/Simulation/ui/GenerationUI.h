@@ -3,7 +3,8 @@
 
 #include "../Generation.h"
 
-class GenerationUI : public ShapeShifterContentComponent
+class GenerationUI : public ShapeShifterContentComponent,
+            public Generation::GenerationListener
 {
 public:
     GenerationUI();
@@ -26,4 +27,7 @@ public:
     void resized() override;
 
     static GenerationUI *create(const String &name) { return new GenerationUI(); }
+
+    void updateGrowth(Generation *) override;
+
 };

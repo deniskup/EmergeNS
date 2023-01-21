@@ -47,4 +47,15 @@ public:
     // FloatParameter *maxAddGstar;
 
     void onContainerParameterChanged(Parameter *p) override;
+
+    class GenerationListener
+  {
+  public:
+    virtual ~GenerationListener() {}
+    virtual void updateGrowth(Generation *){};
+  };
+
+  ListenerList<GenerationListener> listeners;
+  void addGenerationListener(GenerationListener *newListener) { listeners.add(newListener); }
+  void removeGenerationListener(GenerationListener *listener) { listeners.remove(listener); }
 };
