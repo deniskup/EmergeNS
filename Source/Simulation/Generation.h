@@ -29,10 +29,10 @@ public:
     IntParameter *entitiesPerLevel;
     Point2DParameter *concentRange;
     Point2DParameter *entitiesPerLevelRange;
-
-
-
     IntParameter *maxReactionsPerEntity;
+
+    
+    IntRangeParameter *ReactionsPerEntity;
 
     FloatParameter *maxDestructionRate;
     FloatParameter *maxCreationRate;

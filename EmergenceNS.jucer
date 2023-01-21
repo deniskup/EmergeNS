@@ -79,9 +79,9 @@
         <MODULEPATH id="juce_gui_basics" path="~/Prog/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="~/Prog/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="~/Prog/JUCE/modules"/>
-        <MODULEPATH id="juce_organicui" path="Modules"/>
         <MODULEPATH id="juce_osc" path="../../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_cryptography" path="../../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_organicui" path="Modules/juce_organicui"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -97,9 +97,9 @@
         <MODULEPATH id="juce_gui_basics" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_gui_extra" path="../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_opengl" path="../../Prog/JUCE/modules"/>
-        <MODULEPATH id="juce_organicui" path="Modules"/>
         <MODULEPATH id="juce_osc" path="../../../Prog/JUCE/modules"/>
         <MODULEPATH id="juce_cryptography" path="../../../Prog/JUCE/modules"/>
+        <MODULEPATH id="juce_organicui" path="Modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2022 targetFolder="Builds/VisualStudio2022">
@@ -116,8 +116,8 @@
         <MODULEPATH id="juce_gui_basics" path="../../juce"/>
         <MODULEPATH id="juce_gui_extra" path="../../juce"/>
         <MODULEPATH id="juce_opengl" path="../../juce"/>
-        <MODULEPATH id="juce_organicui" path="../../juce"/>
         <MODULEPATH id="juce_osc" path="../../juce"/>
+        <MODULEPATH id="juce_organicui" path="Modules"/>
       </MODULEPATHS>
     </VS2022>
   </EXPORTFORMATS>

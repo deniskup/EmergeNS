@@ -20,7 +20,12 @@ Generation::Generation() : ControllableContainer("Generation")
     
     entPerLevUncert = addIntParameter("Plus minus u", "Uncertainty on entity per level: +range[-u,u]", 5, 0);
 
-    maxReactionsPerEntity = addIntParameter("Reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
+    //old
+    maxReactionsPerEntity = addIntParameter("Max reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
+
+    ReactionsPerEntity = addIntRangeParameter("Reactions per entity", "Min and max number of reactions forming an entity");
+    ReactionsPerEntity->x = 1;
+    ReactionsPerEntity->y = 3;
 
     concentRange = addPoint2DParameter("Init. concentration range", "Min and Max initial concentrations for primary entities");
     concentRange->x = 0.f;
