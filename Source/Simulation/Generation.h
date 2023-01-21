@@ -11,11 +11,29 @@ public:
     Generation();
     ~Generation();
 
-    IntParameter *entitiesPerLevel;
-
     IntParameter *numLevels;
-    IntParameter *maxReactionsPerEntity;
+
+    enum GrowthMode
+    {
+        CONSTANT,
+        POLYNOMIAL,
+        EXPONENTIAL
+    };
+    EnumParameter *growthEntitiesPerLevel; // constant, polynomial, exponential
+    IntParameter *entPerLevNum;
+    FloatParameter *entPerLevA;
+    FloatParameter *entPerLevB;
+    IntParameter *entPerLevUncert;
+    
+    // old paramaters, to compile, remove later
+    IntParameter *entitiesPerLevel;
     Point2DParameter *concentRange;
+    Point2DParameter *entitiesPerLevelRange;
+
+
+
+    IntParameter *maxReactionsPerEntity;
+
     FloatParameter *maxDestructionRate;
     FloatParameter *maxCreationRate;
 
@@ -23,10 +41,10 @@ public:
     FloatParameter *energyUncertainty;
     FloatParameter *maxEnergyBarrier;
 
-    
-
     IntParameter *avgNumShow;
     // FloatParameter *minG;
     // FloatParameter *maxG;
     // FloatParameter *maxAddGstar;
+
+    void onContainerParameterChanged(Parameter *p) override;
 };

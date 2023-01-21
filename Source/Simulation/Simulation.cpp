@@ -80,7 +80,8 @@ void Simulation::fetchGenerate()
   Generation *gen = Generation::getInstance();
 
   int numLevels = gen->numLevels->intValue();
-  int entitiesPerLevel = gen->entitiesPerLevel->intValue();
+  //for Constant growth
+  int entitiesPerLevel = gen->entPerLevNum->intValue();
   int maxReacPerEnt = gen->maxReactionsPerEntity->intValue();
   // primary entities
   int primEnts = entitiesPerLevel; // will be dissociated later

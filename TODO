@@ -3,9 +3,15 @@ Possibly more options in generation (distributions ?)
 range entities per level,
 entity per level l= proportion f(l) of the exponential number of possibilities
 (choice with function with less growth like l^alpha)
+EN COURS
+
 energy: l*c +[range], no constraint on c.
 more things depend on level
+
+
+au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
 initial concent = 0 ?
+
 destruction different from primary and composite
 proposer uniforme ou gaussienne
 
@@ -14,7 +20,7 @@ poursuivre ou relancer simulation avec meme parametres, enregistrer ces parametr
 une seule reaction: pourquoi l'état stationnaire dépend de G* ?
 hypothèse a confirmer: normal car ça peut dépendre des différences vitesse de reaction et taux de creation/destruction
 
-au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
+
 
 Display of statistics like total mass, entropy of diversity, repartition by level,...
 entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we take exp of all this at the end if display is better.
@@ -25,9 +31,6 @@ Est-ce que le régime statique réalisé depend de catalyse/autocatalyse, ou au 
 
 log(pi/pi_equilibre)
 pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normalisation pour que les pi_eq somment à 1.
-
-
-
 
 
 Reproduce and solve weird bug of curves displace on only a point simultaneously. Just printing or simul ?
