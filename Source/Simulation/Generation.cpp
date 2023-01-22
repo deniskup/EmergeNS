@@ -5,13 +5,22 @@ juce_ImplementSingleton(Generation);
 Generation::Generation() : ControllableContainer("Generation")
 {
 
-    numLevels = addIntParameter("Levels", "Number of levels", 10, 1, 1000);
+    primEntities = addIntRangeParameter("Primary entities", "Number of primary entities");
+    primEntities->x=3;
+    primEntities->y=10;
+
+    numLevels = addIntRangeParameter("Levels", "Number of levels");
+    numLevels->x=10;
+    numLevels->y=20;
 
     growthEntitiesPerLevel = addEnumParameter("Growth entities/level", "How the number of entities increase per level. Constant gives n+range[-u,u], Polynomial is a*level^b+range[-u,u], Exponential is a*b^level+range[-u,u]");
     growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("Exponential", EXPONENTIAL);
     // growthEntitiesPerLevel->hideInEditor = true;
 
-    entPerLevNum = addIntParameter("Num n #entities", "Base number of entities per level", 5, 0);
+    entPerLevNum = addIntRangeParameter("Entities/level", "Base number of entities per level");
+    entPerLevNum->x = 3;
+    entPerLevNum->y = 6;
+
     entPerLevA = addFloatParameter("Coef a #entities", "Maximal creation rate of primary entities", 2., 0.);
     entPerLevA->hideInEditor=true;
     
@@ -19,13 +28,13 @@ Generation::Generation() : ControllableContainer("Generation")
     entPerLevB->hideInEditor=true;
     
     entPerLevUncert = addIntParameter("Plus minus u", "Uncertainty on entity per level: +range[-u,u]", 5, 0);
-
+    entPerLevUncert->hideInEditor=true; 
     //old
-    maxReactionsPerEntity = addIntParameter("Max reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
+   // maxReactionsPerEntity = addIntParameter("Max reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
 
-    ReactionsPerEntity = addIntRangeParameter("Reactions per entity", "Min and max number of reactions forming an entity");
-    ReactionsPerEntity->x = 1;
-    ReactionsPerEntity->y = 3;
+    reactionsPerEntity = addIntRangeParameter("Reactions per entity", "Min and max number of reactions forming an entity");
+    reactionsPerEntity->x = 1;
+    reactionsPerEntity->y = 3;
 
     concentRange = addPoint2DParameter("Init. concentration range", "Min and Max initial concentrations for primary entities");
     concentRange->x = 0.f;
@@ -36,7 +45,7 @@ Generation::Generation() : ControllableContainer("Generation")
     energyUncertainty = addFloatParameter("Energy uncertainty", "Energy=Base energy +-uncertainty", .5, 0.);
     maxEnergyBarrier = addFloatParameter("Max ernergy barrier", "Max energy barrier of reactions", .1, 0.);
 
-    avgNumShow = addIntParameter("Avg num of curves", "Expected number of entities to follow", 10, 1, 100);
+    avgNumShow = addIntParameter("Max num of curves", "Expected number of entities to follow", 10, 1, 100);
     // minG = addFloatParameter("Min G", "Current step in the simulation", 0, 0, maxSteps->intValue());
 }
 
@@ -54,6 +63,7 @@ void Generation::onContainerParameterChanged(Parameter *p)
             entPerLevNum->hideInEditor = false;
             entPerLevA->hideInEditor = true;
             entPerLevB->hideInEditor = true;
+            entPerLevUncert->hideInEditor=true;
             DBG("Constant");
             break;
         case POLYNOMIAL:
@@ -61,6 +71,7 @@ void Generation::onContainerParameterChanged(Parameter *p)
             entPerLevNum->hideInEditor = true;
             entPerLevA->hideInEditor = false;
             entPerLevB->hideInEditor = false;
+            entPerLevUncert->hideInEditor=false;
             DBG("Not constant");
             break;
         default:

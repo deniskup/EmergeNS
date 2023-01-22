@@ -55,7 +55,10 @@ void Simulation::fetchManual()
 
 int randInt(int i, int j)
 {
-  jassert(i <= j);
+  if(j < i){
+    LOGWARNING("Range ["<<i<<","<<j<<"] incorrect, setting to "<<i);
+    return i;
+  }
   if (i == j)
     return i;
   return Random::getSystemRandom().nextInt(Range(i, j + 1));
@@ -68,7 +71,10 @@ float randFloat()
 
 float randFloat(float a, float b)
 {
-  jassert(a <= b);
+  if(b < a){
+    LOGWARNING("Range ["<<a<<","<<b<<"] incorrect, setting to "<<a);
+    return a;
+  }
   if (a == b)
     return a;
   float r = randFloat();
@@ -79,22 +85,21 @@ void Simulation::fetchGenerate()
 {
   Generation *gen = Generation::getInstance();
 
-  int numLevels = gen->numLevels->intValue();
-  //for Constant growth
-  int entitiesPerLevel = gen->entPerLevNum->intValue();
-  int maxReacPerEnt = gen->maxReactionsPerEntity->intValue();
-  // primary entities
-  int primEnts = entitiesPerLevel; // will be dissociated later
+  int numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
 
-  int totalEnts = numLevels * entitiesPerLevel;
+  // primary entities
+  int primEnts = randInt(gen->primEntities->x, gen->primEntities->y);
+
+  // only rough approximation
+  int totalEnts = numLevels * gen->entPerLevNum->x;
   float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
+  int nbShow = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
   Array<SimEntity *> primEnt;
   for (int idp = 0; idp < primEnts; idp++)
   {
 
-    // to pick randomly later, just testing
     float concent = randFloat(gen->concentRange->x, gen->concentRange->y);
     float dRate = randFloat(0., gen->maxDestructionRate->floatValue());
     float cRate = randFloat(0., gen->maxCreationRate->floatValue());
@@ -102,33 +107,51 @@ void Simulation::fetchGenerate()
     e->level = 0;
     e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
     e->name = "prim" + String(idp);
-    e->draw = (randFloat() < propShow); // proba to draw prim entity
+    e->draw = false;
+    if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
+    { // proba to draw entity
+      e->draw = true;
+      nbShow++;
+    }
     entities.add(e);
     primEnt.add(e);
   }
   hierarchyEnt.add(primEnt);
 
-  // composite entities (temporary tests, to refine)
+  // composite entities
+
+  // poly or exp growth
+  float aGrowth = gen->entPerLevA->floatValue();
+  float bGrowth = gen->entPerLevB->floatValue();
+
+  // reactions per entity
+  int minReacPerEnt = gen->reactionsPerEntity->x;
+  int maxReacPerEnt = gen->reactionsPerEntity->y;
   for (int level = 1; level < numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
-    for (int ide = 0; ide < entitiesPerLevel; ide++)
+    int numEnts=randInt(gen->entPerLevNum->x,gen->entPerLevNum->y);
+    for (int ide = 0; ide < numEnts; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
-      float dRate = randFloat(0., gen->maxDestructionRate->floatValue())/level; 
+      float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
       float uncert = gen->energyUncertainty->floatValue();
       float energy = -level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
       e->color = Colour::fromHSV((randFloat()), 1, 1, 1); // random color
       e->name = String(level) + "-" + String(ide);
-      e->draw = randFloat() < propShow; // proba to draw composite entity
+      e->draw = false;
+      if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
+      { // proba to draw entity
+        e->draw = true;
+        nbShow++;
+      }
       entities.add(e);
       levelEnt.add(e);
-      // reaction producing e, no constraint for now just testing
-      int nbReac = 1;
-      if (maxReacPerEnt > 1)
-        nbReac = randInt(1, maxReacPerEnt);
+      // reactions producing e
+      int nbReac = randInt(minReacPerEnt, maxReacPerEnt);
+     
       for (int ir = 0; ir < nbReac; ir++)
       {
         int lev1 = randInt(0, level - 1);
@@ -150,7 +173,7 @@ void Simulation::fetchGenerate()
         // k2=exp(GAB-G*)
         float disRate = exp(energyRight - energyStar);
         reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
-        //NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
+        // NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
       }
     }
     hierarchyEnt.add(levelEnt);
@@ -269,7 +292,7 @@ void Simulation::nextStep()
     if (ent->draw && ent->concent > recordDrawn)
     {
       recordDrawn = ent->concent;
-      recordDrawnEntity= ent->name;
+      recordDrawnEntity = ent->name;
     }
   }
 

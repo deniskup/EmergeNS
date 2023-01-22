@@ -1,18 +1,18 @@
 
-Possibly more options in generation (distributions ?)
-range entities per level,
-entity per level l= proportion f(l) of the exponential number of possibilities
-(choice with function with less growth like l^alpha)
-EN COURS
+
+EN COURS: entity per level l= different options for growth
+
 
 energy: l*c +[range], no constraint on c.
-more things depend on level
+
 
 
 au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
 initial concent = 0 ?
 
-destruction different from primary and composite
+interdire différentes entités meme composition
+
+destruction different for primary and composite
 proposer uniforme ou gaussienne
 
 poursuivre ou relancer simulation avec meme parametres, enregistrer ces parametres
@@ -32,9 +32,13 @@ Est-ce que le régime statique réalisé depend de catalyse/autocatalyse, ou au 
 log(pi/pi_equilibre)
 pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normalisation pour que les pi_eq somment à 1.
 
+Understand and implement catalysis/autocatalysis test of Blockhuis et al.
 
+NON URGENT
+Gaussian/uniform distributions ?
+more things depend on level
 Reproduce and solve weird bug of curves displace on only a point simultaneously. Just printing or simul ?
 
-Understand and implement catalysis/autocatalysis test of Blockhuis et al.
+
 
 

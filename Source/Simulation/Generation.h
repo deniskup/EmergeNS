@@ -11,7 +11,9 @@ public:
     Generation();
     ~Generation();
 
-    IntParameter *numLevels;
+    IntRangeParameter *primEntities;
+    IntRangeParameter *numLevels;
+
 
     enum GrowthMode
     {
@@ -20,7 +22,7 @@ public:
         EXPONENTIAL
     };
     EnumParameter *growthEntitiesPerLevel; // constant, polynomial, exponential
-    IntParameter *entPerLevNum;
+    IntRangeParameter *entPerLevNum;
     FloatParameter *entPerLevA;
     FloatParameter *entPerLevB;
     IntParameter *entPerLevUncert;
@@ -29,10 +31,10 @@ public:
     IntParameter *entitiesPerLevel;
     Point2DParameter *concentRange;
     Point2DParameter *entitiesPerLevelRange;
-    IntParameter *maxReactionsPerEntity;
+   // IntParameter *maxReactionsPerEntity;
 
     
-    IntRangeParameter *ReactionsPerEntity;
+    IntRangeParameter *reactionsPerEntity;
 
     FloatParameter *maxDestructionRate;
     FloatParameter *maxCreationRate;
