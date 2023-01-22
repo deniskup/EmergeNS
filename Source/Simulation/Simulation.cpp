@@ -55,8 +55,9 @@ void Simulation::fetchManual()
 
 int randInt(int i, int j)
 {
-  if(j < i){
-    LOGWARNING("Range ["<<i<<","<<j<<"] incorrect, setting to "<<i);
+  if (j < i)
+  {
+    LOGWARNING("Range [" << i << "," << j << "] incorrect, setting to " << i);
     return i;
   }
   if (i == j)
@@ -71,8 +72,9 @@ float randFloat()
 
 float randFloat(float a, float b)
 {
-  if(b < a){
-    LOGWARNING("Range ["<<a<<","<<b<<"] incorrect, setting to "<<a);
+  if (b < a)
+  {
+    LOGWARNING("Range [" << a << "," << b << "] incorrect, setting to " << a);
     return a;
   }
   if (a == b)
@@ -123,6 +125,7 @@ void Simulation::fetchGenerate()
   // poly or exp growth
   float aGrowth = gen->entPerLevA->floatValue();
   float bGrowth = gen->entPerLevB->floatValue();
+  float u = gen->entPerLevUncert->intValue();
 
   // reactions per entity
   int minReacPerEnt = gen->reactionsPerEntity->x;
@@ -130,7 +133,20 @@ void Simulation::fetchGenerate()
   for (int level = 1; level < numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
-    int numEnts=randInt(gen->entPerLevNum->x,gen->entPerLevNum->y);
+    int numEnts = 1;
+    switch (gen->growthEntitiesPerLevel->getValueDataAsEnum<Generation::GrowthMode>())
+    {
+    case Generation::CONSTANT:
+      numEnts = randInt(gen->entPerLevNum->x, gen->entPerLevNum->y);
+      break;
+    case Generation::POLYNOMIAL:
+      numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
+      break;
+    case Generation::EXPONENTIAL:
+      numEnts = (int)(aGrowth * pow(primEnts, level) + randInt(-u, u));
+      break;
+    }
+    if(numEnts<1) numEnts=1; //at least one entity per level, maybe not necessary later but needed for now.
     for (int ide = 0; ide < numEnts; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
@@ -151,7 +167,8 @@ void Simulation::fetchGenerate()
       levelEnt.add(e);
       // reactions producing e
       int nbReac = randInt(minReacPerEnt, maxReacPerEnt);
-     
+
+      //compositions are not verified for now, just levels
       for (int ir = 0; ir < nbReac; ir++)
       {
         int lev1 = randInt(0, level - 1);
