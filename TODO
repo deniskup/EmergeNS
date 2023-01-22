@@ -2,6 +2,8 @@
 respecter compositions
 interdire différentes entités même composition
 
+choisit-on une composition au hasard parmi les existantes, ou pondère-t-on par les différentes manières de l'obtenir ? (2e solution semble meilleure)
+
 afficher statistiques globales avant/apres simulation
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...

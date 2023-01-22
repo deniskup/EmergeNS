@@ -153,6 +153,8 @@ void Simulation::fetchGenerate()
 
     //build hashtable of available compositions at level l.
     //look for best data structure: we need to -add while avoiding duplicates -pick one at random -remove it. All this with compositions which are Array<int>
+    //additionnally, each composition can link to the different ways to produce it.
+    
 
     for (int ide = 0; ide < numEnts; ide++)
     {
