@@ -21,10 +21,10 @@ Generation::Generation() : ControllableContainer("Generation")
     entPerLevNum->x = 3;
     entPerLevNum->y = 6;
 
-    entPerLevA = addFloatParameter("Coef a #entities", "Maximal creation rate of primary entities", 2., 0.);
+    entPerLevA = addFloatParameter("Coef a #entities", "Maximal creation rate of primary entities", .1, 0.);
     entPerLevA->hideInEditor=true;
     
-    entPerLevB = addFloatParameter("Param b #entities", "Exponent or base of growth for poly/exp", 2., 0.);
+    entPerLevB = addFloatParameter("Exponent level^b #entities", "Exponent of polynomial growth", 2., 0.);
     entPerLevB->hideInEditor=true;
     
     entPerLevUncert = addIntParameter("Plus minus u", "Uncertainty on entity per level: +range[-u,u]", 5, 0);

@@ -20,6 +20,7 @@ public:
 
   Colour color;
   bool primary;
+  int id; //for primary entities
   float concent;
   float creationRate;
   float destructionRate;
@@ -28,6 +29,7 @@ public:
   int level;
   bool draw=true;
 
+  Array<int> composition; //indexes are link to primary entities thanks to array primEnts
 
   void increase(float incr);
   void decrease(float decr);
@@ -62,6 +64,8 @@ public:
   Simulation();
   ~Simulation();
 
+
+  //for drawing
   int maxSteps;
   int curStep;
   IntParameter *perCent;
@@ -89,6 +93,7 @@ public:
 
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
+  Array<SimEntity *> primEnts; //primary entities, useful to recover the number i
 
   void fetchGenerate();
   void fetchManual();

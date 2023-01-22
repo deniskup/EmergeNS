@@ -90,7 +90,7 @@ void Simulation::fetchGenerate()
   int numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
 
   // primary entities
-  int primEnts = randInt(gen->primEntities->x, gen->primEntities->y);
+  int nbPrimEnts = randInt(gen->primEntities->x, gen->primEntities->y);
 
   // only rough approximation
   int totalEnts = numLevels * gen->entPerLevNum->x;
@@ -98,8 +98,8 @@ void Simulation::fetchGenerate()
   int nbShow = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
-  Array<SimEntity *> primEnt;
-  for (int idp = 0; idp < primEnts; idp++)
+  //Array<SimEntity *> primEnts; primEnts is part of Simulation
+  for (int idp = 0; idp < nbPrimEnts; idp++)
   {
 
     float concent = randFloat(gen->concentRange->x, gen->concentRange->y);
@@ -107,7 +107,8 @@ void Simulation::fetchGenerate()
     float cRate = randFloat(0., gen->maxCreationRate->floatValue());
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
-    e->color = Colour::fromHSV(.3f * idp, 1, 1, 1);
+    e->id=idp;
+    e->color = Colour::fromHSV(0, 1, 1, 1);
     e->name = "prim" + String(idp);
     e->draw = false;
     if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
@@ -115,10 +116,12 @@ void Simulation::fetchGenerate()
       e->draw = true;
       nbShow++;
     }
+    e->composition.insertMultiple(0,0,nbPrimEnts);
+    e->composition.set(idp,1);
     entities.add(e);
-    primEnt.add(e);
+    primEnts.add(e);
   }
-  hierarchyEnt.add(primEnt);
+  hierarchyEnt.add(primEnts);
 
   // composite entities
 
@@ -143,10 +146,14 @@ void Simulation::fetchGenerate()
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
       break;
     case Generation::EXPONENTIAL:
-      numEnts = (int)(aGrowth * pow(primEnts, level) + randInt(-u, u));
+      numEnts = (int)(aGrowth * pow(nbPrimEnts, level) + randInt(-u, u));
       break;
     }
     if(numEnts<1) numEnts=1; //at least one entity per level, maybe not necessary later but needed for now.
+
+    //build hashtable of available compositions at level l.
+    //look for best data structure: we need to -add while avoiding duplicates -pick one at random -remove it. All this with compositions which are Array<int>
+
     for (int ide = 0; ide < numEnts; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
@@ -155,7 +162,7 @@ void Simulation::fetchGenerate()
       float energy = -level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
-      e->color = Colour::fromHSV((randFloat()), 1, 1, 1); // random color
+      e->color = Colour::fromHSV(level*1./numLevels, 1, 1, 1); // color depends only on level
       e->name = String(level) + "-" + String(ide);
       e->draw = false;
       if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
@@ -165,6 +172,9 @@ void Simulation::fetchGenerate()
       }
       entities.add(e);
       levelEnt.add(e);
+
+      //todo:pick an available composition for e, maybe via hashtable ?
+
       // reactions producing e
       int nbReac = randInt(minReacPerEnt, maxReacPerEnt);
 
@@ -205,6 +215,7 @@ void Simulation::start()
 
   entities.clear();
   entitiesDrawn.clear();
+  primEnts.clear();
 
   reactions.clear();
   if (generated->boolValue())
