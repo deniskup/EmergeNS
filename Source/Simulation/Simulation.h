@@ -74,6 +74,7 @@ public:
   FloatParameter *totalTime;
   BoolParameter *generated;
   BoolParameter *autoScale;
+  IntParameter *pointsDrawn;
 
   float recordConcent; // record the higher concentration reached
   String recordEntity;
@@ -109,19 +110,19 @@ public:
   void onContainerTriggerTriggered(Trigger *t) override;
   void onContainerParameterChanged(Parameter *p) override;
 
-  class SimulationListener
-  {
-  public:
-    virtual ~SimulationListener() {}
-    virtual void newStep(Simulation *){};
-    virtual void simulationWillStart(Simulation *){};
-    virtual void simulationStarted(Simulation *){};
-    virtual void simulationFinished(Simulation *){};
-  };
+  // class SimulationListener
+  // {
+  // public:
+  //   virtual ~SimulationListener() {}
+  //   virtual void newStep(Simulation *){};
+  //   virtual void simulationWillStart(Simulation *){};
+  //   virtual void simulationStarted(Simulation *){};
+  //   virtual void simulationFinished(Simulation *){};
+  // };
 
-  ListenerList<SimulationListener> listeners;
-  void addSimulationListener(SimulationListener *newListener) { listeners.add(newListener); }
-  void removeSimulationListener(SimulationListener *listener) { listeners.remove(listener); }
+  //ListenerList<SimulationListener> listeners;
+  //void addSimulationListener(SimulationListener *newListener) { listeners.add(newListener); }
+  //void removeSimulationListener(SimulationListener *listener) { listeners.remove(listener); }
 
   	// ASYNC
 	class  SimulationEvent

@@ -41,7 +41,7 @@ Generation::Generation() : ControllableContainer("Generation")
     concentRange->y = 1.f;
     maxCreationRate = addFloatParameter("Max creation rate", "Maximal creation rate of primary entities", .5, 0.);
     maxDestructionRate = addFloatParameter("Max destruction rate", "Maximal destruction rate of entities", .5, 0.);
-    energyPerLevel = addFloatParameter("Energy per level", "Base energy of composite entities is -coef*level", .5, 0.);
+    energyPerLevel = addFloatParameter("Energy per level", "Base energy of composite entities is coef*level", .5, 0.);
     energyUncertainty = addFloatParameter("Energy uncertainty", "Energy=Base energy +-uncertainty", .5, 0.);
     maxEnergyBarrier = addFloatParameter("Max ernergy barrier", "Max energy barrier of reactions", .1, 0.);
 

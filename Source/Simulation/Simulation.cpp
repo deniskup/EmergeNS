@@ -18,6 +18,7 @@ juce_ImplementSingleton(Simulation)
 
   dt = addFloatParameter("dt", "time step in ms", .001, 0.f);
   totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
+  pointsDrawn = addIntParameter("Points drawn", "Number of points drawn on curves", 100, 1, 500);
   perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
   perCent->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
@@ -98,7 +99,7 @@ void Simulation::fetchGenerate()
   int nbShow = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
-  //Array<SimEntity *> primEnts; primEnts is part of Simulation
+  // Array<SimEntity *> primEnts; primEnts is part of Simulation
   for (int idp = 0; idp < nbPrimEnts; idp++)
   {
 
@@ -107,7 +108,7 @@ void Simulation::fetchGenerate()
     float cRate = randFloat(0., gen->maxCreationRate->floatValue());
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
-    e->id=idp;
+    e->id = idp;
     e->color = Colour::fromHSV(0, 1, 1, 1);
     e->name = "prim" + String(idp);
     e->draw = false;
@@ -116,8 +117,8 @@ void Simulation::fetchGenerate()
       e->draw = true;
       nbShow++;
     }
-    e->composition.insertMultiple(0,0,nbPrimEnts);
-    e->composition.set(idp,1);
+    e->composition.insertMultiple(0, 0, nbPrimEnts);
+    e->composition.set(idp, 1);
     entities.add(e);
     primEnts.add(e);
   }
@@ -149,22 +150,22 @@ void Simulation::fetchGenerate()
       numEnts = (int)(aGrowth * pow(nbPrimEnts, level) + randInt(-u, u));
       break;
     }
-    if(numEnts<1) numEnts=1; //at least one entity per level, maybe not necessary later but needed for now.
+    if (numEnts < 1)
+      numEnts = 1; // at least one entity per level, maybe not necessary later but needed for now.
 
-    //build hashtable of available compositions at level l.
-    //look for best data structure: we need to -add while avoiding duplicates -pick one at random -remove it. All this with compositions which are Array<int>
-    //additionnally, each composition can link to the different ways to produce it.
-    
+    // build hashtable of available compositions at level l.
+    // look for best data structure: we need to -add while avoiding duplicates -pick one at random -remove it. All this with compositions which are Array<int>
+    // additionnally, each composition can link to the different ways to produce it.
 
     for (int ide = 0; ide < numEnts; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
       float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
       float uncert = gen->energyUncertainty->floatValue();
-      float energy = -level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
+      float energy = level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
-      e->color = Colour::fromHSV(level*1./numLevels, 1, 1, 1); // color depends only on level
+      e->color = Colour::fromHSV(level * 1. / numLevels, 1, 1, 1); // color depends only on level
       e->name = String(level) + "-" + String(ide);
       e->draw = false;
       if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
@@ -175,12 +176,12 @@ void Simulation::fetchGenerate()
       entities.add(e);
       levelEnt.add(e);
 
-      //todo:pick an available composition for e, maybe via hashtable ?
+      // todo:pick an available composition for e, maybe via hashtable ?
 
       // reactions producing e
       int nbReac = randInt(minReacPerEnt, maxReacPerEnt);
 
-      //compositions are not verified for now, just levels
+      // compositions are not verified for now, just levels
       for (int ir = 0; ir < nbReac; ir++)
       {
         int lev1 = randInt(0, level - 1);
@@ -213,7 +214,7 @@ void Simulation::start()
 {
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-  listeners.call(&SimulationListener::simulationWillStart, this);
+  //listeners.call(&SimulationListener::simulationWillStart, this);
 
   entities.clear();
   entitiesDrawn.clear();
@@ -243,10 +244,11 @@ void Simulation::start()
   }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
-  listeners.call(&SimulationListener::simulationStarted, this);
+  //listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
-  checkPoint = 20; // 20 checkpoints
+  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
+  checkPoint= jmax(1,checkPoint);
   startThread();
 }
 
@@ -341,8 +343,12 @@ void Simulation::nextStep()
     entityValues.add(ent->concent);
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
-  listeners.call(&SimulationListener::newStep, this);
+  // call only pointsDrawn time
+  if (isCheck)
+  {
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
+    //listeners.call(&SimulationListener::newStep, this);
+  }
 }
 
 void Simulation::stop()
@@ -368,7 +374,7 @@ void Simulation::run()
   NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
   NLOG(niceName, "Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
-  listeners.call(&SimulationListener::simulationFinished, this);
+  //listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
 

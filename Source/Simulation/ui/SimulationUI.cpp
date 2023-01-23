@@ -2,14 +2,15 @@
 #include "SimulationUI.h"
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
-                               simul(Simulation::getInstance()),
-                               uiStep(1)
+                               simul(Simulation::getInstance())
+                               //uiStep(1)
 {
 
     dtUI.reset(simul->dt->createLabelParameter());
     dtUI->setSuffix(" s");
     totalTimeUI.reset(simul->totalTime->createLabelParameter());
     totalTimeUI->setSuffix(" s");
+    pointsDrawnUI.reset(simul->pointsDrawn->createLabelUI());
     perCentUI.reset(simul->perCent->createSlider());
     perCentUI->suffix = "%";
     maxConcentUI.reset(simul->maxConcent->createLabelParameter());
@@ -30,6 +31,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     cancelUI->setSize(100, 20);
     generatedUI->setSize(100, 20);
     autoScaleUI->setSize(100, 20);
+    pointsDrawnUI->setSize(150, 20);
 
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
@@ -39,11 +41,12 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(autoScaleUI.get());
     addAndMakeVisible(generatedUI.get());
     addAndMakeVisible(perCentUI.get());
+    addAndMakeVisible(pointsDrawnUI.get());
 
     maxConcentUI->setVisible(!simul->autoScale->boolValue());
     perCentUI->customLabel = "Progress";
 
-    simBounds.setSize(500,500);
+    simBounds.setSize(500, 500);
 
     startTimerHz(20);
     simul->addAsyncSimulationListener(this);
@@ -63,17 +66,32 @@ void SimulationUI::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
-    simBounds = getLocalBounds().withTop(100).reduced(10);
+    simBounds = getLocalBounds().withTop(100).withTrimmedBottom(100).reduced(10);
 
     g.setFont(12);
 
     g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
     g.fillRoundedRectangle(simBounds.toFloat(), 4);
 
-    if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si option realTime
+    
+    //if simulation generated
+    //if(simul->generated->boolValue())
+
+    //TODO rectangle bottom left
+
+
+
+    //if simulation finished
+    //TODO rectangle bottom right
+
+    
+    if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
         return;
     if (entityHistory.isEmpty())
         return;
+
+    
+
 
     float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
     // float maxConcent = 5;
@@ -120,14 +138,16 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(27);
 
-    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 50 + generatedUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20+ pointsDrawnUI->getWidth()+ 40 + generatedUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
     dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
     hr.removeFromLeft(20);
     totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
-    hr.removeFromLeft(30);
+    hr.removeFromLeft(20);
+    pointsDrawnUI->setBounds(hr.removeFromLeft(pointsDrawnUI->getWidth()));
+    hr.removeFromLeft(40);
     generatedUI->setBounds(hr.removeFromRight(generatedUI->getWidth()));
 
     r.removeFromTop(8);
@@ -146,6 +166,7 @@ void SimulationUI::resized()
 
     r.removeFromTop(8);
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
+
 }
 
 void SimulationUI::timerCallback()
@@ -180,10 +201,11 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
     {
     case Simulation::SimulationEvent::WILL_START:
     {
-        int maxPoints = simBounds.getWidth();
+        // int maxPoints = simBounds.getWidth();
         entityHistory.clear();
         entityColors.clear();
-        uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
+        // uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
+        // resolution decided by ui
         repaint();
     }
     break;
@@ -192,16 +214,18 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
     {
         entityColors = ev.entityColors;
         entityHistory.add(ev.entityValues);
-        
     }
     break;
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
-        if (ev.curStep % uiStep == 0)
-            entityHistory.add(ev.entityValues);
+        // if (ev.curStep % uiStep == 0)
+        entityHistory.add(ev.entityValues);
+        //print for debug
+     //   NLOG("Value", ev.entityValues[0]);
 
-        if(simul->realTime->boolValue()) shouldRepaint = true;
+        if (simul->realTime->boolValue())
+            shouldRepaint = true;
     }
     break;
 

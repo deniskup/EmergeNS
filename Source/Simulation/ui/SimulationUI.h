@@ -26,8 +26,9 @@ public:
     std::unique_ptr<TriggerUI> cancelUI;
     std::unique_ptr<BoolToggleUI> generatedUI;
     std::unique_ptr<BoolToggleUI> autoScaleUI;
+    std::unique_ptr<IntParameterLabelUI> pointsDrawnUI;
 
-    int uiStep;
+    //int uiStep;
     Rectangle<int> simBounds;
     
     //local floatparameter
