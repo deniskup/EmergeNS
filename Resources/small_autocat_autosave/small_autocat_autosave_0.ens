@@ -28,26 +28,26 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1364,
-      "height": 677,
+      "width": 1918,
+      "height": 1149,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1364,
-          "height": 677,
+          "width": 1918,
+          "height": 1149,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
-              "width": 367,
-              "height": 677,
+              "width": 527,
+              "height": 1149,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 367,
-                  "height": 337,
+                  "width": 527,
+                  "height": 573,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -57,8 +57,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 367,
-                  "height": 334,
+                  "width": 527,
+                  "height": 570,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -70,14 +70,14 @@
             },
             {
               "type": 1,
-              "width": 991,
-              "height": 677,
+              "width": 1385,
+              "height": 1149,
               "direction": 1,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 717,
-                  "height": 677,
+                  "width": 914,
+                  "height": 1149,
                   "currentContent": "Simulation",
                   "tabs": [
                     {
@@ -87,14 +87,14 @@
                 },
                 {
                   "type": 1,
-                  "width": 268,
-                  "height": 677,
+                  "width": 464,
+                  "height": 1149,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 268,
-                      "height": 336,
+                      "width": 464,
+                      "height": 741,
                       "currentContent": "Generation",
                       "tabs": [
                         {
@@ -104,8 +104,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 268,
-                      "height": 335,
+                      "width": 464,
+                      "height": 402,
                       "currentContent": "Logger",
                       "tabs": [
                         {
@@ -419,13 +419,31 @@
   "generation": {
     "parameters": [
       {
-        "value": 50,
-        "hexMode": false,
+        "value": [
+          6,
+          6
+        ],
+        "controlAddress": "/primaryEntities"
+      },
+      {
+        "value": [
+          7,
+          7
+        ],
         "controlAddress": "/levels"
       },
       {
-        "value": 5,
-        "hexMode": false,
+        "value": [
+          7,
+          7
+        ],
+        "controlAddress": "/entities_level"
+      },
+      {
+        "value": [
+          3,
+          6
+        ],
         "controlAddress": "/reactionsPerEntity"
       },
       {
@@ -440,9 +458,8 @@
         "controlAddress": "/maxDestructionRate"
       },
       {
-        "value": 13,
-        "hexMode": false,
-        "controlAddress": "/avgNumOfCurves"
+        "value": -1.999999761581421,
+        "controlAddress": "/energyPerLevel"
       }
     ]
   }

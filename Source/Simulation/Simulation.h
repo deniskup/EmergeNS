@@ -9,6 +9,8 @@ using namespace std;
 class Entity;
 class Reaction;
 
+typedef Array<int> Compo;
+
 class SimEntity
 {
 public:
@@ -20,16 +22,16 @@ public:
 
   Colour color;
   bool primary;
-  int id; //for primary entities
+  int id; // for primary entities
   float concent;
   float creationRate;
   float destructionRate;
   float freeEnergy;
 
   int level;
-  bool draw=true;
+  bool draw = true;
 
-  Array<int> composition; //indexes are link to primary entities thanks to array primEnts
+  Compo composition; // indexes are link to primary entities thanks to array primEnts
 
   void increase(float incr);
   void decrease(float decr);
@@ -38,6 +40,8 @@ public:
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };
+
+typedef pair<SimEntity *, SimEntity *> Decomp;
 
 class SimReaction
 {
@@ -64,8 +68,7 @@ public:
   Simulation();
   ~Simulation();
 
-
-  //for drawing
+  // for drawing
   int maxSteps;
   int curStep;
   IntParameter *perCent;
@@ -78,11 +81,11 @@ public:
 
   float recordConcent; // record the higher concentration reached
   String recordEntity;
-  float recordDrawn; //same but only for drawn entities for autoscale
+  float recordDrawn; // same but only for drawn entities for autoscale
   String recordDrawnEntity;
 
   int checkPoint; // every checkPoint steps, wait and log
-  bool displayLog=false;
+  bool displayLog = false;
   Array<SimEntity *> entitiesDrawn;
 
   // these ones are for display
@@ -94,7 +97,7 @@ public:
 
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
-  Array<SimEntity *> primEnts; //primary entities, useful to recover the number i
+  Array<SimEntity *> primEnts;       // primary entities, useful to recover the number i
 
   void fetchGenerate();
   void fetchManual();
@@ -120,33 +123,53 @@ public:
   //   virtual void simulationFinished(Simulation *){};
   // };
 
-  //ListenerList<SimulationListener> listeners;
-  //void addSimulationListener(SimulationListener *newListener) { listeners.add(newListener); }
-  //void removeSimulationListener(SimulationListener *listener) { listeners.remove(listener); }
+  // ListenerList<SimulationListener> listeners;
+  // void addSimulationListener(SimulationListener *newListener) { listeners.add(newListener); }
+  // void removeSimulationListener(SimulationListener *listener) { listeners.remove(listener); }
 
-  	// ASYNC
-	class  SimulationEvent
-	{
-	public:
-		enum Type { WILL_START, STARTED, NEWSTEP, FINISHED };
+  // ASYNC
+  class SimulationEvent
+  {
+  public:
+    enum Type
+    {
+      WILL_START,
+      STARTED,
+      NEWSTEP,
+      FINISHED
+    };
 
-		SimulationEvent(Type t, Simulation* sim, int curStep=0, Array<float> entityValues=Array<float>(), Array<Colour> entityColors=Array<Colour>()) :
-			type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
-		{
-		}
+    SimulationEvent(Type t, Simulation *sim, int curStep = 0, Array<float> entityValues = Array<float>(), Array<Colour> entityColors = Array<Colour>()) : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
+    {
+    }
 
-		Type type;
-		Simulation* sim;
-		int curStep;
+    Type type;
+    Simulation *sim;
+    int curStep;
     Array<float> entityValues;
     Array<Colour> entityColors;
-	};
+  };
 
-	QueuedNotifier<SimulationEvent> simNotifier;
-	typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
+  QueuedNotifier<SimulationEvent> simNotifier;
+  typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
 
+  void addAsyncSimulationListener(AsyncSimListener *newListener) { simNotifier.addListener(newListener); }
+  void addAsyncCoalescedSimulationListener(AsyncSimListener *newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
+  void removeAsyncSimulationListener(AsyncSimListener *listener) { simNotifier.removeListener(listener); }
+};
 
-	void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
-	void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
-	void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
+class CompoDecomps
+{
+public:
+  CompoDecomps(Compo comp, Array<Decomp> ar) : compo(comp), decomps(ar) {}
+  ~CompoDecomps()
+  {
+    decomps.clear();
+  }
+  Compo compo;
+  Array<Decomp> decomps;
+  void add(SimEntity *e1, SimEntity *e2)
+  {
+    decomps.add(make_pair(e1, e2));
+  }
 };

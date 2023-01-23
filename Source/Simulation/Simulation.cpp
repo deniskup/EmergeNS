@@ -150,13 +150,50 @@ void Simulation::fetchGenerate()
       numEnts = (int)(aGrowth * pow(nbPrimEnts, level) + randInt(-u, u));
       break;
     }
-    if (numEnts < 1)
-      numEnts = 1; // at least one entity per level, maybe not necessary later but needed for now.
+    numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
 
-    // build hashtable of available compositions at level l.
-    // look for best data structure: we need to -add while avoiding duplicates -pick one at random -remove it. All this with compositions which are Array<int>
-    // additionnally, each composition can link to the different ways to produce it.
-
+    Array<CompoDecomps *> compos; // first working thing, Hashtable or sorted array later ?
+    for (int lev1 = 0; lev1 < level; lev1++)
+    {
+      int lev2 = level - lev1 - 1; // complement level
+      if (lev2 < lev1)
+        break; // no need to do the reverse cases
+      // compute all combinations
+      for (auto &ent1 : hierarchyEnt[lev1])
+      {
+        for (auto &ent2 : hierarchyEnt[lev2])
+        {
+          Array<int> newCompo;
+          for (int i = 0; i < nbPrimEnts; i++)
+          {
+            newCompo.add(ent1->composition[i] + ent2->composition[i]);
+          }
+          // loop through existing ones
+          bool exists = false;
+          for (auto &cd : compos)
+          {
+            if (cd->compo == newCompo)
+            { // if exists
+              // NLOG("Compos","Exists "<<ent1->name<< " + "<<ent2->name);
+              cd->add(ent1, ent2);
+              exists = true;
+              break;
+            }
+          }
+          if (!exists)
+          {
+            //  NLOG("Compos","New "<<ent1->name<< " + "<<ent2->name);
+            Array<Decomp> dec(make_pair(ent1, ent2));
+            compos.add(new CompoDecomps(newCompo, dec));
+          }
+          if (lev1 == lev2 && ent1 == ent2)
+            break; // to avoid duplicates, we stop when reaching the diagonal
+        }
+      }
+    }
+    // bound numEnts by the number of compositions.
+   // NLOG("Compos", compos.size() << " at level " << level);
+    numEnts = jmin(numEnts, compos.size());
     for (int ide = 0; ide < numEnts; ide++)
     {
       float concent = 0.; // no initial presence of composite entities
@@ -173,23 +210,24 @@ void Simulation::fetchGenerate()
         e->draw = true;
         nbShow++;
       }
+      int idComp = randInt(0, compos.size() - 1);
+      e->composition = compos[idComp]->compo;
+      // NLOG("New entity", e->name << " = " << dec.first->name << " + " << dec.second->name);
       entities.add(e);
       levelEnt.add(e);
 
-      // todo:pick an available composition for e, maybe via hashtable ?
-
       // reactions producing e
       int nbReac = randInt(minReacPerEnt, maxReacPerEnt);
+      int nbDecomps = compos[idComp]->decomps.size();
+      nbReac = jmin(nbReac, nbDecomps);
 
-      // compositions are not verified for now, just levels
       for (int ir = 0; ir < nbReac; ir++)
       {
-        int lev1 = randInt(0, level - 1);
-        int lev2 = level - lev1 - 1;
-        int id1 = randInt(0, hierarchyEnt[lev1].size() - 1);
-        int id2 = randInt(0, hierarchyEnt[lev2].size() - 1);
-        SimEntity *e1 = hierarchyEnt[lev1][id1];
-        SimEntity *e2 = hierarchyEnt[lev2][id2];
+        int idDecomp = randInt(0, compos[idComp]->decomps.size() - 1);
+        SimEntity *e1 = compos[idComp]->decomps[idDecomp].first;
+        SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
+        // remove this decomposition
+        compos[idComp]->decomps.remove(idDecomp);
 
         float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
         // GA+GB
@@ -203,8 +241,9 @@ void Simulation::fetchGenerate()
         // k2=exp(GAB-G*)
         float disRate = exp(energyRight - energyStar);
         reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
-        // NLOG(niceName, e1->name + " + " + e2->name + " -> " + e->name);
+        NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
       }
+      compos.remove(idComp);
     }
     hierarchyEnt.add(levelEnt);
   }
@@ -214,7 +253,7 @@ void Simulation::start()
 {
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-  //listeners.call(&SimulationListener::simulationWillStart, this);
+  // listeners.call(&SimulationListener::simulationWillStart, this);
 
   entities.clear();
   entitiesDrawn.clear();
@@ -244,11 +283,11 @@ void Simulation::start()
   }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
-  //listeners.call(&SimulationListener::simulationStarted, this);
+  // listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
-  checkPoint= jmax(1,checkPoint);
+  checkPoint = jmax(1, checkPoint);
   startThread();
 }
 
@@ -347,7 +386,7 @@ void Simulation::nextStep()
   if (isCheck)
   {
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
-    //listeners.call(&SimulationListener::newStep, this);
+    // listeners.call(&SimulationListener::newStep, this);
   }
 }
 
@@ -374,7 +413,7 @@ void Simulation::run()
   NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
   NLOG(niceName, "Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
-  //listeners.call(&SimulationListener::simulationFinished, this);
+  // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
 

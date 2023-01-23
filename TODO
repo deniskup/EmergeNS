@@ -1,8 +1,4 @@
 
-respecter compositions
-interdire différentes entités même composition
-
-choisit-on une composition au hasard parmi les existantes, ou pondère-t-on par les différentes manières de l'obtenir ? (2e solution semble meilleure)
 
 afficher statistiques globales avant/apres simulation
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
@@ -30,10 +26,13 @@ pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normali
 
 Understand and implement catalysis/autocatalysis test of Blockhuis et al.
 
-NON URGENT
+--------------- NON URGENT ---------------
+
 Gaussian/uniform distributions ?
 more things depend on level
-Reproduce and solve weird bug of curves displace on only a point simultaneously. Just printing or simul ?
+
+Manière de tirer peut biaiser vers peu de reaction, on pourrait ajouter des dissolutions pour refaire des entités plus petites.
+Les compositions faites de 10 manières n'ont pas plus de chances de sortir que celles faites d'une seule manière, à changer ? 
 
 
 
