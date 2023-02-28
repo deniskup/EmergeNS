@@ -1,11 +1,9 @@
-
+remove exponential: the max entities of size n is O(n^|prims|)
 
 afficher statistiques globales avant/apres simulation
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...
 entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we take exp of all this at the end if display is better.
-
-energy: l*c +[range], no constraint on c.
 
 au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
 initial concent = 0 ?

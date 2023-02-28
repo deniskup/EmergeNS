@@ -28,26 +28,26 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1278,
-      "height": 749,
+      "width": 1918,
+      "height": 1149,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1278,
-          "height": 749,
+          "width": 1918,
+          "height": 1149,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
-              "width": 324,
-              "height": 749,
+              "width": 527,
+              "height": 1149,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 324,
-                  "height": 373,
+                  "width": 527,
+                  "height": 573,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -57,8 +57,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 324,
-                  "height": 370,
+                  "width": 527,
+                  "height": 570,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -70,14 +70,14 @@
             },
             {
               "type": 1,
-              "width": 948,
-              "height": 749,
+              "width": 1385,
+              "height": 1149,
               "direction": 1,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 695,
-                  "height": 749,
+                  "width": 914,
+                  "height": 1149,
                   "currentContent": "Simulation",
                   "tabs": [
                     {
@@ -87,14 +87,14 @@
                 },
                 {
                   "type": 1,
-                  "width": 246,
-                  "height": 749,
+                  "width": 464,
+                  "height": 1149,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 246,
-                      "height": 372,
+                      "width": 464,
+                      "height": 741,
                       "currentContent": "Generation",
                       "tabs": [
                         {
@@ -104,8 +104,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 246,
-                      "height": 371,
+                      "width": 464,
+                      "height": 402,
                       "currentContent": "Logger",
                       "tabs": [
                         {
@@ -130,7 +130,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 500.0,
+        "value": 10.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -140,10 +140,6 @@
       {
         "value": true,
         "controlAddress": "/generated"
-      },
-      {
-        "value": true,
-        "controlAddress": "/autoScale"
       }
     ]
   },
@@ -164,7 +160,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": 2.040816307067871,
+            "value": 0.0,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -195,7 +191,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": 2.653060913085938,
+            "value": 0.0,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -230,7 +226,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": 3.571428298950195,
+            "value": -1.122448921203613,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -265,7 +261,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": 4.489796161651611,
+            "value": 0.4081635475158691,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -300,7 +296,7 @@
             "controlAddress": "/concentration"
           },
           {
-            "value": 5.816325664520264,
+            "value": -0.918367862701416,
             "controlAddress": "/freeEnergy"
           },
           {
@@ -423,19 +419,32 @@
   "generation": {
     "parameters": [
       {
-        "value": 10,
-        "hexMode": false,
-        "controlAddress": "/entitiesPerLevel"
+        "value": [
+          3,
+          3
+        ],
+        "controlAddress": "/primaryEntities"
       },
       {
-        "value": 5,
-        "hexMode": false,
-        "controlAddress": "/reactionsPerEntity"
-      },
-      {
-        "value": 50,
-        "hexMode": false,
+        "value": [
+          7,
+          7
+        ],
         "controlAddress": "/levels"
+      },
+      {
+        "value": [
+          7,
+          7
+        ],
+        "controlAddress": "/entities_level"
+      },
+      {
+        "value": [
+          3,
+          6
+        ],
+        "controlAddress": "/reactionsPerEntity"
       },
       {
         "value": [
@@ -449,9 +458,8 @@
         "controlAddress": "/maxDestructionRate"
       },
       {
-        "value": 13,
-        "hexMode": false,
-        "controlAddress": "/avgNumOfCurves"
+        "value": -1.999999761581421,
+        "controlAddress": "/energyPerLevel"
       }
     ]
   }
