@@ -68,6 +68,8 @@ public:
   Simulation();
   ~Simulation();
 
+  bool ready; //to know if ready to be launched, ie parameters generated
+
   // for drawing
   int maxSteps;
   int curStep;
@@ -92,13 +94,16 @@ public:
   FloatParameter *maxConcent;
   BoolParameter *realTime; // do we print intermediary steps ?
 
+  Trigger *genTrigger;
   Trigger *startTrigger;
+  Trigger *genstartTrigger;
   Trigger *cancelTrigger;
 
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
   Array<SimEntity *> primEnts;       // primary entities, useful to recover the number i
 
+  void clearParams();
   void fetchGenerate();
   void fetchManual();
   void start();
@@ -133,6 +138,7 @@ public:
   public:
     enum Type
     {
+      UPDATEPARAMS,
       WILL_START,
       STARTED,
       NEWSTEP,

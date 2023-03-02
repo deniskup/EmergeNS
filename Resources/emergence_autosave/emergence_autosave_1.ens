@@ -1,0 +1,475 @@
+{
+  "metaData": {
+    "version": "1.0.0",
+    "versionNumber": 65536
+  },
+  "projectSettings": {
+    "containers": {
+      "dashboardSettings": {
+      },
+      "customDefinitions": {
+      }
+    }
+  },
+  "dashboardManager": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "parrots": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "layout": {
+    "mainLayout": {
+      "type": 1,
+      "width": 1364,
+      "height": 677,
+      "direction": 2,
+      "shifters": [
+        {
+          "type": 1,
+          "width": 1364,
+          "height": 677,
+          "direction": 1,
+          "shifters": [
+            {
+              "type": 1,
+              "width": 347,
+              "height": 677,
+              "direction": 2,
+              "shifters": [
+                {
+                  "type": 0,
+                  "width": 347,
+                  "height": 199,
+                  "currentContent": "Inspector",
+                  "tabs": [
+                    {
+                      "name": "Inspector"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 347,
+                  "height": 137,
+                  "currentContent": "Reactions",
+                  "tabs": [
+                    {
+                      "name": "Reactions"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 347,
+                  "height": 329,
+                  "currentContent": "Entities",
+                  "tabs": [
+                    {
+                      "name": "Entities"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": 0,
+              "width": 653,
+              "height": 677,
+              "currentContent": "Simulation",
+              "tabs": [
+                {
+                  "name": "Simulation"
+                }
+              ]
+            },
+            {
+              "type": 1,
+              "width": 352,
+              "height": 677,
+              "direction": 2,
+              "shifters": [
+                {
+                  "type": 0,
+                  "width": 352,
+                  "height": 505,
+                  "currentContent": "Generation",
+                  "tabs": [
+                    {
+                      "name": "Generation"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 352,
+                  "height": 166,
+                  "currentContent": "Logger",
+                  "tabs": [
+                    {
+                      "name": "Logger"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "windows": null
+  },
+  "simulation": {
+    "parameters": [
+      {
+        "value": 0.05,
+        "controlAddress": "/dt"
+      },
+      {
+        "value": 50.0,
+        "controlAddress": "/totalTime"
+      },
+      {
+        "value": 200,
+        "hexMode": false,
+        "controlAddress": "/pointsDrawn"
+      },
+      {
+        "value": 0.1000000834465027,
+        "controlAddress": "/maxConcent"
+      },
+      {
+        "value": true,
+        "controlAddress": "/generated"
+      },
+      {
+        "value": false,
+        "controlAddress": "/autoScale"
+      }
+    ]
+  },
+  "entities": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": 0.02812495827674866,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.00937500037252903,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.006249994039535522,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": [
+              0.2274509817361832,
+              0.9490196108818054,
+              0.0470588244497776,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "A",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": 0.2437500655651093,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.03125,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.59375,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": [
+              0.0470588244497776,
+              0.407843142747879,
+              0.9490196108818054,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "B",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -1.122448921203613,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.9490196108818054,
+              0.0470588244497776,
+              0.5882353186607361,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "AB",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.4081635475158691,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.8117647171020508,
+              1.0,
+              0.05098039284348488,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "A2",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -0.918367862701416,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0470588244497776,
+              0.9490196108818054,
+              0.9490196108818054,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "A2B",
+        "type": "Entity"
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "reactions": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": "/a",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/b",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/ab",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "A+B",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/a",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/ab",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/a2b",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 1.625000238418579,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "A+AB",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/a2",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/b",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/a2b",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3906248509883881,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "A2B->A2+B",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/a",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/a",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/a2",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "A2->A+A",
+        "type": "Reaction"
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "generation": {
+    "parameters": [
+      {
+        "value": [
+          3,
+          3
+        ],
+        "controlAddress": "/primaryEntities"
+      },
+      {
+        "value": [
+          7,
+          7
+        ],
+        "controlAddress": "/levels"
+      },
+      {
+        "value": [
+          7,
+          7
+        ],
+        "controlAddress": "/entities_level"
+      },
+      {
+        "value": [
+          1,
+          4
+        ],
+        "controlAddress": "/reactionsPerEntity"
+      },
+      {
+        "value": [
+          0.0,
+          0.1000000014901161
+        ],
+        "controlAddress": "/initConcentrationRange"
+      },
+      {
+        "value": 0.2,
+        "controlAddress": "/maxDestructionRate"
+      },
+      {
+        "value": -3.0,
+        "controlAddress": "/energyPerLevel"
+      },
+      {
+        "value": 20,
+        "hexMode": false,
+        "controlAddress": "/maxNumOfCurves"
+      }
+    ]
+  }
+}

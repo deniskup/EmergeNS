@@ -14,7 +14,9 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     perCentUI.reset(simul->perCent->createSlider());
     perCentUI->suffix = "%";
     maxConcentUI.reset(simul->maxConcent->createLabelParameter());
+    genUI.reset(simul->genTrigger->createButtonUI());
     startUI.reset(simul->startTrigger->createButtonUI());
+    genstartUI.reset(simul->genstartTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
     generatedUI.reset(simul->generated->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
@@ -27,7 +29,9 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     totalTimeUI->setSize(200, 20);
     perCentUI->setSize(100, 20);
     maxConcentUI->setSize(150, 20);
+    genUI->setSize(100, 20);
     startUI->setSize(100, 20);
+    genstartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
     generatedUI->setSize(100, 20);
     autoScaleUI->setSize(100, 20);
@@ -36,7 +40,9 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
     addAndMakeVisible(maxConcentUI.get());
+    addAndMakeVisible(genUI.get());
     addAndMakeVisible(startUI.get());
+    addAndMakeVisible(genstartUI.get());
     addAndMakeVisible(cancelUI.get());
     addAndMakeVisible(autoScaleUI.get());
     addAndMakeVisible(generatedUI.get());
@@ -65,14 +71,21 @@ void SimulationUI::paint(juce::Graphics &g)
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
-
+    
     simBounds = getLocalBounds().withTop(100).withTrimmedBottom(100).reduced(10);
 
-    g.setFont(12);
-
+    //g.setFont(12);
+    g.setColour(NORMAL_COLOR);
+    g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
     g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
     g.fillRoundedRectangle(simBounds.toFloat(), 4);
 
+    g.setColour (Colours::white);
+    g.setFont (14);
+    Rectangle<int> botBounds= getLocalBounds().removeFromBottom(50);
+    string read="Parameters Generated";
+    if(!simul->ready) read="Not ready";
+    g.drawText(read, botBounds, Justification::centred);
     
     //if simulation generated
     //if(simul->generated->boolValue())
@@ -153,11 +166,18 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     hr = r.removeFromTop(30);
 
-    int width2 = startUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
     hr.reduce((hr.getWidth() - width2) / 2, 0);
+
+    genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
+    hr.removeFromLeft(20);
 
     startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
     hr.removeFromLeft(20);
+
+    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
+    hr.removeFromLeft(20);
+
     cancelUI->setBounds(hr.removeFromLeft(cancelUI->getWidth()));
     hr.removeFromLeft(50);
     autoScaleUI->setBounds(hr.removeFromLeft(autoScaleUI->getWidth()));
@@ -166,6 +186,8 @@ void SimulationUI::resized()
 
     r.removeFromTop(8);
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
+
+
 
 }
 
@@ -199,6 +221,10 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 {
     switch (ev.type)
     {
+     case Simulation::SimulationEvent::UPDATEPARAMS:
+    {
+        shouldRepaint = true;
+    }
     case Simulation::SimulationEvent::WILL_START:
     {
         // int maxPoints = simBounds.getWidth();

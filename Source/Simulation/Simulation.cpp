@@ -12,6 +12,7 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation"),
                                curStep(0),
+                               ready(false),
                                simNotifier(1000) // max messages async that can be sent at once
 {
   simNotifier.dropMessageOnOverflow = false;
@@ -26,7 +27,9 @@ juce_ImplementSingleton(Simulation)
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
   generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
+  genTrigger = addTrigger("Generate", "Generate");
   startTrigger = addTrigger("Start", "Start");
+  genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
 }
@@ -37,23 +40,7 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-void Simulation::fetchManual()
-{
-  for (auto &e : EntityManager::getInstance()->items)
-  {
-    if (!e->enabled->boolValue())
-      continue;
-    entities.add(new SimEntity(e));
-  }
-
-  for (auto &r : ReactionManager::getInstance()->items)
-  {
-    if (!r->shouldIncludeInSimulation())
-      continue;
-    reactions.add(new SimReaction(r));
-  }
-}
-
+// maybe rand functions to move to a file Util.c later
 int randInt(int i, int j)
 {
   if (j < i)
@@ -84,8 +71,36 @@ float randFloat(float a, float b)
   return (r * a + (1 - r) * b);
 }
 
+void Simulation::clearParams()
+{
+  entities.clear();
+  entitiesDrawn.clear();
+  primEnts.clear();
+  reactions.clear();
+}
+
+
+void Simulation::fetchManual()
+{
+  clearParams();
+  for (auto &e : EntityManager::getInstance()->items)
+  {
+    if (!e->enabled->boolValue())
+      continue;
+    entities.add(new SimEntity(e));
+  }
+
+  for (auto &r : ReactionManager::getInstance()->items)
+  {
+    if (!r->shouldIncludeInSimulation())
+      continue;
+    reactions.add(new SimReaction(r));
+  }
+}
+
 void Simulation::fetchGenerate()
 {
+  clearParams();
   Generation *gen = Generation::getInstance();
 
   int numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
@@ -192,7 +207,7 @@ void Simulation::fetchGenerate()
       }
     }
     // bound numEnts by the number of compositions.
-   // NLOG("Compos", compos.size() << " at level " << level);
+    // NLOG("Compos", compos.size() << " at level " << level);
     numEnts = jmin(numEnts, compos.size());
     for (int ide = 0; ide < numEnts; ide++)
     {
@@ -229,6 +244,7 @@ void Simulation::fetchGenerate()
         // remove this decomposition
         compos[idComp]->decomps.remove(idDecomp);
 
+        // choice of activation barrier
         float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
         // GA+GB
         float energyLeft = e1->freeEnergy + e2->freeEnergy;
@@ -247,7 +263,10 @@ void Simulation::fetchGenerate()
     }
     hierarchyEnt.add(levelEnt);
   }
+  ready=true;
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
+
 
 void Simulation::start()
 {
@@ -255,14 +274,13 @@ void Simulation::start()
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
 
-  entities.clear();
-  entitiesDrawn.clear();
-  primEnts.clear();
 
-  reactions.clear();
   if (generated->boolValue())
   {
-    fetchGenerate();
+    if(!ready){ 
+      LOGWARNING("Start with no parameters, generating parameters");
+      fetchGenerate();
+    }
   }
   else
   {
@@ -431,6 +449,13 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
     start();
+  else if (t == genTrigger)
+    fetchGenerate();
+  else if (t == genstartTrigger)
+  {
+    fetchGenerate();
+    start();
+  }
   else if (t == cancelTrigger)
     cancel();
 }
@@ -441,6 +466,11 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   if (p == dt || p == totalTime)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
+  }
+  if (p == generated)
+  {
+    //set ready to false if we switched to generated
+    ready = !generated->boolValue();
   }
 }
 

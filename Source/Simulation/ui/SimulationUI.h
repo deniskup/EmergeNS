@@ -17,23 +17,25 @@ public:
     Array<Array<float>> entityHistory;
     Array<Colour> entityColors;
 
-    //std::unique_ptr<IntStepperUI> maxStepsUI;
+    // std::unique_ptr<IntStepperUI> maxStepsUI;
     std::unique_ptr<FloatParameterLabelUI> dtUI;
     std::unique_ptr<FloatParameterLabelUI> totalTimeUI;
     std::unique_ptr<IntSliderUI> perCentUI;
     std::unique_ptr<FloatParameterLabelUI> maxConcentUI;
+    std::unique_ptr<TriggerUI> genUI;
     std::unique_ptr<TriggerUI> startUI;
+    std::unique_ptr<TriggerUI> genstartUI;
     std::unique_ptr<TriggerUI> cancelUI;
     std::unique_ptr<BoolToggleUI> generatedUI;
     std::unique_ptr<BoolToggleUI> autoScaleUI;
     std::unique_ptr<IntParameterLabelUI> pointsDrawnUI;
 
-    //int uiStep;
+    // int uiStep;
     Rectangle<int> simBounds;
-    
-    //local floatparameter
-    //std::unique_ptr<FloatParameter> maxC;
-    //std::unique_ptr<FloatParameterLabelUI> maxCUI;
+
+    // local floatparameter
+    // std::unique_ptr<FloatParameter> maxC;
+    // std::unique_ptr<FloatParameterLabelUI> maxCUI;
 
     void paint(juce::Graphics &) override;
     void resized() override;
@@ -44,7 +46,6 @@ public:
     // void simulationWillStart(Simulation *) override;
     // void simulationStarted(Simulation *) override;
     // void simulationFinished(Simulation *) override;
-    
 
     void newMessage(const Simulation::SimulationEvent &e) override;
 
