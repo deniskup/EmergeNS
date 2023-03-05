@@ -289,6 +289,7 @@ void Simulation::start()
 
   Array<float> entityValues;
   Array<Colour> entityColors;
+  entitiesDrawn.clear();
 
   for (auto &ent : entities)
   {
@@ -421,6 +422,7 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
+  NLOG(niceName, "Start thread");
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {

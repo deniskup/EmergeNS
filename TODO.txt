@@ -1,6 +1,6 @@
 Restart simulation with same parameters: 
--understand current bug ?
--go back to starting concentrations
+-go back to starting concentrations.
+
 
 
 
