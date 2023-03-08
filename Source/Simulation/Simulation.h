@@ -69,7 +69,7 @@ public:
   Simulation();
   ~Simulation();
 
-  bool ready; //to know if ready to be launched, ie parameters generated
+  
 
   // for drawing
   int maxSteps;
@@ -82,6 +82,10 @@ public:
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
 
+  //other parameters to be saved
+  //BoolParameter *ready; 
+
+  bool ready; //to know if ready to be launched, ie parameters generated
   float recordConcent; // record the higher concentration reached
   String recordEntity;
   float recordDrawn; // same but only for drawn entities for autoscale
@@ -107,6 +111,10 @@ public:
 
   int numLevels;
 
+  //different from the default getJSONData and loadJSONData which only saves parameters.
+  var toJSONData();
+  void importJSONData(var data);
+  
   void clearParams();
   void fetchGenerate();
   void fetchManual();
@@ -116,7 +124,7 @@ public:
   void cancel();
 
   void run() override;
-
+  
   SimEntity *getSimEntityForEntity(Entity *e);
 
   void onContainerTriggerTriggered(Trigger *t) override;

@@ -182,10 +182,11 @@ void SimulationUI::resized()
     int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 +restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
     hr.reduce((hr.getWidth() - width2) / 2, 0);
 
-    genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
+    //buttons
+    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
     hr.removeFromLeft(20);
 
-    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
+    genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
     hr.removeFromLeft(20);
 
     startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));

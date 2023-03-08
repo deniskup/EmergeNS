@@ -1,8 +1,6 @@
-Restart simulation with same parameters: 
--go back to starting concentrations.
 
 
-
+enregistrer params simulation.
 
 afficher statistiques globales avant/apres simulation
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
@@ -17,7 +15,7 @@ initial concent = 0 ?
 
 proposer uniforme ou gaussienne
 
-poursuivre ou relancer simulation avec meme parametres, enregistrer ces parametres
+
 
 barre de progrès pour la generation de simulation
 

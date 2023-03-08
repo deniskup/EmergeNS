@@ -28,11 +28,12 @@ juce_ImplementSingleton(Simulation)
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
   generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
   genTrigger = addTrigger("Generate", "Generate");
-  startTrigger = addTrigger("Start/continue", "Start/continue");
+  startTrigger = addTrigger("Start/Continue", "Start/Continue");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
   restartTrigger = addTrigger("Restart", "Restart");
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
+  // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 }
 
 Simulation::~Simulation()
@@ -80,6 +81,23 @@ void Simulation::clearParams()
   reactions.clear();
 }
 
+// to save additional data, different from getJSONdata()
+var Simulation::toJSONData()
+{
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("ready", ready);
+  return data;
+}
+
+void Simulation::importJSONData(var data)
+{
+  if (data.isVoid())
+    return;
+  if (data.getDynamicObject() == nullptr)
+    return;
+  if (data.getDynamicObject()->hasProperty("ready"))
+    ready=data.getDynamicObject()->getProperty("ready");
+}
 
 void Simulation::fetchManual()
 {
@@ -264,10 +282,10 @@ void Simulation::fetchGenerate()
     }
     hierarchyEnt.add(levelEnt);
   }
-  ready=true;
+  // ready->setValue(true);
+  ready = true;
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
-
 
 void Simulation::start()
 {
@@ -275,10 +293,10 @@ void Simulation::start()
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
 
-
   if (generated->boolValue())
   {
-    if(!ready){ 
+    if (!ready)
+    {
       LOGWARNING("Start with no parameters, generating parameters");
       fetchGenerate();
     }
@@ -459,12 +477,12 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     fetchGenerate();
     start();
   }
-    else if (t == restartTrigger)
+  else if (t == restartTrigger)
   {
-    for(auto &e: entities)
-      {
-        e->concent=e->startConcent;
-      }    
+    for (auto &e : entities)
+    {
+      e->concent = e->startConcent;
+    }
     start();
   }
   else if (t == cancelTrigger)
@@ -480,7 +498,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   }
   if (p == generated)
   {
-    //set ready to false if we switched to generated
+    // set ready to false if we switched to generated
     ready = !generated->boolValue();
   }
 }
