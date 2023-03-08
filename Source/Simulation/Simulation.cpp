@@ -28,7 +28,7 @@ juce_ImplementSingleton(Simulation)
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
   generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
   genTrigger = addTrigger("Generate", "Generate");
-  startTrigger = addTrigger("Start", "Start");
+  startTrigger = addTrigger("Start/continue", "Start/continue");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
   restartTrigger = addTrigger("Restart", "Restart");
   cancelTrigger = addTrigger("Cancel", "Cancel");

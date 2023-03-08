@@ -185,7 +185,7 @@ void SimulationUI::resized()
     genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
     hr.removeFromLeft(20);
 
-    startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
+    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
     hr.removeFromLeft(20);
 
     startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
