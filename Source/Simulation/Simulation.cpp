@@ -30,6 +30,7 @@ juce_ImplementSingleton(Simulation)
   genTrigger = addTrigger("Generate", "Generate");
   startTrigger = addTrigger("Start", "Start");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
+  restartTrigger = addTrigger("Restart", "Restart");
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
 }
@@ -103,7 +104,7 @@ void Simulation::fetchGenerate()
   clearParams();
   Generation *gen = Generation::getInstance();
 
-  int numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
+  numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
 
   // primary entities
   int nbPrimEnts = randInt(gen->primEntities->x, gen->primEntities->y);
@@ -458,6 +459,14 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     fetchGenerate();
     start();
   }
+    else if (t == restartTrigger)
+  {
+    for(auto &e: entities)
+      {
+        e->concent=e->startConcent;
+      }    
+    start();
+  }
   else if (t == cancelTrigger)
     cancel();
 }
@@ -483,7 +492,7 @@ SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent-
   color = e->itemColor->getColor();
 }
 
-SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), creationRate(cRate), destructionRate(dRate), freeEnergy(freeEnergy),
+SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), startConcent(concent), creationRate(cRate), destructionRate(dRate), freeEnergy(freeEnergy),
                                                                                                   name("New entity"), entity(nullptr)
 {
 }

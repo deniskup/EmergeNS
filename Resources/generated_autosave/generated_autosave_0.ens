@@ -107,10 +107,6 @@
       {
         "value": true,
         "controlAddress": "/generated"
-      },
-      {
-        "value": true,
-        "controlAddress": "/autoScale"
       }
     ]
   },

@@ -24,6 +24,7 @@ public:
   bool primary;
   int id; // for primary entities
   float concent;
+  float startConcent;
   float creationRate;
   float destructionRate;
   float freeEnergy;
@@ -97,11 +98,14 @@ public:
   Trigger *genTrigger;
   Trigger *startTrigger;
   Trigger *genstartTrigger;
+  Trigger *restartTrigger;
   Trigger *cancelTrigger;
 
   OwnedArray<SimEntity> entities;    // all entities
   OwnedArray<SimReaction> reactions; // all reactions
   Array<SimEntity *> primEnts;       // primary entities, useful to recover the number i
+
+  int numLevels;
 
   void clearParams();
   void fetchGenerate();

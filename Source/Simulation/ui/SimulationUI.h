@@ -25,10 +25,14 @@ public:
     std::unique_ptr<TriggerUI> genUI;
     std::unique_ptr<TriggerUI> startUI;
     std::unique_ptr<TriggerUI> genstartUI;
+    std::unique_ptr<TriggerUI> restartUI;
     std::unique_ptr<TriggerUI> cancelUI;
     std::unique_ptr<BoolToggleUI> generatedUI;
     std::unique_ptr<BoolToggleUI> autoScaleUI;
     std::unique_ptr<IntParameterLabelUI> pointsDrawnUI;
+
+    //for diplaying paramaters
+    Label paramsLabel;
 
     // int uiStep;
     Rectangle<int> simBounds;

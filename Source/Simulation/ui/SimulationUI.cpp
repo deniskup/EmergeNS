@@ -3,7 +3,7 @@
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
                                simul(Simulation::getInstance())
-                               //uiStep(1)
+// uiStep(1)
 {
 
     dtUI.reset(simul->dt->createLabelParameter());
@@ -17,6 +17,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genUI.reset(simul->genTrigger->createButtonUI());
     startUI.reset(simul->startTrigger->createButtonUI());
     genstartUI.reset(simul->genstartTrigger->createButtonUI());
+    restartUI.reset(simul->restartTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
     generatedUI.reset(simul->generated->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
@@ -32,6 +33,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genUI->setSize(100, 20);
     startUI->setSize(100, 20);
     genstartUI->setSize(100, 20);
+    restartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
     generatedUI->setSize(100, 20);
     autoScaleUI->setSize(100, 20);
@@ -43,11 +45,16 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(genUI.get());
     addAndMakeVisible(startUI.get());
     addAndMakeVisible(genstartUI.get());
+    addAndMakeVisible(restartUI.get());
     addAndMakeVisible(cancelUI.get());
     addAndMakeVisible(autoScaleUI.get());
     addAndMakeVisible(generatedUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
+    
+    addAndMakeVisible(paramsLabel);
+    paramsLabel.setJustificationType(Justification::centred);
+    paramsLabel.setText("test",dontSendNotification);
 
     maxConcentUI->setVisible(!simul->autoScale->boolValue());
     perCentUI->customLabel = "Progress";
@@ -71,40 +78,46 @@ void SimulationUI::paint(juce::Graphics &g)
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
-    
+
     simBounds = getLocalBounds().withTop(100).withTrimmedBottom(100).reduced(10);
 
-    //g.setFont(12);
+    // g.setFont(12);
     g.setColour(NORMAL_COLOR);
     g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
     g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
     g.fillRoundedRectangle(simBounds.toFloat(), 4);
 
-    g.setColour (Colours::white);
-    g.setFont (14);
-    Rectangle<int> botBounds= getLocalBounds().removeFromBottom(50);
-    string read="Parameters Generated";
-    if(!simul->ready) read="Not ready";
-    g.drawText(read, botBounds, Justification::centred);
-    
-    //if simulation generated
-    //if(simul->generated->boolValue())
+    g.setColour(Colours::white);
+    g.setFont(14);
+    Rectangle<int> botBounds = getLocalBounds().removeFromBottom(50);
+    String paramsToDisplay;
+    if (!simul->ready)
+        paramsToDisplay << "No parameters loaded";
+    else
+    {
+        paramsToDisplay << simul->entities.size() << " entities         ";
+        paramsToDisplay << simul->numLevels << " levels         ";
+        paramsToDisplay << simul->reactions.size() << " reactions\n\n";
+        paramsToDisplay << simul->primEnts.size() << " primary entities        ";
+        paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
+        paramsToDisplay << "Max. Concent: " << simul->recordConcent ;
 
-    //TODO rectangle bottom left
+    }
 
+    paramsLabel.setText(paramsToDisplay,dontSendNotification);
 
+    // if simulation generated
+    // if(simul->generated->boolValue())
 
-    //if simulation finished
-    //TODO rectangle bottom right
+    // TODO rectangle bottom left
 
-    
+    // if simulation finished
+    // TODO rectangle bottom right
+
     if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
         return;
     if (entityHistory.isEmpty())
         return;
-
-    
-
 
     float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
     // float maxConcent = 5;
@@ -151,7 +164,7 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(27);
 
-    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20+ pointsDrawnUI->getWidth()+ 40 + generatedUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + generatedUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
@@ -166,7 +179,7 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     hr = r.removeFromTop(30);
 
-    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 +restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
     hr.reduce((hr.getWidth() - width2) / 2, 0);
 
     genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
@@ -175,7 +188,10 @@ void SimulationUI::resized()
     startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
     hr.removeFromLeft(20);
 
-    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
+    startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
+    hr.removeFromLeft(20);
+
+    restartUI->setBounds(hr.removeFromLeft(restartUI->getWidth()));
     hr.removeFromLeft(20);
 
     cancelUI->setBounds(hr.removeFromLeft(cancelUI->getWidth()));
@@ -187,8 +203,8 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
-
-
+    Rectangle<int> br = r.removeFromBottom(100);
+    paramsLabel.setBounds(br.reduced(10));
 }
 
 void SimulationUI::timerCallback()
@@ -221,7 +237,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 {
     switch (ev.type)
     {
-     case Simulation::SimulationEvent::UPDATEPARAMS:
+    case Simulation::SimulationEvent::UPDATEPARAMS:
     {
         shouldRepaint = true;
     }
@@ -247,8 +263,8 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
     {
         // if (ev.curStep % uiStep == 0)
         entityHistory.add(ev.entityValues);
-        //print for debug
-     //   NLOG("Value", ev.entityValues[0]);
+        // print for debug
+        //   NLOG("Value", ev.entityValues[0]);
 
         if (simul->realTime->boolValue())
             shouldRepaint = true;
