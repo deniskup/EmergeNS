@@ -96,7 +96,9 @@ void Simulation::importJSONData(var data)
   if (data.getDynamicObject() == nullptr)
     return;
   if (data.getDynamicObject()->hasProperty("ready"))
-    ready=data.getDynamicObject()->getProperty("ready");
+    ready = data.getDynamicObject()->getProperty("ready");
+
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
 void Simulation::fetchManual()

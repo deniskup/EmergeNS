@@ -2,7 +2,9 @@
 #include "SimulationUI.h"
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
-                               simul(Simulation::getInstance())
+                               simul(Simulation::getInstance()),
+                               saveSimBT("Save"),
+                               loadSimBT("Load")
 // uiStep(1)
 {
 
@@ -51,10 +53,16 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(generatedUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
-    
+
+    saveSimBT.addListener(this);
+    addAndMakeVisible(&saveSimBT);
+
+    loadSimBT.addListener(this);
+    addAndMakeVisible(&loadSimBT);
+
     addAndMakeVisible(paramsLabel);
     paramsLabel.setJustificationType(Justification::centred);
-    paramsLabel.setText("test",dontSendNotification);
+    paramsLabel.setText("test", dontSendNotification);
 
     maxConcentUI->setVisible(!simul->autoScale->boolValue());
     perCentUI->customLabel = "Progress";
@@ -100,11 +108,10 @@ void SimulationUI::paint(juce::Graphics &g)
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
         paramsToDisplay << simul->primEnts.size() << " primary entities        ";
         paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
-        paramsToDisplay << "Max. Concent: " << simul->recordConcent ;
-
+        paramsToDisplay << "Max. Concent: " << simul->recordConcent;
     }
 
-    paramsLabel.setText(paramsToDisplay,dontSendNotification);
+    paramsLabel.setText(paramsToDisplay, dontSendNotification);
 
     // if simulation generated
     // if(simul->generated->boolValue())
@@ -179,10 +186,10 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     hr = r.removeFromTop(30);
 
-    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 +restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
     hr.reduce((hr.getWidth() - width2) / 2, 0);
 
-    //buttons
+    // buttons
     genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
     hr.removeFromLeft(20);
 
@@ -205,6 +212,10 @@ void SimulationUI::resized()
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
     Rectangle<int> br = r.removeFromBottom(100);
+    Rectangle<int> butr = br.removeFromRight(100);
+    saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
+    loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
+
     paramsLabel.setBounds(br.reduced(10));
 }
 
@@ -232,6 +243,47 @@ bool SimulationUI::keyPressed(const KeyPress &e)
     }
 
     return false;
+}
+
+void SimulationUI::buttonClicked(Button *b)
+{
+    if (b == &saveSimBT)
+    {
+
+        FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+
+        int openFlags = FileBrowserComponent::saveMode;
+        openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+
+        chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+                             {
+                                 File f = fc.getResult();
+                                 delete &fc;
+
+                                 // save the sim here
+                                 var data = simul->toJSONData();
+                                 FileOutputStream output(f);
+                                 JSON::writeToStream(output, data);
+                             });
+    }
+
+    if (b == &loadSimBT)
+    {
+
+        FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+
+        int openFlags = FileBrowserComponent::openMode;
+        openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+
+        chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+                             {
+                                 File f = fc.getResult();
+                                 delete &fc;
+
+                                 //load the sim here
+                                 var data= JSON::parse(f);
+                                 simul->importJSONData(data); });
+    }
 }
 
 void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)

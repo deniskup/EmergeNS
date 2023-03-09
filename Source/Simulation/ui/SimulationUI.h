@@ -6,7 +6,8 @@
 class SimulationUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,
                      public Timer,
-                     public ContainerAsyncListener
+                     public ContainerAsyncListener,
+                     public Button::Listener
 {
 public:
     SimulationUI();
@@ -16,6 +17,9 @@ public:
     bool shouldRepaint;
     Array<Array<float>> entityHistory;
     Array<Colour> entityColors;
+
+    TextButton saveSimBT;
+    TextButton loadSimBT;
 
     // std::unique_ptr<IntStepperUI> maxStepsUI;
     std::unique_ptr<FloatParameterLabelUI> dtUI;
@@ -27,6 +31,8 @@ public:
     std::unique_ptr<TriggerUI> genstartUI;
     std::unique_ptr<TriggerUI> restartUI;
     std::unique_ptr<TriggerUI> cancelUI;
+    std::unique_ptr<TriggerUI> saveSimUI;
+    std::unique_ptr<TriggerUI> loadSimUI;
     std::unique_ptr<BoolToggleUI> generatedUI;
     std::unique_ptr<BoolToggleUI> autoScaleUI;
     std::unique_ptr<IntParameterLabelUI> pointsDrawnUI;
@@ -54,6 +60,8 @@ public:
     void newMessage(const Simulation::SimulationEvent &e) override;
 
     void newMessage(const ContainerAsyncEvent &e) override;
+
+    void buttonClicked(Button* b) override;
 
     static SimulationUI *create(const String &name) { return new SimulationUI(); }
 };
