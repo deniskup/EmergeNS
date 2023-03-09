@@ -86,6 +86,9 @@ var Simulation::toJSONData()
 {
   var data = new DynamicObject();
   data.getDynamicObject()->setProperty("ready", ready);
+
+  // todo other properties
+
   return data;
 }
 
@@ -95,8 +98,11 @@ void Simulation::importJSONData(var data)
     return;
   if (data.getDynamicObject() == nullptr)
     return;
+
   if (data.getDynamicObject()->hasProperty("ready"))
     ready = data.getDynamicObject()->getProperty("ready");
+
+  // todo other properties
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
