@@ -262,6 +262,7 @@ void SimulationUI::buttonClicked(Button *b)
 
                                  // save the sim here
                                  var data = simul->toJSONData();
+                                 f.deleteFile();
                                  FileOutputStream output(f);
                                  JSON::writeToStream(output, data);
                              });

@@ -26,7 +26,7 @@ public:
 
   Colour color;
   bool primary;
-  int id; // for primary entities
+  int id; // unique identifier
   float concent;
   float startConcent;
   float creationRate;
@@ -54,6 +54,9 @@ class SimReaction
 public:
   SimReaction(Reaction *e);
   SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate);
+
+  SimReaction(var data); //import from JSON
+  var toJSONData(); //save to JSON
 
   SimEntity *reactant1;
   SimEntity *reactant2;
@@ -131,6 +134,7 @@ public:
   void run() override;
   
   SimEntity *getSimEntityForEntity(Entity *e);
+  SimEntity *getSimEntityForID(int id);
 
   void onContainerTriggerTriggered(Trigger *t) override;
   void onContainerParameterChanged(Parameter *p) override;

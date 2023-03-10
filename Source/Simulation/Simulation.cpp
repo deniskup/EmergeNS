@@ -86,14 +86,56 @@ var Simulation::toJSONData()
 {
   var data = new DynamicObject();
   data.getDynamicObject()->setProperty("ready", ready);
+  data.getDynamicObject()->setProperty("recordConcent", recordConcent);
+  data.getDynamicObject()->setProperty("recordEntity", recordEntity);
+  data.getDynamicObject()->setProperty("recordDrawn", recordDrawn);
+  data.getDynamicObject()->setProperty("recordDrawnEntity", recordDrawnEntity);
+  data.getDynamicObject()->setProperty("numLevels", numLevels);
 
-  // todo other properties
+  // entities
+  var ents;
+  for (auto &e : entities)
+  {
+    var ent = e->toJSONData();
+    ents.append(ent);
+  }
+  data.getDynamicObject()->setProperty("entities", ents);
+
+  // reactions
+  var reacs;
+  for (auto &r : reactions)
+  {
+    var reac = r->toJSONData();
+    reacs.append(reac);
+  }
+  data.getDynamicObject()->setProperty("reactions", reacs);
+
+  // primary entities
+  var prim_ents;
+  for (auto &e : primEnts)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("ent_id", e->id);
+    prim_ents.append(coord);
+  }
+  data.getDynamicObject()->setProperty("primEnts", prim_ents);
+
+  // entitiesDrawn
+  var entDrawn;
+  for (auto &e : entitiesDrawn)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("ent_id", e->id);
+    entDrawn.append(coord);
+  }
+  data.getDynamicObject()->setProperty("entitiesDrawn", entDrawn);
 
   return data;
 }
 
 void Simulation::importJSONData(var data)
 {
+  clearParams();
   if (data.isVoid())
     return;
   if (data.getDynamicObject() == nullptr)
@@ -101,8 +143,60 @@ void Simulation::importJSONData(var data)
 
   if (data.getDynamicObject()->hasProperty("ready"))
     ready = data.getDynamicObject()->getProperty("ready");
+  if (data.getDynamicObject()->hasProperty("recordConcent"))
+    recordConcent = data.getDynamicObject()->getProperty("recordConcent");
+  if (data.getDynamicObject()->hasProperty("recordEntity"))
+    recordEntity = data.getDynamicObject()->getProperty("recordEntity");
+  if (data.getDynamicObject()->hasProperty("recordDrawn"))
+    recordDrawn = data.getDynamicObject()->getProperty("recordDrawn");
+  if (data.getDynamicObject()->hasProperty("recordDrawnEntity"))
+    recordDrawnEntity = data.getDynamicObject()->getProperty("recordDrawnEntity");
+  if (data.getDynamicObject()->hasProperty("numLevels"))
+    numLevels = data.getDynamicObject()->getProperty("numLevels");
 
-  // todo other properties
+  // entities
+  entities.clear();
+  if (data.getDynamicObject()->hasProperty("entities"))
+  {
+    auto ents = data.getDynamicObject()->getProperty("entities").getArray();
+    for (auto &evar : *ents)
+    {
+      entities.add(new SimEntity(evar));
+    }
+  }
+
+  // reactions
+  reactions.clear();
+  if (data.getDynamicObject()->hasProperty("reactions"))
+  {
+    auto reacs = data.getDynamicObject()->getProperty("reactions").getArray();
+    for (auto &rvar : *reacs)
+    {
+      reactions.add(new SimReaction(rvar));
+    }
+  }
+
+  // entitiesDrawn
+  entitiesDrawn.clear();
+  if (data.getDynamicObject()->hasProperty("entitiesDrawn"))
+  {
+    // todo verify array
+    auto entDrawns = data.getDynamicObject()->getProperty("entitiesDrawn").getArray();
+    for (auto &coord : *entDrawns)
+    {
+      entitiesDrawn.add(getSimEntityForID(coord["ent_id"]));
+    }
+  }
+  // primEnts
+  primEnts.clear();
+  if (data.getDynamicObject()->hasProperty("primEnts"))
+  {
+    auto prim_ents = data.getDynamicObject()->getProperty("primEnts").getArray();
+    for (auto &coord : *prim_ents)
+    {
+      primEnts.add(getSimEntityForID(coord["ent_id"]));
+    }
+  }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
@@ -140,6 +234,8 @@ void Simulation::fetchGenerate()
   float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
   int nbShow = 0;
 
+  int cur_id=0;
+
   Array<Array<SimEntity *>> hierarchyEnt;
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
   for (int idp = 0; idp < nbPrimEnts; idp++)
@@ -150,7 +246,8 @@ void Simulation::fetchGenerate()
     float cRate = randFloat(0., gen->maxCreationRate->floatValue());
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
-    e->id = idp;
+    e->id = cur_id;
+    cur_id++;
     e->color = Colour::fromHSV(0, 1, 1, 1);
     e->name = "prim" + String(idp);
     e->draw = false;
@@ -247,6 +344,8 @@ void Simulation::fetchGenerate()
       e->color = Colour::fromHSV(level * 1. / numLevels, 1, 1, 1); // color depends only on level
       e->name = String(level) + "-" + String(ide);
       e->draw = false;
+      e->id=cur_id;
+      cur_id++;
       if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
       { // proba to draw entity
         e->draw = true;
@@ -292,6 +391,13 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
+  entitiesDrawn.clear();
+  for (auto &ent : entities)
+  {
+    if (ent->draw)
+      entitiesDrawn.add(ent);
+  }
+
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
@@ -316,16 +422,11 @@ void Simulation::start()
 
   Array<float> entityValues;
   Array<Colour> entityColors;
-  entitiesDrawn.clear();
 
-  for (auto &ent : entities)
+  for (auto &ent : entitiesDrawn)
   {
-    if (ent->draw)
-    {
-      entitiesDrawn.add(ent);
-      entityValues.add(ent->concent);
-      entityColors.add(ent->color);
-    }
+    entityValues.add(ent->concent);
+    entityColors.add(ent->color);
   }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
@@ -474,6 +575,16 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
   return nullptr;
 }
 
+SimEntity *Simulation::getSimEntityForID(int id)
+{
+  for (auto &se : entities)
+  {
+    if (se->id == id)
+      return se;
+  }
+  return nullptr;
+}
+
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
@@ -523,6 +634,20 @@ SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, fl
 {
 }
 
+var color2JSON(Colour col){
+  var data=new DynamicObject();
+  data.getDynamicObject()->setProperty("H",col.getHue());
+  data.getDynamicObject()->setProperty("S",col.getSaturation());
+  data.getDynamicObject()->setProperty("B",col.getBrightness());
+  data.getDynamicObject()->setProperty("A",col.getAlpha());
+  return data;
+}
+
+Colour JSON2Color(var data){
+  return Colour::fromHSV(data["H"],data["S"],data["B"],data["A"]);
+}
+
+
 SimEntity::SimEntity(var data)
 {
   if (data.isVoid())
@@ -532,6 +657,9 @@ SimEntity::SimEntity(var data)
 
   if (data.getDynamicObject()->hasProperty("name"))
     name = data.getDynamicObject()->getProperty("name");
+
+  if (data.getDynamicObject()->hasProperty("color"))
+    color = JSON2Color(data.getDynamicObject()->getProperty("color"));
 
   if (data.getDynamicObject()->hasProperty("primary"))
     primary = data.getDynamicObject()->getProperty("primary");
@@ -570,10 +698,12 @@ SimEntity::SimEntity(var data)
   }
 }
 
+
 var SimEntity::toJSONData()
 {
   var data = new DynamicObject();
   data.getDynamicObject()->setProperty("name", name);
+  data.getDynamicObject()->setProperty("color", color2JSON(color));
   data.getDynamicObject()->setProperty("primary", primary);
   data.getDynamicObject()->setProperty("id", id);
   data.getDynamicObject()->setProperty("concent", concent);
@@ -583,7 +713,7 @@ var SimEntity::toJSONData()
   data.getDynamicObject()->setProperty("freeEnergy", freeEnergy);
   data.getDynamicObject()->setProperty("level", level);
   data.getDynamicObject()->setProperty("draw", draw);
-  var comp = new DynamicObject();
+  var comp;
   for (auto &i : composition)
   {
     var coord = new DynamicObject();
@@ -618,4 +748,41 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
 
 SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate)
 {
+}
+
+SimReaction::SimReaction(var data)
+{
+  if (data.isVoid())
+    return;
+  if (data.getDynamicObject() == nullptr)
+    return;
+
+  Simulation *simul=Simulation::getInstance();
+  if (data.getDynamicObject()->hasProperty("reactant1_id"))
+    reactant1 = simul->getSimEntityForID(data["reactant1_id"]);
+
+  if (data.getDynamicObject()->hasProperty("reactant2_id"))
+    reactant2 = simul->getSimEntityForID(data["reactant2_id"]);
+
+  if (data.getDynamicObject()->hasProperty("product_id"))
+    product = simul->getSimEntityForID(data["product_id"]);
+
+  if (data.getDynamicObject()->hasProperty("assocRate"))
+    assocRate = data["assocRate"];
+
+  if (data.getDynamicObject()->hasProperty("dissocRate"))
+    dissocRate = data["dissocRate"];
+}
+
+var SimReaction::toJSONData()
+{
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("reactant1_id", reactant1->id);
+  data.getDynamicObject()->setProperty("reactant2_id", reactant2->id);
+  data.getDynamicObject()->setProperty("product_id", product->id);
+
+  data.getDynamicObject()->setProperty("assocRate", assocRate);
+  data.getDynamicObject()->setProperty("dissocRate", dissocRate);
+
+  return data;
 }
