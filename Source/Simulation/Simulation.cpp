@@ -523,6 +523,76 @@ SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, fl
 {
 }
 
+SimEntity::SimEntity(var data)
+{
+  if (data.isVoid())
+    return;
+  if (data.getDynamicObject() == nullptr)
+    return;
+
+  if (data.getDynamicObject()->hasProperty("name"))
+    name = data.getDynamicObject()->getProperty("name");
+
+  if (data.getDynamicObject()->hasProperty("primary"))
+    primary = data.getDynamicObject()->getProperty("primary");
+
+  if (data.getDynamicObject()->hasProperty("id"))
+    id = data.getDynamicObject()->getProperty("id");
+
+  if (data.getDynamicObject()->hasProperty("concent"))
+    concent = data.getDynamicObject()->getProperty("concent");
+
+  if (data.getDynamicObject()->hasProperty("startConcent"))
+    startConcent = data.getDynamicObject()->getProperty("startConcent");
+
+  if (data.getDynamicObject()->hasProperty("creationRate"))
+    creationRate = data.getDynamicObject()->getProperty("creationRate");
+
+  if (data.getDynamicObject()->hasProperty("destructionRate"))
+    destructionRate = data.getDynamicObject()->getProperty("destructionRate");
+
+  if (data.getDynamicObject()->hasProperty("freeEnergy"))
+    freeEnergy = data.getDynamicObject()->getProperty("freeEnergy");
+
+  if (data.getDynamicObject()->hasProperty("level"))
+    level = data.getDynamicObject()->getProperty("level");
+
+  if (data.getDynamicObject()->hasProperty("draw"))
+    draw = data.getDynamicObject()->getProperty("draw");
+
+  if (data.getDynamicObject()->hasProperty("composition"))
+  {
+    Array<var> *comp = data.getDynamicObject()->getProperty("composition").getArray();
+    for (auto &coord : *comp)
+    {
+      composition.add(data.getDynamicObject()->getProperty("coord"));
+    }
+  }
+}
+
+var SimEntity::toJSONData()
+{
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("name", name);
+  data.getDynamicObject()->setProperty("primary", primary);
+  data.getDynamicObject()->setProperty("id", id);
+  data.getDynamicObject()->setProperty("concent", concent);
+  data.getDynamicObject()->setProperty("startConcent", startConcent);
+  data.getDynamicObject()->setProperty("creationRate", creationRate);
+  data.getDynamicObject()->setProperty("destructionRate", destructionRate);
+  data.getDynamicObject()->setProperty("freeEnergy", freeEnergy);
+  data.getDynamicObject()->setProperty("level", level);
+  data.getDynamicObject()->setProperty("draw", draw);
+  var comp = new DynamicObject();
+  for (auto &i : composition)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("coord", i);
+    comp.append(coord);
+  }
+  return data;
+}
+
 void SimEntity::increase(float incr)
 {
   concent += incr;

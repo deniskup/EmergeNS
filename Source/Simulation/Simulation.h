@@ -17,6 +17,10 @@ public:
   SimEntity(Entity *e);
   SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
 
+  SimEntity(var data); //import from JSON
+  var toJSONData(); //save to JSON
+
+
   String name;
   Entity *entity; // sourceEntity
 
@@ -39,6 +43,7 @@ public:
 
   String toString() const;
 
+  
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };
 

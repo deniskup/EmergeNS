@@ -421,7 +421,7 @@
         "controlAddress": "/energyPerLevel"
       },
       {
-        "value": 50,
+        "value": 40,
         "hexMode": false,
         "controlAddress": "/maxNumOfCurves"
       }
