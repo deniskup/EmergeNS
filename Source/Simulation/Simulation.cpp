@@ -720,6 +720,7 @@ var SimEntity::toJSONData()
     coord.getDynamicObject()->setProperty("coord", i);
     comp.append(coord);
   }
+  data.getDynamicObject()->setProperty("composition", comp);
   return data;
 }
 

@@ -15,7 +15,7 @@ initial concent = 0 ?
 
 proposer uniforme ou gaussienne
 
-
+github machines virtuelles
 
 barre de progrès pour la generation de simulation
 
