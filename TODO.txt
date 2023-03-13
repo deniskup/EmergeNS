@@ -1,12 +1,10 @@
 
-
-enregistrer params simulation.
-
 afficher statistiques globales avant/apres simulation
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...
 entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we take exp of all this at the end if display is better.
 
+tirer les réactions plutot que les entités
 
 remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead.
 
