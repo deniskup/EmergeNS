@@ -38,6 +38,8 @@ public:
 
   Compo composition; // indexes are link to primary entities thanks to array primEnts
 
+  int idSAT; //identifier for SAT Solving
+
   void increase(float incr);
   void decrease(float decr);
 
@@ -64,6 +66,8 @@ public:
 
   float assocRate;
   float dissocRate;
+
+  int idSAT; //identifier for SAT Solving
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
