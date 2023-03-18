@@ -168,6 +168,9 @@ void findPAC(Simulation *simul)
         j++;
     }
 
+    //TODO optimize: only put the variables that have a chance to be true, ie isReac[i][j] exists only if entity i appears in reaction j.
+    // use Hashtables instead of double/triple arrays
+
     // is e reactant of r according to the chosen direction of r ? we also want the reaction to exist
     int isReac[Nent][Nreac];
     int isProd[Nent][Nreac];
