@@ -5,6 +5,7 @@ namespace NSCommandIDs
 {
 	static const int computeCompositions = 0x60000;
 	static const int normalizeEnergies = 0x60001;
+	static const int findPAC = 0x60002;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -21,6 +22,12 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.addDefaultKeypress(KeyPress::createFromDescription("b").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
+	case NSCommandIDs::findPAC:
+		result.setInfo("Write dimacs.txt to find PAC", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("f").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
+
 	default:
 		OrganicMainContentComponent::getCommandInfo(commandID, result);
 		break;
@@ -34,7 +41,9 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 
 	const CommandID ids[] = {
 		NSCommandIDs::computeCompositions,
-		NSCommandIDs::normalizeEnergies};
+		NSCommandIDs::normalizeEnergies,
+		NSCommandIDs::findPAC
+		};
 
 	commands.addArray(ids, numElementsInArray(ids));
 	// for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);
@@ -48,6 +57,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 	{
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::findPAC);
 	}
 	return menu;
 }
@@ -72,6 +82,12 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::normalizeEnergies:
 	{
 		normEnergies();
+	}
+	break;
+
+	case NSCommandIDs::findPAC:
+	{
+		findPAC(Simulation::getInstance());
 	}
 	break;
 

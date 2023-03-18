@@ -1,4 +1,4 @@
-
+//#include "kissat/src/kissat.h"
 
 #include "Simulation.h"
 #include "EntityManager.h"
@@ -200,6 +200,7 @@ void Simulation::importJSONData(var data)
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
+
 
 void Simulation::fetchManual()
 {

@@ -3,6 +3,8 @@
 #include "EntityManager.h"
 #include "ReactionManager.h"
 #include "Simulation.h"
+#include <fstream>
+#include <sstream>
 
 #define DBOOL(V) (V ? "true" : "false")
 
@@ -125,11 +127,16 @@ void normEnergies()
 
 void findPAC(Simulation *simul)
 {
+
+    // open file
+    stringstream clauses;
+
     // for now to Dimacs, to integrate with Kissat later
 
     // a PAC is a subset of n reactions and n entities, such that
     //  -every entity is reactant of exactly one of the reactions, and product of at least one
     //  -there is an entity produced twice
+    int nbclauses = 0;
 
     int Nent = simul->entities.size();
     int Nreac = simul->reactions.size();
@@ -137,12 +144,12 @@ void findPAC(Simulation *simul)
     int curvar = 0; // number of current variable
     // if entity i is taken in the cycle C
     int ent[Nent];
-    int i = 0, j,k;
+    int i = 0, j, k;
     for (auto e : simul->entities)
     {
+        curvar++;
         ent[i] = curvar;
         e->idSAT = i;
-        curvar++;
         i++;
     }
 
@@ -153,30 +160,32 @@ void findPAC(Simulation *simul)
     j = 0;
     for (auto r : simul->reactions)
     {
+        curvar++;
         reac[j] = curvar;
         r->idSAT = j;
         curvar++;
         dir[j] = curvar;
-        curvar++;
         j++;
     }
 
     // is e reactant of r according to the chosen direction of r ? we also want the reaction to exist
     int isReac[Nent][Nreac];
-    int isProd[Nent][Nreac]; 
-    int isProds[Nent][Nreac][Nreac]; //for this one we also ask the entity to exist as well
+    int isProd[Nent][Nreac];
+    int isProds[Nent][Nreac][Nreac]; // for this one we also ask the entity to exist as well
     for (i = 0; i < Nent; i++)
     {
         for (j = 0; j < Nreac; j++)
         {
+            curvar++;
             isReac[i][j] = curvar;
+
             curvar++;
             isProd[i][j] = curvar;
-            curvar++;
+
             for (k = j; k < Nreac; k++)
             {
-                 isProds[i][j][k] = curvar;
-                 curvar++;   
+                curvar++;
+                isProds[i][j][k] = curvar;
             }
         }
     }
@@ -188,45 +197,93 @@ void findPAC(Simulation *simul)
         for (auto r : simul->reactions)
         {
             j = r->idSAT;
-            //isReac true implies reac chosen, and isProds implies entity exists
-            // not isReac[i][j] OR reac[j]
+            // isReac true implies reac chosen, and isProds implies entity exists
+            //  not isReac[i][j] OR reac[j]
+            clauses << -isReac[i][j] << " " << reac[j] << " 0" << endl;
+            nbclauses++;
             // not isProd[i][j] OR reac[j]
+            clauses << -isProd[i][j] << " " << reac[j] << " 0" << endl;
+            nbclauses++;
             // not isProds[i][j][j] OR ent[i]
+            clauses << -isProds[i][j][j] << " " << ent[i] << " 0" << endl;
+            nbclauses++;
+
             if (r->reactant1->idSAT == i || r->reactant2->idSAT == i)
             {
                 // (not isReac[i][j]) OR not dir[j]
+                clauses << -isReac[i][j] << " " << -dir[j] << " 0" << endl;
+                nbclauses++;
                 // isReac[i][j] OR dir[j] OR not reac[j]
+                clauses << isReac[i][j] << " " << dir[j] << " " << -reac[j] << " 0" << endl;
+                nbclauses++;
 
                 // (not isProd[i][j]) OR dir[j]
+                clauses << -isProd[i][j] << " " << dir[j] << " 0" << endl;
+                nbclauses++;
                 // isProd[i][j] OR not dir[j] OR not reac[j]
+                clauses << isProd[i][j] << " " << -dir[j] << " " << -reac[j] << " 0" << endl;
+                nbclauses++;
 
-                //double product
+                // double product
                 if (r->reactant1->idSAT == i && r->reactant2->idSAT == i)
-                ;
-                // isProds[i][j][j] OR not dir[j] Or not reac[j] OR not ent[i]
+                {
+                    cout << i << "double product of " << j << endl;
+                    // isProds[i][j][j] OR not dir[j] Or not reac[j] OR not ent[i]
+                    clauses << isProds[i][j][j] << " " << -dir[j] << " " << -reac[j] << " " << -ent[i] << " 0" << endl;
+                    nbclauses++;
+                }
                 else
-                ;
-                // not isProds[i][j][j]
+                {
+                    // not isProds[i][j][j]
+                    clauses << -isProds[i][j][j] << " 0" << endl;
+                    nbclauses++;
+                }
             }
             else if (r->product->idSAT == i)
             {
                 // (not isReac[i][j]) OR dir[j]
+                clauses << -isReac[i][j] << " " << dir[j] << " 0" << endl;
+                nbclauses++;
                 // isReac[i][j] OR not dir[j] OR not reac[j]
+                clauses << isReac[i][j] << " " << -dir[j] << " " << -reac[j] << " 0" << endl;
+                nbclauses++;
                 // (not isProd[i][j]) OR not dir[j]
+                clauses << -isProd[i][j] << " " << -dir[j] << " 0" << endl;
+                nbclauses++;
                 // isProd[i][j] OR dir[j] OR not reac[j]
-                
+                clauses << isProd[i][j] << " " << dir[j] << " " << -reac[j] << " 0" << endl;
+                nbclauses++;
+
                 // not isProds[i][j][j]
+                clauses << -isProds[i][j][j] << " 0" << endl;
+                nbclauses++;
             }
             else
             {
                 // not isReac[i][j]
+                clauses << -isReac[i][j] << " 0" << endl;
+                nbclauses++;
                 // not isProd[i][j]
+                clauses << -isProd[i][j] << " 0" << endl;
+                nbclauses++;
                 // not isProds[i][j][j]
+                clauses << -isProds[i][j][j] << " 0" << endl;
+                nbclauses++;
             }
-            for (k=j+1;k<Nreac;k++){
-                //not isProds[i][j][k] OR isProd[i][j]
-                //not isProds[i][j][k] OR isProd[i][k]
-                //isProds[i][j][k] OR not isProd[i][j] OR not isProd[i][k] OR not ent[i]
+            for (k = j + 1; k < Nreac; k++)
+            {
+                // not isProds[i][j][k] OR ent[i]
+                clauses << -isProds[i][j][k] << " " << ent[i] << " 0" << endl;
+                nbclauses++;
+                // not isProds[i][j][k] OR isProd[i][j]
+                clauses << -isProds[i][j][k] << " " << isProd[i][j] << " 0" << endl;
+                nbclauses++;
+                // not isProds[i][j][k] OR isProd[i][k]
+                clauses << -isProds[i][j][k] << " " << isProd[i][k] << " 0" << endl;
+                nbclauses++;
+                // isProds[i][j][k] OR not isProd[i][j] OR not isProd[i][k] OR not ent[i]
+                clauses << isProds[i][j][k] << " " << -isProd[i][j] << " " << -isProd[i][k] << " " << -ent[i] << " 0" << endl;
+                nbclauses++;
             }
         }
     }
@@ -236,13 +293,57 @@ void findPAC(Simulation *simul)
     {
         // e not chosen or appears as reactant of r
         // not ent[i] or OR_j isReac[i][j]
-
+        clauses << -ent[i];
+        for (j = 0; j < Nreac; j++)
+            clauses << " " << isReac[i][j];
+        clauses << " 0" << endl;
+        nbclauses++;
         // not ent[i] or OR_j isProd[i][j]
-
+        clauses << -ent[i];
+        for (j = 0; j < Nreac; j++)
+            clauses << " " << isProd[i][j];
+        clauses << " 0" << endl;
+        nbclauses++;
         // exactly one reactant
-        // AND_{j<=k} not ent[i] or not isReac[i][j] or not isReac[j][k]
+        // AND_{j<k} not ent[i] or not isReac[i][j] or not isReac[i][k]
+        for (j = 0; j < Nreac; j++)
+        {
+            for (int k = j + 1; k < Nreac; k++)
+            {
+                clauses << -ent[i] << " " << -isReac[i][j] << " " << -isReac[i][k] << " 0" << endl;
+                nbclauses++;
+            }
+        }
+    }
+
+    // in each selected reaction, at least one reactant and the product are selected
+    for (auto r : simul->reactions)
+    {
+        j = r->idSAT;
+        clauses << -reac[j] << " " << ent[r->reactant1->idSAT]<< " "<< ent[r->reactant2->idSAT]<< " 0"<<endl;
+        clauses << -reac[j] << " " << ent[r->product->idSAT]<< " 0"<<endl;
     }
 
     // one entity is produced twice
     // OR_i OR_{j<=k} isProds[i][j][k]
+    for (i = 0; i < Nent; i++)
+    {
+        for (j = 0; j < Nreac; j++)
+        {
+            for (int k = j; k < Nreac; k++)
+            {
+                clauses << isProds[i][j][k] << " ";
+            }
+        }
+    }
+    clauses << "0" << endl;
+    nbclauses++;
+
+    ofstream dimacsStream;
+    dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
+
+    dimacsStream << "p cnf " << curvar << " " << nbclauses << endl;
+    dimacsStream << clauses.str();
+    cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
+    cout << curvar << " variables and " << nbclauses << " clauses\n";
 }
