@@ -321,7 +321,9 @@ void findPAC(Simulation *simul)
     {
         j = r->idSAT;
         clauses << -reac[j] << " " << ent[r->reactant1->idSAT]<< " "<< ent[r->reactant2->idSAT]<< " 0"<<endl;
+        nbclauses++;
         clauses << -reac[j] << " " << ent[r->product->idSAT]<< " 0"<<endl;
+        nbclauses++;
     }
 
     // one entity is produced twice
