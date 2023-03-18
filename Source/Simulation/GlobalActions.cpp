@@ -227,7 +227,7 @@ void findPAC(Simulation *simul)
                 // double product
                 if (r->reactant1->idSAT == i && r->reactant2->idSAT == i)
                 {
-                    cout << i << "double product of " << j << endl;
+
                     // isProds[i][j][j] OR not dir[j] Or not reac[j] OR not ent[i]
                     clauses << isProds[i][j][j] << " " << -dir[j] << " " << -reac[j] << " " << -ent[i] << " 0" << endl;
                     nbclauses++;
