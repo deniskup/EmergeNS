@@ -126,19 +126,24 @@
   "simulation": {
     "parameters": [
       {
-        "value": 0.1,
+        "value": 0.05,
         "controlAddress": "/dt"
       },
       {
-        "value": 10.0,
+        "value": 50.0,
         "controlAddress": "/totalTime"
       },
       {
-        "value": 0.3999991416931152,
+        "value": 200,
+        "hexMode": false,
+        "controlAddress": "/pointsDrawn"
+      },
+      {
+        "value": 0.5,
         "controlAddress": "/maxConcent"
       },
       {
-        "value": true,
+        "value": false,
         "controlAddress": "/generated"
       }
     ]
@@ -158,10 +163,6 @@
           {
             "value": 0.006249994039535522,
             "controlAddress": "/concentration"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/freeEnergy"
           },
           {
             "value": [
@@ -189,10 +190,6 @@
           {
             "value": 0.59375,
             "controlAddress": "/concentration"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/freeEnergy"
           },
           {
             "value": [
@@ -386,28 +383,6 @@
         ],
         "niceName": "A2B->A2+B",
         "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/a",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/a",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/a2",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "A2->A+A",
-        "type": "Reaction"
       }
     ],
     "viewOffset": [
@@ -427,7 +402,7 @@
       },
       {
         "value": [
-          100,
+          7,
           7
         ],
         "controlAddress": "/levels"
@@ -441,15 +416,15 @@
       },
       {
         "value": [
-          3,
-          6
+          1,
+          4
         ],
         "controlAddress": "/reactionsPerEntity"
       },
       {
         "value": [
           0.0,
-          1.0
+          0.1000000014901161
         ],
         "controlAddress": "/initConcentrationRange"
       },
@@ -458,8 +433,13 @@
         "controlAddress": "/maxDestructionRate"
       },
       {
-        "value": -1.999999761581421,
+        "value": -3.0,
         "controlAddress": "/energyPerLevel"
+      },
+      {
+        "value": 50,
+        "hexMode": false,
+        "controlAddress": "/maxNumOfCurves"
       }
     ]
   }

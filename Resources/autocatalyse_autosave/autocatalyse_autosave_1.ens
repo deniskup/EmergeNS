@@ -29,25 +29,25 @@
     "mainLayout": {
       "type": 1,
       "width": 1918,
-      "height": 1149,
+      "height": 915,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 1918,
-          "height": 1149,
+          "height": 915,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
               "width": 670,
-              "height": 1149,
+              "height": 915,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
                   "width": 670,
-                  "height": 572,
+                  "height": 455,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -58,7 +58,7 @@
                 {
                   "type": 0,
                   "width": 670,
-                  "height": 571,
+                  "height": 454,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -71,13 +71,13 @@
             {
               "type": 1,
               "width": 1242,
-              "height": 1149,
+              "height": 915,
               "direction": 1,
               "shifters": [
                 {
                   "type": 0,
                   "width": 735,
-                  "height": 1149,
+                  "height": 915,
                   "currentContent": "Simulation",
                   "tabs": [
                     {
@@ -88,13 +88,13 @@
                 {
                   "type": 1,
                   "width": 500,
-                  "height": 1149,
+                  "height": 915,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 500,
-                      "height": 574,
+                      "height": 457,
                       "currentContent": "Inspector",
                       "tabs": [
                         {
@@ -105,7 +105,7 @@
                     {
                       "type": 0,
                       "width": 500,
-                      "height": 569,
+                      "height": 452,
                       "currentContent": "Logger",
                       "tabs": [
                         {

@@ -1,0 +1,67 @@
+Ent A: 1
+Ent B: 2
+Ent C: 3
+Ent AB: 4
+Ent AC: 5
+Ent ABC: 6
+Ent A2B2: 7
+Ent A2B2C: 8
+Reac A+B : 9
+Dir 10
+Reac A+C : 11
+Dir 12
+Reac AC+B : 13
+Dir 14
+Reac AB+ABC : 15
+Dir 16
+Reac A2B2+C : 17
+Dir 18
+Reac AB+AB : 19
+Dir 20
+isReac A with B : 21
+isProd A from A : 22
+isProds 1 from A+B and A+C : 23
+isReac A with B : 24
+isProd A from A : 25
+isProds 2 from A+B and AC+B : 26
+isReac A with B : 27
+isProd A from A : 28
+isProds 4 from A+B and AB+ABC : 29
+isProds 4 from A+B and AB+AB : 30
+isReac A with C : 31
+isProd A from A : 32
+isReac A with C : 33
+isProd A from A : 34
+isProds 3 from A+C and A2B2+C : 35
+isReac A with C : 36
+isProd A from A : 37
+isProds 5 from A+C and AC+B : 38
+isReac AC with B : 39
+isProd AC from AC : 40
+isReac AC with B : 41
+isProd AC from AC : 42
+isReac AC with B : 43
+isProd AC from AC : 44
+isProds 6 from AC+B and AB+ABC : 45
+isReac AB with ABC : 46
+isProd AB from AB : 47
+isProds 4 from AB+ABC and AB+AB : 48
+isReac AB with ABC : 49
+isProd AB from AB : 50
+isReac AB with ABC : 51
+isProd AB from AB : 52
+isProds 8 from AB+ABC and A2B2+C : 53
+isReac A2B2 with C : 54
+isProd A2B2 from A2B2 : 55
+isProds 7 from A2B2+C and AB+AB : 56
+isReac A2B2 with C : 57
+isProd A2B2 from A2B2 : 58
+isReac A2B2 with C : 59
+isProd A2B2 from A2B2 : 60
+is2Prods AB : 61
+isReac AB with AB : 62
+isProd AB from AB : 63
+isReac AB with AB : 64
+isProd AB from AB : 65
+isReac AB with AB : 66
+isProd AB from AB : 67
