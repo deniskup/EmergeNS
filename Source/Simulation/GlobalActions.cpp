@@ -259,8 +259,8 @@ void findPAC(Simulation *simul)
 
         if (id1 == id2)
         {
-            int ijj=c3(id1, j, j);
-            int ij=c2(id1,j);
+            int ijj = c3(id1, j, j);
+            int ij = c2(id1, j);
             // isProds <=> dir[j] and reac[j] and ent[i]
             addClause({isProds[ijj], -dir[j], -reac[j], -ent[id1]});
             addClause({-isProds[ijj], ent[id1]});
@@ -277,7 +277,7 @@ void findPAC(Simulation *simul)
         { // if different, we can put conditions on both isReac
             for (auto i : idleft)
             {
-                int ij=c2(i,j);
+                int ij = c2(i, j);
                 // isProd <=> dir and reac
                 addClause({-isProd[ij], reac[j]});
                 addClause({-isProd[ij], dir[j]});
@@ -289,9 +289,9 @@ void findPAC(Simulation *simul)
                 addClause({isReac[ij], dir[j], -reac[j]});
             }
         }
-        //for the solitary side
-        // isReac <=> dir and reac
-        int ij=c2(id3,j);
+        // for the solitary side
+        //  isReac <=> dir and reac
+        int ij = c2(id3, j);
         addClause({-isReac[ij], reac[j]});
         addClause({-isReac[ij], dir[j]});
         addClause({isReac[ij], -dir[j], -reac[j]});
@@ -309,7 +309,7 @@ void findPAC(Simulation *simul)
             {
                 if (i == r2->reactant1->idSAT || i == r2->reactant2->idSAT || i == r2->product->idSAT)
                 {
-                    int ijk=c3(i,j,k);
+                    int ijk = c3(i, j, k);
                     // isProds[c3(i,j,k)]<=> ent[i] and isProd[c2(i,j)] and isProd[c2(i,
                     addClause({-isProds[ijk], ent[i]});
                     addClause({-isProds[ijk], isProd[c2(i, j)]});
@@ -381,10 +381,59 @@ void findPAC(Simulation *simul)
     nbClauses++;
 
     ofstream dimacsStream;
-    dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
 
-    dimacsStream << "p cnf " << curvar << " " << nbClauses << endl;
-    dimacsStream << clauses.str();
-    cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
-    cout << curvar << " variables and " << nbClauses << " clauses\n";
+    auto writeDimacs = [&]()
+    {
+        dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
+        dimacsStream << "p cnf " << curvar << " " << nbClauses << endl;
+        dimacsStream << clauses.str();
+        //cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
+        //cout << curvar << " variables and " << nbClauses << " clauses\n";
+        dimacsStream.close();
+    };
+
+    writeDimacs();
+
+    bool sat = true;
+    const int maxCycles = 100;
+    int nCycles;
+    for (nCycles = 0; nCycles < maxCycles; nCycles++)
+    {
+        system("minisat dimacs.txt model.txt >err");
+        ifstream sol_file("model.txt");
+        string isSat;
+        sol_file >> isSat;
+        if (isSat != "SAT")
+            break;
+        int d;
+        Array<int> newClause;
+        int cycleSize = 0;
+        for (auto e : simul->entities)
+        {
+            sol_file >> d;
+            if (d > 0)
+            {
+                newClause.add(-d);
+                cout <<e->name<<" ";
+                cycleSize++;
+
+            }
+        }
+
+        cout <<endl;
+        for (auto r : simul->reactions)
+        {
+            // reaction
+            sol_file >> d;
+            if (d > 0)
+            {
+                newClause.add(-d);
+            }
+            // pop direction
+            sol_file >> d;
+        }
+        addClause(newClause);
+        writeDimacs();
+    }
+    cout << nCycles << " cycles trouvés" << endl;
 }
