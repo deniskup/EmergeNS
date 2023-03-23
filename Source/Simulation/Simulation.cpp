@@ -803,6 +803,11 @@ var SimReaction::toJSONData()
   return data;
 }
 
+bool SimReaction::contains(SimEntity *e)
+{
+  return (reactant1==e || reactant2==e || product==e);
+}
+
 PAC::PAC()
 {
 }

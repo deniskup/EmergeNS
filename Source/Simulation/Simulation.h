@@ -53,7 +53,7 @@ typedef pair<SimEntity *, SimEntity *> Decomp;
 class SimReaction
 {
 public:
-  SimReaction(Reaction *e);
+  SimReaction(Reaction *);
   SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate);
 
   SimReaction(var data); // import from JSON
@@ -67,6 +67,8 @@ public:
   float dissocRate;
 
   int idSAT; // identifier for SAT Solving
+
+  bool contains(SimEntity *e);
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };

@@ -387,70 +387,211 @@ void findPAC(Simulation *simul)
     clauses << "0" << endl;
     nbClauses++;
 
-    ofstream dimacsStream;
+    // number of variables (and var max) without connexity
+    const int nbVarBase = curvar;
 
-    auto writeDimacs = [&]()
+    // write the dimacs, adding connexity with maximal distance to produce the autocatalyst, in order to find solutions in increasing size
+    auto writeDimacs = [&](int distMax, string oldClauses, int nbOldClauses)
     {
+        // add variables for connexity: dist[e,i] means that entity e produces entity of choice in at most i steps.
+
+        // this is a naive encoding in Ent^2, we do Ent*log(Ent)+Reac with bit encoding of distance
+        int nbTotVar = nbVarBase; // restart curvar from beginning of connexity
+        int nbTotClauses = nbOldClauses;
+
+        int dist[Nent * (distMax + 1)];
+        auto d2 = [&](int a, int b)
+        {
+            return a * (distMax + 1) + b;
+        };
+
+        for (auto e : simul->entities)
+        {
+            for (int d = 0; d <= distMax; d++)
+            {
+                nbTotVar++;
+                dist[d2(e->idSAT, d)] = nbTotVar;
+            }
+        }
+
+        // connexity clauses
+        stringstream conClauses;
+        // local function to add clause:
+        auto addConClause = [&](Array<int> disjuncts)
+        {
+            for (int di : disjuncts)
+            {
+                conClauses << di << " ";
+            }
+            conClauses << "0" << endl;
+            nbTotClauses++;
+        };
+
+        for (i = 0; i < Nent; i++)
+        {
+            for (j = i + 1; j < Nent; j++)
+            {
+                // one entity at distance 0
+                addConClause({-dist[d2(i, 0)], -dist[d2(j, 0)]});
+            }
+            for (int d = 0; d <= distMax; d++)
+            {
+                // dist=>ent
+                addConClause({-dist[d2(i, d)], ent[i]});
+            }
+        }
+        // advance(f,r,d)=isProd(f,r) and dist(f,d)
+        // d<distMax is enough here since it is an advancement to d from d+1
+        unordered_map<int, int> advance;
+        auto d3 = [&](int a, int b, int c)
+        {
+            return a * Nreac * distMax + b * distMax + c;
+        };
+        // initialisation
+        for (auto r : simul->reactions)
+        {
+            for (int d = 0; d < distMax; d++)
+            {
+                nbTotVar++;
+                advance[d3(r->reactant1->idSAT, r->idSAT, d)] = nbTotVar;
+                nbTotVar++;
+                advance[d3(r->reactant2->idSAT, r->idSAT, d)] = nbTotVar;
+                nbTotVar++;
+                advance[d3(r->product->idSAT, r->idSAT, d)] = nbTotVar;
+            }
+        }
+
+        // clauses advance
+        for (auto r : simul->reactions)
+        {
+            int id1 = r->reactant1->idSAT;
+            int id2 = r->reactant2->idSAT;
+            int id3 = r->product->idSAT;
+            Array<int> ids = {id1, id2, id3};
+
+            int idr = r->idSAT;
+            for (auto f : ids)
+            {
+
+                for (int d = 0; d < distMax; d++)
+                {
+                    // advance(f,r,d)=isProd(f,r) and dist(f,d)
+                    addConClause({-advance[d3(f, idr, d)], isProd[c2(f, idr)]});
+                    addConClause({-advance[d3(f, idr, d)], dist[d2(f, d)]});
+                    addConClause({advance[d3(f, idr, d)], -isProd[c2(f, idr)], -dist[d2(f, d)]});
+                }
+            }
+        }
+
+        // dist(e,d+1)=> dist(e,d) OR_(e->f) advance(f,r,d)
+        for (int d = 0; d < distMax; d++)
+        {
+            for (auto e : simul->entities)
+            {
+                Array<int> distClause;
+                distClause.add(-dist[d2(e->idSAT, d + 1)]);
+                distClause.add(dist[d2(e->idSAT, d)]);
+                for (auto r : simul->reactions)
+                {
+                    int idr = r->idSAT;
+                    if (!r->contains(e))
+                        continue;
+                    if (e == r->product)
+                    {
+                        distClause.add(advance[d3(r->reactant1->idSAT, idr, d)]);
+                        distClause.add(advance[d3(r->reactant2->idSAT, idr, d)]);
+                        continue;
+                    }
+                    // only remaining case: e is a reactant of r
+                    distClause.add(advance[d3(r->product->idSAT, idr, d)]);
+                }
+                addConClause(distClause);
+            }
+        }
+        // finally, every chosen entity must satisfy distMax
+        for (int i = 0; i < Nent; i++)
+        {
+            addConClause({-ent[i], dist[d2(i, distMax)]});
+        }
+        // write the dimacs
+        ofstream dimacsStream;
         dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
-        dimacsStream << "p cnf " << curvar << " " << nbClauses << endl;
-        dimacsStream << clauses.str();
+        dimacsStream << "p cnf " << nbTotVar << " " << nbTotClauses << endl;
+        dimacsStream << oldClauses;
+        dimacsStream << conClauses.str();
+
         // cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
         // cout << curvar << " variables and " << nbClauses << " clauses\n";
         dimacsStream.close();
     };
 
-    writeDimacs();
+    int dmax_stop = 15;                // maximal dmax
+    dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
-    bool sat = true;
-    const int maxCycles = 100;
-    int nCycles;
-    for (nCycles = 0; nCycles < maxCycles; nCycles++)
+    const int maxCycles = 50; // max number of cycles of some level before timeout
+
+    bool onlyEntities = true; // forbid PAC with same entities but different reactions (to have less PACs)
+    for (int dmax = 1; dmax < dmax_stop; dmax++)
     {
-        system("minisat dimacs.txt model.txt >err");
-        ifstream sol_file("model.txt");
-        string isSat;
-        sol_file >> isSat;
-        if (isSat != "SAT")
-            break;
-        int d;
-        PAC *pac = new PAC();
-        Array<int> newClause;
-        int cycleSize = 0;
-        for (auto e : simul->entities)
-        {
-            sol_file >> d;
-            if (d > 0)
-            {
-                newClause.add(-d);
-                pac->entities.add(e);
-            }
-        }
+        writeDimacs(dmax, clauses.str(), nbClauses);
+        bool sat = true;
 
-        cout << endl;
-        for (auto r : simul->reactions)
+        int nCycles;
+        for (nCycles = 0; nCycles < maxCycles; nCycles++)
         {
-            // reaction
-            int re;
-            sol_file >> re;
-            // pop direction
-            sol_file >> d;
-            if (re > 0)
+            system("minisat dimacs.txt model.txt >err");
+            ifstream sol_file("model.txt");
+            string isSat;
+            sol_file >> isSat;
+            if (isSat != "SAT")
+                break;
+            int d;
+            PAC *pac = new PAC();
+            Array<int> newClause;
+            int cycleSize = 0;
+            for (auto e : simul->entities)
             {
-                newClause.add(-re);
-                newClause.add(-d);
-                pac->reacDirs.add(make_pair(r, (d > 0)));
+                sol_file >> d;
+                if (d > 0)
+                {
+                    newClause.add(-d);
+                    pac->entities.add(e);
+                }
             }
+            for (auto r : simul->reactions)
+            {
+                // reaction
+                int re;
+                sol_file >> re;
+                // pop direction
+                sol_file >> d;
+                if (re > 0)
+                {
+                    if (!onlyEntities)
+                    {
+                        newClause.add(-re);
+                        newClause.add(-d);
+                    }
+                    pac->reacDirs.add(make_pair(r, (d > 0)));
+                }
+            }
+            simul->addCycle(pac);
+            // cout << pac->toString() << endl;
+            if (pac->entities.size() != pac->reacDirs.size())
+                cout << "Problem with PAC :" << pac->toString() << endl;
+            addClause(newClause);
+            writeDimacs(dmax, clauses.str(), nbClauses);
         }
-        simul->addCycle(pac);
-        // cout << pac->toString() << endl;
-        if (pac->entities.size() != pac->reacDirs.size())
-            cout << "Problem with PAC :" << pac->toString() << endl;
-        addClause(newClause);
-        writeDimacs();
+        if (nCycles > 0)
+            cout << nCycles << " PACs found for dmax=" << dmax << endl;
+        else
+            cout << ".";
+        if (nCycles == maxCycles){
+            cout << "Maximum reached, stop looking" << endl;
+            break;
+        }
     }
-    cout << nCycles << " cycles trouvés" << endl;
-    if (nCycles == maxCycles)
-        cout << "Maximum reached, stop looking for PACs" << endl;
+    cout << endl;
     simul->updateParams();
     simul->printPACs();
 }
