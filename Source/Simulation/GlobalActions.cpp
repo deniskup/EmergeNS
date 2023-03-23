@@ -344,7 +344,7 @@ void findPAC(Simulation *simul)
         }
         clauses << " 0" << endl;
         nbClauses++;
-        // exactly one reactant
+        // an entity appears as reactant in at most one reaction
         // AND_{j<k} not ent[i] or not isReac[c2(i,j)] or not isReac[c2(i,k)]
         for (j = 0; j < Nreac; j++)
         {
@@ -359,6 +359,13 @@ void findPAC(Simulation *simul)
 
                 addClause({-ent[i], -it1->second, -it2->second});
             }
+        }
+        // if the reaction is two to one (dir=0), the two reactants cannot be both in the pack:
+        //  AND_j -reac[j] or dir[j] or not ent[reac1] or not ent[reac2]
+        for (auto r : simul->reactions)
+        {
+            j = r->idSAT;
+            addClause({-reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT]});
         }
     }
 
@@ -387,8 +394,8 @@ void findPAC(Simulation *simul)
         dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
         dimacsStream << "p cnf " << curvar << " " << nbClauses << endl;
         dimacsStream << clauses.str();
-        //cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
-        //cout << curvar << " variables and " << nbClauses << " clauses\n";
+        // cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
+        // cout << curvar << " variables and " << nbClauses << " clauses\n";
         dimacsStream.close();
     };
 
@@ -406,6 +413,7 @@ void findPAC(Simulation *simul)
         if (isSat != "SAT")
             break;
         int d;
+        PAC *pac = new PAC();
         Array<int> newClause;
         int cycleSize = 0;
         for (auto e : simul->entities)
@@ -414,26 +422,35 @@ void findPAC(Simulation *simul)
             if (d > 0)
             {
                 newClause.add(-d);
-                cout <<e->name<<" ";
-                cycleSize++;
-
+                pac->entities.add(e);
             }
         }
 
-        cout <<endl;
+        cout << endl;
         for (auto r : simul->reactions)
         {
             // reaction
-            sol_file >> d;
-            if (d > 0)
-            {
-                newClause.add(-d);
-            }
+            int re;
+            sol_file >> re;
             // pop direction
             sol_file >> d;
+            if (re > 0)
+            {
+                newClause.add(-re);
+                newClause.add(-d);
+                pac->reacDirs.add(make_pair(r, (d > 0)));
+            }
         }
+        simul->addCycle(pac);
+        // cout << pac->toString() << endl;
+        if (pac->entities.size() != pac->reacDirs.size())
+            cout << "Problem with PAC :" << pac->toString() << endl;
         addClause(newClause);
         writeDimacs();
     }
     cout << nCycles << " cycles trouvés" << endl;
+    if (nCycles == maxCycles)
+        cout << "Maximum reached, stop looking for PACs" << endl;
+    simul->updateParams();
+    simul->printPACs();
 }

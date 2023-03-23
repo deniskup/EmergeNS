@@ -108,7 +108,7 @@ void SimulationUI::paint(juce::Graphics &g)
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
         paramsToDisplay << simul->primEnts.size() << " primary entities        ";
         paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
-        paramsToDisplay << "Max. Concent: " << simul->recordConcent;
+        paramsToDisplay << simul->cycles.size() << " PACs";
     }
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);

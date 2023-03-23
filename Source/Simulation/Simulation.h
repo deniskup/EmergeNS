@@ -17,9 +17,8 @@ public:
   SimEntity(Entity *e);
   SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
 
-  SimEntity(var data); //import from JSON
-  var toJSONData(); //save to JSON
-
+  SimEntity(var data); // import from JSON
+  var toJSONData();    // save to JSON
 
   String name;
   Entity *entity; // sourceEntity
@@ -38,14 +37,14 @@ public:
 
   Compo composition; // indexes are link to primary entities thanks to array primEnts
 
-  int idSAT; //identifier for SAT Solving
+  int idSAT; // identifier for SAT Solving
 
   void increase(float incr);
   void decrease(float decr);
+  void nameFromCompo();
 
   String toString() const;
 
-  
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };
 
@@ -57,8 +56,8 @@ public:
   SimReaction(Reaction *e);
   SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate);
 
-  SimReaction(var data); //import from JSON
-  var toJSONData(); //save to JSON
+  SimReaction(var data); // import from JSON
+  var toJSONData();      // save to JSON
 
   SimEntity *reactant1;
   SimEntity *reactant2;
@@ -67,9 +66,25 @@ public:
   float assocRate;
   float dissocRate;
 
-  int idSAT; //identifier for SAT Solving
+  int idSAT; // identifier for SAT Solving
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
+};
+
+class PAC
+{
+public:
+  PAC();
+  PAC(var data);    // import from JSON, TODO
+  var toJSONData(); // save to JSON, TODO
+
+  String toString(); //for printing
+
+  Array<SimEntity *> entities;
+  Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
+
+  bool includedIn(PAC *p);
+
 };
 
 class Simulation : public ControllableContainer,
@@ -80,8 +95,6 @@ public:
   juce_DeclareSingleton(Simulation, true);
   Simulation();
   ~Simulation();
-
-  
 
   // for drawing
   int maxSteps;
@@ -94,10 +107,10 @@ public:
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
 
-  //other parameters to be saved
-  //BoolParameter *ready; 
+  // other parameters to be saved
+  // BoolParameter *ready;
 
-  bool ready; //to know if ready to be launched, ie parameters generated
+  bool ready;          // to know if ready to be launched, ie parameters generated
   float recordConcent; // record the higher concentration reached
   String recordEntity;
   float recordDrawn; // same but only for drawn entities for autoscale
@@ -123,20 +136,28 @@ public:
 
   int numLevels;
 
-  //different from the default getJSONData and loadJSONData which only saves parameters.
+  //gestion des cycles
+  Array<PAC *> cycles;
+  void addCycle(PAC *);
+  void printPACs(); // print list of PACs to cout
+
+
+  // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
   void importJSONData(var data);
-  
+
   void clearParams();
+  void updateParams(); //for display
   void fetchGenerate();
   void fetchManual();
   void start();
   void nextStep();
   void stop();
   void cancel();
+  
 
   void run() override;
-  
+
   SimEntity *getSimEntityForEntity(Entity *e);
   SimEntity *getSimEntityForID(int id);
 

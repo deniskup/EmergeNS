@@ -1,4 +1,4 @@
-//#include "kissat/src/kissat.h"
+// #include "kissat/src/kissat.h"
 
 #include "Simulation.h"
 #include "EntityManager.h"
@@ -79,6 +79,12 @@ void Simulation::clearParams()
   entitiesDrawn.clear();
   primEnts.clear();
   reactions.clear();
+  cycles.clear();
+}
+
+void Simulation::updateParams()
+{
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
 // to save additional data, different from getJSONdata()
@@ -198,9 +204,8 @@ void Simulation::importJSONData(var data)
     }
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  updateParams();
 }
-
 
 void Simulation::fetchManual()
 {
@@ -235,7 +240,7 @@ void Simulation::fetchGenerate()
   float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
   int nbShow = 0;
 
-  int cur_id=0;
+  int cur_id = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
@@ -250,7 +255,6 @@ void Simulation::fetchGenerate()
     e->id = cur_id;
     cur_id++;
     e->color = Colour::fromHSV(0, 1, 1, 1);
-    e->name = "prim" + String(idp);
     e->draw = false;
     if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
     { // proba to draw entity
@@ -259,6 +263,7 @@ void Simulation::fetchGenerate()
     }
     e->composition.insertMultiple(0, 0, nbPrimEnts);
     e->composition.set(idp, 1);
+    e->nameFromCompo();
     entities.add(e);
     primEnts.add(e);
   }
@@ -343,9 +348,8 @@ void Simulation::fetchGenerate()
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
       e->color = Colour::fromHSV(level * 1. / numLevels, 1, 1, 1); // color depends only on level
-      e->name = String(level) + "-" + String(ide);
       e->draw = false;
-      e->id=cur_id;
+      e->id = cur_id;
       cur_id++;
       if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
       { // proba to draw entity
@@ -355,6 +359,7 @@ void Simulation::fetchGenerate()
       int idComp = randInt(0, compos.size() - 1);
       e->composition = compos[idComp]->compo;
       // NLOG("New entity", e->name << " = " << dec.first->name << " + " << dec.second->name);
+      e->nameFromCompo();
       entities.add(e);
       levelEnt.add(e);
 
@@ -399,7 +404,7 @@ void Simulation::fetchGenerate()
       entitiesDrawn.add(ent);
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  updateParams();
 }
 
 void Simulation::start()
@@ -635,19 +640,20 @@ SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, fl
 {
 }
 
-var color2JSON(Colour col){
-  var data=new DynamicObject();
-  data.getDynamicObject()->setProperty("H",col.getHue());
-  data.getDynamicObject()->setProperty("S",col.getSaturation());
-  data.getDynamicObject()->setProperty("B",col.getBrightness());
-  data.getDynamicObject()->setProperty("A",col.getAlpha());
+var color2JSON(Colour col)
+{
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("H", col.getHue());
+  data.getDynamicObject()->setProperty("S", col.getSaturation());
+  data.getDynamicObject()->setProperty("B", col.getBrightness());
+  data.getDynamicObject()->setProperty("A", col.getAlpha());
   return data;
 }
 
-Colour JSON2Color(var data){
-  return Colour::fromHSV(data["H"],data["S"],data["B"],data["A"]);
+Colour JSON2Color(var data)
+{
+  return Colour::fromHSV(data["H"], data["S"], data["B"], data["A"]);
 }
-
 
 SimEntity::SimEntity(var data)
 {
@@ -699,7 +705,6 @@ SimEntity::SimEntity(var data)
   }
 }
 
-
 var SimEntity::toJSONData()
 {
   var data = new DynamicObject();
@@ -735,6 +740,15 @@ void SimEntity::decrease(float decr)
   concent = jmax(0.f, concent - decr);
 }
 
+void SimEntity::nameFromCompo()
+{
+  name = "";
+  for (auto &i : composition)
+  {
+    name += String(i);
+  }
+}
+
 String SimEntity::toString() const
 {
   return "[Entity " + name + " : " + String(concent) + "]";
@@ -759,7 +773,7 @@ SimReaction::SimReaction(var data)
   if (data.getDynamicObject() == nullptr)
     return;
 
-  Simulation *simul=Simulation::getInstance();
+  Simulation *simul = Simulation::getInstance();
   if (data.getDynamicObject()->hasProperty("reactant1_id"))
     reactant1 = simul->getSimEntityForID(data["reactant1_id"]);
 
@@ -787,4 +801,78 @@ var SimReaction::toJSONData()
   data.getDynamicObject()->setProperty("dissocRate", dissocRate);
 
   return data;
+}
+
+PAC::PAC()
+{
+}
+
+String PAC::toString()
+{
+  String res;
+  for (auto rd : reacDirs)
+  {
+    auto r = rd.first;
+    bool d = rd.second;
+    auto p = r->product;
+    auto r1 = r->reactant1;
+    auto r2 = r->reactant2;
+    String plus = "+";
+    String r1name = r1->name;
+    String r2name = r2->name;
+    if (!entities.contains(r1))
+    {
+      plus = "";
+      r1name = "";
+    }
+    if (!entities.contains(r2))
+    {
+      plus = "";
+      r2name = "";
+    }
+    if (d)
+    { // 1->2
+      res += r->product->name + "->" + r1name + plus + r2name+ " ";
+    }
+    else
+    { // 2->1
+      res += r1name + plus + r2name + "->" + r->product->name+" ";
+    }
+  }
+  return res;
+}
+
+bool PAC::includedIn(PAC *pac)
+{
+  for (auto e : entities)
+  {
+    if (!pac->entities.contains(e))
+      return false;
+  }
+  for (auto rd : reacDirs)
+  {
+    if (!pac->reacDirs.contains(rd))
+      return false;
+  }
+  return true;
+}
+
+void Simulation::addCycle(PAC *newpac)
+{
+  // we only test if is is included in existing one, other direction is taken care of by SAT solver
+  for (int i = 0; i < cycles.size(); i++)
+  {
+    if (newpac->includedIn(cycles[i]))
+    {
+      cycles.remove(i);
+    }
+  }
+  cycles.add(newpac);
+}
+
+void Simulation::printPACs()
+{
+  for(auto pac:cycles){
+    cout<<pac->toString()<<endl;
+  }
 }

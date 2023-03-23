@@ -1,4 +1,4 @@
-Filtrer la liste des cycles en enlevant les inclusions (enlever le + gros)
+Rajouter des contraintes SAT pour eviter les PAC pathologiques: A->B+C et B->*A mais C->*C
 
 afficher statistiques globales avant/apres simulation 
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
