@@ -528,7 +528,7 @@ void findPAC(Simulation *simul)
     int dmax_stop = 15;                // maximal dmax
     dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
-    const int maxCycles = 50; // max number of cycles of some level before timeout
+    const int maxCycles = 200; // max number of cycles of some level before timeout
 
     bool onlyEntities = true; // forbid PAC with same entities but different reactions (to have less PACs)
     for (int dmax = 1; dmax < dmax_stop; dmax++)

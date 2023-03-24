@@ -854,11 +854,12 @@ bool PAC::includedIn(PAC *pac)
     if (!pac->entities.contains(e))
       return false;
   }
-  for (auto rd : reacDirs)
-  {
-    if (!pac->reacDirs.contains(rd))
-      return false;
-  }
+  //ignore reactions for now
+  // for (auto rd : reacDirs)
+  // {
+  //   if (!pac->reacDirs.contains(rd))
+  //     return false;
+  // }
   return true;
 }
 
