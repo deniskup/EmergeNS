@@ -847,19 +847,20 @@ String PAC::toString()
   return res;
 }
 
-bool PAC::includedIn(PAC *pac)
+bool PAC::includedIn(PAC *pac, bool onlyEnts)
 {
   for (auto e : entities)
   {
     if (!pac->entities.contains(e))
       return false;
   }
-  //ignore reactions for now
-  // for (auto rd : reacDirs)
-  // {
-  //   if (!pac->reacDirs.contains(rd))
-  //     return false;
-  // }
+  if(onlyEnts) return true;
+  //test reactions
+  for (auto rd : reacDirs)
+  {
+    if (!pac->reacDirs.contains(rd))
+      return false;
+  }
   return true;
 }
 
@@ -868,7 +869,7 @@ void Simulation::addCycle(PAC *newpac)
   // we only test if is is included in existing one, other direction is taken care of by SAT solver
   for (int i = 0; i < cycles.size(); i++)
   {
-    if (newpac->includedIn(cycles[i]))
+    if (newpac->includedIn(cycles[i], includeOnlyWithEntities))
     {
       cycles.remove(i);
     }

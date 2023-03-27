@@ -85,7 +85,7 @@ public:
   Array<SimEntity *> entities;
   Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
 
-  bool includedIn(PAC *p);
+  bool includedIn(PAC *p, bool onlyEnts);
 
 };
 
@@ -140,8 +140,10 @@ public:
 
   //gestion des cycles
   Array<PAC *> cycles;
+  bool includeOnlyWithEntities; //specify the rule for inclusion of PACs
   void addCycle(PAC *);
   void printPACs(); // print list of PACs to cout
+
 
 
   // different from the default getJSONData and loadJSONData which only saves parameters.

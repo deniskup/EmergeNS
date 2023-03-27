@@ -92,7 +92,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 50.0,
+        "value": 300.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -101,12 +101,16 @@
         "controlAddress": "/pointsDrawn"
       },
       {
-        "value": 0.5,
+        "value": 0.25,
         "controlAddress": "/maxConcent"
       },
       {
         "value": true,
         "controlAddress": "/generated"
+      },
+      {
+        "value": false,
+        "controlAddress": "/autoScale"
       }
     ]
   },
@@ -379,29 +383,29 @@
     "parameters": [
       {
         "value": [
-          2,
-          2
+          3,
+          5
         ],
         "controlAddress": "/primaryEntities"
       },
       {
         "value": [
-          5,
-          5
+          7,
+          7
         ],
         "controlAddress": "/levels"
       },
       {
         "value": [
-          5,
-          5
+          7,
+          7
         ],
         "controlAddress": "/entities_level"
       },
       {
         "value": [
           1,
-          1
+          4
         ],
         "controlAddress": "/reactionsPerEntity"
       },

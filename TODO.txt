@@ -1,5 +1,3 @@
-Rajouter des contraintes SAT pour eviter les PAC pathologiques: A->B+C et B->*A mais C->*C
-
 afficher statistiques globales avant/apres simulation 
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...
@@ -10,6 +8,8 @@ tirer les réactions plutot que les entités
 remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead.
 
 au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
+Aussi Masse totale fixe: retirer les entités au prorata de leur concentration si on dépasse.
+
 initial concent = 0 ?
 
 proposer uniforme ou gaussienne
