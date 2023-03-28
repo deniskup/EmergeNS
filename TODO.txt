@@ -1,3 +1,17 @@
+RAC detection
+
+
+variance taux de decay (option 0, tout le monde a le meme decay)
+
+
+en plus du graphe des concent:
+plot log(pi/pi_equilibre)
+pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normalisation pour que les pi_eq somment à 1.
++ taux creation et decay à tout le monde
+
+modele jouet: 
+2 entités
+
 afficher statistiques globales avant/apres simulation 
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...
@@ -5,12 +19,7 @@ entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we tak
 
 tirer les réactions plutot que les entités
 
-remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead.
-
-au lieu d'imposer des taux de creation/destruction, imposer des concentrations ? (au moins donner l'option)
-Aussi Masse totale fixe: retirer les entités au prorata de leur concentration si on dépasse.
-
-initial concent = 0 ?
+remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead p_fast.
 
 proposer uniforme ou gaussienne
 
@@ -22,12 +31,14 @@ deviation par rapport à l'équilibre attendu avec les energies libres
 
 Est-ce que le régime statique réalisé depend de catalyse/autocatalyse, ou au contraire de paramètres simples comme G_i+ taux de création/destruction.
 
-log(pi/pi_equilibre)
-pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normalisation pour que les pi_eq somment à 1.
 
-Understand and implement catalysis/autocatalysis test of Blockhuis et al.
+
+
+energies d'interaction pour calculer energies des entités
 
 --------------- NON URGENT ---------------
+
+initial concent = concent à l'équilibre ?
 
 Gaussian/uniform distributions ?
 more things depend on level
