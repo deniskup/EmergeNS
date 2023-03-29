@@ -97,6 +97,7 @@ var Simulation::toJSONData()
   data.getDynamicObject()->setProperty("recordDrawn", recordDrawn);
   data.getDynamicObject()->setProperty("recordDrawnEntity", recordDrawnEntity);
   data.getDynamicObject()->setProperty("numLevels", numLevels);
+  data.getDynamicObject()->setProperty("PACsGenerated", PACsGenerated);
 
   // entities
   var ents;
@@ -136,6 +137,15 @@ var Simulation::toJSONData()
   }
   data.getDynamicObject()->setProperty("entitiesDrawn", entDrawn);
 
+  // cycles
+  var cycs;
+  for (auto &c : cycles)
+  {
+    var cyc = c->toJSONData();
+    cycs.append(cyc);
+  }
+  data.getDynamicObject()->setProperty("cycles", cycs);
+
   return data;
 }
 
@@ -159,6 +169,8 @@ void Simulation::importJSONData(var data)
     recordDrawnEntity = data.getDynamicObject()->getProperty("recordDrawnEntity");
   if (data.getDynamicObject()->hasProperty("numLevels"))
     numLevels = data.getDynamicObject()->getProperty("numLevels");
+  if (data.getDynamicObject()->hasProperty("PACsGenerated"))
+    PACsGenerated = data.getDynamicObject()->getProperty("PACsGenerated");
 
   // entities
   entities.clear();
@@ -201,6 +213,17 @@ void Simulation::importJSONData(var data)
     for (auto &coord : *prim_ents)
     {
       primEnts.add(getSimEntityForID(coord["ent_id"]));
+    }
+  }
+
+  // cycles
+  cycles.clear();
+  if (data.getDynamicObject()->hasProperty("cycles"))
+  {
+    auto cycs = data.getDynamicObject()->getProperty("cycles").getArray();
+    for (auto &cvar : *cycs)
+    {
+      cycles.add(new PAC(cvar));
     }
   }
 
@@ -591,6 +614,16 @@ SimEntity *Simulation::getSimEntityForID(int id)
   return nullptr;
 }
 
+SimReaction *Simulation::getSimReactionForID(int idSAT)
+{
+  for (auto &sr : reactions)
+  {
+    if (sr->idSAT == idSAT)
+      return sr;
+  }
+  return nullptr;
+}
+
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == startTrigger)
@@ -788,6 +821,10 @@ SimReaction::SimReaction(var data)
 
   if (data.getDynamicObject()->hasProperty("dissocRate"))
     dissocRate = data["dissocRate"];
+
+  if (data.getDynamicObject()->hasProperty("idSAT"))
+    idSAT = data["idSAT"];
+  
 }
 
 var SimReaction::toJSONData()
@@ -799,6 +836,8 @@ var SimReaction::toJSONData()
 
   data.getDynamicObject()->setProperty("assocRate", assocRate);
   data.getDynamicObject()->setProperty("dissocRate", dissocRate);
+
+  data.getDynamicObject()->setProperty("idSAT", idSAT);
 
   return data;
 }
@@ -812,10 +851,63 @@ PAC::PAC()
 {
 }
 
+PAC::PAC(var data)
+{
+  if (data.isVoid())
+    return;
+  if (data.getDynamicObject() == nullptr)
+    return;
+
+  Simulation *simul = Simulation::getInstance();
+  if (data.getDynamicObject()->hasProperty("entities"))
+  {
+    Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
+    for (auto &ent : *ents)
+    {
+      entities.add(simul->getSimEntityForID(ent["ent_id"]));
+    }
+  }
+
+  if (data.getDynamicObject()->hasProperty("reacDirs"))
+  {
+    Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
+    for (auto &reacd : *reacds)
+    {
+      reacDirs.add(std::make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
+    }
+  }
+}
+
+var PAC::toJSONData()
+{
+  var data = new DynamicObject();
+
+  var ents;
+  for (auto &e : entities)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("ent_id", e->id);
+    ents.append(coord);
+  }
+  data.getDynamicObject()->setProperty("entities", ents);
+
+  var reacds;
+  for (auto &rd : reacDirs)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("reac_id", rd.first->idSAT);
+    coord.getDynamicObject()->setProperty("dir", rd.second);
+    reacds.append(coord);
+  }
+  data.getDynamicObject()->setProperty("reacDirs", reacds);
+
+  return data;
+}
+
 String PAC::toString()
 {
   String res;
-  for (auto rd : reacDirs)
+  for (auto &rd : reacDirs)
   {
     auto r = rd.first;
     bool d = rd.second;
@@ -849,14 +941,14 @@ String PAC::toString()
 
 bool PAC::includedIn(PAC *pac, bool onlyEnts)
 {
-  for (auto e : entities)
+  for (auto &e : entities)
   {
     if (!pac->entities.contains(e))
       return false;
   }
   if(onlyEnts) return true;
   //test reactions
-  for (auto rd : reacDirs)
+  for (auto &rd : reacDirs)
   {
     if (!pac->reacDirs.contains(rd))
       return false;

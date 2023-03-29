@@ -139,6 +139,7 @@ public:
   int numLevels;
 
   //gestion des cycles
+  bool PACsGenerated = false;
   Array<PAC *> cycles;
   bool includeOnlyWithEntities; //specify the rule for inclusion of PACs
   void addCycle(PAC *);
@@ -164,6 +165,8 @@ public:
 
   SimEntity *getSimEntityForEntity(Entity *e);
   SimEntity *getSimEntityForID(int id);
+
+  SimReaction *getSimReactionForID(int idSAT);
 
   void onContainerTriggerTriggered(Trigger *t) override;
   void onContainerParameterChanged(Parameter *p) override;

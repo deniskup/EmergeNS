@@ -148,7 +148,7 @@ void findPAC(Simulation *simul)
     // if entity i is taken in the cycle C
     int ent[Nent];
     int i = 0, j, k;
-    for (auto e : simul->entities)
+    for (auto &e : simul->entities)
     {
         curvar++;
         ent[i] = curvar;
@@ -162,7 +162,7 @@ void findPAC(Simulation *simul)
     // for taken reactions: which direction is used. 0 is reactants->product and 1 is product->reactants
     int dir[Nreac];
     j = 0;
-    for (auto r : simul->reactions)
+    for (auto &r : simul->reactions)
     {
         curvar++;
         reac[j] = curvar;
@@ -192,7 +192,7 @@ void findPAC(Simulation *simul)
     unordered_map<int, int> isReac;
     unordered_map<int, int> isProd;
     unordered_map<int, int> isProds;
-    for (auto r : simul->reactions)
+    for (auto &r : simul->reactions)
     {
         int idr = r->idSAT;
         // ids of entities involved
@@ -216,7 +216,7 @@ void findPAC(Simulation *simul)
             curvar++;
             isProd[c2(i, idr)] = curvar;
             varfile << "isProd " << r->reactant1->name << " from " << r->reactant1->name << " : " << curvar << endl;
-            for (auto r2 : simul->reactions)
+            for (auto &r2 : simul->reactions)
             {
                 if (r2->idSAT <= idr)
                     continue;
@@ -245,7 +245,7 @@ void findPAC(Simulation *simul)
     // correctness of isReac: either e is a reactant and dir=0, or e is a product and dir=1. Also reac[j] has to be true
     // for isReac to be true we also need to verify that the other reactant is different, we do not want to allow A+A->AA in this direction
 
-    for (auto r : simul->reactions)
+    for (auto &r : simul->reactions)
     {
         j = r->idSAT;
 
@@ -300,7 +300,7 @@ void findPAC(Simulation *simul)
         addClause({-isProd[ij], -dir[j]});
         addClause({isProd[ij], dir[j], -reac[j]});
 
-        for (auto r2 : simul->reactions)
+        for (auto &r2 : simul->reactions)
         {
             int k = r2->idSAT;
             if (k <= j)
@@ -362,7 +362,7 @@ void findPAC(Simulation *simul)
         }
         // if the reaction is two to one (dir=0), the two reactants cannot be both in the pack:
         //  AND_j -reac[j] or dir[j] or not ent[reac1] or not ent[reac2]
-        for (auto r : simul->reactions)
+        for (auto &r : simul->reactions)
         {
             j = r->idSAT;
             addClause({-reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT]});
@@ -370,7 +370,7 @@ void findPAC(Simulation *simul)
     }
 
     // in each selected reaction, at least one reactant and the product are selected
-    for (auto r : simul->reactions)
+    for (auto &r : simul->reactions)
     {
         j = r->idSAT;
         addClause({-reac[j], ent[r->reactant1->idSAT], ent[r->reactant2->idSAT]});
@@ -405,9 +405,9 @@ void findPAC(Simulation *simul)
             return a * (distMax + 1) * Nent + b * Nent + c;
         };
 
-        for (auto e : simul->entities)
+        for (auto &e : simul->entities)
         {
-            for (auto f : simul->entities)
+            for (auto &f : simul->entities)
             {
                 for (int d = 0; d <= distMax; d++)
                 {
@@ -457,7 +457,7 @@ void findPAC(Simulation *simul)
             return a * Nreac * distMax * Nent + b * distMax * Nent + c * Nent + t;
         };
         // initialisation
-        for (auto r : simul->reactions)
+        for (auto &r : simul->reactions)
         {
             for (int d = 0; d < distMax; d++)
             {
@@ -474,7 +474,7 @@ void findPAC(Simulation *simul)
         }
 
         // clauses advance
-        for (auto r : simul->reactions)
+        for (auto &r : simul->reactions)
         {
             int id1 = r->reactant1->idSAT;
             int id2 = r->reactant2->idSAT;
@@ -482,7 +482,7 @@ void findPAC(Simulation *simul)
             Array<int> ids = {id1, id2, id3};
 
             int idr = r->idSAT;
-            for (auto f : ids)
+            for (auto &f : ids)
             {
 
                 for (int d = 0; d < distMax; d++)
@@ -503,13 +503,13 @@ void findPAC(Simulation *simul)
         {
             for (int d = 0; d < distMax; d++)
             {
-                for (auto e : simul->entities)
+                for (auto &e : simul->entities)
                 {
 
                     Array<int> distClause;
                     distClause.add(-dist[d2(e->idSAT, d + 1, t)]);
                     distClause.add(dist[d2(e->idSAT, d, t)]);
-                    for (auto r : simul->reactions)
+                    for (auto &r : simul->reactions)
                     {
                         int idr = r->idSAT;
                         if (!r->contains(e))
@@ -564,7 +564,7 @@ void findPAC(Simulation *simul)
         int nCycles;
         for (nCycles = 0; nCycles < maxCycles; nCycles++)
         {
-            system("minisat dimacs.txt model.txt >err");
+            system("minisat dimacs.txt model.txt >SATlog.txt");
             ifstream sol_file("model.txt");
             string isSat;
             sol_file >> isSat;
@@ -574,7 +574,7 @@ void findPAC(Simulation *simul)
             PAC *pac = new PAC();
             Array<int> newClause;
             int cycleSize = 0;
-            for (auto e : simul->entities)
+            for (auto &e : simul->entities)
             {
                 sol_file >> d;
                 if (d > 0)
@@ -583,7 +583,7 @@ void findPAC(Simulation *simul)
                     pac->entities.add(e);
                 }
             }
-            for (auto r : simul->reactions)
+            for (auto &r : simul->reactions)
             {
                 // reaction
                 int re;
@@ -618,6 +618,7 @@ void findPAC(Simulation *simul)
         }
     }
     cout << endl;
+    simul->PACsGenerated=true;
     simul->updateParams();
     simul->printPACs();
 }
