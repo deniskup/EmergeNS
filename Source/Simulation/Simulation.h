@@ -68,6 +68,7 @@ public:
 
   int idSAT; // identifier for SAT Solving
   float flow; //flow = dProduct/dt due to the reaction
+  bool flowdir; //direction of the flow, same convention as in PAC
 
   bool contains(SimEntity *e);
 

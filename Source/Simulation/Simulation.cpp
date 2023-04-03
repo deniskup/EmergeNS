@@ -80,7 +80,7 @@ void Simulation::clearParams()
   primEnts.clear();
   reactions.clear();
   cycles.clear();
-  PACsGenerated=false;
+  PACsGenerated = false;
 }
 
 void Simulation::updateParams()
@@ -502,8 +502,11 @@ void Simulation::nextStep()
     // compute product of reactants concentrations
     float reacConcent = reac1Concent * reac2Concent;
 
-    float directIncr = reacConcent * reac->assocRate * dt->floatValue();
-    float reverseIncr = prodConcent * reac->dissocRate * dt->floatValue();
+    float directCoef = reacConcent * reac->assocRate;
+    float reverseCoef = prodConcent * reac->dissocRate;
+
+    float directIncr = directCoef * dt->floatValue();
+    float reverseIncr = reverseCoef * dt->floatValue();
 
     // adjust the increments depending on available entities
     directIncr = jmin(directIncr, reac1Concent, reac2Concent);
@@ -519,27 +522,44 @@ void Simulation::nextStep()
     reac->reactant2->decrease(directIncr);
     reac->product->decrease(reverseIncr);
 
-    reac->flow = (directIncr - reverseIncr) / dt->floatValue();
+    // update flow needed only at checkpoints
+    if (isCheck)
+    {
+      if (directCoef - reverseCoef > 0)
+      {
+        reac->flow = directCoef - reverseCoef;
+        reac->flowdir = false;
+      }
+      else
+      {
+        reac->flow = reverseCoef - directCoef;
+        reac->flowdir = true;
+      }
+    }
   }
 
-  //compute RACs
-  for (auto &cycle : cycles)
+  // compute RACs
+  if (isCheck)
   {
-    cycle->flow = abs(cycle->reacDirs[0].first->flow); // initialisation to a max potential value
-    for (auto &reacDir : cycle->reacDirs)
+    cout << setprecision(3);
+    for (auto &cycle : cycles)
     {
-      auto reac = reacDir.first;
-      bool dir = reacDir.second;
-      if (dir != (reac->flow < 0))
-      { // wrong direction
-        cycle->flow = 0.;
-        continue;
+      cycle->flow = cycle->reacDirs[0].first->flow; // initialisation to a max potential value
+      for (auto &reacDir : cycle->reacDirs)
+      {
+        auto reac = reacDir.first;
+        bool dir = reacDir.second;
+        if (dir != (reac->flowdir))
+        { // wrong direction
+          cycle->flow = 0.;
+          continue;
+        }
+        cycle->flow = jmin(cycle->flow, reac->flow);
       }
-      cycle->flow = jmin(cycle->flow, abs(reac->flow));
-      if (isCheck && cycle->flow>0) cout << "RAC Flow " << setprecision(3) << cycle->flow << "  " << cycle->toString() << endl;
+      if (cycle->flow > 0)
+        cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
     }
-    if(isCheck) cout <<"-"<<endl;
-      
+    cout << "-" << endl;
   }
 
   curStep++;

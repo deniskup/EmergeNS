@@ -24,7 +24,7 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 
 	case NSCommandIDs::findPAC:
 		result.setInfo("Compute PACs", "", "General", result.readOnlyInKeyEditor);
-		//result.addDefaultKeypress(KeyPress::createFromDescription("f").getKeyCode(), ModifierKeys::commandModifier);
+		result.addDefaultKeypress(KeyPress::createFromDescription("p").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 
