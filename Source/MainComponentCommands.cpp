@@ -23,7 +23,7 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		break;
 
 	case NSCommandIDs::findPAC:
-		result.setInfo("Write dimacs.txt to find PAC", "", "General", result.readOnlyInKeyEditor);
+		result.setInfo("Compute PACs", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("f").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 

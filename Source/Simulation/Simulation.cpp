@@ -536,10 +536,9 @@ void Simulation::nextStep()
         continue;
       }
       cycle->flow = jmin(cycle->flow, abs(reac->flow));
-      if (isCheck && cycle->flow>0) cout << "PAC Flow " << setprecision(3) << cycle->flow << "  " << cycle->toString() << endl;
+      if (isCheck && cycle->flow>0) cout << "RAC Flow " << setprecision(3) << cycle->flow << "  " << cycle->toString() << endl;
     }
     if(isCheck) cout <<"-"<<endl;
-    
       
   }
 
