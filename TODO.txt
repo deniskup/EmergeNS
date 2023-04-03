@@ -1,8 +1,6 @@
-RAC detection
-
+RAC display
 
 variance taux de decay (option 0, tout le monde a le meme decay)
-
 
 en plus du graphe des concent:
 plot log(pi/pi_equilibre)

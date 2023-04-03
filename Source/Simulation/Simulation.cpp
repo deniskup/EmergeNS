@@ -80,6 +80,7 @@ void Simulation::clearParams()
   primEnts.clear();
   reactions.clear();
   cycles.clear();
+  PACsGenerated=false;
 }
 
 void Simulation::updateParams()
@@ -517,6 +518,29 @@ void Simulation::nextStep()
     reac->reactant1->decrease(directIncr);
     reac->reactant2->decrease(directIncr);
     reac->product->decrease(reverseIncr);
+
+    reac->flow = (directIncr - reverseIncr) / dt->floatValue();
+  }
+
+  //compute RACs
+  for (auto &cycle : cycles)
+  {
+    cycle->flow = abs(cycle->reacDirs[0].first->flow); // initialisation to a max potential value
+    for (auto &reacDir : cycle->reacDirs)
+    {
+      auto reac = reacDir.first;
+      bool dir = reacDir.second;
+      if (dir != (reac->flow < 0))
+      { // wrong direction
+        cycle->flow = 0.;
+        continue;
+      }
+      cycle->flow = jmin(cycle->flow, abs(reac->flow));
+      if (isCheck && cycle->flow>0) cout << "PAC Flow " << setprecision(3) << cycle->flow << "  " << cycle->toString() << endl;
+    }
+    if(isCheck) cout <<"-"<<endl;
+    
+      
   }
 
   curStep++;
@@ -824,7 +848,6 @@ SimReaction::SimReaction(var data)
 
   if (data.getDynamicObject()->hasProperty("idSAT"))
     idSAT = data["idSAT"];
-  
 }
 
 var SimReaction::toJSONData()
@@ -844,7 +867,7 @@ var SimReaction::toJSONData()
 
 bool SimReaction::contains(SimEntity *e)
 {
-  return (reactant1==e || reactant2==e || product==e);
+  return (reactant1 == e || reactant2 == e || product == e);
 }
 
 PAC::PAC()
@@ -929,11 +952,11 @@ String PAC::toString()
     }
     if (d)
     { // 1->2
-      res += r->product->name + "->" + r1name + plus + r2name+ " ";
+      res += r->product->name + "->" + r1name + plus + r2name + " ";
     }
     else
     { // 2->1
-      res += r1name + plus + r2name + "->" + r->product->name+" ";
+      res += r1name + plus + r2name + "->" + r->product->name + " ";
     }
   }
   return res;
@@ -946,8 +969,9 @@ bool PAC::includedIn(PAC *pac, bool onlyEnts)
     if (!pac->entities.contains(e))
       return false;
   }
-  if(onlyEnts) return true;
-  //test reactions
+  if (onlyEnts)
+    return true;
+  // test reactions
   for (auto &rd : reacDirs)
   {
     if (!pac->reacDirs.contains(rd))
@@ -971,7 +995,8 @@ void Simulation::addCycle(PAC *newpac)
 
 void Simulation::printPACs()
 {
-  for(auto pac:cycles){
-    cout<<pac->toString()<<endl;
+  for (auto pac : cycles)
+  {
+    cout << pac->toString() << endl;
   }
 }

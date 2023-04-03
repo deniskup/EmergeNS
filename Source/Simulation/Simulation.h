@@ -67,6 +67,7 @@ public:
   float dissocRate;
 
   int idSAT; // identifier for SAT Solving
+  float flow; //flow = dProduct/dt due to the reaction
 
   bool contains(SimEntity *e);
 
@@ -84,6 +85,8 @@ public:
 
   Array<SimEntity *> entities;
   Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
+
+  float flow; //min of reactions flows, 0 if one flow is in the wrong direction
 
   bool includedIn(PAC *p, bool onlyEnts);
 
