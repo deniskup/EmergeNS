@@ -128,7 +128,7 @@ void normEnergies()
 
 void findPAC(Simulation *simul)
 {
-
+    
     // open file
     stringstream clauses;
 

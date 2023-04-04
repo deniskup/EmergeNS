@@ -474,7 +474,7 @@ void Simulation::nextStep()
   bool isCheck = (curStep % checkPoint == 0);
   if (displayLog && isCheck)
   {
-    NLOG(niceName, "New Step : " << curStep);
+    LOG("New Step : " << curStep);
     wait(1);
   }
   if (curStep >= maxSteps)
@@ -538,30 +538,6 @@ void Simulation::nextStep()
     }
   }
 
-  // compute RACs
-  if (isCheck)
-  {
-    cout << setprecision(3);
-    for (auto &cycle : cycles)
-    {
-      cycle->flow = cycle->reacDirs[0].first->flow; // initialisation to a max potential value
-      for (auto &reacDir : cycle->reacDirs)
-      {
-        auto reac = reacDir.first;
-        bool dir = reacDir.second;
-        if (dir != (reac->flowdir))
-        { // wrong direction
-          cycle->flow = 0.;
-          continue;
-        }
-        cycle->flow = jmin(cycle->flow, reac->flow);
-      }
-      if (cycle->flow > 0)
-        cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
-    }
-    cout << "-" << endl;
-  }
-
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
 
@@ -569,7 +545,7 @@ void Simulation::nextStep()
   {
     if (isinf(ent->concent))
     {
-      NLOG(niceName, "Concentration of entity " << ent->name << " exceeded capacity");
+      LOG( "Concentration of entity " << ent->name << " exceeded capacity");
       finished->setValue(true);
       return;
     }
@@ -591,9 +567,13 @@ void Simulation::nextStep()
     for (auto &e : entities)
     {
       if (e->draw && displayLog)
-        NLOG(niceName, e->toString());
+        LOG(e->toString());
     }
   }
+
+  // rest only to call only pointsDrawn time
+  if (!isCheck)
+    return;
 
   Array<float> entityValues;
   for (auto &ent : entitiesDrawn)
@@ -601,12 +581,32 @@ void Simulation::nextStep()
     entityValues.add(ent->concent);
   }
 
-  // call only pointsDrawn time
-  if (isCheck)
+  // compute RACs
+  Array<float> PACsValues;
+
+  // cout << setprecision(3);
+  for (auto &cycle : cycles)
   {
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues));
-    // listeners.call(&SimulationListener::newStep, this);
+    cycle->flow = cycle->reacDirs[0].first->flow; // initialisation to a max potential value
+    for (auto &reacDir : cycle->reacDirs)
+    {
+      auto reac = reacDir.first;
+      bool dir = reacDir.second;
+      if (dir != (reac->flowdir))
+      { // wrong direction
+        cycle->flow = 0.;
+        continue;
+      }
+      cycle->flow = jmin(cycle->flow, reac->flow);
+    }
+    PACsValues.add(cycle->flow);
+     if (cycle->flow > 0)
+      cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
   }
+   cout << "-" << endl;
+
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues,{}, PACsValues));
+  // listeners.call(&SimulationListener::newStep, this);
 }
 
 void Simulation::stop()
@@ -622,16 +622,16 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
-  NLOG(niceName, "Start thread");
+  LOG("Start thread");
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
   }
 
-  NLOG(niceName, "End thread");
-  NLOG(niceName, "Record Concentration: " << recordConcent << " for entity " << recordEntity);
-  NLOG(niceName, "Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
+  LOG("End thread");
+  LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
+  LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
@@ -1014,6 +1014,7 @@ void Simulation::addCycle(PAC *newpac)
 
 void Simulation::printPACs()
 {
+  LOG("PACS computed");
   for (auto pac : cycles)
   {
     cout << pac->toString() << endl;

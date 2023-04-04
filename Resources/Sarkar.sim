@@ -1,10 +1,11 @@
 {
   "ready": true,
-  "recordConcent": 0.5782349705696106,
-  "recordEntity": "10",
-  "recordDrawn": 0.5782349705696106,
-  "recordDrawnEntity": "10",
+  "recordConcent": 3.797542810440063,
+  "recordEntity": "04",
+  "recordDrawn": 3.797542810440063,
+  "recordDrawnEntity": "04",
   "numLevels": 4,
+  "PACsGenerated": true,
   "entities": [
     {
       "name": "10",
@@ -16,10 +17,10 @@
       },
       "primary": true,
       "id": 0,
-      "concent": 0.5782349705696106,
-      "startConcent": 0.001574111054651439,
-      "creationRate": 0.2597340941429138,
-      "destructionRate": 0.05095241218805313,
+      "concent": 0.02245985344052315,
+      "startConcent": 0.09018536657094955,
+      "creationRate": 0.04970473051071167,
+      "destructionRate": 0.2607501149177551,
       "freeEnergy": 0.0,
       "level": 0,
       "draw": true,
@@ -42,10 +43,10 @@
       },
       "primary": true,
       "id": 1,
-      "concent": 0.3305175006389618,
-      "startConcent": 0.02840904705226421,
-      "creationRate": 0.1584582924842834,
-      "destructionRate": 0.1824717372655869,
+      "concent": 0.609810471534729,
+      "startConcent": 0.02142311446368694,
+      "creationRate": 1.585639715194702,
+      "destructionRate": 0.1037536859512329,
       "freeEnergy": 0.0,
       "level": 0,
       "draw": true,
@@ -68,11 +69,11 @@
       },
       "primary": false,
       "id": 2,
-      "concent": 0.3427275419235229,
+      "concent": 0.0005757471662946045,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.03062455728650093,
-      "freeEnergy": -0.1617813408374786,
+      "destructionRate": 0.3135424256324768,
+      "freeEnergy": -2.0,
       "level": 1,
       "draw": true,
       "composition": [
@@ -81,32 +82,6 @@
         },
         {
           "coord": 0
-        }
-      ]
-    },
-    {
-      "name": "11",
-      "color": {
-        "H": 0.2496732175350189,
-        "S": 1.0,
-        "B": 1.0,
-        "A": 255
-      },
-      "primary": false,
-      "id": 3,
-      "concent": 0.2503503859043121,
-      "startConcent": 0.0,
-      "creationRate": 0.0,
-      "destructionRate": 0.008009898476302624,
-      "freeEnergy": -0.3894314467906952,
-      "level": 1,
-      "draw": true,
-      "composition": [
-        {
-          "coord": 1
-        },
-        {
-          "coord": 1
         }
       ]
     },
@@ -119,12 +94,12 @@
         "A": 255
       },
       "primary": false,
-      "id": 4,
-      "concent": 0.1239683777093887,
+      "id": 3,
+      "concent": 0.7305672168731689,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.00945816095918417,
-      "freeEnergy": -0.2491748631000519,
+      "destructionRate": 0.07218843698501587,
+      "freeEnergy": -2.0,
       "level": 1,
       "draw": true,
       "composition": [
@@ -133,6 +108,32 @@
         },
         {
           "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "11",
+      "color": {
+        "H": 0.2496732175350189,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 4,
+      "concent": 0.02173013426363468,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.00257420539855957,
+      "freeEnergy": -2.0,
+      "level": 1,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 1
         }
       ]
     },
@@ -146,11 +147,11 @@
       },
       "primary": false,
       "id": 5,
-      "concent": 0.2142030447721481,
+      "concent": 0.001506101572886109,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.06677202880382538,
-      "freeEnergy": -0.8772066235542297,
+      "destructionRate": 0.3582788705825806,
+      "freeEnergy": -4.0,
       "level": 2,
       "draw": true,
       "composition": [
@@ -163,7 +164,7 @@
       ]
     },
     {
-      "name": "30",
+      "name": "12",
       "color": {
         "H": 0.5,
         "S": 1.0,
@@ -172,11 +173,37 @@
       },
       "primary": false,
       "id": 6,
-      "concent": 0.2002677321434021,
+      "concent": 0.06618132442235947,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.0937177762389183,
-      "freeEnergy": -0.3026978075504303,
+      "destructionRate": 0.2454386651515961,
+      "freeEnergy": -4.0,
+      "level": 2,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "30",
+      "color": {
+        "H": 0.5,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 7,
+      "concent": 0.00002752859472821001,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.3706125915050507,
+      "freeEnergy": -4.0,
       "level": 2,
       "draw": true,
       "composition": [
@@ -197,12 +224,12 @@
         "A": 255
       },
       "primary": false,
-      "id": 7,
-      "concent": 0.06739504635334015,
+      "id": 8,
+      "concent": 1.12227988243103,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.05447021871805191,
-      "freeEnergy": -0.8808717727661133,
+      "destructionRate": 0.1208003759384155,
+      "freeEnergy": -4.0,
       "level": 2,
       "draw": true,
       "composition": [
@@ -215,33 +242,7 @@
       ]
     },
     {
-      "name": "12",
-      "color": {
-        "H": 0.5,
-        "S": 1.0,
-        "B": 1.0,
-        "A": 255
-      },
-      "primary": false,
-      "id": 8,
-      "concent": 0.1036217659711838,
-      "startConcent": 0.0,
-      "creationRate": 0.0,
-      "destructionRate": 0.09330913424491882,
-      "freeEnergy": -0.7049997448921204,
-      "level": 2,
-      "draw": true,
-      "composition": [
-        {
-          "coord": 1
-        },
-        {
-          "coord": 2
-        }
-      ]
-    },
-    {
-      "name": "13",
+      "name": "22",
       "color": {
         "H": 0.7503268122673035,
         "S": 1.0,
@@ -250,45 +251,19 @@
       },
       "primary": false,
       "id": 9,
-      "concent": 0.04627762734889984,
+      "concent": 0.001706681679934263,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.05534076690673828,
-      "freeEnergy": -1.061387538909912,
+      "destructionRate": 0.2808516323566437,
+      "freeEnergy": -6.0,
       "level": 3,
       "draw": true,
       "composition": [
         {
-          "coord": 1
+          "coord": 2
         },
         {
-          "coord": 3
-        }
-      ]
-    },
-    {
-      "name": "04",
-      "color": {
-        "H": 0.7503268122673035,
-        "S": 1.0,
-        "B": 1.0,
-        "A": 255
-      },
-      "primary": false,
-      "id": 10,
-      "concent": 0.02810366451740265,
-      "startConcent": 0.0,
-      "creationRate": 0.0,
-      "destructionRate": 0.03081912361085415,
-      "freeEnergy": -1.141625285148621,
-      "level": 3,
-      "draw": true,
-      "composition": [
-        {
-          "coord": 0
-        },
-        {
-          "coord": 4
+          "coord": 2
         }
       ]
     },
@@ -301,12 +276,12 @@
         "A": 255
       },
       "primary": false,
-      "id": 11,
-      "concent": 0.2546639144420624,
+      "id": 10,
+      "concent": 1.973947746591875e-6,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.02122649736702442,
-      "freeEnergy": -1.138299226760864,
+      "destructionRate": 0.2223428040742874,
+      "freeEnergy": -6.0,
       "level": 3,
       "draw": true,
       "composition": [
@@ -315,6 +290,32 @@
         },
         {
           "coord": 0
+        }
+      ]
+    },
+    {
+      "name": "13",
+      "color": {
+        "H": 0.7503268122673035,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 11,
+      "concent": 0.07358341664075851,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.3230147063732147,
+      "freeEnergy": -6.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 3
         }
       ]
     },
@@ -328,11 +329,11 @@
       },
       "primary": false,
       "id": 12,
-      "concent": 0.1325536966323853,
+      "concent": 0.0001003410579869524,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.03918034210801125,
-      "freeEnergy": -1.001973152160645,
+      "destructionRate": 0.1805946379899979,
+      "freeEnergy": -6.0,
       "level": 3,
       "draw": true,
       "composition": [
@@ -345,7 +346,7 @@
       ]
     },
     {
-      "name": "22",
+      "name": "04",
       "color": {
         "H": 0.7503268122673035,
         "S": 1.0,
@@ -354,19 +355,19 @@
       },
       "primary": false,
       "id": 13,
-      "concent": 0.06116925552487373,
+      "concent": 3.797542810440063,
       "startConcent": 0.0,
       "creationRate": 0.0,
-      "destructionRate": 0.03939634561538696,
-      "freeEnergy": -0.7537474632263184,
+      "destructionRate": 0.05838640406727791,
+      "freeEnergy": -6.0,
       "level": 3,
       "draw": true,
       "composition": [
         {
-          "coord": 2
+          "coord": 0
         },
         {
-          "coord": 2
+          "coord": 4
         }
       ]
     }
@@ -376,141 +377,153 @@
       "reactant1_id": 0,
       "reactant2_id": 0,
       "product_id": 2,
-      "assocRate": 0.9052110314369202,
-      "dissocRate": 0.7699971199035645
-    },
-    {
-      "reactant1_id": 1,
-      "reactant2_id": 0,
-      "product_id": 3,
-      "assocRate": 0.9916275143623352,
-      "dissocRate": 0.6717700958251953
+      "assocRate": 0.9520655274391174,
+      "dissocRate": 0.128848060965538,
+      "idSAT": 0
     },
     {
       "reactant1_id": 1,
       "reactant2_id": 1,
+      "product_id": 3,
+      "assocRate": 0.9791722297668457,
+      "dissocRate": 0.1325165331363678,
+      "idSAT": 1
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 0,
       "product_id": 4,
-      "assocRate": 0.9943315982818604,
-      "dissocRate": 0.7750254273414612
+      "assocRate": 0.9088672399520874,
+      "dissocRate": 0.1230018064379692,
+      "idSAT": 2
     },
     {
       "reactant1_id": 0,
-      "reactant2_id": 3,
+      "reactant2_id": 4,
       "product_id": 5,
-      "assocRate": 0.940190851688385,
-      "dissocRate": 0.577268660068512
+      "assocRate": 0.9067111015319824,
+      "dissocRate": 0.1227100044488907,
+      "idSAT": 3
     },
     {
       "reactant1_id": 1,
       "reactant2_id": 2,
       "product_id": 5,
-      "assocRate": 0.9229883551597595,
-      "dissocRate": 0.4513266384601593
+      "assocRate": 0.9933773279190063,
+      "dissocRate": 0.1344389915466309,
+      "idSAT": 4
     },
     {
       "reactant1_id": 0,
-      "reactant2_id": 2,
+      "reactant2_id": 3,
       "product_id": 6,
-      "assocRate": 0.9468174576759338,
-      "dissocRate": 0.8223695755004883
+      "assocRate": 0.9307025074958801,
+      "dissocRate": 0.1259569078683853,
+      "idSAT": 5
     },
     {
       "reactant1_id": 1,
       "reactant2_id": 4,
+      "product_id": 6,
+      "assocRate": 0.9696392416954041,
+      "dissocRate": 0.1312263756990433,
+      "idSAT": 6
+    },
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 2,
       "product_id": 7,
-      "assocRate": 0.9793244600296021,
-      "dissocRate": 0.5206958651542664
+      "assocRate": 0.9719682335853577,
+      "dissocRate": 0.1315415948629379,
+      "idSAT": 7
     },
     {
       "reactant1_id": 1,
       "reactant2_id": 3,
       "product_id": 8,
-      "assocRate": 0.9982153177261353,
-      "dissocRate": 0.7280725836753845
-    },
-    {
-      "reactant1_id": 0,
-      "reactant2_id": 4,
-      "product_id": 8,
-      "assocRate": 0.9508716464042664,
-      "dissocRate": 0.6027811765670776
-    },
-    {
-      "reactant1_id": 1,
-      "reactant2_id": 8,
-      "product_id": 9,
-      "assocRate": 0.908298134803772,
-      "dissocRate": 0.6359913349151611
-    },
-    {
-      "reactant1_id": 0,
-      "reactant2_id": 7,
-      "product_id": 9,
-      "assocRate": 0.9195461273193359,
-      "dissocRate": 0.7676734328269958
-    },
-    {
-      "reactant1_id": 4,
-      "reactant2_id": 3,
-      "product_id": 9,
-      "assocRate": 0.9601085782051086,
-      "dissocRate": 0.6290842294692993
-    },
-    {
-      "reactant1_id": 1,
-      "reactant2_id": 7,
-      "product_id": 10,
-      "assocRate": 0.9755702018737793,
-      "dissocRate": 0.7516483664512634
+      "assocRate": 0.9645132422447205,
+      "dissocRate": 0.1305326521396637,
+      "idSAT": 8
     },
     {
       "reactant1_id": 4,
       "reactant2_id": 4,
-      "product_id": 10,
-      "assocRate": 0.9700377583503723,
-      "dissocRate": 0.5098208785057068
+      "product_id": 9,
+      "assocRate": 0.9740688800811768,
+      "dissocRate": 0.1318258941173553,
+      "idSAT": 9
+    },
+    {
+      "reactant1_id": 3,
+      "reactant2_id": 2,
+      "product_id": 9,
+      "assocRate": 0.989037036895752,
+      "dissocRate": 0.1338516026735306,
+      "idSAT": 10
     },
     {
       "reactant1_id": 0,
-      "reactant2_id": 6,
-      "product_id": 11,
-      "assocRate": 0.9165282845497131,
-      "dissocRate": 0.3974191248416901
+      "reactant2_id": 7,
+      "product_id": 10,
+      "assocRate": 0.9343858361244202,
+      "dissocRate": 0.1264553666114807,
+      "idSAT": 11
     },
     {
       "reactant1_id": 2,
       "reactant2_id": 2,
+      "product_id": 10,
+      "assocRate": 0.9053467512130737,
+      "dissocRate": 0.1225253641605377,
+      "idSAT": 12
+    },
+    {
+      "reactant1_id": 4,
+      "reactant2_id": 3,
       "product_id": 11,
-      "assocRate": 0.944307804107666,
-      "dissocRate": 0.4180978834629059
-    },
-    {
-      "reactant1_id": 0,
-      "reactant2_id": 5,
-      "product_id": 12,
-      "assocRate": 0.919434130191803,
-      "dissocRate": 0.8115872144699097
-    },
-    {
-      "reactant1_id": 1,
-      "reactant2_id": 6,
-      "product_id": 12,
-      "assocRate": 0.9865057468414307,
-      "dissocRate": 0.4902394115924835
+      "assocRate": 0.9144918918609619,
+      "dissocRate": 0.1237630173563957,
+      "idSAT": 13
     },
     {
       "reactant1_id": 0,
       "reactant2_id": 8,
-      "product_id": 13,
-      "assocRate": 0.9339442253112793,
-      "dissocRate": 0.8895084261894226
+      "product_id": 11,
+      "assocRate": 0.9754067659378052,
+      "dissocRate": 0.1320069581270218,
+      "idSAT": 14
+    },
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 5,
+      "product_id": 12,
+      "assocRate": 0.9298753142356873,
+      "dissocRate": 0.1258449405431747,
+      "idSAT": 15
+    },
+    {
+      "reactant1_id": 4,
+      "reactant2_id": 2,
+      "product_id": 12,
+      "assocRate": 0.9128389358520508,
+      "dissocRate": 0.1235393136739731,
+      "idSAT": 16
     },
     {
       "reactant1_id": 1,
-      "reactant2_id": 5,
+      "reactant2_id": 8,
       "product_id": 13,
-      "assocRate": 0.8683944344520569,
-      "dissocRate": 0.9825047850608826
+      "assocRate": 0.9448173642158508,
+      "dissocRate": 0.127867117524147,
+      "idSAT": 17
+    },
+    {
+      "reactant1_id": 3,
+      "reactant2_id": 3,
+      "product_id": 13,
+      "assocRate": 0.9275848865509033,
+      "dissocRate": 0.1255349665880203,
+      "idSAT": 18
     }
   ],
   "primEnts": [
@@ -563,6 +576,1482 @@
     },
     {
       "ent_id": 13
+    }
+  ],
+  "cycles": [
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 7
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 8,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 5
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 6
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": false
+        },
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 14,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": false
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 3,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 14,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 5
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 13
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": true
+        },
+        {
+          "reac_id": 10,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
     }
   ]
 }

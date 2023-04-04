@@ -3,6 +3,7 @@
 #include "Simulation/ui/ReactionManagerUI.h"
 #include "Simulation/ui/SimulationUI.h"
 #include "Simulation/ui/GenerationUI.h"
+#include "Simulation/ui/PACUI.h"
 
 String getAppVersion();
 
@@ -24,6 +25,8 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Entities", &EntityManagerUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Reactions", &ReactionManagerUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Generation", &GenerationUI::create));
+	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PACs", &PACUI::create));
+	
 
 
 	ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_nslayout);

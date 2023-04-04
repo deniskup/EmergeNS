@@ -202,15 +202,18 @@ public:
       FINISHED
     };
 
-    SimulationEvent(Type t, Simulation *sim, int curStep = 0, Array<float> entityValues = Array<float>(), Array<Colour> entityColors = Array<Colour>()) : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
+    SimulationEvent(Type t, Simulation *sim, int curStep = 0, Array<float> entityValues = Array<float>(), Array<Colour> entityColors= Array<Colour>(), Array<float> PACsValues= Array<float>()) : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues)
     {
     }
+
+
 
     Type type;
     Simulation *sim;
     int curStep;
     Array<float> entityValues;
     Array<Colour> entityColors;
+    Array<float> PACsValues;
   };
 
   QueuedNotifier<SimulationEvent> simNotifier;

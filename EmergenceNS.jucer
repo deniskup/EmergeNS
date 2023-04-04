@@ -26,6 +26,8 @@
           <FILE id="R0amcJ" name="GenerationUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/GenerationUI.cpp"/>
           <FILE id="cvKJaz" name="GenerationUI.h" compile="0" resource="0" file="Source/Simulation/ui/GenerationUI.h"/>
+          <FILE id="eAvybm" name="PACUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/PACUI.cpp"/>
+          <FILE id="fTsujl" name="PACUI.h" compile="0" resource="0" file="Source/Simulation/ui/PACUI.h"/>
           <FILE id="bEc5aT" name="ReactionManagerUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/ReactionManagerUI.cpp"/>
           <FILE id="CfFFYB" name="ReactionManagerUI.h" compile="0" resource="0"
