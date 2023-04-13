@@ -1,0 +1,2451 @@
+{
+  "ready": true,
+  "recordConcent": 1.105921864509583,
+  "recordEntity": "01",
+  "recordDrawn": 1.105921864509583,
+  "recordDrawnEntity": "01",
+  "numLevels": 5,
+  "PACsGenerated": true,
+  "entities": [
+    {
+      "name": "10",
+      "color": {
+        "H": 0.0,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": true,
+      "id": 0,
+      "concent": 1.021390318870544,
+      "startConcent": 0.007821160368621349,
+      "creationRate": 1.296547889709473,
+      "destructionRate": 0.5418004393577576,
+      "freeEnergy": 0.0,
+      "level": 0,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 0
+        }
+      ]
+    },
+    {
+      "name": "01",
+      "color": {
+        "H": 0.0,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": true,
+      "id": 1,
+      "concent": 1.105921030044556,
+      "startConcent": 0.07681681960821152,
+      "creationRate": 1.715865969657898,
+      "destructionRate": 0.7023658752441406,
+      "freeEnergy": 0.0,
+      "level": 0,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 0
+        },
+        {
+          "coord": 1
+        }
+      ]
+    },
+    {
+      "name": "20",
+      "color": {
+        "H": 0.2000000178813934,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 2,
+      "concent": 0.2329132556915283,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.8340250849723816,
+      "freeEnergy": 1.0,
+      "level": 1,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 2
+        },
+        {
+          "coord": 0
+        }
+      ]
+    },
+    {
+      "name": "11",
+      "color": {
+        "H": 0.2000000178813934,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 3,
+      "concent": 0.251072108745575,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.7643851637840271,
+      "freeEnergy": 1.0,
+      "level": 1,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 1
+        }
+      ]
+    },
+    {
+      "name": "02",
+      "color": {
+        "H": 0.2000000178813934,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 4,
+      "concent": 0.2446844875812531,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.9290568828582764,
+      "freeEnergy": 1.0,
+      "level": 1,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 0
+        },
+        {
+          "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "30",
+      "color": {
+        "H": 0.4000000357627869,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 5,
+      "concent": 0.07896305620670319,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.134555995464325,
+      "freeEnergy": 2.0,
+      "level": 2,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 3
+        },
+        {
+          "coord": 0
+        }
+      ]
+    },
+    {
+      "name": "03",
+      "color": {
+        "H": 0.4000000357627869,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 6,
+      "concent": 0.06462021172046661,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.4836982488632202,
+      "freeEnergy": 2.0,
+      "level": 2,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 0
+        },
+        {
+          "coord": 3
+        }
+      ]
+    },
+    {
+      "name": "12",
+      "color": {
+        "H": 0.4000000357627869,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 7,
+      "concent": 0.02026346698403358,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.3978787064552307,
+      "freeEnergy": 2.0,
+      "level": 2,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "21",
+      "color": {
+        "H": 0.4000000357627869,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 8,
+      "concent": 0.08052892982959747,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.1895250678062439,
+      "freeEnergy": 2.0,
+      "level": 2,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 2
+        },
+        {
+          "coord": 1
+        }
+      ]
+    },
+    {
+      "name": "31",
+      "color": {
+        "H": 0.6000000238418579,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 9,
+      "concent": 0.0253397598862648,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.05121375992894173,
+      "freeEnergy": 3.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 3
+        },
+        {
+          "coord": 1
+        }
+      ]
+    },
+    {
+      "name": "22",
+      "color": {
+        "H": 0.6000000238418579,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 10,
+      "concent": 0.02489667013287544,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.2797890901565552,
+      "freeEnergy": 3.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 2
+        },
+        {
+          "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "13",
+      "color": {
+        "H": 0.6000000238418579,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 11,
+      "concent": 0.01377719268202782,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.1546167284250259,
+      "freeEnergy": 3.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 3
+        }
+      ]
+    },
+    {
+      "name": "04",
+      "color": {
+        "H": 0.6000000238418579,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 12,
+      "concent": 0.019991435110569,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.2785731852054596,
+      "freeEnergy": 3.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 0
+        },
+        {
+          "coord": 4
+        }
+      ]
+    },
+    {
+      "name": "40",
+      "color": {
+        "H": 0.6000000238418579,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 13,
+      "concent": 0.0,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.08721586316823959,
+      "freeEnergy": 3.0,
+      "level": 3,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 4
+        },
+        {
+          "coord": 0
+        }
+      ]
+    },
+    {
+      "name": "41",
+      "color": {
+        "H": 0.8000000715255737,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 14,
+      "concent": 0.006653552874922752,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.03875675797462463,
+      "freeEnergy": 4.0,
+      "level": 4,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 4
+        },
+        {
+          "coord": 1
+        }
+      ]
+    },
+    {
+      "name": "05",
+      "color": {
+        "H": 0.8000000715255737,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 15,
+      "concent": 0.006946847308427095,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.03322234749794006,
+      "freeEnergy": 4.0,
+      "level": 4,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 0
+        },
+        {
+          "coord": 5
+        }
+      ]
+    },
+    {
+      "name": "23",
+      "color": {
+        "H": 0.8000000715255737,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 16,
+      "concent": 0.003395137377083302,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.1523446142673492,
+      "freeEnergy": 4.0,
+      "level": 4,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 2
+        },
+        {
+          "coord": 3
+        }
+      ]
+    },
+    {
+      "name": "32",
+      "color": {
+        "H": 0.8000000715255737,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 17,
+      "concent": 0.0,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.007856577634811401,
+      "freeEnergy": 4.0,
+      "level": 4,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 3
+        },
+        {
+          "coord": 2
+        }
+      ]
+    },
+    {
+      "name": "14",
+      "color": {
+        "H": 0.8000000715255737,
+        "S": 1.0,
+        "B": 1.0,
+        "A": 255
+      },
+      "primary": false,
+      "id": 18,
+      "concent": 0.0,
+      "startConcent": 0.0,
+      "creationRate": 0.0,
+      "destructionRate": 0.01927827298641205,
+      "freeEnergy": 4.0,
+      "level": 4,
+      "draw": true,
+      "composition": [
+        {
+          "coord": 1
+        },
+        {
+          "coord": 4
+        }
+      ]
+    }
+  ],
+  "reactions": [
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 0,
+      "product_id": 2,
+      "assocRate": 0.3605640828609467,
+      "dissocRate": 0.9801148176193237,
+      "idSAT": 0
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 0,
+      "product_id": 3,
+      "assocRate": 0.3371061086654663,
+      "dissocRate": 0.9163494110107422,
+      "idSAT": 1
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 1,
+      "product_id": 4,
+      "assocRate": 0.3611171841621399,
+      "dissocRate": 0.9816182851791382,
+      "idSAT": 2
+    },
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 2,
+      "product_id": 5,
+      "assocRate": 0.3626411259174347,
+      "dissocRate": 0.9857607483863831,
+      "idSAT": 3
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 4,
+      "product_id": 6,
+      "assocRate": 0.3554215431213379,
+      "dissocRate": 0.9661359190940857,
+      "idSAT": 4
+    },
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 3,
+      "product_id": 8,
+      "assocRate": 0.3377152383327484,
+      "dissocRate": 0.9180052280426025,
+      "idSAT": 5
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 2,
+      "product_id": 8,
+      "assocRate": 0.3649803698062897,
+      "dissocRate": 0.9921195507049561,
+      "idSAT": 6
+    },
+    {
+      "reactant1_id": 0,
+      "reactant2_id": 8,
+      "product_id": 9,
+      "assocRate": 0.3522531092166901,
+      "dissocRate": 0.9575232267379761,
+      "idSAT": 7
+    },
+    {
+      "reactant1_id": 3,
+      "reactant2_id": 2,
+      "product_id": 9,
+      "assocRate": 0.3518361151218414,
+      "dissocRate": 0.9563897252082825,
+      "idSAT": 8
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 8,
+      "product_id": 10,
+      "assocRate": 0.3599924445152283,
+      "dissocRate": 0.9785609245300293,
+      "idSAT": 9
+    },
+    {
+      "reactant1_id": 3,
+      "reactant2_id": 3,
+      "product_id": 10,
+      "assocRate": 0.3635977506637573,
+      "dissocRate": 0.9883611798286438,
+      "idSAT": 10
+    },
+    {
+      "reactant1_id": 4,
+      "reactant2_id": 3,
+      "product_id": 11,
+      "assocRate": 0.3447145223617554,
+      "dissocRate": 0.9370312094688416,
+      "idSAT": 11
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 7,
+      "product_id": 11,
+      "assocRate": 0.3653585016727448,
+      "dissocRate": 0.9931473731994629,
+      "idSAT": 12
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 6,
+      "product_id": 12,
+      "assocRate": 0.3479942083358765,
+      "dissocRate": 0.9459463357925415,
+      "idSAT": 13
+    },
+    {
+      "reactant1_id": 2,
+      "reactant2_id": 8,
+      "product_id": 14,
+      "assocRate": 0.3369698226451874,
+      "dissocRate": 0.9159789681434631,
+      "idSAT": 14
+    },
+    {
+      "reactant1_id": 4,
+      "reactant2_id": 6,
+      "product_id": 15,
+      "assocRate": 0.3374512493610382,
+      "dissocRate": 0.9172875881195068,
+      "idSAT": 15
+    },
+    {
+      "reactant1_id": 1,
+      "reactant2_id": 12,
+      "product_id": 15,
+      "assocRate": 0.3347712159156799,
+      "dissocRate": 0.9100025296211243,
+      "idSAT": 16
+    },
+    {
+      "reactant1_id": 2,
+      "reactant2_id": 6,
+      "product_id": 16,
+      "assocRate": 0.3515180945396423,
+      "dissocRate": 0.955525279045105,
+      "idSAT": 17
+    },
+    {
+      "reactant1_id": 3,
+      "reactant2_id": 7,
+      "product_id": 16,
+      "assocRate": 0.3465176224708557,
+      "dissocRate": 0.9419325590133667,
+      "idSAT": 18
+    }
+  ],
+  "primEnts": [
+    {
+      "ent_id": 0
+    },
+    {
+      "ent_id": 1
+    }
+  ],
+  "entitiesDrawn": [
+    {
+      "ent_id": 0
+    },
+    {
+      "ent_id": 1
+    },
+    {
+      "ent_id": 2
+    },
+    {
+      "ent_id": 3
+    },
+    {
+      "ent_id": 4
+    },
+    {
+      "ent_id": 5
+    },
+    {
+      "ent_id": 6
+    },
+    {
+      "ent_id": 7
+    },
+    {
+      "ent_id": 8
+    },
+    {
+      "ent_id": 9
+    },
+    {
+      "ent_id": 10
+    },
+    {
+      "ent_id": 11
+    },
+    {
+      "ent_id": 12
+    },
+    {
+      "ent_id": 13
+    },
+    {
+      "ent_id": 14
+    },
+    {
+      "ent_id": 15
+    },
+    {
+      "ent_id": 16
+    },
+    {
+      "ent_id": 17
+    },
+    {
+      "ent_id": 18
+    }
+  ],
+  "cycles": [
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 8
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": true
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 10
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 7,
+          "dir": true
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": true
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 0,
+          "dir": true
+        },
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 7
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 10
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 9,
+          "dir": false
+        },
+        {
+          "reac_id": 10,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": false
+        },
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 7
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 2,
+          "dir": true
+        },
+        {
+          "reac_id": 4,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 5,
+          "dir": true
+        },
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 0
+        },
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 1,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": false
+        },
+        {
+          "reac_id": 18,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 15
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": true
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": true
+        },
+        {
+          "reac_id": 12,
+          "dir": false
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 3
+        },
+        {
+          "ent_id": 6
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 12
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 6,
+          "dir": false
+        },
+        {
+          "reac_id": 7,
+          "dir": false
+        },
+        {
+          "reac_id": 8,
+          "dir": true
+        },
+        {
+          "reac_id": 13,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": false
+        },
+        {
+          "reac_id": 16,
+          "dir": true
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    },
+    {
+      "entities": [
+        {
+          "ent_id": 1
+        },
+        {
+          "ent_id": 2
+        },
+        {
+          "ent_id": 4
+        },
+        {
+          "ent_id": 7
+        },
+        {
+          "ent_id": 8
+        },
+        {
+          "ent_id": 9
+        },
+        {
+          "ent_id": 11
+        },
+        {
+          "ent_id": 15
+        },
+        {
+          "ent_id": 16
+        }
+      ],
+      "reacDirs": [
+        {
+          "reac_id": 6,
+          "dir": true
+        },
+        {
+          "reac_id": 7,
+          "dir": true
+        },
+        {
+          "reac_id": 8,
+          "dir": false
+        },
+        {
+          "reac_id": 11,
+          "dir": false
+        },
+        {
+          "reac_id": 12,
+          "dir": true
+        },
+        {
+          "reac_id": 15,
+          "dir": true
+        },
+        {
+          "reac_id": 16,
+          "dir": false
+        },
+        {
+          "reac_id": 17,
+          "dir": true
+        },
+        {
+          "reac_id": 18,
+          "dir": false
+        }
+      ]
+    }
+  ]
+}
