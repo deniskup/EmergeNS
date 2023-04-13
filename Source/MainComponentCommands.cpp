@@ -5,7 +5,8 @@ namespace NSCommandIDs
 {
 	static const int computeCompositions = 0x60000;
 	static const int normalizeEnergies = 0x60001;
-	static const int findPAC = 0x60002;
+	static const int PACminisat = 0x60002;
+	static const int PACkissat = 0x60003;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -14,17 +15,21 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 	{
 	case NSCommandIDs::computeCompositions:
 		result.setInfo("Compute Compositions", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 	case NSCommandIDs::normalizeEnergies:
 		result.setInfo("Normalize Energies", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("b").getKeyCode(), ModifierKeys::commandModifier);
+
 		break;
 
-	case NSCommandIDs::findPAC:
-		result.setInfo("Compute PACs", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("p").getKeyCode(), ModifierKeys::commandModifier);
+	case NSCommandIDs::PACminisat:
+		result.setInfo("PACs with minisat", "", "General", result.readOnlyInKeyEditor);
+		result.addDefaultKeypress(KeyPress::createFromDescription("m").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
+	case NSCommandIDs::PACkissat:
+		result.setInfo("PACs with kissat", "", "General", result.readOnlyInKeyEditor);
+		result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 	default:
@@ -41,7 +46,9 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 	const CommandID ids[] = {
 		NSCommandIDs::computeCompositions,
 		NSCommandIDs::normalizeEnergies,
-		NSCommandIDs::findPAC};
+		NSCommandIDs::PACminisat,
+		NSCommandIDs::PACkissat
+		};
 
 	commands.addArray(ids, numElementsInArray(ids));
 	// for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);
@@ -55,7 +62,8 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 	{
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::findPAC);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 	}
 	return menu;
 }
@@ -83,10 +91,16 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	}
 	break;
 
-	case NSCommandIDs::findPAC:
+	case NSCommandIDs::PACminisat:
 	{
-		LOG("Computing PACs...");
-		findPAC(Simulation::getInstance());
+
+		findPAC(Simulation::getInstance(), 0);
+	}
+	break;
+	case NSCommandIDs::PACkissat:
+	{
+
+		findPAC(Simulation::getInstance(), 1);
 	}
 	break;
 

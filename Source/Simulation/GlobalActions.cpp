@@ -126,9 +126,44 @@ void normEnergies()
     }
 }
 
-void findPAC(Simulation *simul)
+void cleanKissatOutput()
 {
-    
+    ifstream infile("model.txt");
+    ofstream outfile("model2.txt");
+    string line;
+    while (getline(infile, line))
+    {
+        if (line[0] == 'v' || line[0] == 's')
+        {
+            line.erase(0,2);
+            outfile << line << endl;
+        }
+        else {cout << "Error in Kissat output"<<endl; break;}
+    }
+    infile.close();
+    outfile.close();
+    system("mv model2.txt model.txt");
+}
+
+// 0 for minisat, 1 for kissat
+void findPAC(Simulation *simul, int numSolver)
+{
+    // clear PACs if some were computed
+    simul->cycles.clear();
+
+    // measure time
+    uint32 startTime = Time::getMillisecondCounter();
+
+    // declare SAT solvers
+    SATSolver minisat("minisat", "minisat dimacs.txt model.txt >SATlog.txt", "SAT", false);
+    SATSolver kissat("kissat", "~/Software/kissat/build/kissat -q dimacs.txt > model.txt", "SATISFIABLE", true);
+
+    Array<SATSolver *> solvers = {&minisat, &kissat};
+
+    SATSolver *solver = solvers[numSolver];
+
+    LOG("Using solver: " + solver->name);
+
     // open file
     stringstream clauses;
 
@@ -439,7 +474,7 @@ void findPAC(Simulation *simul)
                 if (i == j)
                     addConClause({dist[d2(i, 0, i)], -ent[i]});
                 else
-                    addConClause({-dist[d2(i, 0, j)], -ent[i],-ent[j]});
+                    addConClause({-dist[d2(i, 0, j)], -ent[i], -ent[j]});
 
                 for (int d = 0; d <= distMax; d++)
                 {
@@ -550,11 +585,9 @@ void findPAC(Simulation *simul)
     int dmax_stop = 25;                // maximal dmax
     dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
-    
-
     const int maxCycles = 200; // max number of cycles of some level before timeout
 
-    simul->includeOnlyWithEntities=false; // forbid PAC with same entities but different reactions (to have less PACs)
+    simul->includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 
     for (int dmax = 1; dmax < dmax_stop; dmax++)
     {
@@ -564,12 +597,21 @@ void findPAC(Simulation *simul)
         int nCycles;
         for (nCycles = 0; nCycles < maxCycles; nCycles++)
         {
-            system("minisat dimacs.txt model.txt >SATlog.txt");
+
+            system(solver->command.getCharPointer());
+            if (solver->printsExtraString)
+            
+                cleanKissatOutput();
+            
             ifstream sol_file("model.txt");
             string isSat;
+            
+
             sol_file >> isSat;
-            if (isSat != "SAT")
+ 
+            if (isSat != solver->satLine)
                 break;
+
             int d;
             PAC *pac = new PAC();
             Array<int> newClause;
@@ -613,12 +655,16 @@ void findPAC(Simulation *simul)
             cout << ".";
         if (nCycles == maxCycles)
         {
+            LOG("Maximum reached, stop looking");
             cout << "Maximum reached, stop looking" << endl;
             break;
         }
     }
     cout << endl;
-    simul->PACsGenerated=true;
+    simul->PACsGenerated = true;
     simul->updateParams();
-    simul->printPACs();
+    // simul->printPACs();
+
+    // print execution time
+    LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
 }
