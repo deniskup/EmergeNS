@@ -4,12 +4,18 @@ remove exponential: the max entities of size n is O(n^|prims|). Do a proportion 
 faire varier proportion des réactions et voir comment RACs et autres varient.
 
 Comparer à un model nul: energie libres a zero
-(à discuter comment comparer)
 
+à discuter comment comparer les modèles, par exemple:
+- nombre de RACs
+- variance sur les états d'équilibre
 
 choisir un systeme interessant et regarder comment ça varie (RACs, équilibre) en fonction des concentrations initiales
 
 
+Etat d'équilibre : vecteur des concentrations
+ACP sur les états d'équilibre pour trouver les paramètres les plus pertinentss.
+
+liens statistiques entre existence de RACs et distance entre états d'équilibre.
 
 variance taux de decay (option 0, tout le monde a le meme decay)
 

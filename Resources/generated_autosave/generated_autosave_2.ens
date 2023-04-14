@@ -111,7 +111,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 50.0,
+        "value": 100.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -419,8 +419,8 @@
       },
       {
         "value": [
-          1,
-          1
+          0,
+          2
         ],
         "controlAddress": "/reactionsPerEntity"
       },
