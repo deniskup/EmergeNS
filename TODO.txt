@@ -1,5 +1,3 @@
-RAC display
-
 variance taux de decay (option 0, tout le monde a le meme decay)
 
 en plus du graphe des concent:
