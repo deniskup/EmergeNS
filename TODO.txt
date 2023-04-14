@@ -1,3 +1,16 @@
+proportion des réactions:
+remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead p_fast.
+
+faire varier proportion des réactions et voir comment RACs et autres varient.
+
+Comparer à un model nul: energie libres a zero
+(à discuter comment comparer)
+
+
+choisir un systeme interessant et regarder comment ça varie (RACs, équilibre) en fonction des concentrations initiales
+
+
+
 variance taux de decay (option 0, tout le monde a le meme decay)
 
 en plus du graphe des concent:
@@ -15,7 +28,7 @@ entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we tak
 
 tirer les réactions plutot que les entités
 
-remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead p_fast.
+
 
 proposer uniforme ou gaussienne
 

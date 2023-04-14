@@ -39,13 +39,32 @@
           "direction": 1,
           "shifters": [
             {
-              "type": 0,
+              "type": 1,
               "width": 1246,
               "height": 1149,
-              "currentContent": "Simulation",
-              "tabs": [
+              "direction": 2,
+              "shifters": [
                 {
-                  "name": "Simulation"
+                  "type": 0,
+                  "width": 1246,
+                  "height": 665,
+                  "currentContent": "Simulation",
+                  "tabs": [
+                    {
+                      "name": "Simulation"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 1246,
+                  "height": 478,
+                  "currentContent": "PACs",
+                  "tabs": [
+                    {
+                      "name": "PACs"
+                    }
+                  ]
                 }
               ]
             },
@@ -88,7 +107,7 @@
   "simulation": {
     "parameters": [
       {
-        "value": 0.01,
+        "value": 0.05,
         "controlAddress": "/dt"
       },
       {
@@ -401,7 +420,7 @@
       {
         "value": [
           1,
-          2
+          1
         ],
         "controlAddress": "/reactionsPerEntity"
       },
