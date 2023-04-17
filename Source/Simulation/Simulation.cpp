@@ -345,6 +345,7 @@ void Simulation::fetchGenerate()
     }
     numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
 
+    //list all possible compositions from previous entities
     Array<CompoDecomps *> compos; // first working thing, Hashtable or sorted array later ?
     for (int lev1 = 0; lev1 < level; lev1++)
     {
