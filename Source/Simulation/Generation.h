@@ -19,7 +19,7 @@ public:
     {
         CONSTANT,
         POLYNOMIAL,
-        EXPONENTIAL
+        PROPORTION
     };
     EnumParameter *growthEntitiesPerLevel; // constant, polynomial, exponential
     IntRangeParameter *entPerLevNum;

@@ -303,6 +303,28 @@ void Simulation::fetchGenerate()
   // reactions per entity
   int minReacPerEnt = gen->reactionsPerEntity->x;
   int maxReacPerEnt = gen->reactionsPerEntity->y;
+
+  // multisets[i][j] is the number of multisets of size i with j elements, i.e. the number of entities of size i with j primary entiies
+  vector<vector<int>> multisets(numLevels + 1, vector<int>(nbPrimEnts + 1, 0));
+
+  for (int i = 0; i <= numLevels; ++i)
+  {
+    for (int j = 0; j <= nbPrimEnts; ++j)
+    {
+      if (i == 0)
+      {
+        multisets[i][j] = 1;
+        continue;
+      }
+      if (j == 0)
+      {
+        multisets[i][j] = 0;
+        continue;
+      }
+
+      multisets[i][j] = multisets[i][j - 1] + multisets[i - 1][j];
+    }
+  }
   for (int level = 1; level < numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
@@ -315,8 +337,10 @@ void Simulation::fetchGenerate()
     case Generation::POLYNOMIAL:
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
       break;
-    case Generation::EXPONENTIAL:
-      numEnts = (int)(aGrowth * pow(nbPrimEnts, level) + randInt(-u, u));
+    case Generation::PROPORTION:
+      //
+      int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
+      numEnts = (int)(aGrowth * entsMaxAtLevel + randInt(-u, u));
       break;
     }
     numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
@@ -545,7 +569,7 @@ void Simulation::nextStep()
   {
     if (isinf(ent->concent))
     {
-      LOG( "Concentration of entity " << ent->name << " exceeded capacity");
+      LOG("Concentration of entity " << ent->name << " exceeded capacity");
       finished->setValue(true);
       return;
     }
@@ -600,12 +624,12 @@ void Simulation::nextStep()
       cycle->flow = jmin(cycle->flow, reac->flow);
     }
     PACsValues.add(cycle->flow);
-     if (cycle->flow > 0)
+    if (cycle->flow > 0)
       cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
   }
-   cout << "-" << endl;
+  cout << "-" << endl;
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues,{}, PACsValues));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues));
   // listeners.call(&SimulationListener::newStep, this);
 }
 
@@ -915,7 +939,7 @@ PAC::PAC(var data)
     Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
     for (auto &reacd : *reacds)
     {
-      reacDirs.add(std::make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
+      reacDirs.add(make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
     }
   }
 }

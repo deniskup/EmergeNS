@@ -1,5 +1,10 @@
-proportion des réactions:
+
 remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead p_fast.
+
+Also proportion of reactions
+
+shift levels: primary are 1
+Verify coherence everywhere !
 
 faire varier proportion des réactions et voir comment RACs et autres varient.
 

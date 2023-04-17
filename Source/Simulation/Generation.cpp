@@ -13,8 +13,8 @@ Generation::Generation() : ControllableContainer("Generation")
     numLevels->x=10;
     numLevels->y=20;
 
-    growthEntitiesPerLevel = addEnumParameter("Growth entities/level", "How the number of entities increase per level. Constant gives n+range[-u,u], Polynomial is a*level^b+range[-u,u], Exponential is a*primEnts^level+range[-u,u]");
-    growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("Exponential", EXPONENTIAL);
+    growthEntitiesPerLevel = addEnumParameter("Growth entities/level", "How the number of entities increase per level. Constant gives n+range[-u,u], Polynomial is a*level^b+range[-u,u], Proportion is a proportion 'a' of the total number of entities (1 for all)");
+    growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("Proportion", PROPORTION);
     // growthEntitiesPerLevel->hideInEditor = true;
 
     entPerLevNum = addIntRangeParameter("Entities/level", "Base number of entities per level");
@@ -71,7 +71,7 @@ void Generation::onContainerParameterChanged(Parameter *p)
             entPerLevB->hideInEditor = false;
             entPerLevUncert->hideInEditor=false;
             break;
-        case EXPONENTIAL:
+        case PROPORTION:
             entPerLevNum->hideInEditor = true;
             entPerLevA->hideInEditor = false;
             entPerLevB->hideInEditor = true;
