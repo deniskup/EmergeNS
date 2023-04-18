@@ -135,10 +135,14 @@ void cleanKissatOutput()
     {
         if (line[0] == 'v' || line[0] == 's')
         {
-            line.erase(0,2);
+            line.erase(0, 2);
             outfile << line << endl;
         }
-        else {cout << "Error in Kissat output"<<endl; break;}
+        else
+        {
+            cout << "Error in Kissat output" << endl;
+            break;
+        }
     }
     infile.close();
     outfile.close();
@@ -598,17 +602,22 @@ void findPAC(Simulation *simul, int numSolver)
         for (nCycles = 0; nCycles < maxCycles; nCycles++)
         {
 
-            system(solver->command.getCharPointer());
+            int retVal = system(solver->command.getCharPointer());
+            if (retVal == -1)
+            {
+                LOGWARNING("SAT Solver command failed, exiting...");
+                LOGWARNING("Command: " + solver->command);
+                return;
+            }
             if (solver->printsExtraString)
-            
+
                 cleanKissatOutput();
-            
+
             ifstream sol_file("model.txt");
             string isSat;
-            
 
             sol_file >> isSat;
- 
+
             if (isSat != solver->satLine)
                 break;
 
@@ -655,8 +664,7 @@ void findPAC(Simulation *simul, int numSolver)
             cout << ".";
         if (nCycles == maxCycles)
         {
-            LOG("Maximum reached, stop looking");
-            cout << "Maximum reached, stop looking" << endl;
+            LOGWARNING(string(maxCycles) + " PACs reached for diameter " + string(dmax) + ", stop looking");
             break;
         }
     }

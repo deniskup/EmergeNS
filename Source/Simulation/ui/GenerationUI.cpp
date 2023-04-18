@@ -44,7 +44,7 @@ void GenerationUI::resized()
     // avgNumShowUI->setBounds(r.removeFromTop(25));
 }
 
-void GenerationUI::updateGrowth(Generation *){
+void GenerationUI::updateGenUI(Generation *){
     //NLOG("GenerationUI","Repaint");
     //repaint();
     editorUI->resetAndBuild();

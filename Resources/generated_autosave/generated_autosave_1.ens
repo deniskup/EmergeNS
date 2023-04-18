@@ -411,11 +411,19 @@
         "controlAddress": "/levels"
       },
       {
+        "value": "PropReactions",
+        "controlAddress": "/growthEntities_level"
+      },
+      {
         "value": [
           5,
           6
         ],
         "controlAddress": "/entities_level"
+      },
+      {
+        "value": 1.0,
+        "controlAddress": "/proportionReactions"
       },
       {
         "value": [

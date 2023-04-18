@@ -1,7 +1,7 @@
+Display RACs in different colors such that all can be seen
+(example: log scale, change color for every multiple of 10)
 
-remove exponential: the max entities of size n is O(n^|prims|). Do a proportion instead p_fast.
-
-Also proportion of reactions
+Also display number of RACs after simulation
 
 shift levels: primary are 1
 Verify coherence everywhere !

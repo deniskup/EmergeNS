@@ -295,17 +295,49 @@ void Simulation::fetchGenerate()
 
   // composite entities
 
-  // poly or exp growth
-  float aGrowth = gen->entPerLevA->floatValue();
-  float bGrowth = gen->entPerLevB->floatValue();
-  float u = gen->entPerLevUncert->intValue();
+  // poly growth
+  const float aGrowth = gen->entPerLevA->floatValue();
+  const float bGrowth = gen->entPerLevB->floatValue();
+  const int u = gen->entPerLevUncert->intValue();
+
+  // proportional of total
+  const float propEnt = gen->propEntities->floatValue();
+
+  const float propReac = gen->propReactions->floatValue();
 
   // reactions per entity
-  int minReacPerEnt = gen->reactionsPerEntity->x;
-  int maxReacPerEnt = gen->reactionsPerEntity->y;
+  const int minReacPerEnt = gen->reactionsPerEntity->x;
+  const int maxReacPerEnt = gen->reactionsPerEntity->y;
 
   // multisets[i][j] is the number of multisets of size i with j elements, i.e. the number of entities of size i with j primary entiies
   vector<vector<int>> multisets(numLevels + 1, vector<int>(nbPrimEnts + 1, 0));
+
+  // just for lisibility
+  enum genMode
+  {
+    CONSTANT,
+    POLYNOMIAL,
+    PROPORTION,
+    PROPREACTIONS
+  };
+
+  genMode mode;
+
+  switch (gen->growthEntitiesPerLevel->getValueDataAsEnum<Generation::GrowthMode>())
+  {
+  case Generation::CONSTANT:
+    mode = CONSTANT;
+    break;
+  case Generation::POLYNOMIAL:
+    mode = POLYNOMIAL;
+    break;
+  case Generation::PROPORTION:
+    mode = PROPORTION;
+    break;
+  case Generation::PROPREACTIONS:
+    mode = PROPREACTIONS;
+    break;
+  }
 
   for (int i = 0; i <= numLevels; ++i)
   {
@@ -325,27 +357,30 @@ void Simulation::fetchGenerate()
       multisets[i][j] = multisets[i][j - 1] + multisets[i - 1][j];
     }
   }
+
   for (int level = 1; level < numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
     int numEnts = 1;
-    switch (gen->growthEntitiesPerLevel->getValueDataAsEnum<Generation::GrowthMode>())
+    switch (mode)
     {
-    case Generation::CONSTANT:
+    case CONSTANT:
       numEnts = randInt(gen->entPerLevNum->x, gen->entPerLevNum->y);
       break;
-    case Generation::POLYNOMIAL:
+    case POLYNOMIAL:
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
       break;
-    case Generation::PROPORTION:
+    case PROPORTION:
       //
-      int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
-      numEnts = (int)(aGrowth * entsMaxAtLevel + randInt(-u, u));
+      const int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
+      numEnts = (int)(propEnt * entsMaxAtLevel);
       break;
+      // no need to fix numEnts for PROPREACTIONS
     }
     numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
 
-    //list all possible compositions from previous entities
+    // list all possible compositions from previous entities
+    // recall that CompoDecomps is a struct with a composition and a list of decompositions
     Array<CompoDecomps *> compos; // first working thing, Hashtable or sorted array later ?
     for (int lev1 = 0; lev1 < level; lev1++)
     {
@@ -387,8 +422,11 @@ void Simulation::fetchGenerate()
     }
     // bound numEnts by the number of compositions.
     // NLOG("Compos", compos.size() << " at level " << level);
+
     numEnts = jmin(numEnts, compos.size());
-    for (int ide = 0; ide < numEnts; ide++)
+    bool finishedEntities = false;
+    int ide = 0;
+    while (!finishedEntities)
     {
       float concent = 0.; // no initial presence of composite entities
       float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
@@ -400,10 +438,18 @@ void Simulation::fetchGenerate()
       e->draw = false;
       e->id = cur_id;
       cur_id++;
-      if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
-      { // proba to draw entity
+      if (gen->showAll->boolValue())
+      {
         e->draw = true;
         nbShow++;
+      }
+      else
+      {
+        if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
+        { // proba to draw entity
+          e->draw = true;
+          nbShow++;
+        }
       }
       int idComp = randInt(0, compos.size() - 1);
       e->composition = compos[idComp]->compo;
@@ -417,31 +463,48 @@ void Simulation::fetchGenerate()
       int nbDecomps = compos[idComp]->decomps.size();
       nbReac = jmin(nbReac, nbDecomps);
 
-      for (int ir = 0; ir < nbReac; ir++)
+      // we are looping throug possible rections to create the entity e
+      int nbReacDone = 0;
+      bool reacFinished = false;
+      while (!reacFinished)
       {
         int idDecomp = randInt(0, compos[idComp]->decomps.size() - 1);
-        SimEntity *e1 = compos[idComp]->decomps[idDecomp].first;
-        SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
+        if (mode != PROPREACTIONS || randFloat() < propReac)
+        {
+          SimEntity *e1 = compos[idComp]->decomps[idDecomp].first;
+          SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
+
+          // choice of activation barrier
+          float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
+          // GA+GB
+          float energyLeft = e1->freeEnergy + e2->freeEnergy;
+          // GAB
+          float energyRight = e->freeEnergy;
+          // total energy G* of the reaction: activation + max of GA+GB and GAB.
+          float energyStar = barrier + jmax(energyLeft, energyRight);
+          // k1=exp(GA+GB-G*)
+          float aRate = exp(energyLeft - energyStar);
+          // k2=exp(GAB-G*)
+          float disRate = exp(energyRight - energyStar);
+          reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
+          NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
+          nbReacDone++;
+        }
         // remove this decomposition
         compos[idComp]->decomps.remove(idDecomp);
-
-        // choice of activation barrier
-        float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
-        // GA+GB
-        float energyLeft = e1->freeEnergy + e2->freeEnergy;
-        // GAB
-        float energyRight = e->freeEnergy;
-        // total energy G* of the reaction: activation + max of GA+GB and GAB.
-        float energyStar = barrier + jmax(energyLeft, energyRight);
-        // k1=exp(GA+GB-G*)
-        float aRate = exp(energyLeft - energyStar);
-        // k2=exp(GAB-G*)
-        float disRate = exp(energyRight - energyStar);
-        reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
-        NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
+        if (nbReacDone == nbReac && mode != PROPREACTIONS)
+          reacFinished = true;
+        if (compos[idComp]->decomps.size() == 0)
+          reacFinished = true;
       }
       compos.remove(idComp);
+      ide++;
+      if (ide == numEnts && mode != PROPREACTIONS)
+        finishedEntities = true;
+      if (compos.size() == 0)
+        finishedEntities = true;
     }
+
     hierarchyEnt.add(levelEnt);
   }
   // ready->setValue(true);

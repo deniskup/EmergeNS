@@ -405,10 +405,14 @@
       },
       {
         "value": [
-          5,
-          5
+          3,
+          3
         ],
         "controlAddress": "/levels"
+      },
+      {
+        "value": "PropReactions",
+        "controlAddress": "/growthEntities_level"
       },
       {
         "value": [
@@ -416,6 +420,10 @@
           6
         ],
         "controlAddress": "/entities_level"
+      },
+      {
+        "value": 0.02099791914224625,
+        "controlAddress": "/proportionReactions"
       },
       {
         "value": [

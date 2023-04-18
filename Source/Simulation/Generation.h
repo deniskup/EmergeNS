@@ -19,13 +19,22 @@ public:
     {
         CONSTANT,
         POLYNOMIAL,
-        PROPORTION
+        PROPORTION,
+        PROPREACTIONS
     };
-    EnumParameter *growthEntitiesPerLevel; // constant, polynomial, exponential
+
+   /* enum GrowthReactionMode
+    {
+        PERENTITY,
+        PERCENTAGE
+    };
+  */
+    EnumParameter *growthEntitiesPerLevel; // constant, polynomial, proportion of total
     IntRangeParameter *entPerLevNum;
     FloatParameter *entPerLevA;
     FloatParameter *entPerLevB;
     IntParameter *entPerLevUncert;
+    FloatParameter *propEntities; //proportion of entities to include
     
     // old paramaters, to compile, remove later
     IntParameter *entitiesPerLevel;
@@ -33,16 +42,19 @@ public:
     Point2DParameter *entitiesPerLevelRange;
    // IntParameter *maxReactionsPerEntity;
 
-    
+    //EnumParameter *growthReactionsPerLevel; //#perEntity, % of total
     IntRangeParameter *reactionsPerEntity;
+    FloatParameter *propReactions; //proportion of reactions to include
 
     FloatParameter *maxDestructionRate;
     FloatParameter *maxCreationRate;
+    //ODO add variances
 
     FloatParameter *energyPerLevel;
     FloatParameter *energyUncertainty;
     FloatParameter *maxEnergyBarrier;
 
+    BoolParameter *showAll;
     IntParameter *avgNumShow;
     // FloatParameter *minG;
     // FloatParameter *maxG;
@@ -54,7 +66,7 @@ public:
   {
   public:
     virtual ~GenerationListener() {}
-    virtual void updateGrowth(Generation *){};
+    virtual void updateGenUI(Generation *){};
   };
 
   ListenerList<GenerationListener> listeners;

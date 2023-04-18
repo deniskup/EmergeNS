@@ -28,6 +28,6 @@ public:
 
     static GenerationUI *create(const String &name) { return new GenerationUI(); }
 
-    void updateGrowth(Generation *) override;
+    void updateGenUI(Generation *) override;
 
 };
