@@ -103,7 +103,7 @@ void PACUI::paint(juce::Graphics &g)
     //draw horizontal line at yTop
     g.drawLine(0, yTop*.9, width, yTop*.9, .8f);
 
-
+    //todo draw with colours
     // use maxRACs to affect colours to each RAC
     Array<int> RACindex;
     for (int j = 0; j < RACsHistory[0].size(); ++j)

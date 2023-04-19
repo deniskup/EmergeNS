@@ -35,6 +35,7 @@ entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we tak
 
 tirer les réactions plutot que les entités
 
+stocker les barrieres et calculer les taux assoc/dissoc, pour pouvoir changer juste les barrieres
 
 proposer uniforme ou gaussienne
 

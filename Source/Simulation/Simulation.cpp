@@ -269,12 +269,16 @@ void Simulation::fetchGenerate()
 
   Array<Array<SimEntity *>> hierarchyEnt;
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
+
+
+  float dRate = gen->maxDestructionRate->floatValue();
+  float cRate = randFloat(0., gen->maxCreationRate->floatValue());
   for (int idp = 0; idp < nbPrimEnts; idp++)
   {
 
     float concent = randFloat(gen->concentRange->x, gen->concentRange->y);
-    float dRate = randFloat(0., gen->maxDestructionRate->floatValue());
-    float cRate = randFloat(0., gen->maxCreationRate->floatValue());
+    //float dRate = randFloat(0., gen->maxDestructionRate->floatValue());
+    //float cRate = randFloat(0., gen->maxCreationRate->floatValue());
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->id = cur_id;
@@ -438,7 +442,7 @@ void Simulation::fetchGenerate()
     while (!finishedEntities)
     {
       float concent = 0.; // no initial presence of composite entities
-      float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
+      //float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
       float uncert = gen->energyUncertainty->floatValue();
       float energy = level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
