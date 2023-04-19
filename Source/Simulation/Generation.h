@@ -11,8 +11,9 @@ public:
     Generation();
     ~Generation();
 
-    IntRangeParameter *primEntities;
-    IntRangeParameter *numLevels;
+    //change to IntRangeParameter for interval
+    IntParameter *primEntities; 
+    IntParameter *numLevels;
 
 
     enum GrowthMode
@@ -36,9 +37,8 @@ public:
     IntParameter *entPerLevUncert;
     FloatParameter *propEntities; //proportion of entities to include
     
-    // old paramaters, to compile, remove later
     IntParameter *entitiesPerLevel;
-    Point2DParameter *concentRange;
+    Point2DParameter *initConcent;
     Point2DParameter *entitiesPerLevelRange;
    // IntParameter *maxReactionsPerEntity;
 
@@ -46,13 +46,11 @@ public:
     IntRangeParameter *reactionsPerEntity;
     FloatParameter *propReactions; //proportion of reactions to include
 
-    FloatParameter *maxDestructionRate;
-    FloatParameter *maxCreationRate;
-    //ODO add variances
-
-    FloatParameter *energyPerLevel;
-    FloatParameter *energyUncertainty;
-    FloatParameter *maxEnergyBarrier;
+    //param+variance
+    Point2DParameter *destructionRate;
+    Point2DParameter *creationRate;
+    Point2DParameter *energyPerLevel;
+    Point2DParameter *energyBarrier;
 
     BoolParameter *showAll;
     IntParameter *avgNumShow;

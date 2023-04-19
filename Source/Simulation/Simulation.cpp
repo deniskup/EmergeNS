@@ -255,14 +255,14 @@ void Simulation::fetchGenerate()
   clearParams();
   Generation *gen = Generation::getInstance();
 
-  numLevels = randInt(gen->numLevels->x, gen->numLevels->y);
+  numLevels = gen->numLevels->intValue(); //randInt(gen->numLevels->x, gen->numLevels->y);
 
   // primary entities
-  int nbPrimEnts = randInt(gen->primEntities->x, gen->primEntities->y);
+  int nbPrimEnts = gen->primEntities->intValue(); //randInt(gen->primEntities->x, gen->primEntities->y);
 
-  // only rough approximation
+  // only rough approximation, useful only for drawing
   int totalEnts = numLevels * gen->entPerLevNum->x;
-  float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
+  const float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
   int nbShow = 0;
 
   int cur_id = 0;
@@ -270,15 +270,27 @@ void Simulation::fetchGenerate()
   Array<Array<SimEntity *>> hierarchyEnt;
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
 
+  const float initConcentBase = gen->initConcent->x;
+  const float initConcentVar = gen->initConcent->y;
+  const float dRateBase = gen->destructionRate->x;
+  const float dRateVar= gen->destructionRate->y;
+  const float cRateBase = gen->creationRate->x;
+  const float cRateVar = gen->creationRate->y;
 
-  float dRate = gen->maxDestructionRate->floatValue();
-  float cRate = randFloat(0., gen->maxCreationRate->floatValue());
+  const float energyCoef = gen->energyPerLevel->x;
+  const float energyVar = gen->energyPerLevel->y;
+
+  const float energyBarrierBase = gen->energyBarrier->x;
+  const float energyBarrierVar = gen->energyBarrier->y;
+
+  //recall that energy of primary entities are normalized to 0
+
   for (int idp = 0; idp < nbPrimEnts; idp++)
   {
 
-    float concent = randFloat(gen->concentRange->x, gen->concentRange->y);
-    //float dRate = randFloat(0., gen->maxDestructionRate->floatValue());
-    //float cRate = randFloat(0., gen->maxCreationRate->floatValue());
+    const float concent = jmax(0.f,initConcentBase + randFloat(-initConcentVar, initConcentVar));
+    const float dRate= jmax(0.f,dRateBase + randFloat(-dRateVar, dRateVar));
+    const float cRate = jmax(0.f,cRateBase + randFloat(-cRateVar, cRateVar));
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->id = cur_id;
@@ -441,10 +453,11 @@ void Simulation::fetchGenerate()
     int ide = 0;
     while (!finishedEntities)
     {
-      float concent = 0.; // no initial presence of composite entities
+      const float concent = 0.; // no initial presence of composite entities
       //float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
-      float uncert = gen->energyUncertainty->floatValue();
-      float energy = level * gen->energyPerLevel->floatValue() + randFloat(-uncert, uncert);
+      const float dRate = jmax(0.f,dRateBase+randFloat(-dRateVar, dRateVar));
+
+      const float energy = level * energyCoef + randFloat(-energyVar, energyVar);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
       e->color = Colour::fromHSV(level * 1. / numLevels, 1, 1, 1); // color depends only on level
@@ -488,7 +501,7 @@ void Simulation::fetchGenerate()
           SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
 
           // choice of activation barrier
-          float barrier = randFloat(0., gen->maxEnergyBarrier->floatValue());
+          float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);  
           // GA+GB
           float energyLeft = e1->freeEnergy + e2->freeEnergy;
           // GAB
