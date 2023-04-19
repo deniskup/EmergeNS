@@ -81,6 +81,7 @@ void Simulation::clearParams()
   reactions.clear();
   cycles.clear();
   PACsGenerated = false;
+  maxRAC = 0.;
 }
 
 void Simulation::updateParams()
@@ -280,10 +281,18 @@ void Simulation::fetchGenerate()
     cur_id++;
     e->color = Colour::fromHSV(0, 1, 1, 1);
     e->draw = false;
-    if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
-    { // proba to draw entity
+    if (gen->showAll->boolValue())
+    {
       e->draw = true;
       nbShow++;
+    }
+    else
+    {
+      if (nbShow < gen->avgNumShow->intValue() && randFloat() < propShow)
+      { // proba to draw entity
+        e->draw = true;
+        nbShow++;
+      }
     }
     e->composition.insertMultiple(0, 0, nbPrimEnts);
     e->composition.set(idp, 1);
@@ -671,7 +680,7 @@ void Simulation::nextStep()
 
   // compute RACs
   Array<float> PACsValues;
-
+  Array<bool> RACList;
   // cout << setprecision(3);
   for (auto &cycle : cycles)
   {
@@ -689,11 +698,17 @@ void Simulation::nextStep()
     }
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
+    {
       cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
+      cycle->wasRAC = true;
+      if (cycle->flow > maxRAC)
+        maxRAC = cycle->flow;
+    }
+    RACList.add(cycle->wasRAC);
   }
   cout << "-" << endl;
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
   // listeners.call(&SimulationListener::newStep, this);
 }
 
@@ -720,6 +735,17 @@ void Simulation::run()
   LOG("End thread");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
+  LOG("Max RAC: " << maxRAC);
+  LOG("RACS:");
+  int nbRac = 0;
+  for (auto &cycle : cycles)
+  {
+    if (cycle->wasRAC)
+    {
+      nbRac++;
+      LOG(String(nbRac) + ": " + cycle->toString());
+    }
+  }
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);

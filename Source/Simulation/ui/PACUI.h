@@ -16,7 +16,8 @@ public:
     bool shouldRepaint;
     Array<Array<float>> PACsHistory;
 
-    float maxPAC=-1.0f;
+    Array<bool> RACList;
+
 
     Rectangle<int> PACsBounds;
 

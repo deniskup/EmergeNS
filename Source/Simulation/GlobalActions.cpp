@@ -168,6 +168,9 @@ void findPAC(Simulation *simul, int numSolver)
 
     LOG("Using solver: " + solver->name);
 
+    //TODO repaint the Logger
+
+
     // open file
     stringstream clauses;
 
@@ -589,7 +592,7 @@ void findPAC(Simulation *simul, int numSolver)
     int dmax_stop = 25;                // maximal dmax
     dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
-    const int maxCycles = 200; // max number of cycles of some level before timeout
+    const int maxCycles = 300; // max number of cycles of some level before timeout
 
     simul->includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 
@@ -664,7 +667,7 @@ void findPAC(Simulation *simul, int numSolver)
             cout << ".";
         if (nCycles == maxCycles)
         {
-            LOGWARNING(string(maxCycles) + " PACs reached for diameter " + string(dmax) + ", stop looking");
+            LOGWARNING(to_string(maxCycles) + " PACs reached for diameter " + to_string(dmax) + ", stop looking");
             break;
         }
     }

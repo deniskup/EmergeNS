@@ -25,7 +25,7 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Entities", &EntityManagerUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Reactions", &ReactionManagerUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Generation", &GenerationUI::create));
-	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PACs", &PACUI::create));
+	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RACs", &PACUI::create));
 	
 
 

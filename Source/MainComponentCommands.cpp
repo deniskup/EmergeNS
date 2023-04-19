@@ -93,7 +93,7 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	case NSCommandIDs::PACminisat:
 	{
-
+		
 		findPAC(Simulation::getInstance(), 0);
 	}
 	break;

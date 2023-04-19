@@ -1,10 +1,6 @@
-Display RACs in different colors such that all can be seen
-(example: log scale, change color for every multiple of 10)
+inclusion RAC plus fine:
+si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
 
-Also display number of RACs after simulation
-
-shift levels: primary are 1
-Verify coherence everywhere !
 
 faire varier proportion des réactions et voir comment RACs et autres varient.
 
@@ -40,7 +36,6 @@ entropy : - sum pi_e log(pi_e), where pi_e is the proportion of entity e. we tak
 tirer les réactions plutot que les entités
 
 
-
 proposer uniforme ou gaussienne
 
 github machines virtuelles
@@ -52,11 +47,11 @@ deviation par rapport à l'équilibre attendu avec les energies libres
 Est-ce que le régime statique réalisé depend de catalyse/autocatalyse, ou au contraire de paramètres simples comme G_i+ taux de création/destruction.
 
 
-
-
 energies d'interaction pour calculer energies des entités
 
 --------------- NON URGENT ---------------
+
+to be clean: shift levels: primary are 1 (Verify coherence everywhere !)
 
 initial concent = concent à l'équilibre ?
 

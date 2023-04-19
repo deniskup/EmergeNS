@@ -66,9 +66,9 @@ public:
   float assocRate;
   float dissocRate;
 
-  int idSAT; // identifier for SAT Solving
-  float flow; //flow = dProduct/dt due to the reaction
-  bool flowdir; //direction of the flow, same convention as in PAC
+  int idSAT;    // identifier for SAT Solving
+  float flow;   // flow = dProduct/dt due to the reaction
+  bool flowdir; // direction of the flow, same convention as in PAC
 
   bool contains(SimEntity *e);
 
@@ -82,15 +82,16 @@ public:
   PAC(var data);    // import from JSON, TODO
   var toJSONData(); // save to JSON, TODO
 
-  String toString(); //for printing
+  String toString(); // for printing
 
   Array<SimEntity *> entities;
   Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
 
-  float flow; //min of reactions flows, 0 if one flow is in the wrong direction
+  float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+
+  bool wasRAC = false; // was this PAC a RAC at some point
 
   bool includedIn(PAC *p, bool onlyEnts);
-
 };
 
 class Simulation : public ControllableContainer,
@@ -142,28 +143,26 @@ public:
 
   int numLevels;
 
-  //gestion des cycles
+  // gestion des cycles
   bool PACsGenerated = false;
   Array<PAC *> cycles;
-  bool includeOnlyWithEntities; //specify the rule for inclusion of PACs
+  float maxRAC=0.0f; //remember the max RAC for display
+  bool includeOnlyWithEntities; // specify the rule for inclusion of PACs
   void addCycle(PAC *);
   void printPACs(); // print list of PACs to cout
-
-
 
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
   void importJSONData(var data);
 
   void clearParams();
-  void updateParams(); //for display
+  void updateParams(); // for display
   void fetchGenerate();
   void fetchManual();
   void start();
   void nextStep();
   void stop();
   void cancel();
-  
 
   void run() override;
 
@@ -202,11 +201,16 @@ public:
       FINISHED
     };
 
-    SimulationEvent(Type t, Simulation *sim, int curStep = 0, Array<float> entityValues = Array<float>(), Array<Colour> entityColors= Array<Colour>(), Array<float> PACsValues= Array<float>()) : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues)
+    SimulationEvent(Type t,
+                    Simulation *sim,
+                    int curStep = 0,
+                    Array<float> entityValues = Array<float>(),
+                    Array<Colour> entityColors = Array<Colour>(),
+                    Array<float> PACsValues = Array<float>(),
+                    Array<bool> RACList = Array<bool>())
+        : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
     {
     }
-
-
 
     Type type;
     Simulation *sim;
@@ -214,6 +218,7 @@ public:
     Array<float> entityValues;
     Array<Colour> entityColors;
     Array<float> PACsValues;
+    Array<bool> RACList;
   };
 
   QueuedNotifier<SimulationEvent> simNotifier;
