@@ -3,13 +3,22 @@
 PACUI::PACUI() : ShapeShifterContentComponent("RACs"),
                  simul(Simulation::getInstance())
 {
+    
+    oneColorToggle.reset(simul->oneColor->createToggle());
+    //oneColorToggle->setSize(50, 20);
+    addAndMakeVisible(oneColorToggle.get());
+    oneColorToggle->setVisible(false);
+    
+
     simul->addAsyncSimulationListener(this);
+    simul->addAsyncContainerListener(this);
     startTimerHz(20);
 }
 
 PACUI::~PACUI()
 {
     simul->removeAsyncSimulationListener(this);
+    simul->removeAsyncContainerListener(this);
 }
 
 void PACUI::paint(juce::Graphics &g)
@@ -61,28 +70,48 @@ void PACUI::paint(juce::Graphics &g)
     if (maxPAC == 0.0f)
         maxPAC = 1.0f; // safety
 
+    // declare function distort
+    auto distort = [](float val) -> float
+    {
+        if (val < .1)
+        {
+            return val * 5;
+        }
+        else
+        {
+            return (.5 * val + .4) / .9;
+        }
+    };
 
 
     // do a colour logarithmic scale, say up to 10^-5
-    Array<Colour> colours({Colours::white, Colours::yellow, Colours::orange, Colours::red, Colours::magenta, Colours::blue, Colours::green});
+    Array<Colour>
+        colours({Colours::white, Colours::yellow, Colours::orange, Colours::red, Colours::magenta, Colours::blue, Colours::green});
 
     // draw the logarithmic scale on the top
     float yTop = .05 * height;
     float xLegend = .1 * width;
+
+    float xButton = .1 * width;
+
+    //put the button
+    oneColorToggle->setVisible(true);
+    oneColorToggle->setBounds(width-xButton*.95, yTop*.1, xButton*.9, yTop*.8);
+
     // write the legend
     g.drawText(" Log Scale:", 0, 0, xLegend, yTop, Justification::left, true);
-    int degradation = 30;
-    float xColourStep = (width -xLegend) / (colours.size() * degradation);
+    int gradient = 50;
+    float xColourStep = (width - xLegend-xButton) / (colours.size() * gradient);
     for (int i = 0; i < colours.size(); ++i)
     {
-        for (int j = 0; j < degradation; ++j)
+        for (int j = 0; j < gradient; ++j)
         {
-            g.setColour(colours[colours.size()-i-1].withAlpha(j * 1.f / degradation));
-            g.fillRect(xLegend+(degradation * i + j) * xColourStep, 0.f, xColourStep, yTop * .9);
+            g.setColour(colours[colours.size() - i - 1].withAlpha(distort(j * 1.f / gradient)));
+            g.fillRect(xLegend + (gradient * i + j) * xColourStep, 0.f, xColourStep, yTop * .9);
         }
     }
 
-    //for indexes of RACS
+    // for indexes of RACS
     float xLeft = .02 * width;
 
     // steps for drawing the RACs
@@ -99,12 +128,12 @@ void PACUI::paint(juce::Graphics &g)
     }
 
     // draw vertical line after indexes
-    g.drawLine(xLeft, yTop, xLeft, height - yTop*.9, .8f);
-    //draw horizontal line at yTop
-    g.drawLine(0, yTop*.9, width, yTop*.9, .8f);
+    g.drawLine(xLeft, yTop, xLeft, height - yTop * .9, .8f);
+    // draw horizontal line at yTop
+    g.drawLine(0, yTop * .9, width, yTop * .9, .8f);
 
-    //todo draw with colours
-    // use maxRACs to affect colours to each RAC
+    // todo draw with colours
+    //  use maxRACs to affect colours to each RAC
     Array<int> RACindex;
     for (int j = 0; j < RACsHistory[0].size(); ++j)
     {
@@ -118,36 +147,56 @@ void PACUI::paint(juce::Graphics &g)
         RACindex.add(colIndex);
     }
     Array<float> coefs;
-    int coef=1;
-    for(int i=0;i<colours.size();i++)
+    int coef = 1;
+    for (int i = 0; i < colours.size(); i++)
     {
         coefs.add(coef);
-        coef*=10;
+        coef *= 10;
     }
 
     for (int i = 0; i < RACsHistory.size(); ++i)
     {
         for (int j = 0; j < RACsHistory[i].size(); ++j)
         {
-            float valToMax = RACsHistory[i][j] *coefs[RACindex[j]] / maxPAC;
+            float xCoord = xLeft + i * xScale;
+            float yCoord = yTop + j * yScale;
             
-            //scaling:valToMax 0 -> alpha 0, but .1 -> alpha.5 and 1 -> alpha 1 via two linear functions
-            float alpha;
-            if(valToMax<.1)
+            // draw vertical line if RACS was previously off            
+            // g.setOpacity(1.f);
+            // g.setColour(Colours::lightgreen);
+            // if (i > 0 && RACsHistory[i - 1][j] == 0. && RACsHistory[i][j] > 0.)
+            // {
+            //     g.drawLine(xCoord, yCoord, xCoord, yCoord + yScale * .9, 1.f);
+            // }
+
+            float valToMax;
+            int colIndex;
+            // display parameter, one color per RAC
+            if (simul->oneColor->boolValue())
             {
-                alpha=valToMax*5;
+                // to display only one color per RAC
+                valToMax = RACsHistory[i][j] * coefs[RACindex[j]] / maxPAC;
+                colIndex = RACindex[j];
             }
             else
             {
-                alpha=(.5*valToMax+.4)/.9;
+                // to display only depending on local value
+                valToMax = RACsHistory[i][j] / maxPAC;
+                colIndex = 0;
+
+                while (valToMax < 0.1 && colIndex < colours.size() - 1)
+                {
+                    valToMax *= 10;
+                    colIndex++;
+                }
             }
 
-            g.setColour(colours[RACindex[j]].withAlpha(alpha));
-            g.fillRect(xLeft + i * xScale, yTop + j * yScale, xScale, yScale * .9);
+            g.setColour(colours[colIndex].withAlpha(distort(valToMax)));
+            g.fillRect(xCoord, yCoord, xScale, yScale * .9);
         }
     }
 
-    // g.drawText("PACs", PACsBounds, Justification::centred, true);
+
 }
 
 void PACUI::resized()
@@ -199,5 +248,16 @@ void PACUI::newMessage(const Simulation::SimulationEvent &ev)
         repaint();
     }
     break;
+    }
+}
+
+void PACUI::newMessage(const ContainerAsyncEvent &e)
+{
+    if (e.type == ContainerAsyncEvent::EventType::ControllableFeedbackUpdate)
+    {
+        if (e.targetControllable == simul->oneColor)
+        {
+            repaint();
+        }
     }
 }

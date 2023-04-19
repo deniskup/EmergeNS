@@ -150,6 +150,7 @@ public:
   bool includeOnlyWithEntities; // specify the rule for inclusion of PACs
   void addCycle(PAC *);
   void printPACs(); // print list of PACs to cout
+  BoolParameter *oneColor; //to display RACs
 
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();

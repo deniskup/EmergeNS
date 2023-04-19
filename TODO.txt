@@ -62,6 +62,7 @@ more things depend on level
 Manière de tirer peut biaiser vers peu de reaction, on pourrait ajouter des dissolutions pour refaire des entités plus petites.
 Les compositions faites de 10 manières n'ont pas plus de chances de sortir que celles faites d'une seule manière, à changer ? 
 
+A voir avec Benji: boolparameter local à l'ui sans passer par simul.
 
 
 

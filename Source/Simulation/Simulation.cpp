@@ -33,6 +33,7 @@ juce_ImplementSingleton(Simulation)
   restartTrigger = addTrigger("Restart", "Restart");
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
+  oneColor= addBoolParameter("Unicolor", "Use only one color for each RAC", true);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 }
 

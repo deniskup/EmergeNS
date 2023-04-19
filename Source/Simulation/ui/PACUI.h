@@ -4,8 +4,8 @@
 
 class PACUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,
-                     public Timer
-                     //public ContainerAsyncListener
+                     public Timer,
+                     public ContainerAsyncListener
                      //public Button::Listener
 {
 public:
@@ -21,7 +21,9 @@ public:
 
     Rectangle<int> PACsBounds;
 
+    //oneColor setting
 
+    unique_ptr<BoolToggleUI> oneColorToggle;
 
     void paint(juce::Graphics &) override;
     void resized() override;
@@ -30,6 +32,8 @@ public:
 
 
     void newMessage(const Simulation::SimulationEvent &ev) override;
+
+    void newMessage(const ContainerAsyncEvent &e) override;
 
     static PACUI *create(const String &name) { return new PACUI(); }
 };
