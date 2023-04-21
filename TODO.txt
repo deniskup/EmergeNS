@@ -1,3 +1,13 @@
+Faire varier seulement un parametre dans une simul: energie libre, existence
+-Importer simulation générée dans entités et réactions réglables manuellement.
+-Option pour faire varier des choses globalement dessus: energie libre moyenne, etc
+
+PACs in a separate file, under Simulation, and in a separate thread to avoid blocking the UI.
+
+JSON simul in separate file
+
+change start/restart/continue
+
 inclusion RAC plus fine:
 si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
 

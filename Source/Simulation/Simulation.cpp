@@ -776,6 +776,7 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
     if (se->entity == e)
       return se;
   }
+  jassertfalse;
   return nullptr;
 }
 
@@ -786,6 +787,7 @@ SimEntity *Simulation::getSimEntityForID(int id)
     if (se->id == id)
       return se;
   }
+  jassertfalse;
   return nullptr;
 }
 
@@ -796,6 +798,7 @@ SimReaction *Simulation::getSimReactionForID(int idSAT)
     if (sr->idSAT == idSAT)
       return sr;
   }
+  jassertfalse;
   return nullptr;
 }
 
@@ -985,6 +988,9 @@ SimReaction::SimReaction(var data)
   if (data.getDynamicObject()->hasProperty("reactant1_id"))
     reactant1 = simul->getSimEntityForID(data["reactant1_id"]);
 
+    reactant1= simul->getSimEntityForID(data.getProperty("reactant1_id", -1));
+    
+  //to change on same model
   if (data.getDynamicObject()->hasProperty("reactant2_id"))
     reactant2 = simul->getSimEntityForID(data["reactant2_id"]);
 

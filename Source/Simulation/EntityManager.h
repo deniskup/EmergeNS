@@ -17,4 +17,5 @@ public:
 	void addItemInternal(Entity* e, var params) override;
 
 	void onContainerTriggerTriggered(Trigger* t) override;
+
 };
