@@ -128,6 +128,8 @@ public:
 
   // gestion des PACs
   PAClist *pacList;
+  BoolParameter *oneColor; // to display RACs
+  
   //todo search and replace cycles to pacList->cycles etc in relevant files
 
   // different from the default getJSONData and loadJSONData which only saves parameters.

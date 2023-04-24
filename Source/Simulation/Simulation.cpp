@@ -220,6 +220,7 @@ void Simulation::importJSONData(var data)
   }
 
   // cycles
+  //a remplacer avec pacList->importJSONData
   cycles.clear();
   if (data.getDynamicObject()->hasProperty("cycles"))
   {
