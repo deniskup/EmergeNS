@@ -1,14 +1,26 @@
 
 #include "Entity.h"
+#include "Simulation.h"
 
 Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 {
   primary = addBoolParameter("Primary", "Is the entity primary ?", true);
-  creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 1.f); // absolute
-  destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 1.f);// proportional to concentration
+  creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 1.f);          // absolute
+  destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 1.f); // proportional to concentration
   concent = addFloatParameter("Concentration", "Concentration of the entity", .5f, .0f, 2.f);
   freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -20.f, 10.f);
   setHasCustomColor(true);
+
+}
+
+void Entity::fromSimEntity(SimEntity *e)
+{
+  primary->setValue(e->primary);
+  creationRate->setValue(e->creationRate);
+  destructionRate->setValue(e->destructionRate);
+  concent->setValue(e->concent);
+  freeEnergy->setValue(e->freeEnergy);
+  e->entity=this;
 }
 
 void Entity::onContainerParameterChangedInternal(Parameter *p)

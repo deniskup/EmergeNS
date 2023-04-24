@@ -38,11 +38,12 @@ public:
     bool includedIn(PAC *p, bool onlyEnts);
 };
 
-class PAClist //: public Thread
+class PAClist : public Thread
 {
 public:
-    PAClist(){};
-    PAClist(Simulation *simul) : simul(simul){};
+    PAClist() : Thread("PACs") {};
+    PAClist(Simulation *simul) : Thread("PACs"), simul(simul){};
+    ~PAClist();
 
     Simulation *simul;
     OwnedArray<PAC> cycles;
@@ -51,7 +52,13 @@ public:
     void addCycle(PAC *);
     void printPACs(); // print list of PACs to cout
     void printRACs();
-    void computePACs(int numSolver); // compute PACs from the simulation
+
+      //the thread function
+    void run() override;
+
+    int numSolver; // index of the current sat solver
+
+    void computePACs(int numSolv); // compute PACs from the simulation
 
     void clear(); // clear everything
 };

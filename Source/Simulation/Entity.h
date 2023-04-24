@@ -4,12 +4,15 @@
 #include "JuceHeader.h"
 #include <unordered_map>
 
+class SimEntity;
+
 class Entity : public BaseItem
 {
 public:
     Entity(var params = var());
     ~Entity();
 
+    void fromSimEntity(SimEntity *e);
     
     BoolParameter *primary;
     FloatParameter *concent;

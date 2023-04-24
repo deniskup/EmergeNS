@@ -9,7 +9,6 @@ using namespace std;
 class Entity;
 class Reaction;
 
-
 typedef Array<int> Compo;
 
 class SimEntity
@@ -66,6 +65,7 @@ public:
 
   float assocRate;
   float dissocRate;
+  float energy=-1.0f; // energy of the reaction, -1 if not set
 
   int idSAT;    // identifier for SAT Solving
   float flow;   // flow = dProduct/dt due to the reaction
@@ -129,8 +129,8 @@ public:
   unique_ptr<PAClist> pacList;
   BoolParameter *oneColor; // to display RACs
   bool PACsGenerated = false;
-  
-  //todo search and replace cycles to pacList->cycles etc in relevant files
+
+  // todo search and replace cycles to pacList->cycles etc in relevant files
 
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
@@ -145,6 +145,7 @@ public:
   void stop();
   void cancel();
 
+  //the thread function
   void run() override;
 
   SimEntity *getSimEntityForEntity(Entity *e);

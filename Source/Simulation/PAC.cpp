@@ -120,6 +120,11 @@ void PAClist::addCycle(PAC *newpac)
     cycles.add(newpac);
 }
 
+PAClist::~PAClist()
+{
+    stopThread(500);
+}
+
 void PAClist::printPACs()
 {
     LOG("PACS computed");
@@ -173,7 +178,13 @@ void cleanKissatOutput()
 }
 
 // 0 for minisat, 1 for kissat
-void PAClist::computePACs(int numSolver)
+void PAClist::computePACs(int numSolv)
+{
+    numSolver=numSolv;
+    startThread();
+}
+
+void PAClist::run()
 {
     // clear PACs if some were computed
     cycles.clear();

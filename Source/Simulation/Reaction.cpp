@@ -1,6 +1,7 @@
 
 #include "Reaction.h"
 #include "EntityManager.h"
+#include "Simulation.h"
 
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
@@ -26,6 +27,30 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
   dissocRate->setControllableFeedbackOnly(true);
 
   showWarningInUI = true;
+}
+
+void Reaction::fromSimReaction(SimReaction *r)
+{
+//TODO
+
+  // reactant1->setValue((Entity *)r->reactant1->entity);
+  // reactant2->setValue((Entity *)r->reactant2->entity);
+  // product->setValue((Entity *)r->product->entity);
+  // energy->setValue(r->energy);
+  // assocRate->setValue(r->assocRate);
+  // dissocRate->setValue(r->dissocRate);
+
+  //   if(r->energy==-1.f){
+  //   //compute energy barrier
+  //   float energyLeft = reactant1->freeEnergy->floatValue()+reactant2->freeEnergy->floatValue();;
+  //   float energyRight = product->freeEnergy->floatValue();
+    
+  //   //we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
+  //   float energyStar = energyLeft - log(r->assocRate);
+  //   //we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
+  //   r->energy=energyStar - jmax(energyLeft, energyRight);
+  //   energy->setValue(r->energy);
+  // }
 }
 
 Reaction::~Reaction()
@@ -94,19 +119,19 @@ void Reaction::onExternalParameterValueChanged(Parameter *p)
   {
     Entity *r1 = (Entity *)linkedR1.get();
     if (p == r1->enabled || p == r1->freeEnergy)
-    updateWarnAndRates();
+      updateWarnAndRates();
   }
   if (linkedR2 != nullptr)
   {
     Entity *r2 = (Entity *)linkedR2.get();
     if (p == r2->enabled || p == r2->freeEnergy)
-    updateWarnAndRates();
+      updateWarnAndRates();
   }
   if (linkedP != nullptr)
   {
     Entity *pr = (Entity *)linkedP.get();
     if (p == pr->enabled || p == pr->freeEnergy)
-    updateWarnAndRates();
+      updateWarnAndRates();
   }
 }
 
