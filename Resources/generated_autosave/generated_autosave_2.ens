@@ -59,10 +59,10 @@
                   "type": 0,
                   "width": 1246,
                   "height": 478,
-                  "currentContent": "PACs",
+                  "currentContent": "RACs",
                   "tabs": [
                     {
-                      "name": "PACs"
+                      "name": "RACs"
                     }
                   ]
                 }
@@ -111,7 +111,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 100.0,
+        "value": 10.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -397,17 +397,13 @@
   "generation": {
     "parameters": [
       {
-        "value": [
-          2,
-          2
-        ],
+        "value": 1,
+        "hexMode": false,
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": [
-          5,
-          5
-        ],
+        "value": 1,
+        "hexMode": false,
         "controlAddress": "/levels"
       },
       {
@@ -422,7 +418,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 0.6424116492271423,
+        "value": 0.02099791914224625,
         "controlAddress": "/proportionReactions"
       },
       {
@@ -431,21 +427,6 @@
           2
         ],
         "controlAddress": "/reactionsPerEntity"
-      },
-      {
-        "value": [
-          0.0,
-          0.1000000014901161
-        ],
-        "controlAddress": "/initConcentrationRange"
-      },
-      {
-        "value": 0.2,
-        "controlAddress": "/maxDestructionRate"
-      },
-      {
-        "value": -3.0,
-        "controlAddress": "/energyPerLevel"
       },
       {
         "value": 40,

@@ -59,12 +59,7 @@
                   "type": 0,
                   "width": 1246,
                   "height": 478,
-                  "currentContent": "PACs",
-                  "tabs": [
-                    {
-                      "name": "PACs"
-                    }
-                  ]
+                  "tabs": null
                 }
               ]
             },
@@ -397,17 +392,13 @@
   "generation": {
     "parameters": [
       {
-        "value": [
-          2,
-          2
-        ],
+        "value": 1,
+        "hexMode": false,
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": [
-          3,
-          3
-        ],
+        "value": 1,
+        "hexMode": false,
         "controlAddress": "/levels"
       },
       {
@@ -431,21 +422,6 @@
           2
         ],
         "controlAddress": "/reactionsPerEntity"
-      },
-      {
-        "value": [
-          0.0,
-          0.1000000014901161
-        ],
-        "controlAddress": "/initConcentrationRange"
-      },
-      {
-        "value": 0.2,
-        "controlAddress": "/maxDestructionRate"
-      },
-      {
-        "value": -3.0,
-        "controlAddress": "/energyPerLevel"
       },
       {
         "value": 40,

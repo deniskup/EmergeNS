@@ -6,8 +6,6 @@ PACs in a separate file, under Simulation, and in a separate thread to avoid blo
 
 JSON simul in separate file
 
-change start/restart/continue
-
 inclusion RAC plus fine:
 si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
 
