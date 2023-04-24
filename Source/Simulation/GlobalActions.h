@@ -24,4 +24,3 @@ int computeCompositions();
 // normalise energies by setting primary entities to zero and propogating to composite ones
 void normEnergies();
 
-void findPAC(Simulation *simul, int numSolver);

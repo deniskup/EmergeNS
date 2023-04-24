@@ -39,9 +39,9 @@ class PAClist: public Thread
     bool includeOnlyWithEntities; // specify the rule for inclusion of PACs
     void addCycle(PAC *);
     void printPACs();        // print list of PACs to cout
-    BoolParameter *oneColor; // to display RACs
+    
 
-    void computePACS(); // compute PACs from the simulation
+    void computePACS(int numSolver); // compute PACs from the simulation
 
     void clear(); //clear everything
 };
