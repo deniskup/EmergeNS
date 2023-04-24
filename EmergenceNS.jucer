@@ -38,6 +38,8 @@
                 file="Source/Simulation/ui/SimulationUI.cpp"/>
           <FILE id="o6wALL" name="SimulationUI.h" compile="0" resource="0" file="Source/Simulation/ui/SimulationUI.h"/>
         </GROUP>
+        <FILE id="fcmwZX" name="PAC.h" compile="0" resource="0" file="Source/Simulation/PAC.h"/>
+        <FILE id="psir5u" name="PAC.cpp" compile="1" resource="0" file="Source/Simulation/PAC.cpp"/>
         <FILE id="dgHatY" name="ReactionManager.h" compile="0" resource="0"
               file="Source/Simulation/ReactionManager.h"/>
         <FILE id="CnfZvw" name="ReactionManager.cpp" compile="1" resource="0"

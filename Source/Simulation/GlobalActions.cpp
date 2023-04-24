@@ -129,26 +129,5 @@ void normEnergies()
     }
 }
 
-void cleanKissatOutput()
-{
-    ifstream infile("model.txt");
-    ofstream outfile("model2.txt");
-    string line;
-    while (getline(infile, line))
-    {
-        if (line[0] == 'v' || line[0] == 's')
-        {
-            line.erase(0, 2);
-            outfile << line << endl;
-        }
-        else
-        {
-            cout << "Error in Kissat output" << endl;
-            break;
-        }
-    }
-    infile.close();
-    outfile.close();
-    system("mv model2.txt model.txt");
-}
+
 

@@ -1,13 +1,14 @@
 
 
 #pragma once
-
 #include <JuceHeader.h>
+#include "PAC.h"
 using namespace juce;
 using namespace std;
 
 class Entity;
 class Reaction;
+
 
 typedef Array<int> Compo;
 
@@ -75,8 +76,6 @@ public:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
 
-class PAC;
-
 class Simulation : public ControllableContainer,
                    public Thread
 
@@ -127,8 +126,9 @@ public:
   int numLevels;
 
   // gestion des PACs
-  PAClist *pacList;
+  unique_ptr<PAClist> pacList;
   BoolParameter *oneColor; // to display RACs
+  bool PACsGenerated = false;
   
   //todo search and replace cycles to pacList->cycles etc in relevant files
 

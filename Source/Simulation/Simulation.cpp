@@ -4,7 +4,6 @@
 #include "EntityManager.h"
 #include "ReactionManager.h"
 #include "Generation.h"
-#include "Pac.h"
 
 using namespace std;
 
@@ -14,7 +13,8 @@ juce_ImplementSingleton(Simulation)
                                Thread("Simulation"),
                                curStep(0),
                                ready(false),
-                               simNotifier(1000) // max messages async that can be sent at once
+                               simNotifier(1000), // max messages async that can be sent at once
+                               pacList(new PAClist(this))
 {
   simNotifier.dropMessageOnOverflow = false;
 
@@ -142,7 +142,7 @@ var Simulation::toJSONData()
   // cycles
   //todo: JSON for paclist
   var cycs;
-  for (auto &c : cycles)
+  for (auto &c : pacList->cycles)
   {
     var cyc = c->toJSONData();
     cycs.append(cyc);
@@ -172,8 +172,10 @@ void Simulation::importJSONData(var data)
     recordDrawnEntity = data.getDynamicObject()->getProperty("recordDrawnEntity");
   if (data.getDynamicObject()->hasProperty("numLevels"))
     numLevels = data.getDynamicObject()->getProperty("numLevels");
+  //To move to PACList later
   if (data.getDynamicObject()->hasProperty("PACsGenerated"))
     PACsGenerated = data.getDynamicObject()->getProperty("PACsGenerated");
+
 
   // entities
   entities.clear();
@@ -221,13 +223,13 @@ void Simulation::importJSONData(var data)
 
   // cycles
   //a remplacer avec pacList->importJSONData
-  cycles.clear();
+  pacList->cycles.clear();
   if (data.getDynamicObject()->hasProperty("cycles"))
   {
     auto cycs = data.getDynamicObject()->getProperty("cycles").getArray();
     for (auto &cvar : *cycs)
     {
-      cycles.add(new PAC(cvar, this));
+      pacList->addCycle(new PAC(cvar, this));
     }
   }
 
@@ -701,7 +703,7 @@ void Simulation::nextStep()
   Array<float> PACsValues;
   Array<bool> RACList;
   // cout << setprecision(3);
-  for (auto &cycle : paclist->cycles)
+  for (auto &cycle : pacList->cycles)
   {
     cycle->flow = cycle->reacDirs[0].first->flow; // initialisation to a max potential value
     for (auto &reacDir : cycle->reacDirs)
@@ -720,8 +722,8 @@ void Simulation::nextStep()
     {
       cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
-      if (cycle->flow > maxRAC)
-        maxRAC = cycle->flow;
+      if (cycle->flow > pacList->maxRAC)
+        pacList->maxRAC = cycle->flow;
     }
     RACList.add(cycle->wasRAC);
   }
@@ -754,17 +756,11 @@ void Simulation::run()
   LOG("End thread");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
-  LOG("Max RAC: " << maxRAC);
+  LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
-  int nbRac = 0;
-  for (auto &cycle : cycles)
-  {
-    if (cycle->wasRAC)
-    {
-      nbRac++;
-      LOG(String(nbRac) + ": " + cycle->toString());
-    }
-  }
+ 
+  pacList->printRACs();
+
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);

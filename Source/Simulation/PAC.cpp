@@ -1,151 +1,182 @@
 #include "PAC.h"
+#include "Simulation.h"
 using namespace std;
-
-
 
 PAC::PAC(var data, Simulation *simul)
 {
-  if (data.isVoid())
-    return;
-  if (data.getDynamicObject() == nullptr)
-    return;
+    if (data.isVoid())
+        return;
+    if (data.getDynamicObject() == nullptr)
+        return;
 
-  if (data.getDynamicObject()->hasProperty("entities"))
-  {
-    Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
-    for (auto &ent : *ents)
+    if (data.getDynamicObject()->hasProperty("entities"))
     {
-      entities.add(simul->getSimEntityForID(ent["ent_id"]));
+        Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
+        for (auto &ent : *ents)
+        {
+            entities.add(simul->getSimEntityForID(ent["ent_id"]));
+        }
     }
-  }
 
-  if (data.getDynamicObject()->hasProperty("reacDirs"))
-  {
-    Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
-    for (auto &reacd : *reacds)
+    if (data.getDynamicObject()->hasProperty("reacDirs"))
     {
-      reacDirs.add(make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
+        Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
+        for (auto &reacd : *reacds)
+        {
+            reacDirs.add(make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
+        }
     }
-  }
 }
 
 var PAC::toJSONData()
 {
-  var data = new DynamicObject();
+    var data = new DynamicObject();
 
-  var ents;
-  for (auto &e : entities)
-  {
-    var coord = new DynamicObject();
-    coord.getDynamicObject()->setProperty("ent_id", e->id);
-    ents.append(coord);
-  }
-  data.getDynamicObject()->setProperty("entities", ents);
+    var ents;
+    for (auto &e : entities)
+    {
+        var coord = new DynamicObject();
+        coord.getDynamicObject()->setProperty("ent_id", e->id);
+        ents.append(coord);
+    }
+    data.getDynamicObject()->setProperty("entities", ents);
 
-  var reacds;
-  for (auto &rd : reacDirs)
-  {
-    var coord = new DynamicObject();
-    coord.getDynamicObject()->setProperty("reac_id", rd.first->idSAT);
-    coord.getDynamicObject()->setProperty("dir", rd.second);
-    reacds.append(coord);
-  }
-  data.getDynamicObject()->setProperty("reacDirs", reacds);
+    var reacds;
+    for (auto &rd : reacDirs)
+    {
+        var coord = new DynamicObject();
+        coord.getDynamicObject()->setProperty("reac_id", rd.first->idSAT);
+        coord.getDynamicObject()->setProperty("dir", rd.second);
+        reacds.append(coord);
+    }
+    data.getDynamicObject()->setProperty("reacDirs", reacds);
 
-  return data;
+    return data;
 }
 
 String PAC::toString()
 {
-  String res;
-  for (auto &rd : reacDirs)
-  {
-    auto r = rd.first;
-    bool d = rd.second;
-    auto p = r->product;
-    auto r1 = r->reactant1;
-    auto r2 = r->reactant2;
-    String plus = "+";
-    String r1name = r1->name;
-    String r2name = r2->name;
-    if (!entities.contains(r1))
+    String res;
+    for (auto &rd : reacDirs)
     {
-      plus = "";
-      r1name = "";
+        auto r = rd.first;
+        bool d = rd.second;
+        auto p = r->product;
+        auto r1 = r->reactant1;
+        auto r2 = r->reactant2;
+        String plus = "+";
+        String r1name = r1->name;
+        String r2name = r2->name;
+        if (!entities.contains(r1))
+        {
+            plus = "";
+            r1name = "";
+        }
+        if (!entities.contains(r2))
+        {
+            plus = "";
+            r2name = "";
+        }
+        if (d)
+        { // 1->2
+            res += r->product->name + "->" + r1name + plus + r2name + " ";
+        }
+        else
+        { // 2->1
+            res += r1name + plus + r2name + "->" + r->product->name + " ";
+        }
     }
-    if (!entities.contains(r2))
-    {
-      plus = "";
-      r2name = "";
-    }
-    if (d)
-    { // 1->2
-      res += r->product->name + "->" + r1name + plus + r2name + " ";
-    }
-    else
-    { // 2->1
-      res += r1name + plus + r2name + "->" + r->product->name + " ";
-    }
-  }
-  return res;
+    return res;
 }
 
 bool PAC::includedIn(PAC *pac, bool onlyEnts)
 {
-  for (auto &e : entities)
-  {
-    if (!pac->entities.contains(e))
-      return false;
-  }
-  if (onlyEnts)
+    for (auto &e : entities)
+    {
+        if (!pac->entities.contains(e))
+            return false;
+    }
+    if (onlyEnts)
+        return true;
+    // test reactions
+    for (auto &rd : reacDirs)
+    {
+        if (!pac->reacDirs.contains(rd))
+            return false;
+    }
     return true;
-  // test reactions
-  for (auto &rd : reacDirs)
-  {
-    if (!pac->reacDirs.contains(rd))
-      return false;
-  }
-  return true;
 }
-
-
-
 
 void PAClist::addCycle(PAC *newpac)
 {
-  // we only test if is is included in existing one, other direction is taken care of by SAT solver
-  for (int i = 0; i < cycles.size(); i++)
-  {
-    if (newpac->includedIn(cycles[i], includeOnlyWithEntities))
+    // we only test if is is included in existing one, other direction is taken care of by SAT solver
+    for (int i = 0; i < cycles.size(); i++)
     {
-      cycles.remove(i);
+        if (newpac->includedIn(cycles[i], includeOnlyWithEntities))
+        {
+            cycles.remove(i);
+        }
     }
-  }
-  cycles.add(newpac);
+    cycles.add(newpac);
 }
 
 void PAClist::printPACs()
 {
-  LOG("PACS computed");
-  for (auto pac : cycles)
-  {
-    cout << pac->toString() << endl;
-  }
+    LOG("PACS computed");
+    for (auto pac : cycles)
+    {
+        cout << pac->toString() << endl;
+    }
 }
 
+void PAClist::printRACs()
+{
+    int nbRac = 0;
+    for (auto &pac : cycles)
+    {
+        if (pac->wasRAC)
+        {
+            nbRac++;
+            LOG(String(nbRac) + ": " + pac->toString());
+        }
+    }
+}
 
 void PAClist::clear()
 {
-  cycles.clear();
-  PACsGenerated = false;
-  maxRAC = 0.;
+    cycles.clear();
+    simul->PACsGenerated = false;
+    maxRAC = 0.;
+}
+
+void cleanKissatOutput()
+{
+    ifstream infile("model.txt");
+    ofstream outfile("model2.txt");
+    string line;
+    while (getline(infile, line))
+    {
+        if (line[0] == 'v' || line[0] == 's')
+        {
+            line.erase(0, 2);
+            outfile << line << endl;
+        }
+        else
+        {
+            cout << "Error in Kissat output" << endl;
+            break;
+        }
+    }
+    infile.close();
+    outfile.close();
+    system("mv model2.txt model.txt");
 }
 
 // 0 for minisat, 1 for kissat
 void PAClist::computePACs(int numSolver)
 {
     // clear PACs if some were computed
-    simul->cycles.clear();
+    cycles.clear();
 
     // measure time
     uint32 startTime = Time::getMillisecondCounter();
@@ -160,8 +191,7 @@ void PAClist::computePACs(int numSolver)
 
     LOG("Using solver: " + solver->name);
 
-    //TODO repaint the Logger
-
+    // TODO repaint the Logger
 
     // open file
     stringstream clauses;
@@ -586,7 +616,7 @@ void PAClist::computePACs(int numSolver)
 
     const int maxCycles = 300; // max number of cycles of some level before timeout
 
-    simul->includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
+    includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 
     for (int dmax = 1; dmax < dmax_stop; dmax++)
     {
@@ -638,7 +668,7 @@ void PAClist::computePACs(int numSolver)
                 sol_file >> d;
                 if (re > 0)
                 {
-                    if (!simul->includeOnlyWithEntities)
+                    if (!includeOnlyWithEntities)
                     {
                         newClause.add(-re);
                         newClause.add(-d);
@@ -646,7 +676,7 @@ void PAClist::computePACs(int numSolver)
                     pac->reacDirs.add(make_pair(r, (d > 0)));
                 }
             }
-            simul->addCycle(pac);
+            addCycle(pac);
             // cout << pac->toString() << endl;
             if (pac->entities.size() != pac->reacDirs.size())
                 cout << "Problem with PAC :" << pac->toString() << endl;

@@ -8,12 +8,23 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
+class SATSolver{
+public:
+    SATSolver(){};
+    ~SATSolver(){};
+    SATSolver(String name, String command, String satLine, bool printsExtraString): name(name), command(command) , satLine(satLine), printsExtraString(printsExtraString){};
+    String name;
+    String command;
+    String satLine; //displayed by the SAT solver: SAT or SATISFIABLE
+    bool printsExtraString; //is there an extra string printed by the SAT solver before SAT or SATISFIABLE, and before the values
+};
+
 class PAC
 {
 public:
     PAC(){};
-    PAC(var data, Simulation *simul);    // import from JSON, TODO
-    var toJSONData(); // save to JSON, TODO
+    PAC(var data, Simulation *simul); // import from JSON, TODO
+    var toJSONData();                 // save to JSON, TODO
 
     String toString(); // for printing
 
@@ -27,21 +38,20 @@ public:
     bool includedIn(PAC *p, bool onlyEnts);
 };
 
-class PAClist: public Thread
+class PAClist //: public Thread
 {
+public:
     PAClist(){};
-    PAClist(Simulation *simul): simul(simul){};
+    PAClist(Simulation *simul) : simul(simul){};
 
     Simulation *simul;
-    bool PACsGenerated = false;
-    Array<PAC *> cycles;
+    OwnedArray<PAC> cycles;
     float maxRAC = 0.0f;          // remember the max RAC for display
     bool includeOnlyWithEntities; // specify the rule for inclusion of PACs
     void addCycle(PAC *);
-    void printPACs();        // print list of PACs to cout
-    
+    void printPACs(); // print list of PACs to cout
+    void printRACs();
+    void computePACs(int numSolver); // compute PACs from the simulation
 
-    void computePACS(int numSolver); // compute PACs from the simulation
-
-    void clear(); //clear everything
+    void clear(); // clear everything
 };
