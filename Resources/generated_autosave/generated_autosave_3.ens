@@ -59,10 +59,10 @@
                   "type": 0,
                   "width": 1246,
                   "height": 478,
-                  "currentContent": "PACs",
+                  "currentContent": "RACs",
                   "tabs": [
                     {
-                      "name": "PACs"
+                      "name": "RACs"
                     }
                   ]
                 }
@@ -111,7 +111,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 100.0,
+        "value": 10.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -120,12 +120,20 @@
         "controlAddress": "/pointsDrawn"
       },
       {
-        "value": 0.5,
+        "value": 1.299999952316284,
         "controlAddress": "/maxConcent"
       },
       {
         "value": true,
         "controlAddress": "/generated"
+      },
+      {
+        "value": true,
+        "controlAddress": "/autoScale"
+      },
+      {
+        "value": true,
+        "controlAddress": "/unicolor"
       }
     ]
   },
@@ -397,17 +405,13 @@
   "generation": {
     "parameters": [
       {
-        "value": [
-          2,
-          2
-        ],
+        "value": 2,
+        "hexMode": false,
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": [
-          5,
-          5
-        ],
+        "value": 4,
+        "hexMode": false,
         "controlAddress": "/levels"
       },
       {
@@ -422,7 +426,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 0.4948025047779083,
+        "value": 0.7465696334838867,
         "controlAddress": "/proportionReactions"
       },
       {
@@ -434,18 +438,10 @@
       },
       {
         "value": [
-          0.0,
-          0.1000000014901161
+          1.0,
+          0.4000002145767212
         ],
-        "controlAddress": "/initConcentrationRange"
-      },
-      {
-        "value": 0.2,
-        "controlAddress": "/maxDestructionRate"
-      },
-      {
-        "value": -3.0,
-        "controlAddress": "/energyPerLevel"
+        "controlAddress": "/creationRate_Var"
       },
       {
         "value": 40,

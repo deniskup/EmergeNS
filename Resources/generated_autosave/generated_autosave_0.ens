@@ -39,55 +39,72 @@
           "direction": 1,
           "shifters": [
             {
-              "type": 1,
-              "width": 1246,
+              "type": 0,
+              "width": 397,
               "height": 1149,
-              "direction": 2,
-              "shifters": [
+              "currentContent": "Entities",
+              "tabs": [
                 {
-                  "type": 0,
-                  "width": 1246,
-                  "height": 665,
-                  "currentContent": "Simulation",
-                  "tabs": [
-                    {
-                      "name": "Simulation"
-                    }
-                  ]
+                  "name": "Entities"
                 },
                 {
-                  "type": 0,
-                  "width": 1246,
-                  "height": 478,
-                  "tabs": null
+                  "name": "Reactions"
+                },
+                {
+                  "name": "Generation"
                 }
               ]
             },
             {
               "type": 1,
-              "width": 666,
+              "width": 1515,
               "height": 1149,
-              "direction": 2,
+              "direction": 1,
               "shifters": [
                 {
-                  "type": 0,
-                  "width": 666,
-                  "height": 741,
-                  "currentContent": "Generation",
-                  "tabs": [
+                  "type": 1,
+                  "width": 1011,
+                  "height": 1149,
+                  "direction": 2,
+                  "shifters": [
                     {
-                      "name": "Generation"
+                      "type": 0,
+                      "width": 1011,
+                      "height": 650,
+                      "currentContent": "Simulation",
+                      "tabs": [
+                        {
+                          "name": "Simulation"
+                        }
+                      ]
+                    },
+                    {
+                      "type": 0,
+                      "width": 1011,
+                      "height": 492,
+                      "currentContent": "RACs",
+                      "tabs": [
+                        {
+                          "name": "RACs"
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": 0,
-                  "width": 666,
-                  "height": 402,
+                  "width": 498,
+                  "height": 1149,
                   "currentContent": "Logger",
                   "tabs": [
                     {
                       "name": "Logger"
+                    },
+                    {
+                      "name": "Warnings"
+                    },
+                    {
+                      "name": "Inspector"
                     }
                   ]
                 }
@@ -117,10 +134,6 @@
       {
         "value": 0.5,
         "controlAddress": "/maxConcent"
-      },
-      {
-        "value": true,
-        "controlAddress": "/generated"
       }
     ]
   },
@@ -129,125 +142,55 @@
       {
         "parameters": [
           {
-            "value": 0.02812495827674866,
+            "value": 1.0,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.00937500037252903,
+            "value": 0.5,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.006249994039535522,
+            "value": 0.7709714770317078,
             "controlAddress": "/concentration"
           },
           {
             "value": [
-              0.2274509817361832,
-              0.9490196108818054,
-              0.0470588244497776,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "A",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": 0.2437500655651093,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.03125,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.59375,
-            "controlAddress": "/concentration"
-          },
-          {
-            "value": [
-              0.0470588244497776,
-              0.407843142747879,
-              0.9490196108818054,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "B",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/concentration"
-          },
-          {
-            "value": -1.122448921203613,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              0.9490196108818054,
-              0.0470588244497776,
-              0.5882353186607361,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "AB",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/concentration"
-          },
-          {
-            "value": 0.4081635475158691,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              0.8117647171020508,
+              0.2000000029802322,
               1.0,
-              0.05098039284348488,
+              0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "A2",
+        "niceName": "10",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": 1.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.6574815511703491,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": [
+              0.0,
+              0.4000000059604645,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "01",
         "type": "Entity"
       },
       {
@@ -261,28 +204,413 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.0,
+            "value": 0.5,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 0.3307816684246063,
             "controlAddress": "/concentration"
           },
           {
-            "value": -0.918367862701416,
+            "value": -0.3157833814620972,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.0470588244497776,
-              0.9490196108818054,
-              0.9490196108818054,
+              1.0,
+              0.0,
+              0.6000000238418579,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "A2B",
+        "niceName": "11",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.1558157801628113,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.4539282321929932,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.800000011920929,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "20",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.2626049220561981,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -0.2878587245941162,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "02",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.008801426738500595,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.08226333558559418,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.800000011920929,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "03",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.07049359381198883,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.3125554919242859,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.6000000238418579,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "12",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.02425495721399784,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -0.3284281492233276,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0,
+              1.0,
+              0.4000000059604645,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "30",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.07224038988351822,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -0.1209276914596558,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.2000000029802322,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "21",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.02930198982357979,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.4410093426704407,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "22",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.02436840906739235,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.420957624912262,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.2000000029802322,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "13",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.02478593960404396,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.2747192978858948,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0,
+              0.4000000059604645,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "31",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.01009955257177353,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": 0.4892295002937317,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.6000000238418579,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "04",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.02288688160479069,
+            "controlAddress": "/concentration"
+          },
+          {
+            "value": -0.4202331900596619,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.800000011920929,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "40",
         "type": "Entity"
       }
     ],
@@ -297,89 +625,375 @@
       {
         "parameters": [
           {
-            "value": "/a",
+            "value": "/entity1",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/b",
+            "value": "/entity1",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/ab",
+            "value": "/entity1",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.4000000059604645,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "A+B",
+        "niceName": "Reaction 1",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/a",
+            "value": "/entity1",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/ab",
+            "value": "/entity1",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/a2b",
+            "value": "/entity1",
             "controlAddress": "/product"
           },
           {
-            "value": 1.625000238418579,
+            "value": 0.3999999761581421,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "A+AB",
+        "niceName": "Reaction 2",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/a2",
+            "value": "/entity1",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/b",
+            "value": "/entity1",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/a2b",
+            "value": "/entity1",
             "controlAddress": "/product"
           },
           {
-            "value": 0.3906248509883881,
+            "value": 0.4000000059604645,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "A2B->A2+B",
+        "niceName": "Reaction 3",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/a",
+            "value": "/entity1",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/a",
+            "value": "/entity1",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/a2",
+            "value": "/entity1",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.4000000357627869,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "A2->A+A",
+        "niceName": "Reaction 4",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 5",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3999999761581421,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 6",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000953674316,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 7",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 8",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3999999761581421,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 9",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000953674316,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 10",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3999999761581421,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 11",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 12",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 13",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 14",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000357627869,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 15",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.4000000059604645,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 16",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/entity1",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3999999761581421,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "Reaction 17",
         "type": "Reaction"
       }
     ],
@@ -392,16 +1006,6 @@
   "generation": {
     "parameters": [
       {
-        "value": 1,
-        "hexMode": false,
-        "controlAddress": "/primaryEntities"
-      },
-      {
-        "value": 1,
-        "hexMode": false,
-        "controlAddress": "/levels"
-      },
-      {
         "value": "PropReactions",
         "controlAddress": "/growthEntities_level"
       },
@@ -413,7 +1017,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 0.02099791914224625,
+        "value": 0.5615384578704834,
         "controlAddress": "/proportionReactions"
       },
       {

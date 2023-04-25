@@ -34,7 +34,7 @@ juce_ImplementSingleton(Simulation)
   restartTrigger = addTrigger("Start", "Start");
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
-  oneColor= addBoolParameter("Unicolor", "Use only one color for each RAC", true);
+  oneColor = addBoolParameter("Unicolor", "Use only one color for each RAC", true);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 }
 
@@ -86,7 +86,7 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
-  //set entities drawn
+  // set entities drawn
   entitiesDrawn.clear();
   for (auto &ent : entities)
   {
@@ -148,7 +148,7 @@ var Simulation::toJSONData()
   data.getDynamicObject()->setProperty("entitiesDrawn", entDrawn);
 
   // cycles
-  //todo: JSON for paclist
+  // todo: JSON for paclist
   var cycs;
   for (auto &c : pacList->cycles)
   {
@@ -180,10 +180,9 @@ void Simulation::importJSONData(var data)
     recordDrawnEntity = data.getDynamicObject()->getProperty("recordDrawnEntity");
   if (data.getDynamicObject()->hasProperty("numLevels"))
     numLevels = data.getDynamicObject()->getProperty("numLevels");
-  //To move to PACList later
+  // To move to PACList later
   if (data.getDynamicObject()->hasProperty("PACsGenerated"))
     PACsGenerated = data.getDynamicObject()->getProperty("PACsGenerated");
-
 
   // entities
   entities.clear();
@@ -230,14 +229,17 @@ void Simulation::importJSONData(var data)
   }
 
   // cycles
-  //a remplacer avec pacList->importJSONData
+  // a remplacer avec pacList->importJSONData
   pacList->cycles.clear();
-  if (data.getDynamicObject()->hasProperty("cycles"))
+  if (PACsGenerated && data.getDynamicObject()->hasProperty("cycles"))
   {
     auto cycs = data.getDynamicObject()->getProperty("cycles").getArray();
-    for (auto &cvar : *cycs)
+    if (cycs != nullptr)
     {
-      pacList->addCycle(new PAC(cvar, this));
+      for (auto &cvar : *cycs)
+      {
+        pacList->addCycle(new PAC(cvar, this));
+      }
     }
   }
 
@@ -260,17 +262,50 @@ void Simulation::fetchManual()
       continue;
     reactions.add(new SimReaction(r));
   }
+
+  // todo compute levels and primary entities
+  numLevels = 1;
+  for (auto &e : entities)
+  {
+    if (e->primary)
+      primEnts.add(e);
+  }
+
+  ready = true;
+  updateParams();
 }
 
+void Simulation::loadToManualMode()
+{
+  // load entities
+  EntityManager *em = EntityManager::getInstance();
+  em->clear();
+  for (auto &se : entities)
+  {
+    Entity *e = new Entity();
+    e->fromSimEntity(se);
+    em->addItem(e, var(), false); // addtoUndo to false
+  }
+  // load reactions
+  ReactionManager *rm = ReactionManager::getInstance();
+  rm->clear();
+  for (auto &sr : reactions)
+  {
+    Reaction *r = new Reaction();
+    r->fromSimReaction(sr);
+    rm->addItem(r, var(), false);
+  }
+  generated->setValue(false);
+}
 void Simulation::fetchGenerate()
 {
   clearParams();
   Generation *gen = Generation::getInstance();
 
-  numLevels = gen->numLevels->intValue(); //randInt(gen->numLevels->x, gen->numLevels->y);
+  numLevels = gen->numLevels->intValue(); // randInt(gen->numLevels->x, gen->numLevels->y);
 
   // primary entities
-  int nbPrimEnts = gen->primEntities->intValue(); //randInt(gen->primEntities->x, gen->primEntities->y);
+  int nbPrimEnts = gen->primEntities->intValue(); // randInt(gen->primEntities->x, gen->primEntities->y);
 
   // only rough approximation, useful only for drawing
   int totalEnts = numLevels * gen->entPerLevNum->x;
@@ -285,7 +320,7 @@ void Simulation::fetchGenerate()
   const float initConcentBase = gen->initConcent->x;
   const float initConcentVar = gen->initConcent->y;
   const float dRateBase = gen->destructionRate->x;
-  const float dRateVar= gen->destructionRate->y;
+  const float dRateVar = gen->destructionRate->y;
   const float cRateBase = gen->creationRate->x;
   const float cRateVar = gen->creationRate->y;
 
@@ -295,14 +330,14 @@ void Simulation::fetchGenerate()
   const float energyBarrierBase = gen->energyBarrier->x;
   const float energyBarrierVar = gen->energyBarrier->y;
 
-  //recall that energy of primary entities are normalized to 0
+  // recall that energy of primary entities are normalized to 0
 
   for (int idp = 0; idp < nbPrimEnts; idp++)
   {
 
-    const float concent = jmax(0.f,initConcentBase + randFloat(-initConcentVar, initConcentVar));
-    const float dRate= jmax(0.f,dRateBase + randFloat(-dRateVar, dRateVar));
-    const float cRate = jmax(0.f,cRateBase + randFloat(-cRateVar, cRateVar));
+    const float concent = jmax(0.f, initConcentBase + randFloat(-initConcentVar, initConcentVar));
+    const float dRate = jmax(0.f, dRateBase + randFloat(-dRateVar, dRateVar));
+    const float cRate = jmax(0.f, cRateBase + randFloat(-cRateVar, cRateVar));
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->id = cur_id;
@@ -466,8 +501,8 @@ void Simulation::fetchGenerate()
     while (!finishedEntities)
     {
       const float concent = 0.; // no initial presence of composite entities
-      //float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
-      const float dRate = jmax(0.f,dRateBase+randFloat(-dRateVar, dRateVar));
+      // float dRate = randFloat(0., gen->maxDestructionRate->floatValue()) / level;
+      const float dRate = jmax(0.f, dRateBase + randFloat(-dRateVar, dRateVar));
 
       const float energy = level * energyCoef + randFloat(-energyVar, energyVar);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
@@ -513,7 +548,7 @@ void Simulation::fetchGenerate()
           SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
 
           // choice of activation barrier
-          float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);  
+          float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);
           // GA+GB
           float energyLeft = e1->freeEnergy + e2->freeEnergy;
           // GAB
@@ -547,9 +582,20 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-  
 
   updateParams();
+}
+
+void Simulation::generate()
+{
+  if (generated->boolValue())
+  {
+    fetchGenerate();
+  }
+  else
+  {
+    fetchManual();
+  }
 }
 
 void Simulation::start()
@@ -557,21 +603,11 @@ void Simulation::start()
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
-
-  if (generated->boolValue())
+  if (!ready)
   {
-    if (!ready)
-    {
-      LOGWARNING("Start with no parameters, generating parameters");
-      fetchGenerate();
-    }
+    LOGWARNING("Start with no parameters, generating parameters");
+    generate();
   }
-  else
-  {
-    fetchManual();
-  }
-
-  updateParams();
 
   Array<float> entityValues;
   Array<Colour> entityColors;
@@ -763,7 +799,7 @@ void Simulation::run()
   LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
- 
+
   pacList->printRACs();
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
@@ -809,10 +845,10 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
   if (t == startTrigger)
     start();
   else if (t == genTrigger)
-    fetchGenerate();
+    generate();
   else if (t == genstartTrigger)
   {
-    fetchGenerate();
+    generate();
     start();
   }
   else if (t == restartTrigger)
@@ -836,8 +872,8 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   }
   if (p == generated)
   {
-    // set ready to false if we switched to generated
-    ready = !generated->boolValue();
+    // set ready to false if we switched generated
+    ready = false;
   }
 }
 
@@ -990,9 +1026,9 @@ SimReaction::SimReaction(var data)
   if (data.getDynamicObject()->hasProperty("reactant1_id"))
     reactant1 = simul->getSimEntityForID(data["reactant1_id"]);
 
-    reactant1= simul->getSimEntityForID(data.getProperty("reactant1_id", -1));
-    
-  //to change on same model
+  reactant1 = simul->getSimEntityForID(data.getProperty("reactant1_id", -1));
+
+  // to change on same model
   if (data.getDynamicObject()->hasProperty("reactant2_id"))
     reactant2 = simul->getSimEntityForID(data["reactant2_id"]);
 
@@ -1028,4 +1064,3 @@ bool SimReaction::contains(SimEntity *e)
 {
   return (reactant1 == e || reactant2 == e || product == e);
 }
-

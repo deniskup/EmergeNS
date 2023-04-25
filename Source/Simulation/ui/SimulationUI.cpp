@@ -108,7 +108,7 @@ void SimulationUI::paint(juce::Graphics &g)
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
         paramsToDisplay << simul->primEnts.size() << " primary entities        ";
         paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
-        paramsToDisplay << (simul->PACsGenerated? String(simul->pacList->cycles.size()):"?") << " PACs";
+        paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->cycles.size()) : "?") << " PACs";
     }
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);
@@ -196,7 +196,6 @@ void SimulationUI::resized()
     genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
     hr.removeFromLeft(20);
 
-
     restartUI->setBounds(hr.removeFromLeft(restartUI->getWidth()));
     hr.removeFromLeft(20);
 
@@ -266,7 +265,7 @@ void SimulationUI::buttonClicked(Button *b)
                                  f.deleteFile();
                                  FileOutputStream output(f);
                                  JSON::writeToStream(output, data);
-                             });
+                                 LOG("Saved to " << f.getFullPathName()); });
     }
 
     if (b == &loadSimBT)
@@ -279,12 +278,13 @@ void SimulationUI::buttonClicked(Button *b)
 
         chooser->launchAsync(openFlags, [this](const FileChooser &fc)
                              {
-                                 File f = fc.getResult();
-                                 delete &fc;
+            File f = fc.getResult();
+            delete &fc;
 
-                                 //load the sim here
-                                 var data= JSON::parse(f);
-                                 simul->importJSONData(data); });
+            // load the sim here
+            var data = JSON::parse(f);
+            simul->importJSONData(data);
+            LOG("Loaded from " << f.getFullPathName()); });
     }
 }
 

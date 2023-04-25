@@ -37,7 +37,7 @@ public:
 
   Compo composition; // indexes are link to primary entities thanks to array primEnts
 
-  int idSAT; // identifier for SAT Solving
+  int idSAT=0; // identifier for SAT Solving
 
   void increase(float incr);
   void decrease(float decr);
@@ -67,7 +67,7 @@ public:
   float dissocRate;
   float energy=-1.0f; // energy of the reaction, -1 if not set
 
-  int idSAT;    // identifier for SAT Solving
+  int idSAT=0;    // identifier for SAT Solving
   float flow;   // flow = dProduct/dt due to the reaction
   bool flowdir; // direction of the flow, same convention as in PAC
 
@@ -140,6 +140,8 @@ public:
   void updateParams(); // for display
   void fetchGenerate();
   void fetchManual();
+  void loadToManualMode();
+  void generate();
   void start();
   void nextStep();
   void stop();

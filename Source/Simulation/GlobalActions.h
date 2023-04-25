@@ -15,3 +15,5 @@ int computeCompositions();
 // normalise energies by setting primary entities to zero and propogating to composite ones
 void normEnergies();
 
+
+void loadSimInManualMode(Simulation *simul);

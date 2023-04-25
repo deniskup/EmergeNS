@@ -120,12 +120,20 @@
         "controlAddress": "/pointsDrawn"
       },
       {
-        "value": 0.5,
+        "value": 1.299999952316284,
         "controlAddress": "/maxConcent"
       },
       {
         "value": true,
         "controlAddress": "/generated"
+      },
+      {
+        "value": true,
+        "controlAddress": "/autoScale"
+      },
+      {
+        "value": true,
+        "controlAddress": "/unicolor"
       }
     ]
   },
@@ -397,12 +405,12 @@
   "generation": {
     "parameters": [
       {
-        "value": 1,
+        "value": 2,
         "hexMode": false,
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": 1,
+        "value": 4,
         "hexMode": false,
         "controlAddress": "/levels"
       },
@@ -418,7 +426,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 0.02099791914224625,
+        "value": 0.7465696334838867,
         "controlAddress": "/proportionReactions"
       },
       {
@@ -427,6 +435,13 @@
           2
         ],
         "controlAddress": "/reactionsPerEntity"
+      },
+      {
+        "value": [
+          1.0,
+          0.4000002145767212
+        ],
+        "controlAddress": "/creationRate_Var"
       },
       {
         "value": 40,

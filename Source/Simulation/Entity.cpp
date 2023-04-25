@@ -20,7 +20,10 @@ void Entity::fromSimEntity(SimEntity *e)
   destructionRate->setValue(e->destructionRate);
   concent->setValue(e->concent);
   freeEnergy->setValue(e->freeEnergy);
-  e->entity=this;
+  e->entity = this;
+  niceName = e->name;
+
+  // todo composition
 }
 
 void Entity::onContainerParameterChangedInternal(Parameter *p)

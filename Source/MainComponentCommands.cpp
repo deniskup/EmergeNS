@@ -7,6 +7,7 @@ namespace NSCommandIDs
 	static const int normalizeEnergies = 0x60001;
 	static const int PACminisat = 0x60002;
 	static const int PACkissat = 0x60003;
+	static const int loadManual = 0x60004;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -32,6 +33,11 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
+	case NSCommandIDs::loadManual:
+		result.setInfo("Load Manual", "", "General", result.readOnlyInKeyEditor);
+		result.addDefaultKeypress(KeyPress::createFromDescription("l").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
 	default:
 		OrganicMainContentComponent::getCommandInfo(commandID, result);
 		break;
@@ -47,7 +53,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::computeCompositions,
 		NSCommandIDs::normalizeEnergies,
 		NSCommandIDs::PACminisat,
-		NSCommandIDs::PACkissat
+		NSCommandIDs::PACkissat,
+		NSCommandIDs::loadManual
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -64,6 +71,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 	}
 	return menu;
 }
@@ -103,6 +111,11 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 		Simulation::getInstance()->pacList->computePACs(1);
 	}
 	break;
+
+	case NSCommandIDs::loadManual:
+	{
+		loadSimInManualMode(Simulation::getInstance());
+	}
 
 	default:
 		return OrganicMainContentComponent::perform(info);
