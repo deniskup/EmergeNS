@@ -4,6 +4,8 @@ Faire varier seulement un parametre dans une simul: energie libre, existence
 
 Settings panel of reaction: toggle: ignore energy barriers, ignore energies of molecules.
 
+Instead of storing everything in Entities: just retrieve relevant data fro mthe Simentity pointer to its Entity.
+
 Entity<->simentity compositions, colors
 
 JSON simul in separate file
