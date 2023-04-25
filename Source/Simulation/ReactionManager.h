@@ -14,5 +14,4 @@ public:
 	ReactionManager();
 	~ReactionManager();
 
-	void importFromSim(Simulation *);
 };

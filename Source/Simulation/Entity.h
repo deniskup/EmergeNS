@@ -10,9 +10,10 @@ class Entity : public BaseItem
 {
 public:
     Entity(var params = var());
+    Entity(SimEntity *);
     ~Entity();
 
-    void fromSimEntity(SimEntity *e);
+    //void fromSimEntity(SimEntity *e);
     
     BoolParameter *primary;
     FloatParameter *concent;

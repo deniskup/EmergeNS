@@ -279,26 +279,31 @@ void Simulation::fetchManual()
 
 void Simulation::loadToManualMode()
 {
-  // load entities
-  EntityManager *em = EntityManager::getInstance();
-  em->clear();
-  for (auto &se : entities)
-  {
-    Entity *e = new Entity();
-    e->fromSimEntity(se);
-    em->addItem(e, var(), false); // addtoUndo to false
-  }
-  // load reactions
+  //clear previous  (beware of the order !)
   ReactionManager *rm = ReactionManager::getInstance();
   rm->clear();
+  
+  EntityManager *em = EntityManager::getInstance();
+  em->clear();
+
+  //load entities
+  for (auto &se : entities)
+  {
+    Entity *e = new Entity(se);
+    //e->fromSimEntity(se);
+    em->addItem(e, var(), false); // addtoUndo to false
+  }
+
+  //load reactions
   for (auto &sr : reactions)
   {
-    Reaction *r = new Reaction();
-    r->fromSimReaction(sr);
+    Reaction *r = new Reaction(sr);
+//    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
   generated->setValue(false);
 }
+
 void Simulation::fetchGenerate()
 {
   clearParams();
@@ -1007,17 +1012,24 @@ String SimEntity::toString() const
   return "[Entity " + name + " : " + String(concent) + "]";
 }
 
+void SimReaction::setName(){
+  name=reactant1->name+"+"+reactant2->name+"="+product->name;
+}
+
 SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
                                         dissocRate(r->dissocRate->floatValue()),
-                                        energy(r->energy->floatValue())
+                                        energy(r->energy->floatValue()),
+                                        reaction(r)
 {
   reactant1 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant1->targetContainer.get()));
   reactant2 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant2->targetContainer.get()));
   product = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->product->targetContainer.get()));
+  setName();
 }
 
 SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate)
 {
+  setName();
 }
 
 SimReaction::SimReaction(var data)
@@ -1048,6 +1060,8 @@ SimReaction::SimReaction(var data)
 
   if (data.getDynamicObject()->hasProperty("idSAT"))
     idSAT = data["idSAT"];
+
+  setName();
 }
 
 var SimReaction::toJSONData()

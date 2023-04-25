@@ -59,9 +59,15 @@ public:
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
 
+  Reaction *reaction; // sourceReaction
+
   SimEntity *reactant1;
   SimEntity *reactant2;
   SimEntity *product;
+
+  String name; //should be a+b=c
+
+  void setName();
 
   float assocRate;
   float dissocRate;
@@ -98,6 +104,7 @@ public:
 
   // other parameters to be saved
   // BoolParameter *ready;
+
 
   bool ready;          // to know if ready to be launched, ie parameters generated
   float recordConcent; // record the higher concentration reached

@@ -9,9 +9,12 @@ class Reaction : public BaseItem
 {
 public:
     Reaction(var params = var());
+    Reaction(SimReaction *);
     ~Reaction();
 
-    void fromSimReaction(SimReaction *r);
+    void addParams();
+
+    //void fromSimReaction(SimReaction *r);
 
     TargetParameter *reactant1;
     TargetParameter *reactant2;

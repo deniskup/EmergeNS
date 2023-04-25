@@ -129,7 +129,3 @@ void normEnergies()
     }
 }
 
-
-void loadSimInManualMode(Simulation *simul){
-    simul->loadToManualMode();
-}

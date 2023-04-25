@@ -3,7 +3,7 @@
 #include "EntityManager.h"
 #include "Simulation.h"
 
-Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
+void Reaction::addParams()
 {
 
   reactant1 = addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
@@ -29,33 +29,65 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
   showWarningInUI = true;
 }
 
-void Reaction::fromSimReaction(SimReaction *r)
+Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
+  addParams();
+}
 
-  Entity *e1=r->reactant1->entity;
-  Entity *e2=r->reactant2->entity;
-  Entity *e3=r->product->entity;
+Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
+{
+  addParams();
 
-  reactant1->setValueFromTarget(e1);
-  reactant2->setValueFromTarget(e2);
-  product->setValueFromTarget(e3);
+  Entity *e1 = r->reactant1->entity;
+  Entity *e2 = r->reactant2->entity;
+  Entity *e3 = r->product->entity;
+
+  reactant1->setValueFromTarget(e1, false);
+  reactant2->setValueFromTarget(e2, false);
+  product->setValueFromTarget(e3, false);
   energy->setValue(r->energy);
   assocRate->setValue(r->assocRate);
   dissocRate->setValue(r->dissocRate);
 
-  niceName = e1->niceName + "+" + e2->niceName + "=" + e3->niceName;
+  // update links to entity to listen to changes
+  linkedR1 = reactant1->targetContainer.get();
+  registerLinkedInspectable(linkedR1.get());
+  if (linkedR1 != nullptr)
+  {
+    ((Entity *)linkedR1.get())->enabled->addParameterListener(this);
+    ((Entity *)linkedR1.get())->freeEnergy->addParameterListener(this);
+  }
+  linkedR2 = reactant1->targetContainer.get();
+  registerLinkedInspectable(linkedR2.get());
+  if (linkedR2 != nullptr)
+  {
+    ((Entity *)linkedR2.get())->enabled->addParameterListener(this);
+    ((Entity *)linkedR2.get())->freeEnergy->addParameterListener(this);
+  }
 
-    if(r->energy<-.5f){
-    //compute energy barrier
-    float energyLeft = e1->freeEnergy->floatValue()+e2->freeEnergy->floatValue();;
+  linkedP = reactant1->targetContainer.get();
+  registerLinkedInspectable(linkedP.get());
+  if (linkedP != nullptr)
+  {
+    ((Entity *)linkedP.get())->enabled->addParameterListener(this);
+    ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
+  }
+
+  if (r->energy < -.5f)
+  {
+    // compute energy barrier
+    float energyLeft = e1->freeEnergy->floatValue() + e2->freeEnergy->floatValue();
+    ;
     float energyRight = e3->freeEnergy->floatValue();
 
-    //we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
+    // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
     float energyStar = energyLeft - log(r->assocRate);
-    //we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
-    r->energy=energyStar - jmax(energyLeft, energyRight);
+    // we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
+    r->energy = energyStar - jmax(energyLeft, energyRight);
     energy->setValue(r->energy);
   }
+
+  updateWarnAndRates();
 }
 
 Reaction::~Reaction()

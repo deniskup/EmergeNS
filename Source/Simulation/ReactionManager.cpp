@@ -15,6 +15,4 @@ ReactionManager::~ReactionManager()
 {
 }
 
-void ReactionManager::importFromSim(Simulation *)
-{
-}
+

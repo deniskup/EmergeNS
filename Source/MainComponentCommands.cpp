@@ -114,8 +114,9 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	case NSCommandIDs::loadManual:
 	{
-		loadSimInManualMode(Simulation::getInstance());
+		Simulation::getInstance()->loadToManualMode();
 	}
+	break;
 
 	default:
 		return OrganicMainContentComponent::perform(info);

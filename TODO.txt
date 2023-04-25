@@ -1,10 +1,13 @@
+Verifier fidélité importation
+
 Faire varier seulement un parametre dans une simul: energie libre, existence
 -Importer simulation générée dans entités et réactions réglables manuellement.
 -Option pour faire varier des choses globalement dessus: energie libre moyenne, etc
 
 Settings panel of reaction: toggle: ignore energy barriers, ignore energies of molecules.
 
-Instead of storing everything in Entities: just retrieve relevant data fro mthe Simentity pointer to its Entity.
+Instead of storing everything in Entities: just retrieve relevant data from the Simentity pointer to its Entity.
+listen to the Entity/reaction and change the Sim part when it changes.
 
 Entity<->simentity compositions, colors
 
