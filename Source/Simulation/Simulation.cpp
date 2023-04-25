@@ -86,6 +86,14 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
+  //set entities drawn
+  entitiesDrawn.clear();
+  for (auto &ent : entities)
+  {
+    if (ent->draw)
+      entitiesDrawn.add(ent);
+  }
+  // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
@@ -539,12 +547,7 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-  entitiesDrawn.clear();
-  for (auto &ent : entities)
-  {
-    if (ent->draw)
-      entitiesDrawn.add(ent);
-  }
+  
 
   updateParams();
 }
@@ -567,6 +570,8 @@ void Simulation::start()
   {
     fetchManual();
   }
+
+  updateParams();
 
   Array<float> entityValues;
   Array<Colour> entityColors;

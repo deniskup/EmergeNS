@@ -19,6 +19,7 @@ public:
     FloatParameter *creationRate;    // absolute
     FloatParameter *destructionRate; // proportional to concentration
     FloatParameter *freeEnergy;
+    BoolParameter *draw;
 
     int id; //will be used as index for primary entities
     Array<int> composition; // number of each primary entities

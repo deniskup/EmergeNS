@@ -31,26 +31,29 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 
 void Reaction::fromSimReaction(SimReaction *r)
 {
-//TODO
 
-  // reactant1->setValue((Entity *)r->reactant1->entity);
-  // reactant2->setValue((Entity *)r->reactant2->entity);
-  // product->setValue((Entity *)r->product->entity);
-  // energy->setValue(r->energy);
-  // assocRate->setValue(r->assocRate);
-  // dissocRate->setValue(r->dissocRate);
+  Entity *e1=r->reactant1->entity;
+  Entity *e2=r->reactant2->entity;
+  Entity *e3=r->product->entity;
 
-  //   if(r->energy==-1.f){
-  //   //compute energy barrier
-  //   float energyLeft = reactant1->freeEnergy->floatValue()+reactant2->freeEnergy->floatValue();;
-  //   float energyRight = product->freeEnergy->floatValue();
-    
-  //   //we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
-  //   float energyStar = energyLeft - log(r->assocRate);
-  //   //we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
-  //   r->energy=energyStar - jmax(energyLeft, energyRight);
-  //   energy->setValue(r->energy);
-  // }
+  reactant1->setValueFromTarget(e1);
+  reactant2->setValueFromTarget(e2);
+  product->setValueFromTarget(e3);
+  energy->setValue(r->energy);
+  assocRate->setValue(r->assocRate);
+  dissocRate->setValue(r->dissocRate);
+
+    if(r->energy==-1.f){
+    //compute energy barrier
+    float energyLeft = e1->freeEnergy->floatValue()+e2->freeEnergy->floatValue();;
+    float energyRight = e3->freeEnergy->floatValue();
+
+    //we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
+    float energyStar = energyLeft - log(r->assocRate);
+    //we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
+    r->energy=energyStar - jmax(energyLeft, energyRight);
+    energy->setValue(r->energy);
+  }
 }
 
 Reaction::~Reaction()

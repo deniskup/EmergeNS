@@ -9,8 +9,8 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
   destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 1.f); // proportional to concentration
   concent = addFloatParameter("Concentration", "Concentration of the entity", .5f, .0f, 2.f);
   freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -20.f, 10.f);
+  draw = addBoolParameter("Draw", "Draw the entity", true);
   setHasCustomColor(true);
-
 }
 
 void Entity::fromSimEntity(SimEntity *e)
