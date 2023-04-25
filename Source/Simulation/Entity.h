@@ -22,6 +22,7 @@ public:
     BoolParameter *draw;
 
     int id; //will be used as index for primary entities
+    int level;
     Array<int> composition; // number of each primary entities
     bool compHasBeenSet=false;
 

@@ -43,6 +43,8 @@ void Reaction::fromSimReaction(SimReaction *r)
   assocRate->setValue(r->assocRate);
   dissocRate->setValue(r->dissocRate);
 
+  niceName = e1->niceName + "+" + e2->niceName + "=" + e3->niceName;
+
     if(r->energy<-.5f){
     //compute energy barrier
     float energyLeft = e1->freeEnergy->floatValue()+e2->freeEnergy->floatValue();;

@@ -18,10 +18,13 @@ void Entity::fromSimEntity(SimEntity *e)
   primary->setValue(e->primary);
   creationRate->setValue(e->creationRate);
   destructionRate->setValue(e->destructionRate);
-  concent->setValue(e->concent);
+  concent->setValue(e->startConcent);
   freeEnergy->setValue(e->freeEnergy);
   e->entity = this;
   niceName = e->name;
+  level=e->level;
+  id=e->id;
+  draw->setValue(e->draw);
 
   // todo composition
 }

@@ -2,6 +2,7 @@ Faire varier seulement un parametre dans une simul: energie libre, existence
 -Importer simulation générée dans entités et réactions réglables manuellement.
 -Option pour faire varier des choses globalement dessus: energie libre moyenne, etc
 
+Settings panel of reaction: toggle: ignore energy barriers, ignore energies of molecules.
 
 Entity<->simentity compositions, colors
 

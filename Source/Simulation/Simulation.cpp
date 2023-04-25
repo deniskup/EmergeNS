@@ -269,6 +269,8 @@ void Simulation::fetchManual()
   {
     if (e->primary)
       primEnts.add(e);
+    if (e->level + 1 > numLevels)
+      numLevels = e->level + 1;
   }
 
   ready = true;
@@ -882,6 +884,8 @@ SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent-
   name = e->niceName;
   entity = e;
   color = e->itemColor->getColor();
+  draw = e->draw->boolValue();
+  level = e->level;
 }
 
 SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), startConcent(concent), creationRate(cRate), destructionRate(dRate), freeEnergy(freeEnergy),
@@ -1004,7 +1008,8 @@ String SimEntity::toString() const
 }
 
 SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
-                                        dissocRate(r->dissocRate->floatValue())
+                                        dissocRate(r->dissocRate->floatValue()),
+                                        energy(r->energy->floatValue())
 {
   reactant1 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant1->targetContainer.get()));
   reactant2 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant2->targetContainer.get()));
