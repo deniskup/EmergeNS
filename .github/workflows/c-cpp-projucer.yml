@@ -24,7 +24,7 @@ jobs:
 
     - name: Generate Makefile with Projucer
       run: |
-        Projucer --resave your_project.jucer
+        Projucer --resave EmergenceNS.jucer
 
     - name: Build with Make
       run: |
