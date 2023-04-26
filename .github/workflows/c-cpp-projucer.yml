@@ -1,0 +1,32 @@
+name: Build JUCE Project
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libfreetype6-dev libx11-dev libxinerama-dev libxrandr-dev libxcursor-dev mesa-common-dev libasound2-dev freeglut3-dev libxcomposite-dev libcurl4-openssl-dev libwebkit2gtk-4.0-dev
+
+    - name: Install JUCE
+      run: |
+        git clone https://github.com/benkuper/JUCE.git
+        sudo mv JUCE /opt/
+        echo 'export PATH=/opt/JUCE/Projucer:$PATH' >> $GITHUB_ENV
+
+    - name: Generate Makefile with Projucer
+      run: |
+        Projucer --resave EmergenceNS.jucer
+
+    - name: Build with Make
+      run: |
+        cd Builds/LinuxMakefile
+        make
