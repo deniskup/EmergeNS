@@ -21,7 +21,7 @@ jobs:
         git clone https://github.com/benkuper/JUCE.git
         cd JUCE/extras/Projucer/Builds/LinuxMakefile
         make
-        build/Projucer --resave EmergenceNS.jucer
+        build/Projucer --resave-json EmergenceNS.jucer
 
     - name: Build with Make
       run: |
