@@ -139,9 +139,9 @@ void PAClist::printRACs()
     int nbRac = 0;
     for (auto &pac : cycles)
     {
+        nbRac++;
         if (pac->wasRAC)
         {
-            nbRac++;
             LOG(String(nbRac) + ": " + pac->toString());
         }
     }

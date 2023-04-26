@@ -31,8 +31,17 @@ void PACUI::paint(juce::Graphics &g)
     float height = PACsBounds.getHeight();
 
     // create a RACsHistory with only the PAC the become RACs
+    Array<int> RACid;
+    for (int j = 0; j < PACsHistory[0].size(); ++j)
+        {
+            if (RACList[j])
+            {
+                RACid.add(j);
+            }
+        }
 
     Array<Array<float>> RACsHistory;
+
     for (int i = 0; i < PACsHistory.size(); ++i)
     {
         Array<float> RACs;
@@ -124,7 +133,7 @@ void PACUI::paint(juce::Graphics &g)
     g.setFont(14.0f);
     for (int j = 0; j < RACsHistory[0].size(); ++j)
     {
-        g.drawText(to_string(j + 1), 0.f, yTop + j * yScale, xLeft, yScale, Justification::centred, true);
+        g.drawText(to_string(RACid[j] + 1), 0.f, yTop + j * yScale, xLeft, yScale, Justification::centred, true);
     }
 
     // draw vertical line after indexes

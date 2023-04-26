@@ -89,6 +89,7 @@ void Simulation::clearParams()
   primEnts.clear();
   reactions.clear();
   pacList->clear();
+  ready=false;
 }
 
 void Simulation::updateParams()
@@ -249,7 +250,9 @@ void Simulation::importJSONData(var data)
       }
     }
   }
-
+  generated->setValue(true);
+  ready=true;
+  computeBarriers();
   updateParams();
 }
 
@@ -385,6 +388,7 @@ void Simulation::fetchGenerate()
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->id = cur_id;
+    e->freeEnergy=0;
     cur_id++;
     e->color = Colour::fromHSV(randFloat(.2), 1, 1, 1);
     e->draw = false;
@@ -594,7 +598,7 @@ void Simulation::fetchGenerate()
           // choice of activation barrier
           float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);
           auto reac=new SimReaction(e1, e2, e, 0., 0., barrier);
-          reac->computeRate();
+          reac->computeRate(false,false);
           reac->setName();
           //NLOG("New reaction",reac->name << " with assoc rate " << reac->assocRate << " and dissoc rate " << reac->dissocRate);
           reactions.add(reac);

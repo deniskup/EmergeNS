@@ -19,7 +19,7 @@ void Reaction::addParams()
   product->targetType = TargetParameter::CONTAINER;
   product->maxDefaultSearchLevel = 0;
 
-  energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 5.f);
+  energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 100.f);
 
   assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f);
   dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .5f);
@@ -59,7 +59,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     ((Entity *)linkedR1.get())->enabled->addParameterListener(this);
     ((Entity *)linkedR1.get())->freeEnergy->addParameterListener(this);
   }
-  linkedR2 = reactant1->targetContainer.get();
+  linkedR2 = reactant2->targetContainer.get();
   registerLinkedInspectable(linkedR2.get());
   if (linkedR2 != nullptr)
   {
@@ -67,7 +67,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     ((Entity *)linkedR2.get())->freeEnergy->addParameterListener(this);
   }
 
-  linkedP = reactant1->targetContainer.get();
+  linkedP = product->targetContainer.get();
   registerLinkedInspectable(linkedP.get());
   if (linkedP != nullptr)
   {

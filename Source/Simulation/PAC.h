@@ -28,6 +28,8 @@ public:
 
     String toString(); // for printing
 
+    //int id; //identifier
+
     Array<SimEntity *> entities;
     Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
 
