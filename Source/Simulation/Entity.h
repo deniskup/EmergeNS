@@ -26,6 +26,7 @@ public:
     int level;
     Array<int> composition; // number of each primary entities
     bool compHasBeenSet=false;
+    bool colorIsSet=false;
 
     void onContainerParameterChangedInternal(Parameter *p) override;
 

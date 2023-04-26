@@ -16,9 +16,11 @@ EntityManager::~EntityManager()
 void EntityManager::addItemInternal(Entity *e, var params)
 {
 	if(isCurrentlyLoadingData) return;
-	Colour c=Colour::fromHSV(.3f* items.size(),1,1,1);
+	if(e->colorIsSet) return;
 
+	Colour c=Colour::fromHSV(.3f* items.size(),1,1,1);
 	e->itemColor->setColor(c);
+	e->colorIsSet=true;
 }
 
 void EntityManager::onContainerTriggerTriggered(Trigger *t)

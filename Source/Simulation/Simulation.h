@@ -32,6 +32,10 @@ public:
   float destructionRate;
   float freeEnergy;
 
+  void importFromManual(); //retrieve info from pointer to Manual settings
+
+  bool enabled=true;
+
   int level;
   bool draw = true;
 
@@ -65,6 +69,8 @@ public:
   SimEntity *reactant2;
   SimEntity *product;
 
+  bool enabled=true; // to know if the reaction is enabled or not
+
   String name; // should be a+b=c
 
 
@@ -74,8 +80,10 @@ public:
   float dissocRate;
   float energy = -1.0f; // energy of the reaction, -1 if not set
 
-  void computeRate(bool noFreeEnergy = false, bool noBarrier = false);
+  void computeRate(bool noBarrier = false, bool noFreeEnergy = false);
   void computeBarrier();
+
+  void importFromManual(); //retrieve info from pointer to Manual settings
 
   int idSAT = 0; // identifier for SAT Solving
   float flow;    // flow = dProduct/dt due to the reaction
@@ -109,6 +117,11 @@ public:
   // to explore variants
   BoolParameter *ignoreFreeEnergy;
   BoolParameter *ignoreBarriers;
+
+ //actually just equal to not generated
+ // bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
+
+  void importFromManual();   // import from manual changes using pointers
 
   void computeRates();    // compute rates of reactions from their barriers and energy of entities
   void computeBarriers(); // compute barriers from rates and energy of entities

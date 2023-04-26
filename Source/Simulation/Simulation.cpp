@@ -249,21 +249,33 @@ void Simulation::importJSONData(var data)
   updateParams();
 }
 
-void Simulation::computeRates(){
+void Simulation::importFromManual()
+{
+  for (auto &e : entities)
+  {
+    e->importFromManual();
+  }
+  for (auto &r : reactions)
+  {
+    r->importFromManual();
+  }
+}
+
+void Simulation::computeRates()
+{
   for (auto &r : reactions)
   {
     r->computeRate(ignoreBarriers->boolValue(), ignoreFreeEnergy->boolValue());
   }
 }
 
-void Simulation::computeBarriers(){
+void Simulation::computeBarriers()
+{
   for (auto &r : reactions)
   {
     r->computeBarrier();
   }
 }
-
-
 
 void Simulation::fetchManual()
 {
@@ -272,7 +284,9 @@ void Simulation::fetchManual()
   {
     if (!e->enabled->boolValue())
       continue;
-    entities.add(new SimEntity(e));
+    auto se= new SimEntity(e);
+    entities.add(se);
+    
   }
 
   for (auto &r : ReactionManager::getInstance()->items)
@@ -298,26 +312,26 @@ void Simulation::fetchManual()
 
 void Simulation::loadToManualMode()
 {
-  //clear previous  (beware of the order !)
+  // clear previous  (beware of the order !)
   ReactionManager *rm = ReactionManager::getInstance();
   rm->clear();
-  
+
   EntityManager *em = EntityManager::getInstance();
   em->clear();
 
-  //load entities
+  // load entities
   for (auto &se : entities)
   {
     Entity *e = new Entity(se);
-    //e->fromSimEntity(se);
+    // e->fromSimEntity(se);
     em->addItem(e, var(), false); // addtoUndo to false
   }
 
-  //load reactions
+  // load reactions
   for (auto &sr : reactions)
   {
     Reaction *r = new Reaction(sr);
-//    r->fromSimReaction(sr);
+    //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
   generated->setValue(false);
@@ -575,18 +589,13 @@ void Simulation::fetchGenerate()
 
           // choice of activation barrier
           float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);
-          // GA+GB
-          float energyLeft = e1->freeEnergy + e2->freeEnergy;
-          // GAB
-          float energyRight = e->freeEnergy;
-          // total energy G* of the reaction: activation + max of GA+GB and GAB.
-          float energyStar = barrier + jmax(energyLeft, energyRight);
-          // k1=exp(GA+GB-G*)
-          float aRate = exp(energyLeft - energyStar);
-          // k2=exp(GAB-G*)
-          float disRate = exp(energyRight - energyStar);
-          reactions.add(new SimReaction(e1, e2, e, aRate, disRate, barrier));
-          NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
+          auto reac=new SimReaction(e1, e2, e, 0., 0., barrier);
+          reac->computeRate();
+          reac->setName();
+          //NLOG("New reaction",reac->name << " with assoc rate " << reac->assocRate << " and dissoc rate " << reac->dissocRate);
+          reactions.add(reac);
+
+          //NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
           nbReacDone++;
         }
         // remove this decomposition
@@ -608,7 +617,7 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-
+  LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
 }
 
@@ -626,7 +635,9 @@ void Simulation::generate()
 
 void Simulation::start()
 {
-  computeRates(); // compute reactions rates
+  if (!generated->boolValue())
+    importFromManual();
+  computeRates(); // compute reactions rates in case some energy settings are inactive
 
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
@@ -650,6 +661,12 @@ void Simulation::start()
   // listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
+
+  //remove RACs
+  for(auto &pac:pacList->cycles){
+    pac->wasRAC=false;
+  }
+
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
   startThread();
@@ -682,6 +699,8 @@ void Simulation::nextStep()
   // loop through reactions
   for (auto &reac : reactions)
   {
+    if (!reac->enabled)
+      continue;
     // shorter names
     float reac1Concent = reac->reactant1->concent;
     float reac2Concent = reac->reactant2->concent;
@@ -779,7 +798,7 @@ void Simulation::nextStep()
     {
       auto reac = reacDir.first;
       bool dir = reacDir.second;
-      if (dir != (reac->flowdir))
+      if (dir != (reac->flowdir) || !(reac->enabled))
       { // wrong direction
         cycle->flow = 0.;
         continue;
@@ -900,8 +919,8 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   }
   if (p == generated)
   {
-    // set ready to false if we switched generated
-    ready = false;
+    //we no longer set ready to false if we switched generated to true
+    //we assume that we will only erase simulation with new ones, not go back to not ready
   }
 }
 
@@ -1033,8 +1052,33 @@ String SimEntity::toString() const
   return "[Entity " + name + " : " + String(concent) + "]";
 }
 
-void SimReaction::setName(){
-  name=reactant1->name+"+"+reactant2->name+"="+product->name;
+void SimEntity::importFromManual()
+{
+  concent = entity->concent->floatValue();
+  startConcent = entity->concent->floatValue();
+  creationRate = entity->creationRate->floatValue();
+  destructionRate = entity->destructionRate->floatValue();
+  freeEnergy = entity->freeEnergy->floatValue();
+  enabled = entity->enabled->boolValue();
+  color=entity->itemColor->getColor();
+}
+
+void SimReaction::importFromManual()
+{
+  assocRate = reaction->assocRate->floatValue();
+  dissocRate = reaction->dissocRate->floatValue();
+  energy = reaction->energy->floatValue();
+  enabled = reaction->shouldIncludeInSimulation();
+  // no change to the structure for now
+  /*reactant1=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->reactant1->targetContainer.get()));
+  reactant2=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->reactant2->targetContainer.get()));
+  product=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->product->targetContainer.get()));
+  */
+}
+
+void SimReaction::setName()
+{
+  name = reactant1->name + "+" + reactant2->name + "=" + product->name;
 }
 
 SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
@@ -1108,26 +1152,26 @@ bool SimReaction::contains(SimEntity *e)
 void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 {
   // GA+GB
-          float energyLeft = noFreeEnergy? 0.f : reactant1->freeEnergy + reactant2->freeEnergy;
-          // GAB
-          float energyRight = noFreeEnergy ? 0.f: product->freeEnergy;
-          // total energy G* of the reaction: activation + max of GA+GB and GAB.
-          float energyStar = (noBarrier ? 0: energy) + jmax(energyLeft, energyRight);
-          // k1=exp(GA+GB-G*)
-          assocRate = exp(energyLeft - energyStar);
-          // k2=exp(GAB-G*)
-          dissocRate = exp(energyRight - energyStar);
+  float energyLeft = noFreeEnergy ? 0.f : reactant1->freeEnergy + reactant2->freeEnergy;
+  // GAB
+  float energyRight = noFreeEnergy ? 0.f : product->freeEnergy;
+  // total energy G* of the reaction: activation + max of GA+GB and GAB.
+  float energyStar = (noBarrier ? 0.f : energy) + jmax(energyLeft, energyRight);
+  // k1=exp(GA+GB-G*)
+  assocRate = exp(energyLeft - energyStar);
+  // k2=exp(GAB-G*)
+  dissocRate = exp(energyRight - energyStar);
 }
 
 void SimReaction::computeBarrier()
 {
-    // compute energy barrier
-    float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
-    ;
-    float energyRight = product->freeEnergy;
+  // compute energy barrier
+  float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
+  ;
+  float energyRight = product->freeEnergy;
 
-    // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
-    float energyStar = energyLeft - log(assocRate);
-    // we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
-    energy = energyStar - jmax(energyLeft, energyRight);
+  // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
+  float energyStar = energyLeft - log(assocRate);
+  // we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
+  energy = energyStar - jmax(energyLeft, energyRight);
 }

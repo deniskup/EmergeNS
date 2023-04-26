@@ -49,6 +49,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   energy->setValue(r->energy);
   assocRate->setValue(r->assocRate);
   dissocRate->setValue(r->dissocRate);
+  r->reaction= this;
 
   // update links to entity to listen to changes
   linkedR1 = reactant1->targetContainer.get();

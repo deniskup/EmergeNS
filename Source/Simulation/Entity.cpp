@@ -28,6 +28,8 @@ Entity::Entity(SimEntity *e) : BaseItem(e->name)
   destructionRate->setValue(e->destructionRate);
   concent->setValue(e->startConcent);
   freeEnergy->setValue(e->freeEnergy);
+  itemColor->setColor(e->color);
+  colorIsSet=true;
   e->entity = this;
   level=e->level;
   id=e->id;
