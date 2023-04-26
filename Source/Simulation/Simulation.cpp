@@ -78,6 +78,10 @@ float randFloat(float a, float b)
   return (r * a + (1 - r) * b);
 }
 
+float randFloat(float a){
+  return randFloat(0.f,a);
+}
+
 void Simulation::clearParams()
 {
   entities.clear();
@@ -382,7 +386,7 @@ void Simulation::fetchGenerate()
     e->level = 0;
     e->id = cur_id;
     cur_id++;
-    e->color = Colour::fromHSV(0, 1, 1, 1);
+    e->color = Colour::fromHSV(randFloat(.2), 1, 1, 1);
     e->draw = false;
     if (gen->showAll->boolValue())
     {
@@ -547,7 +551,7 @@ void Simulation::fetchGenerate()
       const float energy = level * energyCoef + randFloat(-energyVar, energyVar);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
-      e->color = Colour::fromHSV(level * 1. / numLevels, 1, 1, 1); // color depends only on level
+      e->color = Colour::fromHSV(level * 1. / numLevels +randFloat(.2), 1, 1, 1); // color depends only on level
       e->draw = false;
       e->id = cur_id;
       cur_id++;
