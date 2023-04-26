@@ -21,14 +21,13 @@ jobs:
 
     - name: Install JUCE
       run: |
-        wget https://github.com/juce-framework/JUCE/releases/download/6.1.2/juce-6.1.2-linux.zip
-        unzip juce-6.1.2-linux.zip
+        git clone https://github.com/benkuper/JUCE.git
         sudo mv JUCE /opt/
         echo 'export PATH=/opt/JUCE/Projucer:$PATH' >> $GITHUB_ENV
 
     - name: Generate Makefile with Projucer
       run: |
-        Projucer --resave your_project.jucer
+        Projucer --resave EmergenceNS.jucer
 
     - name: Build with Make
       run: |
