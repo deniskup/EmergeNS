@@ -1,4 +1,6 @@
 
+Comprendre incohérence avant/après importation.
+
 -Option pour faire varier des choses globalement dessus: energie libre moyenne, etc
 
 

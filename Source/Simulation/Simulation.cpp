@@ -78,8 +78,9 @@ float randFloat(float a, float b)
   return (r * a + (1 - r) * b);
 }
 
-float randFloat(float a){
-  return randFloat(0.f,a);
+float randFloat(float a)
+{
+  return randFloat(0.f, a);
 }
 
 void Simulation::clearParams()
@@ -89,7 +90,7 @@ void Simulation::clearParams()
   primEnts.clear();
   reactions.clear();
   pacList->clear();
-  ready=false;
+  ready = false;
 }
 
 void Simulation::updateParams()
@@ -251,7 +252,7 @@ void Simulation::importJSONData(var data)
     }
   }
   generated->setValue(true);
-  ready=true;
+  ready = true;
   computeBarriers();
   updateParams();
 }
@@ -291,9 +292,8 @@ void Simulation::fetchManual()
   {
     if (!e->enabled->boolValue())
       continue;
-    auto se= new SimEntity(e);
+    auto se = new SimEntity(e);
     entities.add(se);
-    
   }
 
   for (auto &r : ReactionManager::getInstance()->items)
@@ -388,7 +388,7 @@ void Simulation::fetchGenerate()
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
     e->level = 0;
     e->id = cur_id;
-    e->freeEnergy=0;
+    e->freeEnergy = 0;
     cur_id++;
     e->color = Colour::fromHSV(randFloat(.2), 1, 1, 1);
     e->draw = false;
@@ -555,7 +555,7 @@ void Simulation::fetchGenerate()
       const float energy = level * energyCoef + randFloat(-energyVar, energyVar);
       SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
       e->level = level;
-      e->color = Colour::fromHSV(level * 1. / numLevels +randFloat(.2), 1, 1, 1); // color depends only on level
+      e->color = Colour::fromHSV(level * 1. / numLevels + randFloat(.2), 1, 1, 1); // color depends only on level
       e->draw = false;
       e->id = cur_id;
       cur_id++;
@@ -597,13 +597,13 @@ void Simulation::fetchGenerate()
 
           // choice of activation barrier
           float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);
-          auto reac=new SimReaction(e1, e2, e, 0., 0., barrier);
-          reac->computeRate(false,false);
+          auto reac = new SimReaction(e1, e2, e, 0., 0., barrier);
+          reac->computeRate(false, false);
           reac->setName();
-          //NLOG("New reaction",reac->name << " with assoc rate " << reac->assocRate << " and dissoc rate " << reac->dissocRate);
+          // NLOG("New reaction",reac->name << " with assoc rate " << reac->assocRate << " and dissoc rate " << reac->dissocRate);
           reactions.add(reac);
 
-          //NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
+          // NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
           nbReacDone++;
         }
         // remove this decomposition
@@ -670,9 +670,10 @@ void Simulation::start()
   recordConcent = 0.;
   recordDrawn = 0.;
 
-  //remove RACs
-  for(auto &pac:pacList->cycles){
-    pac->wasRAC=false;
+  // remove RACs
+  for (auto &pac : pacList->cycles)
+  {
+    pac->wasRAC = false;
   }
 
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
@@ -799,25 +800,37 @@ void Simulation::nextStep()
   Array<float> PACsValues;
   Array<bool> RACList;
   // cout << setprecision(3);
+  int idPAC = 0;
   for (auto &cycle : pacList->cycles)
   {
-    cycle->flow = cycle->reacDirs[0].first->flow; // initialisation to a max potential value
+    idPAC++;
+    bool newRAC = (cycle->flow == 0.);
+    SimReaction *minreac = cycle->reacDirs[0].first;
+    cycle->flow = minreac->flow; // initialisation to a max potential value
+    ;
     for (auto &reacDir : cycle->reacDirs)
     {
       auto reac = reacDir.first;
       bool dir = reacDir.second;
+
       if (dir != (reac->flowdir) || !(reac->enabled))
       { // wrong direction
         cycle->flow = 0.;
         continue;
       }
-      cycle->flow = jmin(cycle->flow, reac->flow);
+      if (reac->flow < cycle->flow)
+      {
+        cycle->flow = reac->flow;
+        minreac = reac;
+      }
     }
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
       cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
+      if (newRAC)
+        LOG("RAC " << idPAC << " from min reac " << minreac->name);
       if (cycle->flow > pacList->maxRAC)
         pacList->maxRAC = cycle->flow;
     }
@@ -927,8 +940,8 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   }
   if (p == generated)
   {
-    //we no longer set ready to false if we switched generated to true
-    //we assume that we will only erase simulation with new ones, not go back to not ready
+    // we no longer set ready to false if we switched generated to true
+    // we assume that we will only erase simulation with new ones, not go back to not ready
   }
 }
 
@@ -1062,13 +1075,12 @@ String SimEntity::toString() const
 
 void SimEntity::importFromManual()
 {
-  concent = entity->concent->floatValue();
   startConcent = entity->concent->floatValue();
   creationRate = entity->creationRate->floatValue();
   destructionRate = entity->destructionRate->floatValue();
   freeEnergy = entity->freeEnergy->floatValue();
   enabled = entity->enabled->boolValue();
-  color=entity->itemColor->getColor();
+  color = entity->itemColor->getColor();
 }
 
 void SimReaction::importFromManual()
