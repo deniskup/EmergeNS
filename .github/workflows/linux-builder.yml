@@ -1,4 +1,4 @@
-name: Build JUCE Project
+name: Build for Linux
 
 on:
   workflow_dispatch:
@@ -16,13 +16,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libfreetype6-dev libx11-dev libxinerama-dev libxrandr-dev libxcursor-dev mesa-common-dev libasound2-dev freeglut3-dev libxcomposite-dev libcurl4-openssl-dev libwebkit2gtk-4.0-dev
 
-    - name: Install JUCE
+    - name: Install JUCE and Projucer
       run: |
         git clone https://github.com/benkuper/JUCE.git
+        cd JUCE/extras/Projucer/Builds/LinuxMakefile
+        make
+        cd ../../../../..
         sudo mv JUCE /opt/
-
+      
     - name: Add Projucer to PATH
-      run: echo "/opt/JUCE/extras/Projucer/Builds/LinuxMakefile/build/Projucer" >> $GITHUB_PATH
+      run: echo 'export PATH=/opt/JUCE/extras/Projucer/Builds/LinuxMakefile/build/Projucer:$PATH' >> $GITHUB_ENV
 
     - name: Generate Makefile with Projucer
       run: |
