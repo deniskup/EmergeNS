@@ -23,6 +23,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
     generatedUI.reset(simul->generated->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
+    ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
+    ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
 
     // local parameter, won't be saved in the file.
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
@@ -53,6 +55,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(generatedUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
+    addAndMakeVisible(ignoreFreeEnergyUI.get());
+    addAndMakeVisible(ignoreBarriersUI.get());
 
     saveSimBT.addListener(this);
     addAndMakeVisible(&saveSimBT);
@@ -87,7 +91,7 @@ void SimulationUI::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
-    simBounds = getLocalBounds().withTop(100).withTrimmedBottom(100).reduced(10);
+    simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).reduced(10);
 
     // g.setFont(12);
     g.setColour(NORMAL_COLOR);
@@ -211,10 +215,16 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
-    Rectangle<int> br = r.removeFromBottom(100);
+    Rectangle<int> br = r.removeFromBottom(150);
     Rectangle<int> butr = br.removeFromRight(100);
     saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
     loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
+
+    Rectangle<int> explore=br.removeFromBottom(40).reduced(5);
+
+    ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(150));
+    explore.removeFromLeft(70);
+    ignoreBarriersUI->setBounds(explore.removeFromLeft(130));
 
     paramsLabel.setBounds(br.reduced(10));
 }

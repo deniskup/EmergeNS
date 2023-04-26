@@ -22,20 +22,23 @@ public:
     TextButton loadSimBT;
 
     // std::unique_ptr<IntStepperUI> maxStepsUI;
-    std::unique_ptr<FloatParameterLabelUI> dtUI;
-    std::unique_ptr<FloatParameterLabelUI> totalTimeUI;
-    std::unique_ptr<IntSliderUI> perCentUI;
-    std::unique_ptr<FloatParameterLabelUI> maxConcentUI;
-    std::unique_ptr<TriggerUI> genUI;
-    std::unique_ptr<TriggerUI> startUI;
-    std::unique_ptr<TriggerUI> genstartUI;
-    std::unique_ptr<TriggerUI> restartUI;
-    std::unique_ptr<TriggerUI> cancelUI;
-    std::unique_ptr<TriggerUI> saveSimUI;
-    std::unique_ptr<TriggerUI> loadSimUI;
-    std::unique_ptr<BoolToggleUI> generatedUI;
-    std::unique_ptr<BoolToggleUI> autoScaleUI;
-    std::unique_ptr<IntParameterLabelUI> pointsDrawnUI;
+    unique_ptr<FloatParameterLabelUI> dtUI;
+    unique_ptr<FloatParameterLabelUI> totalTimeUI;
+    unique_ptr<IntSliderUI> perCentUI;
+    unique_ptr<FloatParameterLabelUI> maxConcentUI;
+    unique_ptr<TriggerUI> genUI;
+    unique_ptr<TriggerUI> startUI;
+    unique_ptr<TriggerUI> genstartUI;
+    unique_ptr<TriggerUI> restartUI;
+    unique_ptr<TriggerUI> cancelUI;
+    unique_ptr<TriggerUI> saveSimUI;
+    unique_ptr<TriggerUI> loadSimUI;
+    unique_ptr<BoolToggleUI> generatedUI;
+    unique_ptr<BoolToggleUI> autoScaleUI;
+    unique_ptr<IntParameterLabelUI> pointsDrawnUI;
+    unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
+    unique_ptr<BoolToggleUI> ignoreBarriersUI;
+
 
     //for diplaying paramaters
     Label paramsLabel;

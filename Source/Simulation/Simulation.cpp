@@ -36,6 +36,9 @@ juce_ImplementSingleton(Simulation)
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
   oneColor = addBoolParameter("Unicolor", "Use only one color for each RAC", true);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
+
+  ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
+  ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
 }
 
 Simulation::~Simulation()
@@ -245,6 +248,22 @@ void Simulation::importJSONData(var data)
 
   updateParams();
 }
+
+void Simulation::computeRates(){
+  for (auto &r : reactions)
+  {
+    r->computeRate(ignoreBarriers->boolValue(), ignoreFreeEnergy->boolValue());
+  }
+}
+
+void Simulation::computeBarriers(){
+  for (auto &r : reactions)
+  {
+    r->computeBarrier();
+  }
+}
+
+
 
 void Simulation::fetchManual()
 {
@@ -566,7 +585,7 @@ void Simulation::fetchGenerate()
           float aRate = exp(energyLeft - energyStar);
           // k2=exp(GAB-G*)
           float disRate = exp(energyRight - energyStar);
-          reactions.add(new SimReaction(e1, e2, e, aRate, disRate));
+          reactions.add(new SimReaction(e1, e2, e, aRate, disRate, barrier));
           NLOG("New reaction", e->name << " = " << e1->name << " + " << e2->name);
           nbReacDone++;
         }
@@ -607,6 +626,8 @@ void Simulation::generate()
 
 void Simulation::start()
 {
+  computeRates(); // compute reactions rates
+
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
@@ -1027,7 +1048,7 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
   setName();
 }
 
-SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate)
+SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate), energy(barrier)
 {
   setName();
 }
@@ -1082,4 +1103,31 @@ var SimReaction::toJSONData()
 bool SimReaction::contains(SimEntity *e)
 {
   return (reactant1 == e || reactant2 == e || product == e);
+}
+
+void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
+{
+  // GA+GB
+          float energyLeft = noFreeEnergy? 0.f : reactant1->freeEnergy + reactant2->freeEnergy;
+          // GAB
+          float energyRight = noFreeEnergy ? 0.f: product->freeEnergy;
+          // total energy G* of the reaction: activation + max of GA+GB and GAB.
+          float energyStar = (noBarrier ? 0: energy) + jmax(energyLeft, energyRight);
+          // k1=exp(GA+GB-G*)
+          assocRate = exp(energyLeft - energyStar);
+          // k2=exp(GAB-G*)
+          dissocRate = exp(energyRight - energyStar);
+}
+
+void SimReaction::computeBarrier()
+{
+    // compute energy barrier
+    float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
+    ;
+    float energyRight = product->freeEnergy;
+
+    // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
+    float energyStar = energyLeft - log(assocRate);
+    // we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
+    energy = energyStar - jmax(energyLeft, energyRight);
 }

@@ -37,7 +37,7 @@ public:
 
   Compo composition; // indexes are link to primary entities thanks to array primEnts
 
-  int idSAT=0; // identifier for SAT Solving
+  int idSAT = 0; // identifier for SAT Solving
 
   void increase(float incr);
   void decrease(float decr);
@@ -54,7 +54,7 @@ class SimReaction
 {
 public:
   SimReaction(Reaction *);
-  SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate);
+  SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate, float barrier=0.f);
 
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
@@ -65,17 +65,21 @@ public:
   SimEntity *reactant2;
   SimEntity *product;
 
-  String name; //should be a+b=c
+  String name; // should be a+b=c
+
 
   void setName();
 
   float assocRate;
   float dissocRate;
-  float energy=-1.0f; // energy of the reaction, -1 if not set
+  float energy = -1.0f; // energy of the reaction, -1 if not set
 
-  int idSAT=0;    // identifier for SAT Solving
-  float flow;   // flow = dProduct/dt due to the reaction
-  bool flowdir; // direction of the flow, same convention as in PAC
+  void computeRate(bool noFreeEnergy = false, bool noBarrier = false);
+  void computeBarrier();
+
+  int idSAT = 0; // identifier for SAT Solving
+  float flow;    // flow = dProduct/dt due to the reaction
+  bool flowdir;  // direction of the flow, same convention as in PAC
 
   bool contains(SimEntity *e);
 
@@ -102,9 +106,12 @@ public:
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
 
-  // other parameters to be saved
-  // BoolParameter *ready;
+  // to explore variants
+  BoolParameter *ignoreFreeEnergy;
+  BoolParameter *ignoreBarriers;
 
+  void computeRates();    // compute rates of reactions from their barriers and energy of entities
+  void computeBarriers(); // compute barriers from rates and energy of entities
 
   bool ready;          // to know if ready to be launched, ie parameters generated
   float recordConcent; // record the higher concentration reached
@@ -154,7 +161,7 @@ public:
   void stop();
   void cancel();
 
-  //the thread function
+  // the thread function
   void run() override;
 
   SimEntity *getSimEntityForEntity(Entity *e);

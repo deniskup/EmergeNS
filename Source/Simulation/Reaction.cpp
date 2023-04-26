@@ -45,6 +45,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   reactant1->setValueFromTarget(e1, false);
   reactant2->setValueFromTarget(e2, false);
   product->setValueFromTarget(e3, false);
+  if(r->energy<-.5f) r->computeBarrier();
   energy->setValue(r->energy);
   assocRate->setValue(r->assocRate);
   dissocRate->setValue(r->dissocRate);
@@ -73,19 +74,6 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
   }
 
-  if (r->energy < -.5f)
-  {
-    // compute energy barrier
-    float energyLeft = e1->freeEnergy->floatValue() + e2->freeEnergy->floatValue();
-    ;
-    float energyRight = e3->freeEnergy->floatValue();
-
-    // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
-    float energyStar = energyLeft - log(r->assocRate);
-    // we use that energyStar = energy + jmax(energyLeft, energyRight); to compute energy
-    r->energy = energyStar - jmax(energyLeft, energyRight);
-    energy->setValue(r->energy);
-  }
 
   updateWarnAndRates();
 }
