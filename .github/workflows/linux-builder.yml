@@ -22,7 +22,7 @@ jobs:
         sudo mv JUCE /opt/
 
     - name: Add Projucer to PATH
-      run: echo "/opt/JUCE/Projucer" >> $GITHUB_PATH
+      run: echo "/opt/JUCE/extras/Projucer/Builds/LinuxMakefile/build/Projucer" >> $GITHUB_PATH
 
     - name: Generate Makefile with Projucer
       run: |
