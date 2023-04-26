@@ -121,7 +121,7 @@ void PACUI::paint(juce::Graphics &g)
     }
 
     // for indexes of RACS
-    float xLeft = .02 * width;
+    float xLeft = .06 * width;
 
     // steps for drawing the RACs
     float xScale = (width - xLeft) / RACsHistory.size();

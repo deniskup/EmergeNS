@@ -190,23 +190,26 @@ void SimulationUI::resized()
     r.removeFromTop(8);
     hr = r.removeFromTop(30);
 
-    int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
-    hr.reduce((hr.getWidth() - width2) / 2, 0);
+    //compute button width
+    const float nButtons=5;
+    float buttonWidth= (hr.getWidth() - 20 * (nButtons ) - (50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth())) / nButtons;
+    //int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    hr.reduce(10, 0);
 
     // buttons
-    genstartUI->setBounds(hr.removeFromLeft(genstartUI->getWidth()));
+    genstartUI->setBounds(hr.removeFromLeft(buttonWidth));
     hr.removeFromLeft(20);
 
-    genUI->setBounds(hr.removeFromLeft(genUI->getWidth()));
+    genUI->setBounds(hr.removeFromLeft(buttonWidth));
     hr.removeFromLeft(20);
 
-    restartUI->setBounds(hr.removeFromLeft(restartUI->getWidth()));
+    restartUI->setBounds(hr.removeFromLeft(buttonWidth));
     hr.removeFromLeft(20);
 
-    startUI->setBounds(hr.removeFromLeft(startUI->getWidth()));
+    startUI->setBounds(hr.removeFromLeft(buttonWidth));
     hr.removeFromLeft(20);
 
-    cancelUI->setBounds(hr.removeFromLeft(cancelUI->getWidth()));
+    cancelUI->setBounds(hr.removeFromLeft(buttonWidth));
     hr.removeFromLeft(50);
     autoScaleUI->setBounds(hr.removeFromLeft(autoScaleUI->getWidth()));
     hr.removeFromLeft(10);
