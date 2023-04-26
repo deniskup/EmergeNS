@@ -20,7 +20,9 @@ jobs:
       run: |
         git clone https://github.com/benkuper/JUCE.git
         sudo mv JUCE /opt/
-        echo 'export PATH=/opt/JUCE/Projucer:$PATH' >> $GITHUB_ENV
+
+    - name: Add Projucer to PATH
+      run: echo "/opt/JUCE/Projucer" >> $GITHUB_PATH
 
     - name: Generate Makefile with Projucer
       run: |
