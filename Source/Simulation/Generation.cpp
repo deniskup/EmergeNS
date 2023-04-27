@@ -17,9 +17,8 @@ Generation::Generation() : ControllableContainer("Generation")
     growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("Proportion", PROPORTION)->addOption("PropReactions", PROPREACTIONS);
     // growthEntitiesPerLevel->hideInEditor = true;
 
-    entPerLevNum = addIntRangeParameter("Entities/level", "Base number of entities per level");
-    entPerLevNum->x = 3;
-    entPerLevNum->y = 6;
+    entPerLevNum = addIntParameter("Entities/level", "Base number of entities per level", 3, 1);
+
 
     entPerLevA = addFloatParameter("Coef a #entities", "Maximal creation rate of primary entities", .1, 0.);
     entPerLevA->hideInEditor = true;
@@ -42,9 +41,7 @@ Generation::Generation() : ControllableContainer("Generation")
     propReactions = addFloatParameter("Proportion reactions", "Proportion of reactions to include", .5, 0., 1.);
     propReactions->hideInEditor = true;
 
-    reactionsPerEntity = addIntRangeParameter("Reactions per entity", "Min and max number of reactions forming an entity");
-    reactionsPerEntity->x = 1;
-    reactionsPerEntity->y = 3;
+    reactionsPerEntity = addIntParameter("Reactions per entity", "Number of reactions forming an entity",1);
     reactionsPerEntity->hideInEditor = true;
 
     initConcent = addPoint2DParameter("Init. prim. concentration / var", "Initial concentrations for primary entities, and variance");

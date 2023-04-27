@@ -31,7 +31,7 @@ public:
     };
   */
     EnumParameter *growthEntitiesPerLevel; // constant, polynomial, proportion of total
-    IntRangeParameter *entPerLevNum;
+    IntParameter *entPerLevNum;
     FloatParameter *entPerLevA;
     FloatParameter *entPerLevB;
     IntParameter *entPerLevUncert;
@@ -43,7 +43,7 @@ public:
    // IntParameter *maxReactionsPerEntity;
 
     //EnumParameter *growthReactionsPerLevel; //#perEntity, % of total
-    IntRangeParameter *reactionsPerEntity;
+    IntParameter *reactionsPerEntity;
     FloatParameter *propReactions; //proportion of reactions to include
 
     //param+variance

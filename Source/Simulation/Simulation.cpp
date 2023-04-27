@@ -355,7 +355,7 @@ void Simulation::fetchGenerate()
   int nbPrimEnts = gen->primEntities->intValue(); // randInt(gen->primEntities->x, gen->primEntities->y);
 
   // only rough approximation, useful only for drawing
-  int totalEnts = numLevels * gen->entPerLevNum->x;
+  int totalEnts = numLevels * gen->entPerLevNum->intValue();
   const float propShow = (gen->avgNumShow->floatValue()) / totalEnts;
   int nbShow = 0;
 
@@ -426,8 +426,8 @@ void Simulation::fetchGenerate()
   const float propReac = gen->propReactions->floatValue();
 
   // reactions per entity
-  const int minReacPerEnt = gen->reactionsPerEntity->x;
-  const int maxReacPerEnt = gen->reactionsPerEntity->y;
+  const int minReacPerEnt = gen->reactionsPerEntity->intValue();
+  const int maxReacPerEnt = gen->reactionsPerEntity->intValue(); //parameter to add
 
   // multisets[i][j] is the number of multisets of size i with j elements, i.e. the number of entities of size i with j primary entiies
   vector<vector<int>> multisets(numLevels + 1, vector<int>(nbPrimEnts + 1, 0));
@@ -485,7 +485,7 @@ void Simulation::fetchGenerate()
     switch (mode)
     {
     case CONSTANT:
-      numEnts = randInt(gen->entPerLevNum->x, gen->entPerLevNum->y);
+      numEnts = gen->entPerLevNum->intValue();
       break;
     case POLYNOMIAL:
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
