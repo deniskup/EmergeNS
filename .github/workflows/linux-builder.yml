@@ -20,7 +20,12 @@ jobs:
       run: |
         git clone https://github.com/benkuper/JUCE.git
 
+    - name: Install juce_organicui
+      run: |
+        cd Modules
+        git clone https://github.com/deniskup/juce_organicui.git
+
     - name: Build with Make
       run: |
-        cd Builds/GithubLinux
+        cd ${{ github.workspace }}/Builds/GithubLinux
         make
