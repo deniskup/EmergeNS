@@ -1,4 +1,5 @@
 Builds/*
+Builds/GithubLinux/Builds/*
 Resources/*.txt
 
-!Builds/GithubLinux/
+
