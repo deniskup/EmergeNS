@@ -1,3 +1,5 @@
 **/Builds
 **/JuceLibraryCode
 **/Resources/*.txt
+
+!Builds/GithubLinux/Makefile
