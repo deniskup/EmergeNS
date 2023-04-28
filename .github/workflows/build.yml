@@ -146,6 +146,27 @@ jobs:
           configuration: ${{ matrix.config }}
           use-xcpretty: true
 
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v1.0.0 # Use your desired tag name
+          release_name: Release v1.0.0 # Use your desired release name
+          draft: false
+          prerelease: false
+
+      - name: Upload Executable
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: /Builds/MacOSX_CI/build/EmergenceNS # Use the path to your executable file
+          asset_name: Simulation # Use your desired asset name
+          asset_content_type: application/octet-stream
+
       # - name: Create Package
       #   id: create_package
       #   run:  |
