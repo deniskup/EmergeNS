@@ -149,9 +149,7 @@ jobs:
       - name: Zip the project
         run: |
           cd Builds/MacOSX_CI
-          zip -r EmergenceNS.zip
-          
-          
+          zip -r EmergenceNS.zip *
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
