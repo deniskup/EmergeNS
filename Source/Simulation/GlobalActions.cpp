@@ -41,7 +41,7 @@ int computeCompositions()
         }
     }
 
-    int nbReac = ReactionManager::getInstance()->items.size();
+    //int nbReac = ReactionManager::getInstance()->items.size();
     bool progress = true;
     Array<Reaction *> reacToCheck;
     for (auto &r : ReactionManager::getInstance()->items)
