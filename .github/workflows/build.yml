@@ -3,9 +3,9 @@ name: Build
 on:
   workflow_dispatch:
 
-env:
-  ProjectName: EmergenceNS
-  #PackagesVersion: 1.2.10
+# env:
+#   ProjectName: EmergenceNS
+#   PackagesVersion: 1.2.10
 
 jobs:
   windows:
