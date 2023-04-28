@@ -148,7 +148,7 @@ jobs:
 
       - name: Zip the project
         run: |
-          cd Build/MacOSX_CI
+          cd Builds/MacOSX_CI
           zip -r EmergenceNS.zip
           
           
@@ -157,7 +157,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: EmergenceENS
-          path: Build/MacOSX_CI/EmergenceENS.zip
+          path: Builds/MacOSX_CI/EmergenceENS.zip
 
       # - name: Create Package
       #   id: create_package
