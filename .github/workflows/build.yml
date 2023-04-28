@@ -1,6 +1,7 @@
 name: Build
 
-on:
+on: |
+  push:
   workflow_dispatch:
 
 env:
@@ -8,88 +9,88 @@ env:
 #   PackagesVersion: 1.2.10
 
 jobs:
-  # windows:
-  #   name: Windows
-  #   if: false # always skip job
-  #   runs-on: windows-2022
-  #   strategy:
-  #     matrix:
-  #       include:
-  #       - arch: win-x64
-  #         buildFolder: "VisualStudio2022_CI"
-  #         installerName: install
+  windows:
+    name: Windows
+    # if: false # always skip job
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        include:
+        - arch: win-x64
+          buildFolder: "VisualStudio2022_CI"
+          installerName: install
 
-  #       - arch: win7-x64
-  #         buildFolder: "VisualStudio2022_Win7CI"
-  #         installerName: installWin7
+        # - arch: win7-x64
+        #   buildFolder: "VisualStudio2022_Win7CI"
+        #   installerName: installWin7
 
-  #     fail-fast: false
+      fail-fast: false
 
-  #   steps:
-  #     - name: Checkout repo
-  #       uses: actions/checkout@v2
-  #       with:
-  #         submodules: 'recursive'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
 
-  #     - name: Checkout JUCE
-  #       uses: actions/checkout@v2
-  #       with:
-  #         repository: benkuper/JUCE
-  #         ref: develop-local
-  #         path: JUCE
+      - name: Checkout JUCE
+        uses: actions/checkout@v2
+        with:
+          repository: benkuper/JUCE
+          ref: develop-local
+          path: JUCE
 
-  #     - name: Set Variables
-  #       id: set_variables
-  #       uses: ./.github/actions/set-suffix
-  #       with:
-  #         os: ${{ matrix.arch }}
+      - name: Set Variables
+        id: set_variables
+        uses: ./.github/actions/set-suffix
+        with:
+          os: ${{ matrix.arch }}
 
-  #     - name: Add msbuild to PATH
-  #       uses: microsoft/setup-msbuild@v1.0.2
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
 
-  #     - name: Force 64-bit Linker
-  #       shell: powershell
-  #       run: |
-  #         cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
-  #         Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] }}
+      - name: Force 64-bit Linker
+        shell: powershell
+        run: |
+          cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+          Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] }}
      
-  #     - name: Build
-  #       run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }}
+      - name: Build
+        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }}
 
-  #     - name: Create Package
-  #       id: create_package
-  #       shell: powershell
-  #       run: |
-  #         Set-Variable -Name "PKGNAME" -Value "${{ env.ProjectName }}-${{ steps.set_variables.outputs.suffix }}"
-  #         Invoke-WebRequest "${{ secrets.DEPDIRURL }}${{ env.ProjectName }}-win-x64-${{ steps.set_variables.outputs.dep }}-dependencies.zip" -OutFile ./deps.zip
-  #         7z e deps.zip -aoa
-  #         &"C:/Program Files (x86)/Inno Setup 6/ISCC.exe" "${{ github.workspace }}/${{ matrix.installerName }}.iss" /O. /F$PKGNAME
-  #         echo "pkg-name=$PKGNAME.exe" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-  #         echo "pdb-name=$PKGNAME.pdb" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
-  #       working-directory: ./Binaries/CI/App
+      # - name: Create Package
+      #   id: create_package
+      #   shell: powershell
+      #   run: |
+      #     Set-Variable -Name "PKGNAME" -Value "${{ env.ProjectName }}-${{ steps.set_variables.outputs.suffix }}"
+      #     Invoke-WebRequest "${{ secrets.DEPDIRURL }}${{ env.ProjectName }}-win-x64-${{ steps.set_variables.outputs.dep }}-dependencies.zip" -OutFile ./deps.zip
+      #     7z e deps.zip -aoa
+      #     &"C:/Program Files (x86)/Inno Setup 6/ISCC.exe" "${{ github.workspace }}/${{ matrix.installerName }}.iss" /O. /F$PKGNAME
+      #     echo "pkg-name=$PKGNAME.exe" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+      #     echo "pdb-name=$PKGNAME.pdb" | Out-File -FilePath $Env:GITHUB_OUTPUT -Encoding utf8 -Append
+      #   working-directory: ./Binaries/CI/App
 
-  #     - name: Upload
-  #       uses: ./.github/actions/upload
-  #       with:
-  #         pkg-name: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
-  #         url: ${{ secrets.UPLOADURL }}
-  #         pass: ${{ secrets.UPLOADPASS }}
+      # - name: Upload
+      #   uses: ./.github/actions/upload
+      #   with:
+      #     pkg-name: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
+      #     url: ${{ secrets.UPLOADURL }}
+      #     pass: ${{ secrets.UPLOADPASS }}
 
-  #     - name: Rename PDB
-  #       if: ${{ steps.set_variables.outputs.config == 'Release' && matrix.arch == 'win-x64' }}
-  #       id: rename_pdb
-  #       shell: powershell
-  #       run: |
-  #         Rename-Item -Path "./${{ env.ProjectName }}.pdb" -NewName "${{ steps.create_package.outputs.pdb-name }}"
-  #       working-directory: ./Builds/${{ matrix.buildFolder }}/x64/${{ steps.set_variables.outputs.config }}/App
+      # - name: Rename PDB
+      #   if: ${{ steps.set_variables.outputs.config == 'Release' && matrix.arch == 'win-x64' }}
+      #   id: rename_pdb
+      #   shell: powershell
+      #   run: |
+      #     Rename-Item -Path "./${{ env.ProjectName }}.pdb" -NewName "${{ steps.create_package.outputs.pdb-name }}"
+      #   working-directory: ./Builds/${{ matrix.buildFolder }}/x64/${{ steps.set_variables.outputs.config }}/App
 
-  #     - name: Upload PDB
-  #       if: ${{ steps.set_variables.outputs.config == 'Release' && matrix.arch == 'win-x64' }}
-  #       uses: ./.github/actions/upload
-  #       with:
-  #         pkg-name: ./Builds/${{ matrix.buildFolder }}/x64/${{ steps.set_variables.outputs.config }}/App/${{ steps.create_package.outputs.pdb-name }}
-  #         url: ${{ secrets.PDBUPLOADURL }}
-  #         pass: ${{ secrets.UPLOADPASS }}
+      # - name: Upload PDB
+      #   if: ${{ steps.set_variables.outputs.config == 'Release' && matrix.arch == 'win-x64' }}
+      #   uses: ./.github/actions/upload
+      #   with:
+      #     pkg-name: ./Builds/${{ matrix.buildFolder }}/x64/${{ steps.set_variables.outputs.config }}/App/${{ steps.create_package.outputs.pdb-name }}
+      #     url: ${{ secrets.PDBUPLOADURL }}
+      #     pass: ${{ secrets.UPLOADPASS }}
 
   osx:
     # if: false # tmp disable
@@ -103,9 +104,9 @@ jobs:
           suffix: intel
           config: Release
 
-        - arch: arm64
-          suffix: silicon
-          config: ReleaseSilicon
+        # - arch: arm64
+        #   suffix: silicon
+        #   config: ReleaseSilicon
         
       fail-fast: false
 

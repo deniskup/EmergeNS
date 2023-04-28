@@ -1,6 +1,7 @@
 Builds/*
 !Builds/MacOSX_CI
-Builds/MacOSX_CI/Builds/*
+!Builds/VisualStudio2022_CI
+!Builds/LinuxMakefile_CI
 Resources/*.txt
 
 
