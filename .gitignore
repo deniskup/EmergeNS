@@ -1,5 +1,6 @@
 Builds/*
-Builds/GithubLinux/Builds/*
+!Builds/MacOSX_CI
+Builds/MacOSX_CI/Builds/*
 Resources/*.txt
 
 
