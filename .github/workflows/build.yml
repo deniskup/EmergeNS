@@ -155,7 +155,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: EmergenceENS
-          path: Builds/EmergenceENS_Mac.zip
+          path: Builds/EmergenceNS_Mac.zip
 
       # - name: Create Package
       #   id: create_package
