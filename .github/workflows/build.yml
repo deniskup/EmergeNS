@@ -9,7 +9,7 @@ env:
 jobs:
   windows:
     name: Windows
-    # if: false # always skip job
+    if: false # always skip job
     runs-on: windows-2022
     strategy:
       matrix:
@@ -148,12 +148,12 @@ jobs:
       - name: Zip the project
         run: |
           cd Builds
-          zip -r EmergenceNS_Mac.zip MacOSX_CI
+          zip -r EmergenceNS_Mac.zip MacOSX_CI ../Resources
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: EmergenceENS
+          name: EmergeNS_Mac
           path: Builds/EmergenceNS_Mac.zip
 
       # - name: Create Package
