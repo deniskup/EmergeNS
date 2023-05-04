@@ -1,5 +1,5 @@
 
-
+//#include "GlobalActions.h"
 #include "Simulation.h"
 #include "EntityManager.h"
 #include "ReactionManager.h"
@@ -91,6 +91,7 @@ void Simulation::clearParams()
   reactions.clear();
   pacList->clear();
   ready = false;
+  numLevels=-1;
 }
 
 void Simulation::updateParams()
@@ -304,14 +305,7 @@ void Simulation::fetchManual()
   }
 
   // todo compute levels and primary entities
-  numLevels = 1;
-  for (auto &e : entities)
-  {
-    if (e->primary)
-      primEnts.add(e);
-    if (e->level + 1 > numLevels)
-      numLevels = e->level + 1;
-  }
+  
 
   ready = true;
   updateParams();

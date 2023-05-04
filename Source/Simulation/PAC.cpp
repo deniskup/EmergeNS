@@ -202,6 +202,27 @@ void PAClist::run()
 
 	LOG("Using solver: " + solver->name);
 
+	//compute return values of the solver on Sat and Non-Sat input
+	
+	//create satisfiable dimacs
+	ofstream dimacs;
+	dimacs.open("dimacs.txt", ofstream::out | ofstream::trunc);
+	dimacs << "p cnf 1 0"<< endl;
+	dimacs << "1 0" << endl;
+	dimacs.close();
+	const int satReturnValue = system(solver->command.getCharPointer());
+
+	dimacs.open("dimacs.txt", ofstream::out | ofstream::trunc);
+	dimacs << "p cnf 1 2" << endl;
+	dimacs << "1 0" << endl;
+	dimacs << "-1 0" << endl;
+	dimacs.close();
+
+	const int unsatReturnValue = system(solver->command.getCharPointer());
+
+	cout << "sat return value: " << satReturnValue << endl;
+	cout << "unsat return value: " << unsatReturnValue << endl;
+
 	// TODO repaint the Logger
 
 	// open file
@@ -645,7 +666,7 @@ void PAClist::run()
 		{
 
 			int retVal = system(solver->command.getCharPointer());
-			if (retVal == -1)
+			if (retVal != satReturnValue && retVal != unsatReturnValue)
 			{
 				LOGWARNING("SAT Solver command failed, exiting...");
 				LOGWARNING("Command: " + solver->command);

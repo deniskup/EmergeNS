@@ -108,7 +108,7 @@ void SimulationUI::paint(juce::Graphics &g)
     else
     {
         paramsToDisplay << simul->entities.size() << " entities         ";
-        paramsToDisplay << simul->numLevels << " levels         ";
+        paramsToDisplay << ((simul->numLevels==-1)?"?":String(simul->numLevels)) << " levels         ";
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
         paramsToDisplay << simul->primEnts.size() << " primary entities        ";
         paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";

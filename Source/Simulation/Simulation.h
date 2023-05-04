@@ -150,7 +150,7 @@ public:
   OwnedArray<SimReaction> reactions; // all reactions
   Array<SimEntity *> primEnts;       // primary entities, useful to recover the number i
 
-  int numLevels;
+  int numLevels=-1;
 
   // gestion des PACs
   unique_ptr<PAClist> pacList;
