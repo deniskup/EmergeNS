@@ -12,10 +12,10 @@ class SATSolver{
 public:
     SATSolver(){};
     ~SATSolver(){};
-    SATSolver(String name, String command, String satLine, bool printsExtraString): name(name), command(command) , satLine(satLine), printsExtraString(printsExtraString){};
+    SATSolver(String name, String command, string satLine, bool printsExtraString): name(name), command(command) , satLine(satLine), printsExtraString(printsExtraString){};
     String name;
     String command;
-    String satLine; //displayed by the SAT solver: SAT or SATISFIABLE
+    string satLine; //displayed by the SAT solver: SAT or SATISFIABLE
     bool printsExtraString; //is there an extra string printed by the SAT solver before SAT or SATISFIABLE, and before the values
 };
 

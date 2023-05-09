@@ -2,7 +2,7 @@
 #include "Simulation.h"
 using namespace std;
 
-PAC::PAC(var data, Simulation* simul)
+PAC::PAC(var data, Simulation *simul)
 {
 	if (data.isVoid())
 		return;
@@ -11,8 +11,8 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("entities"))
 	{
-		Array<var>* ents = data.getDynamicObject()->getProperty("entities").getArray();
-		for (auto& ent : *ents)
+		Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
+		for (auto &ent : *ents)
 		{
 			entities.add(simul->getSimEntityForID(ent["ent_id"]));
 		}
@@ -20,8 +20,8 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("reacDirs"))
 	{
-		Array<var>* reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
-		for (auto& reacd : *reacds)
+		Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
+		for (auto &reacd : *reacds)
 		{
 			reacDirs.add(make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
 		}
@@ -33,7 +33,7 @@ var PAC::toJSONData()
 	var data = new DynamicObject();
 
 	var ents;
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		var coord = new DynamicObject();
 		coord.getDynamicObject()->setProperty("ent_id", e->id);
@@ -42,7 +42,7 @@ var PAC::toJSONData()
 	data.getDynamicObject()->setProperty("entities", ents);
 
 	var reacds;
-	for (auto& rd : reacDirs)
+	for (auto &rd : reacDirs)
 	{
 		var coord = new DynamicObject();
 		coord.getDynamicObject()->setProperty("reac_id", rd.first->idSAT);
@@ -57,11 +57,11 @@ var PAC::toJSONData()
 String PAC::toString()
 {
 	String res;
-	for (auto& rd : reacDirs)
+	for (auto &rd : reacDirs)
 	{
 		auto r = rd.first;
 		bool d = rd.second;
-		//auto p = r->product;
+		// auto p = r->product;
 		auto r1 = r->reactant1;
 		auto r2 = r->reactant2;
 		String plus = "+";
@@ -89,9 +89,9 @@ String PAC::toString()
 	return res;
 }
 
-bool PAC::includedIn(PAC* pac, bool onlyEnts)
+bool PAC::includedIn(PAC *pac, bool onlyEnts)
 {
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		if (!pac->entities.contains(e))
 			return false;
@@ -99,7 +99,7 @@ bool PAC::includedIn(PAC* pac, bool onlyEnts)
 	if (onlyEnts)
 		return true;
 	// test reactions
-	for (auto& rd : reacDirs)
+	for (auto &rd : reacDirs)
 	{
 		if (!pac->reacDirs.contains(rd))
 			return false;
@@ -107,13 +107,14 @@ bool PAC::includedIn(PAC* pac, bool onlyEnts)
 	return true;
 }
 
-void PAClist::addCycle(PAC* newpac)
+void PAClist::addCycle(PAC *newpac)
 {
 	// we only test if is is included in existing one, other direction is taken care of by SAT solver
 	for (int i = 0; i < cycles.size(); i++)
 	{
 		if (newpac->includedIn(cycles[i], includeOnlyWithEntities))
 		{
+			cout << "PAC collision: " << newpac->toString() << " is included in " << cycles[i]->toString() << endl;
 			cycles.remove(i);
 		}
 	}
@@ -137,7 +138,7 @@ void PAClist::printPACs()
 void PAClist::printRACs()
 {
 	int nbRac = 0;
-	for (auto& pac : cycles)
+	for (auto &pac : cycles)
 	{
 		nbRac++;
 		if (pac->wasRAC)
@@ -196,21 +197,35 @@ void PAClist::run()
 	SATSolver minisat("minisat", "minisat dimacs.txt model.txt >SATlog.txt", "SAT", false);
 	SATSolver kissat("kissat", "~/Software/kissat/build/kissat -q dimacs.txt > model.txt", "SATISFIABLE", true);
 
-	Array<SATSolver*> solvers = { &minisat, &kissat };
+	Array<SATSolver *> solvers = {&minisat, &kissat};
 
-	SATSolver* solver = solvers[numSolver];
+	SATSolver *solver = solvers[numSolver];
 
 	LOG("Using solver: " + solver->name);
 
-	//compute return values of the solver on Sat and Non-Sat input
-	
-	//create satisfiable dimacs
+	// compute return values of the solver on Sat and Non-Sat input
+
+	// create satisfiable dimacs
 	ofstream dimacs;
 	dimacs.open("dimacs.txt", ofstream::out | ofstream::trunc);
-	dimacs << "p cnf 1 0"<< endl;
+	dimacs << "p cnf 1 1" << endl;
 	dimacs << "1 0" << endl;
 	dimacs.close();
 	const int satReturnValue = system(solver->command.getCharPointer());
+	if (solver->printsExtraString)
+		cleanKissatOutput();
+	ifstream sol_file("model.txt");
+	string testSat;
+
+	sol_file >> testSat;
+
+	if (testSat != solver->satLine)
+	{
+		LOGWARNING("Positive test of SAT Solver failed, exiting");
+		return;
+	}
+
+	sol_file.close();
 
 	dimacs.open("dimacs.txt", ofstream::out | ofstream::trunc);
 	dimacs << "p cnf 1 2" << endl;
@@ -219,6 +234,22 @@ void PAClist::run()
 	dimacs.close();
 
 	const int unsatReturnValue = system(solver->command.getCharPointer());
+
+	// verify that model.txt contains the right output
+	if (solver->printsExtraString)
+		cleanKissatOutput();
+	sol_file.open("model.txt");
+
+	sol_file >> testSat;
+
+	if (testSat == solver->satLine)
+	{
+		LOGWARNING("Negative test of SAT Solver failed, exiting");
+		return;
+	}
+
+	sol_file.close();
+
 
 	cout << "sat return value: " << satReturnValue << endl;
 	cout << "unsat return value: " << unsatReturnValue << endl;
@@ -244,8 +275,8 @@ void PAClist::run()
 	// if entity i is taken in the cycle C
 	Array<int> ent;
 	ent.resize(Nent);
-	int ei = 0, j;// , k;
-	for (auto& e : simul->entities)
+	int ei = 0, j; // , k;
+	for (auto &e : simul->entities)
 	{
 		curvar++;
 		ent.set(ei, curvar);
@@ -255,14 +286,14 @@ void PAClist::run()
 	}
 
 	// if reaction j is taken in the cycle C
-	Array<int>  reac;
+	Array<int> reac;
 	reac.resize(Nreac);
 	// for taken reactions: which direction is used. 0 is reactants->product and 1 is product->reactants
 	Array<int> dir;
 	dir.resize(Nreac);
 
 	j = 0;
-	for (auto& r : simul->reactions)
+	for (auto &r : simul->reactions)
 	{
 		curvar++;
 		reac.set(j, curvar);
@@ -292,14 +323,14 @@ void PAClist::run()
 	unordered_map<int, int> isReac;
 	unordered_map<int, int> isProd;
 	unordered_map<int, int> isProds;
-	for (auto& r : simul->reactions)
+	for (auto &r : simul->reactions)
 	{
 		int idr = r->idSAT;
 		// ids of entities involved
 		int id1 = r->reactant1->idSAT;
 		int id2 = r->reactant2->idSAT;
 		int id3 = r->product->idSAT;
-		Array<int> ids = { id1, id2, id3 };
+		Array<int> ids = {id1, id2, id3};
 
 		// possibility of double product
 		if (id1 == id2)
@@ -316,7 +347,7 @@ void PAClist::run()
 			curvar++;
 			isProd[c2(i, idr)] = curvar;
 			varfile << "isProd " << r->reactant1->name << " from " << r->reactant1->name << " : " << curvar << endl;
-			for (auto& r2 : simul->reactions)
+			for (auto &r2 : simul->reactions)
 			{
 				if (r2->idSAT <= idr)
 					continue;
@@ -345,7 +376,7 @@ void PAClist::run()
 	// correctness of isReac: either e is a reactant and dir=0, or e is a product and dir=1. Also reac[j] has to be true
 	// for isReac to be true we also need to verify that the other reactant is different, we do not want to allow A+A->AA in this direction
 
-	for (auto& r : simul->reactions)
+	for (auto &r : simul->reactions)
 	{
 		j = r->idSAT;
 
@@ -354,24 +385,24 @@ void PAClist::run()
 		int id1 = r->reactant1->idSAT;
 		int id2 = r->reactant2->idSAT;
 		int id3 = r->product->idSAT;
-		Array<int> ids = { id1, id2, id3 };
-		Array<int> idleft = { id1, id2 };
+		Array<int> ids = {id1, id2, id3};
+		Array<int> idleft = {id1, id2};
 
 		if (id1 == id2)
 		{
 			int ijj = c3(id1, j, j);
 			int ij = c2(id1, j);
 			// isProds <=> dir[j] and reac[j] and ent[i]
-			addClause({ isProds[ijj], -dir[j], -reac[j], -ent[id1] });
-			addClause({ -isProds[ijj], ent[id1] });
-			addClause({ -isProds[ijj], dir[j] });
-			addClause({ -isProds[ijj], reac[j] });
+			addClause({isProds[ijj], -dir[j], -reac[j], -ent[id1]});
+			addClause({-isProds[ijj], ent[id1]});
+			addClause({-isProds[ijj], dir[j]});
+			addClause({-isProds[ijj], reac[j]});
 			// isReac false if two reactants are the same
-			addClause({ -isReac[ij] });
+			addClause({-isReac[ij]});
 			// product normal (even if useless normally, Prods takes care of it)
-			addClause({ -isProd[ij], reac[j] });
-			addClause({ -isProd[ij], dir[j] });
-			addClause({ isProd[ij], -dir[j], -reac[j] });
+			addClause({-isProd[ij], reac[j]});
+			addClause({-isProd[ij], dir[j]});
+			addClause({isProd[ij], -dir[j], -reac[j]});
 		}
 		else
 		{ // if different, we can put conditions on both isReac
@@ -379,28 +410,28 @@ void PAClist::run()
 			{
 				int ij = c2(i, j);
 				// isProd <=> dir and reac
-				addClause({ -isProd[ij], reac[j] });
-				addClause({ -isProd[ij], dir[j] });
-				addClause({ isProd[ij], -dir[j], -reac[j] });
+				addClause({-isProd[ij], reac[j]});
+				addClause({-isProd[ij], dir[j]});
+				addClause({isProd[ij], -dir[j], -reac[j]});
 
 				// isReac <=> -dir and reac
-				addClause({ -isReac[ij], reac[j] });
-				addClause({ -isReac[ij], -dir[j] });
-				addClause({ isReac[ij], dir[j], -reac[j] });
+				addClause({-isReac[ij], reac[j]});
+				addClause({-isReac[ij], -dir[j]});
+				addClause({isReac[ij], dir[j], -reac[j]});
 			}
 		}
 		// for the solitary side
 		//  isReac <=> dir and reac
 		int ij = c2(id3, j);
-		addClause({ -isReac[ij], reac[j] });
-		addClause({ -isReac[ij], dir[j] });
-		addClause({ isReac[ij], -dir[j], -reac[j] });
+		addClause({-isReac[ij], reac[j]});
+		addClause({-isReac[ij], dir[j]});
+		addClause({isReac[ij], -dir[j], -reac[j]});
 		// isProd <=> -dir and reac
-		addClause({ -isProd[ij], reac[j] });
-		addClause({ -isProd[ij], -dir[j] });
-		addClause({ isProd[ij], dir[j], -reac[j] });
+		addClause({-isProd[ij], reac[j]});
+		addClause({-isProd[ij], -dir[j]});
+		addClause({isProd[ij], dir[j], -reac[j]});
 
-		for (auto& r2 : simul->reactions)
+		for (auto &r2 : simul->reactions)
 		{
 			int k = r2->idSAT;
 			if (k <= j)
@@ -411,10 +442,10 @@ void PAClist::run()
 				{
 					int ijk = c3(i, j, k);
 					// isProds[c3(i,j,k)]<=> ent[i] and isProd[c2(i,j)] and isProd[c2(i,
-					addClause({ -isProds[ijk], ent[i] });
-					addClause({ -isProds[ijk], isProd[c2(i, j)] });
-					addClause({ -isProds[ijk], isProd[c2(i, k)] });
-					addClause({ isProds[ijk], -isProd[c2(i, j)], -isProd[c2(i, k)], -ent[i] });
+					addClause({-isProds[ijk], ent[i]});
+					addClause({-isProds[ijk], isProd[c2(i, j)]});
+					addClause({-isProds[ijk], isProd[c2(i, k)]});
+					addClause({isProds[ijk], -isProd[c2(i, j)], -isProd[c2(i, k)], -ent[i]});
 				}
 			}
 		}
@@ -457,24 +488,24 @@ void PAClist::run()
 				if (it2 == isReac.end())
 					continue;
 
-				addClause({ -ent[i], -it1->second, -it2->second });
+				addClause({-ent[i], -it1->second, -it2->second});
 			}
 		}
 		// if the reaction is two to one (dir=0), the two reactants cannot be both in the pack:
 		//  AND_j -reac[j] or dir[j] or not ent[reac1] or not ent[reac2]
-		for (auto& r : simul->reactions)
+		for (auto &r : simul->reactions)
 		{
 			j = r->idSAT;
-			addClause({ -reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT] });
+			addClause({-reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT]});
 		}
 	}
 
 	// in each selected reaction, at least one reactant and the product are selected
-	for (auto& r : simul->reactions)
+	for (auto &r : simul->reactions)
 	{
 		j = r->idSAT;
-		addClause({ -reac[j], ent[r->reactant1->idSAT], ent[r->reactant2->idSAT] });
-		addClause({ -reac[j], ent[r->product->idSAT] });
+		addClause({-reac[j], ent[r->reactant1->idSAT], ent[r->reactant2->idSAT]});
+		addClause({-reac[j], ent[r->product->idSAT]});
 	}
 
 	// one entity is produced twice
@@ -507,9 +538,9 @@ void PAClist::run()
 			return a * (distMax + 1) * Nent + b * Nent + c;
 		};
 
-		for (auto& e : simul->entities)
+		for (auto &e : simul->entities)
 		{
-			for (auto& f : simul->entities)
+			for (auto &f : simul->entities)
 			{
 				for (int d = 0; d <= distMax; d++)
 				{
@@ -539,15 +570,15 @@ void PAClist::run()
 			{
 				// 0 distance true iff i=j
 				if (i == j)
-					addConClause({ dist[d2(i, 0, i)], -ent[i] });
+					addConClause({dist[d2(i, 0, i)], -ent[i]});
 				else
-					addConClause({ -dist[d2(i, 0, j)], -ent[i], -ent[j] });
+					addConClause({-dist[d2(i, 0, j)], -ent[i], -ent[j]});
 
 				for (int d = 0; d <= distMax; d++)
 				{
 					// dist=>ent
-					addConClause({ -dist[d2(i, d, j)], ent[i] });
-					addConClause({ -dist[d2(i, d, j)], ent[j] });
+					addConClause({-dist[d2(i, d, j)], ent[i]});
+					addConClause({-dist[d2(i, d, j)], ent[j]});
 				}
 			}
 		}
@@ -559,7 +590,7 @@ void PAClist::run()
 			return a * Nreac * distMax * Nent + b * distMax * Nent + c * Nent + t;
 		};
 		// initialisation
-		for (auto& r : simul->reactions)
+		for (auto &r : simul->reactions)
 		{
 			for (int d = 0; d < distMax; d++)
 			{
@@ -576,15 +607,15 @@ void PAClist::run()
 		}
 
 		// clauses advance
-		for (auto& r : simul->reactions)
+		for (auto &r : simul->reactions)
 		{
 			int id1 = r->reactant1->idSAT;
 			int id2 = r->reactant2->idSAT;
 			int id3 = r->product->idSAT;
-			Array<int> ids = { id1, id2, id3 };
+			Array<int> ids = {id1, id2, id3};
 
 			int idr = r->idSAT;
-			for (auto& f : ids)
+			for (auto &f : ids)
 			{
 
 				for (int d = 0; d < distMax; d++)
@@ -592,9 +623,9 @@ void PAClist::run()
 					for (int t = 0; t < Nent; t++)
 					{
 						// advance(f,r,d)=isProd(f,r) and dist(f,d)
-						addConClause({ -advance[d3(f, idr, d, t)], isProd[c2(f, idr)] });
-						addConClause({ -advance[d3(f, idr, d, t)], dist[d2(f, d, t)] });
-						addConClause({ advance[d3(f, idr, d, t)], -isProd[c2(f, idr)], -dist[d2(f, d, t)] });
+						addConClause({-advance[d3(f, idr, d, t)], isProd[c2(f, idr)]});
+						addConClause({-advance[d3(f, idr, d, t)], dist[d2(f, d, t)]});
+						addConClause({advance[d3(f, idr, d, t)], -isProd[c2(f, idr)], -dist[d2(f, d, t)]});
 					}
 				}
 			}
@@ -605,13 +636,13 @@ void PAClist::run()
 		{
 			for (int d = 0; d < distMax; d++)
 			{
-				for (auto& e : simul->entities)
+				for (auto &e : simul->entities)
 				{
 
 					Array<int> distClause;
 					distClause.add(-dist[d2(e->idSAT, d + 1, t)]);
 					distClause.add(dist[d2(e->idSAT, d, t)]);
-					for (auto& r : simul->reactions)
+					for (auto &r : simul->reactions)
 					{
 						int idr = r->idSAT;
 						if (!r->contains(e))
@@ -634,7 +665,7 @@ void PAClist::run()
 		{
 			for (int t = 0; t < Nent; t++)
 			{
-				addConClause({ -ent[i], -ent[t], dist[d2(i, distMax, t)] });
+				addConClause({-ent[i], -ent[t], dist[d2(i, distMax, t)]});
 			}
 		}
 		// write the dimacs
@@ -649,7 +680,7 @@ void PAClist::run()
 		dimacsStream.close();
 	};
 
-	int dmax_stop = 25;                // maximal dmax
+	int dmax_stop = 25;				   // maximal dmax
 	dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
 	const int maxCycles = 300; // max number of cycles of some level before timeout
@@ -659,7 +690,7 @@ void PAClist::run()
 	for (int dmax = 1; dmax < dmax_stop; dmax++)
 	{
 		writeDimacs(dmax, clauses.str(), nbClauses);
-		//bool sat = true;
+		// bool sat = true;
 
 		int nCycles;
 		for (nCycles = 0; nCycles < maxCycles; nCycles++)
@@ -685,10 +716,11 @@ void PAClist::run()
 				break;
 
 			int d;
-			PAC* pac = new PAC();
+			PAC *pac = new PAC();
 			Array<int> newClause;
-			//int cycleSize = 0;
-			for (auto& e : simul->entities)
+			//build new clause: one of the entity or reaction must be not used (otherwise we would have inclusion)
+			//we can still find smaller one with same dmax, in which case the first one found will be removed
+			for (auto &e : simul->entities)
 			{
 				sol_file >> d;
 				if (d > 0)
@@ -697,7 +729,7 @@ void PAClist::run()
 					pac->entities.add(e);
 				}
 			}
-			for (auto& r : simul->reactions)
+			for (auto &r : simul->reactions)
 			{
 				// reaction
 				int re;
