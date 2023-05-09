@@ -251,12 +251,6 @@ void PAClist::run()
 	sol_file.close();
 
 
-	cout << "sat return value: " << satReturnValue << endl;
-	cout << "unsat return value: " << unsatReturnValue << endl;
-
-	// TODO repaint the Logger
-
-	// open file
 	stringstream clauses;
 
 	ofstream varfile;
@@ -754,9 +748,9 @@ void PAClist::run()
 			writeDimacs(dmax, clauses.str(), nbClauses);
 		}
 		if (nCycles > 0)
-			cout << nCycles << " PACs found for dmax=" << dmax << endl;
-		else
-			cout << ".";
+			LOG(nCycles << " PACs found for dmax=" << dmax);
+		// else
+		// 	cout << ".";
 		if (nCycles == maxCycles)
 		{
 			LOGWARNING(to_string(maxCycles) + " PACs reached for diameter " + to_string(dmax) + ", stop looking");
