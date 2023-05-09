@@ -13,8 +13,8 @@ Generation::Generation() : ControllableContainer("Generation")
     // numLevels->x = 10;
     // numLevels->y = 20;
 
-    growthEntitiesPerLevel = addEnumParameter("Growth entities/level", "How the number of entities increase per level. Constant gives n+range[-u,u], Polynomial is a*level^b+range[-u,u], Proportion is a proportion 'a' of the total number of entities (1 for all), Propreactions fixed the number of entities just by selecting a proportion of reactions");
-    growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("Proportion", PROPORTION)->addOption("PropReactions", PROPREACTIONS);
+    growthEntitiesPerLevel = addEnumParameter("Growth entities/level", "How the number of entities increase per level. Constant gives n+range[-u,u], Polynomial is a*level^b+range[-u,u], Propreactions fixed the number of entities just by selecting a proportion of reactions");
+    growthEntitiesPerLevel->addOption("Constant", CONSTANT)->addOption("Polynomial", POLYNOMIAL)->addOption("PropReactions", PROPREACTIONS);
     // growthEntitiesPerLevel->hideInEditor = true;
 
     entPerLevNum = addIntParameter("Entities/level", "Base number of entities per level", 3, 1);
@@ -29,8 +29,8 @@ Generation::Generation() : ControllableContainer("Generation")
     entPerLevUncert = addIntParameter("Plus minus u", "Uncertainty on entity per level: +range[-u,u]", 5, 0);
     entPerLevUncert->hideInEditor = true;
 
-    propEntities = addFloatParameter("Proportion entities", "Proportion of entities to include", .5, 0., 1.);
-    propEntities->hideInEditor = true;
+    // propEntities = addFloatParameter("Proportion entities", "Proportion of entities to include", .5, 0., 1.);
+    // propEntities->hideInEditor = true;
 
     // old
     // maxReactionsPerEntity = addIntParameter("Max reactions per entity", "Maximal number of reactions forming an entity", 3, 1, 100);
@@ -81,8 +81,8 @@ void Generation::onContainerParameterChanged(Parameter *p)
             entPerLevA->hideInEditor = true;
             entPerLevB->hideInEditor = true;
             entPerLevUncert->hideInEditor = true;
-            propEntities->hideInEditor = true;
             propReactions->hideInEditor = true;
+            reactionsPerEntity->hideInEditor = false;
 
             break;
         case POLYNOMIAL:
@@ -90,24 +90,17 @@ void Generation::onContainerParameterChanged(Parameter *p)
             entPerLevA->hideInEditor = false;
             entPerLevB->hideInEditor = false;
             entPerLevUncert->hideInEditor = false;
-            propEntities->hideInEditor = true;
             propReactions->hideInEditor = true;
+            reactionsPerEntity->hideInEditor = false;
             break;
-        case PROPORTION:
-            entPerLevNum->hideInEditor = true;
-            entPerLevA->hideInEditor = true;
-            entPerLevB->hideInEditor = true;
-            entPerLevUncert->hideInEditor = true;
-            propEntities->hideInEditor = false;
-            propReactions->hideInEditor = true;
-            break;
+
         case PROPREACTIONS:
             entPerLevNum->hideInEditor = true;
             entPerLevA->hideInEditor = true;
             entPerLevB->hideInEditor = true;
             entPerLevUncert->hideInEditor = true;
-            propEntities->hideInEditor = true;
             propReactions->hideInEditor = false;
+            reactionsPerEntity->hideInEditor = true;
             break;
         default:
             break;

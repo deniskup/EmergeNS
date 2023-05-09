@@ -20,7 +20,7 @@ public:
     {
         CONSTANT,
         POLYNOMIAL,
-        PROPORTION,
+      //  PROPORTION,
         PROPREACTIONS
     };
 
@@ -35,7 +35,7 @@ public:
     FloatParameter *entPerLevA;
     FloatParameter *entPerLevB;
     IntParameter *entPerLevUncert;
-    FloatParameter *propEntities; //proportion of entities to include
+    //FloatParameter *propEntities; //proportion of entities to include
     
     IntParameter *entitiesPerLevel;
     Point2DParameter *initConcent;

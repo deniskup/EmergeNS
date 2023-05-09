@@ -96,13 +96,18 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
-  // set entities drawn
+  // set entities drawn and primary
   entitiesDrawn.clear();
+  
   for (auto &ent : entities)
   {
     if (ent->draw)
       entitiesDrawn.add(ent);
+    if (ent->primary)
+      primEnts.add(ent);
+    numLevels=jmax(numLevels,ent->level+1);
   }
+  
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
@@ -415,7 +420,7 @@ void Simulation::fetchGenerate()
   const int u = gen->entPerLevUncert->intValue();
 
   // proportional of total
-  const float propEnt = gen->propEntities->floatValue();
+  //const float propEnt = gen->propEntities->floatValue();
 
   const float propReac = gen->propReactions->floatValue();
 
@@ -431,7 +436,6 @@ void Simulation::fetchGenerate()
   {
     CONSTANT,
     POLYNOMIAL,
-    PROPORTION,
     PROPREACTIONS
   };
 
@@ -444,9 +448,6 @@ void Simulation::fetchGenerate()
     break;
   case Generation::POLYNOMIAL:
     mode = POLYNOMIAL;
-    break;
-  case Generation::PROPORTION:
-    mode = PROPORTION;
     break;
   case Generation::PROPREACTIONS:
     mode = PROPREACTIONS;
@@ -484,11 +485,11 @@ void Simulation::fetchGenerate()
     case POLYNOMIAL:
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
       break;
-    case PROPORTION:
-      //
-      const int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
-      numEnts = (int)(propEnt * entsMaxAtLevel);
-      break;
+    // case PROPORTION:
+    //   //
+    //   const int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
+    //   numEnts = (int)(propEnt * entsMaxAtLevel);
+    //   break;
       // no need to fix numEnts for PROPREACTIONS
     }
     numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
