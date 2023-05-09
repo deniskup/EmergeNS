@@ -53,10 +53,10 @@ Generation::Generation() : ControllableContainer("Generation")
     destructionRate = addPoint2DParameter(" destruction rate / var", "destruction rate of entities");
     destructionRate->x=.5f;
     destructionRate->y=0.f;
-    energyPerLevel = addPoint2DParameter("Energy per level / var ", "Base energy of composite entities is coef*level");
+    energyPerLevel = addPoint2DParameter("Energy per level / var", "Base energy of composite entities is coef*level");
     energyPerLevel->x = 0.f;
     energyPerLevel->y = .5f;
-    energyBarrier = addPoint2DParameter(" energy barrier", " energy barrier of reactions");
+    energyBarrier = addPoint2DParameter(" energy barrier / var", " energy barrier of reactions");
     energyBarrier->x = 0.f;
     energyBarrier->y = 0.f;
 

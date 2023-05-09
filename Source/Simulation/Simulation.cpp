@@ -419,7 +419,7 @@ void Simulation::fetchGenerate()
 
   const float propReac = gen->propReactions->floatValue();
 
-  // reactions per entity
+  // reactions per entity, to change
   const int minReacPerEnt = gen->reactionsPerEntity->intValue();
   const int maxReacPerEnt = gen->reactionsPerEntity->intValue(); //parameter to add
 
