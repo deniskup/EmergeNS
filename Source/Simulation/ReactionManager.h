@@ -14,6 +14,4 @@ public:
 	ReactionManager();
 	~ReactionManager();
 
-	int computeCompositions();
-
 };

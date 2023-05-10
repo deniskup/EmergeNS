@@ -171,7 +171,7 @@ public:
   void fetchGenerate();
   void fetchManual();
   void loadToManualMode();
-  void start();
+  void start(bool restart=false);
   void nextStep();
   void stop();
   void cancel();

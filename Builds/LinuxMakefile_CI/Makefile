@@ -85,7 +85,6 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Reaction_93dd6f32.o \
   $(JUCE_OBJDIR)/Entity_a854b0ec.o \
   $(JUCE_OBJDIR)/Generation_cf1dc9a1.o \
-  $(JUCE_OBJDIR)/GlobalActions_b488bb3b.o \
   $(JUCE_OBJDIR)/EntityManager_7f5721ab.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
@@ -183,11 +182,6 @@ $(JUCE_OBJDIR)/Entity_a854b0ec.o: ../../Source/Simulation/Entity.cpp
 $(JUCE_OBJDIR)/Generation_cf1dc9a1.o: ../../Source/Simulation/Generation.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Generation.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
-
-$(JUCE_OBJDIR)/GlobalActions_b488bb3b.o: ../../Source/Simulation/GlobalActions.cpp
-	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling GlobalActions.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/EntityManager_7f5721ab.o: ../../Source/Simulation/EntityManager.cpp

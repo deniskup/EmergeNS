@@ -1,9 +1,7 @@
-#include "GlobalActions.h"
 #include "Simulation.h"
 #include "EntityManager.h"
 #include "ReactionManager.h"
 #include "Generation.h"
-
 
 using namespace std;
 
@@ -258,16 +256,14 @@ void Simulation::importJSONData(var data)
     }
   }
   ready = true;
-  toImport=false;
+  toImport = false;
   computeBarriers();
   updateParams();
 }
 
 void Simulation::importFromManual()
 {
-  if(computeCompositions()<0){
-    LOGWARNING("Simulation::importFromManual: invalid composition");
-  }
+  LOG("Importing from manual lists");
   for (auto &e : entities)
   {
     e->importFromManual();
@@ -276,7 +272,7 @@ void Simulation::importFromManual()
   {
     r->importFromManual();
   }
-  
+
   updateParams();
 }
 
@@ -365,7 +361,7 @@ void Simulation::fetchGenerate()
   int cur_id = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
-  
+
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
 
   const float initConcentBase = gen->initConcent->x;
@@ -415,12 +411,11 @@ void Simulation::fetchGenerate()
     entities.add(e);
     primEnts.add(e);
   }
-  //add dummy level 0
+  // add dummy level 0
   hierarchyEnt.add(Array<SimEntity *>());
 
-  //primEnts at level 1
+  // primEnts at level 1
   hierarchyEnt.add(primEnts);
-  
 
   // composite entities
 
@@ -631,12 +626,13 @@ void Simulation::fetchGenerate()
   // ready->setValue(true);
   ready = true;
   toImport = false;
-  if(loadToManualByDefault->boolValue()) loadToManualMode();
+  if (loadToManualByDefault->boolValue())
+    loadToManualMode();
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
 }
 
-void Simulation::start()
+void Simulation::start(bool restart)
 {
   if (!ready)
   {
@@ -645,11 +641,19 @@ void Simulation::start()
   }
   else
   {
-    //if (toImport) //to see how to put it to true, for now always considered true
-      importFromManual();
+    // if (toImport) //true if something changed in the manual lists
+    importFromManual();
   }
 
-  computeRates(); // compute reactions rates in case some energy settings are inactive
+  if (restart)
+  {
+    for (auto &e : entities)
+    {
+      e->concent = e->startConcent;
+    }
+  }
+
+  // computeRates(); // compute reactions rates in case some energy settings are inactive
 
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
@@ -909,23 +913,21 @@ SimReaction *Simulation::getSimReactionForID(int idSAT)
 
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
-  if (t == startTrigger)
-    start();
-  else if (t == genTrigger)
-    fetchGenerate();
+
+  if (t == genTrigger)
+      fetchGenerate();
   else if (t == genstartTrigger)
   {
     fetchGenerate();
-    start();
+    start(true);
   }
   else if (t == restartTrigger)
   {
-    for (auto &e : entities)
-    {
-      e->concent = e->startConcent;
-    }
-    start();
+    start(true);
   }
+  else if (t == startTrigger)
+    start(false);
+
   else if (t == cancelTrigger)
     cancel();
 }
@@ -939,7 +941,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   }
 }
 
-SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->concent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue(), e->freeEnergy->floatValue())
+SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->startConcent->floatValue(), e->creationRate->floatValue(), e->destructionRate->floatValue(), e->freeEnergy->floatValue())
 {
   name = e->niceName;
   entity = e;
@@ -1069,13 +1071,14 @@ String SimEntity::toString() const
 
 void SimEntity::importFromManual()
 {
-  startConcent = entity->concent->floatValue();
+  startConcent = entity->startConcent->floatValue();
   creationRate = entity->creationRate->floatValue();
   destructionRate = entity->destructionRate->floatValue();
   freeEnergy = entity->freeEnergy->floatValue();
   enabled = entity->enabled->boolValue();
   color = entity->itemColor->getColor();
-  level= entity->level;
+  level = entity->level;
+  composition = entity->composition;
 }
 
 void SimReaction::importFromManual()

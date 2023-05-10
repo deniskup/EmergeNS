@@ -28,6 +28,8 @@ public:
     WeakReference<ControllableContainer> linkedR2;
     WeakReference<ControllableContainer> linkedP;
 
+    bool reached;   // can this reaction be built from primary entities ?
+
     void updateWarnAndRates();
 
     bool shouldIncludeInSimulation();

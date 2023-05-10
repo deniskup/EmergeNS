@@ -1,5 +1,4 @@
-- detecter entités non atteintes dans computeCompositions, et les marquer comme telles, ne pas les importer dans la sim.
-- On doit cliquer Start plusieur fois c'est bizarre
+
 - option detecter automatiquement equilibre
 - Aligner les temps des dynamiques et des racs
 - Calculer les niveaux, composition
@@ -10,7 +9,7 @@
 
 
 - Cocher ce qui doit être généré
-
+- detecter entités non atteintes dans computeCompositions, et donner l'option de les enlever automatiquement de la sim ?
 - propEntities
 - ajouter les métaparamètres dans .sim (ou tout mettre dans le .ens y compris les PACs
 - donner la possibilité d'exporter les dynamiques temporelles

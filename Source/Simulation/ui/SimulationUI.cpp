@@ -104,7 +104,7 @@ void SimulationUI::paint(juce::Graphics &g)
     Rectangle<int> botBounds = getLocalBounds().removeFromBottom(50);
     String paramsToDisplay;
     if (!simul->ready)
-        paramsToDisplay << "No parameters loaded";
+        paramsToDisplay << "No simulation loaded";
     else
     {
         paramsToDisplay << simul->entities.size() << " entities         ";

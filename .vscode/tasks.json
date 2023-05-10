@@ -22,7 +22,13 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "make clean",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/Builds/LinuxMakefile && make clean",
+            "group": "build",
+            "problemMatcher": []
         }
-
     ]
 }

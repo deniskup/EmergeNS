@@ -154,7 +154,6 @@
     <ClCompile Include="..\..\Source\Simulation\Reaction.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Entity.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Generation.cpp"/>
-    <ClCompile Include="..\..\Source\Simulation\GlobalActions.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\EntityManager.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
@@ -2126,7 +2125,6 @@
     <ClInclude Include="..\..\Source\Simulation\ReactionManager.h"/>
     <ClInclude Include="..\..\Source\Simulation\Reaction.h"/>
     <ClInclude Include="..\..\Source\Simulation\Generation.h"/>
-    <ClInclude Include="..\..\Source\Simulation\GlobalActions.h"/>
     <ClInclude Include="..\..\Source\Simulation\EntityManager.h"/>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h"/>
     <ClInclude Include="..\..\Source\Simulation\Entity.h"/>

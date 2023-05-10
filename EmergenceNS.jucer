@@ -49,9 +49,6 @@
         <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
         <FILE id="sDu7fQ" name="Generation.cpp" compile="1" resource="0" file="Source/Simulation/Generation.cpp"/>
         <FILE id="qDam7y" name="Generation.h" compile="0" resource="0" file="Source/Simulation/Generation.h"/>
-        <FILE id="M7kBzD" name="GlobalActions.cpp" compile="1" resource="0"
-              file="Source/Simulation/GlobalActions.cpp"/>
-        <FILE id="RLf9hJ" name="GlobalActions.h" compile="0" resource="0" file="Source/Simulation/GlobalActions.h"/>
         <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
               file="Source/Simulation/EntityManager.cpp"/>
         <FILE id="L9QJVJ" name="EntityManager.h" compile="0" resource="0" file="Source/Simulation/EntityManager.h"/>

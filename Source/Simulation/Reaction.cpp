@@ -136,6 +136,7 @@ void Reaction::onContainerParameterChangedInternal(Parameter *p)
       ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
     }
   }
+  //Simulation::getInstance()->toImport = true;
   updateWarnAndRates();
 }
 

@@ -1,5 +1,6 @@
 #include "MainComponent.h"
-#include "Simulation/GlobalActions.h"
+#include "Simulation/EntityManager.h"
+#include "Simulation/Simulation.h"
 
 namespace NSCommandIDs
 {
@@ -97,13 +98,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	{
 	case NSCommandIDs::computeCompositions:
 	{
-		computeCompositions();
+		EntityManager::getInstance()->computeCompositions();
 	}
 	break;
 
 	case NSCommandIDs::normalizeEnergies:
 	{
-		normEnergies();
+		EntityManager::getInstance()->normEnergies();
 	}
 	break;
 

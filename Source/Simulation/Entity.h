@@ -16,7 +16,7 @@ public:
     //void fromSimEntity(SimEntity *e);
     
     BoolParameter *primary;
-    FloatParameter *concent;
+    FloatParameter *startConcent;
     FloatParameter *creationRate;    // absolute
     FloatParameter *destructionRate; // proportional to concentration
     FloatParameter *freeEnergy;
@@ -27,6 +27,8 @@ public:
     Array<int> composition; // number of each primary entities
     bool compHasBeenSet=false;
     bool colorIsSet=false;
+
+    bool reached = true; // can this entity be built from primary entities ?
 
     void onContainerParameterChangedInternal(Parameter *p) override;
 

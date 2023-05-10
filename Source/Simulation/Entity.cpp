@@ -7,7 +7,7 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
   primary = addBoolParameter("Primary", "Is the entity primary ?", true);
   creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 100.f);          // absolute
   destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 100.f); // proportional to concentration
-  concent = addFloatParameter("Start Concent.", "Start Concentration of the entity", .5f, .0f, 10.f);
+  startConcent= addFloatParameter("Start Concent.", "Start Concentration of the entity", .5f, .0f, 10.f);
   freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -20.f, 20.f);
   draw = addBoolParameter("Draw", "Draw the entity", true);
   setHasCustomColor(true);
@@ -18,7 +18,7 @@ Entity::Entity(SimEntity *e) : BaseItem(e->name)
   primary = addBoolParameter("Primary", "Is the entity primary ?", true);
   creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 100.f);          // absolute
   destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 100.f); // proportional to concentration
-  concent = addFloatParameter("Start Concent.", "Start Concentration of the entity", .5f, .0f, 100.f);
+  startConcent= addFloatParameter("Start Concent.", "Start Concentration of the entity", .5f, .0f, 100.f);
   freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -20.f, 20.f);
   draw = addBoolParameter("Draw", "Draw the entity", true);
   setHasCustomColor(true);
@@ -26,7 +26,7 @@ Entity::Entity(SimEntity *e) : BaseItem(e->name)
   primary->setValue(e->primary);
   creationRate->setValue(e->creationRate);
   destructionRate->setValue(e->destructionRate);
-  concent->setValue(e->startConcent);
+  startConcent->setValue(e->startConcent);
   freeEnergy->setValue(e->freeEnergy);
   itemColor->setColor(e->color);
   colorIsSet=true;
@@ -34,6 +34,8 @@ Entity::Entity(SimEntity *e) : BaseItem(e->name)
   level=e->level;
   id=e->id;
   draw->setValue(e->draw);
+
+
 
   // todo composition
 }
@@ -47,6 +49,8 @@ void Entity::onContainerParameterChangedInternal(Parameter *p)
     queuedNotifier.addMessage(new ContainerAsyncEvent(ContainerAsyncEvent::ControllableContainerNeedsRebuild, this));
     // other option: gray this field with creationRate->setEnabled(...);
   }
+
+  //Simulation::getInstance()->toImport = true;
 }
 
 Entity::~Entity()

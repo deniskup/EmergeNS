@@ -520,9 +520,6 @@
     <ClCompile Include="..\..\Source\Simulation\Generation.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Simulation\GlobalActions.cpp">
-      <Filter>EmergenceNS\Source\Simulation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\EntityManager.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
@@ -2695,9 +2692,6 @@
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Generation.h">
-      <Filter>EmergenceNS\Source\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Simulation\GlobalActions.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\EntityManager.h">
