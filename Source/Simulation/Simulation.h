@@ -113,6 +113,7 @@ public:
   BoolParameter *loadToManualByDefault;
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
+  BoolParameter *detectEquilibrium;
 
   // to explore variants
   BoolParameter *ignoreFreeEnergy;

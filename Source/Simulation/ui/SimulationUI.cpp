@@ -25,6 +25,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     autoScaleUI.reset(simul->autoScale->createToggle());
     ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
+    detectEqUI.reset(simul->detectEquilibrium->createToggle());
+
 
     // local parameter, won't be saved in the file.
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
@@ -39,9 +41,10 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI->setSize(100, 20);
     restartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
-    autoLoadUI->setSize(150, 20);
+    autoLoadUI->setSize(130, 20);
     autoScaleUI->setSize(100, 20);
     pointsDrawnUI->setSize(150, 20);
+    detectEqUI->setSize(120, 20);
 
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
@@ -57,6 +60,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(pointsDrawnUI.get());
     addAndMakeVisible(ignoreFreeEnergyUI.get());
     addAndMakeVisible(ignoreBarriersUI.get());
+    addAndMakeVisible(detectEqUI.get());
 
     saveSimBT.addListener(this);
     addAndMakeVisible(&saveSimBT);
@@ -169,12 +173,14 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(27);
 
-    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
     dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
     hr.removeFromLeft(20);
+    detectEqUI->setBounds(hr.removeFromLeft(detectEqUI->getWidth()));
+    hr.removeFromLeft(15);
     totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
     hr.removeFromLeft(20);
     pointsDrawnUI->setBounds(hr.removeFromLeft(pointsDrawnUI->getWidth()));

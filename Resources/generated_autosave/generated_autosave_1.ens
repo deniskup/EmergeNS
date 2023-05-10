@@ -35,20 +35,20 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1126,
+      "width": 1360,
+      "height": 697,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1126,
+          "width": 1360,
+          "height": 697,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 398,
-              "height": 1126,
+              "width": 181,
+              "height": 697,
               "currentContent": "Reactions",
               "tabs": [
                 {
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 1516,
-              "height": 1126,
+              "width": 1173,
+              "height": 697,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 1011,
-                  "height": 1126,
+                  "width": 840,
+                  "height": 697,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 1011,
-                      "height": 639,
+                      "width": 840,
+                      "height": 425,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -87,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 1011,
-                      "height": 481,
+                      "width": 840,
+                      "height": 266,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -100,8 +100,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 498,
-                  "height": 1126,
+                  "width": 327,
+                  "height": 697,
                   "currentContent": "Logger",
                   "tabs": [
                     {

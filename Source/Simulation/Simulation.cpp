@@ -33,6 +33,7 @@ juce_ImplementSingleton(Simulation)
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
   oneColor = addBoolParameter("Unicolor", "Use only one color for each RAC", true);
+  detectEquilibrium = addBoolParameter("Detect Equilibrium", "Detect equilibrium and stop simulation", false);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);

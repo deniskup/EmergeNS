@@ -38,6 +38,7 @@ public:
     unique_ptr<IntParameterLabelUI> pointsDrawnUI;
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
     unique_ptr<BoolToggleUI> ignoreBarriersUI;
+    unique_ptr<BoolToggleUI> detectEqUI;
 
 
     //for diplaying paramaters
