@@ -1,8 +1,19 @@
 
-Comprendre incohérence avant/après importation
-sur les vieilles simul, probablement probleme lié au calcul d'energie
+- Version ligne de commandes?
+- Définir des taille max de PACs...
+- charger manuel par défaut
+- Aligner les temps des dynamiques et des racs
+- Virer à postériori les entités non existantes
+- propEntities
+- ajouter les métaparamètres dans .sim (ou tout mettre dans le .ens y compris les PACs
+- donner la possibilité d'exporter les dynamiques temporelles
+- Calculer les niveaux
+- On doit ciquer Start plusieur fois c'est bizarre
+- Cocher ce qui doit être généré
+- Classement des entités par alpha numérique (comme les réactions)
+- Afficher la concentration actuelle de chaque entité
 
--Option pour faire varier des choses globalement dessus: energie libre moyenne, etc
+
 
 
 Entity<->simentity compositions, level
