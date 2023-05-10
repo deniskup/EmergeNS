@@ -369,5 +369,9 @@ void SimulationUI::newMessage(const ContainerAsyncEvent &e)
         {
             shouldRepaint = true;
         }
+        else if(e.targetControllable == simul-> detectEquilibrium)
+        {
+            shouldRepaint = true;
+        }
     }
 }

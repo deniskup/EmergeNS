@@ -1,5 +1,5 @@
 
-- option detecter automatiquement equilibre
+- detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Aligner les temps des dynamiques et des racs
 - Calculer les niveaux, composition
 - Classement des entités par alpha numérique (comme les réactions)

@@ -34,7 +34,7 @@ juce_ImplementSingleton(Simulation)
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
   oneColor = addBoolParameter("Unicolor", "Use only one color for each RAC", true);
   detectEquilibrium = addBoolParameter("Detect Equil.", "Detect equilibrium and stop simulation", false);
-  epsilonEq = addFloatParameter("Epsilon Equil.", "Epsilon for equilibrium detection", 0.01f, 0.f, 1.f);
+  epsilonEq = addFloatParameter("Eps.", "Epsilon for equilibrium detection", 0.001f, 0.f, 1.f);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
@@ -798,7 +798,7 @@ void Simulation::nextStep()
     }
   }
 
-  if (maxVarSpeed < epsilonEq->floatValue()){
+  if (detectEquilibrium->boolValue() && maxVarSpeed < epsilonEq->floatValue()){
     LOG("Equilibrium reached after time " << curStep*dt->floatValue() <<" s with max speed " << maxVarSpeed);
     stop();
   }
@@ -871,14 +871,14 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
-  LOG("Start thread");
+  LOG("--------- Start thread ---------");
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
   }
 
-  LOG("End thread");
+  LOG("--------- End thread ---------");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   LOG("Max RAC: " << pacList->maxRAC);
