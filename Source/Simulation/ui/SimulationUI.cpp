@@ -21,7 +21,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI.reset(simul->genstartTrigger->createButtonUI());
     restartUI.reset(simul->restartTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
-    generatedUI.reset(simul->generated->createToggle());
+    autoLoadUI.reset(simul->loadToManualByDefault->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
     ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
@@ -39,7 +39,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI->setSize(100, 20);
     restartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
-    generatedUI->setSize(100, 20);
+    autoLoadUI->setSize(150, 20);
     autoScaleUI->setSize(100, 20);
     pointsDrawnUI->setSize(150, 20);
 
@@ -52,7 +52,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(restartUI.get());
     addAndMakeVisible(cancelUI.get());
     addAndMakeVisible(autoScaleUI.get());
-    addAndMakeVisible(generatedUI.get());
+    addAndMakeVisible(autoLoadUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
     addAndMakeVisible(ignoreFreeEnergyUI.get());
@@ -117,13 +117,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);
 
-    // if simulation generated
-    // if(simul->generated->boolValue())
 
-    // TODO rectangle bottom left
-
-    // if simulation finished
-    // TODO rectangle bottom right
 
     if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
         return;
@@ -175,7 +169,7 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(27);
 
-    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + generatedUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
@@ -185,7 +179,7 @@ void SimulationUI::resized()
     hr.removeFromLeft(20);
     pointsDrawnUI->setBounds(hr.removeFromLeft(pointsDrawnUI->getWidth()));
     hr.removeFromLeft(40);
-    generatedUI->setBounds(hr.removeFromRight(generatedUI->getWidth()));
+    autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
 
     r.removeFromTop(8);
     hr = r.removeFromTop(30);
@@ -298,6 +292,8 @@ void SimulationUI::buttonClicked(Button *b)
             var data = JSON::parse(f);
             simul->importJSONData(data);
             LOG("Loaded from " << f.getFullPathName()); });
+            if(simul->loadToManualByDefault->boolValue())
+                simul->loadToManualMode();
     }
 }
 

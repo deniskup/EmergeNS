@@ -110,7 +110,7 @@ public:
   BoolParameter *finished;
   FloatParameter *dt;
   FloatParameter *totalTime;
-  BoolParameter *generated;
+  BoolParameter *loadToManualByDefault;
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
 
@@ -126,6 +126,8 @@ public:
   void computeRates();    // compute rates of reactions from their barriers and energy of entities
   void computeBarriers(); // compute barriers from rates and energy of entities
 
+
+  bool toImport=false; // to know if we have to import from manual changes
   bool ready;          // to know if ready to be launched, ie parameters generated
   float recordConcent; // record the higher concentration reached
   String recordEntity;
@@ -156,6 +158,7 @@ public:
   unique_ptr<PAClist> pacList;
   BoolParameter *oneColor; // to display RACs
   bool PACsGenerated = false;
+  
 
   // todo search and replace cycles to pacList->cycles etc in relevant files
 
@@ -168,7 +171,6 @@ public:
   void fetchGenerate();
   void fetchManual();
   void loadToManualMode();
-  void generate();
   void start();
   void nextStep();
   void stop();

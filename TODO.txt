@@ -1,30 +1,29 @@
-
-- Version ligne de commandes?
-- Définir des taille max de PACs...
-- charger manuel par défaut
+- detecter entités non atteintes dans computeCompositions, et les marquer comme telles, ne pas les importer dans la sim.
+- On doit cliquer Start plusieur fois c'est bizarre
+- option detecter automatiquement equilibre
 - Aligner les temps des dynamiques et des racs
-- Virer à postériori les entités non existantes
+- Calculer les niveaux, composition
+- Classement des entités par alpha numérique (comme les réactions)
+- Afficher la concentration actuelle de chaque entité
+- charger manuel par défaut
+- Définir des taille max de PACs et timeout par niveau...
+
+
+- Cocher ce qui doit être généré
+
 - propEntities
 - ajouter les métaparamètres dans .sim (ou tout mettre dans le .ens y compris les PACs
 - donner la possibilité d'exporter les dynamiques temporelles
-- Calculer les niveaux
-- On doit ciquer Start plusieur fois c'est bizarre
-- Cocher ce qui doit être généré
-- Classement des entités par alpha numérique (comme les réactions)
-- Afficher la concentration actuelle de chaque entité
+- Version ligne de commandes?
+- mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
+/NodeConnectionViewUI.cpp
 
 
-
-
-Entity<->simentity compositions, level
 
 JSON simul in separate file
 
 inclusion RAC plus fine:
 si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
-
-
-faire varier proportion des réactions et voir comment RACs et autres varient.
 
 à discuter comment comparer les modèles, par exemple:
 - nombre de RACs

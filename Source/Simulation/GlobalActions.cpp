@@ -76,7 +76,7 @@ int computeCompositions()
                 {
                     if (p->composition[prim] != r1->composition[prim] + r2->composition[prim])
                     {
-                        AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Unbalanced reactions", "Reaction " + r->niceName + " does not preserve primary entities, unable to compute compositions", "OK");
+                        //LOGWARNING("Unbalanced reactions", "Reaction " + r->niceName + " does not preserve primary entities, unable to compute compositions");
                         return -1;
                     }
                 }
@@ -90,7 +90,7 @@ int computeCompositions()
     }
     if (!reacToCheck.isEmpty())
     {
-        AlertWindow::showMessageBoxAsync(AlertWindow::AlertIconType::WarningIcon, "Unverified reactions", "Reaction " + reacToCheck[0]->niceName + " could not be verified", "OK");
+        //LOGWARNING("Reaction " + reacToCheck[0]->niceName + " could not be verified");
         return -1;
     }
     // optional: check that composition of everyone has been done
@@ -100,6 +100,17 @@ int computeCompositions()
         }
     }
     */
+
+   //compute levels based on compositions
+    for (auto &e : EntityManager::getInstance()->items)
+    {
+        e->level = 0;
+        for (int prim = 0; prim < curId; prim++)
+        {
+            e->level+=e->composition[prim];
+        }
+    }
+
     return curId;
 }
 

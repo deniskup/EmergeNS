@@ -33,7 +33,7 @@ public:
     unique_ptr<TriggerUI> cancelUI;
     unique_ptr<TriggerUI> saveSimUI;
     unique_ptr<TriggerUI> loadSimUI;
-    unique_ptr<BoolToggleUI> generatedUI;
+    unique_ptr<BoolToggleUI> autoLoadUI;
     unique_ptr<BoolToggleUI> autoScaleUI;
     unique_ptr<IntParameterLabelUI> pointsDrawnUI;
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;

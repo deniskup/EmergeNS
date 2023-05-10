@@ -1,9 +1,9 @@
-
-//#include "GlobalActions.h"
+#include "GlobalActions.h"
 #include "Simulation.h"
 #include "EntityManager.h"
 #include "ReactionManager.h"
 #include "Generation.h"
+
 
 using namespace std;
 
@@ -27,7 +27,7 @@ juce_ImplementSingleton(Simulation)
   finished->setControllableFeedbackOnly(true);
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
-  generated = addBoolParameter("Generated", "Are the entities manually chosen or generated ?", false);
+  loadToManualByDefault = addBoolParameter("AutoLoad to Lists", "Automatically load the current simulation to manual lists", true);
   genTrigger = addTrigger("Generate", "Generate");
   startTrigger = addTrigger("Continue", "Continue");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
@@ -91,23 +91,23 @@ void Simulation::clearParams()
   reactions.clear();
   pacList->clear();
   ready = false;
-  numLevels=-1;
+  numLevels = -1;
 }
 
 void Simulation::updateParams()
 {
   // set entities drawn and primary
   entitiesDrawn.clear();
-  
+
   for (auto &ent : entities)
   {
     if (ent->draw)
       entitiesDrawn.add(ent);
     if (ent->primary)
       primEnts.add(ent);
-    numLevels=jmax(numLevels,ent->level+1);
+    numLevels = jmax(numLevels, ent->level);
   }
-  
+
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
@@ -257,14 +257,17 @@ void Simulation::importJSONData(var data)
       }
     }
   }
-  generated->setValue(true);
   ready = true;
+  toImport=false;
   computeBarriers();
   updateParams();
 }
 
 void Simulation::importFromManual()
 {
+  if(computeCompositions()<0){
+    LOGWARNING("Simulation::importFromManual: invalid composition");
+  }
   for (auto &e : entities)
   {
     e->importFromManual();
@@ -273,6 +276,8 @@ void Simulation::importFromManual()
   {
     r->importFromManual();
   }
+  
+  updateParams();
 }
 
 void Simulation::computeRates()
@@ -310,7 +315,6 @@ void Simulation::fetchManual()
   }
 
   // todo compute levels and primary entities
-  
 
   ready = true;
   updateParams();
@@ -340,7 +344,7 @@ void Simulation::loadToManualMode()
     //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
-  generated->setValue(false);
+  toImport = false; // until we change something manually
 }
 
 void Simulation::fetchGenerate()
@@ -361,6 +365,7 @@ void Simulation::fetchGenerate()
   int cur_id = 0;
 
   Array<Array<SimEntity *>> hierarchyEnt;
+  
   // Array<SimEntity *> primEnts; primEnts is part of Simulation
 
   const float initConcentBase = gen->initConcent->x;
@@ -385,7 +390,7 @@ void Simulation::fetchGenerate()
     const float dRate = jmax(0.f, dRateBase + randFloat(-dRateVar, dRateVar));
     const float cRate = jmax(0.f, cRateBase + randFloat(-cRateVar, cRateVar));
     SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
-    e->level = 0;
+    e->level = 1;
     e->id = cur_id;
     e->freeEnergy = 0;
     cur_id++;
@@ -410,7 +415,12 @@ void Simulation::fetchGenerate()
     entities.add(e);
     primEnts.add(e);
   }
+  //add dummy level 0
+  hierarchyEnt.add(Array<SimEntity *>());
+
+  //primEnts at level 1
   hierarchyEnt.add(primEnts);
+  
 
   // composite entities
 
@@ -420,13 +430,13 @@ void Simulation::fetchGenerate()
   const int u = gen->entPerLevUncert->intValue();
 
   // proportional of total
-  //const float propEnt = gen->propEntities->floatValue();
+  // const float propEnt = gen->propEntities->floatValue();
 
   const float propReac = gen->propReactions->floatValue();
 
   // reactions per entity, to change
   const int minReacPerEnt = gen->reactionsPerEntity->intValue();
-  const int maxReacPerEnt = gen->reactionsPerEntity->intValue(); //parameter to add
+  const int maxReacPerEnt = gen->reactionsPerEntity->intValue(); // parameter to add
 
   // multisets[i][j] is the number of multisets of size i with j elements, i.e. the number of entities of size i with j primary entiies
   vector<vector<int>> multisets(numLevels + 1, vector<int>(nbPrimEnts + 1, 0));
@@ -473,7 +483,7 @@ void Simulation::fetchGenerate()
     }
   }
 
-  for (int level = 1; level < numLevels; level++)
+  for (int level = 2; level <= numLevels; level++)
   {
     Array<SimEntity *> levelEnt;
     int numEnts = 1;
@@ -485,11 +495,11 @@ void Simulation::fetchGenerate()
     case POLYNOMIAL:
       numEnts = (int)(aGrowth * pow(level, bGrowth) + randInt(-u, u));
       break;
-    // case PROPORTION:
-    //   //
-    //   const int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
-    //   numEnts = (int)(propEnt * entsMaxAtLevel);
-    //   break;
+      // case PROPORTION:
+      //   //
+      //   const int entsMaxAtLevel = multisets[level + 1][nbPrimEnts];
+      //   numEnts = (int)(propEnt * entsMaxAtLevel);
+      //   break;
       // no need to fix numEnts for PROPREACTIONS
     }
     numEnts = jmax(1, numEnts); // at least one entity per level, maybe not necessary later but needed for now.
@@ -497,9 +507,9 @@ void Simulation::fetchGenerate()
     // list all possible compositions from previous entities
     // recall that CompoDecomps is a struct with a composition and a list of decompositions
     Array<CompoDecomps *> compos; // first working thing, Hashtable or sorted array later ?
-    for (int lev1 = 0; lev1 < level; lev1++)
+    for (int lev1 = 1; lev1 < level; lev1++)
     {
-      int lev2 = level - lev1 - 1; // complement level
+      int lev2 = level - lev1; // complement level
       if (lev2 < lev1)
         break; // no need to do the reverse cases
       // compute all combinations
@@ -620,36 +630,30 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
+  toImport = false;
+  if(loadToManualByDefault->boolValue()) loadToManualMode();
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
 }
 
-void Simulation::generate()
+void Simulation::start()
 {
-  if (generated->boolValue())
+  if (!ready)
   {
-    fetchGenerate();
+    LOGWARNING("No simulation loaded, using manual lists");
+    fetchManual();
   }
   else
   {
-    fetchManual();
+    //if (toImport) //to see how to put it to true, for now always considered true
+      importFromManual();
   }
-}
 
-void Simulation::start()
-{
-  if (!generated->boolValue())
-    importFromManual();
   computeRates(); // compute reactions rates in case some energy settings are inactive
 
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
-  if (!ready)
-  {
-    LOGWARNING("Start with no parameters, generating parameters");
-    generate();
-  }
 
   Array<float> entityValues;
   Array<Colour> entityColors;
@@ -908,10 +912,10 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
   if (t == startTrigger)
     start();
   else if (t == genTrigger)
-    generate();
+    fetchGenerate();
   else if (t == genstartTrigger)
   {
-    generate();
+    fetchGenerate();
     start();
   }
   else if (t == restartTrigger)
@@ -932,11 +936,6 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   if (p == dt || p == totalTime)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
-  }
-  if (p == generated)
-  {
-    // we no longer set ready to false if we switched generated to true
-    // we assume that we will only erase simulation with new ones, not go back to not ready
   }
 }
 
@@ -1076,6 +1075,7 @@ void SimEntity::importFromManual()
   freeEnergy = entity->freeEnergy->floatValue();
   enabled = entity->enabled->boolValue();
   color = entity->itemColor->getColor();
+  level= entity->level;
 }
 
 void SimReaction::importFromManual()
