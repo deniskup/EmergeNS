@@ -18,7 +18,7 @@ juce_ImplementSingleton(Simulation)
 
   dt = addFloatParameter("dt", "time step in ms", .001, 0.f);
   totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
-  pointsDrawn = addIntParameter("Points drawn", "Number of points drawn on curves", 100, 1, 500);
+  pointsDrawn = addIntParameter("Checkpoints", "Number of checkpoints to draw points and observe RACs", 100, 1);
   perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
   perCent->setControllableFeedbackOnly(true);
   finished = addBoolParameter("Finished", "Finished", false);
@@ -33,7 +33,8 @@ juce_ImplementSingleton(Simulation)
   cancelTrigger = addTrigger("Cancel", "Cancel");
   autoScale = addBoolParameter("Auto Scale", "Automatically scale to maximal concentration reached", true);
   oneColor = addBoolParameter("Unicolor", "Use only one color for each RAC", true);
-  detectEquilibrium = addBoolParameter("Detect Equilibrium", "Detect equilibrium and stop simulation", false);
+  detectEquilibrium = addBoolParameter("Detect Equil.", "Detect equilibrium and stop simulation", false);
+  epsilonEq = addFloatParameter("Epsilon Equil.", "Epsilon for equilibrium detection", 0.01f, 0.f, 1.f);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
 
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
@@ -654,7 +655,7 @@ void Simulation::start(bool restart)
     }
   }
 
-  // computeRates(); // compute reactions rates in case some energy settings are inactive
+   computeRates(); // compute reactions rates to take into account the ignored energies
 
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
@@ -702,6 +703,7 @@ void Simulation::nextStep()
   // add primary->boolValue() entities
   for (auto &ent : entities)
   {
+    ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
     if (ent->primary)
     {
       ent->concent += ent->creationRate * dt->floatValue();
@@ -760,6 +762,8 @@ void Simulation::nextStep()
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
 
+  float maxVar = 0.;
+
   for (auto &ent : entities)
   {
     if (isinf(ent->concent))
@@ -774,12 +778,16 @@ void Simulation::nextStep()
       recordEntity = ent->name;
     }
 
+    float variation = abs(ent->concent - ent->previousConcent);
+    maxVar = jmax(maxVar, variation);
+
     if (ent->draw && ent->concent > recordDrawn)
     {
       recordDrawn = ent->concent;
       recordDrawnEntity = ent->name;
     }
   }
+  maxVarSpeed = maxVar / dt->floatValue();
 
   if (displayLog)
   {
@@ -790,6 +798,10 @@ void Simulation::nextStep()
     }
   }
 
+  if (maxVarSpeed < epsilonEq->floatValue()){
+    LOG("Equilibrium reached after time " << curStep*dt->floatValue() <<" s with max speed " << maxVarSpeed);
+    stop();
+  }
   // rest only to call only pointsDrawn time
   if (!isCheck)
     return;
@@ -916,7 +928,7 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
 
   if (t == genTrigger)
-      fetchGenerate();
+    fetchGenerate();
   else if (t == genstartTrigger)
   {
     fetchGenerate();
@@ -939,6 +951,10 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   if (p == dt || p == totalTime)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
+  }
+  if (p == detectEquilibrium)
+  {
+    epsilonEq->hideInEditor = !detectEquilibrium->boolValue();
   }
 }
 

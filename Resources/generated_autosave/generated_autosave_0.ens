@@ -134,13 +134,16 @@
         "controlAddress": "/totalTime"
       },
       {
-        "value": 200,
-        "hexMode": false,
-        "controlAddress": "/pointsDrawn"
-      },
-      {
         "value": 0.5,
         "controlAddress": "/maxConcent"
+      },
+      {
+        "value": true,
+        "controlAddress": "/detectEquil"
+      },
+      {
+        "value": 0.01,
+        "controlAddress": "/epsilonEquil"
       }
     ]
   },

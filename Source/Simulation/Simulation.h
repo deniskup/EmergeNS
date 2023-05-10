@@ -28,6 +28,7 @@ public:
   int id; // unique identifier
   float concent;
   float startConcent;
+  float previousConcent;
   float creationRate;
   float destructionRate;
   float freeEnergy;
@@ -114,6 +115,7 @@ public:
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
   BoolParameter *detectEquilibrium;
+  FloatParameter *epsilonEq;
 
   // to explore variants
   BoolParameter *ignoreFreeEnergy;
@@ -134,6 +136,7 @@ public:
   String recordEntity;
   float recordDrawn; // same but only for drawn entities for autoscale
   String recordDrawnEntity;
+  float maxVarSpeed; //maximal variation speed in the last dt among entities
 
   int checkPoint; // every checkPoint steps, wait and log
   bool displayLog = false;

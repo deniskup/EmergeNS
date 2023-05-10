@@ -39,6 +39,7 @@ public:
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
     unique_ptr<BoolToggleUI> ignoreBarriersUI;
     unique_ptr<BoolToggleUI> detectEqUI;
+    unique_ptr<FloatParameterLabelUI> epsilonEqUI;
 
 
     //for diplaying paramaters
@@ -50,6 +51,9 @@ public:
     // local floatparameter
     // std::unique_ptr<FloatParameter> maxC;
     // std::unique_ptr<FloatParameterLabelUI> maxCUI;
+
+    int firstLineHeight=30; //Height of the first line of buttons
+    int secondLineHeight=30; //Height of the second line of buttons
 
     void paint(juce::Graphics &) override;
     void resized() override;

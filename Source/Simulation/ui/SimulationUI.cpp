@@ -26,6 +26,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
     detectEqUI.reset(simul->detectEquilibrium->createToggle());
+    epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
+
 
 
     // local parameter, won't be saved in the file.
@@ -45,6 +47,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     autoScaleUI->setSize(100, 20);
     pointsDrawnUI->setSize(150, 20);
     detectEqUI->setSize(120, 20);
+    epsilonEqUI->setSize(100, 20);
 
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
@@ -61,6 +64,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(ignoreFreeEnergyUI.get());
     addAndMakeVisible(ignoreBarriersUI.get());
     addAndMakeVisible(detectEqUI.get());
+    addAndMakeVisible(epsilonEqUI.get());
 
     saveSimBT.addListener(this);
     addAndMakeVisible(&saveSimBT);
@@ -171,15 +175,17 @@ void SimulationUI::paint(juce::Graphics &g)
 void SimulationUI::resized()
 {
     Rectangle<int> r = getLocalBounds();
-    Rectangle<int> hr = r.removeFromTop(27);
+    Rectangle<int> hr = r.removeFromTop(firstLineHeight);
 
-    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ epsilonEqUI->getWidth()+15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
     dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
     hr.removeFromLeft(20);
     detectEqUI->setBounds(hr.removeFromLeft(detectEqUI->getWidth()));
+    hr.removeFromLeft(15); 
+    epsilonEqUI->setBounds(hr.removeFromLeft(epsilonEqUI->getWidth()));
     hr.removeFromLeft(15);
     totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
     hr.removeFromLeft(20);
@@ -188,7 +194,7 @@ void SimulationUI::resized()
     autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
 
     r.removeFromTop(8);
-    hr = r.removeFromTop(30);
+    hr = r.removeFromTop(secondLineHeight);
 
     //compute button width
     const float nButtons=5;
