@@ -12,11 +12,11 @@ public:
 	EntityManager();
 	~EntityManager();
 
-	Trigger *generateTrigger;
+	//Trigger *generateTrigger;
 
 	void addItemInternal(Entity *e, var params) override;
 
-	void onContainerTriggerTriggered(Trigger *t) override;
+	//void onContainerTriggerTriggered(Trigger *t) override;
 
 	void computeReachedEntReacs();
 	// compute the number of each primary entities incomposite ones from the reactions, and check validity

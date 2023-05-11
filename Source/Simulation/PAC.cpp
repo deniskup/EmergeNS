@@ -741,7 +741,8 @@ void PAClist::run()
 				}
 			}
 			addCycle(pac);
-			// cout << pac->toString() << endl;
+
+			cout << pac->toString() << endl;
 			if (pac->entities.size() != pac->reacDirs.size())
 				cout << "Problem with PAC :" << pac->toString() << endl;
 			addClause(newClause);

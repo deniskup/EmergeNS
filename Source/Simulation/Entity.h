@@ -23,8 +23,8 @@ public:
     FloatParameter *freeEnergy;
     BoolParameter *draw;
 
-    int id; //will be used as index for primary entities
-    int level;
+    int id=-1; //will be used as index for primary entities
+    int level=-1;
     Array<int> composition; // number of each primary entities
     bool compHasBeenSet=false;
     bool colorIsSet=false;

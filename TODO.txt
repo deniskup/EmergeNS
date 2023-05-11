@@ -2,7 +2,7 @@
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
 - Définir des taille max de PACs et timeout par niveau...
--utiliser un pointeur au lieu de simentityForEntity
+
 
 
 - Cocher ce qui doit être généré
@@ -13,6 +13,7 @@
 - Version ligne de commandes?
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
 /NodeConnectionViewUI.cpp
+-utiliser un pointeur au lieu de simentityForEntity
 
 
 

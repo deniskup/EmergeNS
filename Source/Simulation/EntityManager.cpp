@@ -12,7 +12,7 @@ juce_ImplementSingleton(EntityManager);
 
 EntityManager::EntityManager() : BaseManager("Entities")
 {
-	generateTrigger = addTrigger("Generate", "To generate entities");
+	//generateTrigger = addTrigger("Generate", "To generate entities");
 }
 
 EntityManager::~EntityManager()
@@ -31,10 +31,10 @@ void EntityManager::addItemInternal(Entity *e, var params)
 	e->colorIsSet = true;
 }
 
-void EntityManager::onContainerTriggerTriggered(Trigger *t)
-{
-	LOG("Trigger " << t->niceName);
-}
+// void EntityManager::onContainerTriggerTriggered(Trigger *t)
+// {
+// 	LOG("Trigger " << t->niceName);
+// }
 
 
 void EntityManager::computeReachedEntReacs()
@@ -88,6 +88,17 @@ void EntityManager::computeReachedEntReacs()
 				reacToCheck.removeFirstMatchingValue(r);
 		}
 	}
+	// check if all entities are reached
+	bool unreached = false;
+	for (auto &e : items)
+	{
+		if (!e->reached)
+		{
+			unreached=true;
+			LOG("Entity " << e->niceName << " is not reached");
+		}
+	}
+	if(!unreached) LOG("All entities are reached from primary ones");
 }
 
 int EntityManager::computeCompositions()
@@ -181,6 +192,7 @@ int EntityManager::computeCompositions()
 	*/
 
 	// compute levels based on compositions
+	int maxlevel=0;
 	for (auto &e : items)
 	{
 		e->level = 0;
@@ -188,9 +200,11 @@ int EntityManager::computeCompositions()
 		{
 			e->level += e->composition[prim];
 		}
+		maxlevel = jmax(maxlevel, e->level);
 	}
-
-	return curId;
+	LOG("Compositions computed, max level is " << maxlevel);
+	Simulation::getInstance()->numLevels=maxlevel;
+	return maxlevel;
 }
 
 void EntityManager::normEnergies()

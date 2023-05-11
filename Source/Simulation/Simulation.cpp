@@ -153,14 +153,14 @@ var Simulation::toJSONData()
   data.getDynamicObject()->setProperty("primEnts", prim_ents);
 
   // entitiesDrawn
-  var entDrawn;
-  for (auto &e : entitiesDrawn)
-  {
-    var coord = new DynamicObject();
-    coord.getDynamicObject()->setProperty("ent_id", e->id);
-    entDrawn.append(coord);
-  }
-  data.getDynamicObject()->setProperty("entitiesDrawn", entDrawn);
+  // var entDrawn;
+  // for (auto &e : entitiesDrawn)
+  // {
+  //   var coord = new DynamicObject();
+  //   coord.getDynamicObject()->setProperty("ent_id", e->id);
+  //   entDrawn.append(coord);
+  // }
+  // data.getDynamicObject()->setProperty("entitiesDrawn", entDrawn);
 
   // cycles
   // todo: JSON for paclist
@@ -191,8 +191,6 @@ void Simulation::importJSONData(var data)
     recordEntity = data.getDynamicObject()->getProperty("recordEntity");
   if (data.getDynamicObject()->hasProperty("recordDrawn"))
     recordDrawn = data.getDynamicObject()->getProperty("recordDrawn");
-  if (data.getDynamicObject()->hasProperty("recordDrawnEntity"))
-    recordDrawnEntity = data.getDynamicObject()->getProperty("recordDrawnEntity");
   if (data.getDynamicObject()->hasProperty("numLevels"))
     numLevels = data.getDynamicObject()->getProperty("numLevels");
   // To move to PACList later
@@ -222,16 +220,16 @@ void Simulation::importJSONData(var data)
   }
 
   // entitiesDrawn
-  entitiesDrawn.clear();
-  if (data.getDynamicObject()->hasProperty("entitiesDrawn"))
-  {
-    // todo verify array
-    auto entDrawns = data.getDynamicObject()->getProperty("entitiesDrawn").getArray();
-    for (auto &coord : *entDrawns)
-    {
-      entitiesDrawn.add(getSimEntityForID(coord["ent_id"]));
-    }
-  }
+  // entitiesDrawn.clear();
+  // if (data.getDynamicObject()->hasProperty("entitiesDrawn"))
+  // {
+  //   // todo verify array
+  //   auto entDrawns = data.getDynamicObject()->getProperty("entitiesDrawn").getArray();
+  //   for (auto &coord : *entDrawns)
+  //   {
+  //     entitiesDrawn.add(getSimEntityForID(coord["ent_id"]));
+  //   }
+  // }
   // primEnts
   primEnts.clear();
   if (data.getDynamicObject()->hasProperty("primEnts"))
@@ -880,7 +878,7 @@ void Simulation::run()
 
   LOG("--------- End thread ---------");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
-  LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
+  if(recordDrawn < recordConcent) LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
 
@@ -1127,6 +1125,8 @@ void SimEntity::importFromManual()
   color = entity->itemColor->getColor();
   level = entity->level;
   composition = entity->composition;
+  draw = entity->draw->boolValue();
+  primary = entity->primary->boolValue();
 }
 
 void SimReaction::importFromManual()
