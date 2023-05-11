@@ -17,6 +17,7 @@ public:
     
     BoolParameter *primary;
     FloatParameter *startConcent;
+    FloatParameter *concent;
     FloatParameter *creationRate;    // absolute
     FloatParameter *destructionRate; // proportional to concentration
     FloatParameter *freeEnergy;

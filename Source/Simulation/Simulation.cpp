@@ -342,7 +342,7 @@ void Simulation::loadToManualMode()
     //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
-  //toImport = false; // until we change something manually
+  // toImport = false; // until we change something manually
 }
 
 void Simulation::fetchGenerate()
@@ -627,9 +627,8 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-  toImport = false;
-  if (loadToManualByDefault->boolValue())
-    loadToManualMode();
+  // toImport = false;
+
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
 }
@@ -643,8 +642,8 @@ void Simulation::start(bool restart)
   }
   else
   {
-    if (toImport) //true if something changed in the manual lists
-    importFromManual();
+    if (toImport) // true if something changed in the manual lists
+      importFromManual();
   }
 
   if (restart)
@@ -655,7 +654,7 @@ void Simulation::start(bool restart)
     }
   }
 
-   computeRates(); // compute reactions rates to take into account the ignored energies
+  computeRates(); // compute reactions rates to take into account the ignored energies
 
   startTrigger->setEnabled(false);
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
@@ -798,8 +797,9 @@ void Simulation::nextStep()
     }
   }
 
-  if (detectEquilibrium->boolValue() && maxVarSpeed < epsilonEq->floatValue()){
-    LOG("Equilibrium reached after time " << curStep*dt->floatValue() <<" s with max speed " << maxVarSpeed);
+  if (detectEquilibrium->boolValue() && maxVarSpeed < epsilonEq->floatValue())
+  {
+    LOG("Equilibrium reached after time " << curStep * dt->floatValue() << " s with max speed " << maxVarSpeed);
     stop();
   }
   // rest only to call only pointsDrawn time
@@ -886,6 +886,7 @@ void Simulation::run()
 
   pacList->printRACs();
 
+  updateConcentLists();
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
@@ -898,7 +899,7 @@ SimEntity *Simulation::getSimEntityForEntity(Entity *e)
     if (se->entity == e)
       return se;
   }
-  jassertfalse;
+  // jassertfalse;
   return nullptr;
 }
 
@@ -924,24 +925,52 @@ SimReaction *Simulation::getSimReactionForID(int idSAT)
   return nullptr;
 }
 
+void Simulation::updateConcentLists()
+{
+
+  for (auto &ent : EntityManager::getInstance()->items)
+  {
+    auto se = getSimEntityForEntity(ent);
+    if (se != nullptr)
+    {
+      ent->concent->setValue(se->concent);
+      LOG("Update concent for " << ent->niceName << " to " << se->concent);
+    }
+    else
+    {
+      LOGWARNING("No SimEntity for entity " << ent->niceName);
+    }
+  }
+}
+
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
 
   if (t == genTrigger)
+  {
     fetchGenerate();
+    if (loadToManualByDefault->boolValue())
+      loadToManualMode();
+  }
   else if (t == genstartTrigger)
   {
     fetchGenerate();
-    toImport=false;
+    if (loadToManualByDefault->boolValue())
+      loadToManualMode();
+    toImport = false;
     start(true);
-    toImport=true;
+    toImport = true;
   }
   else if (t == restartTrigger)
   {
+    toImport = true;
     start(true);
   }
   else if (t == startTrigger)
+  {
+    toImport = true;
     start(false);
+  }
 
   else if (t == cancelTrigger)
     cancel();
@@ -1091,6 +1120,7 @@ String SimEntity::toString() const
 void SimEntity::importFromManual()
 {
   startConcent = entity->startConcent->floatValue();
+  concent = entity->concent->floatValue();
   creationRate = entity->creationRate->floatValue();
   destructionRate = entity->destructionRate->floatValue();
   freeEnergy = entity->freeEnergy->floatValue();

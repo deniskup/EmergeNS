@@ -1,11 +1,8 @@
 
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
-- Aligner les temps des dynamiques et des racs
-- Calculer les niveaux, composition
 - Classement des entités par alpha numérique (comme les réactions)
-- Afficher la concentration actuelle de chaque entité
-- charger manuel par défaut
 - Définir des taille max de PACs et timeout par niveau...
+-utiliser un pointeur au lieu de simentityForEntity
 
 
 - Cocher ce qui doit être généré

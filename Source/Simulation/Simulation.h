@@ -21,7 +21,7 @@ public:
   var toJSONData();    // save to JSON
 
   String name;
-  Entity *entity; // sourceEntity
+  Entity *entity = nullptr; // sourceEntity
 
   Colour color;
   bool primary;
@@ -33,9 +33,9 @@ public:
   float destructionRate;
   float freeEnergy;
 
-  void importFromManual(); //retrieve info from pointer to Manual settings
+  void importFromManual(); // retrieve info from pointer to Manual settings
 
-  bool enabled=true;
+  bool enabled = true;
 
   int level;
   bool draw = true;
@@ -59,7 +59,7 @@ class SimReaction
 {
 public:
   SimReaction(Reaction *);
-  SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate, float barrier=0.f);
+  SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate, float barrier = 0.f);
 
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
@@ -70,10 +70,9 @@ public:
   SimEntity *reactant2;
   SimEntity *product;
 
-  bool enabled=true; // to know if the reaction is enabled or not
+  bool enabled = true; // to know if the reaction is enabled or not
 
   String name; // should be a+b=c
-
 
   void setName();
 
@@ -84,7 +83,7 @@ public:
   void computeRate(bool noBarrier = false, bool noFreeEnergy = false);
   void computeBarrier();
 
-  void importFromManual(); //retrieve info from pointer to Manual settings
+  void importFromManual(); // retrieve info from pointer to Manual settings
 
   int idSAT = 0; // identifier for SAT Solving
   float flow;    // flow = dProduct/dt due to the reaction
@@ -121,22 +120,22 @@ public:
   BoolParameter *ignoreFreeEnergy;
   BoolParameter *ignoreBarriers;
 
- //actually just equal to not generated
- // bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
+  // actually just equal to not generated
+  //  bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
 
-  void importFromManual();   // import from manual changes using pointers
+  void importFromManual(); // import from manual changes using pointers
+  void updateConcentLists(); //for each entity in the list, import its concentration from its simentity
 
   void computeRates();    // compute rates of reactions from their barriers and energy of entities
   void computeBarriers(); // compute barriers from rates and energy of entities
 
-
-  bool toImport=false; // to know if we have to import from manual changes
-  bool ready;          // to know if ready to be launched, ie parameters generated
-  float recordConcent; // record the higher concentration reached
+  bool toImport = false; // to know if we have to import from manual changes
+  bool ready;            // to know if ready to be launched, ie parameters generated
+  float recordConcent;   // record the higher concentration reached
   String recordEntity;
   float recordDrawn; // same but only for drawn entities for autoscale
   String recordDrawnEntity;
-  float maxVarSpeed; //maximal variation speed in the last dt among entities
+  float maxVarSpeed; // maximal variation speed in the last dt among entities
 
   int checkPoint; // every checkPoint steps, wait and log
   bool displayLog = false;
@@ -145,7 +144,7 @@ public:
   // these ones are for display
   FloatParameter *maxConcent;
   BoolParameter *realTime; // do we print intermediary steps ?
-  //for alignment of simulation and RACs
+  // for alignment of simulation and RACs
   int leftMargin = 50;
   int rightMargin = 10;
 
@@ -159,13 +158,12 @@ public:
   OwnedArray<SimReaction> reactions; // all reactions
   Array<SimEntity *> primEnts;       // primary entities, useful to recover the number i
 
-  int numLevels=-1;
+  int numLevels = -1;
 
   // gestion des PACs
   unique_ptr<PAClist> pacList;
   BoolParameter *oneColor; // to display RACs
   bool PACsGenerated = false;
-  
 
   // todo search and replace cycles to pacList->cycles etc in relevant files
 
@@ -178,7 +176,7 @@ public:
   void fetchGenerate();
   void fetchManual();
   void loadToManualMode();
-  void start(bool restart=false);
+  void start(bool restart = false);
   void nextStep();
   void stop();
   void cancel();

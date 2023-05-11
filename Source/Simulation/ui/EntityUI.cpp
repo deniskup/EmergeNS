@@ -3,9 +3,9 @@
 
 EntityUI::EntityUI(Entity *entity) : BaseItemUI(entity)
 {
-    // create slider for energy
-    energyUI.reset(item->freeEnergy->createSlider());
-    addAndMakeVisible(energyUI.get());
+    // create field for concentration
+    concentUI.reset(item->concent->createLabelParameter());
+    addAndMakeVisible(concentUI.get());
     updateTextColor();
     // redimensionner les header des entities dans le manager
     //   headerHeight= 30;
@@ -26,7 +26,7 @@ void EntityUI::updateTextColor()
 void EntityUI::resizedInternalHeader(Rectangle<int> &r)
 {
     // position the slider
-    energyUI->setBounds(r.removeFromRight(100).reduced(1));
+    concentUI->setBounds(r.removeFromRight(100).reduced(1));
 }
 
 void EntityUI::controllableFeedbackUpdateInternal(Controllable *c)

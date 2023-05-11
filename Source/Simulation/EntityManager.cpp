@@ -36,6 +36,7 @@ void EntityManager::onContainerTriggerTriggered(Trigger *t)
 	LOG("Trigger " << t->niceName);
 }
 
+
 void EntityManager::computeReachedEntReacs()
 {
 	// set primary entities to reached
@@ -122,7 +123,8 @@ int EntityManager::computeCompositions()
 	bool progress = true;
 	Array<Reaction *> reacToCheck;
 	for (auto &r : ReactionManager::getInstance()->items)
-		if(r->reached) reacToCheck.add(r);
+		if (r->reached)
+			reacToCheck.add(r);
 	while (!reacToCheck.isEmpty())
 	{
 		progress = false;

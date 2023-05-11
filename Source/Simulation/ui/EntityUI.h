@@ -10,7 +10,7 @@ public:
     EntityUI(Entity* entity);
     ~EntityUI();
 
-    std::unique_ptr<FloatSliderUI> energyUI;
+    std::unique_ptr<FloatParameterLabelUI> concentUI;
 
     void updateTextColor();
     void resizedInternalHeader(Rectangle<int> &r) override;

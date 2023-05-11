@@ -94,8 +94,9 @@ SimulationUI::~SimulationUI()
 
 //==============================================================================
 void SimulationUI::paint(juce::Graphics &g)
-{
-    float maxC = simul->autoScale->boolValue() ? simul->recordDrawn : simul->maxConcent->floatValue();
+{   
+    //the 1.01 is to left a margin for the top curve
+    float maxC = simul->autoScale->boolValue() ? simul->recordDrawn *1.01 : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 

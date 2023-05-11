@@ -5,6 +5,7 @@
 #include "Entity.h"
 
 class EntityManager : public BaseManager<Entity>
+
 {
 public:
 	juce_DeclareSingleton(EntityManager, true);
