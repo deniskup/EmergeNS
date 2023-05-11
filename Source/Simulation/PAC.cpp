@@ -748,7 +748,7 @@ void PAClist::run()
 			writeDimacs(dmax, clauses.str(), nbClauses);
 		}
 		if (nCycles > 0)
-			LOG(nCycles << " PACs found for dmax=" << dmax);
+			LOG(nCycles << " PACs found for diameter=" << dmax);
 		// else
 		// 	cout << ".";
 		if (nCycles == maxCycles)

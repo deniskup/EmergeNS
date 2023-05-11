@@ -99,7 +99,8 @@ void SimulationUI::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
-    simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).reduced(10);
+    int extraMargin= simul->leftMargin -simul-> rightMargin;
+    simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(simul->rightMargin);
 
     // g.setFont(12);
     g.setColour(NORMAL_COLOR);

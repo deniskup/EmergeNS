@@ -27,7 +27,7 @@ void PACUI::paint(juce::Graphics &g)
     g.fillAll(Colours::black);
     g.setColour(Colours::white);
     g.setFont(14.0f);
-    float width = PACsBounds.getWidth();
+    float width = PACsBounds.getWidth()-simul->rightMargin;
     float height = PACsBounds.getHeight();
 
     // create a RACsHistory with only the PAC the become RACs
@@ -121,7 +121,7 @@ void PACUI::paint(juce::Graphics &g)
     }
 
     // for indexes of RACS
-    float xLeft = .06 * width;
+    float xLeft = simul->leftMargin;
 
     // steps for drawing the RACs
     float xScale = (width - xLeft) / RACsHistory.size();
@@ -138,6 +138,8 @@ void PACUI::paint(juce::Graphics &g)
 
     // draw vertical line after indexes
     g.drawLine(xLeft, yTop, xLeft, height - yTop * .9, .8f);
+    //draw vertical line at the end
+    g.drawLine(width, yTop, width, height - yTop * .9, .8f);
     // draw horizontal line at yTop
     g.drawLine(0, yTop * .9, width, yTop * .9, .8f);
 

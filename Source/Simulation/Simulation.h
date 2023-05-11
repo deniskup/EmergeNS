@@ -145,6 +145,9 @@ public:
   // these ones are for display
   FloatParameter *maxConcent;
   BoolParameter *realTime; // do we print intermediary steps ?
+  //for alignment of simulation and RACs
+  int leftMargin = 50;
+  int rightMargin = 10;
 
   Trigger *genTrigger;
   Trigger *startTrigger;

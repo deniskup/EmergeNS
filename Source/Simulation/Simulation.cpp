@@ -342,7 +342,7 @@ void Simulation::loadToManualMode()
     //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
-  toImport = false; // until we change something manually
+  //toImport = false; // until we change something manually
 }
 
 void Simulation::fetchGenerate()
@@ -643,7 +643,7 @@ void Simulation::start(bool restart)
   }
   else
   {
-    // if (toImport) //true if something changed in the manual lists
+    if (toImport) //true if something changed in the manual lists
     importFromManual();
   }
 
@@ -932,7 +932,9 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
   else if (t == genstartTrigger)
   {
     fetchGenerate();
+    toImport=false;
     start(true);
+    toImport=true;
   }
   else if (t == restartTrigger)
   {
