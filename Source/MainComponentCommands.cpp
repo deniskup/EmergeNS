@@ -1,5 +1,6 @@
 #include "MainComponent.h"
 #include "Simulation/EntityManager.h"
+#include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
 
 namespace NSCommandIDs
@@ -10,6 +11,7 @@ namespace NSCommandIDs
 	static const int PACkissat = 0x60003;
 	static const int loadManual = 0x60004;
 	static const int computeBarriers = 0x60005;
+	static const int clearLists = 0x60006;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -36,13 +38,18 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		break;
 
 	case NSCommandIDs::loadManual:
-		result.setInfo("Load Manual", "", "General", result.readOnlyInKeyEditor);
+		result.setInfo("Load Lists", "", "General", result.readOnlyInKeyEditor);
 		result.addDefaultKeypress(KeyPress::createFromDescription("l").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 	case NSCommandIDs::computeBarriers:
 		result.setInfo("Compute Barriers", "", "General", result.readOnlyInKeyEditor);
 		result.addDefaultKeypress(KeyPress::createFromDescription("b").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
+	case NSCommandIDs::clearLists:
+		result.setInfo("Clear Lists", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("c").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 	default:
@@ -62,7 +69,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::PACminisat,
 		NSCommandIDs::PACkissat,
 		NSCommandIDs::loadManual,
-		NSCommandIDs::computeBarriers
+		NSCommandIDs::computeBarriers,
+		NSCommandIDs::clearLists
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -81,6 +89,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 	}
 	return menu;
 }
@@ -130,6 +139,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::computeBarriers:
 	{
 		Simulation::getInstance()->computeBarriers();
+	}
+	break;
+
+	case NSCommandIDs::clearLists:
+	{
+		ReactionManager::getInstance()->clear();
+		EntityManager::getInstance()->clear();
 	}
 	break;
 
