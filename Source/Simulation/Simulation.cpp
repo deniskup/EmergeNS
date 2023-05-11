@@ -934,7 +934,6 @@ void Simulation::updateConcentLists()
     if (se != nullptr)
     {
       ent->concent->setValue(se->concent);
-      LOG("Update concent for " << ent->niceName << " to " << se->concent);
     }
     else
     {
