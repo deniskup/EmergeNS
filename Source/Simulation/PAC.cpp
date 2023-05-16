@@ -189,7 +189,10 @@ void PAClist::computePACs(int numSolv)
 
 void PAClist::run()
 {
-	Settings *settings=Settings::getInstance();
+
+	bool debugMode = true; // to print the file of vars for SAT
+
+	Settings *settings = Settings::getInstance();
 
 	// clear PACs if some were computed
 	cycles.clear();
@@ -198,7 +201,7 @@ void PAClist::run()
 	uint32 startTime = Time::getMillisecondCounter();
 
 	// declare SAT solvers
-	String kissatCommand=settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
+	String kissatCommand = settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
 	SATSolver minisat("minisat", "minisat dimacs.txt model.txt >SATlog.txt", "SAT", false);
 	SATSolver kissat("kissat", kissatCommand, "SATISFIABLE", true);
 
@@ -255,12 +258,12 @@ void PAClist::run()
 
 	sol_file.close();
 
-
 	stringstream clauses;
 
 	ofstream varfile;
-	varfile.open("vars.txt", ofstream::out | ofstream::trunc);
-	// for now to Dimacs, to integrate with Kissat later
+	if (debugMode)
+		varfile.open("vars.txt", ofstream::out | ofstream::trunc);
+	//  for now to Dimacs, to integrate with Kissat later
 
 	// a PAC is a subset of n reactions and n entities, such that
 	//  -every entity is reactant of exactly one of the reactions, and product of at least one
@@ -279,7 +282,8 @@ void PAClist::run()
 	{
 		curvar++;
 		ent.set(ei, curvar);
-		varfile << "Ent " << e->name << ": " << curvar << endl;
+		if (debugMode)
+			varfile << "Ent " << e->name << ": " << curvar << endl;
 		e->idSAT = ei;
 		ei++;
 	}
@@ -291,16 +295,25 @@ void PAClist::run()
 	Array<int> dir;
 	dir.resize(Nreac);
 
+	Array<int> doubleProds; // doubleProds[j] is the variable for "both products of reaction j are in the PAC"
+	doubleProds.resize(Nreac);
+
 	j = 0;
 	for (auto &r : simul->reactions)
 	{
 		curvar++;
 		reac.set(j, curvar);
-		varfile << "Reac " << r->reactant1->name << "+" << r->reactant2->name << " : " << curvar << endl;
+		if (debugMode)
+			varfile << "Reac " << r->reactant1->name << "+" << r->reactant2->name << " : " << curvar << endl;
 		r->idSAT = j;
 		curvar++;
 		dir.set(j, curvar);
-		varfile << "Dir " << curvar << endl;
+		if (debugMode)
+			varfile << "Dir " << curvar << endl;
+		curvar++;
+		doubleProds.set(j, curvar);
+		if (debugMode)
+			varfile << "DoubleProds " << curvar << endl;
 		j++;
 	}
 
@@ -313,15 +326,14 @@ void PAClist::run()
 		return a * Nreac + b;
 	};
 	// compress 3 indices (Nent,Nreac,Nreac) into one
-	auto c3 = [&](int a, int b, int c)
-	{
-		return a * Nreac * Nreac + b * Nreac + c;
-	};
+	// auto c3 = [&](int a, int b, int c)
+	// {
+	// 	return a * Nreac * Nreac + b * Nreac + c;
+	// };
 
 	// add only possible ones
-	unordered_map<int, int> isReac;
-	unordered_map<int, int> isProd;
-	unordered_map<int, int> isProds;
+	unordered_map<int, int> isReac; // isReac[c2(i,j)] is the variable for "entity i is reactant of reaction j"
+	unordered_map<int, int> isProd; // isProd[c2(i,j)] is the variable for "entity i is product of reaction j"
 	for (auto &r : simul->reactions)
 	{
 		int idr = r->idSAT;
@@ -332,34 +344,38 @@ void PAClist::run()
 		Array<int> ids = {id1, id2, id3};
 
 		// possibility of double product
-		if (id1 == id2)
-		{
-			curvar++;
-			isProds[c3(id1, idr, idr)] = curvar;
-			varfile << "is2Prods " << r->reactant1->name << " : " << curvar << endl;
-		}
+		// if (id1 == id2)
+		// {
+		// 	curvar++;
+		// 	isProds[c3(id1, idr, idr)] = curvar;
+		// 	varfile << "is2Prods " << r->reactant1->name << " : " << curvar << endl;
+		// }
 		for (auto i : ids)
 		{
 			curvar++;
 			isReac[c2(i, idr)] = curvar;
-			varfile << "isReac " << r->reactant1->name << " with " << r->reactant2->name << " : " << curvar << endl;
+			if (debugMode)
+				varfile << "isReac " << i << " in " << r->name << " : " << curvar << endl;
 			curvar++;
 			isProd[c2(i, idr)] = curvar;
-			varfile << "isProd " << r->reactant1->name << " from " << r->reactant1->name << " : " << curvar << endl;
-			for (auto &r2 : simul->reactions)
-			{
-				if (r2->idSAT <= idr)
-					continue;
-				if (i == r2->reactant1->idSAT || i == r2->reactant2->idSAT || i == r2->product->idSAT)
-				{
+			if (debugMode)
+				varfile << "isProd " << r->reactant1->name << " from " << r->name << " : " << curvar << endl;
+			//  for (auto &r2 : simul->reactions)
+			//  {
+			//  	if (r2->idSAT <= idr)
+			//  		continue;
+			//  	if (i == r2->reactant1->idSAT || i == r2->reactant2->idSAT || i == r2->product->idSAT)
+			//  	{
 
-					curvar++;
-					isProds[c3(i, idr, r2->idSAT)] = curvar;
-					varfile << "isProds " << ent[i] << " from " << r->reactant1->name << "+" << r->reactant2->name << " and " << r2->reactant1->name << "+" << r2->reactant2->name << " : " << curvar << endl;
-				}
-			}
+			// 		curvar++;
+			// 		isProds[c3(i, idr, r2->idSAT)] = curvar;
+			// 		//if(debugMode)  varfile << "isProds " << ent[i] << " from " << r->reactant1->name << "+" << r->reactant2->name << " and " << r2->reactant1->name << "+" << r2->reactant2->name << " : " << curvar << endl;
+			// 	}
+			// }
 		}
 	}
+	if (debugMode)
+		varfile.close();
 
 	// local function to add clause:
 	auto addClause = [&](Array<int> disjuncts)
@@ -387,21 +403,30 @@ void PAClist::run()
 		Array<int> ids = {id1, id2, id3};
 		Array<int> idleft = {id1, id2};
 
+
+
 		if (id1 == id2)
 		{
-			int ijj = c3(id1, j, j);
+
+			// doubleProds[j] <=> dir[j] and reac[j] and ent[i]
+			addClause({doubleProds[j], -dir[j], -reac[j], -ent[id1]});
+			addClause({-doubleProds[j], ent[id1]});
+			addClause({-doubleProds[j], dir[j]});
+			addClause({-doubleProds[j], reac[j]});
+
 			int ij = c2(id1, j);
-			// isProds <=> dir[j] and reac[j] and ent[i]
-			addClause({isProds[ijj], -dir[j], -reac[j], -ent[id1]});
-			addClause({-isProds[ijj], ent[id1]});
-			addClause({-isProds[ijj], dir[j]});
-			addClause({-isProds[ijj], reac[j]});
-			// isReac false if two reactants are the same
+			// isReac false if two reactants are the same  --> to move to ExtraClauses to allow for it if several forks
 			addClause({-isReac[ij]});
-			// product normal (even if useless normally, Prods takes care of it)
+
+			// isProd <=> dir and reac
 			addClause({-isProd[ij], reac[j]});
 			addClause({-isProd[ij], dir[j]});
 			addClause({isProd[ij], -dir[j], -reac[j]});
+
+			// isReac <=> -dir and reac
+			addClause({-isReac[ij], reac[j]});
+			addClause({-isReac[ij], -dir[j]});
+			addClause({isReac[ij], dir[j], -reac[j]});
 		}
 		else
 		{ // if different, we can put conditions on both isReac
@@ -418,6 +443,13 @@ void PAClist::run()
 				addClause({-isReac[ij], -dir[j]});
 				addClause({isReac[ij], dir[j], -reac[j]});
 			}
+			// compute doubleProds
+			// doubleProds[j] <=> dir and ent[id1] and ent[id2] and reac[j]
+			addClause({-doubleProds[j], ent[id1]});
+			addClause({-doubleProds[j], ent[id2]});
+			addClause({-doubleProds[j], dir[j]});
+			addClause({-doubleProds[j], reac[j]});
+			addClause({doubleProds[j], -ent[id1], -ent[id2], -dir[j], -reac[j]});
 		}
 		// for the solitary side
 		//  isReac <=> dir and reac
@@ -429,32 +461,16 @@ void PAClist::run()
 		addClause({-isProd[ij], reac[j]});
 		addClause({-isProd[ij], -dir[j]});
 		addClause({isProd[ij], dir[j], -reac[j]});
-
-		for (auto &r2 : simul->reactions)
-		{
-			int k = r2->idSAT;
-			if (k <= j)
-				continue;
-			for (auto i : ids)
-			{
-				if (i == r2->reactant1->idSAT || i == r2->reactant2->idSAT || i == r2->product->idSAT)
-				{
-					int ijk = c3(i, j, k);
-					// isProds[c3(i,j,k)]<=> ent[i] and isProd[c2(i,j)] and isProd[c2(i,
-					addClause({-isProds[ijk], ent[i]});
-					addClause({-isProds[ijk], isProd[c2(i, j)]});
-					addClause({-isProds[ijk], isProd[c2(i, k)]});
-					addClause({isProds[ijk], -isProd[c2(i, j)], -isProd[c2(i, k)], -ent[i]});
-				}
-			}
-		}
 	}
 
-	// each entity appears exactly once as reactant
+	// each entity appears at least once as reactant and as product
 	for (int i = 0; i < Nent; i++)
 	{
 		// e not chosen or appears as reactant of r
 		// not ent[i] or OR_j isReac[c2(i,j)]
+
+		// todo optimize with less loops, find is not needed
+
 		clauses << -ent[i];
 		for (j = 0; j < Nreac; j++)
 		{
@@ -476,13 +492,17 @@ void PAClist::run()
 		nbClauses++;
 		// an entity appears as reactant in at most one reaction
 		// AND_{j<k} not ent[i] or not isReac[c2(i,j)] or not isReac[c2(i,k)]
+
+		// todo optimize, and understand why not redundant
+
 		for (j = 0; j < Nreac; j++)
 		{
+			auto it1 = isReac.find(c2(i, j));
+			if (it1 == isReac.end())
+				continue;
 			for (int k = j + 1; k < Nreac; k++)
 			{
-				auto it1 = isReac.find(c2(i, j));
-				if (it1 == isReac.end())
-					continue;
+
 				auto it2 = isReac.find(c2(i, k));
 				if (it2 == isReac.end())
 					continue;
@@ -490,15 +510,16 @@ void PAClist::run()
 				addClause({-ent[i], -it1->second, -it2->second});
 			}
 		}
-		// if the reaction is two to one (dir=0), the two reactants cannot be both in the pack:
-		//  AND_j -reac[j] or dir[j] or not ent[reac1] or not ent[reac2]
-		for (auto &r : simul->reactions)
-		{
-			j = r->idSAT;
-			addClause({-reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT]});
-		}
 	}
-
+	// if the reaction is two to one (dir=0), and the two reactants differ, they can't be both in the PAC:
+	//  AND_j -reac[j] or dir[j] or not ent[reac1] or not ent[reac2]
+	for (auto &r : simul->reactions)
+	{
+		if (r->reactant1 == r->reactant2)
+			continue;
+		j = r->idSAT;
+		addClause({-reac[j], dir[j], -ent[r->reactant1->idSAT], -ent[r->reactant2->idSAT]});
+	}
 	// in each selected reaction, at least one reactant and the product are selected
 	for (auto &r : simul->reactions)
 	{
@@ -510,9 +531,11 @@ void PAClist::run()
 	// one entity is produced twice
 	// OR_i OR_{j<=k} isProds[c3(i,j,k)]
 
-	for (auto it : isProds)
+	// temporary to test doubleProds, to be moved to extraClauses
+
+	for (int j = 0; j < Nreac; j++)
 	{
-		clauses << it.second << " ";
+		clauses << doubleProds[j] << " ";
 	}
 	clauses << "0" << endl;
 	nbClauses++;
@@ -549,16 +572,16 @@ void PAClist::run()
 			}
 		}
 
-		// connexity clauses
-		stringstream conClauses;
+		// extra clauses: connexity with dmax, doubleReacs
+		stringstream extraClauses;
 		// local function to add clause:
-		auto addConClause = [&](Array<int> disjuncts)
+		auto addExtraClause = [&](Array<int> disjuncts)
 		{
 			for (int di : disjuncts)
 			{
-				conClauses << di << " ";
+				extraClauses << di << " ";
 			}
-			conClauses << "0" << endl;
+			extraClauses << "0" << endl;
 			nbTotClauses++;
 		};
 
@@ -569,15 +592,15 @@ void PAClist::run()
 			{
 				// 0 distance true iff i=j
 				if (i == j)
-					addConClause({dist[d2(i, 0, i)], -ent[i]});
+					addExtraClause({dist[d2(i, 0, i)], -ent[i]});
 				else
-					addConClause({-dist[d2(i, 0, j)], -ent[i], -ent[j]});
+					addExtraClause({-dist[d2(i, 0, j)], -ent[i], -ent[j]});
 
 				for (int d = 0; d <= distMax; d++)
 				{
 					// dist=>ent
-					addConClause({-dist[d2(i, d, j)], ent[i]});
-					addConClause({-dist[d2(i, d, j)], ent[j]});
+					addExtraClause({-dist[d2(i, d, j)], ent[i]});
+					addExtraClause({-dist[d2(i, d, j)], ent[j]});
 				}
 			}
 		}
@@ -605,6 +628,9 @@ void PAClist::run()
 			}
 		}
 
+		// variables for counting doubleReacs vs forks.
+		// unordered_map<int, int> doubleReacs;
+
 		// clauses advance
 		for (auto &r : simul->reactions)
 		{
@@ -622,9 +648,9 @@ void PAClist::run()
 					for (int t = 0; t < Nent; t++)
 					{
 						// advance(f,r,d)=isProd(f,r) and dist(f,d)
-						addConClause({-advance[d3(f, idr, d, t)], isProd[c2(f, idr)]});
-						addConClause({-advance[d3(f, idr, d, t)], dist[d2(f, d, t)]});
-						addConClause({advance[d3(f, idr, d, t)], -isProd[c2(f, idr)], -dist[d2(f, d, t)]});
+						addExtraClause({-advance[d3(f, idr, d, t)], isProd[c2(f, idr)]});
+						addExtraClause({-advance[d3(f, idr, d, t)], dist[d2(f, d, t)]});
+						addExtraClause({advance[d3(f, idr, d, t)], -isProd[c2(f, idr)], -dist[d2(f, d, t)]});
 					}
 				}
 			}
@@ -655,7 +681,7 @@ void PAClist::run()
 						// only remaining case: e is a reactant of r
 						distClause.add(advance[d3(r->product->idSAT, idr, d, t)]);
 					}
-					addConClause(distClause);
+					addExtraClause(distClause);
 				}
 			}
 		}
@@ -664,7 +690,7 @@ void PAClist::run()
 		{
 			for (int t = 0; t < Nent; t++)
 			{
-				addConClause({-ent[i], -ent[t], dist[d2(i, distMax, t)]});
+				addExtraClause({-ent[i], -ent[t], dist[d2(i, distMax, t)]});
 			}
 		}
 		// write the dimacs
@@ -672,17 +698,19 @@ void PAClist::run()
 		dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
 		dimacsStream << "p cnf " << nbTotVar << " " << nbTotClauses << endl;
 		dimacsStream << oldClauses;
-		dimacsStream << conClauses.str();
+		dimacsStream << extraClauses.str();
 
 		// cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
 		// cout << curvar << " variables and " << nbClauses << " clauses\n";
 		dimacsStream.close();
 	};
 
-	int dmax_stop = settings->maxDiameterPACs->intValue();				   // maximal diameter
-	dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
+	// load settings
 
-	int doubleReacMax = settings->maxDoubleReacPACs->intValue();		   // maximal number of double reactions
+	int dmax_stop = settings->maxDiameterPACs->intValue(); // maximal diameter
+	dmax_stop = jmin(dmax_stop, Nent);					   // put to Nent if bigger
+
+	int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
 
@@ -719,8 +747,8 @@ void PAClist::run()
 			int d;
 			PAC *pac = new PAC();
 			Array<int> newClause;
-			//build new clause: one of the entity or reaction must be not used (otherwise we would have inclusion)
-			//we can still find smaller one with same dmax, in which case the first one found will be removed
+			// build new clause: one of the entity or reaction must be not used (otherwise we would have inclusion)
+			// we can still find smaller one with same dmax, in which case the first one found will be removed
 			for (auto &e : simul->entities)
 			{
 				sol_file >> d;
@@ -733,10 +761,12 @@ void PAClist::run()
 			for (auto &r : simul->reactions)
 			{
 				// reaction
-				int re;
+				int re, dp;
 				sol_file >> re;
 				// pop direction
 				sol_file >> d;
+				// pop double prods
+				sol_file >> dp;
 				if (re > 0)
 				{
 					if (!includeOnlyWithEntities)
@@ -750,8 +780,36 @@ void PAClist::run()
 			addCycle(pac);
 
 			cout << pac->toString() << endl;
-			if (pac->entities.size() != pac->reacDirs.size())
-				cout << "Problem with PAC :" << pac->toString() << endl;
+
+			if (debugMode)
+			{
+				if (pac->entities.size() != pac->reacDirs.size())
+				{
+					LOGWARNING("Problem with PAC :" << pac->toString());
+					LOGWARNING("Entities: " << pac->entities.size() << " reactions: " << pac->reacDirs.size());
+					LOGWARNING("Exiting...");
+					return;
+				}
+
+				bool doubleReacfound = false;
+				for (auto &rd : pac->reacDirs)
+				{
+					if (rd.second == false) // wrong direction for double product
+						continue;
+					if (pac->entities.contains(rd.first->reactant1) && pac->entities.contains(rd.first->reactant2))
+					{
+						doubleReacfound = true;
+						break;
+					}
+				}
+				if (!doubleReacfound)
+				{
+					LOGWARNING("No double product in PAC :" << pac->toString());
+					LOGWARNING("Exiting...");
+					return;
+				}
+			}
+
 			addClause(newClause);
 			writeDimacs(dmax, clauses.str(), nbClauses);
 		}

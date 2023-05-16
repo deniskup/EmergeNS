@@ -5,7 +5,7 @@ juce_ImplementSingleton(Settings);
 Settings::Settings() : ControllableContainer("Settings")
 {
 
-    pathToKissat = addStringParameter("Path to kissat", "Path to kissat solver", "~/Downloads/kissat/build/kissat");
+    pathToKissat = addStringParameter("Path to kissat", "Path to kissat solver", "~/Software/kissat/build/kissat");
 
     maxDiameterPACs = addIntParameter("Max diameter PACs", "Maximal diameter in PAC searching", 20, 1);
 

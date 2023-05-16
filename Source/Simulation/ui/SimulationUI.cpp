@@ -308,6 +308,8 @@ void SimulationUI::buttonClicked(Button *b)
             LOG("Loaded from " << f.getFullPathName()); });
             if(simul->loadToManualByDefault->boolValue())
                 simul->loadToManualMode();
+            simul->toImport=false;
+                
     }
 }
 
