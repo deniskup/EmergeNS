@@ -1,5 +1,7 @@
 #include "PAC.h"
 #include "Simulation.h"
+#include "Settings.h"
+
 using namespace std;
 
 PAC::PAC(var data, Simulation *simul)
@@ -187,6 +189,8 @@ void PAClist::computePACs(int numSolv)
 
 void PAClist::run()
 {
+	Settings *settings=Settings::getInstance();
+
 	// clear PACs if some were computed
 	cycles.clear();
 
@@ -194,8 +198,9 @@ void PAClist::run()
 	uint32 startTime = Time::getMillisecondCounter();
 
 	// declare SAT solvers
+	String kissatCommand=settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
 	SATSolver minisat("minisat", "minisat dimacs.txt model.txt >SATlog.txt", "SAT", false);
-	SATSolver kissat("kissat", "~/Software/kissat/build/kissat -q dimacs.txt > model.txt", "SATISFIABLE", true);
+	SATSolver kissat("kissat", kissatCommand, "SATISFIABLE", true);
 
 	Array<SATSolver *> solvers = {&minisat, &kissat};
 
@@ -674,10 +679,12 @@ void PAClist::run()
 		dimacsStream.close();
 	};
 
-	int dmax_stop = 25;				   // maximal dmax
+	int dmax_stop = settings->maxDiameterPACs->intValue();				   // maximal diameter
 	dmax_stop = jmin(dmax_stop, Nent); // put to Nent if bigger
 
-	const int maxCycles = 300; // max number of cycles of some level before timeout
+	int doubleReacMax = settings->maxDoubleReacPACs->intValue();		   // maximal number of double reactions
+
+	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
 
 	includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 

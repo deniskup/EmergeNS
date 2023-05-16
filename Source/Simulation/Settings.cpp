@@ -7,9 +7,11 @@ Settings::Settings() : ControllableContainer("Settings")
 
     pathToKissat = addStringParameter("Path to kissat", "Path to kissat solver", "~/Downloads/kissat/build/kissat");
 
-    maxDiameterPACs = addIntParameter("Max diameter PACs", "Maximal diameter in PAC searching", 20, 1, 100);
+    maxDiameterPACs = addIntParameter("Max diameter PACs", "Maximal diameter in PAC searching", 20, 1);
 
-    maxDoubleReacPACs = addIntParameter("Max double reactions PACs", "Maximal number of double reactions in PAC searching", 5, 0, 100);
+    maxPACperDiameter = addIntParameter("Max PACs per diameter", "Timeout for number of PACs of some diameter", 300, 1);
+
+    maxDoubleReacPACs = addIntParameter("Max double reactions PACs", "Maximal number of double reactions in PAC searching", 5, 0);
 
 }
 

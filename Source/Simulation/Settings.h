@@ -13,9 +13,9 @@ public:
 
     StringParameter *pathToKissat; 
 
-    IntParameter *maxDiameterPACs;
-    IntParameter *maxDoubleReacPACs;
-
+    IntParameter *maxDiameterPACs; //diameter to stop
+    IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter
+    IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
 
     //void onContainerParameterChanged(Parameter *p) override;
 
