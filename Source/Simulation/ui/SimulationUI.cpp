@@ -373,7 +373,8 @@ void SimulationUI::newMessage(const ContainerAsyncEvent &e)
         }
         else if(e.targetControllable == simul-> detectEquilibrium)
         {
-            shouldRepaint = true;
+            epsilonEqUI->setVisible(simul->detectEquilibrium->boolValue());
+            repaint();
         }
     }
 }

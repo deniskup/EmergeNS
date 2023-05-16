@@ -79,6 +79,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/PACUI_82dd5f34.o \
   $(JUCE_OBJDIR)/ReactionManagerUI_528924e6.o \
   $(JUCE_OBJDIR)/ReactionUI_cc32579.o \
+  $(JUCE_OBJDIR)/SettingsUI_93a423f3.o \
   $(JUCE_OBJDIR)/SimulationUI_fbb6fd17.o \
   $(JUCE_OBJDIR)/PAC_277c22f3.o \
   $(JUCE_OBJDIR)/ReactionManager_91aee8a5.o \
@@ -86,6 +87,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Entity_a854b0ec.o \
   $(JUCE_OBJDIR)/Generation_cf1dc9a1.o \
   $(JUCE_OBJDIR)/EntityManager_7f5721ab.o \
+  $(JUCE_OBJDIR)/Settings_19ffc42c.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
@@ -154,6 +156,11 @@ $(JUCE_OBJDIR)/ReactionUI_cc32579.o: ../../Source/Simulation/ui/ReactionUI.cpp
 	@echo "Compiling ReactionUI.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/SettingsUI_93a423f3.o: ../../Source/Simulation/ui/SettingsUI.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling SettingsUI.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/SimulationUI_fbb6fd17.o: ../../Source/Simulation/ui/SimulationUI.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling SimulationUI.cpp"
@@ -187,6 +194,11 @@ $(JUCE_OBJDIR)/Generation_cf1dc9a1.o: ../../Source/Simulation/Generation.cpp
 $(JUCE_OBJDIR)/EntityManager_7f5721ab.o: ../../Source/Simulation/EntityManager.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling EntityManager.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Settings_19ffc42c.o: ../../Source/Simulation/Settings.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Settings.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Simulation_ac703710.o: ../../Source/Simulation/Simulation.cpp

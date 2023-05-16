@@ -502,6 +502,9 @@
     <ClCompile Include="..\..\Source\Simulation\ui\ReactionUI.cpp">
       <Filter>EmergenceNS\Source\Simulation\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\ui\SettingsUI.cpp">
+      <Filter>EmergenceNS\Source\Simulation\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\ui\SimulationUI.cpp">
       <Filter>EmergenceNS\Source\Simulation\ui</Filter>
     </ClCompile>
@@ -521,6 +524,9 @@
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\EntityManager.cpp">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\Settings.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp">
@@ -2679,6 +2685,9 @@
     <ClInclude Include="..\..\Source\Simulation\ui\ReactionUI.h">
       <Filter>EmergenceNS\Source\Simulation\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\ui\SettingsUI.h">
+      <Filter>EmergenceNS\Source\Simulation\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\ui\SimulationUI.h">
       <Filter>EmergenceNS\Source\Simulation\ui</Filter>
     </ClInclude>
@@ -2695,6 +2704,9 @@
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\EntityManager.h">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\Settings.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h">

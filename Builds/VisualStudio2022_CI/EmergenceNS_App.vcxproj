@@ -148,6 +148,7 @@
     <ClCompile Include="..\..\Source\Simulation\ui\PACUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\ReactionManagerUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\ReactionUI.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\ui\SettingsUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\SimulationUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\PAC.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ReactionManager.cpp"/>
@@ -155,6 +156,7 @@
     <ClCompile Include="..\..\Source\Simulation\Entity.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Generation.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\EntityManager.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\Settings.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
@@ -2120,12 +2122,14 @@
     <ClInclude Include="..\..\Source\Simulation\ui\PACUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\ReactionManagerUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\ReactionUI.h"/>
+    <ClInclude Include="..\..\Source\Simulation\ui\SettingsUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\SimulationUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\PAC.h"/>
     <ClInclude Include="..\..\Source\Simulation\ReactionManager.h"/>
     <ClInclude Include="..\..\Source\Simulation\Reaction.h"/>
     <ClInclude Include="..\..\Source\Simulation\Generation.h"/>
     <ClInclude Include="..\..\Source\Simulation\EntityManager.h"/>
+    <ClInclude Include="..\..\Source\Simulation\Settings.h"/>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h"/>
     <ClInclude Include="..\..\Source\Simulation\Entity.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
