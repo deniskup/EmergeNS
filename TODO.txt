@@ -1,4 +1,7 @@
 - bug: segfault in ImportManual on startConcent after Loading funnyRACS.sim
+- memory leak de Settings
+- id non initialisés si création manuelle -> .sim ne fonctionne pas (tous les id à -1)
+
 - autoriser A+A->B dans PAC, et demander plus de fourches si c'est le cas.
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)

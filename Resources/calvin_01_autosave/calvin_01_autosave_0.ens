@@ -47,13 +47,13 @@
           "shifters": [
             {
               "type": 1,
-              "width": 388,
+              "width": 483,
               "height": 1126,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 388,
+                  "width": 483,
                   "height": 525,
                   "currentContent": "Entities",
                   "tabs": [
@@ -67,7 +67,7 @@
                 },
                 {
                   "type": 0,
-                  "width": 388,
+                  "width": 483,
                   "height": 595,
                   "currentContent": "Reactions",
                   "tabs": [
@@ -80,19 +80,19 @@
             },
             {
               "type": 1,
-              "width": 1525,
+              "width": 1430,
               "height": 1126,
               "direction": 2,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 1525,
+                  "width": 1430,
                   "height": 640,
                   "direction": 1,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 912,
+                      "width": 864,
                       "height": 640,
                       "currentContent": "Simulation",
                       "tabs": [
@@ -103,7 +103,7 @@
                     },
                     {
                       "type": 0,
-                      "width": 607,
+                      "width": 559,
                       "height": 640,
                       "currentContent": "Inspector",
                       "tabs": [
@@ -116,13 +116,13 @@
                 },
                 {
                   "type": 1,
-                  "width": 1525,
+                  "width": 1430,
                   "height": 479,
                   "direction": 1,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 920,
+                      "width": 872,
                       "height": 479,
                       "currentContent": "RACs",
                       "tabs": [
@@ -133,7 +133,7 @@
                     },
                     {
                       "type": 0,
-                      "width": 599,
+                      "width": 551,
                       "height": 479,
                       "currentContent": "Logger",
                       "tabs": [
@@ -155,8 +155,12 @@
   "simulation": {
     "parameters": [
       {
-        "value": 10.0,
+        "value": 8.300004959106445,
         "controlAddress": "/totalTime"
+      },
+      {
+        "value": true,
+        "controlAddress": "/detectEquil"
       }
     ]
   },
@@ -165,7 +169,7 @@
       {
         "parameters": [
           {
-            "value": 0.3944677412509918,
+            "value": 0.2282061129808426,
             "controlAddress": "/conc"
           },
           {
@@ -192,11 +196,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1417095363140106,
+            "value": 0.45350581407547,
             "controlAddress": "/conc"
           },
           {
@@ -219,11 +219,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1290183961391449,
+            "value": 0.5480002164840698,
             "controlAddress": "/conc"
           },
           {
@@ -246,11 +242,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.2257740348577499,
+            "value": 0.3993655741214752,
             "controlAddress": "/conc"
           },
           {
@@ -273,11 +265,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1798351258039474,
+            "value": 0.6303734183311462,
             "controlAddress": "/conc"
           },
           {
@@ -300,11 +288,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1789003014564514,
+            "value": 0.7321449518203735,
             "controlAddress": "/conc"
           },
           {
@@ -327,11 +311,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1809922903776169,
+            "value": 0.7678807377815247,
             "controlAddress": "/conc"
           },
           {
@@ -354,11 +334,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0795203223824501,
+            "value": 0.7257992625236511,
             "controlAddress": "/conc"
           },
           {
@@ -377,11 +353,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.1140789017081261,
+            "value": 0.696198582649231,
             "controlAddress": "/conc"
           },
           {
@@ -400,7 +372,7 @@
       {
         "parameters": [
           {
-            "value": 0.658111035823822,
+            "value": 0.6989222168922424,
             "controlAddress": "/conc"
           },
           {
@@ -419,11 +391,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.5455185174942017,
+            "value": 1.657175302505493,
             "controlAddress": "/conc"
           },
           {
@@ -446,11 +414,7 @@
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.4390974342823029,
+            "value": 1.427500605583191,
             "controlAddress": "/conc"
           },
           {

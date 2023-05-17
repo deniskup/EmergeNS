@@ -190,7 +190,7 @@ void PAClist::computePACs(int numSolv)
 void PAClist::run()
 {
 
-	bool debugMode = true; // to print the file of vars for SAT
+	bool debugMode = false; // to print the file of vars for SAT
 
 	Settings *settings = Settings::getInstance();
 
@@ -710,7 +710,7 @@ void PAClist::run()
 	int dmax_stop = settings->maxDiameterPACs->intValue(); // maximal diameter
 	dmax_stop = jmin(dmax_stop, Nent);					   // put to Nent if bigger
 
-	int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
+	//int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
 
@@ -830,4 +830,5 @@ void PAClist::run()
 
 	// print execution time
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
+
 }

@@ -155,8 +155,12 @@
   "simulation": {
     "parameters": [
       {
-        "value": 10.0,
+        "value": 22.10000228881836,
         "controlAddress": "/totalTime"
+      },
+      {
+        "value": true,
+        "controlAddress": "/detectEquil"
       }
     ]
   },
@@ -165,7 +169,7 @@
       {
         "parameters": [
           {
-            "value": 0.3944677412509918,
+            "value": 0.9344727993011475,
             "controlAddress": "/conc"
           },
           {
@@ -173,7 +177,7 @@
             "controlAddress": "/freeEnergy"
           },
           {
-            "value": true,
+            "value": false,
             "controlAddress": "/draw"
           },
           {
@@ -196,7 +200,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1417095363140106,
+            "value": 0.0001461645006202161,
             "controlAddress": "/conc"
           },
           {
@@ -223,7 +227,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1290183961391449,
+            "value": 0.00008538799738744274,
             "controlAddress": "/conc"
           },
           {
@@ -250,7 +254,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.2257740348577499,
+            "value": 0.02480706572532654,
             "controlAddress": "/conc"
           },
           {
@@ -277,7 +281,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1798351258039474,
+            "value": 0.1353709697723389,
             "controlAddress": "/conc"
           },
           {
@@ -304,7 +308,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1789003014564514,
+            "value": 0.05484414845705032,
             "controlAddress": "/conc"
           },
           {
@@ -331,7 +335,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1809922903776169,
+            "value": 0.02041640877723694,
             "controlAddress": "/conc"
           },
           {
@@ -358,7 +362,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.0795203223824501,
+            "value": 0.01353269070386887,
             "controlAddress": "/conc"
           },
           {
@@ -381,7 +385,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.1140789017081261,
+            "value": 0.04710512980818748,
             "controlAddress": "/conc"
           },
           {
@@ -400,7 +404,7 @@
       {
         "parameters": [
           {
-            "value": 0.658111035823822,
+            "value": 0.9452140331268311,
             "controlAddress": "/conc"
           },
           {
@@ -423,7 +427,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.5455185174942017,
+            "value": 0.5106556415557861,
             "controlAddress": "/conc"
           },
           {
@@ -450,7 +454,7 @@
             "controlAddress": "/primary"
           },
           {
-            "value": 0.4390974342823029,
+            "value": 0.05484414845705032,
             "controlAddress": "/conc"
           },
           {
@@ -494,7 +498,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 1",
+        "niceName": "c3+c3=c6",
         "type": "Reaction"
       },
       {
@@ -508,17 +512,21 @@
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/c9",
+            "value": "/ac3",
             "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "Reaction 2",
+        "niceName": "c6+c3=ac3",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/c9",
+            "value": "/ac3",
             "controlAddress": "/reactant1"
           },
           {
@@ -530,7 +538,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 3",
+        "niceName": "ac3+c3=c12",
         "type": "Reaction"
       },
       {
@@ -548,7 +556,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 4",
+        "niceName": "c12+c3=c15",
         "type": "Reaction"
       },
       {
@@ -566,7 +574,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 5",
+        "niceName": "c5+c10=c15",
         "type": "Reaction"
       },
       {
@@ -584,13 +592,13 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 6",
+        "niceName": "c5+c5=c10",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/a",
+            "value": "/c10",
             "controlAddress": "/reactant1"
           },
           {
@@ -598,17 +606,21 @@
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/ac5",
+            "value": "/ac3",
             "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "Reaction 7",
+        "niceName": "c10+c5=ac3",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/ac5",
+            "value": "/ac3",
             "controlAddress": "/reactant1"
           },
           {
@@ -620,7 +632,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 8",
+        "niceName": "ac3+c=ac6",
         "type": "Reaction"
       },
       {
@@ -638,13 +650,13 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 9",
+        "niceName": "ac3+c3=ac6",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/a",
+            "value": "/c10",
             "controlAddress": "/reactant1"
           },
           {
@@ -656,7 +668,7 @@
             "controlAddress": "/product"
           }
         ],
-        "niceName": "Reaction 10",
+        "niceName": "c10+c3=ac3",
         "type": "Reaction"
       }
     ],
@@ -668,11 +680,6 @@
   },
   "generation": {
     "parameters": [
-      {
-        "value": 6,
-        "hexMode": false,
-        "controlAddress": "/levels"
-      },
       {
         "value": "PropReactions",
         "controlAddress": "/growthEntities_level"

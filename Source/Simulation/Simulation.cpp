@@ -98,6 +98,7 @@ void Simulation::updateParams()
 {
   // set entities drawn and primary
   entitiesDrawn.clear();
+  primEnts.clear();
 
   for (auto &ent : entities)
   {
@@ -340,7 +341,7 @@ void Simulation::loadToManualMode()
     //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
-  // toImport = false; // until we change something manually
+  toImport = false; // until we change something manually
 }
 
 void Simulation::fetchGenerate()
@@ -625,7 +626,7 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-  // toImport = false;
+  toImport = false;
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
@@ -878,7 +879,8 @@ void Simulation::run()
 
   LOG("--------- End thread ---------");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
-  if(recordDrawn < recordConcent) LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
+  if (recordDrawn < recordConcent)
+    LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
   LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
 
@@ -954,18 +956,15 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     fetchGenerate();
     if (loadToManualByDefault->boolValue())
       loadToManualMode();
-    toImport = false;
     start(true);
-    toImport = true;
+
   }
   else if (t == restartTrigger)
   {
-    toImport = true;
     start(true);
   }
   else if (t == startTrigger)
   {
-    toImport = true;
     start(false);
   }
 
@@ -1057,10 +1056,14 @@ SimEntity::SimEntity(var data)
 
   if (data.getDynamicObject()->hasProperty("composition"))
   {
-    Array<var> *comp = data.getDynamicObject()->getProperty("composition").getArray();
-    for (auto &coord : *comp)
+    var compvar = data.getDynamicObject()->getProperty("composition");
+    if (compvar.isArray())
     {
-      composition.add(data.getDynamicObject()->getProperty("coord"));
+      Array<var> *comp = data.getDynamicObject()->getProperty("composition").getArray();
+      for (auto &coord : *comp)
+      {
+        composition.add(data.getDynamicObject()->getProperty("coord"));
+      }
     }
   }
 }

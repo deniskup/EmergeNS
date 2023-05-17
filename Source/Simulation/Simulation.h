@@ -25,7 +25,7 @@ public:
 
   Colour color;
   bool primary;
-  int id; // unique identifier
+  int id=-1; // unique identifier
   float concent;
   float startConcent;
   float previousConcent;
