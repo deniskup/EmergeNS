@@ -36,6 +36,7 @@ public:
   void importFromManual(); // retrieve info from pointer to Manual settings
 
   bool enabled = true;
+  bool toImport=false; // the corresponding entity has been modified
 
   int level;
   bool draw = true;
@@ -71,6 +72,8 @@ public:
   SimEntity *product;
 
   bool enabled = true; // to know if the reaction is enabled or not
+
+  bool toImport=false; // the corresponding reaction has been modified
 
   String name; // should be a+b=c
 

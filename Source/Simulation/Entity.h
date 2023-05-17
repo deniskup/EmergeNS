@@ -31,6 +31,8 @@ public:
 
     bool reached = true; // can this entity be built from primary entities ?
 
+    SimEntity *simEnt = nullptr;
+
     void onContainerParameterChangedInternal(Parameter *p) override;
 
     DECLARE_TYPE("Entity");

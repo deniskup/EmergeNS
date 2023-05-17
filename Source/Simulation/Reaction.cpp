@@ -38,6 +38,8 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
 {
   addParams();
 
+  simReac= r;
+
   Entity *e1 = r->reactant1->entity;
   Entity *e2 = r->reactant2->entity;
   Entity *e3 = r->product->entity;
@@ -136,8 +138,8 @@ void Reaction::onContainerParameterChangedInternal(Parameter *p)
       ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
     }
   }
-  //Simulation::getInstance()->toImport = true; //make jassertfalse when closing
   updateWarnAndRates();
+  if(simReac!=nullptr) simReac->toImport=true;
 }
 
 void Reaction::onExternalParameterValueChanged(Parameter *p)

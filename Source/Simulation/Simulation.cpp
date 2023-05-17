@@ -257,7 +257,6 @@ void Simulation::importJSONData(var data)
     }
   }
   ready = true;
-  toImport = false;
   computeBarriers();
   updateParams();
 }
@@ -267,11 +266,19 @@ void Simulation::importFromManual()
   LOG("Importing from manual lists");
   for (auto &e : entities)
   {
-    e->importFromManual();
+    if (e->toImport)
+    {
+      e->importFromManual();
+      e->toImport = false;
+    }
   }
   for (auto &r : reactions)
   {
-    r->importFromManual();
+    if (r->toImport)
+    {
+      r->importFromManual();
+      r->toImport = false;
+    }
   }
 
   updateParams();
@@ -341,7 +348,6 @@ void Simulation::loadToManualMode()
     //    r->fromSimReaction(sr);
     rm->addItem(r, var(), false);
   }
-  toImport = false; // until we change something manually
 }
 
 void Simulation::fetchGenerate()
@@ -626,7 +632,6 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
-  toImport = false;
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
@@ -641,8 +646,7 @@ void Simulation::start(bool restart)
   }
   else
   {
-    if (toImport) // true if something changed in the manual lists
-      importFromManual();
+    importFromManual(); // import entities and reactions from manual lists, only those who have been changed
   }
 
   if (restart)
@@ -957,7 +961,6 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     if (loadToManualByDefault->boolValue())
       loadToManualMode();
     start(true);
-
   }
   else if (t == restartTrigger)
   {

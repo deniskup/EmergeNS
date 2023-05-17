@@ -28,6 +28,8 @@ public:
     WeakReference<ControllableContainer> linkedR2;
     WeakReference<ControllableContainer> linkedP;
 
+    SimReaction *simReac = nullptr; // pointer to the corresponding SimReaction
+
     bool reached;   // can this reaction be built from primary entities ?
 
     void updateWarnAndRates();
