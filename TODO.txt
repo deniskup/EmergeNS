@@ -1,10 +1,7 @@
 
 
-- ajouter PACs dans Json data engine, virer les .sim
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
-- vérifier que ça marche sans AutoLoad
-
 
 
 - Cocher ce qui doit être généré
@@ -15,9 +12,6 @@
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
 /NodeConnectionViewUI.cpp
 
-
-
-JSON simul in separate file
 
 inclusion RAC plus fine:
 si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
@@ -41,9 +35,6 @@ plot log(pi/pi_equilibre)
 pi_equilibre=1/z exp(G_i/T) (T cste pour l'instant, G_i energie libre, z normalisation pour que les pi_eq somment à 1.
 + taux creation et decay à tout le monde
 
-modele jouet: 
-2 entités
-
 afficher statistiques globales avant/apres simulation 
 avant: nombre entités, répartition  entités par niveau, énergie moyenne par niveau
 après: courbe masse totale, courbe répartition par niveau, courbe entropy of diversity, ...
@@ -55,14 +46,9 @@ stocker les barrieres et calculer les taux assoc/dissoc, pour pouvoir changer ju
 
 proposer uniforme ou gaussienne
 
-github machines virtuelles
-
-charger automatiquement les choix manuels
-
 deviation par rapport à l'équilibre attendu avec les energies libres
 
 Est-ce que le régime statique réalisé depend de catalyse/autocatalyse, ou au contraire de paramètres simples comme G_i+ taux de création/destruction.
-
 
 energies d'interaction pour calculer energies des entités
 
@@ -77,8 +63,4 @@ more things depend on level
 
 Manière de tirer peut biaiser vers peu de reaction, on pourrait ajouter des dissolutions pour refaire des entités plus petites.
 Les compositions faites de 10 manières n'ont pas plus de chances de sortir que celles faites d'une seule manière, à changer ? 
-
-A voir avec Benji: boolparameter local à l'ui sans passer par simul.
-
-
 
