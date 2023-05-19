@@ -15,6 +15,7 @@ EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens"
 	addChildControllableContainer(EntityManager::getInstance());
 	addChildControllableContainer(ReactionManager::getInstance());
 	addChildControllableContainer(Generation::getInstance());
+	addChildControllableContainer(Settings::getInstance());
 }
 
 EmergenceNSEngine::~EmergenceNSEngine()
@@ -25,6 +26,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
+	Settings::deleteInstance();
 }
 
 void EmergenceNSEngine::clearInternal()
@@ -42,7 +44,8 @@ var EmergenceNSEngine::getJSONData()
 	data.getDynamicObject()->setProperty(EntityManager::getInstance()->shortName, EntityManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(ReactionManager::getInstance()->shortName, ReactionManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Generation::getInstance()->shortName, Generation::getInstance()->getJSONData());
-
+	data.getDynamicObject()->setProperty(Settings::getInstance()->shortName, Settings::getInstance()->getJSONData());
+	//add PACs here
 	return data;
 }
 
@@ -52,6 +55,7 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadi
 	EntityManager::getInstance()->loadJSONData(data.getProperty(EntityManager::getInstance()->shortName, var()));
 	ReactionManager::getInstance()->loadJSONData(data.getProperty(ReactionManager::getInstance()->shortName, var()));
 	Generation::getInstance()->loadJSONData(data.getProperty(Generation::getInstance()->shortName, var()));
+	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
 }
 
 String EmergenceNSEngine::getMinimumRequiredFileVersion()

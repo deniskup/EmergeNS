@@ -265,7 +265,7 @@ void PAClist::run()
 		varfile.open("vars.txt", ofstream::out | ofstream::trunc);
 
 	ofstream pacFile;
-	if(settings->printPACsToFile->boolValue()) //todo implement
+	if (settings->printPACsToFile->boolValue()) // todo implement
 		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
 	//  for now to Dimacs, to integrate with Kissat later
 
@@ -383,7 +383,6 @@ void PAClist::run()
 			// }
 		}
 	}
-	
 
 	// local function to add clause:
 	auto addClause = [&](Array<int> disjuncts)
@@ -561,10 +560,10 @@ void PAClist::run()
 	int nbAddedReacVars = 0;
 
 	// write the dimacs, adding connexity with maximal distance to produce the autocatalyst, in order to find solutions in increasing size
-	
-	// don't forget that clauses will grow with models.
-	auto addReacClauses = [&](int nbDoubleReac){
 
+	// don't forget that clauses will grow with models.
+	auto addReacClauses = [&](int nbDoubleReac)
+	{
 		int nbTotVar = nbVarBase; // restart curvar from beginning of connexity
 		nbAddedReacClauses = 0;
 		nbAddedReacVars = 0;
@@ -655,13 +654,12 @@ void PAClist::run()
 		nbAddedReacVars = nbTotVar - nbVarBase;
 	};
 
-
 	auto writeDimacs = [&](int distMax)
 	{
-		int nbTotVar=nbVarBase+nbAddedReacVars;
-		int nbTotClauses=nbClauses+nbAddedReacClauses;
+		int nbTotVar = nbVarBase + nbAddedReacVars;
+		int nbTotClauses = nbClauses + nbAddedReacClauses;
 
-				// extra clauses: connexity with dmax, doubleReacs
+		// extra clauses: connexity with dmax, doubleReacs
 		stringstream extraClauses;
 		// local function to add clause:
 		auto addExtraClause = [&](Array<int> disjuncts)
@@ -888,7 +886,7 @@ void PAClist::run()
 					sol_file >> d;
 					// pop double prods
 					sol_file >> dp;
-					//pop double reac
+					// pop double reac
 					sol_file >> dp;
 					if (re > 0)
 					{
@@ -902,8 +900,8 @@ void PAClist::run()
 				}
 				addCycle(pac);
 
-				if(settings->printPACsToFile->boolValue()) 
-				pacFile << pac->toString() << endl;
+				if (settings->printPACsToFile->boolValue())
+					pacFile << pac->toString() << endl;
 
 				if (debugMode)
 				{
@@ -952,9 +950,9 @@ void PAClist::run()
 
 	if (debugMode)
 		varfile.close();
-	if(settings->printPACsToFile->boolValue())
+	if (settings->printPACsToFile->boolValue())
 		pacFile.close();
-	
+
 	simul->PACsGenerated = true;
 	simul->updateParams();
 	// simul->printPACs();
