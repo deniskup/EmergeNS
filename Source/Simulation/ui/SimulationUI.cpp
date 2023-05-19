@@ -306,9 +306,6 @@ void SimulationUI::buttonClicked(Button *b)
             var data = JSON::parse(f);
             simul->importJSONData(data);
             LOG("Loaded from " << f.getFullPathName()); });
-            if(simul->loadToManualByDefault->boolValue())
-                simul->loadToManualMode();
-            simul->toImport=false;
                 
     }
 }

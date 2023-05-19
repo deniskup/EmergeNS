@@ -259,6 +259,9 @@ void Simulation::importJSONData(var data)
   ready = true;
   computeBarriers();
   updateParams();
+  if (loadToManualByDefault->boolValue())
+    loadToManualMode();
+  toImport = false;
 }
 
 void Simulation::importFromManual()
