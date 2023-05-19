@@ -5,6 +5,7 @@
 #include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
 #include "Simulation/Generation.h"
+#include "Simulation/Settings.h"
 
 EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
