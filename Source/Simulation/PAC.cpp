@@ -556,11 +556,18 @@ void PAClist::run()
 	// number of variables (and var max) without connexity
 	const int nbVarBase = curvar;
 
+	int nbAddedReacClauses = 0;
+	string addedReacClauses = "";
+	int nbAddedReacVars = 0;
+
 	// write the dimacs, adding connexity with maximal distance to produce the autocatalyst, in order to find solutions in increasing size
-	auto writeDimacs = [&](int distMax, int nbDoubleReac, string oldClauses, int nbOldClauses)
-	{
+	
+	// don't forget that clauses will grow with models.
+	auto addReacClauses = [&](int nbDoubleReac){
+
 		int nbTotVar = nbVarBase; // restart curvar from beginning of connexity
-		int nbTotClauses = nbOldClauses;
+		nbAddedReacClauses = 0;
+		nbAddedReacVars = 0;
 
 		// extra clauses: connexity with dmax, doubleReacs
 		stringstream extraClauses;
@@ -572,7 +579,7 @@ void PAClist::run()
 				extraClauses << di << " ";
 			}
 			extraClauses << "0" << endl;
-			nbTotClauses++;
+			nbAddedReacClauses++;
 		};
 
 		// clauses dealing with reactions A+A->B
@@ -643,6 +650,29 @@ void PAClist::run()
 			atLeastNclause.add(isKthDoubleProd[e2(j, nbDoubleReac)]);
 		}
 		addExtraClause(atLeastNclause);
+
+		addedReacClauses = extraClauses.str();
+		nbAddedReacVars = nbTotVar - nbVarBase;
+	};
+
+
+	auto writeDimacs = [&](int distMax)
+	{
+		int nbTotVar=nbVarBase+nbAddedReacVars;
+		int nbTotClauses=nbClauses+nbAddedReacClauses;
+
+				// extra clauses: connexity with dmax, doubleReacs
+		stringstream extraClauses;
+		// local function to add clause:
+		auto addExtraClause = [&](Array<int> disjuncts)
+		{
+			for (int di : disjuncts)
+			{
+				extraClauses << di << " ";
+			}
+			extraClauses << "0" << endl;
+			nbTotClauses++;
+		};
 
 		// add variables for connexity: dist[e,i,f] means that entity e produces entity f in at most i steps.
 
@@ -780,7 +810,8 @@ void PAClist::run()
 		ofstream dimacsStream;
 		dimacsStream.open("dimacs.txt", ofstream::out | ofstream::trunc);
 		dimacsStream << "p cnf " << nbTotVar << " " << nbTotClauses << endl;
-		dimacsStream << oldClauses;
+		dimacsStream << clauses.str();
+		dimacsStream << addedReacClauses;
 		dimacsStream << extraClauses.str();
 
 		// cout << "Dimacs generated with " << Nent << " entities and " << Nreac << " reactions\n";
@@ -804,9 +835,11 @@ void PAClist::run()
 		LOG("Generating PACs with " + String(nbDoubleReac) + " double reactions");
 		// TODO continue
 
+		addReacClauses(nbDoubleReac);
+
 		for (int dmax = 1; dmax < dmax_stop; dmax++)
 		{
-			writeDimacs(dmax, nbDoubleReac, clauses.str(), nbClauses);
+			writeDimacs(dmax);
 			// bool sat = true;
 
 			int nCycles;
@@ -902,7 +935,7 @@ void PAClist::run()
 				}
 
 				addClause(newClause);
-				writeDimacs(dmax, nbDoubleReac, clauses.str(), nbClauses);
+				writeDimacs(dmax);
 			}
 			if (nCycles > 0)
 				LOG(nCycles << " PACs found for diameter=" << dmax);
