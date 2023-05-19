@@ -11,7 +11,9 @@ Settings::Settings() : ControllableContainer("Settings")
 
     maxPACperDiameter = addIntParameter("Max PACs per diameter", "Timeout for number of PACs of some diameter", 300, 1);
 
-  //  maxDoubleReacPACs = addIntParameter("Max double reactions PACs", "Maximal number of double reactions in PAC searching", 5, 0);
+    maxDoubleReacPACs = addIntParameter("Max double reactions PACs", "Maximal number of double reactions in PAC searching", 1, 0);
+
+    printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);
 
 }
 

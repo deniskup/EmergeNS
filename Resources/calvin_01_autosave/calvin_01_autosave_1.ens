@@ -55,7 +55,7 @@
                   "type": 0,
                   "width": 473,
                   "height": 525,
-                  "currentContent": "Generation",
+                  "currentContent": "Entities",
                   "tabs": [
                     {
                       "name": "Generation"
@@ -631,6 +631,11 @@
   },
   "generation": {
     "parameters": [
+      {
+        "value": 6,
+        "hexMode": false,
+        "controlAddress": "/levels"
+      },
       {
         "value": "PropReactions",
         "controlAddress": "/growthEntities_level"

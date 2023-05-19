@@ -263,6 +263,10 @@ void PAClist::run()
 	ofstream varfile;
 	if (debugMode)
 		varfile.open("vars.txt", ofstream::out | ofstream::trunc);
+
+	ofstream pacFile;
+	if(settings->printPACsToFile->boolValue()) //todo implement
+		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
 	//  for now to Dimacs, to integrate with Kissat later
 
 	// a PAC is a subset of n reactions and n entities, such that
@@ -297,6 +301,7 @@ void PAClist::run()
 
 	Array<int> doubleProds; // doubleProds[j] is the variable for "both products of reaction j are in the PAC"
 	doubleProds.resize(Nreac);
+	Array<int> doubleReac; // doubleReac[j] is the variable for "reaction j is in the PAC and has a double reactant"
 
 	j = 0;
 	for (auto &r : simul->reactions)
@@ -314,6 +319,10 @@ void PAClist::run()
 		doubleProds.set(j, curvar);
 		if (debugMode)
 			varfile << "DoubleProds " << curvar << endl;
+		curvar++;
+		doubleReac.set(j, curvar);
+		if (debugMode)
+			varfile << "DoubleReac " << curvar << endl;
 		j++;
 	}
 
@@ -374,8 +383,7 @@ void PAClist::run()
 			// }
 		}
 	}
-	if (debugMode)
-		varfile.close();
+	
 
 	// local function to add clause:
 	auto addClause = [&](Array<int> disjuncts)
@@ -403,8 +411,6 @@ void PAClist::run()
 		Array<int> ids = {id1, id2, id3};
 		Array<int> idleft = {id1, id2};
 
-
-
 		if (id1 == id2)
 		{
 
@@ -414,9 +420,13 @@ void PAClist::run()
 			addClause({-doubleProds[j], dir[j]});
 			addClause({-doubleProds[j], reac[j]});
 
+			// doubleReac <=> -dir and reac and ent[i]
+			addClause({doubleReac[j], dir[j], -reac[j], -ent[id1]});
+			addClause({-doubleReac[j], reac[j]});
+			addClause({-doubleReac[j], -dir[j]});
+			addClause({-doubleReac[j], ent[id1]});
+
 			int ij = c2(id1, j);
-			// isReac false if two reactants are the same  --> to move to ExtraClauses to allow for it if several forks
-			addClause({-isReac[ij]});
 
 			// isProd <=> dir and reac
 			addClause({-isProd[ij], reac[j]});
@@ -450,6 +460,9 @@ void PAClist::run()
 			addClause({-doubleProds[j], dir[j]});
 			addClause({-doubleProds[j], reac[j]});
 			addClause({doubleProds[j], -ent[id1], -ent[id2], -dir[j], -reac[j]});
+
+			// doubleReac false
+			addClause({-doubleReac[j]});
 		}
 		// for the solitary side
 		//  isReac <=> dir and reac
@@ -531,27 +544,109 @@ void PAClist::run()
 	// one entity is produced twice
 	// OR_i OR_{j<=k} isProds[c3(i,j,k)]
 
-	// temporary to test doubleProds, to be moved to extraClauses
+	// at least one DoubleProds, now in extraClauses
 
-	for (int j = 0; j < Nreac; j++)
-	{
-		clauses << doubleProds[j] << " ";
-	}
-	clauses << "0" << endl;
-	nbClauses++;
+	// for (int j = 0; j < Nreac; j++)
+	// {
+	// 	clauses << doubleProds[j] << " ";
+	// }
+	// clauses << "0" << endl;
+	// nbClauses++;
 
 	// number of variables (and var max) without connexity
 	const int nbVarBase = curvar;
 
 	// write the dimacs, adding connexity with maximal distance to produce the autocatalyst, in order to find solutions in increasing size
-	auto writeDimacs = [&](int distMax, string oldClauses, int nbOldClauses)
+	auto writeDimacs = [&](int distMax, int nbDoubleReac, string oldClauses, int nbOldClauses)
 	{
-		// add variables for connexity: dist[e,i,f] means that entity e produces entity f in at most i steps.
-
-		// this is a naive encoding in Ent^2, we can do Ent*log(Ent)+Reac with bit encoding of distance
 		int nbTotVar = nbVarBase; // restart curvar from beginning of connexity
 		int nbTotClauses = nbOldClauses;
 
+		// extra clauses: connexity with dmax, doubleReacs
+		stringstream extraClauses;
+		// local function to add clause:
+		auto addExtraClause = [&](Array<int> disjuncts)
+		{
+			for (int di : disjuncts)
+			{
+				extraClauses << di << " ";
+			}
+			extraClauses << "0" << endl;
+			nbTotClauses++;
+		};
+
+		// clauses dealing with reactions A+A->B
+
+		// at most nbDoubleReac number of doubleReac
+		function<void(int, int, Array<int> &)> loopReac = [&](int remain, int currentReac, Array<int> &currentClause) -> void
+		{
+			if (remain == 0)
+			{
+				addExtraClause(currentClause);
+				return;
+			}
+			if (currentReac >= Nreac)
+				return;
+			loopReac(remain, currentReac + 1, currentClause); // we do not put currentReac in the list
+			currentClause.add(-doubleReac[currentReac]);
+			loopReac(remain - 1, currentReac + 1, currentClause); // we put currentReac in the list
+			currentClause.removeLast();
+		};
+		Array<int> currentClause;
+		loopReac(nbDoubleReac + 1, 0, currentClause); // the +1 comes from the fact that we forbid nb+1 doubleReac true
+
+		// at least nbDoubleReac+1 number of doubleProds
+		// for this we create a variable isKthDoubleProd[j][k] which is true if reaction  is the kth doubleProd
+
+		unordered_map<int, int> isKthDoubleProd;
+
+		auto e2 = [&](int j, int k)
+		{ return j * (nbDoubleReac + 1) + k; };
+
+		for (int j = 0; j < Nreac; j++)
+		{
+			for (int k = 0; k < nbDoubleReac + 1; k++)
+			{
+				nbTotVar++;
+				isKthDoubleProd[e2(j, k)] = nbTotVar;
+				if (debugMode)
+					varfile << "isKthDoubleProd[" << j << "][" << k << "]=" << nbTotVar << endl;
+			}
+		}
+
+		for (auto &r : simul->reactions)
+		{
+			int j = r->idSAT;
+			for (int k = 0; k < nbDoubleReac + 1; k++)
+			{
+				// isKthDoubleProd[j][k] => doubleProds[j]
+				addExtraClause({-isKthDoubleProd[e2(j, k)], doubleProds[j]});
+				// iskthdoubleProd[j][k]=> for all k'<k, exists j'<j iskthdoubleprod[j'][k']
+				for (int k2 = 0; k2 < k; k2++)
+
+				{
+					Array<int> smallerKclause;
+					smallerKclause.add(-isKthDoubleProd[e2(j, k)]); // left side of implication
+					for (int j2 = 0; j2 < j; j2++)
+					{
+						smallerKclause.add(isKthDoubleProd[e2(j2, k2)]); // disjunct in right side of implication
+					}
+					addExtraClause(smallerKclause);
+				}
+			}
+		}
+
+		// finally we want at least nbDoubleReac+1 doubleProds, so there is a isKthDoubleProd[j][nbReac] true
+		Array<int> atLeastNclause;
+		for (int j = 0; j < Nreac; j++)
+		{
+			atLeastNclause.add(isKthDoubleProd[e2(j, nbDoubleReac)]);
+		}
+		addExtraClause(atLeastNclause);
+
+		// add variables for connexity: dist[e,i,f] means that entity e produces entity f in at most i steps.
+
+		// this is a naive encoding in Ent^2, we can do Ent*log(Ent)+Reac with bit encoding of distance
 		Array<int> dist;
 		dist.resize(Nent * (distMax + 1) * Nent);
 
@@ -572,19 +667,7 @@ void PAClist::run()
 			}
 		}
 
-		// extra clauses: connexity with dmax, doubleReacs
-		stringstream extraClauses;
-		// local function to add clause:
-		auto addExtraClause = [&](Array<int> disjuncts)
-		{
-			for (int di : disjuncts)
-			{
-				extraClauses << di << " ";
-			}
-			extraClauses << "0" << endl;
-			nbTotClauses++;
-		};
-
+		// diameter/connexity clauses
 		for (int i = 0; i < Nent; i++)
 		{
 
@@ -710,125 +793,139 @@ void PAClist::run()
 	int dmax_stop = settings->maxDiameterPACs->intValue(); // maximal diameter
 	dmax_stop = jmin(dmax_stop, Nent);					   // put to Nent if bigger
 
-	//int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
+	int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
 
 	includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 
-	for (int dmax = 1; dmax < dmax_stop; dmax++)
+	for (int nbDoubleReac = 0; nbDoubleReac <= doubleReacMax; nbDoubleReac++)
 	{
-		writeDimacs(dmax, clauses.str(), nbClauses);
-		// bool sat = true;
+		LOG("Generating PACs with " + String(nbDoubleReac) + " double reactions");
+		// TODO continue
 
-		int nCycles;
-		for (nCycles = 0; nCycles < maxCycles; nCycles++)
+		for (int dmax = 1; dmax < dmax_stop; dmax++)
 		{
+			writeDimacs(dmax, nbDoubleReac, clauses.str(), nbClauses);
+			// bool sat = true;
 
-			int retVal = system(solver->command.getCharPointer());
-			if (retVal != satReturnValue && retVal != unsatReturnValue)
+			int nCycles;
+			for (nCycles = 0; nCycles < maxCycles; nCycles++)
 			{
-				LOGWARNING("SAT Solver command failed, exiting...");
-				LOGWARNING("Command: " + solver->command);
-				return;
-			}
-			if (solver->printsExtraString)
 
-				cleanKissatOutput();
-
-			ifstream sol_file("model.txt");
-			string isSat;
-
-			sol_file >> isSat;
-
-			if (isSat != solver->satLine)
-				break;
-
-			int d;
-			PAC *pac = new PAC();
-			Array<int> newClause;
-			// build new clause: one of the entity or reaction must be not used (otherwise we would have inclusion)
-			// we can still find smaller one with same dmax, in which case the first one found will be removed
-			for (auto &e : simul->entities)
-			{
-				sol_file >> d;
-				if (d > 0)
+				int retVal = system(solver->command.getCharPointer());
+				if (retVal != satReturnValue && retVal != unsatReturnValue)
 				{
-					newClause.add(-d);
-					pac->entities.add(e);
+					LOGWARNING("SAT Solver command failed, exiting...");
+					LOGWARNING("Command: " + solver->command);
+					return;
 				}
-			}
-			for (auto &r : simul->reactions)
-			{
-				// reaction
-				int re, dp;
-				sol_file >> re;
-				// pop direction
-				sol_file >> d;
-				// pop double prods
-				sol_file >> dp;
-				if (re > 0)
+				if (solver->printsExtraString)
+
+					cleanKissatOutput();
+
+				ifstream sol_file("model.txt");
+				string isSat;
+
+				sol_file >> isSat;
+
+				if (isSat != solver->satLine)
+					break;
+
+				int d;
+				PAC *pac = new PAC();
+				Array<int> newClause;
+				// build new clause: one of the entity or reaction must be not used (otherwise we would have inclusion)
+				// we can still find smaller one with same dmax, in which case the first one found will be removed
+				for (auto &e : simul->entities)
 				{
-					if (!includeOnlyWithEntities)
+					sol_file >> d;
+					if (d > 0)
 					{
-						newClause.add(-re);
 						newClause.add(-d);
+						pac->entities.add(e);
 					}
-					pac->reacDirs.add(make_pair(r, (d > 0)));
 				}
-			}
-			addCycle(pac);
-
-			cout << pac->toString() << endl;
-
-			if (debugMode)
-			{
-				if (pac->entities.size() != pac->reacDirs.size())
+				for (auto &r : simul->reactions)
 				{
-					LOGWARNING("Problem with PAC :" << pac->toString());
-					LOGWARNING("Entities: " << pac->entities.size() << " reactions: " << pac->reacDirs.size());
-					LOGWARNING("Exiting...");
-					return;
-				}
-
-				bool doubleReacfound = false;
-				for (auto &rd : pac->reacDirs)
-				{
-					if (rd.second == false) // wrong direction for double product
-						continue;
-					if (pac->entities.contains(rd.first->reactant1) && pac->entities.contains(rd.first->reactant2))
+					// reaction
+					int re, dp;
+					sol_file >> re;
+					// pop direction
+					sol_file >> d;
+					// pop double prods
+					sol_file >> dp;
+					//pop double reac
+					sol_file >> dp;
+					if (re > 0)
 					{
-						doubleReacfound = true;
-						break;
+						if (!includeOnlyWithEntities)
+						{
+							newClause.add(-re);
+							newClause.add(-d);
+						}
+						pac->reacDirs.add(make_pair(r, (d > 0)));
 					}
 				}
-				if (!doubleReacfound)
-				{
-					LOGWARNING("No double product in PAC :" << pac->toString());
-					LOGWARNING("Exiting...");
-					return;
-				}
-			}
+				addCycle(pac);
 
-			addClause(newClause);
-			writeDimacs(dmax, clauses.str(), nbClauses);
+				if(settings->printPACsToFile->boolValue()) 
+				pacFile << pac->toString() << endl;
+
+				if (debugMode)
+				{
+					if (pac->entities.size() != pac->reacDirs.size())
+					{
+						LOGWARNING("Problem with PAC :" << pac->toString());
+						LOGWARNING("Entities: " << pac->entities.size() << " reactions: " << pac->reacDirs.size());
+						LOGWARNING("Exiting...");
+						return;
+					}
+
+					bool doubleReacfound = false;
+					for (auto &rd : pac->reacDirs)
+					{
+						if (rd.second == false) // wrong direction for double product
+							continue;
+						if (pac->entities.contains(rd.first->reactant1) && pac->entities.contains(rd.first->reactant2))
+						{
+							doubleReacfound = true;
+							break;
+						}
+					}
+					if (!doubleReacfound)
+					{
+						LOGWARNING("No double product in PAC :" << pac->toString());
+						LOGWARNING("Exiting...");
+						return;
+					}
+				}
+
+				addClause(newClause);
+				writeDimacs(dmax, nbDoubleReac, clauses.str(), nbClauses);
+			}
+			if (nCycles > 0)
+				LOG(nCycles << " PACs found for diameter=" << dmax);
+			// else
+			// 	cout << ".";
+			if (nCycles == maxCycles)
+			{
+				LOGWARNING(to_string(maxCycles) + " PACs reached for diameter " + to_string(dmax) + ", stop looking");
+				break;
+			}
 		}
-		if (nCycles > 0)
-			LOG(nCycles << " PACs found for diameter=" << dmax);
-		// else
-		// 	cout << ".";
-		if (nCycles == maxCycles)
-		{
-			LOGWARNING(to_string(maxCycles) + " PACs reached for diameter " + to_string(dmax) + ", stop looking");
-			break;
-		}
-	}
+	} // end loop on nbDoubleReac
 	cout << endl;
+
+	if (debugMode)
+		varfile.close();
+	if(settings->printPACsToFile->boolValue())
+		pacFile.close();
+	
 	simul->PACsGenerated = true;
 	simul->updateParams();
 	// simul->printPACs();
 
 	// print execution time
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
-
 }
