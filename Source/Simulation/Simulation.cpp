@@ -899,16 +899,6 @@ void Simulation::run()
   startTrigger->setEnabled(true);
 }
 
-SimEntity *Simulation::getSimEntityForEntity(Entity *e)
-{
-  for (auto &se : entities)
-  {
-    if (se->entity == e)
-      return se;
-  }
-  // jassertfalse;
-  return nullptr;
-}
 
 SimEntity *Simulation::getSimEntityForID(int id)
 {
@@ -937,7 +927,7 @@ void Simulation::updateConcentLists()
 
   for (auto &ent : EntityManager::getInstance()->items)
   {
-    auto se = getSimEntityForEntity(ent);
+    auto se = ent->simEnt;
     if (se != nullptr)
     {
       ent->concent->setValue(se->concent);
@@ -998,6 +988,7 @@ SimEntity::SimEntity(Entity *e) : SimEntity(e->primary->boolValue(), e->startCon
   color = e->itemColor->getColor();
   draw = e->draw->boolValue();
   level = e->level;
+  e->simEnt = this;
 }
 
 SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy) : primary(isPrimary), concent(concent), startConcent(concent), creationRate(cRate), destructionRate(dRate), freeEnergy(freeEnergy),
@@ -1144,11 +1135,7 @@ void SimReaction::importFromManual()
   dissocRate = reaction->dissocRate->floatValue();
   energy = reaction->energy->floatValue();
   enabled = reaction->shouldIncludeInSimulation();
-  // no change to the structure for now
-  /*reactant1=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->reactant1->targetContainer.get()));
-  reactant2=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->reactant2->targetContainer.get()));
-  product=Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(reaction->product->targetContainer.get()));
-  */
+
 }
 
 void SimReaction::setName()
@@ -1161,9 +1148,10 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
                                         energy(r->energy->floatValue()),
                                         reaction(r)
 {
-  reactant1 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant1->targetContainer.get()));
-  reactant2 = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->reactant2->targetContainer.get()));
-  product = Simulation::getInstance()->getSimEntityForEntity(dynamic_cast<Entity *>(r->product->targetContainer.get()));
+  r->simReac=this;
+  reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
+  reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
+  product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
   setName();
 }
 

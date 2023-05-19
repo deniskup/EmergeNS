@@ -187,7 +187,7 @@ public:
   // the thread function
   void run() override;
 
-  SimEntity *getSimEntityForEntity(Entity *e);
+
   SimEntity *getSimEntityForID(int id);
 
   SimReaction *getSimReactionForID(int idSAT);

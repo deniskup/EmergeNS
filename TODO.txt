@@ -1,24 +1,19 @@
-- bug: segfault in ImportManual on startConcent after Loading funnyRACS.sim
-- id non initialisés si création manuelle -> .sim ne fonctionne pas (tous les id à -1)
 
 
-- ajouter PACs dans Json data engine
-- autoriser A+A->B dans PAC, et demander plus de fourches si c'est le cas.
+- ajouter PACs dans Json data engine, virer les .sim
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
-- Définir des taille max de PACs et timeout par niveau...
+- vérifier que ça marche sans AutoLoad
 
 
 
 - Cocher ce qui doit être généré
 - detecter entités non atteintes dans computeCompositions, et donner l'option de les enlever automatiquement de la sim ?
 - propEntities
-- ajouter les métaparamètres dans .sim (ou tout mettre dans le .ens y compris les PACs
 - donner la possibilité d'exporter les dynamiques temporelles
 - Version ligne de commandes?
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
 /NodeConnectionViewUI.cpp
--utiliser un pointeur au lieu de simentityForEntity
 
 
 
