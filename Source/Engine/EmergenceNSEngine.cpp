@@ -35,7 +35,7 @@ void EmergenceNSEngine::clearInternal()
 	// Simulation::getInstance()->cancel();
 	EntityManager::getInstance()->clear();
 	ReactionManager::getInstance()->clear();
-	//Generation::getInstance()->clear();
+	// Generation::getInstance()->clear();
 }
 
 var EmergenceNSEngine::getJSONData()
@@ -46,7 +46,8 @@ var EmergenceNSEngine::getJSONData()
 	data.getDynamicObject()->setProperty(ReactionManager::getInstance()->shortName, ReactionManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Generation::getInstance()->shortName, Generation::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Settings::getInstance()->shortName, Settings::getInstance()->getJSONData());
-	//add PACs here
+	data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
+
 	return data;
 }
 
@@ -57,6 +58,7 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadi
 	ReactionManager::getInstance()->loadJSONData(data.getProperty(ReactionManager::getInstance()->shortName, var()));
 	Generation::getInstance()->loadJSONData(data.getProperty(Generation::getInstance()->shortName, var()));
 	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
+	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
 }
 
 String EmergenceNSEngine::getMinimumRequiredFileVersion()

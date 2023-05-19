@@ -113,7 +113,7 @@ public:
   BoolParameter *finished;
   FloatParameter *dt;
   FloatParameter *totalTime;
-  BoolParameter *loadToManualByDefault;
+  //BoolParameter *loadToManualByDefault;
   BoolParameter *autoScale;
   IntParameter *pointsDrawn;
   BoolParameter *detectEquilibrium;

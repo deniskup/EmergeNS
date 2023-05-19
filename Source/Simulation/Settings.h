@@ -19,6 +19,8 @@ public:
 
     BoolParameter *printPACsToFile; //print PACs to file
 
+    BoolParameter *autoLoadLists;
+
     //void onContainerParameterChanged(Parameter *p) override;
 
   //   class SettingsListener

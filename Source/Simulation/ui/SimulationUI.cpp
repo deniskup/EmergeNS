@@ -21,7 +21,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI.reset(simul->genstartTrigger->createButtonUI());
     restartUI.reset(simul->restartTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
-    autoLoadUI.reset(simul->loadToManualByDefault->createToggle());
+    //autoLoadUI.reset(simul->loadToManualByDefault->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
     ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
@@ -43,7 +43,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI->setSize(100, 20);
     restartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
-    autoLoadUI->setSize(130, 20);
+   // autoLoadUI->setSize(130, 20);
     autoScaleUI->setSize(100, 20);
     pointsDrawnUI->setSize(150, 20);
     detectEqUI->setSize(120, 20);
@@ -58,7 +58,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(restartUI.get());
     addAndMakeVisible(cancelUI.get());
     addAndMakeVisible(autoScaleUI.get());
-    addAndMakeVisible(autoLoadUI.get());
+    //addAndMakeVisible(autoLoadUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
     addAndMakeVisible(ignoreFreeEnergyUI.get());
@@ -179,7 +179,7 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(firstLineHeight);
 
-    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ epsilonEqUI->getWidth()+15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth() + 40 + autoLoadUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ epsilonEqUI->getWidth()+15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
@@ -192,8 +192,8 @@ void SimulationUI::resized()
     totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
     hr.removeFromLeft(20);
     pointsDrawnUI->setBounds(hr.removeFromLeft(pointsDrawnUI->getWidth()));
-    hr.removeFromLeft(40);
-    autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
+    //hr.removeFromLeft(40);
+    //autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
 
     r.removeFromTop(8);
     hr = r.removeFromTop(secondLineHeight);

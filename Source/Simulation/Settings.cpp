@@ -15,6 +15,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);
 
+    autoLoadLists = addBoolParameter("Auto load lists", "Auto load manual lists on generation", true);
+
 }
 
 Settings::~Settings()

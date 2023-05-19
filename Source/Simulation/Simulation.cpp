@@ -2,6 +2,7 @@
 #include "EntityManager.h"
 #include "ReactionManager.h"
 #include "Generation.h"
+#include "Settings.h"
 
 using namespace std;
 
@@ -25,7 +26,7 @@ juce_ImplementSingleton(Simulation)
   finished->setControllableFeedbackOnly(true);
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
-  loadToManualByDefault = addBoolParameter("AutoLoad to Lists", "Automatically load the current simulation to manual lists", true);
+  //loadToManualByDefault = addBoolParameter("AutoLoad to Lists", "Automatically load the current simulation to manual lists", true);
   genTrigger = addTrigger("Generate", "Generate");
   startTrigger = addTrigger("Continue", "Continue");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
@@ -202,6 +203,11 @@ void Simulation::importJSONData(var data)
   entities.clear();
   if (data.getDynamicObject()->hasProperty("entities"))
   {
+    if (!data.getDynamicObject()->getProperty("entities").isArray())
+    {
+      LOGWARNING("Incomplete .ens file, entities of active sim cannot be loaded");
+      return;
+    }
     auto ents = data.getDynamicObject()->getProperty("entities").getArray();
     for (auto &evar : *ents)
     {
@@ -213,6 +219,11 @@ void Simulation::importJSONData(var data)
   reactions.clear();
   if (data.getDynamicObject()->hasProperty("reactions"))
   {
+    if (!data.getDynamicObject()->getProperty("reactions").isArray())
+    {
+      LOGWARNING("Incomplete .ens file, reactions of active sim cannot be loaded");
+      return;
+    }
     auto reacs = data.getDynamicObject()->getProperty("reactions").getArray();
     for (auto &rvar : *reacs)
     {
@@ -259,8 +270,6 @@ void Simulation::importJSONData(var data)
   ready = true;
   computeBarriers();
   updateParams();
-  if (loadToManualByDefault->boolValue())
-    loadToManualMode();
   toImport = false;
 }
 
@@ -638,6 +647,9 @@ void Simulation::fetchGenerate()
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
+
+  if (Settings::getInstance()->autoLoadLists->boolValue())
+    loadToManualMode();
 }
 
 void Simulation::start(bool restart)
@@ -899,7 +911,6 @@ void Simulation::run()
   startTrigger->setEnabled(true);
 }
 
-
 SimEntity *Simulation::getSimEntityForID(int id)
 {
   for (auto &se : entities)
@@ -945,14 +956,10 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
   if (t == genTrigger)
   {
     fetchGenerate();
-    if (loadToManualByDefault->boolValue())
-      loadToManualMode();
   }
   else if (t == genstartTrigger)
   {
     fetchGenerate();
-    if (loadToManualByDefault->boolValue())
-      loadToManualMode();
     start(true);
   }
   else if (t == restartTrigger)
@@ -1135,7 +1142,6 @@ void SimReaction::importFromManual()
   dissocRate = reaction->dissocRate->floatValue();
   energy = reaction->energy->floatValue();
   enabled = reaction->shouldIncludeInSimulation();
-
 }
 
 void SimReaction::setName()
@@ -1148,7 +1154,7 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
                                         energy(r->energy->floatValue()),
                                         reaction(r)
 {
-  r->simReac=this;
+  r->simReac = this;
   reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
   reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
   product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
