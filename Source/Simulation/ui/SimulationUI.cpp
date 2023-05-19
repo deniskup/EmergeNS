@@ -2,9 +2,9 @@
 #include "SimulationUI.h"
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
-                               simul(Simulation::getInstance()),
-                               saveSimBT("Save"),
-                               loadSimBT("Load")
+                               simul(Simulation::getInstance())
+                            //    saveSimBT("Save"),
+                            //    loadSimBT("Load")
 // uiStep(1)
 {
 
@@ -66,11 +66,11 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(detectEqUI.get());
     addAndMakeVisible(epsilonEqUI.get());
 
-    saveSimBT.addListener(this);
-    addAndMakeVisible(&saveSimBT);
+    // saveSimBT.addListener(this);
+    // addAndMakeVisible(&saveSimBT);
 
-    loadSimBT.addListener(this);
-    addAndMakeVisible(&loadSimBT);
+    // loadSimBT.addListener(this);
+    // addAndMakeVisible(&loadSimBT);
 
     addAndMakeVisible(paramsLabel);
     paramsLabel.setJustificationType(Justification::centred);
@@ -227,9 +227,9 @@ void SimulationUI::resized()
     perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
     Rectangle<int> br = r.removeFromBottom(150);
-    Rectangle<int> butr = br.removeFromRight(100);
-    saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
-    loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
+    // Rectangle<int> butr = br.removeFromRight(100);
+    // saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
+    // loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
 
     Rectangle<int> explore=br.removeFromBottom(40).reduced(5);
 
@@ -266,49 +266,49 @@ bool SimulationUI::keyPressed(const KeyPress &e)
     return false;
 }
 
-void SimulationUI::buttonClicked(Button *b)
-{
-    if (b == &saveSimBT)
-    {
+// void SimulationUI::buttonClicked(Button *b)
+// {
+    // if (b == &saveSimBT)
+    // {
 
-        FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+    //     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
 
-        int openFlags = FileBrowserComponent::saveMode;
-        openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+    //     int openFlags = FileBrowserComponent::saveMode;
+    //     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
 
-        chooser->launchAsync(openFlags, [this](const FileChooser &fc)
-                             {
-                                 File f = fc.getResult();
-                                 delete &fc;
+    //     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+    //                          {
+    //                              File f = fc.getResult();
+    //                              delete &fc;
 
-                                 // save the sim here
-                                 var data = simul->toJSONData();
-                                 f.deleteFile();
-                                 FileOutputStream output(f);
-                                 JSON::writeToStream(output, data);
-                                 LOG("Saved to " << f.getFullPathName()); });
-    }
+    //                              // save the sim here
+    //                              var data = simul->toJSONData();
+    //                              f.deleteFile();
+    //                              FileOutputStream output(f);
+    //                              JSON::writeToStream(output, data);
+    //                              LOG("Saved to " << f.getFullPathName()); });
+    // }
 
-    if (b == &loadSimBT)
-    {
+    // if (b == &loadSimBT)
+    // {
 
-        FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+    //     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
 
-        int openFlags = FileBrowserComponent::openMode;
-        openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+    //     int openFlags = FileBrowserComponent::openMode;
+    //     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
 
-        chooser->launchAsync(openFlags, [this](const FileChooser &fc)
-                             {
-            File f = fc.getResult();
-            delete &fc;
+    //     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+    //                          {
+    //         File f = fc.getResult();
+    //         delete &fc;
 
-            // load the sim here
-            var data = JSON::parse(f);
-            simul->importJSONData(data);
-            LOG("Loaded from " << f.getFullPathName()); });
+    //         // load the sim here
+    //         var data = JSON::parse(f);
+    //         simul->importJSONData(data);
+    //         LOG("Loaded from " << f.getFullPathName()); });
                 
-    }
-}
+    // }
+//}
 
 void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 {
