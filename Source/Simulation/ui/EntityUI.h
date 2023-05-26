@@ -11,6 +11,7 @@ public:
     ~EntityUI();
 
     std::unique_ptr<FloatParameterLabelUI> concentUI;
+    std::unique_ptr<FloatParameterLabelUI> startConcentUI;
 
     void updateTextColor();
     void resizedInternalHeader(Rectangle<int> &r) override;
