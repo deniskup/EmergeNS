@@ -981,9 +981,8 @@
   "settings": {
     "parameters": [
       {
-        "value": 0,
-        "hexMode": false,
-        "controlAddress": "/maxDoubleReactionsPACs"
+        "value": true,
+        "controlAddress": "/printPACsToFile"
       }
     ]
   },
