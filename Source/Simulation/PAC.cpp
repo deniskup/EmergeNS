@@ -184,13 +184,13 @@ void cleanKissatOutput()
 // 0 for minisat, 1 for kissat
 void PAClist::computePACs(int numSolv)
 {
-	
+
 	numSolver = numSolv;
 	startThread();
 }
 
 void PAClist::run()
-{	// clear PACs if some were computed
+{ // clear PACs if some were computed
 	cycles.clear();
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
@@ -201,7 +201,7 @@ void PAClist::run()
 		PACsWithZ3();
 
 	// print execution time
-	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");	
+	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
 }
 
 // Function to parse the model from Z3 output, retrieve boolean variables
@@ -236,129 +236,180 @@ void PAClist::PACsWithZ3()
 	string outputFile = "z3model.txt";
 	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
 
-	ofstream inputStream(inputFile);
-	if (!inputStream)
-	{
-		cerr << "Failed to create file: " << inputFile << std::endl;
-		return;
-	}
+	stringstream clauses;
 	//------------declare variables------------
 
-	int pacSize=3;//to loop over later
-
-	//entities
-	int i=0;
-	for(auto &e:simul->entities){
-		e->idSAT=i;
-		inputStream << "(declare-const ent" << i << " Bool)\n";
+	// entities
+	int i = 0;
+	for (auto &e : simul->entities)
+	{
+		e->idSAT = i;
+		clauses << "(declare-const ent" << i << " Bool)\n";
 		i++;
 	}
 
-	//reactions
-	int j=0;
-	for(auto &r: simul->reactions){
-		r->idSAT=j;
-		inputStream << "(declare-const reac" << j << " Bool)\n";
-		inputStream << "(declare-const dir" << j << " Bool)\n";
-		inputStream << "(declare-const coef" << j << " Int)\n";
+	// reactions
+	int j = 0;
+	for (auto &r : simul->reactions)
+	{
+		r->idSAT = j;
+		clauses << "(declare-const reac" << j << " Bool)\n";
+		clauses << "(declare-const dir" << j << " Bool)\n";
+		clauses << "(declare-const coef" << j << " Int)\n";
 		j++;
 	}
 
 	//------------constraints------------
 
-	// pacsize entities
-	inputStream << "(assert (= (+";
-	for(auto &e:simul->entities){
-		inputStream << " (ite ent" << e->idSAT << " 1 0)";
-	}
-	inputStream << ") " << pacSize << "))\n";
-
-	//pacsize reactions
-	inputStream << "(assert (= (+";
-	for(auto &r:simul->reactions){
-		inputStream << " (ite reac" << r->idSAT << " 1 0)";
-	}
-	inputStream << ") " << pacSize << "))\n";
-
-	//dir expresses the sign of coef. dir false means coef is positive A+B->AB
-	for(auto &r:simul->reactions){
-		inputStream << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
-	}
-
-	//each reaction has its product and one reactant true
-	for(auto &r:simul->reactions){
-		inputStream << "(assert (=> reac" << r->idSAT << " (and";
-		inputStream << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
-		inputStream << " ent" << r->product->idSAT;
-		inputStream << ")))\n";
-	}
-
-	//true reactions with coefs produce a positive amount of every true
-
-	for(auto &ent:simul->entities){
-		inputStream << "(assert (=> ent"<< ent->idSAT<< " (> (+";
-		for(auto &r:simul->reactions){
-			int j=r->idSAT;
-			if(r->reactant1==ent && r->reactant2==ent){
-				//add coefj+coefj
-				inputStream << " (ite reac" << j << " (+ coef" << j <<" coef" << j << ") 0)\n";
-			}
-			else if (r->reactant1==ent || r->reactant2==ent){
-				//add coefj
-				inputStream << " (ite reac" << j << " coef" << j << " 0)\n";
-			}
-			else if (r->product==ent){
-				//add -coefj
-				inputStream << " (ite reac" << j << " (- coef" << j << ") 0)\n";
-			}
-			//else{
-				//add 0, in case where ent does not appear in enough reactions ,and help with debugging
-			//	inputStream << "      0\n";
-			//}	
-		}
-		inputStream << ") 0)))\n"; //we finally ask that this sum is strictly positive
-	}
-
-
-	inputStream << "(check-sat)\n";
-	inputStream << "(get-model)\n";
-
-	inputStream.close();
-
-	system(z3Command.c_str());
-
-	ifstream outputStream(outputFile);
-	if (!outputStream)
+	// dir expresses the sign of coef. dir false means coef is positive A+B->AB
+	for (auto &r : simul->reactions)
 	{
-		cerr << "Failed to open file: " << outputFile << endl;
-		return;
+		clauses << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
 	}
 
-	string z3Output((istreambuf_iterator<char>(outputStream)),
-					istreambuf_iterator<char>());
+	// each reaction has its product and one reactant true
+	for (auto &r : simul->reactions)
+	{
+		clauses << "(assert (=> reac" << r->idSAT << " (and";
+		clauses << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
+		clauses << " ent" << r->product->idSAT;
+		clauses << ")))\n";
+	}
 
-	// Parse the model
-	map<string, bool> model = parseModel(z3Output);
+	// true reactions with coefs produce a positive amount of every true entity
 
-	// Print variable assignments
-	//for (const auto &entry : model)
-	//{
-	//	cout << entry.first << " : " << (entry.second ? "true" : "false") << endl;
-	//}
-	PAC *pac = new PAC();
-	for(auto &r:simul->reactions){
-		int j=r->idSAT;
-		if(model["reac"+to_string(j)]){
-			pac->reacDirs.add(make_pair(r,model["dir"+to_string(j)]));
+	for (auto &ent : simul->entities)
+	{
+		clauses << "(assert (=> ent" << ent->idSAT << " (> (+";
+		for (auto &r : simul->reactions)
+		{
+			int j = r->idSAT;
+			if (r->reactant1 == ent && r->reactant2 == ent)
+			{
+				// add coefj+coefj
+				clauses << " (ite reac" << j << " (+ (- coef" << j << ") (- coef" << j << ")) 0)\n";
+			}
+			else if (r->reactant1 == ent || r->reactant2 == ent)
+			{
+				// add coefj
+				clauses << " (ite reac" << j << "(- coef" << j << ") 0)\n";
+			}
+			else if (r->product == ent)
+			{
+				// add -coefj
+				clauses << " (ite reac" << j << " coef" << j << " 0)\n";
+			}
+			// else{
+			// add 0, in case where ent does not appear in enough reactions ,and help with debugging
+			//	clauses << "      0\n";
+			//}
 		}
+		clauses << ") 0)))\n"; // we finally ask that this sum is strictly positive
 	}
-	for(auto &e:simul->entities){
-		int i=e->idSAT;
-		if(model["ent"+to_string(i)]){
-			pac->entities.add(e);
+
+	stringstream modClauses; // additional clauses forbidding some models
+
+	int maxSize=jmin(simul->entities.size(), simul->reactions.size(),Settings::getInstance()->maxDiameterPACs->intValue());
+
+	for (int pacSize = 3; pacSize < maxSize; pacSize++)
+	{
+		int pacsFound = 0;
+		stringstream sizeClauses;
+		// pacsize entities
+		sizeClauses << "(assert (= (+";
+		for (auto &e : simul->entities)
+		{
+			sizeClauses << " (ite ent" << e->idSAT << " 1 0)";
 		}
+		sizeClauses << ") " << pacSize << "))\n";
+
+		// pacsize reactions
+		sizeClauses << "(assert (= (+";
+		for (auto &r : simul->reactions)
+		{
+			sizeClauses << " (ite reac" << r->idSAT << " 1 0)";
+		}
+		sizeClauses << ") " << pacSize << "))\n";
+
+		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
+		{
+			// write to file
+			ofstream inputStream(inputFile);
+			inputStream << clauses.str();
+			inputStream << sizeClauses.str();
+			inputStream << modClauses.str();
+			inputStream << "(check-sat)\n";
+			inputStream << "(get-model)\n";
+
+			inputStream.close();
+
+			system(z3Command.c_str());
+
+			ifstream outputStream(outputFile);
+			if (!outputStream)
+			{
+				cerr << "Failed to open file: " << outputFile << endl;
+				return;
+			}
+
+			string z3Output((istreambuf_iterator<char>(outputStream)),
+							istreambuf_iterator<char>());
+
+			// test if satisfiable
+			size_t newlinePos = z3Output.find('\n');
+			string firstLine = z3Output.substr(0, newlinePos);
+			if (firstLine == "unsat")
+			{
+				break;
+			}
+			if (firstLine != "sat")
+			{
+				LOGWARNING("Error in Z3 output");
+				return;
+			}
+
+			pacsFound++;
+
+			// Parse the model
+			map<string, bool> model = parseModel(z3Output);
+
+			PAC *pac = new PAC();
+			for (auto &r : simul->reactions)
+			{
+				int j = r->idSAT;
+				if (model["reac" + to_string(j)])
+				{
+					pac->reacDirs.add(make_pair(r, model["dir" + to_string(j)]));
+				}
+			}
+			for (auto &e : simul->entities)
+			{
+				int i = e->idSAT;
+				if (model["ent" + to_string(i)])
+				{
+					pac->entities.add(e);
+				}
+			}
+			cout << pac->toString() << endl;
+			addCycle(pac);
+
+			modClauses << "(assert (not (and";
+			for (auto &r : pac->reacDirs)
+			{
+				int j = r.first->idSAT;
+				modClauses << " reac" << j;
+			}
+			for (auto &e : pac->entities)
+			{
+				int i = e->idSAT;
+				modClauses << " ent" << i;
+			}
+			modClauses << ")))\n";
+		}
+		if(pacsFound>0) LOG(String(pacsFound) + " PACs" + " of size " + String(pacSize));
 	}
-	cout << pac->toString();
+	simul->PACsGenerated = true;
+	simul->updateParams();
 }
 
 void PAClist::PACsWithSAT()
@@ -366,8 +417,6 @@ void PAClist::PACsWithSAT()
 	bool debugMode = false; // to print the file of vars for SAT
 
 	Settings *settings = Settings::getInstance();
-
-
 
 	// declare SAT solvers
 	String kissatCommand = settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
@@ -1123,5 +1172,4 @@ void PAClist::PACsWithSAT()
 	simul->PACsGenerated = true;
 	simul->updateParams();
 	// simul->printPACs();
-
 }
