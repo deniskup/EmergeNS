@@ -242,13 +242,84 @@ void PAClist::PACsWithZ3()
 		cerr << "Failed to create file: " << inputFile << std::endl;
 		return;
 	}
+	//------------declare variables------------
 
-	inputStream << "(declare-const boolVar Bool)\n";
-	inputStream << "(declare-const intVar Int)\n";
-	inputStream << "\n";
-	inputStream << "(assert boolVar)\n";
-	inputStream << "(assert (>= intVar 0))\n";
-	inputStream << "(assert (or (> intVar 5) (not boolVar)))\n";
+	int pacSize=3;//to loop over later
+
+	//entities
+	int i=0;
+	for(auto &e:simul->entities){
+		e->idSAT=i;
+		inputStream << "(declare-const ent" << i << " Bool)\n";
+		i++;
+	}
+
+	//reactions
+	int j=0;
+	for(auto &r: simul->reactions){
+		r->idSAT=j;
+		inputStream << "(declare-const reac" << j << " Bool)\n";
+		inputStream << "(declare-const dir" << j << " Bool)\n";
+		inputStream << "(declare-const coef" << j << " Int)\n";
+		j++;
+	}
+
+	//------------constraints------------
+
+	// pacsize entities
+	inputStream << "(assert (= (+";
+	for(auto &e:simul->entities){
+		inputStream << " (ite ent" << e->idSAT << " 1 0)";
+	}
+	inputStream << ") " << pacSize << "))\n";
+
+	//pacsize reactions
+	inputStream << "(assert (= (+";
+	for(auto &r:simul->reactions){
+		inputStream << " (ite reac" << r->idSAT << " 1 0)";
+	}
+	inputStream << ") " << pacSize << "))\n";
+
+	//dir expresses the sign of coef. dir false means coef is positive A+B->AB
+	for(auto &r:simul->reactions){
+		inputStream << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
+	}
+
+	//each reaction has its product and one reactant true
+	for(auto &r:simul->reactions){
+		inputStream << "(assert (=> reac" << r->idSAT << " (and";
+		inputStream << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
+		inputStream << " ent" << r->product->idSAT;
+		inputStream << ")))\n";
+	}
+
+	//true reactions with coefs produce a positive amount of every true
+
+	for(auto &ent:simul->entities){
+		inputStream << "(assert (=> ent"<< ent->idSAT<< " (> (+";
+		for(auto &r:simul->reactions){
+			int j=r->idSAT;
+			if(r->reactant1==ent && r->reactant2==ent){
+				//add coefj+coefj
+				inputStream << " (ite reac" << j << " (+ coef" << j <<" coef" << j << ") 0)\n";
+			}
+			else if (r->reactant1==ent || r->reactant2==ent){
+				//add coefj
+				inputStream << " (ite reac" << j << " coef" << j << " 0)\n";
+			}
+			else if (r->product==ent){
+				//add -coefj
+				inputStream << " (ite reac" << j << " (- coef" << j << ") 0)\n";
+			}
+			//else{
+				//add 0, in case where ent does not appear in enough reactions ,and help with debugging
+			//	inputStream << "      0\n";
+			//}	
+		}
+		inputStream << ") 0)))\n"; //we finally ask that this sum is strictly positive
+	}
+
+
 	inputStream << "(check-sat)\n";
 	inputStream << "(get-model)\n";
 
@@ -270,10 +341,24 @@ void PAClist::PACsWithZ3()
 	map<string, bool> model = parseModel(z3Output);
 
 	// Print variable assignments
-	for (const auto &entry : model)
-	{
-		cout << entry.first << " : " << (entry.second ? "true" : "false") << endl;
+	//for (const auto &entry : model)
+	//{
+	//	cout << entry.first << " : " << (entry.second ? "true" : "false") << endl;
+	//}
+	PAC *pac = new PAC();
+	for(auto &r:simul->reactions){
+		int j=r->idSAT;
+		if(model["reac"+to_string(j)]){
+			pac->reacDirs.add(make_pair(r,model["dir"+to_string(j)]));
+		}
 	}
+	for(auto &e:simul->entities){
+		int i=e->idSAT;
+		if(model["ent"+to_string(i)]){
+			pac->entities.add(e);
+		}
+	}
+	cout << pac->toString();
 }
 
 void PAClist::PACsWithSAT()
