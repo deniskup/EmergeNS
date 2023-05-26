@@ -979,12 +979,6 @@
     ]
   },
   "settings": {
-    "parameters": [
-      {
-        "value": true,
-        "controlAddress": "/printPACsToFile"
-      }
-    ]
   },
   "currentSimul": {
     "ready": true,

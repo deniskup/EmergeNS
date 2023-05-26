@@ -283,6 +283,15 @@ void PAClist::PACsWithZ3()
 		clauses << ")))\n";
 	}
 
+	//if distinct reactants and dir is false, then one reactant must be false
+	for (auto &r : simul->reactions)
+	{
+		if (r->reactant1 != r->reactant2)
+		{
+			clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
+		}
+	}
+
 	// true reactions with coefs produce a positive amount of every true entity
 
 	for (auto &ent : simul->entities)
