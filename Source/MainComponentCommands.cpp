@@ -12,6 +12,7 @@ namespace NSCommandIDs
 	static const int loadManual = 0x60004;
 	static const int computeBarriers = 0x60005;
 	static const int clearLists = 0x60006;
+	static const int PACwithZ3 = 0x60007;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -36,6 +37,12 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.setInfo("PACs with kissat", "", "General", result.readOnlyInKeyEditor);
 		result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
 		break;
+
+	case NSCommandIDs::PACwithZ3:
+		result.setInfo("PACs with Z3", "", "General", result.readOnlyInKeyEditor);
+		result.addDefaultKeypress(KeyPress::createFromDescription("p").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+	
 
 	case NSCommandIDs::loadManual:
 		result.setInfo("Load Lists", "", "General", result.readOnlyInKeyEditor);
@@ -68,6 +75,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::normalizeEnergies,
 		NSCommandIDs::PACminisat,
 		NSCommandIDs::PACkissat,
+		NSCommandIDs::PACwithZ3,
 		NSCommandIDs::loadManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists
@@ -87,6 +95,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
@@ -127,6 +136,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	{
 
 		Simulation::getInstance()->pacList->computePACs(1);
+	}
+	break;
+
+	case NSCommandIDs::PACwithZ3:
+	{
+
+		Simulation::getInstance()->pacList->computePACs(2);
 	}
 	break;
 

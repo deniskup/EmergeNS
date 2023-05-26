@@ -1,6 +1,7 @@
 #include "PAC.h"
 #include "Simulation.h"
 #include "Settings.h"
+#include <regex>
 
 using namespace std;
 
@@ -150,8 +151,6 @@ void PAClist::printRACs()
 	}
 }
 
-
-
 void PAClist::clear()
 {
 	cycles.clear();
@@ -189,23 +188,88 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
-
-
 void PAClist::run()
 {
-if(numSolver<=1)
-	PACsWithSAT();
-else
-	PACsWithZ3();
+	if (numSolver <= 1)
+		PACsWithSAT();
+	else
+		PACsWithZ3();
 }
 
+// Function to parse the model from Z3 output, retrieve boolean variables
+map<string, bool> parseModel(const string &output)
+{
+	map<string, bool> model;
 
-void PAClist::PACsWithZ3(){
-//TODO
+	// Regex pattern to match variable assignments
+	regex pattern(R"(define-fun ([a-zA-Z0-9_]+) \(\) Bool\n\s+(true|false))");
+
+	// Iterate over matches
+	sregex_iterator it(output.begin(), output.end(), pattern);
+	sregex_iterator end;
+	for (; it != end; ++it)
+	{
+		smatch match = *it;
+		string varName = match.str(1);
+		bool varValue = (match.str(2) == "true");
+		model[varName] = varValue;
+	}
+
+	return model;
 }
 
+void PAClist::PACsWithZ3()
+{
+	// we implement here more directly the constraint from Blockhuis:
+	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
 
-void PAClist::PACsWithSAT(){
+	LOG("Using solver: Z3");
+	string inputFile = "z3constraints.smt2";
+	string outputFile = "z3model.txt";
+	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
+
+	ofstream inputStream(inputFile);
+	if (!inputStream)
+	{
+		cerr << "Failed to create file: " << inputFile << std::endl;
+		return;
+	}
+
+	inputStream << "(declare-const boolVar Bool)\n";
+	inputStream << "(declare-const intVar Int)\n";
+	inputStream << "\n";
+	inputStream << "(assert boolVar)\n";
+	inputStream << "(assert (>= intVar 0))\n";
+	inputStream << "(assert (or (> intVar 5) (not boolVar)))\n";
+	inputStream << "(check-sat)\n";
+	inputStream << "(get-model)\n";
+
+	inputStream.close();
+
+	system(z3Command.c_str());
+
+	ifstream outputStream(outputFile);
+	if (!outputStream)
+	{
+		cerr << "Failed to open file: " << outputFile << endl;
+		return;
+	}
+
+	string z3Output((istreambuf_iterator<char>(outputStream)),
+					istreambuf_iterator<char>());
+
+	// Parse the model
+	map<string, bool> model = parseModel(z3Output);
+
+	// Print variable assignments
+	for (const auto &entry : model)
+	{
+		cout << entry.first << " : " << (entry.second ? "true" : "false") << endl;
+	}
+}
+
+void PAClist::PACsWithSAT()
+{
 	bool debugMode = false; // to print the file of vars for SAT
 
 	Settings *settings = Settings::getInstance();
