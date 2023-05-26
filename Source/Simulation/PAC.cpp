@@ -236,6 +236,13 @@ void PAClist::PACsWithZ3()
 	string outputFile = "z3model.txt";
 	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
 
+	bool printPacsToFile=Settings::getInstance()->printPACsToFile->boolValue();
+
+	ofstream pacFile;
+	if(printPacsToFile){
+		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
+	}
+
 	stringstream clauses;
 	//------------declare variables------------
 
@@ -390,7 +397,11 @@ void PAClist::PACsWithZ3()
 					pac->entities.add(e);
 				}
 			}
-			cout << pac->toString() << endl;
+			
+			if(printPACsToFile){
+				pacFile << pac->toString() << endl;
+			}
+	
 			addCycle(pac);
 
 			modClauses << "(assert (not (and";
@@ -407,6 +418,9 @@ void PAClist::PACsWithZ3()
 			modClauses << ")))\n";
 		}
 		if(pacsFound>0) LOG(String(pacsFound) + " PACs" + " of size " + String(pacSize));
+	}
+	if(printPacsToFile){
+		pacFile.close();
 	}
 	simul->PACsGenerated = true;
 	simul->updateParams();
