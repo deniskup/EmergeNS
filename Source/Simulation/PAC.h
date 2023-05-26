@@ -50,13 +50,16 @@ public:
     Simulation *simul;
     OwnedArray<PAC> cycles;
     float maxRAC = 0.0f;          // remember the max RAC for display
-    bool includeOnlyWithEntities; // specify the rule for inclusion of PACs
+    bool includeOnlyWithEntities=false; // specify the rule for inclusion of PACs
     void addCycle(PAC *);
     void printPACs(); // print list of PACs to cout
     void printRACs();
 
       //the thread function
     void run() override;
+
+    void PACsWithSAT(); // compute PACs with SAT solver minisat (numSolver 0) or kissat (numSolver 1)
+    void PACsWithZ3(); // compute PACs with SMT Solver Z3 (numSolver >1)
 
     int numSolver; // index of the current sat solver
 

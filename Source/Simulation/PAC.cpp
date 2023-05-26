@@ -150,6 +150,8 @@ void PAClist::printRACs()
 	}
 }
 
+
+
 void PAClist::clear()
 {
 	cycles.clear();
@@ -187,9 +189,23 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
+
+
 void PAClist::run()
 {
+if(numSolver<=1)
+	PACsWithSAT();
+else
+	PACsWithZ3();
+}
 
+
+void PAClist::PACsWithZ3(){
+//TODO
+}
+
+
+void PAClist::PACsWithSAT(){
 	bool debugMode = false; // to print the file of vars for SAT
 
 	Settings *settings = Settings::getInstance();
@@ -825,8 +841,6 @@ void PAClist::run()
 	int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
-
-	includeOnlyWithEntities = false; // forbid PAC with same entities but different reactions (to have less PACs)
 
 	for (int nbDoubleReac = 0; nbDoubleReac <= doubleReacMax; nbDoubleReac++)
 	{
