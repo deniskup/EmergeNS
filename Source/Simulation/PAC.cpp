@@ -304,7 +304,7 @@ void PAClist::PACsWithZ3()
 			//	clauses << "      0\n";
 			//}
 		}
-		clauses << ") 0)))\n"; // we finally ask that this sum is strictly positive
+		clauses << " 0) 0)))\n"; // we finally ask that this sum is strictly positive. Final 0 to treat the case of no reaction
 	}
 
 	stringstream modClauses; // additional clauses forbidding some models
