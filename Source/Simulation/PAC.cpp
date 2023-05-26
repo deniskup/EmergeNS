@@ -184,16 +184,24 @@ void cleanKissatOutput()
 // 0 for minisat, 1 for kissat
 void PAClist::computePACs(int numSolv)
 {
+	
 	numSolver = numSolv;
 	startThread();
 }
 
 void PAClist::run()
-{
+{	// clear PACs if some were computed
+	cycles.clear();
+	// measure time
+	uint32 startTime = Time::getMillisecondCounter();
+
 	if (numSolver <= 1)
 		PACsWithSAT();
 	else
 		PACsWithZ3();
+
+	// print execution time
+	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");	
 }
 
 // Function to parse the model from Z3 output, retrieve boolean variables
@@ -274,11 +282,7 @@ void PAClist::PACsWithSAT()
 
 	Settings *settings = Settings::getInstance();
 
-	// clear PACs if some were computed
-	cycles.clear();
 
-	// measure time
-	uint32 startTime = Time::getMillisecondCounter();
 
 	// declare SAT solvers
 	String kissatCommand = settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
@@ -1035,6 +1039,4 @@ void PAClist::PACsWithSAT()
 	simul->updateParams();
 	// simul->printPACs();
 
-	// print execution time
-	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
 }
