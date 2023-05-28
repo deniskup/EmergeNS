@@ -3,8 +3,8 @@
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
                                simul(Simulation::getInstance())
-                            //    saveSimBT("Save"),
-                            //    loadSimBT("Load")
+//    saveSimBT("Save"),
+//    loadSimBT("Load")
 // uiStep(1)
 {
 
@@ -21,14 +21,12 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI.reset(simul->genstartTrigger->createButtonUI());
     restartUI.reset(simul->restartTrigger->createButtonUI());
     cancelUI.reset(simul->cancelTrigger->createButtonUI());
-    //autoLoadUI.reset(simul->loadToManualByDefault->createToggle());
+    // autoLoadUI.reset(simul->loadToManualByDefault->createToggle());
     autoScaleUI.reset(simul->autoScale->createToggle());
     ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
     detectEqUI.reset(simul->detectEquilibrium->createToggle());
     epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
-
-
 
     // local parameter, won't be saved in the file.
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
@@ -43,7 +41,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     genstartUI->setSize(100, 20);
     restartUI->setSize(100, 20);
     cancelUI->setSize(100, 20);
-   // autoLoadUI->setSize(130, 20);
+    // autoLoadUI->setSize(130, 20);
     autoScaleUI->setSize(100, 20);
     pointsDrawnUI->setSize(150, 20);
     detectEqUI->setSize(120, 20);
@@ -58,7 +56,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(restartUI.get());
     addAndMakeVisible(cancelUI.get());
     addAndMakeVisible(autoScaleUI.get());
-    //addAndMakeVisible(autoLoadUI.get());
+    // addAndMakeVisible(autoLoadUI.get());
     addAndMakeVisible(perCentUI.get());
     addAndMakeVisible(pointsDrawnUI.get());
     addAndMakeVisible(ignoreFreeEnergyUI.get());
@@ -74,7 +72,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 
     addAndMakeVisible(paramsLabel);
     paramsLabel.setJustificationType(Justification::centred);
-    paramsLabel.setText("test", dontSendNotification);
+    paramsLabel.setText("express mode", dontSendNotification);
 
     maxConcentUI->setVisible(!simul->autoScale->boolValue());
     perCentUI->customLabel = "Progress";
@@ -94,13 +92,17 @@ SimulationUI::~SimulationUI()
 
 //==============================================================================
 void SimulationUI::paint(juce::Graphics &g)
-{   
-    //the 1.01 is to left a margin for the top curve
-    float maxC = simul->autoScale->boolValue() ? simul->recordDrawn *1.01 : simul->maxConcent->floatValue();
+{
+    //paint nothing in express mode
+    if (simul->express)
+        return;
+
+    // the 1.01 is to left a margin for the top curve
+    float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(BG_COLOR);
 
-    int extraMargin= simul->leftMargin -simul-> rightMargin;
+    int extraMargin = simul->leftMargin - simul->rightMargin;
     simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(simul->rightMargin);
 
     // g.setFont(12);
@@ -118,7 +120,7 @@ void SimulationUI::paint(juce::Graphics &g)
     else
     {
         paramsToDisplay << simul->entities.size() << " entities         ";
-        paramsToDisplay << ((simul->numLevels==-1)?"?":String(simul->numLevels)) << " levels         ";
+        paramsToDisplay << ((simul->numLevels == -1) ? "?" : String(simul->numLevels)) << " levels         ";
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
         paramsToDisplay << simul->primEnts.size() << " primary entities        ";
         paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
@@ -126,8 +128,6 @@ void SimulationUI::paint(juce::Graphics &g)
     }
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);
-
-
 
     if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
         return;
@@ -179,29 +179,29 @@ void SimulationUI::resized()
     Rectangle<int> r = getLocalBounds();
     Rectangle<int> hr = r.removeFromTop(firstLineHeight);
 
-    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth()+ 15+ epsilonEqUI->getWidth()+15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
+    int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth() + 15 + epsilonEqUI->getWidth() + 15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
 
     hr.reduce((hr.getWidth() - width1) / 2, 0);
 
     dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
     hr.removeFromLeft(20);
     detectEqUI->setBounds(hr.removeFromLeft(detectEqUI->getWidth()));
-    hr.removeFromLeft(15); 
+    hr.removeFromLeft(15);
     epsilonEqUI->setBounds(hr.removeFromLeft(epsilonEqUI->getWidth()));
     hr.removeFromLeft(15);
     totalTimeUI->setBounds(hr.removeFromLeft(totalTimeUI->getWidth()));
     hr.removeFromLeft(20);
     pointsDrawnUI->setBounds(hr.removeFromLeft(pointsDrawnUI->getWidth()));
-    //hr.removeFromLeft(40);
-    //autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
+    // hr.removeFromLeft(40);
+    // autoLoadUI->setBounds(hr.removeFromRight(autoLoadUI->getWidth()));
 
     r.removeFromTop(8);
     hr = r.removeFromTop(secondLineHeight);
 
-    //compute button width
-    const float nButtons=5;
-    float buttonWidth= (hr.getWidth() - 20 * (nButtons ) - (50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth())) / nButtons;
-    //int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
+    // compute button width
+    const float nButtons = 5;
+    float buttonWidth = (hr.getWidth() - 20 * (nButtons) - (50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth())) / nButtons;
+    // int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
     hr.reduce(10, 0);
 
     // buttons
@@ -231,7 +231,7 @@ void SimulationUI::resized()
     // saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
     // loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
 
-    Rectangle<int> explore=br.removeFromBottom(40).reduced(5);
+    Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
     ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(150));
     explore.removeFromLeft(70);
@@ -268,46 +268,46 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 
 // void SimulationUI::buttonClicked(Button *b)
 // {
-    // if (b == &saveSimBT)
-    // {
+// if (b == &saveSimBT)
+// {
 
-    //     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+//     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
 
-    //     int openFlags = FileBrowserComponent::saveMode;
-    //     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+//     int openFlags = FileBrowserComponent::saveMode;
+//     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
 
-    //     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
-    //                          {
-    //                              File f = fc.getResult();
-    //                              delete &fc;
+//     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+//                          {
+//                              File f = fc.getResult();
+//                              delete &fc;
 
-    //                              // save the sim here
-    //                              var data = simul->toJSONData();
-    //                              f.deleteFile();
-    //                              FileOutputStream output(f);
-    //                              JSON::writeToStream(output, data);
-    //                              LOG("Saved to " << f.getFullPathName()); });
-    // }
+//                              // save the sim here
+//                              var data = simul->toJSONData();
+//                              f.deleteFile();
+//                              FileOutputStream output(f);
+//                              JSON::writeToStream(output, data);
+//                              LOG("Saved to " << f.getFullPathName()); });
+// }
 
-    // if (b == &loadSimBT)
-    // {
+// if (b == &loadSimBT)
+// {
 
-    //     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
+//     FileChooser *chooser(new FileChooser("Select a file", File(), "*.sim"));
 
-    //     int openFlags = FileBrowserComponent::openMode;
-    //     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
+//     int openFlags = FileBrowserComponent::openMode;
+//     openFlags = openFlags | FileBrowserComponent::FileChooserFlags::canSelectFiles;
 
-    //     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
-    //                          {
-    //         File f = fc.getResult();
-    //         delete &fc;
+//     chooser->launchAsync(openFlags, [this](const FileChooser &fc)
+//                          {
+//         File f = fc.getResult();
+//         delete &fc;
 
-    //         // load the sim here
-    //         var data = JSON::parse(f);
-    //         simul->importJSONData(data);
-    //         LOG("Loaded from " << f.getFullPathName()); });
-                
-    // }
+//         // load the sim here
+//         var data = JSON::parse(f);
+//         simul->importJSONData(data);
+//         LOG("Loaded from " << f.getFullPathName()); });
+
+// }
 //}
 
 void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
@@ -370,7 +370,7 @@ void SimulationUI::newMessage(const ContainerAsyncEvent &e)
         {
             shouldRepaint = true;
         }
-        else if(e.targetControllable == simul-> detectEquilibrium)
+        else if (e.targetControllable == simul->detectEquilibrium)
         {
             epsilonEqUI->setVisible(simul->detectEquilibrium->boolValue());
             repaint();

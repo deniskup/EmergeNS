@@ -111,7 +111,7 @@ void Simulation::updateParams()
   }
 
   // update the parameters of the simulation in the UI
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
 // to save additional data, different from getJSONdata()
@@ -648,7 +648,7 @@ void Simulation::fetchGenerate()
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
 
-  if (Settings::getInstance()->autoLoadLists->boolValue())
+  if (Settings::getInstance()->autoLoadLists->boolValue() && !express)
     loadToManualMode();
 }
 
@@ -661,7 +661,7 @@ void Simulation::start(bool restart)
   }
   else
   {
-    importFromManual(); // import entities and reactions from manual lists, only those who have been changed
+    if (!express) importFromManual(); // import entities and reactions from manual lists, only those who have been changed
   }
 
   if (restart)
@@ -672,10 +672,10 @@ void Simulation::start(bool restart)
     }
   }
 
-  computeRates(); // compute reactions rates to take into account the ignored energies
+  //computeRates(); // compute reactions rates to take into account the ignored energies
 
   startTrigger->setEnabled(false);
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
 
   Array<float> entityValues;
@@ -687,7 +687,7 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
+  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
@@ -916,7 +916,7 @@ void Simulation::run()
   pacList->printRACs();
 
   updateConcentLists();
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
+  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
@@ -977,7 +977,7 @@ SimReaction *Simulation::getSimReactionForID(int idSAT)
 
 void Simulation::updateConcentLists()
 {
-
+  if(express) return;
   for (auto &ent : EntityManager::getInstance()->items)
   {
     auto se = ent->simEnt;
