@@ -26,7 +26,7 @@ juce_ImplementSingleton(Simulation)
   finished->setControllableFeedbackOnly(true);
   maxConcent = addFloatParameter("Max. Concent.", "Maximal concentration displayed on the graph", 5.f);
   realTime = addBoolParameter("Real Time", "Print intermediary steps of the simulation", false);
-  //loadToManualByDefault = addBoolParameter("AutoLoad to Lists", "Automatically load the current simulation to manual lists", true);
+  // loadToManualByDefault = addBoolParameter("AutoLoad to Lists", "Automatically load the current simulation to manual lists", true);
   genTrigger = addTrigger("Generate", "Generate");
   startTrigger = addTrigger("Continue", "Continue");
   genstartTrigger = addTrigger("Gen. & Start", "Gen. & Start");
@@ -712,7 +712,7 @@ void Simulation::nextStep()
     LOG("New Step : " << curStep);
     wait(1);
   }
-  if (curStep >= maxSteps)
+  if (curStep >= maxSteps && !express) // in express mode we wait for the equilibrium
   {
     stop();
     return;
@@ -814,16 +814,22 @@ void Simulation::nextStep()
         LOG(e->toString());
     }
   }
-
-  if (detectEquilibrium->boolValue() && maxVarSpeed < epsilonEq->floatValue())
+  bool stopAtEquilibrium = detectEquilibrium->boolValue() || express;
+  if (stopAtEquilibrium && maxVarSpeed < epsilonEq->floatValue())
   {
-    LOG("Equilibrium reached after time " << curStep * dt->floatValue() << " s with max speed " << maxVarSpeed);
+    if (!express)
+      LOG("Equilibrium reached after time " << curStep * dt->floatValue() << " s with max speed " << maxVarSpeed);
     stop();
   }
   // rest only to call only pointsDrawn time
   if (!isCheck)
     return;
 
+  // for now we don't care about RACs in express mode
+  if (express)
+    return;
+
+  // storing current concentrations for drawing
   Array<float> entityValues;
   for (auto &ent : entitiesDrawn)
   {
@@ -896,6 +902,10 @@ void Simulation::run()
     nextStep();
   }
 
+  if (express)
+  {
+    writeJSONConcents();
+  }
   LOG("--------- End thread ---------");
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   if (recordDrawn < recordConcent)
@@ -909,6 +919,38 @@ void Simulation::run()
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
+}
+
+void Simulation::writeJSONConcents(string filename)
+{
+  if (filename == "")
+    filename = "concentrations.json";
+  File file(filename);
+  if (!file.existsAsFile())
+  {
+    file.create();
+  }
+  FileOutputStream stream(file);
+  if (!stream.openedOk())
+  {
+    LOGWARNING("Could not open file " << filename);
+    return;
+  }
+  JSON::writeToStream(stream, concent2JSON());
+  LOG("Concentrations written to " << filename);
+}
+
+var Simulation::concent2JSON()
+{
+  var data = new DynamicObject();
+  for (auto &e : entities)
+  {
+    var ent = new DynamicObject();
+    ent.getDynamicObject()->setProperty("Start", e->startConcent);
+    ent.getDynamicObject()->setProperty("End", e->concent);
+    data.getDynamicObject()->setProperty(e->name, ent);
+  }
+  return data;
 }
 
 SimEntity *Simulation::getSimEntityForID(int id)

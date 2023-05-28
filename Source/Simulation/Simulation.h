@@ -106,6 +106,8 @@ public:
   Simulation();
   ~Simulation();
 
+  bool express=true; // express mode : no graphics, just find equilibrium
+
   // for drawing
   int maxSteps;
   int curStep;
@@ -173,6 +175,10 @@ public:
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
   void importJSONData(var data);
+
+  void writeJSONConcents(string filename="");
+  var concent2JSON(); // save start concentrations and current concentrations of entities
+  
 
   void clearParams();
   void updateParams(); // for display
