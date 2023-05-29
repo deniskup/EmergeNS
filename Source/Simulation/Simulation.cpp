@@ -902,11 +902,14 @@ void Simulation::run()
     nextStep();
   }
 
+  LOG("--------- End thread ---------");
+
   if (express)
   {
     writeJSONConcents();
+    return;
   }
-  LOG("--------- End thread ---------");
+  
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   if (recordDrawn < recordConcent)
     LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
@@ -915,8 +918,9 @@ void Simulation::run()
 
   pacList->printRACs();
 
+
   updateConcentLists();
-  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
@@ -925,18 +929,9 @@ void Simulation::writeJSONConcents(string filename)
 {
   if (filename == "")
     filename = "concentrations.json";
-  File file(filename);
-  if (!file.existsAsFile())
-  {
-    file.create();
-  }
-  FileOutputStream stream(file);
-  if (!stream.openedOk())
-  {
-    LOGWARNING("Could not open file " << filename);
-    return;
-  }
-  JSON::writeToStream(stream, concent2JSON());
+  ofstream concentFile;
+  concentFile.open(filename, ofstream::out | ofstream::trunc);
+  concentFile << JSON::toString(concent2JSON());
   LOG("Concentrations written to " << filename);
 }
 
@@ -994,7 +989,7 @@ void Simulation::updateConcentLists()
 
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
-
+  express= detectEquilibrium->boolValue();
   if (t == genTrigger)
   {
     fetchGenerate();
