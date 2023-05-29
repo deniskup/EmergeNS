@@ -106,7 +106,7 @@ public:
   Simulation();
   ~Simulation();
 
-  bool express=true; // express mode : no graphics, just find equilibrium
+  bool express=false; // express mode : no graphics, just find equilibrium
 
   // for drawing
   int maxSteps;

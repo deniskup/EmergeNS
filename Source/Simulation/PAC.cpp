@@ -236,10 +236,11 @@ void PAClist::PACsWithZ3()
 	string outputFile = "z3model.txt";
 	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
 
-	bool printPACsToFile=Settings::getInstance()->printPACsToFile->boolValue();
+	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
 	ofstream pacFile;
-	if(printPACsToFile){
+	if (printPACsToFile)
+	{
 		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
 	}
 
@@ -283,7 +284,7 @@ void PAClist::PACsWithZ3()
 		clauses << ")))\n";
 	}
 
-	//if distinct reactants and dir is false, then one reactant must be false
+	// if distinct reactants and dir is false, then one reactant must be false
 	for (auto &r : simul->reactions)
 	{
 		if (r->reactant1 != r->reactant2)
@@ -325,7 +326,7 @@ void PAClist::PACsWithZ3()
 
 	stringstream modClauses; // additional clauses forbidding some models
 
-	int maxSize=jmin(simul->entities.size(), simul->reactions.size(),Settings::getInstance()->maxDiameterPACs->intValue());
+	int maxSize = jmin(simul->entities.size(), simul->reactions.size(), Settings::getInstance()->maxDiameterPACs->intValue());
 
 	for (int pacSize = 3; pacSize < maxSize; pacSize++)
 	{
@@ -406,11 +407,12 @@ void PAClist::PACsWithZ3()
 					pac->entities.add(e);
 				}
 			}
-			
-			if(printPACsToFile){
+
+			if (printPACsToFile)
+			{
 				pacFile << pac->toString() << endl;
 			}
-	
+
 			addCycle(pac);
 
 			modClauses << "(assert (not (and";
@@ -418,6 +420,10 @@ void PAClist::PACsWithZ3()
 			{
 				int j = r.first->idSAT;
 				modClauses << " reac" << j;
+				if (r.second)
+					modClauses << " dir" << j;
+				else
+					modClauses << " (not dir" << j << ")";
 			}
 			for (auto &e : pac->entities)
 			{
@@ -426,9 +432,11 @@ void PAClist::PACsWithZ3()
 			}
 			modClauses << ")))\n";
 		}
-		if(pacsFound>0) LOG(String(pacsFound) + " PACs" + " of size " + String(pacSize));
+		if (pacsFound > 0)
+			LOG(String(pacsFound) + " PACs" + " of size " + String(pacSize));
 	}
-	if(printPACsToFile){
+	if (printPACsToFile)
+	{
 		pacFile.close();
 	}
 	simul->PACsGenerated = true;
