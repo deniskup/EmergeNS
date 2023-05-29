@@ -111,7 +111,7 @@ void Simulation::updateParams()
   }
 
   // update the parameters of the simulation in the UI
-  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
 // to save additional data, different from getJSONdata()
@@ -1018,6 +1018,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   if (p == dt || p == totalTime)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
+    maxSteps = jmax(1, maxSteps);
   }
   if (p == detectEquilibrium)
   {

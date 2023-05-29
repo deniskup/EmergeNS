@@ -94,8 +94,10 @@ SimulationUI::~SimulationUI()
 void SimulationUI::paint(juce::Graphics &g)
 {
     //paint nothing in express mode
-    if (simul->express)
+    if (simul->express){
+        paramsLabel.setText("express mode", dontSendNotification);
         return;
+    }
 
     // the 1.01 is to left a margin for the top curve
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
