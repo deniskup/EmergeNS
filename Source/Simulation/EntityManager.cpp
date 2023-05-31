@@ -72,15 +72,10 @@ void EntityManager::computeReachedEntReacs()
 				r->reached = true;
 				progress = true;
 			}
-			if (r1->reached && !r2->reached && p->reached)
-			{
-				r2->reached = true;
-				r->reached = true;
-				progress = true;
-			}
-			if (!r1->reached && r2->reached && p->reached)
+			if ((!r1->reached || !r2->reached) && p->reached)
 			{
 				r1->reached = true;
+				r2->reached = true;
 				r->reached = true;
 				progress = true;
 			}

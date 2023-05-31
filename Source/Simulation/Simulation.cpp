@@ -50,6 +50,74 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
+void Simulation::filterReached()
+{
+ // set primary entities to reached
+	for (auto &e : entities)
+	{
+		e->reached = false;
+		if (e->primary)
+		{
+			e->reached = true;
+		}
+	}
+	// propagate to composite ones using reactions
+	bool progress = true;
+	// create reaction table to remove used reactions
+	Array<SimReaction *> reacToCheck;
+	for (auto &r : reactions)
+	{
+		reacToCheck.add(r);
+		r->reached = false;
+	}
+	while (progress)
+	{
+		progress = false;
+
+		for (auto &r : reacToCheck)
+		{
+			SimEntity *r1 = r->reactant1;
+			SimEntity *r2 = r->reactant2;
+			SimEntity *p = r->product;
+			if (r1->reached && r2->reached && !p->reached)
+			{
+				p->reached = true;
+				r->reached = true;
+				progress = true;
+			}
+			if ((!r1->reached || !r2->reached) && p->reached)
+			{
+        r1->reached = true;
+				r2->reached = true;
+				r->reached = true;
+				progress = true;
+			}
+			if (r->reached)
+				reacToCheck.removeFirstMatchingValue(r);
+		}
+	}
+	
+  //remove unreached entities
+	for (int i=entities.size()-1;i>=0;i--)
+	{
+		if (!entities[i]->reached)
+		{
+		  entities.remove(i);
+      cout << "removed entity " << i << endl;
+		}
+	}
+
+  //removed unreached reactions
+  for (int i=reactions.size()-1;i>=0;i--)
+  {
+    if (!reactions[i]->reached)
+    {
+      reactions.remove(i);
+      cout << "removed reaction " << i << endl;
+    }
+  }
+
+}
 
 void Simulation::clearParams()
 {

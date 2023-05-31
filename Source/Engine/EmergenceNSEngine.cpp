@@ -23,13 +23,13 @@ EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens"
 EmergenceNSEngine::~EmergenceNSEngine()
 {
 	isClearing = true;
-
+	Statistics::deleteInstance();
 	Simulation::deleteInstance();
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
 	Settings::deleteInstance();
-	Statistics::deleteInstance();
+
 }
 
 void EmergenceNSEngine::clearInternal()

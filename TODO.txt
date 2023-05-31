@@ -1,4 +1,6 @@
 
+-bug listeners
+-ignorer les non reached dans la comparaison des steady states
 
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)

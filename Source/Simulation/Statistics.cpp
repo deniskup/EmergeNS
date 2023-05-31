@@ -51,7 +51,6 @@ void Statistics::genStartConcents()
     const float initConcentVar = Generation::getInstance()->initConcent->y;
 
     // recall that energy of primary entities are normalized to 0
-    LOG("initConcentBase " << initConcentBase << " initConcentVar " << initConcentVar);
     for (auto &ent : simul->entities)
     {
         const float concent = jmax(0.f, initConcentBase + randFloat(-initConcentVar, initConcentVar));
@@ -106,7 +105,6 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
             if (isClose(steadyStates[i], ev.entityValues, epsilon))
             {
                 found = true;
-                LOG("Distance "<< distance(steadyStates[i], ev.entityValues));
                 break;
             }
         }
@@ -121,8 +119,22 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
     }
 }
 
+void Statistics::printSteadyStates()
+{
+    // print steady states
+    for (int i = 0; i < steadyStates.size(); i++)
+    {
+        LOG("Steady state " << i << ": ");
+        for(auto v : steadyStates[i])
+        {
+            LOG("    "<<v);
+        }
+    }
+}
+
 void Statistics::finishStats()
 {
     // display number of steady states
     LOG("Number of steady states: " << steadyStates.size());
+    printSteadyStates();
 }

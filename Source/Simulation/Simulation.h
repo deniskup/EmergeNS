@@ -33,6 +33,8 @@ public:
   float destructionRate;
   float freeEnergy;
 
+  bool reached; //is the entity reached from primary entities ?
+
   void importFromManual(); // retrieve info from pointer to Manual settings
 
   bool enabled = true;
@@ -74,6 +76,8 @@ public:
   bool enabled = true; // to know if the reaction is enabled or not
 
   bool toImport=false; // the corresponding reaction has been modified
+
+    bool reached; //is the reaction reached from primary entities ?
 
   String name; // should be a+b=c
 
@@ -179,6 +183,8 @@ public:
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities
   
+
+  void filterReached(); // compute reached entities and reactions and keep only those
 
   void clearParams();
   void updateParams(); // for display

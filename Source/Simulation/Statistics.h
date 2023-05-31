@@ -22,6 +22,7 @@ public:
     void genStartConcents();
     void launchSim();
     void computeStats();
+    void printSteadyStates();
     void finishStats();
     void newMessage(const Simulation::SimulationEvent &e) override;
 };
