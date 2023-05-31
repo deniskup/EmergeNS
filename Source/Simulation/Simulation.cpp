@@ -837,7 +837,7 @@ void Simulation::nextStep()
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
-      cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
+      //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
       if (newRAC)
         LOG("RAC " << idPAC << " from min reac " << minreac->name);
@@ -846,7 +846,7 @@ void Simulation::nextStep()
     }
     RACList.add(cycle->wasRAC);
   }
-  cout << "-" << endl;
+  //cout << "-" << endl;
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
   // listeners.call(&SimulationListener::newStep, this);
@@ -865,14 +865,14 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
-  LOG("--------- Start thread ---------");
+  if(!express) LOG("--------- Start thread ---------");
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
   }
 
-  LOG("--------- End thread ---------");
+  if(!express) LOG("--------- End thread ---------");
 
   Array<float> entityValues;
   for (auto &ent : entities)
@@ -884,7 +884,7 @@ void Simulation::run()
 
   if (express)
   {
-    writeJSONConcents();
+    //writeJSONConcents();
     return;
   }
 
@@ -976,6 +976,7 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
   {
     if (express)
     {
+      LOG("Compute stats");
       Statistics::getInstance()->computeStats();
     }
     else

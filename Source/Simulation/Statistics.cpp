@@ -19,7 +19,7 @@ Statistics::~Statistics()
     //  simul->removeAsyncContainerListener(this);
 }
 
-bool isClose(const Array<float> &a, const Array<float> &b, float epsilon)
+float isClose(const Array<float> &a, const Array<float> &b, float epsilon)
 {
     if (a.size() != b.size())
         return false;
@@ -31,6 +31,18 @@ bool isClose(const Array<float> &a, const Array<float> &b, float epsilon)
     return true;
 }
 
+float distance(const Array<float> &a, const Array<float> &b)
+{
+    if (a.size() != b.size())
+        return false;
+    float dist = 0;
+    for (int i = 0; i < a.size(); i++)
+    {
+        dist += (a[i] - b[i]) * (a[i] - b[i]);
+    }
+    return sqrt(dist);
+}
+
 void Statistics::genStartConcents()
 {
     // randomly choose starting concentrations
@@ -39,7 +51,7 @@ void Statistics::genStartConcents()
     const float initConcentVar = Generation::getInstance()->initConcent->y;
 
     // recall that energy of primary entities are normalized to 0
-
+    LOG("initConcentBase " << initConcentBase << " initConcentVar " << initConcentVar);
     for (auto &ent : simul->entities)
     {
         const float concent = jmax(0.f, initConcentBase + randFloat(-initConcentVar, initConcentVar));
@@ -53,8 +65,10 @@ void Statistics::launchSim()
     {
         // set initial values
         // launch simulation
-        simul->start();
         nbSim++;
+        //LOG("nbSim " <<nbSim);
+        genStartConcents();
+        simul->start(true);
     }
     else
     {
@@ -72,10 +86,14 @@ void Statistics::computeStats()
     nbSim = 0;
 
     steadyStates.clear();
+    launchSim();
 }
 
 void Statistics::newMessage(const Simulation::SimulationEvent &ev)
 {
+    //ignore if not in express mode
+    if (!simul->express)
+        return;
     switch (ev.type)
     {
     case Simulation::SimulationEvent::FINISHED:
@@ -88,6 +106,7 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
             if (isClose(steadyStates[i], ev.entityValues, epsilon))
             {
                 found = true;
+                LOG("Distance "<< distance(steadyStates[i], ev.entityValues));
                 break;
             }
         }

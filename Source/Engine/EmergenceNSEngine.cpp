@@ -6,6 +6,7 @@
 #include "Simulation/Simulation.h"
 #include "Simulation/Generation.h"
 #include "Simulation/Settings.h"
+#include "Simulation/Statistics.h"
 
 EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
@@ -28,6 +29,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
 	Settings::deleteInstance();
+	Statistics::deleteInstance();
 }
 
 void EmergenceNSEngine::clearInternal()

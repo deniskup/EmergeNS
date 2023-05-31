@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1126,
+      "width": 1918,
+      "height": 1149,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1126,
+          "width": 1918,
+          "height": 1149,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 446,
-              "height": 1126,
-              "currentContent": "Reactions",
+              "width": 445,
+              "height": 1149,
+              "currentContent": "Generation",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 1468,
-              "height": 1126,
+              "width": 1467,
+              "height": 1149,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 987,
-                  "height": 1126,
+                  "height": 1149,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 987,
-                      "height": 639,
+                      "height": 650,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -88,7 +88,7 @@
                     {
                       "type": 0,
                       "width": 987,
-                      "height": 481,
+                      "height": 492,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -101,7 +101,7 @@
                 {
                   "type": 0,
                   "width": 474,
-                  "height": 1126,
+                  "height": 1149,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -168,13 +168,9 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.0,
-            "controlAddress": "/conc"
-          },
-          {
             "value": [
               1.0,
-              0.5176470875740051,
+              0.1137254908680916,
               0.0,
               1.0
             ],
@@ -199,13 +195,9 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.0,
-            "controlAddress": "/conc"
-          },
-          {
             "value": [
               1.0,
-              0.2078431397676468,
+              0.1490196138620377,
               0.0,
               1.0
             ],
@@ -234,17 +226,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.2934631109237671,
+            "value": 0.02222669124603271,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.1176470592617989,
               0.0,
+              0.7647058963775635,
               1.0,
               1.0
             ],
@@ -273,56 +261,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.4704652428627014,
+            "value": 0.46014404296875,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.4196078479290009,
-              1.0,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "11",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.5,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/startConcent"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.4180704355239868,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              0.0,
-              0.6470588445663452,
+              0.3882353007793427,
               1.0,
               1.0
             ],
@@ -351,24 +296,20 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.1674033403396606,
+            "value": -0.0800589919090271,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.5490196347236633,
               0.0,
+              0.7176470756530762,
               1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "03",
+        "niceName": "11",
         "type": "Entity"
       },
       {
@@ -390,96 +331,14 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": -0.3390714526176453,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              0.6627451181411743,
-              0.0,
-              1.0,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "12",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.5,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/startConcent"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.430907130241394,
+            "value": -0.3260273337364197,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
               0.0,
-              0.686274528503418,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "30",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.5,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/startConcent"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.2609642148017883,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              1.0,
-              0.0,
-              0.6941176652908325,
+              0.9686274528503418,
               1.0
             ],
             "controlAddress": "/color"
@@ -507,17 +366,118 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.4429084658622742,
+            "value": 0.2054372429847717,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.7098039388656616,
+              0.0,
+              0.7764706015586853,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "12",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.1527053266763687,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.8392156958580017,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "30",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": -0.01701271533966064,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.4745098054409027,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "03",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.5,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": -0.4007658958435059,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.1176470592617989,
               0.0,
               1.0
             ],
@@ -546,17 +506,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.2604597210884094,
+            "value": 0.04415720701217651,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.364705890417099,
+              0.2039215713739395,
               0.0,
               1.0
             ],
@@ -585,17 +541,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": -0.1972276568412781,
+            "value": 0.2286035418510437,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.6313725709915161,
+              0.9019607901573181,
               0.0,
               1.0
             ],
@@ -624,17 +576,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": 0.06784522533416748,
+            "value": -0.3671172857284546,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.8705882430076599,
+              0.7333333492279053,
               0.0,
               1.0
             ],
@@ -663,17 +611,13 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
-            "controlAddress": "/conc"
-          },
-          {
-            "value": -0.419827938079834,
+            "value": 0.3879454135894775,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.929411768913269,
+              0.1843137294054031,
               0.0,
               1.0
             ],
@@ -717,6 +661,28 @@
       {
         "parameters": [
           {
+            "value": "/10",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/10",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/20",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "10+10=20",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
             "value": "/01",
             "controlAddress": "/reactant1"
           },
@@ -734,50 +700,6 @@
           }
         ],
         "niceName": "01+10=11",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/01",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/02",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/03",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "01+02=03",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/10",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/02",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/12",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "10+02=12",
         "type": "Reaction"
       },
       {
@@ -809,11 +731,11 @@
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/11",
+            "value": "/30",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/21",
+            "value": "/40",
             "controlAddress": "/product"
           },
           {
@@ -821,7 +743,29 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+11=21",
+        "niceName": "10+30=40",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/10",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/03",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/13",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "10+03=13",
         "type": "Reaction"
       },
       {
@@ -871,33 +815,11 @@
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/02",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/03",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/13",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "10+03=13",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/01",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/03",
+            "value": "/02",
             "controlAddress": "/reactant2"
           },
           {
@@ -909,7 +831,7 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+03=04",
+        "niceName": "02+02=04",
         "type": "Reaction"
       },
       {
@@ -937,28 +859,6 @@
       {
         "parameters": [
           {
-            "value": "/10",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/12",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/22",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "10+12=22",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
             "value": "/20",
             "controlAddress": "/reactant1"
           },
@@ -981,11 +881,33 @@
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/01",
             "controlAddress": "/reactant1"
           },
           {
             "value": "/21",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/22",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "01+21=22",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/11",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/20",
             "controlAddress": "/reactant2"
           },
           {
@@ -997,7 +919,29 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+21=31",
+        "niceName": "11+20=31",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/01",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/30",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/31",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "01+30=31",
         "type": "Reaction"
       }
     ],
@@ -1031,6 +975,10 @@
         "value": 40,
         "hexMode": false,
         "controlAddress": "/maxNumOfCurves"
+      },
+      {
+        "value": true,
+        "controlAddress": "/statistics"
       }
     ]
   },
@@ -1038,24 +986,24 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 1.266133546829224,
-    "recordEntity": "01",
-    "recordDrawn": 1.266133546829224,
-    "recordDrawnEntity": "01",
+    "recordConcent": 0.9119080901145935,
+    "recordEntity": "10",
+    "recordDrawn": 0.9119080901145935,
+    "recordDrawnEntity": "",
     "numLevels": 4,
     "PACsGenerated": true,
     "entities": [
       {
         "name": "10",
         "color": {
-          "H": 0.08627450466156006,
+          "H": 0.01895423792302608,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 0,
-        "concent": 1.0,
+        "concent": 0.6768288612365723,
         "startConcent": 1.0,
         "creationRate": 1.0,
         "destructionRate": 0.5,
@@ -1064,7 +1012,7 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
             "coord": 0
@@ -1074,14 +1022,14 @@
       {
         "name": "01",
         "color": {
-          "H": 0.03464051336050034,
+          "H": 0.024836590513587,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 1,
-        "concent": 1.0,
+        "concent": 0.6586627960205078,
         "startConcent": 1.0,
         "creationRate": 1.0,
         "destructionRate": 0.5,
@@ -1093,25 +1041,25 @@
             "coord": 0
           },
           {
-            "coord": 1
+            "coord": 0
           }
         ]
       },
       {
         "name": "02",
         "color": {
-          "H": 0.686274528503418,
+          "H": 0.5392157435417175,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 2,
-        "concent": 0.0,
+        "concent": 0.2535808384418488,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.2934631109237671,
+        "freeEnergy": 0.02222669124603271,
         "level": 2,
         "draw": true,
         "composition": [
@@ -1119,134 +1067,56 @@
             "coord": 0
           },
           {
-            "coord": 2
-          }
-        ]
-      },
-      {
-        "name": "11",
-        "color": {
-          "H": 0.5967320799827576,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 3,
-        "concent": 0.0,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.4704652428627014,
-        "level": 2,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 1
+            "coord": 0
           }
         ]
       },
       {
         "name": "20",
         "color": {
-          "H": 0.5588235259056091,
+          "H": 0.6019608378410339,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 3,
+        "concent": 0.1540780961513519,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.5,
+        "freeEnergy": 0.46014404296875,
+        "level": 2,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "11",
+        "color": {
+          "H": 0.5470588207244873,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 4,
-        "concent": 0.0,
+        "concent": 0.2563929259777069,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.4180704355239868,
+        "freeEnergy": -0.0800589919090271,
         "level": 2,
         "draw": true,
         "composition": [
           {
-            "coord": 2
-          },
-          {
             "coord": 0
-          }
-        ]
-      },
-      {
-        "name": "03",
-        "color": {
-          "H": 0.7581700086593628,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 5,
-        "concent": 0.0,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.1674033403396606,
-        "level": 3,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 0
-          },
-          {
-            "coord": 3
-          }
-        ]
-      },
-      {
-        "name": "12",
-        "color": {
-          "H": 0.7771241664886475,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 6,
-        "concent": 0.0,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.3390714526176453,
-        "level": 3,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 2
-          }
-        ]
-      },
-      {
-        "name": "30",
-        "color": {
-          "H": 0.8856208920478821,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 7,
-        "concent": 0.0,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.430907130241394,
-        "level": 3,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 3
           },
           {
             "coord": 0
@@ -1256,49 +1126,127 @@
       {
         "name": "21",
         "color": {
-          "H": 0.884313702583313,
+          "H": 0.8385620713233948,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 5,
+        "concent": 0.04160004854202271,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.5,
+        "freeEnergy": -0.3260273337364197,
+        "level": 3,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "12",
+        "color": {
+          "H": 0.8705882430076599,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 6,
+        "concent": 0.01871855184435844,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.5,
+        "freeEnergy": 0.2054372429847717,
+        "level": 3,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "30",
+        "color": {
+          "H": 0.8065359592437744,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 7,
+        "concent": 0.06611867249011993,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.5,
+        "freeEnergy": 0.1527053266763687,
+        "level": 3,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "03",
+        "color": {
+          "H": 0.9209150075912476,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 8,
-        "concent": 0.0,
+        "concent": 0.0229163896292448,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.2609642148017883,
+        "freeEnergy": -0.01701271533966064,
         "level": 3,
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 0
           },
           {
-            "coord": 1
+            "coord": 0
           }
         ]
       },
       {
         "name": "40",
         "color": {
-          "H": 0.118300661444664,
+          "H": 0.01960783265531063,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 9,
-        "concent": 0.0,
+        "concent": 0.04242599755525589,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.4429084658622742,
+        "freeEnergy": -0.4007658958435059,
         "level": 4,
         "draw": true,
         "composition": [
           {
-            "coord": 4
+            "coord": 0
           },
           {
             "coord": 0
@@ -1308,44 +1256,18 @@
       {
         "name": "13",
         "color": {
-          "H": 0.06078431010246277,
+          "H": 0.03398691862821579,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 10,
-        "concent": 0.0,
+        "concent": 0.02695420756936073,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.2604597210884094,
-        "level": 4,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 3
-          }
-        ]
-      },
-      {
-        "name": "04",
-        "color": {
-          "H": 0.1052287667989731,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 11,
-        "concent": 0.0,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.1972276568412781,
+        "freeEnergy": 0.04415720701217651,
         "level": 4,
         "draw": true,
         "composition": [
@@ -1353,59 +1275,85 @@
             "coord": 0
           },
           {
-            "coord": 4
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "04",
+        "color": {
+          "H": 0.1503268033266068,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 11,
+        "concent": 0.03679639846086502,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.5,
+        "freeEnergy": 0.2286035418510437,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 0
           }
         ]
       },
       {
         "name": "22",
         "color": {
-          "H": 0.1450980454683304,
+          "H": 0.1222222298383713,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 12,
-        "concent": 0.0,
+        "concent": 0.04925285652279854,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": 0.06784522533416748,
+        "freeEnergy": -0.3671172857284546,
         "level": 4,
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 0
           },
           {
-            "coord": 2
+            "coord": 0
           }
         ]
       },
       {
         "name": "31",
         "color": {
-          "H": 0.1549019664525986,
+          "H": 0.03071894310414791,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 13,
-        "concent": 0.0,
+        "concent": 0.02987069450318813,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
-        "freeEnergy": -0.419827938079834,
+        "freeEnergy": 0.3879454135894775,
         "level": 4,
         "draw": true,
         "composition": [
           {
-            "coord": 3
+            "coord": 0
           },
           {
-            "coord": 1
+            "coord": 0
           }
         ]
       }
@@ -1415,112 +1363,112 @@
         "reactant1_id": 1,
         "reactant2_id": 1,
         "product_id": 2,
-        "assocRate": 0.7456767559051514,
+        "assocRate": 0.9780185222625732,
         "dissocRate": 1.0,
         "idSAT": 0
       },
       {
-        "reactant1_id": 1,
+        "reactant1_id": 0,
         "reactant2_id": 0,
         "product_id": 3,
-        "assocRate": 0.6247115731239319,
+        "assocRate": 0.6311927437782288,
         "dissocRate": 1.0,
         "idSAT": 1
       },
       {
         "reactant1_id": 1,
-        "reactant2_id": 2,
-        "product_id": 5,
+        "reactant2_id": 0,
+        "product_id": 4,
         "assocRate": 1.0,
-        "dissocRate": 0.8815621733665466,
+        "dissocRate": 0.9230619072914124,
         "idSAT": 2
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 2,
-        "product_id": 6,
+        "reactant2_id": 3,
+        "product_id": 7,
         "assocRate": 1.0,
-        "dissocRate": 0.531243622303009,
+        "dissocRate": 0.7353278994560242,
         "idSAT": 3
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 4,
-        "product_id": 7,
-        "assocRate": 0.9872453212738037,
-        "dissocRate": 1.0,
+        "reactant2_id": 7,
+        "product_id": 9,
+        "assocRate": 1.0,
+        "dissocRate": 0.5749505758285522,
         "idSAT": 4
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 3,
-        "product_id": 8,
-        "assocRate": 1.0,
-        "dissocRate": 0.8109887838363647,
+        "reactant2_id": 8,
+        "product_id": 10,
+        "assocRate": 0.9406633973121643,
+        "dissocRate": 1.0,
         "idSAT": 5
       },
       {
         "reactant1_id": 1,
         "reactant2_id": 6,
         "product_id": 10,
-        "assocRate": 0.5490689873695374,
-        "dissocRate": 1.0,
+        "assocRate": 1.0,
+        "dissocRate": 0.8510537147521973,
         "idSAT": 6
-      },
-      {
-        "reactant1_id": 3,
-        "reactant2_id": 2,
-        "product_id": 10,
-        "assocRate": 1.0,
-        "dissocRate": 0.6044304966926575,
-        "idSAT": 7
-      },
-      {
-        "reactant1_id": 0,
-        "reactant2_id": 5,
-        "product_id": 10,
-        "assocRate": 0.911142110824585,
-        "dissocRate": 1.0,
-        "idSAT": 8
-      },
-      {
-        "reactant1_id": 1,
-        "reactant2_id": 5,
-        "product_id": 11,
-        "assocRate": 1.0,
-        "dissocRate": 0.6944528818130493,
-        "idSAT": 9
-      },
-      {
-        "reactant1_id": 3,
-        "reactant2_id": 3,
-        "product_id": 12,
-        "assocRate": 1.0,
-        "dissocRate": 0.4176609814167023,
-        "idSAT": 10
-      },
-      {
-        "reactant1_id": 0,
-        "reactant2_id": 6,
-        "product_id": 12,
-        "assocRate": 0.6656996607780457,
-        "dissocRate": 1.0,
-        "idSAT": 11
       },
       {
         "reactant1_id": 4,
         "reactant2_id": 2,
+        "product_id": 10,
+        "assocRate": 0.9030390381813049,
+        "dissocRate": 1.0,
+        "idSAT": 7
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 2,
+        "product_id": 11,
+        "assocRate": 0.8318108916282654,
+        "dissocRate": 1.0,
+        "idSAT": 8
+      },
+      {
+        "reactant1_id": 4,
+        "reactant2_id": 4,
         "product_id": 12,
         "assocRate": 1.0,
-        "dissocRate": 0.5253511667251587,
+        "dissocRate": 0.8130202293395996,
+        "idSAT": 9
+      },
+      {
+        "reactant1_id": 3,
+        "reactant2_id": 2,
+        "product_id": 12,
+        "assocRate": 1.0,
+        "dissocRate": 0.4276338219642639,
+        "idSAT": 10
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 5,
+        "product_id": 12,
+        "assocRate": 1.0,
+        "dissocRate": 0.9597427845001221,
+        "idSAT": 11
+      },
+      {
+        "reactant1_id": 4,
+        "reactant2_id": 3,
+        "product_id": 13,
+        "assocRate": 0.9921704530715942,
+        "dissocRate": 1.0,
         "idSAT": 12
       },
       {
-        "reactant1_id": 0,
-        "reactant2_id": 8,
+        "reactant1_id": 1,
+        "reactant2_id": 7,
         "product_id": 13,
-        "assocRate": 1.0,
-        "dissocRate": 0.5062158107757568,
+        "assocRate": 0.7903810739517212,
+        "dissocRate": 1.0,
         "idSAT": 13
       }
     ],
@@ -1539,6 +1487,60 @@
             "ent_id": 1
           },
           {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 0,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
             "ent_id": 2
           },
           {
@@ -1566,34 +1568,41 @@
             "ent_id": 0
           },
           {
-            "ent_id": 3
+            "ent_id": 1
           },
           {
-            "ent_id": 12
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
           }
         ],
         "reacDirs": [
           {
-            "reac_id": 1,
+            "reac_id": 2,
             "dir": true
           },
           {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
+            "reac_id": 5,
             "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
           }
         ]
       },
       {
         "entities": [
           {
-            "ent_id": 3
+            "ent_id": 1
           },
           {
-            "ent_id": 6
+            "ent_id": 4
           },
           {
             "ent_id": 10
@@ -1612,7 +1621,7 @@
             "dir": false
           },
           {
-            "reac_id": 10,
+            "reac_id": 9,
             "dir": true
           },
           {
@@ -1630,6 +1639,200 @@
             "ent_id": 3
           },
           {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
             "ent_id": 10
           },
           {
@@ -1638,11 +1841,220 @@
         ],
         "reacDirs": [
           {
-            "reac_id": 7,
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
             "dir": false
           },
           {
-            "reac_id": 8,
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 9,
+            "dir": false
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 11,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
             "dir": true
           },
           {
@@ -1664,10 +2076,13 @@
             "ent_id": 2
           },
           {
-            "ent_id": 5
+            "ent_id": 4
           },
           {
             "ent_id": 10
+          },
+          {
+            "ent_id": 12
           }
         ],
         "reacDirs": [
@@ -1681,10 +2096,103 @@
           },
           {
             "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
             "dir": false
           },
           {
-            "reac_id": 8,
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 11,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
             "dir": true
           }
         ]
@@ -1698,409 +2206,281 @@
             "ent_id": 2
           },
           {
-            "ent_id": 5
+            "ent_id": 4
           },
           {
             "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 11,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 11,
+            "dir": true
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 13
           }
         ],
         "reacDirs": [
           {
             "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
             "dir": true
           },
-          {
-            "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
           {
             "reac_id": 1,
             "dir": true
           },
           {
-            "reac_id": 6,
+            "reac_id": 5,
             "dir": false
           },
           {
             "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
             "dir": true
           },
           {
             "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
             "dir": true
           },
           {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": false
-          },
-          {
-            "reac_id": 12,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": false
-          },
-          {
-            "reac_id": 12,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
+            "reac_id": 13,
             "dir": false
           }
         ]
@@ -2117,616 +2497,7 @@
             "ent_id": 2
           },
           {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": false
-          },
-          {
-            "reac_id": 12,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 12,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 12,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 12
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
+            "ent_id": 4
           },
           {
             "ent_id": 10
@@ -2741,23 +2512,23 @@
             "dir": false
           },
           {
-            "reac_id": 1,
+            "reac_id": 2,
             "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
           },
           {
             "reac_id": 6,
             "dir": true
           },
           {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
+            "reac_id": 9,
             "dir": true
           },
           {
-            "reac_id": 12,
+            "reac_id": 10,
             "dir": false
           }
         ]
@@ -2768,16 +2539,61 @@
             "ent_id": 0
           },
           {
-            "ent_id": 2
+            "ent_id": 1
           },
           {
             "ent_id": 3
           },
           {
-            "ent_id": 5
+            "ent_id": 4
           },
           {
-            "ent_id": 6
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
           },
           {
             "ent_id": 10
@@ -2800,8 +2616,151 @@
             "dir": false
           },
           {
-            "reac_id": 8,
+            "reac_id": 7,
             "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 11,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": true
+          },
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
           },
           {
             "reac_id": 10,
@@ -2813,7 +2772,183 @@
           },
           {
             "reac_id": 12,
+            "dir": true
+          },
+          {
+            "reac_id": 13,
             "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 10,
+            "dir": true
+          },
+          {
+            "reac_id": 11,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 7
+          },
+          {
+            "ent_id": 10
+          },
+          {
+            "ent_id": 12
+          },
+          {
+            "ent_id": 13
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 0,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 9,
+            "dir": true
+          },
+          {
+            "reac_id": 10,
+            "dir": false
+          },
+          {
+            "reac_id": 12,
+            "dir": false
+          },
+          {
+            "reac_id": 13,
+            "dir": true
           }
         ]
       }
