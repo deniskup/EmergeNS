@@ -63,6 +63,8 @@ Generation::Generation() : ControllableContainer("Generation")
     showAll = addBoolParameter("Show all", "Show all entities", true);
     avgNumShow = addIntParameter("Max num of curves", "Expected number of entities to follow", 10, 1, 100);
     avgNumShow->hideInEditor = true;
+
+    statistics = addBoolParameter("Statistics", "Compute statistics", false);
     // minG = addFloatParameter("Min G", "Current step in the simulation", 0, 0, maxSteps->intValue());
 }
 

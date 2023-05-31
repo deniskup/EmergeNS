@@ -54,6 +54,8 @@ public:
 
     BoolParameter *showAll;
     IntParameter *avgNumShow;
+
+    BoolParameter *statistics;
     // FloatParameter *minG;
     // FloatParameter *maxG;
     // FloatParameter *maxAddGstar;

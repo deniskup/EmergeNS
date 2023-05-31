@@ -93,12 +93,7 @@ SimulationUI::~SimulationUI()
 //==============================================================================
 void SimulationUI::paint(juce::Graphics &g)
 {
-    //paint nothing in express mode
-    if (simul->express){
-        paramsLabel.setText("express mode", dontSendNotification);
-        return;
-    }
-
+  
     // the 1.01 is to left a margin for the top curve
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -135,6 +130,9 @@ void SimulationUI::paint(juce::Graphics &g)
         return;
     if (entityHistory.isEmpty())
         return;
+    if (simul->express)
+        return;
+
 
     float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
     // float maxConcent = 5;

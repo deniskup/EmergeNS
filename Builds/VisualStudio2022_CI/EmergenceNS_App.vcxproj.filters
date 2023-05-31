@@ -532,6 +532,9 @@
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\Statistics.cpp">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>EmergenceNS\Source</Filter>
     </ClCompile>
@@ -635,9 +638,6 @@
       <Filter>JUCE Modules\juce_core\memory</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_ConsoleApplication.cpp">
-      <Filter>JUCE Modules\juce_core\misc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_EnumHelpers_test.cpp">
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_Result.cpp">
@@ -950,9 +950,6 @@
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ChangeBroadcaster.cpp">
-      <Filter>JUCE Modules\juce_events\broadcasters</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.cpp">
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.cpp">
@@ -2706,6 +2703,9 @@
     <ClInclude Include="..\..\Source\Simulation\Reaction.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\Entity.h">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Generation.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
@@ -2718,7 +2718,7 @@
     <ClInclude Include="..\..\Source\Simulation\Simulation.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Simulation\Entity.h">
+    <ClInclude Include="..\..\Source\Simulation\Statistics.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Main.h">
@@ -2905,9 +2905,6 @@
       <Filter>JUCE Modules\juce_core\memory</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_ConsoleApplication.h">
-      <Filter>JUCE Modules\juce_core\misc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_EnumHelpers.h">
       <Filter>JUCE Modules\juce_core\misc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_Functional.h">
@@ -3241,9 +3238,6 @@
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ChangeListener.h">
-      <Filter>JUCE Modules\juce_events\broadcasters</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.h">
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.h">

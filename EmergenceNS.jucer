@@ -49,6 +49,7 @@
         <FILE id="DJcwAj" name="Reaction.cpp" compile="1" resource="0" file="Source/Simulation/Reaction.cpp"/>
         <FILE id="jvdyYs" name="Reaction.h" compile="0" resource="0" file="Source/Simulation/Reaction.h"/>
         <FILE id="w7jfCm" name="Entity.cpp" compile="1" resource="0" file="Source/Simulation/Entity.cpp"/>
+        <FILE id="AWGQTF" name="Entity.h" compile="0" resource="0" file="Source/Simulation/Entity.h"/>
         <FILE id="sDu7fQ" name="Generation.cpp" compile="1" resource="0" file="Source/Simulation/Generation.cpp"/>
         <FILE id="qDam7y" name="Generation.h" compile="0" resource="0" file="Source/Simulation/Generation.h"/>
         <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
@@ -58,7 +59,8 @@
         <FILE id="Qw1YRj" name="Settings.h" compile="0" resource="0" file="Source/Simulation/Settings.h"/>
         <FILE id="H8bR8k" name="Simulation.h" compile="0" resource="0" file="Source/Simulation/Simulation.h"/>
         <FILE id="p4F7v6" name="Simulation.cpp" compile="1" resource="0" file="Source/Simulation/Simulation.cpp"/>
-        <FILE id="AWGQTF" name="Entity.h" compile="0" resource="0" file="Source/Simulation/Entity.h"/>
+        <FILE id="z28CFG" name="Statistics.cpp" compile="1" resource="0" file="Source/Simulation/Statistics.cpp"/>
+        <FILE id="BUtSiN" name="Statistics.h" compile="0" resource="0" file="Source/Simulation/Statistics.h"/>
       </GROUP>
       <FILE id="DhDFEv" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="aTodaX" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

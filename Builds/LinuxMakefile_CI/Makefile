@@ -89,6 +89,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/EntityManager_7f5721ab.o \
   $(JUCE_OBJDIR)/Settings_19ffc42c.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
+  $(JUCE_OBJDIR)/Statistics_7698d42c.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/MainComponentCommands_b1179f4d.o \
@@ -204,6 +205,11 @@ $(JUCE_OBJDIR)/Settings_19ffc42c.o: ../../Source/Simulation/Settings.cpp
 $(JUCE_OBJDIR)/Simulation_ac703710.o: ../../Source/Simulation/Simulation.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Simulation.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Statistics_7698d42c.o: ../../Source/Simulation/Statistics.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Statistics.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp

@@ -904,6 +904,14 @@ void Simulation::run()
 
   LOG("--------- End thread ---------");
 
+  Array<float> entityValues;
+  for(auto &ent : entities)
+  {
+    entityValues.add(ent->concent);
+  }
+  
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
+
   if (express)
   {
     writeJSONConcents();
@@ -920,7 +928,7 @@ void Simulation::run()
 
 
   updateConcentLists();
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this));
+
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }

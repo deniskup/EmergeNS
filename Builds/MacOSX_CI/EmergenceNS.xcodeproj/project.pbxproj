@@ -30,6 +30,7 @@
 		8963F25C4FE63C03487741C4 /* include_juce_organicui2b.cpp */ = {isa = PBXBuildFile; fileRef = 809AF05ED9C59B5B3A458EF0; };
 		8B14B5695B4D2A3EA6E788AB /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = AAC570EA24B0912905F457EC; };
 		8C03AC320571C486402374B8 /* MainComponentCommands.cpp */ = {isa = PBXBuildFile; fileRef = 6B28E7757C58181F28CE8C98; };
+		8EAC159D59629BBA0E4E8827 /* Statistics.cpp */ = {isa = PBXBuildFile; fileRef = 4DBF9F1D0A2E3555D7B43C2B; };
 		8F5ACC62B28396A759091735 /* BinaryData.cpp */ = {isa = PBXBuildFile; fileRef = 50682746CF60D34B2CF06E5B; };
 		90BC5390DB65247E8BFCBEC1 /* GenerationUI.cpp */ = {isa = PBXBuildFile; fileRef = 85738E6567AAAF5831E08056; };
 		A0FEEF4C684BC19BAD78EEC8 /* Security.framework */ = {isa = PBXBuildFile; fileRef = E9CB0DD14A5FB3D546279B62; };
@@ -77,6 +78,7 @@
 		4CE811A299A9B796193E2AD5 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = ../../JUCE/modules/juce_core; sourceTree = SOURCE_ROOT; };
 		4CFBA259531D5BF810C36978 /* App */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmergenceNS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D107F5B6E186C13EEB8FFAA /* SimulationUI.cpp */ /* SimulationUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimulationUI.cpp; path = ../../Source/Simulation/ui/SimulationUI.cpp; sourceTree = SOURCE_ROOT; };
+		4DBF9F1D0A2E3555D7B43C2B /* Statistics.cpp */ /* Statistics.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Statistics.cpp; path = ../../Source/Simulation/Statistics.cpp; sourceTree = SOURCE_ROOT; };
 		4E3E31FE45D345BF189CF727 /* juce_gui_basics */ /* juce_gui_basics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_basics; path = ../../JUCE/modules/juce_gui_basics; sourceTree = SOURCE_ROOT; };
 		4FD2424E958330ED2CA2D27B /* juce_organicui */ /* juce_organicui */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_organicui; path = ../../Modules/juce_organicui; sourceTree = SOURCE_ROOT; };
 		50682746CF60D34B2CF06E5B /* BinaryData.cpp */ /* BinaryData.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = BinaryData.cpp; path = ../../JuceLibraryCode/BinaryData.cpp; sourceTree = SOURCE_ROOT; };
@@ -116,6 +118,7 @@
 		B58663DFA5F4ADBB408B1828 /* EntityManager.h */ /* EntityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManager.h; path = ../../Source/Simulation/EntityManager.h; sourceTree = SOURCE_ROOT; };
 		B839AC5419C29F56D15AF22C /* include_juce_organicui2.cpp */ /* include_juce_organicui2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui2.cpp; path = ../../JuceLibraryCode/include_juce_organicui2.cpp; sourceTree = SOURCE_ROOT; };
 		BB013463E169E25B6719AB6E /* Settings.h */ /* Settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Settings.h; path = ../../Source/Simulation/Settings.h; sourceTree = SOURCE_ROOT; };
+		BB3ACC0D2C9A265AD098E785 /* Statistics.h */ /* Statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Statistics.h; path = ../../Source/Simulation/Statistics.h; sourceTree = SOURCE_ROOT; };
 		BC10A1C04E91AEE5A90A6453 /* Info-App.plist */ /* Info-App.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-App.plist"; path = "Info-App.plist"; sourceTree = SOURCE_ROOT; };
 		C0E8E22458115E47E0AE43E3 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = ../../JUCE/modules/juce_gui_extra; sourceTree = SOURCE_ROOT; };
 		C4C79DF356509EEBD9127A0E /* Reaction.h */ /* Reaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Reaction.h; path = ../../Source/Simulation/Reaction.h; sourceTree = SOURCE_ROOT; };
@@ -176,6 +179,7 @@
 				EAECDD9F00C30A7B00179823,
 				C4C79DF356509EEBD9127A0E,
 				ABACD94518FB78F24075F5C2,
+				3CE103B6FC49120DB71A055B,
 				E70390156D59535F88C324EE,
 				5FF4DAD25E1E6CCF2E074C83,
 				22B76F4980A22D40C97C8996,
@@ -184,7 +188,8 @@
 				BB013463E169E25B6719AB6E,
 				20F925379B77181596EEDB1D,
 				2EEFFE67A4CBED22C54E8AFB,
-				3CE103B6FC49120DB71A055B,
+				4DBF9F1D0A2E3555D7B43C2B,
+				BB3ACC0D2C9A265AD098E785,
 			);
 			name = Simulation;
 			sourceTree = "<group>";
@@ -425,6 +430,7 @@
 				03FC72E5065CEF9E0C533385,
 				7901AB2D0CDD47E7997BA379,
 				FD74B3EC7E4E6FF0A5C8EA84,
+				8EAC159D59629BBA0E4E8827,
 				F34AE2E6390E2FBC86D0636E,
 				C96344D043028DB34B18094D,
 				8C03AC320571C486402374B8,

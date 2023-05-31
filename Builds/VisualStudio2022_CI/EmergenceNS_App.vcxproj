@@ -158,6 +158,7 @@
     <ClCompile Include="..\..\Source\Simulation\EntityManager.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Settings.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\Statistics.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponentCommands.cpp"/>
@@ -255,9 +256,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_ConsoleApplication.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_EnumHelpers_test.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_Result.cpp">
@@ -546,9 +544,6 @@
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ChangeBroadcaster.cpp">
-      <ExcludedFromBuild>true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.cpp">
@@ -2133,11 +2128,12 @@
     <ClInclude Include="..\..\Source\Simulation\PAC.h"/>
     <ClInclude Include="..\..\Source\Simulation\ReactionManager.h"/>
     <ClInclude Include="..\..\Source\Simulation\Reaction.h"/>
+    <ClInclude Include="..\..\Source\Simulation\Entity.h"/>
     <ClInclude Include="..\..\Source\Simulation\Generation.h"/>
     <ClInclude Include="..\..\Source\Simulation\EntityManager.h"/>
     <ClInclude Include="..\..\Source\Simulation\Settings.h"/>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h"/>
-    <ClInclude Include="..\..\Source\Simulation\Entity.h"/>
+    <ClInclude Include="..\..\Source\Simulation\Statistics.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_AbstractFifo.h"/>
@@ -2200,7 +2196,6 @@
     <ClInclude Include="..\..\JUCE\modules\juce_core\memory\juce_Singleton.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\memory\juce_WeakReference.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_ConsoleApplication.h"/>
-    <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_EnumHelpers.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_Functional.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_Result.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\misc\juce_RuntimePermissions.h"/>
@@ -2312,7 +2307,6 @@
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_AsyncUpdater.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ChangeBroadcaster.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ChangeListener.h"/>
-    <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_InterprocessConnection.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_InterprocessConnectionServer.h"/>
