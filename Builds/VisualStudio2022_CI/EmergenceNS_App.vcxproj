@@ -159,6 +159,7 @@
     <ClCompile Include="..\..\Source\Simulation\Settings.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Statistics.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\Util.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponentCommands.cpp"/>
@@ -2134,6 +2135,7 @@
     <ClInclude Include="..\..\Source\Simulation\Settings.h"/>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h"/>
     <ClInclude Include="..\..\Source\Simulation\Statistics.h"/>
+    <ClInclude Include="..\..\Source\Simulation\Util.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_AbstractFifo.h"/>

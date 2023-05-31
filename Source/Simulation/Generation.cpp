@@ -65,6 +65,8 @@ Generation::Generation() : ControllableContainer("Generation")
     avgNumShow->hideInEditor = true;
 
     statistics = addBoolParameter("Statistics", "Compute statistics", false);
+    numRuns = addIntParameter("Num runs", "Number of runs to compute statistics", 10, 1);
+    numRuns->hideInEditor = true;
     // minG = addFloatParameter("Min G", "Current step in the simulation", 0, 0, maxSteps->intValue());
 }
 
@@ -112,6 +114,11 @@ void Generation::onContainerParameterChanged(Parameter *p)
     else if (p == showAll)
     {
         avgNumShow->hideInEditor = showAll->boolValue();
+        listeners.call(&GenerationListener::updateGenUI, this);
+    }
+    else if (p == statistics)
+    {
+        numRuns->hideInEditor = !statistics->boolValue();
         listeners.call(&GenerationListener::updateGenUI, this);
     }
 }

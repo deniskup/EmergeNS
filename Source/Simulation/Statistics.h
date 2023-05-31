@@ -3,9 +3,10 @@
 
 #include "Simulation.h"
 
-class Statistics :   public Simulation::AsyncSimListener
+class Statistics : public Simulation::AsyncSimListener
 {
 public:
+    juce_DeclareSingleton(Statistics, true);
     Statistics();
     ~Statistics();
 
@@ -13,17 +14,14 @@ public:
 
     float epsilon = 0.0001f;
 
-    int nbSim=0;
-    int maxNbSim=10;
+    int nbSim = 0;
+    int maxNbSim = 10;
 
     Array<Array<float>> steadyStates;
 
+    void genStartConcents();
     void launchSim();
-
-    void computeStats(int nbIterations);
-
+    void computeStats();
     void finishStats();
-
     void newMessage(const Simulation::SimulationEvent &e) override;
-
 };

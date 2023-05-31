@@ -535,6 +535,9 @@
     <ClCompile Include="..\..\Source\Simulation\Statistics.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\Util.cpp">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>EmergenceNS\Source</Filter>
     </ClCompile>
@@ -2719,6 +2722,9 @@
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Statistics.h">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\Util.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Main.h">

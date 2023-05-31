@@ -1,5 +1,9 @@
 
 #include "Statistics.h"
+#include "Generation.h"
+#include "Util.h"
+
+juce_ImplementSingleton(Statistics)
 
 Statistics::Statistics() : simul(Simulation::getInstance())
 //    saveSimBT("Save"),
@@ -27,10 +31,27 @@ bool isClose(const Array<float> &a, const Array<float> &b, float epsilon)
     return true;
 }
 
+void Statistics::genStartConcents()
+{
+    // randomly choose starting concentrations
+
+    const float initConcentBase = Generation::getInstance()->initConcent->x;
+    const float initConcentVar = Generation::getInstance()->initConcent->y;
+
+    // recall that energy of primary entities are normalized to 0
+
+    for (auto &ent : simul->entities)
+    {
+        const float concent = jmax(0.f, initConcentBase + randFloat(-initConcentVar, initConcentVar));
+        ent->startConcent = concent;
+    }
+}
+
 void Statistics::launchSim()
 {
     if (nbSim < maxNbSim)
     {
+        // set initial values
         // launch simulation
         simul->start();
         nbSim++;
@@ -41,9 +62,9 @@ void Statistics::launchSim()
     }
 }
 
-void Statistics::computeStats(int nbIterations)
+void Statistics::computeStats()
 {
-    maxNbSim = nbIterations;
+    maxNbSim = Generation::getInstance()->numRuns->intValue();
     // we take 10 times the epsilon speed *dt.
     epsilon = 10 * simul->epsilonEq->floatValue() * simul->dt->floatValue();
 

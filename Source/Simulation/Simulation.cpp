@@ -3,6 +3,8 @@
 #include "ReactionManager.h"
 #include "Generation.h"
 #include "Settings.h"
+#include "Statistics.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -48,41 +50,6 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-// maybe rand functions to move to a file Util.c later
-int randInt(int i, int j)
-{
-  if (j < i)
-  {
-    LOGWARNING("Range [" << i << "," << j << "] incorrect, setting to " << i);
-    return i;
-  }
-  if (i == j)
-    return i;
-  return Random::getSystemRandom().nextInt(Range(i, j + 1));
-}
-
-float randFloat()
-{
-  return Random::getSystemRandom().nextFloat();
-}
-
-float randFloat(float a, float b)
-{
-  if (b < a)
-  {
-    LOGWARNING("Range [" << a << "," << b << "] incorrect, setting to " << a);
-    return a;
-  }
-  if (a == b)
-    return a;
-  float r = randFloat();
-  return (r * a + (1 - r) * b);
-}
-
-float randFloat(float a)
-{
-  return randFloat(0.f, a);
-}
 
 void Simulation::clearParams()
 {
@@ -661,7 +628,8 @@ void Simulation::start(bool restart)
   }
   else
   {
-    if (!express) importFromManual(); // import entities and reactions from manual lists, only those who have been changed
+    if (!express)
+      importFromManual(); // import entities and reactions from manual lists, only those who have been changed
   }
 
   if (restart)
@@ -672,10 +640,11 @@ void Simulation::start(bool restart)
     }
   }
 
-  //computeRates(); // compute reactions rates to take into account the ignored energies
+  // computeRates(); // compute reactions rates to take into account the ignored energies
 
   startTrigger->setEnabled(false);
-  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  if (!express)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // listeners.call(&SimulationListener::simulationWillStart, this);
 
   Array<float> entityValues;
@@ -687,7 +656,8 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   }
 
-  if(!express) simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
+  if (!express)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
@@ -905,11 +875,11 @@ void Simulation::run()
   LOG("--------- End thread ---------");
 
   Array<float> entityValues;
-  for(auto &ent : entities)
+  for (auto &ent : entities)
   {
     entityValues.add(ent->concent);
   }
-  
+
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
 
   if (express)
@@ -917,7 +887,7 @@ void Simulation::run()
     writeJSONConcents();
     return;
   }
-  
+
   LOG("Record Concentration: " << recordConcent << " for entity " << recordEntity);
   if (recordDrawn < recordConcent)
     LOG("Record Drawn Concentration: " << recordDrawn << " for entity " << recordDrawnEntity);
@@ -925,7 +895,6 @@ void Simulation::run()
   LOG("RACS:");
 
   pacList->printRACs();
-
 
   updateConcentLists();
 
@@ -980,7 +949,8 @@ SimReaction *Simulation::getSimReactionForID(int idSAT)
 
 void Simulation::updateConcentLists()
 {
-  if(express) return;
+  if (express)
+    return;
   for (auto &ent : EntityManager::getInstance()->items)
   {
     auto se = ent->simEnt;
@@ -997,15 +967,22 @@ void Simulation::updateConcentLists()
 
 void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
-  express= detectEquilibrium->boolValue();
+  express = Generation::getInstance()->statistics->boolValue();
   if (t == genTrigger)
   {
     fetchGenerate();
   }
   else if (t == genstartTrigger)
   {
-    fetchGenerate();
-    start(true);
+    if (express)
+    {
+      Statistics::getInstance()->computeStats();
+    }
+    else
+    {
+      fetchGenerate();
+      start(true);
+    }
   }
   else if (t == restartTrigger)
   {

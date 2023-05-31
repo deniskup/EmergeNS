@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		02CC91DA07E6F4D5C1E371A0 /* include_juce_cryptography.mm */ = {isa = PBXBuildFile; fileRef = 581FB50CE9EE4551FB796564; };
 		03FC72E5065CEF9E0C533385 /* EntityManager.cpp */ = {isa = PBXBuildFile; fileRef = 22B76F4980A22D40C97C8996; };
+		04BEEEBD7B492EBEEC19CF12 /* Util.cpp */ = {isa = PBXBuildFile; fileRef = 086E2A709DB2A17B51F3FF2F; };
 		05AD1EC55D2C6302ED178B97 /* ReactionManager.cpp */ = {isa = PBXBuildFile; fileRef = 74B0702C8DF6E5343D945394; };
 		060027DC34860C9C800706F6 /* include_juce_osc.cpp */ = {isa = PBXBuildFile; fileRef = AB46FF28AD2C6E63E27323E9; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
@@ -55,6 +56,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		086E2A709DB2A17B51F3FF2F /* Util.cpp */ /* Util.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Util.cpp; path = ../../Source/Simulation/Util.cpp; sourceTree = SOURCE_ROOT; };
 		0A3CC5BA63C4CFB8D89F0D2A /* PAC.cpp */ /* PAC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PAC.cpp; path = ../../Source/Simulation/PAC.cpp; sourceTree = SOURCE_ROOT; };
 		0A7A50722F6E3517F56701A7 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JUCE/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
 		1F5B27D8DE5DC63B14C5CE59 /* SimulationUI.h */ /* SimulationUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationUI.h; path = ../../Source/Simulation/ui/SimulationUI.h; sourceTree = SOURCE_ROOT; };
@@ -75,6 +77,7 @@
 		3EDAAD93A12A43D70A06086E /* juce_osc */ /* juce_osc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_osc; path = ../../JUCE/modules/juce_osc; sourceTree = SOURCE_ROOT; };
 		469CB20A298492D8A306BC2D /* ReactionUI.cpp */ /* ReactionUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionUI.cpp; path = ../../Source/Simulation/ui/ReactionUI.cpp; sourceTree = SOURCE_ROOT; };
 		48F73767A72C8D61533FE10D /* PACUI.cpp */ /* PACUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PACUI.cpp; path = ../../Source/Simulation/ui/PACUI.cpp; sourceTree = SOURCE_ROOT; };
+		4A2B79A3FD61E51BDC5C6B7D /* Util.h */ /* Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Util.h; path = ../../Source/Simulation/Util.h; sourceTree = SOURCE_ROOT; };
 		4CE811A299A9B796193E2AD5 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = ../../JUCE/modules/juce_core; sourceTree = SOURCE_ROOT; };
 		4CFBA259531D5BF810C36978 /* App */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmergenceNS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D107F5B6E186C13EEB8FFAA /* SimulationUI.cpp */ /* SimulationUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimulationUI.cpp; path = ../../Source/Simulation/ui/SimulationUI.cpp; sourceTree = SOURCE_ROOT; };
@@ -190,6 +193,8 @@
 				2EEFFE67A4CBED22C54E8AFB,
 				4DBF9F1D0A2E3555D7B43C2B,
 				BB3ACC0D2C9A265AD098E785,
+				086E2A709DB2A17B51F3FF2F,
+				4A2B79A3FD61E51BDC5C6B7D,
 			);
 			name = Simulation;
 			sourceTree = "<group>";
@@ -431,6 +436,7 @@
 				7901AB2D0CDD47E7997BA379,
 				FD74B3EC7E4E6FF0A5C8EA84,
 				8EAC159D59629BBA0E4E8827,
+				04BEEEBD7B492EBEEC19CF12,
 				F34AE2E6390E2FBC86D0636E,
 				C96344D043028DB34B18094D,
 				8C03AC320571C486402374B8,
