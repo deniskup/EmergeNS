@@ -57,6 +57,7 @@ public:
 
     BoolParameter *statistics;
     IntParameter *numRuns;
+    IntParameter *epsFactor;
     // FloatParameter *minG;
     // FloatParameter *maxG;
     // FloatParameter *maxAddGstar;

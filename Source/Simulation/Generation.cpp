@@ -67,6 +67,8 @@ Generation::Generation() : ControllableContainer("Generation")
     statistics = addBoolParameter("Statistics", "Compute statistics", false);
     numRuns = addIntParameter("Num runs", "Number of runs to compute statistics", 10, 1);
     numRuns->hideInEditor = true;
+    epsFactor = addIntParameter("Eps factor", "Number of possible steps around equilibrium to identify steady states", 200, 1);
+    epsFactor->hideInEditor = true;
     // minG = addFloatParameter("Min G", "Current step in the simulation", 0, 0, maxSteps->intValue());
 }
 
@@ -119,6 +121,7 @@ void Generation::onContainerParameterChanged(Parameter *p)
     else if (p == statistics)
     {
         numRuns->hideInEditor = !statistics->boolValue();
+        epsFactor->hideInEditor = !statistics->boolValue();
         listeners.call(&GenerationListener::updateGenUI, this);
     }
 }

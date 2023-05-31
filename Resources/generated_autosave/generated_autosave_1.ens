@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1126,
+      "width": 1918,
+      "height": 1149,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1126,
+          "width": 1918,
+          "height": 1149,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 446,
-              "height": 1126,
-              "currentContent": "Reactions",
+              "width": 445,
+              "height": 1149,
+              "currentContent": "Generation",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 1468,
-              "height": 1126,
+              "width": 1467,
+              "height": 1149,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 987,
-                  "height": 1126,
+                  "height": 1149,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 987,
-                      "height": 639,
+                      "height": 650,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -88,7 +88,7 @@
                     {
                       "type": 0,
                       "width": 987,
-                      "height": 481,
+                      "height": 492,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -101,7 +101,7 @@
                 {
                   "type": 0,
                   "width": 474,
-                  "height": 1126,
+                  "height": 1149,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -133,7 +133,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 20.0,
+        "value": 50.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -156,102 +156,94 @@
       {
         "parameters": [
           {
-            "value": 1.0,
+            "value": 8.69999885559082,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 1.0,
+            "value": 3.383324146270752,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.00291121006012,
+            "value": 1.352154016494751,
             "controlAddress": "/conc"
           },
           {
             "value": [
-              0.9176470637321472,
               1.0,
+              0.6745098233222961,
               0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "10",
+        "niceName": "100",
         "type": "Entity"
       },
       {
         "parameters": [
           {
-            "value": 1.0,
+            "value": 8.69999885559082,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 1.0,
+            "value": 4.710150241851807,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.5423129796981812,
+            "value": 1.076418280601501,
             "controlAddress": "/conc"
           },
           {
             "value": [
+              0.9843137264251709,
               1.0,
-              0.1764705926179886,
               0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "01",
+        "niceName": "010",
         "type": "Entity"
       },
       {
         "parameters": [
           {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
+            "value": 8.69999885559082,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 0.2403469085693359,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4337004721164703,
+            "value": 0.9607368111610413,
             "controlAddress": "/conc"
           },
           {
-            "value": -0.4726238250732422,
-            "controlAddress": "/freeEnergy"
-          },
-          {
             "value": [
-              0.0,
-              0.003921568859368563,
               1.0,
+              0.8823529481887817,
+              0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "11",
+        "niceName": "001",
         "type": "Entity"
       },
       {
@@ -265,7 +257,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -273,24 +265,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.118265300989151,
+            "value": 4.843658447265625,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.202171802520752,
+            "value": -4.057286262512207,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.02745098061859608,
+              0.6666666865348816,
               1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "02",
+        "niceName": "011",
         "type": "Entity"
       },
       {
@@ -304,7 +296,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -312,24 +304,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
+            "value": 8.978426933288574,
             "controlAddress": "/conc"
           },
           {
-            "value": -0.4374880194664001,
+            "value": -4.468226432800293,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.4549019634723663,
+              0.3686274588108063,
               1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "20",
+        "niceName": "101",
         "type": "Entity"
       },
       {
@@ -343,7 +335,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -351,24 +343,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.08475344628095627,
+            "value": 0.885525107383728,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.1828647702932358,
+            "value": -4.580761432647705,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.929411768913269,
               0.0,
+              0.8784313797950745,
               1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "12",
+        "niceName": "020",
         "type": "Entity"
       },
       {
@@ -382,7 +374,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -390,24 +382,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.05536306276917458,
+            "value": 0.7662391662597656,
             "controlAddress": "/conc"
           },
           {
-            "value": -0.3358500003814697,
+            "value": -3.973176956176758,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.7686274647712708,
               0.0,
+              0.168627455830574,
               1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "03",
+        "niceName": "002",
         "type": "Entity"
       },
       {
@@ -421,7 +413,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -429,24 +421,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.1417433470487595,
+            "value": 0.515501856803894,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.2702382206916809,
+            "value": -4.448589324951172,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              1.0,
+              0.03529411926865578,
               0.0,
-              0.9372549057006836,
+              1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "21",
+        "niceName": "110",
         "type": "Entity"
       },
       {
@@ -460,7 +452,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -468,24 +460,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
+            "value": 0.7643343210220337,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.3404711484909058,
+            "value": -3.776243925094604,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              1.0,
               0.0,
-              0.3333333432674408,
+              0.3254902064800262,
+              1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "30",
+        "niceName": "200",
         "type": "Entity"
       },
       {
@@ -499,7 +491,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -507,24 +499,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.01626545563340187,
+            "value": 5.352792263031006,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.0269775390625,
+            "value": -6.259257793426514,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.8627451062202454,
               0.0,
+              0.9333333373069763,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "04",
+        "niceName": "210",
         "type": "Entity"
       },
       {
@@ -538,7 +530,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -546,24 +538,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.02495449781417847,
+            "value": 1.031662702560425,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.4516205787658691,
+            "value": -6.550535678863525,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.8313725590705872,
-              1.0,
+              0.7254902124404907,
               0.0,
+              1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "13",
+        "niceName": "030",
         "type": "Entity"
       },
       {
@@ -577,7 +569,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -585,24 +577,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
+            "value": 2.786095857620239,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.4664234519004822,
+            "value": -6.549736022949219,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.9882352948188782,
               0.0,
+              0.9254902005195618,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "31",
+        "niceName": "120",
         "type": "Entity"
       },
       {
@@ -616,7 +608,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -624,24 +616,24 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
+            "value": 0.8899199962615967,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.1040035635232925,
+            "value": -6.675772190093994,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.105882354080677,
               0.0,
+              0.7960784435272217,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "40",
+        "niceName": "021",
         "type": "Entity"
       },
       {
@@ -655,7 +647,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.09999999403953552,
             "controlAddress": "/destructionRate"
           },
           {
@@ -663,24 +655,804 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.05592208728194237,
+            "value": 1.601750016212463,
             "controlAddress": "/conc"
           },
           {
-            "value": 0.2270864397287369,
+            "value": -6.532959461212158,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
+              0.9686274528503418,
+              0.0,
               1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "201",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.8848921060562134,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -6.301461696624756,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.9450980424880981,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "003",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.9738881587982178,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -6.690824031829834,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.5843137502670288,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "300",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.0261109434068203,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -6.004763126373291,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
               0.7333333492279053,
               0.0,
+              1.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "22",
+        "niceName": "102",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.4036455750465393,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -5.926836490631104,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.3568627536296844,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "012",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 2.454690456390381,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -6.720801830291748,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.9803921580314636,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "111",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 6.431423187255859,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.880311965942383,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.3098039329051971,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "040",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 6.071057796478271,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.351860046386719,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.4392156898975372,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "103",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 3.103502511978149,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.973441123962402,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.7568627595901489,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "004",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.686698317527771,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.385167121887207,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.2196078449487686,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "220",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 3.543291330337524,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.722808837890625,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.2784313857555389,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "121",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 4.595382213592529,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.933635711669922,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.843137264251709,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "301",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.7679961323738098,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.929771900177002,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.6941176652908325,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "400",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.3568190336227417,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.401699066162109,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.9450980424880981,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "112",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 2.912473201751709,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.935227870941162,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.1019607856869698,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "310",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 3.399396419525146,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.15220832824707,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.6196078658103943,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "031",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 6.484538555145264,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.22449779510498,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.3450980484485626,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "211",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 3.297031402587891,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.97422981262207,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.9725490212440491,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "013",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.6411441564559937,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.939258098602295,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.1098039224743843,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "202",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.3476339280605316,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.840826988220215,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.5686274766921997,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "130",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09999999403953552,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.3389630913734436,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -7.946651935577393,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.2823529541492462,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "022",
         "type": "Entity"
       }
     ],
@@ -695,15 +1467,15 @@
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/10",
+            "value": "/100",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/11",
+            "value": "/101",
             "controlAddress": "/product"
           },
           {
@@ -711,21 +1483,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+10=11",
+        "niceName": "001+100=101",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/010",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/01",
+            "value": "/010",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/02",
+            "value": "/020",
             "controlAddress": "/product"
           },
           {
@@ -733,21 +1505,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+01=02",
+        "niceName": "010+010=020",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/02",
+            "value": "/001",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/12",
+            "value": "/002",
             "controlAddress": "/product"
           },
           {
@@ -755,21 +1527,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+02=12",
+        "niceName": "001+001=002",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/100",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/11",
+            "value": "/100",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/12",
+            "value": "/200",
             "controlAddress": "/product"
           },
           {
@@ -777,21 +1549,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+11=12",
+        "niceName": "100+100=200",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/010",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/02",
+            "value": "/200",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/03",
+            "value": "/210",
             "controlAddress": "/product"
           },
           {
@@ -799,21 +1571,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+02=03",
+        "niceName": "010+200=210",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/100",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/11",
+            "value": "/110",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/21",
+            "value": "/210",
             "controlAddress": "/product"
           },
           {
@@ -821,21 +1593,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+11=21",
+        "niceName": "100+110=210",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/010",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/03",
+            "value": "/020",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/04",
+            "value": "/030",
             "controlAddress": "/product"
           },
           {
@@ -843,21 +1615,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+03=04",
+        "niceName": "010+020=030",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/02",
+            "value": "/010",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/02",
+            "value": "/110",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/04",
+            "value": "/120",
             "controlAddress": "/product"
           },
           {
@@ -865,21 +1637,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "02+02=04",
+        "niceName": "010+110=120",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/03",
+            "value": "/020",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/13",
+            "value": "/021",
             "controlAddress": "/product"
           },
           {
@@ -887,21 +1659,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+03=13",
+        "niceName": "001+020=021",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/12",
+            "value": "/200",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/13",
+            "value": "/201",
             "controlAddress": "/product"
           },
           {
@@ -909,21 +1681,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+12=13",
+        "niceName": "001+200=201",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/02",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/11",
+            "value": "/002",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/13",
+            "value": "/003",
             "controlAddress": "/product"
           },
           {
@@ -931,21 +1703,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "02+11=13",
+        "niceName": "001+002=003",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/20",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/11",
+            "value": "/110",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/31",
+            "value": "/111",
             "controlAddress": "/product"
           },
           {
@@ -953,21 +1725,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "20+11=31",
+        "niceName": "001+110=111",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/01",
+            "value": "/010",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/30",
+            "value": "/030",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/31",
+            "value": "/040",
             "controlAddress": "/product"
           },
           {
@@ -975,21 +1747,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "01+30=31",
+        "niceName": "010+030=040",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/002",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/30",
+            "value": "/101",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/40",
+            "value": "/103",
             "controlAddress": "/product"
           },
           {
@@ -997,21 +1769,21 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+30=40",
+        "niceName": "002+101=103",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/10",
+            "value": "/001",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/12",
+            "value": "/003",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/22",
+            "value": "/004",
             "controlAddress": "/product"
           },
           {
@@ -1019,7 +1791,359 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "10+12=22",
+        "niceName": "001+003=004",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/200",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/020",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/220",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "200+020=220",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/100",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/021",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/121",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "100+021=121",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/110",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/011",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/121",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "110+011=121",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/001",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/300",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/301",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "001+300=301",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/200",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/101",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/301",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "200+101=301",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/200",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/200",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/400",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "200+200=400",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/010",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/102",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/112",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "010+102=112",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/110",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/002",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/112",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "110+002=112",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/010",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/300",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/310",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "010+300=310",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/001",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/030",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/031",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "001+030=031",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/010",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/201",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/211",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "010+201=211",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/010",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/003",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/013",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "010+003=013",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/001",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/012",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/013",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "001+012=013",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/200",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/002",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/202",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "200+002=202",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/110",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/020",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/130",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "110+020=130",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/002",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/020",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/022",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "002+020=022",
         "type": "Reaction"
       }
     ],
@@ -1032,6 +2156,11 @@
   "generation": {
     "parameters": [
       {
+        "value": 3,
+        "hexMode": false,
+        "controlAddress": "/primaryEntities"
+      },
+      {
         "value": "PropReactions",
         "controlAddress": "/growthEntities_level"
       },
@@ -1041,7 +2170,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 0.5615384578704834,
+        "value": 0.6573238372802734,
         "controlAddress": "/proportionReactions"
       },
       {
@@ -1050,514 +2179,967 @@
         "controlAddress": "/reactionsPerEntity"
       },
       {
+        "value": [
+          3.500000953674316,
+          4.399999618530273
+        ],
+        "controlAddress": "/initPrimConcentration_Var"
+      },
+      {
+        "value": [
+          8.69999885559082,
+          0.0
+        ],
+        "controlAddress": "/creationRate_Var"
+      },
+      {
+        "value": [
+          0.09999999403953552,
+          0.0
+        ],
+        "controlAddress": "/destructionRate_Var"
+      },
+      {
+        "value": [
+          -2.099999904632568,
+          0.5
+        ],
+        "controlAddress": "/energyPerLevel_Var"
+      },
+      {
+        "value": [
+          0.0,
+          0.0
+        ],
+        "controlAddress": "/energyBarrier_Var"
+      },
+      {
         "value": 40,
         "hexMode": false,
         "controlAddress": "/maxNumOfCurves"
+      },
+      {
+        "value": false,
+        "controlAddress": "/statistics"
+      },
+      {
+        "value": 10,
+        "hexMode": false,
+        "controlAddress": "/numRuns"
+      },
+      {
+        "value": 200,
+        "hexMode": false,
+        "controlAddress": "/epsFactor"
       }
     ]
   },
   "settings": {
-    "parameters": [
-      {
-        "value": true,
-        "controlAddress": "/printPACsToFile"
-      }
-    ]
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 1.00291121006012,
-    "recordEntity": "10",
-    "recordDrawn": 1.00291121006012,
-    "recordDrawnEntity": "10",
+    "recordConcent": 9.127008438110352,
+    "recordEntity": "211",
+    "recordDrawn": 9.127008438110352,
+    "recordDrawnEntity": "211",
     "numLevels": 4,
-    "PACsGenerated": true,
+    "PACsGenerated": false,
     "entities": [
       {
-        "name": "10",
+        "name": "100",
         "color": {
-          "H": 0.1803921461105347,
+          "H": 0.1124182939529419,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 0,
-        "concent": 1.00291121006012,
-        "startConcent": 1.0,
-        "creationRate": 1.0,
-        "destructionRate": 0.5,
+        "concent": 1.352180123329163,
+        "startConcent": 0.9597711563110352,
+        "creationRate": 8.69999885559082,
+        "destructionRate": 0.09999999403953552,
         "freeEnergy": 0.0,
         "level": 1,
         "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 0
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "01",
+        "name": "010",
         "color": {
-          "H": 0.02941175363957882,
+          "H": 0.1692810505628586,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 1,
-        "concent": 0.5423129796981812,
-        "startConcent": 1.0,
-        "creationRate": 1.0,
-        "destructionRate": 0.5,
+        "concent": 1.076411724090576,
+        "startConcent": 5.762677669525146,
+        "creationRate": 8.69999885559082,
+        "destructionRate": 0.09999999403953552,
         "freeEnergy": 0.0,
         "level": 1,
         "draw": true,
-        "composition": [
-          {
-            "coord": 0
-          },
-          {
-            "coord": 1
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "11",
+        "name": "001",
         "color": {
-          "H": 0.6660131216049194,
+          "H": 0.147058829665184,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
-        "primary": false,
+        "primary": true,
         "id": 2,
-        "concent": 0.4337004721164703,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.4726238250732422,
-        "level": 2,
+        "concent": 0.9606974720954895,
+        "startConcent": 3.937274932861328,
+        "creationRate": 8.69999885559082,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": 0.0,
+        "level": 1,
         "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 1
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "02",
+        "name": "011",
         "color": {
-          "H": 0.6620914936065674,
+          "H": 0.5555555820465088,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 3,
-        "concent": 0.118265300989151,
-        "startConcent": 0.0,
+        "concent": 4.872043132781982,
+        "startConcent": 2.24758768081665,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.202171802520752,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -4.057286262512207,
         "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 0
-          },
-          {
-            "coord": 2
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "20",
+        "name": "101",
         "color": {
-          "H": 0.590849757194519,
+          "H": 0.6052287817001343,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 4,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 9.009325981140137,
+        "startConcent": 3.210304737091064,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.4374880194664001,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -4.468226432800293,
         "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 2
-          },
-          {
-            "coord": 0
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "12",
+        "name": "020",
         "color": {
-          "H": 0.8215686678886414,
+          "H": 0.5202614665031433,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 5,
-        "concent": 0.08475344628095627,
-        "startConcent": 0.0,
+        "concent": 0.8858785629272461,
+        "startConcent": 0.8788800239562988,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.1828647702932358,
-        "level": 3,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -4.580761432647705,
+        "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 2
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "03",
+        "name": "002",
         "color": {
-          "H": 0.7947713136672974,
+          "H": 0.6385621428489685,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 6,
-        "concent": 0.05536306276917458,
-        "startConcent": 0.0,
+        "concent": 0.7668758034706116,
+        "startConcent": 2.963205337524414,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.3358500003814697,
-        "level": 3,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -3.973176956176758,
+        "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 0
-          },
-          {
-            "coord": 3
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "21",
+        "name": "110",
         "color": {
-          "H": 0.8437908291816711,
+          "H": 0.6725490093231201,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 7,
-        "concent": 0.1417433470487595,
-        "startConcent": 0.0,
+        "concent": 0.517784059047699,
+        "startConcent": 1.382462978363037,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.2702382206916809,
-        "level": 3,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -4.448589324951172,
+        "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 2
-          },
-          {
-            "coord": 1
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "30",
+        "name": "200",
         "color": {
-          "H": 0.9444444179534912,
+          "H": 0.6124183535575867,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 8,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 0.765460193157196,
+        "startConcent": 4.624698638916016,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.3404711484909058,
-        "level": 3,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -3.776243925094604,
+        "level": 2,
         "draw": true,
-        "composition": [
-          {
-            "coord": 3
-          },
-          {
-            "coord": 0
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "04",
+        "name": "210",
         "color": {
-          "H": 0.1437908560037613,
+          "H": 0.8444444537162781,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 9,
-        "concent": 0.01626545563340187,
-        "startConcent": 0.0,
+        "concent": 5.371549129486084,
+        "startConcent": 1.676328659057617,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.0269775390625,
-        "level": 4,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.259257793426514,
+        "level": 3,
         "draw": true,
-        "composition": [
-          {
-            "coord": 0
-          },
-          {
-            "coord": 4
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "13",
+        "name": "030",
         "color": {
-          "H": 0.1947712600231171,
+          "H": 0.7875816822052002,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 10,
-        "concent": 0.02495449781417847,
-        "startConcent": 0.0,
+        "concent": 1.035148978233337,
+        "startConcent": 1.017472743988037,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.4516205787658691,
-        "level": 4,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.550535678863525,
+        "level": 3,
         "draw": true,
-        "composition": [
-          {
-            "coord": 1
-          },
-          {
-            "coord": 3
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "31",
+        "name": "120",
         "color": {
-          "H": 0.1647058874368668,
+          "H": 0.8457516431808472,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 11,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 2.80857515335083,
+        "startConcent": 7.438850402832031,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.4664234519004822,
-        "level": 4,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.549736022949219,
+        "level": 3,
         "draw": true,
-        "composition": [
-          {
-            "coord": 3
-          },
-          {
-            "coord": 1
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "40",
+        "name": "021",
         "color": {
-          "H": 0.01764704845845699,
+          "H": 0.8673202395439148,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 12,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 0.8928089141845703,
+        "startConcent": 7.736836433410645,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.1040035635232925,
-        "level": 4,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.675772190093994,
+        "level": 3,
         "draw": true,
-        "composition": [
-          {
-            "coord": 4
-          },
-          {
-            "coord": 0
-          }
-        ]
+        "composition": null
       },
       {
-        "name": "22",
+        "name": "201",
         "color": {
-          "H": 0.1222222298383713,
+          "H": 0.8281046152114868,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 13,
-        "concent": 0.05592208728194237,
-        "startConcent": 0.0,
+        "concent": 1.614526629447937,
+        "startConcent": 6.796791553497314,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.2270864397287369,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.532959461212158,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "003",
+        "color": {
+          "H": 0.8241829872131348,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 14,
+        "concent": 0.8907579183578491,
+        "startConcent": 6.050985336303711,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.301461696624756,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "300",
+        "color": {
+          "H": 0.7640523314476013,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 15,
+        "concent": 0.9818916320800781,
+        "startConcent": 3.532461643218994,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.690824031829834,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "102",
+        "color": {
+          "H": 0.7888888716697693,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 16,
+        "concent": 0.02627485245466232,
+        "startConcent": 5.629171371459961,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.004763126373291,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "012",
+        "color": {
+          "H": 0.9405229091644287,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 17,
+        "concent": 0.408245861530304,
+        "startConcent": 3.316470146179199,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -5.926836490631104,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "111",
+        "color": {
+          "H": 0.8366013169288635,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 18,
+        "concent": 2.476656913757324,
+        "startConcent": 1.495652675628662,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -6.720801830291748,
+        "level": 3,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "040",
+        "color": {
+          "H": 0.05163398385047913,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 19,
+        "concent": 6.473875999450684,
+        "startConcent": 2.158315181732178,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.880311965942383,
         "level": 4,
         "draw": true,
-        "composition": [
-          {
-            "coord": 2
-          },
-          {
-            "coord": 2
-          }
-        ]
+        "composition": null
+      },
+      {
+        "name": "103",
+        "color": {
+          "H": 0.07320261001586914,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 20,
+        "concent": 6.099095344543457,
+        "startConcent": 1.552660822868347,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.351860046386719,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "004",
+        "color": {
+          "H": 0.1261437982320786,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 21,
+        "concent": 3.133581161499023,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.973441123962402,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "220",
+        "color": {
+          "H": 0.03660129755735397,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 22,
+        "concent": 0.6880221366882324,
+        "startConcent": 7.695420265197754,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.385167121887207,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "121",
+        "color": {
+          "H": 0.04640522599220276,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 23,
+        "concent": 3.574501276016235,
+        "startConcent": 0.2242093086242676,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.722808837890625,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "301",
+        "color": {
+          "H": 0.1928104609251022,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 24,
+        "concent": 4.621467113494873,
+        "startConcent": 1.064512729644775,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.933635711669922,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "400",
+        "color": {
+          "H": 0.1156862825155258,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 25,
+        "concent": 0.7705379724502563,
+        "startConcent": 2.231991291046143,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.929771900177002,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "112",
+        "color": {
+          "H": 0.1758170127868652,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 26,
+        "concent": 0.3588764667510986,
+        "startConcent": 1.852134823799133,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.401699066162109,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "310",
+        "color": {
+          "H": 0.01699345372617245,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 27,
+        "concent": 2.94446873664856,
+        "startConcent": 1.693639278411865,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.935227870941162,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "031",
+        "color": {
+          "H": 0.1032679677009583,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 28,
+        "concent": 3.416118144989014,
+        "startConcent": 7.737160682678223,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.15220832824707,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "211",
+        "color": {
+          "H": 0.05751633644104004,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 29,
+        "concent": 6.56116771697998,
+        "startConcent": 6.035870552062988,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.22449779510498,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "013",
+        "color": {
+          "H": 0.1712418496608734,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 30,
+        "concent": 3.331099033355713,
+        "startConcent": 2.276104927062988,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.97422981262207,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "202",
+        "color": {
+          "H": 0.01830064319074154,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 31,
+        "concent": 0.6427847146987915,
+        "startConcent": 5.017714977264404,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.939258098602295,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "130",
+        "color": {
+          "H": 0.09477123618125916,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 32,
+        "concent": 0.3494684100151062,
+        "startConcent": 6.504727840423584,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -8.840826988220215,
+        "level": 4,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "022",
+        "color": {
+          "H": 0.0470588207244873,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 33,
+        "concent": 0.3394196033477783,
+        "startConcent": 3.638804912567139,
+        "creationRate": 0.0,
+        "destructionRate": 0.09999999403953552,
+        "freeEnergy": -7.946651935577393,
+        "level": 4,
+        "draw": true,
+        "composition": null
       }
     ],
     "reactions": [
       {
-        "reactant1_id": 1,
+        "reactant1_id": 2,
         "reactant2_id": 0,
-        "product_id": 2,
+        "product_id": 4,
         "assocRate": 1.0,
-        "dissocRate": 0.6233645081520081,
+        "dissocRate": 0.01146763656288385,
         "idSAT": 0
       },
       {
         "reactant1_id": 1,
         "reactant2_id": 1,
-        "product_id": 3,
-        "assocRate": 0.8169545531272888,
-        "dissocRate": 1.0,
-        "idSAT": 1
-      },
-      {
-        "reactant1_id": 0,
-        "reactant2_id": 3,
         "product_id": 5,
         "assocRate": 1.0,
-        "dissocRate": 0.9808781743049622,
-        "idSAT": 2
+        "dissocRate": 0.01024709083139896,
+        "idSAT": 0
       },
       {
-        "reactant1_id": 1,
+        "reactant1_id": 2,
         "reactant2_id": 2,
-        "product_id": 5,
-        "assocRate": 0.5191883444786072,
-        "dissocRate": 1.0,
-        "idSAT": 3
-      },
-      {
-        "reactant1_id": 1,
-        "reactant2_id": 3,
         "product_id": 6,
         "assocRate": 1.0,
-        "dissocRate": 0.5839021801948547,
-        "idSAT": 4
+        "dissocRate": 0.01881356909871101,
+        "idSAT": 0
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 2,
-        "product_id": 7,
-        "assocRate": 0.4757503569126129,
-        "dissocRate": 1.0,
-        "idSAT": 5
+        "reactant2_id": 0,
+        "product_id": 8,
+        "assocRate": 1.0,
+        "dissocRate": 0.02290857583284378,
+        "idSAT": 0
       },
       {
         "reactant1_id": 1,
-        "reactant2_id": 6,
-        "product_id": 9,
-        "assocRate": 0.6957064270973206,
-        "dissocRate": 1.0,
-        "idSAT": 6
-      },
-      {
-        "reactant1_id": 3,
-        "reactant2_id": 3,
+        "reactant2_id": 8,
         "product_id": 9,
         "assocRate": 1.0,
-        "dissocRate": 0.6856650114059448,
-        "idSAT": 7
+        "dissocRate": 0.08349121361970901,
+        "idSAT": 0
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 6,
-        "product_id": 10,
-        "assocRate": 0.4549942016601562,
-        "dissocRate": 1.0,
-        "idSAT": 8
+        "reactant2_id": 7,
+        "product_id": 9,
+        "assocRate": 1.0,
+        "dissocRate": 0.163544774055481,
+        "idSAT": 0
       },
       {
         "reactant1_id": 1,
         "reactant2_id": 5,
         "product_id": 10,
-        "assocRate": 0.7643299102783203,
-        "dissocRate": 1.0,
-        "idSAT": 9
-      },
-      {
-        "reactant1_id": 3,
-        "reactant2_id": 2,
-        "product_id": 10,
-        "assocRate": 0.485744446516037,
-        "dissocRate": 1.0,
-        "idSAT": 10
-      },
-      {
-        "reactant1_id": 4,
-        "reactant2_id": 2,
-        "product_id": 11,
-        "assocRate": 0.2524517178535461,
-        "dissocRate": 1.0,
-        "idSAT": 11
+        "assocRate": 1.0,
+        "dissocRate": 0.1394883394241333,
+        "idSAT": 0
       },
       {
         "reactant1_id": 1,
-        "reactant2_id": 8,
+        "reactant2_id": 7,
         "product_id": 11,
-        "assocRate": 0.8816568851470947,
-        "dissocRate": 1.0,
-        "idSAT": 12
+        "assocRate": 1.0,
+        "dissocRate": 0.1223160848021507,
+        "idSAT": 0
       },
       {
-        "reactant1_id": 0,
-        "reactant2_id": 8,
+        "reactant1_id": 2,
+        "reactant2_id": 5,
         "product_id": 12,
         "assocRate": 1.0,
-        "dissocRate": 0.7894114851951599,
-        "idSAT": 13
+        "dissocRate": 0.1230689212679863,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 8,
+        "product_id": 13,
+        "assocRate": 1.0,
+        "dissocRate": 0.06349998712539673,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 6,
+        "product_id": 14,
+        "assocRate": 1.0,
+        "dissocRate": 0.09746278077363968,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 7,
+        "product_id": 18,
+        "assocRate": 1.0,
+        "dissocRate": 0.1030838564038277,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 10,
+        "product_id": 19,
+        "assocRate": 1.0,
+        "dissocRate": 0.09731751680374146,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 6,
+        "reactant2_id": 4,
+        "product_id": 20,
+        "assocRate": 0.9143486618995667,
+        "dissocRate": 1.0,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 14,
+        "product_id": 21,
+        "assocRate": 1.0,
+        "dissocRate": 0.1878748089075089,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 8,
+        "reactant2_id": 5,
+        "product_id": 22,
+        "assocRate": 1.0,
+        "dissocRate": 0.972230851650238,
+        "idSAT": 0
       },
       {
         "reactant1_id": 0,
-        "reactant2_id": 5,
-        "product_id": 13,
-        "assocRate": 0.9567418694496155,
+        "reactant2_id": 12,
+        "product_id": 23,
+        "assocRate": 1.0,
+        "dissocRate": 0.129116952419281,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 7,
+        "reactant2_id": 3,
+        "product_id": 23,
+        "assocRate": 1.0,
+        "dissocRate": 0.8049836754798889,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 15,
+        "product_id": 24,
+        "assocRate": 1.0,
+        "dissocRate": 0.2885717153549194,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 8,
+        "reactant2_id": 4,
+        "product_id": 24,
+        "assocRate": 0.7328348755836487,
         "dissocRate": 1.0,
-        "idSAT": 14
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 8,
+        "reactant2_id": 8,
+        "product_id": 25,
+        "assocRate": 1.0,
+        "dissocRate": 0.6857212781906128,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 16,
+        "product_id": 26,
+        "assocRate": 1.0,
+        "dissocRate": 0.09099634736776352,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 7,
+        "reactant2_id": 6,
+        "product_id": 26,
+        "assocRate": 0.9801328182220459,
+        "dissocRate": 1.0,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 15,
+        "product_id": 27,
+        "assocRate": 1.0,
+        "dissocRate": 0.288112610578537,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 10,
+        "product_id": 28,
+        "assocRate": 1.0,
+        "dissocRate": 0.2015590965747833,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 13,
+        "product_id": 29,
+        "assocRate": 1.0,
+        "dissocRate": 0.1842358857393265,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 14,
+        "product_id": 30,
+        "assocRate": 1.0,
+        "dissocRate": 0.187726691365242,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 17,
+        "product_id": 30,
+        "assocRate": 1.0,
+        "dissocRate": 0.129070907831192,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 8,
+        "reactant2_id": 6,
+        "product_id": 31,
+        "assocRate": 1.0,
+        "dissocRate": 0.8270939588546753,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 7,
+        "reactant2_id": 5,
+        "product_id": 32,
+        "assocRate": 0.8281812071800232,
+        "dissocRate": 1.0,
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 6,
+        "reactant2_id": 5,
+        "product_id": 33,
+        "assocRate": 0.5448275208473206,
+        "dissocRate": 1.0,
+        "idSAT": 0
       }
     ],
     "primEnts": [
@@ -1566,983 +3148,11 @@
       },
       {
         "ent_id": 1
+      },
+      {
+        "ent_id": 2
       }
     ],
-    "cycles": [
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 9
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 9
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 9
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 9
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 9
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 9
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 6
-          },
-          {
-            "ent_id": 10
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 10,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 5
-          },
-          {
-            "ent_id": 10
-          },
-          {
-            "ent_id": 11
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          },
-          {
-            "reac_id": 9,
-            "dir": true
-          },
-          {
-            "reac_id": 10,
-            "dir": false
-          },
-          {
-            "reac_id": 11,
-            "dir": true
-          },
-          {
-            "reac_id": 12,
-            "dir": false
-          }
-        ]
-      }
-    ]
+    "cycles": null
   }
 }

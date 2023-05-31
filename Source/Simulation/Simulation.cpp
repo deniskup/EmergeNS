@@ -82,18 +82,19 @@ void Simulation::filterReached()
 			if (r1->reached && r2->reached && !p->reached)
 			{
 				p->reached = true;
-				r->reached = true;
 				progress = true;
 			}
 			if ((!r1->reached || !r2->reached) && p->reached)
 			{
         r1->reached = true;
 				r2->reached = true;
-				r->reached = true;
 				progress = true;
 			}
-			if (r->reached)
+			if (progress){
+        r->reached = true;
 				reacToCheck.removeFirstMatchingValue(r);
+        break;
+      }
 		}
 	}
 	
@@ -679,6 +680,9 @@ void Simulation::fetchGenerate()
   }
   // ready->setValue(true);
   ready = true;
+
+  //filter unreached entities and reactions
+  filterReached();
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();

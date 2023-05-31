@@ -5,7 +5,7 @@
 
 juce_ImplementSingleton(Statistics)
 
-Statistics::Statistics() : simul(Simulation::getInstance())
+    Statistics::Statistics() : simul(Simulation::getInstance())
 //    saveSimBT("Save"),
 //    loadSimBT("Load")
 // uiStep(1)
@@ -65,7 +65,7 @@ void Statistics::launchSim()
         // set initial values
         // launch simulation
         nbSim++;
-        //LOG("nbSim " <<nbSim);
+        // LOG("nbSim " <<nbSim);
         genStartConcents();
         simul->start(true);
     }
@@ -78,9 +78,10 @@ void Statistics::launchSim()
 void Statistics::computeStats()
 {
     maxNbSim = Generation::getInstance()->numRuns->intValue();
-    // we take 10 times the epsilon speed *dt.
-    epsilon = 10 * simul->epsilonEq->floatValue() * simul->dt->floatValue();
+    // we take epsFacto times the epsilon speed *dt.
+    epsilon = Generation::getInstance()->epsFactor->intValue() * simul->epsilonEq->floatValue() * simul->dt->floatValue();
 
+    LOG("Epsilon: " << epsilon);
     // processed so far
     nbSim = 0;
 
@@ -90,7 +91,7 @@ void Statistics::computeStats()
 
 void Statistics::newMessage(const Simulation::SimulationEvent &ev)
 {
-    //ignore if not in express mode
+    // ignore if not in express mode
     if (!simul->express)
         return;
     switch (ev.type)
@@ -121,13 +122,21 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
 
 void Statistics::printSteadyStates()
 {
-    // print steady states
-    for (int i = 0; i < steadyStates.size(); i++)
+    LOG("Steady state 0: ");
+    for (int j = 0; j < steadyStates[0].size(); j++)
     {
-        LOG("Steady state " << i << ": ");
-        for(auto v : steadyStates[i])
+        LOG(j << ":  " << steadyStates[0][j]);
+    }
+
+    // print differential steady states
+    for (int i = 1; i < steadyStates.size(); i++)
+    {
+        LOG("Diff Steady state " << i << ": ");
+        for (int j = 0; j < steadyStates[i].size(); j++)
         {
-            LOG("    "<<v);
+            float d = steadyStates[i][j] - steadyStates[0][j];
+            if (abs(d) > epsilon)
+                LOG(j << ":  " << d);
         }
     }
 }
