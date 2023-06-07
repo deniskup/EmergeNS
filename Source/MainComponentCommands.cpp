@@ -13,6 +13,7 @@ namespace NSCommandIDs
 	static const int computeBarriers = 0x60005;
 	static const int clearLists = 0x60006;
 	static const int PACwithZ3 = 0x60007;
+	static const int fetchManual = 0x60008;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -45,8 +46,13 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 	
 
 	case NSCommandIDs::loadManual:
-		result.setInfo("Load Lists", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("l").getKeyCode(), ModifierKeys::commandModifier);
+		result.setInfo("Simul->Lists", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("l").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+	
+	case NSCommandIDs::fetchManual:
+		result.setInfo("Lists->Simul", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("f").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
 	case NSCommandIDs::computeBarriers:
@@ -77,6 +83,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
 		NSCommandIDs::loadManual,
+		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists
 		};
@@ -97,6 +104,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::fetchManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 	}
@@ -149,6 +157,12 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::loadManual:
 	{
 		Simulation::getInstance()->loadToManualMode();
+	}
+	break;
+
+	case NSCommandIDs::fetchManual:
+	{
+		Simulation::getInstance()->fetchManual();
 	}
 	break;
 
