@@ -1,5 +1,7 @@
 -bug a regler: ignore free energy/barriers does not work.
 
+-energies de liaison pour calculer libre: faire comme Sarkar
+
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
 
