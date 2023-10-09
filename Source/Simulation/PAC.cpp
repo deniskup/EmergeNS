@@ -328,7 +328,7 @@ void PAClist::PACsWithZ3()
 
 	int maxSize = jmin(simul->entities.size(), simul->reactions.size(), Settings::getInstance()->maxDiameterPACs->intValue());
 
-	for (int pacSize = 3; pacSize < maxSize; pacSize++)
+	for (int pacSize = 3; pacSize <= maxSize; pacSize++)
 	{
 		int pacsFound = 0;
 		stringstream sizeClauses;
