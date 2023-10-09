@@ -79,12 +79,12 @@ void Simulation::filterReached()
 			SimEntity *r1 = r->reactant1;
 			SimEntity *r2 = r->reactant2;
 			SimEntity *p = r->product;
-			if (r1->reached && r2->reached && !p->reached)
+			if (r1->reached && r2->reached)
 			{
 				p->reached = true;
 				progress = true;
 			}
-			if ((!r1->reached || !r2->reached) && p->reached)
+			if (p->reached)
 			{
         r1->reached = true;
 				r2->reached = true;
@@ -113,8 +113,8 @@ void Simulation::filterReached()
   {
     if (!reactions[i]->reached)
     {
+      cout << "removed reaction " << reactions[i]->name << endl;
       reactions.remove(i);
-      cout << "removed reaction " << i << endl;
     }
   }
 
@@ -578,7 +578,7 @@ void Simulation::fetchGenerate()
           {
             if (cd->compo == newCompo)
             { // if exists
-              // NLOG("Compos","Exists "<<ent1->name<< " + "<<ent2->name);
+             // NLOG("Compos","Exists "<<ent1->name<< " + "<<ent2->name);
               cd->add(ent1, ent2);
               exists = true;
               break;
@@ -586,7 +586,7 @@ void Simulation::fetchGenerate()
           }
           if (!exists)
           {
-            //  NLOG("Compos","New "<<ent1->name<< " + "<<ent2->name);
+            //NLOG("Compos","New "<<ent1->name<< " + "<<ent2->name);
             Array<Decomp> dec(make_pair(ent1, ent2));
             compos.add(new CompoDecomps(newCompo, dec));
           }
@@ -663,7 +663,7 @@ void Simulation::fetchGenerate()
         }
         // remove this decomposition
         compos[idComp]->decomps.remove(idDecomp);
-        if (nbReacDone == nbReac && mode != PROPREACTIONS)
+        if (nbReacDone == nbReac && mode != PROPREACTIONS) //ignore nbReac if mode is PROPREACTIONS
           reacFinished = true;
         if (compos[idComp]->decomps.size() == 0)
           reacFinished = true;

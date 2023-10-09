@@ -1,16 +1,13 @@
 -bug a regler: ignore free energy/barriers does not work.
 
--toutes réactions sur 4 niveaux 1 primaire: pourquoi 1+3=4 manque
-
 -energies de liaison pour calculer libre: faire comme Sarkar
 
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
 
-
 - Cocher ce qui doit être généré
 - detecter entités non atteintes dans computeCompositions, et donner l'option de les enlever automatiquement de la sim ?
-- propEntities
+- propEntities -> fixer maxReacPerEnt pour les autres cas
 - donner la possibilité d'exporter les dynamiques temporelles
 - Version ligne de commandes?
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui

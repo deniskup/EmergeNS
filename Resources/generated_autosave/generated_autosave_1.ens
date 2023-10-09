@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1149,
+      "width": 1618,
+      "height": 780,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1149,
+          "width": 1618,
+          "height": 780,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 658,
-              "height": 1149,
-              "currentContent": "Entities",
+              "width": 507,
+              "height": 780,
+              "currentContent": "Reactions",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 1256,
-              "height": 1149,
+              "width": 1105,
+              "height": 780,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 882,
-                  "height": 1149,
+                  "width": 806,
+                  "height": 780,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 882,
-                      "height": 651,
+                      "width": 806,
+                      "height": 466,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -87,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 882,
-                      "height": 492,
+                      "width": 806,
+                      "height": 307,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -100,9 +100,9 @@
                 },
                 {
                   "type": 0,
-                  "width": 368,
-                  "height": 1149,
-                  "currentContent": "Logger",
+                  "width": 292,
+                  "height": 780,
+                  "currentContent": "Settings",
                   "tabs": [
                     {
                       "name": "Logger"
@@ -144,14 +144,6 @@
       {
         "value": 0.5,
         "controlAddress": "/maxConcent"
-      },
-      {
-        "value": true,
-        "controlAddress": "/autoScale"
-      },
-      {
-        "value": true,
-        "controlAddress": "/detectEquil"
       }
     ]
   },
@@ -160,25 +152,25 @@
       {
         "parameters": [
           {
-            "value": 46.14357376098633,
+            "value": 45.76396560668945,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1114353314042091,
+            "value": 0.1400094479322433,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 22.44027137756348,
+            "value": 35.98094177246094,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.5153743028640747,
-            "controlAddress": "/concent"
+            "value": 1.867017507553101,
+            "controlAddress": "/conc"
           },
           {
             "value": [
               1.0,
-              0.09019608050584793,
+              0.07450980693101883,
               0.0,
               1.0
             ],
@@ -199,26 +191,26 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.05935946479439735,
+            "value": 0.09582740068435669,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 17.80000305175781,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 13.95221519470215,
-            "controlAddress": "/concent"
+            "value": 4.253657817840576,
+            "controlAddress": "/conc"
           },
           {
-            "value": -8.765754699707031,
+            "value": -8.890568733215332,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.0235294122248888,
               0.0,
               1.0,
+              0.7921568751335144,
               1.0
             ],
             "controlAddress": "/color"
@@ -238,7 +230,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.05658693984150887,
+            "value": 0.1350035071372986,
             "controlAddress": "/destructionRate"
           },
           {
@@ -246,17 +238,17 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 8.756439208984375,
-            "controlAddress": "/concent"
+            "value": 47.24592590332031,
+            "controlAddress": "/conc"
           },
           {
-            "value": -12.93689918518066,
+            "value": -12.56542301177979,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.7803921699523926,
               0.0,
+              0.1882352977991104,
               1.0,
               1.0
             ],
@@ -277,7 +269,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1050329953432083,
+            "value": 0.07549945265054703,
             "controlAddress": "/destructionRate"
           },
           {
@@ -285,24 +277,63 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 100.0,
-            "controlAddress": "/concent"
+            "value": 4.821998596191406,
+            "controlAddress": "/conc"
           },
           {
-            "value": -16.9420051574707,
+            "value": -16.40311431884766,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.4549019634723663,
               0.0,
+              0.9607843160629272,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
         "niceName": "4",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1051754131913185,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 45.21033096313477,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -20.0,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.9843137264251709,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "5",
         "type": "Entity"
       }
     ],
@@ -321,11 +352,11 @@
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/3",
+            "value": "/1",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/4",
+            "value": "/2",
             "controlAddress": "/product"
           },
           {
@@ -333,7 +364,7 @@
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+3=4",
+        "niceName": "1+1=2",
         "type": "Reaction"
       },
       {
@@ -379,6 +410,28 @@
         ],
         "niceName": "2+2=4",
         "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/2",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/3",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/5",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "2+3=5",
+        "type": "Reaction"
       }
     ],
     "viewOffset": [
@@ -393,6 +446,11 @@
         "value": 1,
         "hexMode": false,
         "controlAddress": "/primaryEntities"
+      },
+      {
+        "value": 5,
+        "hexMode": false,
+        "controlAddress": "/levels"
       },
       {
         "value": "PropReactions",
@@ -446,10 +504,6 @@
         "controlAddress": "/maxNumOfCurves"
       },
       {
-        "value": false,
-        "controlAddress": "/statistics"
-      },
-      {
         "value": 500,
         "hexMode": false,
         "controlAddress": "/epsFactor"
@@ -457,122 +511,179 @@
     ]
   },
   "settings": {
+    "parameters": [
+      {
+        "value": false,
+        "controlAddress": "/printPACsToFile"
+      },
+      {
+        "value": true,
+        "controlAddress": "/autoLoadLists"
+      }
+    ]
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 101.5910186767578,
-    "recordEntity": "4",
-    "recordDrawn": 101.5910186767578,
-    "recordDrawnEntity": "4",
-    "numLevels": -1,
-    "PACsGenerated": true,
+    "recordConcent": 47.24592590332031,
+    "recordEntity": "3",
+    "recordDrawn": 47.24592590332031,
+    "recordDrawnEntity": "3",
+    "numLevels": 5,
+    "PACsGenerated": false,
     "entities": [
       {
         "name": "1",
         "color": {
-          "H": 0.01503266952931881,
+          "H": 0.01241829060018063,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
-        "id": -1,
-        "concent": 0.5153743028640747,
-        "startConcent": 22.44027137756348,
-        "creationRate": 46.14357376098633,
-        "destructionRate": 0.1114353314042091,
+        "id": 0,
+        "concent": 1.867017507553101,
+        "startConcent": 35.98094177246094,
+        "creationRate": 45.76396560668945,
+        "destructionRate": 0.1400094479322433,
         "freeEnergy": 0.0,
-        "level": -1,
+        "level": 1,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 1
+          }
+        ]
       },
       {
         "name": "2",
         "color": {
-          "H": 0.6705882549285889,
+          "H": 0.4653595089912415,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 13.95221519470215,
-        "startConcent": 17.80000305175781,
+        "id": 1,
+        "concent": 4.253657817840576,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.05935946479439735,
-        "freeEnergy": -8.765754699707031,
-        "level": -1,
+        "destructionRate": 0.09582740068435669,
+        "freeEnergy": -8.890568733215332,
+        "level": 2,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 2
+          }
+        ]
       },
       {
         "name": "3",
         "color": {
-          "H": 0.7967320680618286,
+          "H": 0.6352941393852234,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 8.756439208984375,
+        "id": 2,
+        "concent": 47.24592590332031,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.05658693984150887,
-        "freeEnergy": -12.93689918518066,
-        "level": -1,
+        "destructionRate": 0.1350035071372986,
+        "freeEnergy": -12.56542301177979,
+        "level": 3,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 3
+          }
+        ]
       },
       {
         "name": "4",
         "color": {
-          "H": 0.07581698894500732,
+          "H": 0.8398692607879639,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 101.5910186767578,
+        "id": 3,
+        "concent": 4.821998596191406,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1050329953432083,
-        "freeEnergy": -16.9420051574707,
-        "level": -1,
+        "destructionRate": 0.07549945265054703,
+        "freeEnergy": -16.40311431884766,
+        "level": 4,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 4
+          }
+        ]
+      },
+      {
+        "name": "5",
+        "color": {
+          "H": 0.1640522927045822,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 4,
+        "concent": 45.21033096313477,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1051754131913185,
+        "freeEnergy": -20.57938575744629,
+        "level": 5,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 5
+          }
+        ]
       }
     ],
     "reactions": [
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1_id": 0,
+        "reactant2_id": 0,
+        "product_id": 1,
         "assocRate": 1.0,
-        "dissocRate": 0.01822235807776451,
+        "dissocRate": 0.0001376813306706026,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1_id": 0,
+        "reactant2_id": 1,
+        "product_id": 2,
         "assocRate": 1.0,
-        "dissocRate": 0.01543458551168442,
-        "idSAT": 1
+        "dissocRate": 0.02535310015082359,
+        "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
-        "assocRate": 0.5546021461486816,
+        "reactant1_id": 1,
+        "reactant2_id": 1,
+        "product_id": 3,
+        "assocRate": 0.2520763874053955,
         "dissocRate": 1.0,
-        "idSAT": 2
+        "idSAT": 0
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 2,
+        "product_id": 4,
+        "assocRate": 0.2331690043210983,
+        "dissocRate": 1.0,
+        "idSAT": 0
       }
     ],
     "primEnts": [
       {
-        "ent_id": -1
+        "ent_id": 0
       }
     ],
     "cycles": null
