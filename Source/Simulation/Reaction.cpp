@@ -96,25 +96,35 @@ void Reaction::inferEntities()
   // if name is A+B, infer entities
   String name = niceName;
   int pos = name.indexOfChar('+');
+  int pos2 = name.indexOfChar('=');
   if (pos > 0)
   {
     String name1 = name.substring(0, pos).trim();
-    String name2 = name.substring(pos + 1).trim();
-    Entity *e1 = EntityManager::getInstance()->getEntityFromName(name1);
-    Entity *e2 = EntityManager::getInstance()->getEntityFromName(name2);
-    if (e1 != nullptr && e2 != nullptr)
-    {
-      // compute product by summing up reactants
-      String namep;
+    String name2;
+    String namep;
+    if(pos2>0){
+      name2 = name.substring(pos + 1,pos2).trim();
+      namep= name.substring(pos2 + 1).trim();}
+    else{
+      name2 = name.substring(pos + 1).trim();
       for (int i = 0; i < name1.length(); i++)
       {
         namep += (char)((name1[i]-'0') + (name2[i]-'0') + '0');
       }
+    }
+
+    Entity *e1 = EntityManager::getInstance()->getEntityFromName(name1);
+    Entity *e2 = EntityManager::getInstance()->getEntityFromName(name2);
+    if (e1 != nullptr && e2 != nullptr)
+    {
+      reactant1->setValueFromTarget(e1, false);
+      reactant2->setValueFromTarget(e2, false);
+      // compute product by summing up reactants
+      
       Entity *ep = EntityManager::getInstance()->getEntityFromName(namep);
       if (ep != nullptr)
       {
-        reactant1->setValueFromTarget(e1, false);
-        reactant2->setValueFromTarget(e2, false);
+
         product->setValueFromTarget(ep, false);
       }
       else
