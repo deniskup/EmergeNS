@@ -96,6 +96,16 @@ void EntityManager::computeReachedEntReacs()
 	if(!unreached) LOG("All entities are reached from primary ones");
 }
 
+Entity* EntityManager::getEntityFromName(String searchName)
+{
+	for (auto &e : items)
+	{
+		if (e->niceName == searchName)
+			return e;
+	}
+	return nullptr;
+}
+
 int EntityManager::computeCompositions()
 {
 	computeReachedEntReacs();

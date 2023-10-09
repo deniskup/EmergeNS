@@ -26,4 +26,6 @@ public:
 	// normalise energies by setting primary entities to zero and propogating to composite ones
 	void normEnergies();
 
+	Entity *getEntityFromName(String name);
+
 };

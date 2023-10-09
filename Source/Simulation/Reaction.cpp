@@ -38,7 +38,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
 {
   addParams();
 
-  simReac= r;
+  simReac = r;
 
   Entity *e1 = r->reactant1->entity;
   Entity *e2 = r->reactant2->entity;
@@ -47,12 +47,22 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   reactant1->setValueFromTarget(e1, false);
   reactant2->setValueFromTarget(e2, false);
   product->setValueFromTarget(e3, false);
-  if(r->energy<-.5f) r->computeBarrier();
+  if (r->energy < -.5f)
+    r->computeBarrier();
   energy->setValue(r->energy);
   assocRate->setValue(r->assocRate);
   dissocRate->setValue(r->dissocRate);
-  r->reaction= this;
+  r->reaction = this;
 
+  updateLinks();
+}
+
+Reaction::~Reaction()
+{
+}
+
+void Reaction::updateLinks()
+{
   // update links to entity to listen to changes
   linkedR1 = reactant1->targetContainer.get();
   registerLinkedInspectable(linkedR1.get());
@@ -77,17 +87,54 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
   }
 
-
   updateWarnAndRates();
 }
 
-Reaction::~Reaction()
+void Reaction::inferEntities()
 {
+  //cout << "trying to infer entities" << endl;
+  // if name is A+B, infer entities
+  String name = niceName;
+  int pos = name.indexOfChar('+');
+  if (pos > 0)
+  {
+    String name1 = name.substring(0, pos).trim();
+    String name2 = name.substring(pos + 1).trim();
+    Entity *e1 = EntityManager::getInstance()->getEntityFromName(name1);
+    Entity *e2 = EntityManager::getInstance()->getEntityFromName(name2);
+    if (e1 != nullptr && e2 != nullptr)
+    {
+      // compute product by summing up reactants
+      String namep;
+      for (int i = 0; i < name1.length(); i++)
+      {
+        namep += (char)((name1[i]-'0') + (name2[i]-'0') + '0');
+      }
+      Entity *ep = EntityManager::getInstance()->getEntityFromName(namep);
+      if (ep != nullptr)
+      {
+        reactant1->setValueFromTarget(e1, false);
+        reactant2->setValueFromTarget(e2, false);
+        product->setValueFromTarget(ep, false);
+      }
+      else
+      {
+        NLOG("InferEntities", "Could not infer product "+namep+" for reaction " + name);
+        return;
+      }
+    }
+    updateLinks();
+  }
+}
+
+void Reaction::onContainerNiceNameChanged()
+{
+  inferEntities();
 }
 
 void Reaction::onContainerParameterChangedInternal(Parameter *p)
 {
-  // listen to parameter changes for the linked entities
+
   if (p == reactant1)
   {
     // unregister old one
@@ -139,7 +186,8 @@ void Reaction::onContainerParameterChangedInternal(Parameter *p)
     }
   }
   updateWarnAndRates();
-  if(simReac!=nullptr) simReac->toImport=true;
+  if (simReac != nullptr)
+    simReac->toImport = true;
 }
 
 void Reaction::onExternalParameterValueChanged(Parameter *p)

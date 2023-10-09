@@ -34,7 +34,13 @@ public:
 
     void updateWarnAndRates();
 
+    void updateLinks();
+
+    void inferEntities();
+
     bool shouldIncludeInSimulation();
+
+    void onContainerNiceNameChanged() override;
     //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
     void onContainerParameterChangedInternal(Parameter *p) override;
     // External refers to the parameter not being a direct child of this container
