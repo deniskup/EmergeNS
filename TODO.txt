@@ -2,12 +2,9 @@
 
 -energies de liaison pour calculer libre: faire comme Sarkar
 
-- detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
 - Classement des entités par alpha numérique (comme les réactions)
 
 - Cocher ce qui doit être généré
-- detecter entités non atteintes dans computeCompositions, et donner l'option de les enlever automatiquement de la sim ?
-- propEntities -> fixer maxReacPerEnt pour les autres cas
 - donner la possibilité d'exporter les dynamiques temporelles
 - Version ligne de commandes?
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
@@ -22,10 +19,6 @@ si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
 - variance sur les états d'équilibre
 
 choisir un systeme interessant et regarder comment ça varie (RACs, équilibre) en fonction des concentrations initiales
-
-en mode manuel: 
--à partir des réactants inférer les produits
--à partir du nom de réaction X+Y, inférer réactions et produits
 
 Etat d'équilibre : vecteur des concentrations
 ACP sur les états d'équilibre pour trouver les paramètres les plus pertinentss.
