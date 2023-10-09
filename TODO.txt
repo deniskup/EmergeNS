@@ -1,5 +1,7 @@
 -bug a regler: ignore free energy/barriers does not work.
 
+-toutes réactions sur 4 niveaux 1 primaire: pourquoi 1+3=4 manque
+
 -energies de liaison pour calculer libre: faire comme Sarkar
 
 - detecter equilibre: lancer version simple de la simul pour détecter l'équilibre, sans checkpoints, puis relancer avec checkpoints
@@ -24,6 +26,9 @@ si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
 
 choisir un systeme interessant et regarder comment ça varie (RACs, équilibre) en fonction des concentrations initiales
 
+en mode manuel: 
+-à partir des réactants inférer les produits
+-à partir du nom de réaction X+Y, inférer réactions et produits
 
 Etat d'équilibre : vecteur des concentrations
 ACP sur les états d'équilibre pour trouver les paramètres les plus pertinentss.
