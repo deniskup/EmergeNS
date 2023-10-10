@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1149,
+      "width": 1366,
+      "height": 697,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1149,
+          "width": 1366,
+          "height": 697,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 658,
-              "height": 1149,
-              "currentContent": "Reactions",
+              "width": 381,
+              "height": 697,
+              "currentContent": "Generation",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 1256,
-              "height": 1149,
+              "width": 979,
+              "height": 697,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 882,
-                  "height": 1149,
+                  "width": 744,
+                  "height": 697,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 882,
-                      "height": 651,
+                      "width": 744,
+                      "height": 425,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -87,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 882,
-                      "height": 492,
+                      "width": 744,
+                      "height": 266,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -100,9 +100,9 @@
                 },
                 {
                   "type": 0,
-                  "width": 368,
-                  "height": 1149,
-                  "currentContent": "Settings",
+                  "width": 229,
+                  "height": 697,
+                  "currentContent": "Logger",
                   "tabs": [
                     {
                       "name": "Logger"
@@ -144,10 +144,6 @@
       {
         "value": 0.5,
         "controlAddress": "/maxConcent"
-      },
-      {
-        "value": true,
-        "controlAddress": "/unicolor"
       }
     ]
   },
@@ -156,25 +152,25 @@
       {
         "parameters": [
           {
-            "value": 46.4666633605957,
+            "value": 46.58519744873047,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.09704701602458954,
+            "value": 0.1315934807062149,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 37.40139007568359,
+            "value": 19.7840690612793,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.1056803166866302,
+            "value": 19.7840690612793,
             "controlAddress": "/conc"
           },
           {
             "value": [
               1.0,
-              0.2196078449487686,
+              0.8509804010391235,
               0.0,
               1.0
             ],
@@ -195,7 +191,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1415631920099258,
+            "value": 0.1025313138961792,
             "controlAddress": "/destructionRate"
           },
           {
@@ -203,18 +199,18 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 9.328812599182129,
+            "value": 0.0,
             "controlAddress": "/conc"
           },
           {
-            "value": -8.510297775268555,
+            "value": -8.039361953735352,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
               1.0,
-              0.2431372553110123,
+              0.196078434586525,
               1.0
             ],
             "controlAddress": "/color"
@@ -234,7 +230,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.09835994988679886,
+            "value": 0.08488205820322037,
             "controlAddress": "/destructionRate"
           },
           {
@@ -242,17 +238,17 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 16.41389083862305,
+            "value": 0.0,
             "controlAddress": "/conc"
           },
           {
-            "value": -12.52567291259766,
+            "value": -12.58199214935303,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.2784313857555389,
+              0.4235294163227081,
               1.0,
               1.0
             ],
@@ -273,7 +269,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1068732440471649,
+            "value": 0.103299655020237,
             "controlAddress": "/destructionRate"
           },
           {
@@ -281,16 +277,16 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 45.36707305908203,
+            "value": 0.0,
             "controlAddress": "/conc"
           },
           {
-            "value": -16.34819221496582,
+            "value": -16.76122665405273,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.4235294163227081,
+              0.4431372582912445,
               0.0,
               1.0,
               1.0
@@ -312,7 +308,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.06894112378358841,
+            "value": 0.06553971767425537,
             "controlAddress": "/destructionRate"
           },
           {
@@ -320,7 +316,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 54.24429702758789,
+            "value": 0.0,
             "controlAddress": "/conc"
           },
           {
@@ -330,8 +326,8 @@
           {
             "value": [
               1.0,
-              0.1411764770746231,
               0.0,
+              0.1176470592617989,
               1.0
             ],
             "controlAddress": "/color"
@@ -351,7 +347,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.05236868932843208,
+            "value": 0.09798003733158112,
             "controlAddress": "/destructionRate"
           },
           {
@@ -359,7 +355,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.078049659729004,
+            "value": 0.0,
             "controlAddress": "/conc"
           },
           {
@@ -369,7 +365,7 @@
           {
             "value": [
               1.0,
-              0.5333333611488342,
+              0.8666666746139526,
               0.0,
               1.0
             ],
@@ -435,28 +431,6 @@
       {
         "parameters": [
           {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/3",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/4",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "1+3=4",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
             "value": "/2",
             "controlAddress": "/reactant1"
           },
@@ -474,6 +448,28 @@
           }
         ],
         "niceName": "2+2=4",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/3",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/4",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "1+3=4",
         "type": "Reaction"
       },
       {
@@ -523,6 +519,28 @@
       {
         "parameters": [
           {
+            "value": "/1",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/5",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/6",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "1+5=6",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
             "value": "/2",
             "controlAddress": "/reactant1"
           },
@@ -562,28 +580,6 @@
           }
         ],
         "niceName": "3+3=6",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/5",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/6",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "1+5=6",
         "type": "Reaction"
       }
     ],
@@ -664,129 +660,159 @@
     ]
   },
   "settings": {
+    "parameters": [
+      {
+        "value": true,
+        "controlAddress": "/printPACsToFile"
+      }
+    ]
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 54.24429702758789,
-    "recordEntity": "5",
-    "recordDrawn": 54.24429702758789,
-    "recordDrawnEntity": "5",
+    "recordConcent": 53.85099411010742,
+    "recordEntity": "6",
+    "recordDrawn": 53.85099411010742,
+    "recordDrawnEntity": "",
     "numLevels": 6,
     "PACsGenerated": true,
     "entities": [
       {
         "name": "1",
         "color": {
-          "H": 0.03660129755735397,
+          "H": 0.1418300718069077,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 0,
-        "concent": 0.1056803166866302,
-        "startConcent": 37.40139007568359,
-        "creationRate": 46.4666633605957,
-        "destructionRate": 0.09704701602458954,
+        "concent": 19.7840690612793,
+        "startConcent": 19.7840690612793,
+        "creationRate": 46.58519744873047,
+        "destructionRate": 0.1315934807062149,
         "freeEnergy": 0.0,
         "level": 1,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 1
+          }
+        ]
       },
       {
         "name": "2",
         "color": {
-          "H": 0.3738561868667603,
+          "H": 0.3660130500793457,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 1,
-        "concent": 9.328812599182129,
+        "concent": 0.0,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1415631920099258,
-        "freeEnergy": -8.510297775268555,
+        "destructionRate": 0.1025313138961792,
+        "freeEnergy": -8.039361953735352,
         "level": 2,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 2
+          }
+        ]
       },
       {
         "name": "3",
         "color": {
-          "H": 0.6202614307403564,
+          "H": 0.5960783958435059,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 2,
-        "concent": 16.41389083862305,
+        "concent": 0.0,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.09835994988679886,
-        "freeEnergy": -12.52567291259766,
+        "destructionRate": 0.08488205820322037,
+        "freeEnergy": -12.58199214935303,
         "level": 3,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 3
+          }
+        ]
       },
       {
         "name": "4",
         "color": {
-          "H": 0.7372549772262573,
+          "H": 0.7405228614807129,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 3,
-        "concent": 45.36707305908203,
+        "concent": 0.0,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1068732440471649,
-        "freeEnergy": -16.34819221496582,
+        "destructionRate": 0.103299655020237,
+        "freeEnergy": -16.76122665405273,
         "level": 4,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 4
+          }
+        ]
       },
       {
         "name": "5",
         "color": {
-          "H": 0.02352940104901791,
+          "H": 0.9803921580314636,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 4,
-        "concent": 54.24429702758789,
+        "concent": 0.0,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.06894112378358841,
-        "freeEnergy": -20.0,
+        "destructionRate": 0.06553971767425537,
+        "freeEnergy": -20.63414764404297,
         "level": 5,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 5
+          }
+        ]
       },
       {
         "name": "6",
         "color": {
-          "H": 0.08888888359069824,
+          "H": 0.1444444507360458,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 5,
-        "concent": 2.078049659729004,
+        "concent": 0.0,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.05236868932843208,
-        "freeEnergy": -20.0,
+        "destructionRate": 0.09798003733158112,
+        "freeEnergy": -25.59242248535156,
         "level": 6,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 6
+          }
+        ]
       }
     ],
     "reactions": [
@@ -795,7 +821,7 @@
         "reactant2_id": 0,
         "product_id": 1,
         "assocRate": 1.0,
-        "dissocRate": 0.0002013838529819623,
+        "dissocRate": 0.0003225146501790732,
         "idSAT": 0
       },
       {
@@ -803,23 +829,23 @@
         "reactant2_id": 1,
         "product_id": 2,
         "assocRate": 1.0,
-        "dissocRate": 0.01803618669509888,
+        "dissocRate": 0.0106453699991107,
         "idSAT": 1
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 1,
+        "product_id": 3,
+        "assocRate": 1.0,
+        "dissocRate": 0.505350649356842,
+        "idSAT": 2
       },
       {
         "reactant1_id": 0,
         "reactant2_id": 2,
         "product_id": 3,
         "assocRate": 1.0,
-        "dissocRate": 0.021872628480196,
-        "idSAT": 2
-      },
-      {
-        "reactant1_id": 1,
-        "reactant2_id": 1,
-        "product_id": 3,
-        "assocRate": 0.5104802250862122,
-        "dissocRate": 1.0,
+        "dissocRate": 0.01531022321432829,
         "idSAT": 3
       },
       {
@@ -827,39 +853,39 @@
         "reactant2_id": 3,
         "product_id": 4,
         "assocRate": 1.0,
-        "dissocRate": 0.02594418451189995,
+        "dissocRate": 0.02079753205180168,
         "idSAT": 4
       },
       {
         "reactant1_id": 1,
         "reactant2_id": 2,
         "product_id": 4,
-        "assocRate": 0.3548817336559296,
-        "dissocRate": 1.0,
+        "assocRate": 1.0,
+        "dissocRate": 0.9872869849205017,
         "idSAT": 5
-      },
-      {
-        "reactant1_id": 1,
-        "reactant2_id": 3,
-        "product_id": 5,
-        "assocRate": 0.007762196008116007,
-        "dissocRate": 1.0,
-        "idSAT": 6
-      },
-      {
-        "reactant1_id": 2,
-        "reactant2_id": 2,
-        "product_id": 5,
-        "assocRate": 0.006400713231414557,
-        "dissocRate": 1.0,
-        "idSAT": 7
       },
       {
         "reactant1_id": 0,
         "reactant2_id": 4,
         "product_id": 5,
         "assocRate": 1.0,
-        "dissocRate": 1.0,
+        "dissocRate": 0.007025036495178938,
+        "idSAT": 6
+      },
+      {
+        "reactant1_id": 1,
+        "reactant2_id": 3,
+        "product_id": 5,
+        "assocRate": 1.0,
+        "dissocRate": 0.4530132710933685,
+        "idSAT": 7
+      },
+      {
+        "reactant1_id": 2,
+        "reactant2_id": 2,
+        "product_id": 5,
+        "assocRate": 1.0,
+        "dissocRate": 0.6515258550643921,
         "idSAT": 8
       }
     ],
@@ -875,23 +901,23 @@
             "ent_id": 0
           },
           {
-            "ent_id": 2
+            "ent_id": 1
           },
           {
-            "ent_id": 5
+            "ent_id": 3
           }
         ],
         "reacDirs": [
           {
-            "reac_id": 1,
+            "reac_id": 0,
             "dir": true
           },
           {
-            "reac_id": 7,
+            "reac_id": 2,
             "dir": true
           },
           {
-            "reac_id": 8,
+            "reac_id": 3,
             "dir": false
           }
         ]
@@ -899,26 +925,53 @@
       {
         "entities": [
           {
+            "ent_id": 1
+          },
+          {
             "ent_id": 2
           },
           {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
+            "ent_id": 3
           }
         ],
         "reacDirs": [
           {
-            "reac_id": 5,
+            "reac_id": 1,
             "dir": false
           },
           {
-            "reac_id": 7,
+            "reac_id": 2,
             "dir": true
           },
           {
-            "reac_id": 8,
+            "reac_id": 3,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 4,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
             "dir": false
           }
         ]
@@ -953,7 +1006,7 @@
       {
         "entities": [
           {
-            "ent_id": 1
+            "ent_id": 0
           },
           {
             "ent_id": 2
@@ -972,61 +1025,7 @@
             "dir": false
           },
           {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
+            "reac_id": 8,
             "dir": true
           }
         ]
@@ -1050,10 +1049,125 @@
           },
           {
             "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
             "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": false
           },
           {
             "reac_id": 8,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 8,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 8,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 7,
             "dir": false
           }
         ]
@@ -1064,6 +1178,9 @@
             "ent_id": 1
           },
           {
+            "ent_id": 2
+          },
+          {
             "ent_id": 3
           },
           {
@@ -1071,6 +1188,112 @@
           }
         ],
         "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 8,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 5,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
           {
             "reac_id": 3,
             "dir": true
@@ -1095,143 +1318,18 @@
           },
           {
             "ent_id": 3
+          },
+          {
+            "ent_id": 5
           }
         ],
         "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
           {
             "reac_id": 2,
             "dir": false
           },
           {
             "reac_id": 3,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 5,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 5,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 5,
             "dir": true
           },
           {
@@ -1240,147 +1338,7 @@
           },
           {
             "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
             "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 5,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 7,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 5,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 5,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
           }
         ]
       },
@@ -1405,15 +1363,15 @@
             "dir": false
           },
           {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
+            "reac_id": 2,
             "dir": true
           },
           {
             "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
             "dir": false
           }
         ]
@@ -1421,13 +1379,47 @@
       {
         "entities": [
           {
-            "ent_id": 1
+            "ent_id": 0
           },
           {
             "ent_id": 2
           },
           {
-            "ent_id": 4
+            "ent_id": 3
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
           },
           {
             "ent_id": 5
@@ -1439,7 +1431,7 @@
             "dir": true
           },
           {
-            "reac_id": 5,
+            "reac_id": 3,
             "dir": true
           },
           {
@@ -1447,7 +1439,7 @@
             "dir": false
           },
           {
-            "reac_id": 8,
+            "reac_id": 7,
             "dir": true
           }
         ]
@@ -1458,7 +1450,7 @@
             "ent_id": 0
           },
           {
-            "ent_id": 3
+            "ent_id": 1
           },
           {
             "ent_id": 4
@@ -1469,20 +1461,20 @@
         ],
         "reacDirs": [
           {
-            "reac_id": 2,
+            "reac_id": 4,
             "dir": false
           },
           {
-            "reac_id": 4,
+            "reac_id": 5,
             "dir": true
           },
           {
             "reac_id": 6,
-            "dir": false
+            "dir": true
           },
           {
-            "reac_id": 8,
-            "dir": true
+            "reac_id": 7,
+            "dir": false
           }
         ]
       },
@@ -1512,21 +1504,21 @@
           },
           {
             "reac_id": 6,
-            "dir": false
+            "dir": true
           },
           {
-            "reac_id": 8,
-            "dir": true
+            "reac_id": 7,
+            "dir": false
           }
         ]
       },
       {
         "entities": [
           {
-            "ent_id": 0
+            "ent_id": 1
           },
           {
-            "ent_id": 1
+            "ent_id": 3
           },
           {
             "ent_id": 4
@@ -1542,14 +1534,14 @@
           },
           {
             "reac_id": 5,
-            "dir": true
+            "dir": false
           },
           {
             "reac_id": 6,
             "dir": false
           },
           {
-            "reac_id": 8,
+            "reac_id": 7,
             "dir": true
           }
         ]
@@ -1557,13 +1549,13 @@
       {
         "entities": [
           {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
+            "ent_id": 1
           },
           {
             "ent_id": 3
+          },
+          {
+            "ent_id": 4
           },
           {
             "ent_id": 5
@@ -1572,6 +1564,74 @@
         "reacDirs": [
           {
             "reac_id": 2,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 5,
             "dir": true
           },
           {
@@ -1592,193 +1652,6 @@
         "entities": [
           {
             "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 5,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 7,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 6,
-            "dir": true
-          },
-          {
-            "reac_id": 8,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 1
-          },
-          {
-            "ent_id": 2
           },
           {
             "ent_id": 3
@@ -1797,10 +1670,6 @@
           },
           {
             "reac_id": 4,
-            "dir": false
-          },
-          {
-            "reac_id": 5,
             "dir": true
           },
           {
@@ -1809,6 +1678,81 @@
           },
           {
             "reac_id": 7,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 4,
+            "dir": true
+          },
+          {
+            "reac_id": 5,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": false
+          },
+          {
+            "reac_id": 8,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
             "dir": false
           }
         ]
@@ -1845,11 +1789,134 @@
             "dir": true
           },
           {
-            "reac_id": 6,
+            "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 2,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 5,
             "dir": true
           },
           {
             "reac_id": 7,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 1
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": false
+          },
+          {
+            "reac_id": 4,
+            "dir": false
+          },
+          {
+            "reac_id": 6,
+            "dir": false
+          },
+          {
+            "reac_id": 7,
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent_id": 0
+          },
+          {
+            "ent_id": 2
+          },
+          {
+            "ent_id": 3
+          },
+          {
+            "ent_id": 4
+          },
+          {
+            "ent_id": 5
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac_id": 1,
+            "dir": false
+          },
+          {
+            "reac_id": 3,
+            "dir": true
+          },
+          {
+            "reac_id": 4,
+            "dir": true
+          },
+          {
+            "reac_id": 6,
+            "dir": true
+          },
+          {
+            "reac_id": 8,
             "dir": false
           }
         ]
@@ -1878,11 +1945,11 @@
             "dir": false
           },
           {
-            "reac_id": 2,
+            "reac_id": 4,
             "dir": true
           },
           {
-            "reac_id": 4,
+            "reac_id": 6,
             "dir": true
           },
           {
@@ -1891,7 +1958,7 @@
           },
           {
             "reac_id": 8,
-            "dir": true
+            "dir": false
           }
         ]
       },
@@ -1928,52 +1995,11 @@
           },
           {
             "reac_id": 6,
-            "dir": false
-          },
-          {
-            "reac_id": 8,
             "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": 0
-          },
-          {
-            "ent_id": 2
-          },
-          {
-            "ent_id": 3
-          },
-          {
-            "ent_id": 4
-          },
-          {
-            "ent_id": 5
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          },
-          {
-            "reac_id": 6,
-            "dir": false
           },
           {
             "reac_id": 7,
             "dir": false
-          },
-          {
-            "reac_id": 8,
-            "dir": true
           }
         ]
       }

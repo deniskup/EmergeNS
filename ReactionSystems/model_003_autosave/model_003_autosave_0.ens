@@ -46,54 +46,38 @@
           "direction": 1,
           "shifters": [
             {
-              "type": 1,
-              "width": 328,
+              "type": 0,
+              "width": 381,
               "height": 697,
-              "direction": 2,
-              "shifters": [
+              "currentContent": "Entities",
+              "tabs": [
                 {
-                  "type": 0,
-                  "width": 328,
-                  "height": 261,
-                  "currentContent": "Entities",
-                  "tabs": [
-                    {
-                      "name": "Generation"
-                    },
-                    {
-                      "name": "Entities"
-                    }
-                  ]
+                  "name": "Entities"
                 },
                 {
-                  "type": 0,
-                  "width": 328,
-                  "height": 430,
-                  "currentContent": "Reactions",
-                  "tabs": [
-                    {
-                      "name": "Reactions"
-                    }
-                  ]
+                  "name": "Reactions"
+                },
+                {
+                  "name": "Generation"
                 }
               ]
             },
             {
               "type": 1,
-              "width": 1032,
+              "width": 979,
               "height": 697,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 689,
+                  "width": 744,
                   "height": 697,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 689,
-                      "height": 494,
+                      "width": 744,
+                      "height": 425,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -103,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 689,
-                      "height": 197,
+                      "width": 744,
+                      "height": 266,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -116,9 +100,9 @@
                 },
                 {
                   "type": 0,
-                  "width": 337,
+                  "width": 229,
                   "height": 697,
-                  "currentContent": "Settings",
+                  "currentContent": "Logger",
                   "tabs": [
                     {
                       "name": "Logger"
@@ -142,21 +126,25 @@
   "simulation": {
     "parameters": [
       {
-        "value": 0.001,
+        "value": 0.05,
         "controlAddress": "/dt"
       },
       {
-        "value": 30.0,
+        "value": 20.0,
         "controlAddress": "/totalTime"
       },
       {
-        "value": 300,
+        "value": 1000,
         "hexMode": false,
         "controlAddress": "/checkpoints"
       },
       {
-        "value": 1.0,
+        "value": 0.5,
         "controlAddress": "/maxConcent"
+      },
+      {
+        "value": true,
+        "controlAddress": "/unicolor"
       },
       {
         "value": 0.0001,
@@ -169,21 +157,25 @@
       {
         "parameters": [
           {
-            "value": 10.69792652130127,
+            "value": 46.58519744873047,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.1315934807062149,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 7.082486152648926,
+            "value": 19.7840690612793,
             "controlAddress": "/startConcent"
           },
           {
+            "value": 100.0,
+            "controlAddress": "/concent"
+          },
+          {
             "value": [
-              0.8666666746139526,
               1.0,
+              0.8509804010391235,
               0.0,
               1.0
             ],
@@ -204,22 +196,26 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.1025313138961792,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 0.6000000238418579,
             "controlAddress": "/startConcent"
           },
           {
-            "value": -0.1466317176818848,
+            "value": 0.3323614299297333,
+            "controlAddress": "/concent"
+          },
+          {
+            "value": -8.039361953735352,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.8117647171020508,
               1.0,
+              0.196078434586525,
               1.0
             ],
             "controlAddress": "/color"
@@ -239,21 +235,25 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.08488205820322037,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 4.299999713897705,
             "controlAddress": "/startConcent"
           },
           {
-            "value": -0.3566223382949829,
+            "value": 0.00728821475058794,
+            "controlAddress": "/concent"
+          },
+          {
+            "value": -12.58199214935303,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
-              0.1137254908680916,
+              0.4235294163227081,
               1.0,
               1.0
             ],
@@ -274,22 +274,26 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.103299655020237,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 3.299999952316284,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4948822855949402,
+            "value": 7.95320987701416,
+            "controlAddress": "/concent"
+          },
+          {
+            "value": -16.76122665405273,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              1.0,
+              0.4431372582912445,
               0.0,
-              0.1372549086809158,
+              1.0,
               1.0
             ],
             "controlAddress": "/color"
@@ -309,28 +313,71 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.5,
+            "value": 0.06553971767425537,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.0,
+            "value": 8.799999237060547,
             "controlAddress": "/startConcent"
           },
           {
-            "value": -0.1613579392433167,
+            "value": 0.0005861382815055549,
+            "controlAddress": "/concent"
+          },
+          {
+            "value": -20.0,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               1.0,
-              0.9490196108818054,
               0.0,
+              0.1176470592617989,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
         "niceName": "5",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.09798003733158112,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 19.80000114440918,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 0.01164116431027651,
+            "controlAddress": "/concent"
+          },
+          {
+            "value": -20.0,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.8666666746139526,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "6",
         "type": "Entity"
       }
     ],
@@ -349,28 +396,6 @@
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/2",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/3",
-            "controlAddress": "/product"
-          },
-          {
-            "value": 1.18330991268158,
-            "controlAddress": "/energyBarrier"
-          }
-        ],
-        "niceName": "1+2=3",
-        "type": "Reaction"
-      },
-      {
-        "parameters": [
-          {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
             "value": "/3",
             "controlAddress": "/reactant2"
           },
@@ -379,7 +404,7 @@
             "controlAddress": "/product"
           },
           {
-            "value": 1.797483205795288,
+            "value": 0.0,
             "controlAddress": "/energyBarrier"
           }
         ],
@@ -393,19 +418,19 @@
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/2",
+            "value": "/3",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/4",
+            "value": "/5",
             "controlAddress": "/product"
           },
           {
-            "value": 0.1816724538803101,
+            "value": 0.0,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "2+2=4",
+        "niceName": "2+3=5",
         "type": "Reaction"
       },
       {
@@ -415,19 +440,19 @@
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/4",
+            "value": "/5",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/5",
+            "value": "/6",
             "controlAddress": "/product"
           },
           {
-            "value": 1.476644277572632,
+            "value": 0.0,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+4=5",
+        "niceName": "1+5=6",
         "type": "Reaction"
       },
       {
@@ -437,15 +462,41 @@
             "controlAddress": "/reactant1"
           },
           {
+            "value": "/4",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/6",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "2+4=6",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/3",
+            "controlAddress": "/reactant1"
+          },
+          {
             "value": "/3",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/5",
+            "value": "/6",
             "controlAddress": "/product"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "2+3",
+        "niceName": "3+3=6",
         "type": "Reaction"
       }
     ],
@@ -463,7 +514,7 @@
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": 5,
+        "value": 6,
         "hexMode": false,
         "controlAddress": "/levels"
       },
@@ -487,17 +538,31 @@
       },
       {
         "value": [
-          10.0,
-          10.0
+          20.0,
+          20.0
         ],
         "controlAddress": "/initPrimConcentration_Var"
       },
       {
         "value": [
-          10.0,
+          46.5,
           1.0
         ],
         "controlAddress": "/creationRate_Var"
+      },
+      {
+        "value": [
+          0.1000000014901161,
+          0.05000000074505806
+        ],
+        "controlAddress": "/destructionRate_Var"
+      },
+      {
+        "value": [
+          -4.199998378753662,
+          0.5
+        ],
+        "controlAddress": "/energyPerLevel_Var"
       },
       {
         "value": [
@@ -517,7 +582,7 @@
         "controlAddress": "/numRuns"
       },
       {
-        "value": 40,
+        "value": 500,
         "hexMode": false,
         "controlAddress": "/epsFactor"
       }
@@ -530,10 +595,6 @@
         "controlAddress": "/printPACsToFile"
       },
       {
-        "value": true,
-        "controlAddress": "/nonMinimalPACs"
-      },
-      {
         "value": false,
         "controlAddress": "/autoLoadLists"
       }
@@ -541,27 +602,27 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 7.05730152130127,
+    "recordConcent": 322.8470764160156,
     "recordEntity": "1",
-    "recordDrawn": 7.05730152130127,
-    "recordDrawnEntity": "",
+    "recordDrawn": 322.8470764160156,
+    "recordDrawnEntity": "1",
     "numLevels": -1,
     "PACsGenerated": true,
     "entities": [
       {
         "name": "1",
         "color": {
-          "H": 0.1888889074325562,
+          "H": 0.1418300718069077,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": -1,
-        "concent": 7.082486152648926,
-        "startConcent": 7.082486152648926,
-        "creationRate": 10.69792652130127,
-        "destructionRate": 0.5,
+        "concent": 322.8470764160156,
+        "startConcent": 19.7840690612793,
+        "creationRate": 46.58519744873047,
+        "destructionRate": 0.1315934807062149,
         "freeEnergy": 0.0,
         "level": -1,
         "draw": true,
@@ -570,18 +631,18 @@
       {
         "name": "2",
         "color": {
-          "H": 0.5313725471496582,
+          "H": 0.3660130500793457,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 0.3323614299297333,
+        "startConcent": 0.6000000238418579,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.1466317176818848,
+        "destructionRate": 0.1025313138961792,
+        "freeEnergy": -8.039361953735352,
         "level": -1,
         "draw": true,
         "composition": null
@@ -589,18 +650,18 @@
       {
         "name": "3",
         "color": {
-          "H": 0.6477124094963074,
+          "H": 0.5960783958435059,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 0.00728821475058794,
+        "startConcent": 4.299999713897705,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.3566223382949829,
+        "destructionRate": 0.08488205820322037,
+        "freeEnergy": -12.58199214935303,
         "level": -1,
         "draw": true,
         "composition": null
@@ -608,18 +669,18 @@
       {
         "name": "4",
         "color": {
-          "H": 0.9771242141723633,
+          "H": 0.7405228614807129,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 7.95320987701416,
+        "startConcent": 3.299999952316284,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": 0.4948822855949402,
+        "destructionRate": 0.103299655020237,
+        "freeEnergy": -16.76122665405273,
         "level": -1,
         "draw": true,
         "composition": null
@@ -627,18 +688,37 @@
       {
         "name": "5",
         "color": {
-          "H": 0.1581699401140213,
+          "H": 0.9803921580314636,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0,
-        "startConcent": 0.0,
+        "concent": 0.0005861382815055549,
+        "startConcent": 8.799999237060547,
         "creationRate": 0.0,
-        "destructionRate": 0.5,
-        "freeEnergy": -0.1613579392433167,
+        "destructionRate": 0.06553971767425537,
+        "freeEnergy": -20.0,
+        "level": -1,
+        "draw": true,
+        "composition": null
+      },
+      {
+        "name": "6",
+        "color": {
+          "H": 0.1444444507360458,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": -1,
+        "concent": 0.01164116431027651,
+        "startConcent": 19.80000114440918,
+        "creationRate": 0.0,
+        "destructionRate": 0.09798003733158112,
+        "freeEnergy": -20.0,
         "level": -1,
         "draw": true,
         "composition": null
@@ -649,40 +729,40 @@
         "reactant1_id": -1,
         "reactant2_id": -1,
         "product_id": -1,
-        "assocRate": 0.3062633574008942,
-        "dissocRate": 0.248254582285881,
+        "assocRate": 1.0,
+        "dissocRate": 0.01531022321432829,
         "idSAT": 0
       },
       {
         "reactant1_id": -1,
         "reactant2_id": -1,
         "product_id": -1,
-        "assocRate": 0.07072276622056961,
-        "dissocRate": 0.1657154411077499,
+        "assocRate": 0.5372170209884644,
+        "dissocRate": 1.0,
         "idSAT": 1
       },
       {
         "reactant1_id": -1,
         "reactant2_id": -1,
         "product_id": -1,
-        "assocRate": 0.3791519701480865,
-        "dissocRate": 0.8338744044303894,
+        "assocRate": 1.0,
+        "dissocRate": 1.0,
         "idSAT": 2
       },
       {
         "reactant1_id": -1,
         "reactant2_id": -1,
         "product_id": -1,
-        "assocRate": 0.228402853012085,
-        "dissocRate": 0.1184950023889542,
+        "assocRate": 0.008224904537200928,
+        "dissocRate": 1.0,
         "idSAT": 3
       },
       {
         "reactant1_id": -1,
         "reactant2_id": -1,
         "product_id": -1,
-        "assocRate": 0.2613496780395508,
-        "dissocRate": 0.3678794503211975,
+        "assocRate": 0.005718868691474199,
+        "dissocRate": 1.0,
         "idSAT": 4
       }
     ],
@@ -706,42 +786,15 @@
         ],
         "reacDirs": [
           {
-            "reac_id": 2,
-            "dir": true
+            "reac_id": 1,
+            "dir": false
           },
           {
-            "reac_id": 3,
-            "dir": true
+            "reac_id": 2,
+            "dir": false
           },
           {
             "reac_id": 4,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
             "dir": true
           }
         ]
@@ -756,18 +809,11 @@
           },
           {
             "ent_id": -1
-          },
-          {
-            "ent_id": -1
           }
         ],
         "reacDirs": [
           {
             "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 1,
             "dir": false
           },
           {
@@ -798,11 +844,11 @@
         "reacDirs": [
           {
             "reac_id": 0,
-            "dir": false
+            "dir": true
           },
           {
-            "reac_id": 1,
-            "dir": true
+            "reac_id": 2,
+            "dir": false
           },
           {
             "reac_id": 3,
@@ -832,11 +878,11 @@
         "reacDirs": [
           {
             "reac_id": 1,
-            "dir": false
+            "dir": true
           },
           {
             "reac_id": 2,
-            "dir": false
+            "dir": true
           },
           {
             "reac_id": 3,
@@ -844,7 +890,7 @@
           },
           {
             "reac_id": 4,
-            "dir": true
+            "dir": false
           }
         ]
       }
