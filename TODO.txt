@@ -1,3 +1,5 @@
+-PAC non minimal bug: 2->3 3->4 4->2+2 4->5
+
 -bug a regler: ignore free energy/barriers does not work.
 
 -energies de liaison pour calculer libre: faire comme Sarkar

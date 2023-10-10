@@ -113,15 +113,30 @@ bool PAC::includedIn(PAC *pac, bool onlyEnts)
 void PAClist::addCycle(PAC *newpac)
 {
 	// we only test if is is included in existing one, other direction is taken care of by SAT solver
+	// except if Settings::nonMinimal is set to true
+	bool nonMinTest = Settings::getInstance()->nonMinimalPACs->boolValue();
+	bool isNonMin = false;
 	for (int i = 0; i < cycles.size(); i++)
 	{
 		if (newpac->includedIn(cycles[i], includeOnlyWithEntities))
 		{
-			cout << "PAC collision: " << newpac->toString() << " is included in " << cycles[i]->toString() << endl;
+			// cout << "PAC collision: " << newpac->toString() << " is included in " << cycles[i]->toString() << endl;
+			nonMinimals.add(cycles[i]);
 			cycles.remove(i);
 		}
+		if (nonMinTest)
+		{
+			if (cycles[i]->includedIn(newpac, includeOnlyWithEntities))
+			{
+				//	cout << "PAC collision: " << cycles[i]->toString() << " is included in " << newpac->toString() << endl;
+				nonMinimals.add(newpac);
+				isNonMin = true;
+				break;
+			}
+		}
 	}
-	cycles.add(newpac);
+	if (!isNonMin)
+		cycles.add(newpac);
 }
 
 PAClist::~PAClist()
@@ -154,6 +169,7 @@ void PAClist::printRACs()
 void PAClist::clear()
 {
 	cycles.clear();
+	nonMinimals.clear();
 	simul->PACsGenerated = false;
 	maxRAC = 0.;
 }
@@ -192,6 +208,7 @@ void PAClist::computePACs(int numSolv)
 void PAClist::run()
 { // clear PACs if some were computed
 	cycles.clear();
+	nonMinimals.clear();
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
 
@@ -237,12 +254,6 @@ void PAClist::PACsWithZ3()
 	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
 
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
-
-	ofstream pacFile;
-	if (printPACsToFile)
-	{
-		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
-	}
 
 	stringstream clauses;
 	//------------declare variables------------
@@ -340,8 +351,13 @@ void PAClist::PACsWithZ3()
 		}
 		sizeClauses << ") " << pacSize << "))\n";
 
-		// pacsize reactions
-		sizeClauses << "(assert (= (+";
+		// exactly pacsize reactions, or at least for non-minimal pacs
+		if (Settings::getInstance()->nonMinimalPACs->boolValue()){
+			sizeClauses << "(assert (>= (+";
+		}
+		else{
+			sizeClauses << "(assert (= (+";
+		} 
 		for (auto &r : simul->reactions)
 		{
 			sizeClauses << " (ite reac" << r->idSAT << " 1 0)";
@@ -408,12 +424,9 @@ void PAClist::PACsWithZ3()
 				}
 			}
 
-			if (printPACsToFile)
-			{
-				pacFile << pac->toString() << endl;
-			}
-
 			addCycle(pac);
+
+			// add Clause forbidding PACs containing  this one
 
 			modClauses << "(assert (not (and";
 			for (auto &r : pac->reacDirs)
@@ -430,6 +443,20 @@ void PAClist::PACsWithZ3()
 				int i = e->idSAT;
 				modClauses << " ent" << i;
 			}
+
+			if (Settings::getInstance()->nonMinimalPACs->boolValue())
+			{
+				// add clause forbidding this exact PAC, for and reactions not in the PAC
+				// suffices to ask no extra reactions
+				for (auto &r : simul->reactions)
+				{
+					if (pac->reacDirs.contains(make_pair(r, false)) || pac->reacDirs.contains(make_pair(r, true)))
+						continue;
+					int j = r->idSAT;
+					modClauses << " (not reac" << j << ")";
+				}
+			}
+
 			modClauses << ")))\n";
 		}
 		if (pacsFound > 0)
@@ -437,6 +464,19 @@ void PAClist::PACsWithZ3()
 	}
 	if (printPACsToFile)
 	{
+		ofstream pacFile;
+		pacFile.open("PAC_list.txt", ofstream::out | ofstream::trunc);
+		pacFile << "--- Minimal PACs ---" << endl;
+		for (auto &pac : cycles)
+			pacFile << pac->toString() << endl;
+		if (Settings::getInstance()->nonMinimalPACs->boolValue())
+		{
+			pacFile << endl
+					<< "--- Non-minimal PACs ---" << endl;
+			for (auto &pac : nonMinimals)
+				pacFile << pac->toString() << endl;
+		}
+		pacFile<<endl;
 		pacFile.close();
 	}
 	simul->PACsGenerated = true;

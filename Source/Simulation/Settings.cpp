@@ -14,6 +14,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);
 
+    nonMinimalPACs = addBoolParameter("Non minimal PACs", "Look for non minimal PACs", false);
+
     pathToKissat = addStringParameter("Path to kissat", "Path to kissat solver", "~/Software/kissat/build/kissat");
 
     autoLoadLists = addBoolParameter("Auto load lists", "Auto load manual lists on generation", true);

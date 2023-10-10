@@ -49,6 +49,7 @@ public:
 
     Simulation *simul;
     OwnedArray<PAC> cycles;
+    OwnedArray<PAC> nonMinimals;
     float maxRAC = 0.0f;          // remember the max RAC for display
     bool includeOnlyWithEntities=false; // specify the rule for inclusion of PACs
     void addCycle(PAC *);

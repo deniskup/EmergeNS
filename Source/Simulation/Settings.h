@@ -17,6 +17,8 @@ public:
     IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter
     IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
 
+    BoolParameter *nonMinimalPACs; //look for non minimal PACs
+
     BoolParameter *printPACsToFile; //print PACs to file
 
     BoolParameter *autoLoadLists;
