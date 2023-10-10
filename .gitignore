@@ -5,3 +5,9 @@ Builds/*
 Resources/**
 
 
+z3constraints.smt2
+z3log.txt
+z3model.txt
+Resources/generated.ens
+Resources/z3constraints.smt2
+
