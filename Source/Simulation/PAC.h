@@ -24,6 +24,10 @@ class PAC
 public:
     PAC(){};
     PAC(var data, Simulation *simul); // import from JSON, TODO
+    ~PAC(){
+        entities.clear();
+        reacDirs.clear();
+    };
     var toJSONData();                 // save to JSON, TODO
 
     String toString(); // for printing

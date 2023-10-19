@@ -169,7 +169,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.692615032196045,
+            "value": 100.0,
             "controlAddress": "/concent"
           },
           {
@@ -204,7 +204,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.1663708090782166,
+            "value": 0.4096138477325439,
             "controlAddress": "/concent"
           },
           {
@@ -243,7 +243,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.6933271884918213,
+            "value": 0.004887337330728769,
             "controlAddress": "/concent"
           },
           {
@@ -282,7 +282,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4536576867103577,
+            "value": 5.143650054931641,
             "controlAddress": "/concent"
           },
           {
@@ -321,7 +321,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.6187601685523987,
+            "value": 0.0004638133104890585,
             "controlAddress": "/concent"
           },
           {
@@ -360,7 +360,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.145636796951294,
+            "value": 0.009217247366905212,
             "controlAddress": "/concent"
           },
           {
@@ -602,10 +602,10 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 15.22504615783691,
-    "recordEntity": "6",
-    "recordDrawn": 15.22504615783691,
-    "recordDrawnEntity": "",
+    "recordConcent": 325.0692138671875,
+    "recordEntity": "1",
+    "recordDrawn": 325.0692138671875,
+    "recordDrawnEntity": "1",
     "numLevels": -1,
     "PACsGenerated": false,
     "entities": [
@@ -619,7 +619,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 19.7840690612793,
+        "concent": 325.0692138671875,
         "startConcent": 19.7840690612793,
         "creationRate": 46.58519744873047,
         "destructionRate": 0.1315934807062149,
@@ -638,7 +638,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 1.300000190734863,
+        "concent": 0.4096138477325439,
         "startConcent": 1.300000190734863,
         "creationRate": 0.0,
         "destructionRate": 0.1025313138961792,
@@ -657,7 +657,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 3.799999713897705,
+        "concent": 0.004887337330728769,
         "startConcent": 3.799999713897705,
         "creationRate": 0.0,
         "destructionRate": 0.08488205820322037,
@@ -676,7 +676,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 3.599999904632568,
+        "concent": 5.143650054931641,
         "startConcent": 3.599999904632568,
         "creationRate": 0.0,
         "destructionRate": 0.103299655020237,
@@ -695,7 +695,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 2.299999952316284,
+        "concent": 0.0004638133104890585,
         "startConcent": 2.299999952316284,
         "creationRate": 0.0,
         "destructionRate": 0.06553971767425537,
@@ -714,7 +714,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 15.30000114440918,
+        "concent": 0.009217247366905212,
         "startConcent": 15.30000114440918,
         "creationRate": 0.0,
         "destructionRate": 0.09798003733158112,
@@ -726,41 +726,41 @@
     ],
     "reactions": [
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "1",
+        "reactant2": "3",
+        "product": "4",
         "assocRate": 1.0,
         "dissocRate": 0.01531022321432829,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "2",
+        "reactant2": "3",
+        "product": "5",
         "assocRate": 0.5372170209884644,
         "dissocRate": 1.0,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "1",
+        "reactant2": "5",
+        "product": "6",
         "assocRate": 1.0,
         "dissocRate": 1.0,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "2",
+        "reactant2": "4",
+        "product": "6",
         "assocRate": 0.008224904537200928,
         "dissocRate": 1.0,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "3",
+        "reactant2": "3",
+        "product": "6",
         "assocRate": 0.005718868691474199,
         "dissocRate": 1.0,
         "idSAT": 0
@@ -768,7 +768,7 @@
     ],
     "primEnts": [
       {
-        "ent_id": -1
+        "ent": "1"
       }
     ],
     "cycles": null

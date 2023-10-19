@@ -17,7 +17,9 @@ PAC::PAC(var data, Simulation *simul)
 		Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
 		for (auto &ent : *ents)
 		{
-			entities.add(simul->getSimEntityForName(ent["ent"]));
+			SimEntity *e = simul->getSimEntityForName(ent["ent"]);
+			if (e != nullptr)
+				entities.add(e);
 		}
 	}
 
@@ -26,7 +28,9 @@ PAC::PAC(var data, Simulation *simul)
 		Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
 		for (auto &reacd : *reacds)
 		{
-			reacDirs.add(make_pair(simul->getSimReactionForName(reacd["reac"]), reacd["dir"]));
+			SimReaction *r = simul->getSimReactionForName(reacd["reac"]);
+			if (r != nullptr)
+				reacDirs.add(make_pair(r, reacd["dir"]));
 		}
 	}
 }
@@ -352,12 +356,14 @@ void PAClist::PACsWithZ3()
 		sizeClauses << ") " << pacSize << "))\n";
 
 		// exactly pacsize reactions, or at least for non-minimal pacs
-		if (Settings::getInstance()->nonMinimalPACs->boolValue()){
+		if (Settings::getInstance()->nonMinimalPACs->boolValue())
+		{
 			sizeClauses << "(assert (>= (+";
 		}
-		else{
+		else
+		{
 			sizeClauses << "(assert (= (+";
-		} 
+		}
 		for (auto &r : simul->reactions)
 		{
 			sizeClauses << " (ite reac" << r->idSAT << " 1 0)";
@@ -476,7 +482,7 @@ void PAClist::PACsWithZ3()
 			for (auto &pac : nonMinimals)
 				pacFile << pac->toString() << endl;
 		}
-		pacFile<<endl;
+		pacFile << endl;
 		pacFile.close();
 	}
 	simul->PACsGenerated = true;

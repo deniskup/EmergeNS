@@ -851,16 +851,18 @@ void Simulation::nextStep()
     // update flow needed only at checkpoints
     if (isCheck)
     {
-      if (directCoef - reverseCoef > 0)
-      {
-        reac->flow = directCoef - reverseCoef;
-        reac->flowdir = false;
-      }
-      else
-      {
-        reac->flow = reverseCoef - directCoef;
-        reac->flowdir = true;
-      }
+      //old way
+      // if (directCoef - reverseCoef > 0)
+      // {
+      //   reac->flow = directCoef - reverseCoef;
+      //   reac->flowdir = false;
+      // }
+      // else
+      // {
+      //   reac->flow = reverseCoef - directCoef;
+      //   reac->flowdir = true;
+      // }
+      reac->flow = directCoef - reverseCoef;
     }
   }
 
@@ -933,32 +935,59 @@ void Simulation::nextStep()
   {
     idPAC++;
     bool newRAC = (cycle->flow == 0.);
-    SimReaction *minreac = cycle->reacDirs[0].first;
-    cycle->flow = minreac->flow; // initialisation to a max potential value
-    ;
+    //SimReaction *minreac = cycle->reacDirs[0].first;
+
+    
+    //old way with only directions
+    // for (auto &reacDir : cycle->reacDirs)
+    // {
+    //   auto reac = reacDir.first;
+    //   bool dir = reacDir.second;
+
+    //   if (dir != (reac->flowdir) || !(reac->enabled))
+    //   { // wrong direction
+    //     cycle->flow = 0.;
+    //     continue;
+    //   }
+    //   if (reac->flow < cycle->flow)
+    //   {
+    //     cycle->flow = reac->flow;
+    //     minreac = reac;
+    //   }
+    // }
+
+    //new way by computing the total flow for each entity of the PAC
+    map<SimEntity *, float> flowPerEnt;
+    for(auto &ent: cycle->entities)
+      flowPerEnt[ent] = 0.;
+
     for (auto &reacDir : cycle->reacDirs)
     {
-      auto reac = reacDir.first;
-      bool dir = reacDir.second;
+      SimReaction *reac = reacDir.first;
+      flowPerEnt[reac->reactant1] -= reac->flow;
+      flowPerEnt[reac->reactant2] -= reac->flow;
+      flowPerEnt[reac->product] += reac->flow;
+    }
 
-      if (dir != (reac->flowdir) || !(reac->enabled))
-      { // wrong direction
+    //compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
+    cycle->flow = flowPerEnt.begin()->second; // initialisation to a potential value, either <=0 or bigger than real value
+    for(auto &ent: cycle->entities){
+      if(flowPerEnt[ent]<0){
         cycle->flow = 0.;
-        continue;
+        break;
       }
-      if (reac->flow < cycle->flow)
-      {
-        cycle->flow = reac->flow;
-        minreac = reac;
+      if(flowPerEnt[ent]<cycle->flow){
+        cycle->flow = flowPerEnt[ent];
       }
     }
+
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
       //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
-      if (newRAC)
-        LOG("RAC " << idPAC << " from min reac " << minreac->name);
+      //if (newRAC)
+        //LOG("RAC " << idPAC << " from min reac " << minreac->name);
       if (cycle->flow > pacList->maxRAC)
         pacList->maxRAC = cycle->flow;
     }

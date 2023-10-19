@@ -1,4 +1,4 @@
--PAC non minimal bug: 2->3 3->4 4->2+2 4->5
+-RAC based on vector and not just directions
 
 -bug a regler: ignore free energy/barriers does not work.
 
