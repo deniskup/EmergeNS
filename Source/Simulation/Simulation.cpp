@@ -128,6 +128,7 @@ void Simulation::clearParams()
   reactions.clear();
   pacList->clear();
   ready = false;
+  PACsGenerated = false;
   numLevels = -1;
 }
 
@@ -263,6 +264,11 @@ void Simulation::importJSONData(var data)
     auto reacs = data.getDynamicObject()->getProperty("reactions").getArray();
     for (auto &rvar : *reacs)
     {
+      SimReaction *r = new SimReaction(rvar);
+      if(r->constructionFailed){
+        LOGWARNING("SimReaction construction failed, not added to list");
+        continue;
+      }
       reactions.add(new SimReaction(rvar));
     }
   }
@@ -299,6 +305,11 @@ void Simulation::importJSONData(var data)
     {
       for (auto &cvar : *cycs)
       {
+        PAC *cyc = new PAC(cvar, this);
+        if(cyc->constructionFailed){
+          LOGWARNING("PAC construction failed, not added to list");
+          continue;
+        }
         pacList->addCycle(new PAC(cvar, this));
       }
     }
@@ -1344,25 +1355,41 @@ SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate
 
 SimReaction::SimReaction(var data)
 {
-  if (data.isVoid())
+  if (data.isVoid()){
+    constructionFailed=true;
     return;
-  if (data.getDynamicObject() == nullptr)
+  }
+    
+  if (data.getDynamicObject() == nullptr){
+    constructionFailed=true;
     return;
+  }
 
   Simulation *simul = Simulation::getInstance();
-  if (data.getDynamicObject()->hasProperty("reactant1"))
+  if (data.getDynamicObject()->hasProperty("reactant1")){
     reactant1 = simul->getSimEntityForName(data["reactant1"]);
-    else{
-      LOGWARNING("No reactant1 for reaction");
+   if(reactant1==nullptr){
+     // LOGWARNING("No reactant1 for reaction");
+      constructionFailed=true;
       return;
-    }
+    }}
 
   // to change on same model
-  if (data.getDynamicObject()->hasProperty("reactant2"))
+  if (data.getDynamicObject()->hasProperty("reactant2")){
     reactant2 = simul->getSimEntityForName(data["reactant2"]);
+    if(reactant2==nullptr){
+      //LOGWARNING("No reactant2 for reaction");
+      constructionFailed=true;
+      return;
+    }}
 
-  if (data.getDynamicObject()->hasProperty("product"))
+  if (data.getDynamicObject()->hasProperty("product")){
     product = simul->getSimEntityForName(data["product"]);
+    if(product==nullptr){
+      //LOGWARNING("No product for reaction");
+      constructionFailed=true;
+      return;
+    }}
 
   if (data.getDynamicObject()->hasProperty("assocRate"))
     assocRate = data["assocRate"];

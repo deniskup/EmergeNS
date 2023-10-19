@@ -7,10 +7,17 @@ using namespace std;
 
 PAC::PAC(var data, Simulation *simul)
 {
+
 	if (data.isVoid())
+	{
+		constructionFailed = true;
 		return;
+	}
 	if (data.getDynamicObject() == nullptr)
+	{
+		constructionFailed = true;
 		return;
+	}
 
 	if (data.getDynamicObject()->hasProperty("entities"))
 	{
@@ -18,8 +25,12 @@ PAC::PAC(var data, Simulation *simul)
 		for (auto &ent : *ents)
 		{
 			SimEntity *e = simul->getSimEntityForName(ent["ent"]);
-			if (e != nullptr)
-				entities.add(e);
+			if (e == nullptr)
+			{
+				constructionFailed = true;
+				return;
+			}
+			entities.add(e);
 		}
 	}
 
@@ -29,10 +40,15 @@ PAC::PAC(var data, Simulation *simul)
 		for (auto &reacd : *reacds)
 		{
 			SimReaction *r = simul->getSimReactionForName(reacd["reac"]);
-			if (r != nullptr)
-				reacDirs.add(make_pair(r, reacd["dir"]));
+			if (r == nullptr)
+			{
+				constructionFailed = true;
+				return;
+			}
+			reacDirs.add(make_pair(r, reacd["dir"]));
 		}
 	}
+	//cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
 }
 
 var PAC::toJSONData()

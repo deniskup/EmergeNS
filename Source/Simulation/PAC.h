@@ -32,6 +32,8 @@ public:
 
     String toString(); // for printing
 
+    bool constructionFailed=false; // if the PAC was not constructed because of a problem with the data (e.g. null ptrs to entities)
+
     //int id; //identifier
 
     Array<SimEntity *> entities;

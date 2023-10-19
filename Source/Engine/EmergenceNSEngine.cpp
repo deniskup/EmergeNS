@@ -34,7 +34,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 
 void EmergenceNSEngine::clearInternal()
 {
-	// Simulation::getInstance()->cancel();
+	Simulation::getInstance()->clearParams();
 	EntityManager::getInstance()->clear();
 	ReactionManager::getInstance()->clear();
 	// Generation::getInstance()->clear();

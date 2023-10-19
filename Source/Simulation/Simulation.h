@@ -67,6 +67,8 @@ public:
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
 
+  bool constructionFailed=false;
+
   Reaction *reaction; // sourceReaction
 
   SimEntity *reactant1;
