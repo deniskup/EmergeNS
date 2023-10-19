@@ -20,6 +20,8 @@ public:
   SimEntity(var data); // import from JSON
   var toJSONData();    // save to JSON
 
+  bool constructionFailed=false;
+  
   String name;
   Entity *entity = nullptr; // sourceEntity
 

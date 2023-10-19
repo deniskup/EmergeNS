@@ -248,7 +248,13 @@ void Simulation::importJSONData(var data)
     auto ents = data.getDynamicObject()->getProperty("entities").getArray();
     for (auto &evar : *ents)
     {
-      entities.add(new SimEntity(evar));
+      SimEntity *e = new SimEntity(evar);
+      if(e->constructionFailed){
+        LOGWARNING("SimEntity construction failed, not added to list");
+        delete e;
+        continue;        
+      }
+      entities.add(e);
     }
   }
 
@@ -267,9 +273,10 @@ void Simulation::importJSONData(var data)
       SimReaction *r = new SimReaction(rvar);
       if(r->constructionFailed){
         LOGWARNING("SimReaction construction failed, not added to list");
+        delete r;
         continue;
       }
-      reactions.add(new SimReaction(rvar));
+      reactions.add(r);
     }
   }
 
@@ -1202,15 +1209,23 @@ Colour JSON2Color(var data)
 
 SimEntity::SimEntity(var data)
 {
-  if (data.isVoid())
+  if (data.isVoid()){
+    constructionFailed=true;
     return;
-  if (data.getDynamicObject() == nullptr)
+  }
+    
+  if (data.getDynamicObject() == nullptr){
+    constructionFailed=true;
     return;
+  }
 
-  if (data.getDynamicObject()->hasProperty("name"))
-    name = data.getDynamicObject()->getProperty("name");
+  if (data.getDynamicObject()->hasProperty("name")){
+    name = (data.getDynamicObject()->getProperty("name"));
+    cout<< "name:"<< name<<endl;
+  }
   else{
     LOGWARNING("No name for Entity");
+    constructionFailed=true;
     return;
   }
 
@@ -1373,6 +1388,10 @@ SimReaction::SimReaction(var data)
       constructionFailed=true;
       return;
     }}
+  else{
+    constructionFailed=true;
+    return;
+  }
 
   // to change on same model
   if (data.getDynamicObject()->hasProperty("reactant2")){
@@ -1382,6 +1401,10 @@ SimReaction::SimReaction(var data)
       constructionFailed=true;
       return;
     }}
+      else{
+    constructionFailed=true;
+    return;
+  }
 
   if (data.getDynamicObject()->hasProperty("product")){
     product = simul->getSimEntityForName(data["product"]);
@@ -1390,6 +1413,10 @@ SimReaction::SimReaction(var data)
       constructionFailed=true;
       return;
     }}
+      else{
+    constructionFailed=true;
+    return;
+  }
 
   if (data.getDynamicObject()->hasProperty("assocRate"))
     assocRate = data["assocRate"];
