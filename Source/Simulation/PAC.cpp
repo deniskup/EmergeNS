@@ -17,7 +17,7 @@ PAC::PAC(var data, Simulation *simul)
 		Array<var> *ents = data.getDynamicObject()->getProperty("entities").getArray();
 		for (auto &ent : *ents)
 		{
-			entities.add(simul->getSimEntityForID(ent["ent_id"]));
+			entities.add(simul->getSimEntityForName(ent["ent"]));
 		}
 	}
 
@@ -26,7 +26,7 @@ PAC::PAC(var data, Simulation *simul)
 		Array<var> *reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
 		for (auto &reacd : *reacds)
 		{
-			reacDirs.add(make_pair(simul->getSimReactionForID(reacd["reac_id"]), reacd["dir"]));
+			reacDirs.add(make_pair(simul->getSimReactionForName(reacd["reac"]), reacd["dir"]));
 		}
 	}
 }
@@ -39,7 +39,7 @@ var PAC::toJSONData()
 	for (auto &e : entities)
 	{
 		var coord = new DynamicObject();
-		coord.getDynamicObject()->setProperty("ent_id", e->id);
+		coord.getDynamicObject()->setProperty("ent", e->name);
 		ents.append(coord);
 	}
 	data.getDynamicObject()->setProperty("entities", ents);
@@ -48,7 +48,7 @@ var PAC::toJSONData()
 	for (auto &rd : reacDirs)
 	{
 		var coord = new DynamicObject();
-		coord.getDynamicObject()->setProperty("reac_id", rd.first->idSAT);
+		coord.getDynamicObject()->setProperty("reac", rd.first->name);
 		coord.getDynamicObject()->setProperty("dir", rd.second);
 		reacds.append(coord);
 	}

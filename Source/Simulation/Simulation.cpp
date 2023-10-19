@@ -185,7 +185,7 @@ var Simulation::toJSONData()
   for (auto &e : primEnts)
   {
     var coord = new DynamicObject();
-    coord.getDynamicObject()->setProperty("ent_id", e->id);
+    coord.getDynamicObject()->setProperty("ent", e->name);
     prim_ents.append(coord);
   }
   data.getDynamicObject()->setProperty("primEnts", prim_ents);
@@ -285,7 +285,7 @@ void Simulation::importJSONData(var data)
     auto prim_ents = data.getDynamicObject()->getProperty("primEnts").getArray();
     for (auto &coord : *prim_ents)
     {
-      primEnts.add(getSimEntityForID(coord["ent_id"]));
+      primEnts.add(getSimEntityForName(coord["ent"]));
     }
   }
 
@@ -370,6 +370,52 @@ void Simulation::fetchManual()
 
   ready = true;
   updateParams();
+}
+
+//link entities and simEntities via their names
+void Simulation::establishLinks(){
+  bool found;
+  for (auto &e : EntityManager::getInstance()->items)
+  {
+    if (!e->enabled->boolValue())
+      continue;
+      found=false;
+    for (auto &se : entities)
+    {
+      if (se->name == e->niceName)
+      {
+        se->entity = e;
+        e->simEnt = se;
+        found = true;
+        break;
+      }
+    }
+    if(!found){
+      LOGWARNING("Entity "<<e->niceName<<" not found in simulation");
+    }
+  }
+
+
+  //same with reactions
+  for (auto &r : ReactionManager::getInstance()->items)
+  {
+    if (!r->shouldIncludeInSimulation())
+      continue;
+      found=false;
+    for (auto &sr : reactions)
+    {
+      if (sr->name == r->niceName)
+      {
+        sr->reaction = r;
+        r->simReac = sr;
+        found = true;
+        break;
+      }
+    }
+    if(!found){
+      LOGWARNING("Reaction "<<r->niceName<<" not found in simulation");
+    }
+  }
 }
 
 void Simulation::loadToManualMode()
@@ -997,25 +1043,25 @@ var Simulation::concent2JSON()
   return data;
 }
 
-SimEntity *Simulation::getSimEntityForID(int id)
+SimEntity *Simulation::getSimEntityForName(String nameToFind)
 {
   for (auto &se : entities)
   {
-    if (se->id == id)
+    if (se->name == nameToFind)
       return se;
   }
-  jassertfalse;
+  LOGWARNING("Failed to find SimEntity for name "<<nameToFind);
   return nullptr;
 }
 
-SimReaction *Simulation::getSimReactionForID(int idSAT)
+SimReaction *Simulation::getSimReactionForName(String nameToFind)
 {
   for (auto &sr : reactions)
   {
-    if (sr->idSAT == idSAT)
+    if (sr->name == nameToFind)
       return sr;
   }
-  jassertfalse;
+  LOGWARNING("Failed to find SimReaction for name "<<nameToFind);
   return nullptr;
 }
 
@@ -1123,6 +1169,10 @@ SimEntity::SimEntity(var data)
 
   if (data.getDynamicObject()->hasProperty("name"))
     name = data.getDynamicObject()->getProperty("name");
+  else{
+    LOGWARNING("No name for Entity");
+    return;
+  }
 
   if (data.getDynamicObject()->hasProperty("color"))
     color = JSON2Color(data.getDynamicObject()->getProperty("color"));
@@ -1182,6 +1232,7 @@ var SimEntity::toJSONData()
   data.getDynamicObject()->setProperty("freeEnergy", freeEnergy);
   data.getDynamicObject()->setProperty("level", level);
   data.getDynamicObject()->setProperty("draw", draw);
+  
   var comp;
   for (auto &i : composition)
   {
@@ -1270,17 +1321,19 @@ SimReaction::SimReaction(var data)
     return;
 
   Simulation *simul = Simulation::getInstance();
-  if (data.getDynamicObject()->hasProperty("reactant1_id"))
-    reactant1 = simul->getSimEntityForID(data["reactant1_id"]);
-
-  reactant1 = simul->getSimEntityForID(data.getProperty("reactant1_id", -1));
+  if (data.getDynamicObject()->hasProperty("reactant1"))
+    reactant1 = simul->getSimEntityForName(data["reactant1"]);
+    else{
+      LOGWARNING("No reactant1 for reaction");
+      return;
+    }
 
   // to change on same model
-  if (data.getDynamicObject()->hasProperty("reactant2_id"))
-    reactant2 = simul->getSimEntityForID(data["reactant2_id"]);
+  if (data.getDynamicObject()->hasProperty("reactant2"))
+    reactant2 = simul->getSimEntityForName(data["reactant2"]);
 
-  if (data.getDynamicObject()->hasProperty("product_id"))
-    product = simul->getSimEntityForID(data["product_id"]);
+  if (data.getDynamicObject()->hasProperty("product"))
+    product = simul->getSimEntityForName(data["product"]);
 
   if (data.getDynamicObject()->hasProperty("assocRate"))
     assocRate = data["assocRate"];
@@ -1297,9 +1350,9 @@ SimReaction::SimReaction(var data)
 var SimReaction::toJSONData()
 {
   var data = new DynamicObject();
-  data.getDynamicObject()->setProperty("reactant1_id", reactant1->id);
-  data.getDynamicObject()->setProperty("reactant2_id", reactant2->id);
-  data.getDynamicObject()->setProperty("product_id", product->id);
+  data.getDynamicObject()->setProperty("reactant1", reactant1->name);
+  data.getDynamicObject()->setProperty("reactant2", reactant2->name);
+  data.getDynamicObject()->setProperty("product", product->name);
 
   data.getDynamicObject()->setProperty("assocRate", assocRate);
   data.getDynamicObject()->setProperty("dissocRate", dissocRate);
@@ -1331,6 +1384,10 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 void SimReaction::computeBarrier()
 {
   // compute energy barrier
+  if(reactant1==nullptr||reactant2==nullptr||product==nullptr){
+    LOGWARNING("Null reactant or product for reaction "<<name);
+    return;
+  }
   float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
   ;
   float energyRight = product->freeEnergy;

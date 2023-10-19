@@ -61,6 +61,9 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadi
 	Generation::getInstance()->loadJSONData(data.getProperty(Generation::getInstance()->shortName, var()));
 	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
 	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
+
+	Simulation::getInstance()->establishLinks();
+
 }
 
 String EmergenceNSEngine::getMinimumRequiredFileVersion()

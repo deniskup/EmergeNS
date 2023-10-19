@@ -132,6 +132,8 @@ public:
   // actually just equal to not generated
   //  bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
 
+  void establishLinks(); // establish links between lists and simulations, via names
+
   void importFromManual(); // import from manual changes using pointers
   void updateConcentLists(); //for each entity in the list, import its concentration from its simentity
 
@@ -200,9 +202,9 @@ public:
   void run() override;
 
 
-  SimEntity *getSimEntityForID(int id);
+  SimEntity *getSimEntityForName(String);
 
-  SimReaction *getSimReactionForID(int idSAT);
+  SimReaction *getSimReactionForName(String);
 
   void onContainerTriggerTriggered(Trigger *t) override;
   void onContainerParameterChanged(Parameter *p) override;

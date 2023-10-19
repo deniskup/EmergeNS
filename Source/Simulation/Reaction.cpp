@@ -133,6 +133,10 @@ void Reaction::inferEntities()
         return;
       }
     }
+    //rename to follow convention
+    String newName = name1 + "+" + name2 + "=" + namep;
+    if (newName != name)
+      niceName = newName;
     updateLinks();
   }
 }

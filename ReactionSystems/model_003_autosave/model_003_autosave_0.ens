@@ -35,19 +35,19 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1366,
+      "width": 1360,
       "height": 697,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1366,
+          "width": 1360,
           "height": 697,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 381,
+              "width": 378,
               "height": 697,
               "currentContent": "Entities",
               "tabs": [
@@ -64,19 +64,19 @@
             },
             {
               "type": 1,
-              "width": 979,
+              "width": 976,
               "height": 697,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 744,
+                  "width": 743,
                   "height": 697,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 744,
+                      "width": 743,
                       "height": 425,
                       "currentContent": "Simulation",
                       "tabs": [
@@ -87,7 +87,7 @@
                     },
                     {
                       "type": 0,
-                      "width": 744,
+                      "width": 743,
                       "height": 266,
                       "currentContent": "RACs",
                       "tabs": [
@@ -100,7 +100,7 @@
                 },
                 {
                   "type": 0,
-                  "width": 229,
+                  "width": 227,
                   "height": 697,
                   "currentContent": "Logger",
                   "tabs": [
@@ -139,12 +139,12 @@
         "controlAddress": "/checkpoints"
       },
       {
-        "value": 0.5,
+        "value": 22.30001831054688,
         "controlAddress": "/maxConcent"
       },
       {
-        "value": true,
-        "controlAddress": "/unicolor"
+        "value": false,
+        "controlAddress": "/autoScale"
       },
       {
         "value": 0.0001,
@@ -169,7 +169,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 100.0,
+            "value": 3.692615032196045,
             "controlAddress": "/concent"
           },
           {
@@ -200,11 +200,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 0.6000000238418579,
+            "value": 1.300000190734863,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.3323614299297333,
+            "value": 0.1663708090782166,
             "controlAddress": "/concent"
           },
           {
@@ -239,11 +239,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 4.299999713897705,
+            "value": 3.799999713897705,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.00728821475058794,
+            "value": 0.6933271884918213,
             "controlAddress": "/concent"
           },
           {
@@ -278,11 +278,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 3.299999952316284,
+            "value": 3.599999904632568,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 7.95320987701416,
+            "value": 0.4536576867103577,
             "controlAddress": "/concent"
           },
           {
@@ -317,11 +317,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 8.799999237060547,
+            "value": 2.299999952316284,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0005861382815055549,
+            "value": 0.6187601685523987,
             "controlAddress": "/concent"
           },
           {
@@ -356,11 +356,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 19.80000114440918,
+            "value": 15.30000114440918,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.01164116431027651,
+            "value": 2.145636796951294,
             "controlAddress": "/concent"
           },
           {
@@ -602,12 +602,12 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 322.8470764160156,
-    "recordEntity": "1",
-    "recordDrawn": 322.8470764160156,
-    "recordDrawnEntity": "1",
+    "recordConcent": 15.22504615783691,
+    "recordEntity": "6",
+    "recordDrawn": 15.22504615783691,
+    "recordDrawnEntity": "",
     "numLevels": -1,
-    "PACsGenerated": true,
+    "PACsGenerated": false,
     "entities": [
       {
         "name": "1",
@@ -619,7 +619,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 322.8470764160156,
+        "concent": 19.7840690612793,
         "startConcent": 19.7840690612793,
         "creationRate": 46.58519744873047,
         "destructionRate": 0.1315934807062149,
@@ -638,8 +638,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.3323614299297333,
-        "startConcent": 0.6000000238418579,
+        "concent": 1.300000190734863,
+        "startConcent": 1.300000190734863,
         "creationRate": 0.0,
         "destructionRate": 0.1025313138961792,
         "freeEnergy": -8.039361953735352,
@@ -657,8 +657,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.00728821475058794,
-        "startConcent": 4.299999713897705,
+        "concent": 3.799999713897705,
+        "startConcent": 3.799999713897705,
         "creationRate": 0.0,
         "destructionRate": 0.08488205820322037,
         "freeEnergy": -12.58199214935303,
@@ -676,8 +676,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 7.95320987701416,
-        "startConcent": 3.299999952316284,
+        "concent": 3.599999904632568,
+        "startConcent": 3.599999904632568,
         "creationRate": 0.0,
         "destructionRate": 0.103299655020237,
         "freeEnergy": -16.76122665405273,
@@ -695,8 +695,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0005861382815055549,
-        "startConcent": 8.799999237060547,
+        "concent": 2.299999952316284,
+        "startConcent": 2.299999952316284,
         "creationRate": 0.0,
         "destructionRate": 0.06553971767425537,
         "freeEnergy": -20.0,
@@ -714,8 +714,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.01164116431027651,
-        "startConcent": 19.80000114440918,
+        "concent": 15.30000114440918,
+        "startConcent": 15.30000114440918,
         "creationRate": 0.0,
         "destructionRate": 0.09798003733158112,
         "freeEnergy": -20.0,
@@ -739,7 +739,7 @@
         "product_id": -1,
         "assocRate": 0.5372170209884644,
         "dissocRate": 1.0,
-        "idSAT": 1
+        "idSAT": 0
       },
       {
         "reactant1_id": -1,
@@ -747,7 +747,7 @@
         "product_id": -1,
         "assocRate": 1.0,
         "dissocRate": 1.0,
-        "idSAT": 2
+        "idSAT": 0
       },
       {
         "reactant1_id": -1,
@@ -755,7 +755,7 @@
         "product_id": -1,
         "assocRate": 0.008224904537200928,
         "dissocRate": 1.0,
-        "idSAT": 3
+        "idSAT": 0
       },
       {
         "reactant1_id": -1,
@@ -763,7 +763,7 @@
         "product_id": -1,
         "assocRate": 0.005718868691474199,
         "dissocRate": 1.0,
-        "idSAT": 4
+        "idSAT": 0
       }
     ],
     "primEnts": [
@@ -771,129 +771,6 @@
         "ent_id": -1
       }
     ],
-    "cycles": [
-      {
-        "entities": [
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": false
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 0,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": false
-          },
-          {
-            "reac_id": 3,
-            "dir": true
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          },
-          {
-            "ent_id": -1
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac_id": 1,
-            "dir": true
-          },
-          {
-            "reac_id": 2,
-            "dir": true
-          },
-          {
-            "reac_id": 3,
-            "dir": false
-          },
-          {
-            "reac_id": 4,
-            "dir": false
-          }
-        ]
-      }
-    ]
+    "cycles": null
   }
 }
