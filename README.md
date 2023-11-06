@@ -7,6 +7,6 @@
 5) In File>Global path, you can add the Path to Juce if necessary.
 6) Choose your plateform (linux, mac, windows) in "selected exporter", and save the project.
 7) You can try to go in "EmergenceNS/Builds/your system" and compile with "make -j 4"
-8) make sure you have minisat installed and that the command "minisat" works.
+8) make sure you have z3 installed and that the command "z3" works.
 
 
