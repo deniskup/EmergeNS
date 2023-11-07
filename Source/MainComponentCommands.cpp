@@ -190,6 +190,7 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::renameReacs:
 	{
 		ReactionManager::getInstance()->autoRename();
+		//refresh interface
 	}
 	break;
 

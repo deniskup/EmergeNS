@@ -92,13 +92,18 @@ void Reaction::updateLinks()
 
 void Reaction::autoRename()
 {
-  niceName=reactant1->targetContainer->niceName+"+"+reactant2->targetContainer->niceName+"="+product->targetContainer->niceName;
+
+  String newName = reactant1->targetContainer.get()->niceName + "+" + reactant2->targetContainer.get()->niceName + "=" + product->targetContainer.get()->niceName;
+  if (newName != niceName)
+  {
+    setNiceName(newName);
+  }
 }
 
 void Reaction::inferEntities()
 {
-  //cout << "trying to infer entities" << endl;
-  // if name is A+B, infer entities
+  // cout << "trying to infer entities" << endl;
+  //  if name is A+B, infer entities
   String name = niceName;
   int pos = name.indexOfChar('+');
   int pos2 = name.indexOfChar('=');
@@ -107,14 +112,18 @@ void Reaction::inferEntities()
     String name1 = name.substring(0, pos).trim();
     String name2;
     String namep;
-    if(pos2>0){
-      name2 = name.substring(pos + 1,pos2).trim();
-      namep= name.substring(pos2 + 1).trim();}
-    else{
+    if (pos2 > 0)
+    {
+      name2 = name.substring(pos + 1, pos2).trim();
+      namep = name.substring(pos2 + 1).trim();
+    }
+    else
+    {
       name2 = name.substring(pos + 1).trim();
       for (int i = 0; i < name1.length(); i++)
       {
-        namep += (char)((name1[i]-'0') + (name2[i]-'0') + '0');
+        //namep will be inferred from name1 and name2 by adding the corresponding digits
+        namep += (char)((name1[i] - '0') + (name2[i] - '0') + '0');
       }
     }
 
@@ -125,7 +134,7 @@ void Reaction::inferEntities()
       reactant1->setValueFromTarget(e1, false);
       reactant2->setValueFromTarget(e2, false);
       // compute product by summing up reactants
-      
+
       Entity *ep = EntityManager::getInstance()->getEntityFromName(namep);
       if (ep != nullptr)
       {
@@ -134,11 +143,11 @@ void Reaction::inferEntities()
       }
       else
       {
-        NLOG("InferEntities", "Could not infer product "+namep+" for reaction " + name);
+        NLOG("InferEntities", "Could not infer product " + namep + " for reaction " + name);
         return;
       }
     }
-    //rename to follow convention
+    // rename to follow convention
     String newName = name1 + "+" + name2 + "=" + namep;
     if (newName != name)
       niceName = newName;
