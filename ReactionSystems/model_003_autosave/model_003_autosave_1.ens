@@ -36,42 +36,58 @@
     "mainLayout": {
       "type": 1,
       "width": 1360,
-      "height": 697,
+      "height": 698,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 1360,
-          "height": 697,
+          "height": 698,
           "direction": 1,
           "shifters": [
             {
-              "type": 0,
+              "type": 1,
               "width": 378,
-              "height": 697,
-              "currentContent": "Entities",
-              "tabs": [
+              "height": 698,
+              "direction": 2,
+              "shifters": [
                 {
-                  "name": "Entities"
+                  "type": 0,
+                  "width": 378,
+                  "height": 306,
+                  "currentContent": "Reactions",
+                  "tabs": [
+                    {
+                      "name": "Reactions"
+                    }
+                  ]
                 },
                 {
-                  "name": "Reactions"
-                },
-                {
-                  "name": "Generation"
+                  "type": 0,
+                  "width": 378,
+                  "height": 386,
+                  "currentContent": "Entities",
+                  "tabs": [
+                    {
+                      "name": "Entities"
+                    },
+                    {
+                      "name": "Generation"
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": 1,
               "width": 976,
-              "height": 697,
+              "height": 698,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 743,
-                  "height": 697,
+                  "height": 698,
                   "direction": 2,
                   "shifters": [
                     {
@@ -101,7 +117,7 @@
                 {
                   "type": 0,
                   "width": 227,
-                  "height": 697,
+                  "height": 698,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -169,7 +185,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.692615032196045,
+            "value": 100.0,
             "controlAddress": "/concent"
           },
           {
@@ -204,7 +220,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.1663708090782166,
+            "value": 0.4510838389396667,
             "controlAddress": "/concent"
           },
           {
@@ -243,7 +259,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.6933271884918213,
+            "value": 0.004600227810442448,
             "controlAddress": "/concent"
           },
           {
@@ -278,11 +294,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 3.599999904632568,
+            "value": 0.8000004291534424,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4536576867103577,
+            "value": 4.749122619628906,
             "controlAddress": "/concent"
           },
           {
@@ -321,7 +337,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.6187601685523987,
+            "value": 0.000471069186460226,
             "controlAddress": "/concent"
           },
           {
@@ -360,7 +376,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.145636796951294,
+            "value": 0.009362319484353065,
             "controlAddress": "/concent"
           },
           {
@@ -595,6 +611,10 @@
         "controlAddress": "/printPACsToFile"
       },
       {
+        "value": true,
+        "controlAddress": "/nonMinimalPACs"
+      },
+      {
         "value": false,
         "controlAddress": "/autoLoadLists"
       }
@@ -602,12 +622,12 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 15.22504615783691,
-    "recordEntity": "6",
-    "recordDrawn": 15.22504615783691,
-    "recordDrawnEntity": "",
+    "recordConcent": 325.1214294433594,
+    "recordEntity": "1",
+    "recordDrawn": 325.1214294433594,
+    "recordDrawnEntity": "2",
     "numLevels": -1,
-    "PACsGenerated": false,
+    "PACsGenerated": true,
     "entities": [
       {
         "name": "1",
@@ -619,7 +639,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 19.7840690612793,
+        "concent": 325.1214294433594,
         "startConcent": 19.7840690612793,
         "creationRate": 46.58519744873047,
         "destructionRate": 0.1315934807062149,
@@ -638,7 +658,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 1.300000190734863,
+        "concent": 0.4510838389396667,
         "startConcent": 1.300000190734863,
         "creationRate": 0.0,
         "destructionRate": 0.1025313138961792,
@@ -657,7 +677,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 3.799999713897705,
+        "concent": 0.004600227810442448,
         "startConcent": 3.799999713897705,
         "creationRate": 0.0,
         "destructionRate": 0.08488205820322037,
@@ -676,8 +696,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 3.599999904632568,
-        "startConcent": 3.599999904632568,
+        "concent": 4.749122619628906,
+        "startConcent": 0.8000004291534424,
         "creationRate": 0.0,
         "destructionRate": 0.103299655020237,
         "freeEnergy": -16.76122665405273,
@@ -695,7 +715,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 2.299999952316284,
+        "concent": 0.0004710691864602268,
         "startConcent": 2.299999952316284,
         "creationRate": 0.0,
         "destructionRate": 0.06553971767425537,
@@ -714,7 +734,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 15.30000114440918,
+        "concent": 0.009362319484353065,
         "startConcent": 15.30000114440918,
         "creationRate": 0.0,
         "destructionRate": 0.09798003733158112,
@@ -726,51 +746,174 @@
     ],
     "reactions": [
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "1",
+        "reactant2": "3",
+        "product": "4",
         "assocRate": 1.0,
         "dissocRate": 0.01531022321432829,
         "idSAT": 0
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "2",
+        "reactant2": "3",
+        "product": "5",
         "assocRate": 0.5372170209884644,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 1
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "1",
+        "reactant2": "5",
+        "product": "6",
         "assocRate": 1.0,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 2
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "2",
+        "reactant2": "4",
+        "product": "6",
         "assocRate": 0.008224904537200928,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 3
       },
       {
-        "reactant1_id": -1,
-        "reactant2_id": -1,
-        "product_id": -1,
+        "reactant1": "3",
+        "reactant2": "3",
+        "product": "6",
         "assocRate": 0.005718868691474199,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 4
       }
     ],
     "primEnts": [
       {
-        "ent_id": -1
+        "ent": "1"
       }
     ],
-    "cycles": null
+    "cycles": [
+      {
+        "entities": [
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "5"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "2+3=5",
+            "dir": false
+          },
+          {
+            "reac": "1+5=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "4"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "1+3=4",
+            "dir": false
+          },
+          {
+            "reac": "2+4=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "1"
+          },
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "4"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "1+3=4",
+            "dir": true
+          },
+          {
+            "reac": "1+5=6",
+            "dir": false
+          },
+          {
+            "reac": "2+4=6",
+            "dir": true
+          },
+          {
+            "reac": "3+3=6",
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "2"
+          },
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "5"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "2+3=5",
+            "dir": true
+          },
+          {
+            "reac": "1+5=6",
+            "dir": true
+          },
+          {
+            "reac": "2+4=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": false
+          }
+        ]
+      }
+    ]
   }
 }

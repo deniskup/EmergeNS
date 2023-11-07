@@ -36,19 +36,19 @@
     "mainLayout": {
       "type": 1,
       "width": 1360,
-      "height": 697,
+      "height": 698,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 1360,
-          "height": 697,
+          "height": 698,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
               "width": 378,
-              "height": 697,
+              "height": 698,
               "currentContent": "Entities",
               "tabs": [
                 {
@@ -65,19 +65,19 @@
             {
               "type": 1,
               "width": 976,
-              "height": 697,
+              "height": 698,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 743,
-                  "height": 697,
+                  "height": 698,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 743,
-                      "height": 425,
+                      "height": 426,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -101,7 +101,7 @@
                 {
                   "type": 0,
                   "width": 227,
-                  "height": 697,
+                  "height": 698,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -204,7 +204,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4096138477325439,
+            "value": 0.4531494975090027,
             "controlAddress": "/concent"
           },
           {
@@ -243,7 +243,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.004887337330728769,
+            "value": 0.004036922473460436,
             "controlAddress": "/concent"
           },
           {
@@ -278,11 +278,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 3.599999904632568,
+            "value": 0.8000004291534424,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 5.143650054931641,
+            "value": 4.164824485778809,
             "controlAddress": "/concent"
           },
           {
@@ -321,7 +321,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0004638133104890585,
+            "value": 0.0004143921833019704,
             "controlAddress": "/concent"
           },
           {
@@ -356,11 +356,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 15.30000114440918,
+            "value": 13.00000190734863,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.009217247366905212,
+            "value": 0.008236896246671677,
             "controlAddress": "/concent"
           },
           {
@@ -602,12 +602,12 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 325.0692138671875,
+    "recordConcent": 325.4912719726562,
     "recordEntity": "1",
-    "recordDrawn": 325.0692138671875,
+    "recordDrawn": 325.4912719726562,
     "recordDrawnEntity": "1",
     "numLevels": -1,
-    "PACsGenerated": false,
+    "PACsGenerated": true,
     "entities": [
       {
         "name": "1",
@@ -619,7 +619,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 325.0692138671875,
+        "concent": 325.4912719726562,
         "startConcent": 19.7840690612793,
         "creationRate": 46.58519744873047,
         "destructionRate": 0.1315934807062149,
@@ -638,7 +638,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.4096138477325439,
+        "concent": 0.4531494975090027,
         "startConcent": 1.300000190734863,
         "creationRate": 0.0,
         "destructionRate": 0.1025313138961792,
@@ -657,7 +657,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.004887337330728769,
+        "concent": 0.004036922473460436,
         "startConcent": 3.799999713897705,
         "creationRate": 0.0,
         "destructionRate": 0.08488205820322037,
@@ -676,8 +676,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 5.143650054931641,
-        "startConcent": 3.599999904632568,
+        "concent": 4.164824485778809,
+        "startConcent": 0.8000004291534424,
         "creationRate": 0.0,
         "destructionRate": 0.103299655020237,
         "freeEnergy": -16.76122665405273,
@@ -695,7 +695,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0004638133104890585,
+        "concent": 0.0004143921833019704,
         "startConcent": 2.299999952316284,
         "creationRate": 0.0,
         "destructionRate": 0.06553971767425537,
@@ -714,8 +714,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.009217247366905212,
-        "startConcent": 15.30000114440918,
+        "concent": 0.008236896246671677,
+        "startConcent": 13.00000190734863,
         "creationRate": 0.0,
         "destructionRate": 0.09798003733158112,
         "freeEnergy": -20.0,
@@ -739,7 +739,7 @@
         "product": "5",
         "assocRate": 0.5372170209884644,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 1
       },
       {
         "reactant1": "1",
@@ -747,7 +747,7 @@
         "product": "6",
         "assocRate": 1.0,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 2
       },
       {
         "reactant1": "2",
@@ -755,7 +755,7 @@
         "product": "6",
         "assocRate": 0.008224904537200928,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 3
       },
       {
         "reactant1": "3",
@@ -763,7 +763,7 @@
         "product": "6",
         "assocRate": 0.005718868691474199,
         "dissocRate": 1.0,
-        "idSAT": 0
+        "idSAT": 4
       }
     ],
     "primEnts": [
@@ -771,6 +771,129 @@
         "ent": "1"
       }
     ],
-    "cycles": null
+    "cycles": [
+      {
+        "entities": [
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "4"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "1+3=4",
+            "dir": false
+          },
+          {
+            "reac": "2+4=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "5"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "2+3=5",
+            "dir": false
+          },
+          {
+            "reac": "1+5=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": true
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "2"
+          },
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "5"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "2+3=5",
+            "dir": true
+          },
+          {
+            "reac": "1+5=6",
+            "dir": true
+          },
+          {
+            "reac": "2+4=6",
+            "dir": false
+          },
+          {
+            "reac": "3+3=6",
+            "dir": false
+          }
+        ]
+      },
+      {
+        "entities": [
+          {
+            "ent": "1"
+          },
+          {
+            "ent": "3"
+          },
+          {
+            "ent": "4"
+          },
+          {
+            "ent": "6"
+          }
+        ],
+        "reacDirs": [
+          {
+            "reac": "1+3=4",
+            "dir": true
+          },
+          {
+            "reac": "1+5=6",
+            "dir": false
+          },
+          {
+            "reac": "2+4=6",
+            "dir": true
+          },
+          {
+            "reac": "3+3=6",
+            "dir": false
+          }
+        ]
+      }
+    ]
   }
 }

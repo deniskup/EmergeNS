@@ -1,4 +1,4 @@
--RAC based on vector and not just directions
+-detect realizable PACs: flows coming from concentrations and mass action
 
 -bug a regler: ignore free energy/barriers does not work.
 
