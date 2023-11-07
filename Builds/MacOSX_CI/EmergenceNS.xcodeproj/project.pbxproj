@@ -28,6 +28,7 @@
 		7901AB2D0CDD47E7997BA379 /* Settings.cpp */ = {isa = PBXBuildFile; fileRef = EE17CAEE78682725DB5BBF14; };
 		79864665CA44312AD50D238E /* include_juce_organicui3.cpp */ = {isa = PBXBuildFile; fileRef = B1E31D9C1C0073541A716045; };
 		7BAFE20C075CDBA708F48D0D /* include_juce_organicui.cpp */ = {isa = PBXBuildFile; fileRef = B3FF5146B9527D733EAEFFBC; };
+		7D8D7A318F242F63ABE5FC58 /* MetalKit.framework */ = {isa = PBXBuildFile; fileRef = DD5AD796CD0E785CF0F03B83; settings = { ATTRIBUTES = (Weak, ); }; };
 		8963F25C4FE63C03487741C4 /* include_juce_organicui2b.cpp */ = {isa = PBXBuildFile; fileRef = 809AF05ED9C59B5B3A458EF0; };
 		8B14B5695B4D2A3EA6E788AB /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = AAC570EA24B0912905F457EC; };
 		8C03AC320571C486402374B8 /* MainComponentCommands.cpp */ = {isa = PBXBuildFile; fileRef = 6B28E7757C58181F28CE8C98; };
@@ -42,6 +43,7 @@
 		BC56B1398766CC3768FD2DB7 /* SettingsUI.cpp */ = {isa = PBXBuildFile; fileRef = 828DE22CEC4B72C6FAFA60C7; };
 		BF8EDB88322C998769A498EA /* include_juce_gui_extra.mm */ = {isa = PBXBuildFile; fileRef = 254D3044A95762CDE06EA4C4; };
 		C39C3931D634E95D605B4187 /* Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 7DEB9EEC5E065FB07DB498C9; };
+		C4F4A0A9768358CFD703DC56 /* Metal.framework */ = {isa = PBXBuildFile; fileRef = 9C777874D6DDED0AF1A9C0F9; settings = { ATTRIBUTES = (Weak, ); }; };
 		C7DD4B3A6E26C93056BA9AA3 /* include_juce_gui_basics.mm */ = {isa = PBXBuildFile; fileRef = 8C878E400E743CDBDEFDE449; };
 		C96344D043028DB34B18094D /* MainComponent.cpp */ = {isa = PBXBuildFile; fileRef = 75DE9D4D888466F8BE4DED40; };
 		CF4DB48E03A71FA022706B76 /* QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = 551A1F2644A00B3694FFEF03; };
@@ -110,6 +112,7 @@
 		93A969105BD28052FAAF8FAB /* EmergenceNSEngine.cpp */ /* EmergenceNSEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EmergenceNSEngine.cpp; path = ../../Source/Engine/EmergenceNSEngine.cpp; sourceTree = SOURCE_ROOT; };
 		94ADA8C705B58B18B65F8620 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
 		979AB46578CDD5433CE6BAB9 /* ReactionManagerUI.cpp */ /* ReactionManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManagerUI.cpp; path = ../../Source/Simulation/ui/ReactionManagerUI.cpp; sourceTree = SOURCE_ROOT; };
+		9C777874D6DDED0AF1A9C0F9 /* Metal.framework */ /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		9EC0C402F7E2CEA90A038BD5 /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
 		A7BC937A724A15B058475F3E /* RecentFilesMenuTemplate.nib */ /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; name = RecentFilesMenuTemplate.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
 		AAC570EA24B0912905F457EC /* include_juce_data_structures.mm */ /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
@@ -130,6 +133,7 @@
 		D7B97D77FC6064DB8D8FB845 /* juce_opengl */ /* juce_opengl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_opengl; path = ../../JUCE/modules/juce_opengl; sourceTree = SOURCE_ROOT; };
 		D8E436FB2DA37799939E2EC5 /* ReactionManagerUI.h */ /* ReactionManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ReactionManagerUI.h; path = ../../Source/Simulation/ui/ReactionManagerUI.h; sourceTree = SOURCE_ROOT; };
 		DD4594810EE458E97AD4DC65 /* Main.h */ /* Main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Main.h; path = ../../Source/Main.h; sourceTree = SOURCE_ROOT; };
+		DD5AD796CD0E785CF0F03B83 /* MetalKit.framework */ /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		E70390156D59535F88C324EE /* Generation.cpp */ /* Generation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Generation.cpp; path = ../../Source/Simulation/Generation.cpp; sourceTree = SOURCE_ROOT; };
 		E9B10D7112644866B7E9E69E /* include_juce_opengl.mm */ /* include_juce_opengl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_opengl.mm; path = ../../JuceLibraryCode/include_juce_opengl.mm; sourceTree = SOURCE_ROOT; };
 		E9CB0DD14A5FB3D546279B62 /* Security.framework */ /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -151,6 +155,8 @@
 				CF4DB48E03A71FA022706B76,
 				A0FEEF4C684BC19BAD78EEC8,
 				FB4790411EA2687DD2287B98,
+				C4F4A0A9768358CFD703DC56,
+				7D8D7A318F242F63ABE5FC58,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,6 +173,8 @@
 				551A1F2644A00B3694FFEF03,
 				E9CB0DD14A5FB3D546279B62,
 				AB18201445A02AF468BA32C2,
+				9C777874D6DDED0AF1A9C0F9,
+				DD5AD796CD0E785CF0F03B83,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -359,6 +367,7 @@
 		A5CA2FF9AAADEE5D4F496D22 = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1340;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
@@ -483,6 +492,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
@@ -530,6 +540,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = NO;
@@ -562,6 +573,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				DEAD_CODE_STRIPPING = YES;
@@ -573,7 +585,7 @@
 					"NDEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x70005",
+					"JUCE_PROJUCER_VERSION=0x70008",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
@@ -614,7 +626,6 @@
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(SRCROOT)/../../Source $(SRCROOT)/../../Modules";
-				OTHER_LDFLAGS = "-weak_framework Metal -weak_framework MetalKit";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergenceNS;
 				PRODUCT_NAME = "EmergenceNS";
 				USE_HEADERMAP = NO;
@@ -629,6 +640,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
+				CODE_SIGN_IDENTITY = "";
 				COMBINE_HIDPI_IMAGES = YES;
 				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
 				COPY_PHASE_STRIP = NO;
@@ -640,7 +652,7 @@
 					"DEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x70005",
+					"JUCE_PROJUCER_VERSION=0x70008",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
@@ -680,7 +692,6 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(SRCROOT)/../../Source $(SRCROOT)/../../Modules";
-				OTHER_LDFLAGS = "-weak_framework Metal -weak_framework MetalKit";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergenceNS;
 				PRODUCT_NAME = "EmergenceNS";
 				USE_HEADERMAP = NO;
