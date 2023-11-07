@@ -1360,7 +1360,8 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
   reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
   reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
   product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
-  setName();
+  name= r->niceName; //name from the original reaction
+  //setName(); //to rename automatically
 }
 
 SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate), energy(barrier)
@@ -1418,6 +1419,9 @@ SimReaction::SimReaction(var data)
     return;
   }
 
+  if (data.getDynamicObject()->hasProperty("name"))
+    name = data["name"];
+
   if (data.getDynamicObject()->hasProperty("assocRate"))
     assocRate = data["assocRate"];
 
@@ -1427,7 +1431,6 @@ SimReaction::SimReaction(var data)
   if (data.getDynamicObject()->hasProperty("idSAT"))
     idSAT = data["idSAT"];
 
-  setName();
 }
 
 var SimReaction::toJSONData()
@@ -1436,6 +1439,7 @@ var SimReaction::toJSONData()
   data.getDynamicObject()->setProperty("reactant1", reactant1->name);
   data.getDynamicObject()->setProperty("reactant2", reactant2->name);
   data.getDynamicObject()->setProperty("product", product->name);
+  data.getDynamicObject()->setProperty("name",name);
 
   data.getDynamicObject()->setProperty("assocRate", assocRate);
   data.getDynamicObject()->setProperty("dissocRate", dissocRate);

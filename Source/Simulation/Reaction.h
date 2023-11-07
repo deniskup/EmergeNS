@@ -36,6 +36,8 @@ public:
 
     void updateLinks();
 
+    void autoRename();
+
     void inferEntities();
 
     bool shouldIncludeInSimulation();

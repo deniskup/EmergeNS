@@ -83,7 +83,7 @@ public:
 
     bool reached; //is the reaction reached from primary entities ?
 
-  String name; // should be a+b=c
+  String name; //by default a+b=c, but not forced
 
   void setName();
 

@@ -7,13 +7,14 @@ namespace NSCommandIDs
 {
 	static const int computeCompositions = 0x60000;
 	static const int normalizeEnergies = 0x60001;
-	static const int PACminisat = 0x60002;
-	static const int PACkissat = 0x60003;
+	// static const int PACminisat = 0x60002;
+	// static const int PACkissat = 0x60003;
 	static const int loadManual = 0x60004;
 	static const int computeBarriers = 0x60005;
 	static const int clearLists = 0x60006;
 	static const int PACwithZ3 = 0x60007;
 	static const int fetchManual = 0x60008;
+	static const int renameReacs = 0x60009;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -29,15 +30,15 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 
 		break;
 
-	case NSCommandIDs::PACminisat:
-		result.setInfo("PACs with minisat", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("m").getKeyCode(), ModifierKeys::commandModifier);
-		break;
+	// case NSCommandIDs::PACminisat:
+	// 	result.setInfo("PACs with minisat", "", "General", result.readOnlyInKeyEditor);
+	// 	result.addDefaultKeypress(KeyPress::createFromDescription("m").getKeyCode(), ModifierKeys::commandModifier);
+	// 	break;
 
-	case NSCommandIDs::PACkissat:
-		result.setInfo("PACs with kissat", "", "General", result.readOnlyInKeyEditor);
-		result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
-		break;
+	// case NSCommandIDs::PACkissat:
+	// 	result.setInfo("PACs with kissat", "", "General", result.readOnlyInKeyEditor);
+	// 	result.addDefaultKeypress(KeyPress::createFromDescription("k").getKeyCode(), ModifierKeys::commandModifier);
+	// 	break;
 
 	case NSCommandIDs::PACwithZ3:
 		result.setInfo("PACs with Z3", "", "General", result.readOnlyInKeyEditor);
@@ -65,6 +66,11 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		//result.addDefaultKeypress(KeyPress::createFromDescription("c").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
+	case NSCommandIDs::renameReacs:
+		result.setInfo("Rename Reactions", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
 	default:
 		OrganicMainContentComponent::getCommandInfo(commandID, result);
 		break;
@@ -79,13 +85,14 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 	const CommandID ids[] = {
 		NSCommandIDs::computeCompositions,
 		NSCommandIDs::normalizeEnergies,
-		NSCommandIDs::PACminisat,
-		NSCommandIDs::PACkissat,
+		// NSCommandIDs::PACminisat,
+		// NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
 		NSCommandIDs::loadManual,
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
-		NSCommandIDs::clearLists
+		NSCommandIDs::clearLists,
+		NSCommandIDs::renameReacs
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -100,13 +107,14 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 	{
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
+		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
+		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::fetchManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::renameReacs);
 	}
 	return menu;
 }
@@ -134,18 +142,18 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	}
 	break;
 
-	case NSCommandIDs::PACminisat:
-	{
+	// case NSCommandIDs::PACminisat:
+	// {
 		
-		Simulation::getInstance()->pacList->computePACs(0);
-	}
-	break;
-	case NSCommandIDs::PACkissat:
-	{
+	// 	Simulation::getInstance()->pacList->computePACs(0);
+	// }
+	// break;
+	// case NSCommandIDs::PACkissat:
+	// {
 
-		Simulation::getInstance()->pacList->computePACs(1);
-	}
-	break;
+	// 	Simulation::getInstance()->pacList->computePACs(1);
+	// }
+	// break;
 
 	case NSCommandIDs::PACwithZ3:
 	{
@@ -176,6 +184,12 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	{
 		ReactionManager::getInstance()->clear();
 		EntityManager::getInstance()->clear();
+	}
+	break;
+
+	case NSCommandIDs::renameReacs:
+	{
+		ReactionManager::getInstance()->autoRename();
 	}
 	break;
 

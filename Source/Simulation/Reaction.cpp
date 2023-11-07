@@ -90,6 +90,11 @@ void Reaction::updateLinks()
   updateWarnAndRates();
 }
 
+void Reaction::autoRename()
+{
+  niceName=reactant1->targetContainer->niceName+"+"+reactant2->targetContainer->niceName+"="+product->targetContainer->niceName;
+}
+
 void Reaction::inferEntities()
 {
   //cout << "trying to infer entities" << endl;

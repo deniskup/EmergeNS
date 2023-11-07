@@ -14,4 +14,6 @@ public:
 	ReactionManager();
 	~ReactionManager();
 
+	void autoRename();
+
 };

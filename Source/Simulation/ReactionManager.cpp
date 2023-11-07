@@ -15,3 +15,9 @@ ReactionManager::~ReactionManager()
 {
 }
 
+void ReactionManager::autoRename()
+{
+    for (auto &r : items){
+        r->autoRename();
+    }
+}
