@@ -9,7 +9,7 @@
 
 4. In the Juce folder, go in extras/Projucer/Builds/[YourOS]Makefile <br>
    For Linux ```make -j 4```<br>
-   For Mac ```sudo xcodebuild -project Builds/MacOSX/EmergenceNS.xcodeproj -alltargets -parallelizeTargets -configuration Release build```<br>
+   For Mac open with xcode and compile, or ```sudo xcodebuild -project Builds/MacOSX/EmergenceNS.xcodeproj -alltargets -parallelizeTargets -configuration Release build```<br>
 5. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
 
 6. In File>Global path, add the Path to Juce.
