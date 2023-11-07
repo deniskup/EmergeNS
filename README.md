@@ -9,9 +9,9 @@
 
    For Mac ```sudo xcodebuild -project Builds/MacOSX/MyApp.xcodeproj -alltargets -parallelizeTargets -configuration Release build```
 5) Open Projucer (in the build folder) and load EmergenceNS.jucer
-6) In File>Global path, you can add the Path to Juce if necessary.
-7) Choose your plateform (linux, mac, windows) in "selected exporter", and save the project.
-8) You can try to go in "EmergenceNS/Builds/your system" and use the ame command as in item 4
-9) make sure you have z3 installed and that the command "z3" works.
+6) In File>Global path, add the Path to Juce.
+7) Save the project
+8) You can go in "EmergenceNS/Builds/your system" and use the same command as in item 4
+9) Make sure you have z3 installed and that the command "z3" works in your terminal.
 
 
