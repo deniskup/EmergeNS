@@ -2,8 +2,81 @@
 #include "Simulation.h"
 #include "Settings.h"
 #include <regex>
+#include <stack>
+#include <cctype>
 
 using namespace std;
+
+float parseExpr(const string &input)
+{
+	string output = input;
+
+	// Define a regular expression pattern to match expressions of the form (operator number number)
+	regex pattern(R"(\(([-+*/\\]) (-?\d+\.\d+|-?[A-Za-z]+) (-?\d+\.\d+|-?[A-Za-z]+)\))");
+
+	sregex_iterator iter(output.begin(), output.end(), pattern);
+	sregex_iterator end;
+
+	// Create a map to store variable values
+	map<string, double> variables;
+
+	while (iter != end)
+	{
+		smatch match = *iter;
+
+		// Extract matched components
+		string fullMatch = match.str();
+		char op = match[1].str()[0];
+		string operand1 = match[2].str();
+		// if match[3] exists
+		string operand2;
+		if (!match[3].matched)
+		{
+			// unary operator, should be "-", we do 0-operand1
+			operand2 = operand1;
+			operand1 = "0.";
+		}else{
+			operand2 = match[3].str();
+		}
+
+		// Calculate the result based on the operator and operands
+		double result = 0.0;
+	
+			// Calculate the result based on the operator and numeric operands
+			if (op == '+')
+			{
+				result = stod(operand1) + stod(operand2);
+			}
+			else if (op == '-')
+			{
+				result = stod(operand1) - stod(operand2);
+			}
+			else if (op == '*')
+			{
+				result = stod(operand1) * stod(operand2);
+			}
+			else if (op == '/')
+			{
+				result = stod(operand1) / stod(operand2);
+			}		
+			else
+			{
+				cout << "Unknown operator: " << op << endl;
+				return 0.;
+			}
+
+		// Convert the result to a string and replace the matched substring
+		ostringstream oss;
+		oss << result;
+		string resultString = oss.str();
+		output.replace(match.position(), match.length(), resultString);
+
+		// Move to the next match
+		++iter;
+	}
+
+	return stof(output);
+}
 
 PAC::PAC(var data, Simulation *simul)
 {
@@ -130,6 +203,124 @@ bool PAC::includedIn(PAC *pac, bool onlyEnts)
 	return true;
 }
 
+map<string, float> parseModelReal(const string &output)
+{
+	map<string, float> model;
+
+	//  (define-fun conc2 () Real
+	//(/ 3.0 4.0))
+	// should return conc2 0.75
+
+	// Regex pattern to match variable assignments
+	// regex pattern(R"(define-fun ([a-zA-Z0-9_]+) \(\) Real\n\s+([0-9.]+))");
+	//search for concentrations only
+	regex pattern(R"(define-fun (conc[0-9_]+) \(\) Real\n\s+([^\n]+)\)\n)");
+
+	// Iterate over matches
+	sregex_iterator it(output.begin(), output.end(), pattern);
+	sregex_iterator end;
+	for (; it != end; ++it)
+	{
+		smatch match = *it;
+		string varName = match.str(1);
+		cout << "varName: " << varName << " is " << match.str(2) << "\n";
+		float varValue = parseExpr(match.str(2));
+		cout << varName << " " << varValue << " from " << match.str(2) << endl;
+		model[varName] = varValue;
+	}
+
+	return model;
+}
+
+void PAC::computeCAC(Simulation *simul)
+{
+	// use z3 to test the existence of a witness for the CAC
+	stringstream clauses;
+	string inputFile = "z3CAC.smt2";
+	string outputFile = "z3CACmodel.txt";
+	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+
+	// realistic coefs: coefs come from actual concentrations of entities
+	// declare concentrations variable
+	for (auto &e : simul->entities)
+	{
+		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
+		// bounds
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+	}
+	// compute coefs from concentrations
+	for (auto &rd : reacDirs)
+	{
+		SimReaction *r = rd.first;
+		clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+		// coef is assocRate*reac1*reac2-dissocRate*prod
+		clauses << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+	}
+	// for entities of the PAC, verify positive flow from reactions of the PAC
+	for (auto &e : entities)
+	{
+		clauses << "(assert (>= (+";
+		for (auto &rd : reacDirs)
+		{
+			SimReaction *r = rd.first;
+			if (r->reactant1 == e)
+			{
+				clauses << " (- coef" << r->idSAT << ")";
+			}
+			if (r->reactant2 == e)
+			{
+				clauses << " (- coef" << r->idSAT << ")";
+			}
+			if (r->product == e)
+			{
+				clauses << " coef" << r->idSAT;
+			}
+		}
+		clauses << " 0) 0))\n"; // last 0 to treat the case of no reaction, should not happen
+	}
+	// call z3
+	//  write to file
+	ofstream inputStream(inputFile);
+	inputStream << clauses.str();
+	inputStream << "(check-sat)\n";
+	inputStream << "(get-model)\n";
+	
+	inputStream.close();
+
+	system(z3Command.c_str());
+
+	ifstream outputStream(outputFile);
+	if (!outputStream)
+	{
+		cerr << "Failed to open file: " << outputFile << endl;
+		return;
+	}
+
+	string z3Output((istreambuf_iterator<char>(outputStream)),
+					istreambuf_iterator<char>());
+
+	// test if satisfiable
+	size_t newlinePos = z3Output.find('\n');
+	string firstLine = z3Output.substr(0, newlinePos);
+	if (firstLine == "unsat")
+	{
+		isCAC = false;
+		return;
+	}
+	if (firstLine != "sat")
+	{
+		LOGWARNING("Error in Z3 output");
+		return;
+	}
+	isCAC = true;
+	// parse the witness of concentrations
+	map<string, float> model = parseModelReal(z3Output);
+	for (auto &e : simul->entities)
+	{
+		witness.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
+	}
+}
+
 void PAClist::addCycle(PAC *newpac)
 {
 	// we only test if is is included in existing one, other direction is taken care of by SAT solver
@@ -223,6 +414,16 @@ void PAClist::computePACs(int numSolv)
 
 	numSolver = numSolv;
 	startThread();
+}
+
+void PAClist::computeCACS()
+{
+	// compute CACs among the PACs
+	LOG("Computing CACs");
+	for (auto &pac : cycles)
+	{
+		pac->computeCAC(simul);
+	}
 }
 
 void PAClist::run()
@@ -324,29 +525,11 @@ void PAClist::PACsWithZ3()
 		}
 	}
 
-	//------------- CAC part--------------
-	// realistic coefs: coefs come from actual concentrations of entities
-	// declare concentrations variable
-	/*for (auto &e : simul->entities)
-	{
-		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
-		// bounds
-		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
-	}
-	// compute coefs from concentrations
-	for (auto &r : simul->reactions)
-	{
-		// coef is assocRate*reac1*reac2-dissocRate*prod
-		clauses << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
-	}
-	*/
-	//-------------end CAC part-------------------
-
 	// true reactions with coefs produce a positive amount of every true entity
 
 	for (auto &ent : simul->entities)
 	{
-		clauses << "(assert (=> ent" << ent->idSAT << " (> (+";
+		clauses << "(assert (=> ent" << ent->idSAT << " (>= (+";
 		for (auto &r : simul->reactions)
 		{
 			int j = r->idSAT;
@@ -398,9 +581,8 @@ void PAClist::PACsWithZ3()
 		}
 		sizeClauses << "))\n";
 
-
 		// exactly pacsize reactions, or just at least for non-minimal pacs
-		
+
 		sizeClauses << "(assert ((_ at-least " << pacSize << ")";
 
 		for (auto &r : simul->reactions)
@@ -408,7 +590,7 @@ void PAClist::PACsWithZ3()
 			sizeClauses << " reac" << r->idSAT;
 		}
 		sizeClauses << "))\n";
-		
+
 		if (!Settings::getInstance()->nonMinimalPACs->boolValue())
 		{
 			// if only minimal, we put also at most this number of reactions
@@ -535,6 +717,9 @@ void PAClist::PACsWithZ3()
 		pacFile << endl;
 		pacFile.close();
 	}
+
+	computeCACS();
+
 	simul->PACsGenerated = true;
 	simul->updateParams();
 }
@@ -1297,6 +1482,7 @@ void PAClist::PACsWithSAT()
 		pacFile.close();
 
 	simul->PACsGenerated = true;
+
 	simul->updateParams();
 	// simul->printPACs();
 }

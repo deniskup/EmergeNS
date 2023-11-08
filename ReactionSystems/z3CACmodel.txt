@@ -1,0 +1,17 @@
+sat
+(model 
+  (define-fun conc0 () Real
+    1.0)
+  (define-fun conc1 () Real
+    1.0)
+  (define-fun conc2 () Real
+    (/ 3.0 4.0))
+  (define-fun conc3 () Real
+    (/ 75.0 128.0))
+  (define-fun coef2 () Real
+    (- (/ 5731743.0 640000000.0)))
+  (define-fun coef1 () Real
+    (/ 1250703.0 128000000.0))
+  (define-fun coef0 () Real
+    (/ 21113.0 2000000.0))
+)

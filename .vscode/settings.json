@@ -65,7 +65,9 @@
       "string": "cpp",
       "*.mm": "cpp",
       "filesystem": "cpp",
-      "variant": "cpp"
+      "variant": "cpp",
+      "bit": "cpp",
+      "charconv": "cpp"
     },
     "C_Cpp.intelliSenseEngine": "Tag Parser",
   //  "C_Cpp.intelliSenseEngine" : "default",

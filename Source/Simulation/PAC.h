@@ -44,6 +44,14 @@ public:
     bool wasRAC = false; // was this PAC a RAC at some point
 
     bool includedIn(PAC *p, bool onlyEnts);
+
+    //for CACs
+
+    bool isCAC = false; // is this PAC a CAC ?
+    Array<pair<SimEntity *,float>> witness; //for CAC: vector of concentrations witnessing the CAC
+
+    void computeCAC(Simulation *simul); // test for CAC and compute witness if yes
+
 };
 
 class PAClist : public Thread
@@ -71,6 +79,8 @@ public:
     int numSolver; // index of the current sat solver
 
     void computePACs(int numSolv); // compute PACs from the simulation
+
+    void computeCACS(); // compute CACs among the PACs
 
     void clear(); // clear everything
 };
