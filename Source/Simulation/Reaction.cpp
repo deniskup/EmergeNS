@@ -158,6 +158,11 @@ void Reaction::inferEntities()
 void Reaction::onContainerNiceNameChanged()
 {
   inferEntities();
+  //change name of SimReaction if exists
+  if (simReac != nullptr)
+  {
+    simReac->name = niceName;
+  }
 }
 
 void Reaction::onContainerParameterChangedInternal(Parameter *p)

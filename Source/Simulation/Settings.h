@@ -3,6 +3,7 @@
 
 #include "JuceHeader.h"
 // #include <unordered_map>
+using namespace juce;
 
 class Settings : public ControllableContainer
 {

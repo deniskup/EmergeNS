@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+using namespace juce;
 ApplicationProperties &getAppProperties();
 ApplicationCommandManager &getCommandManager();
 

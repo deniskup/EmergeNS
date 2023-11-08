@@ -2,7 +2,10 @@
 #pragma once
 
 #include "JuceHeader.h"
+
 #include <unordered_map>
+
+using namespace juce;
 
 class SimEntity;
 

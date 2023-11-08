@@ -1,6 +1,7 @@
 #pragma once
 #include "JuceHeader.h"
 using namespace std;
+using namespace juce;
 
 int randInt(int i, int j);
 
