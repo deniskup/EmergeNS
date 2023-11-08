@@ -48,7 +48,7 @@ PAC::PAC(var data, Simulation *simul)
 			reacDirs.add(make_pair(r, reacd["dir"]));
 		}
 	}
-	//cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
+	// cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
 }
 
 var PAC::toJSONData()
@@ -294,7 +294,7 @@ void PAClist::PACsWithZ3()
 		r->idSAT = j;
 		clauses << "(declare-const reac" << j << " Bool)\n";
 		clauses << "(declare-const dir" << j << " Bool)\n";
-		clauses << "(declare-const coef" << j << " Int)\n";
+		clauses << "(declare-const coef" << j << " Real)\n";
 		j++;
 	}
 
@@ -324,6 +324,24 @@ void PAClist::PACsWithZ3()
 		}
 	}
 
+	//------------- CAC part--------------
+	// realistic coefs: coefs come from actual concentrations of entities
+	// declare concentrations variable
+	/*for (auto &e : simul->entities)
+	{
+		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
+		// bounds
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+	}
+	// compute coefs from concentrations
+	for (auto &r : simul->reactions)
+	{
+		// coef is assocRate*reac1*reac2-dissocRate*prod
+		clauses << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+	}
+	*/
+	//-------------end CAC part-------------------
+
 	// true reactions with coefs produce a positive amount of every true entity
 
 	for (auto &ent : simul->entities)
@@ -335,17 +353,17 @@ void PAClist::PACsWithZ3()
 			if (r->reactant1 == ent && r->reactant2 == ent)
 			{
 				// add coefj+coefj
-				clauses << " (ite reac" << j << " (+ (- coef" << j << ") (- coef" << j << ")) 0)\n";
+				clauses << " (ite reac" << j << " (+ (- coef" << j << ") (- coef" << j << ")) 0)";
 			}
 			else if (r->reactant1 == ent || r->reactant2 == ent)
 			{
 				// add coefj
-				clauses << " (ite reac" << j << "(- coef" << j << ") 0)\n";
+				clauses << " (ite reac" << j << " (- coef" << j << ") 0)";
 			}
 			else if (r->product == ent)
 			{
 				// add -coefj
-				clauses << " (ite reac" << j << " coef" << j << " 0)\n";
+				clauses << " (ite reac" << j << " coef" << j << " 0)";
 			}
 			// else{
 			// add 0, in case where ent does not appear in enough reactions ,and help with debugging
@@ -364,27 +382,43 @@ void PAClist::PACsWithZ3()
 		int pacsFound = 0;
 		stringstream sizeClauses;
 		// pacsize entities
-		sizeClauses << "(assert (= (+";
+
+		sizeClauses << "(assert ((_ at-most " << pacSize << ")";
 		for (auto &e : simul->entities)
 		{
-			sizeClauses << " (ite ent" << e->idSAT << " 1 0)";
+			sizeClauses << " ent" << e->idSAT;
 		}
-		sizeClauses << ") " << pacSize << "))\n";
+		sizeClauses << "))\n";
 
-		// exactly pacsize reactions, or at least for non-minimal pacs
-		if (Settings::getInstance()->nonMinimalPACs->boolValue())
+		// at -most and at-least to have the exact number of entities
+		sizeClauses << "(assert ((_ at-least " << pacSize << ")";
+		for (auto &e : simul->entities)
 		{
-			sizeClauses << "(assert (>= (+";
+			sizeClauses << " ent" << e->idSAT;
 		}
-		else
-		{
-			sizeClauses << "(assert (= (+";
-		}
+		sizeClauses << "))\n";
+
+
+		// exactly pacsize reactions, or just at least for non-minimal pacs
+		
+		sizeClauses << "(assert ((_ at-least " << pacSize << ")";
+
 		for (auto &r : simul->reactions)
 		{
-			sizeClauses << " (ite reac" << r->idSAT << " 1 0)";
+			sizeClauses << " reac" << r->idSAT;
 		}
-		sizeClauses << ") " << pacSize << "))\n";
+		sizeClauses << "))\n";
+		
+		if (!Settings::getInstance()->nonMinimalPACs->boolValue())
+		{
+			// if only minimal, we put also at most this number of reactions
+			sizeClauses << "(assert ((_ at-most " << pacSize << ")";
+			for (auto &r : simul->reactions)
+			{
+				sizeClauses << " reac" << r->idSAT;
+			}
+			sizeClauses << "))\n";
+		}
 
 		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
 		{
