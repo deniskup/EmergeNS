@@ -259,7 +259,7 @@ void PAC::computeCAC(Simulation *simul)
 	// for entities of the PAC, verify positive flow from reactions of the PAC
 	for (auto &e : entities)
 	{
-		clauses << "(assert (>= (+";
+		clauses << "(assert (> (+";
 		for (auto &rd : reacDirs)
 		{
 			SimReaction *r = rd.first;
@@ -276,7 +276,7 @@ void PAC::computeCAC(Simulation *simul)
 				clauses << " coef" << r->idSAT;
 			}
 		}
-		clauses << " 0) 0))\n"; // last 0 to treat the case of no reaction, should not happen
+		clauses << " 0) 0.00001))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
 	}
 	// call z3
 	//  write to file

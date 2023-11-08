@@ -1014,7 +1014,8 @@ void Simulation::nextStep()
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
-      // cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
+      //cout << "curstep=" << curStep<<endl;
+      //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
       // if (newRAC)
       // LOG("RAC " << idPAC << " from min reac " << minreac->name);
