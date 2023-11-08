@@ -223,9 +223,9 @@ map<string, float> parseModelReal(const string &output)
 	{
 		smatch match = *it;
 		string varName = match.str(1);
-		cout << "varName: " << varName << " is " << match.str(2) << "\n";
+		//cout << "varName: " << varName << " is " << match.str(2) << "\n";
 		float varValue = parseExpr(match.str(2));
-		cout << varName << " " << varValue << " from " << match.str(2) << endl;
+		//cout << varName << " " << varValue << " from " << match.str(2) << endl;
 		model[varName] = varValue;
 	}
 
@@ -420,10 +420,35 @@ void PAClist::computeCACS()
 {
 	// compute CACs among the PACs
 	LOG("Computing CACs");
+	int nbCAC = 0;
+	ofstream pacFile;
+	if(Settings::getInstance()->printPACsToFile->boolValue()){
+		pacFile.open("PAC_list.txt", ofstream::out | ofstream::app);
+		pacFile << endl
+				<< "--- CACs ---" << endl;
+	}
 	for (auto &pac : cycles)
 	{
 		pac->computeCAC(simul);
+		if (pac->isCAC)
+		{
+			nbCAC++;
+			if(Settings::getInstance()->printPACsToFile->boolValue()){
+				
+				pacFile << pac->toString() << endl;
+				pacFile << "Witness: "<<endl;
+				for (auto &w : pac->witness)
+				{
+					pacFile << "\t"<<w.first->name << ": " << w.second << endl;
+				}
+			}
+		}
 	}
+	if(Settings::getInstance()->printPACsToFile->boolValue()){
+		pacFile.close();
+	}
+	LOG(String(nbCAC) + " CACs found");
+	
 }
 
 void PAClist::run()
@@ -525,11 +550,10 @@ void PAClist::PACsWithZ3()
 		}
 	}
 
-	// true reactions with coefs produce a positive amount of every true entity
-
+	// true reactions with coefs produce a positive amount of every true entity. Strictly positive otherwise putting everything to 0 works
 	for (auto &ent : simul->entities)
 	{
-		clauses << "(assert (=> ent" << ent->idSAT << " (>= (+";
+		clauses << "(assert (=> ent" << ent->idSAT << " (> (+";
 		for (auto &r : simul->reactions)
 		{
 			int j = r->idSAT;
