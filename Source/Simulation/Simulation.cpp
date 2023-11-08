@@ -808,6 +808,7 @@ void Simulation::start(bool restart)
   {
     pac->wasRAC = false;
   }
+  pacList->maxRAC = 0.;
 
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
@@ -1014,8 +1015,8 @@ void Simulation::nextStep()
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
-      //cout << "curstep=" << curStep<<endl;
-      //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
+      // cout << "curstep=" << curStep<<endl;
+      // cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
       // if (newRAC)
       // LOG("RAC " << idPAC << " from min reac " << minreac->name);

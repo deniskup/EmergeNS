@@ -1,8 +1,6 @@
--detect realizable PACs: flows coming from concentrations and mass action
-
 -comprendre pourquoi les PAC ne se comportent pas symetriquement dans model004
-hypothese: ordre de traitement des reactions ?
-sur model001 le PAC s'allume parfois et parfois non...
+
+-regler dt plus finement
 
 -bug a regler: ignore free energy/barriers does not work.
 
