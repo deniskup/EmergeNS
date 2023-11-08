@@ -2,7 +2,7 @@
 
 1. ```git clone --recurse-submodule git@github.com:deniskup/EmergenceNS.git``` (or after clone, do "git init submodule" and "git submodule update --remote")
 2. checkout  the working commit for juce_organicui : in the Modules/juce_organicui do <br>
-```git reset--hard 55c3fd79bf74d03bad7262318843ece9d608e76e```
+```git reset --hard 55c3fd79bf74d03bad7262318843ece9d608e76e```
 
 3. Install the required Juce version somewhere (like a "Software" folder) with <br>
  ```git clone --branch=develop-local https://github.com/benkuper/JUCE```
