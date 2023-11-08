@@ -1,2 +1,2 @@
 unsat
-(error "line 142 column 10: model is not available")
+(error "line 38 column 10: model is not available")

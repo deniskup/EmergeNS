@@ -35,6 +35,8 @@ public:
   float destructionRate;
   float freeEnergy;
 
+  float change=0.f; // variation of concentration in the last dt
+
   bool reached; //is the entity reached from primary entities ?
 
   void importFromManual(); // retrieve info from pointer to Manual settings
@@ -51,6 +53,7 @@ public:
 
   void increase(float incr);
   void decrease(float decr);
+  void refresh();
   void nameFromCompo();
 
   String toString() const;

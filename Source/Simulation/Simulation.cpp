@@ -52,64 +52,65 @@ Simulation::~Simulation()
 
 void Simulation::filterReached()
 {
- // set primary entities to reached
-	for (auto &e : entities)
-	{
-		e->reached = false;
-		if (e->primary)
-		{
-			e->reached = true;
-		}
-	}
-	// propagate to composite ones using reactions
-	bool progress = true;
-	// create reaction table to remove used reactions
-	Array<SimReaction *> reacToCheck;
-	for (auto &r : reactions)
-	{
-		reacToCheck.add(r);
-		r->reached = false;
-	}
-	while (progress)
-	{
-		progress = false;
+  // set primary entities to reached
+  for (auto &e : entities)
+  {
+    e->reached = false;
+    if (e->primary)
+    {
+      e->reached = true;
+    }
+  }
+  // propagate to composite ones using reactions
+  bool progress = true;
+  // create reaction table to remove used reactions
+  Array<SimReaction *> reacToCheck;
+  for (auto &r : reactions)
+  {
+    reacToCheck.add(r);
+    r->reached = false;
+  }
+  while (progress)
+  {
+    progress = false;
 
-		for (auto &r : reacToCheck)
-		{
-			SimEntity *r1 = r->reactant1;
-			SimEntity *r2 = r->reactant2;
-			SimEntity *p = r->product;
-			if (r1->reached && r2->reached)
-			{
-				p->reached = true;
-				progress = true;
-			}
-			if (p->reached)
-			{
+    for (auto &r : reacToCheck)
+    {
+      SimEntity *r1 = r->reactant1;
+      SimEntity *r2 = r->reactant2;
+      SimEntity *p = r->product;
+      if (r1->reached && r2->reached)
+      {
+        p->reached = true;
+        progress = true;
+      }
+      if (p->reached)
+      {
         r1->reached = true;
-				r2->reached = true;
-				progress = true;
-			}
-			if (progress){
+        r2->reached = true;
+        progress = true;
+      }
+      if (progress)
+      {
         r->reached = true;
-				reacToCheck.removeFirstMatchingValue(r);
+        reacToCheck.removeFirstMatchingValue(r);
         break;
       }
-		}
-	}
-	
-  //remove unreached entities
-	for (int i=entities.size()-1;i>=0;i--)
-	{
-		if (!entities[i]->reached)
-		{
-		  entities.remove(i);
-      cout << "removed entity " << i << endl;
-		}
-	}
+    }
+  }
 
-  //removed unreached reactions
-  for (int i=reactions.size()-1;i>=0;i--)
+  // remove unreached entities
+  for (int i = entities.size() - 1; i >= 0; i--)
+  {
+    if (!entities[i]->reached)
+    {
+      entities.remove(i);
+      cout << "removed entity " << i << endl;
+    }
+  }
+
+  // removed unreached reactions
+  for (int i = reactions.size() - 1; i >= 0; i--)
   {
     if (!reactions[i]->reached)
     {
@@ -117,7 +118,6 @@ void Simulation::filterReached()
       reactions.remove(i);
     }
   }
-
 }
 
 void Simulation::clearParams()
@@ -249,10 +249,11 @@ void Simulation::importJSONData(var data)
     for (auto &evar : *ents)
     {
       SimEntity *e = new SimEntity(evar);
-      if(e->constructionFailed){
+      if (e->constructionFailed)
+      {
         LOGWARNING("SimEntity construction failed, not added to list");
         delete e;
-        continue;        
+        continue;
       }
       entities.add(e);
     }
@@ -271,7 +272,8 @@ void Simulation::importJSONData(var data)
     for (auto &rvar : *reacs)
     {
       SimReaction *r = new SimReaction(rvar);
-      if(r->constructionFailed){
+      if (r->constructionFailed)
+      {
         LOGWARNING("SimReaction construction failed, not added to list");
         delete r;
         continue;
@@ -313,7 +315,8 @@ void Simulation::importJSONData(var data)
       for (auto &cvar : *cycs)
       {
         PAC *cyc = new PAC(cvar, this);
-        if(cyc->constructionFailed){
+        if (cyc->constructionFailed)
+        {
           LOGWARNING("PAC construction failed, not added to list");
           continue;
         }
@@ -390,14 +393,15 @@ void Simulation::fetchManual()
   updateParams();
 }
 
-//link entities and simEntities via their names
-void Simulation::establishLinks(){
+// link entities and simEntities via their names
+void Simulation::establishLinks()
+{
   bool found;
   for (auto &e : EntityManager::getInstance()->items)
   {
     if (!e->enabled->boolValue())
       continue;
-      found=false;
+    found = false;
     for (auto &se : entities)
     {
       if (se->name == e->niceName)
@@ -408,18 +412,18 @@ void Simulation::establishLinks(){
         break;
       }
     }
-    if(!found){
-      LOGWARNING("Entity "<<e->niceName<<" not found in simulation");
+    if (!found)
+    {
+      LOGWARNING("Entity " << e->niceName << " not found in simulation");
     }
   }
 
-
-  //same with reactions
+  // same with reactions
   for (auto &r : ReactionManager::getInstance()->items)
   {
     if (!r->shouldIncludeInSimulation())
       continue;
-      found=false;
+    found = false;
     for (auto &sr : reactions)
     {
       if (sr->name == r->niceName)
@@ -430,8 +434,9 @@ void Simulation::establishLinks(){
         break;
       }
     }
-    if(!found){
-      LOGWARNING("Reaction "<<r->niceName<<" not found in simulation");
+    if (!found)
+    {
+      LOGWARNING("Reaction " << r->niceName << " not found in simulation");
     }
   }
 }
@@ -642,7 +647,7 @@ void Simulation::fetchGenerate()
           {
             if (cd->compo == newCompo)
             { // if exists
-             // NLOG("Compos","Exists "<<ent1->name<< " + "<<ent2->name);
+              // NLOG("Compos","Exists "<<ent1->name<< " + "<<ent2->name);
               cd->add(ent1, ent2);
               exists = true;
               break;
@@ -650,7 +655,7 @@ void Simulation::fetchGenerate()
           }
           if (!exists)
           {
-            //NLOG("Compos","New "<<ent1->name<< " + "<<ent2->name);
+            // NLOG("Compos","New "<<ent1->name<< " + "<<ent2->name);
             Array<Decomp> dec(make_pair(ent1, ent2));
             compos.add(new CompoDecomps(newCompo, dec));
           }
@@ -727,7 +732,7 @@ void Simulation::fetchGenerate()
         }
         // remove this decomposition
         compos[idComp]->decomps.remove(idDecomp);
-        if (nbReacDone == nbReac && mode != PROPREACTIONS) //ignore nbReac if mode is PROPREACTIONS
+        if (nbReacDone == nbReac && mode != PROPREACTIONS) // ignore nbReac if mode is PROPREACTIONS
           reacFinished = true;
         if (compos[idComp]->decomps.size() == 0)
           reacFinished = true;
@@ -745,7 +750,7 @@ void Simulation::fetchGenerate()
   // ready->setValue(true);
   ready = true;
 
-  //filter unreached entities and reactions
+  // filter unreached entities and reactions
   filterReached();
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
@@ -856,6 +861,8 @@ void Simulation::nextStep()
     directIncr = jmin(directIncr, reac1Concent, reac2Concent);
     reverseIncr = jmin(reverseIncr, prodConcent);
 
+    // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will make them
+
     // increase entities
     reac->reactant1->increase(reverseIncr);
     reac->reactant2->increase(reverseIncr);
@@ -869,17 +876,17 @@ void Simulation::nextStep()
     // update flow needed only at checkpoints
     if (isCheck)
     {
-      //old way
-      // if (directCoef - reverseCoef > 0)
-      // {
-      //   reac->flow = directCoef - reverseCoef;
-      //   reac->flowdir = false;
-      // }
-      // else
-      // {
-      //   reac->flow = reverseCoef - directCoef;
-      //   reac->flowdir = true;
-      // }
+      // old way
+      //  if (directCoef - reverseCoef > 0)
+      //  {
+      //    reac->flow = directCoef - reverseCoef;
+      //    reac->flowdir = false;
+      //  }
+      //  else
+      //  {
+      //    reac->flow = reverseCoef - directCoef;
+      //    reac->flowdir = true;
+      //  }
       reac->flow = directCoef - reverseCoef;
     }
   }
@@ -891,6 +898,9 @@ void Simulation::nextStep()
 
   for (auto &ent : entities)
   {
+    // update concentration
+    ent->refresh();
+
     if (isinf(ent->concent))
     {
       LOG("Concentration of entity " << ent->name << " exceeded capacity");
@@ -953,14 +963,13 @@ void Simulation::nextStep()
   {
     idPAC++;
     bool newRAC = (cycle->flow == 0.);
-    //SimReaction *minreac = cycle->reacDirs[0].first;
+    // SimReaction *minreac = cycle->reacDirs[0].first;
 
-    
-    //old way with only directions
-    // for (auto &reacDir : cycle->reacDirs)
-    // {
-    //   auto reac = reacDir.first;
-    //   bool dir = reacDir.second;
+    // old way with only directions
+    //  for (auto &reacDir : cycle->reacDirs)
+    //  {
+    //    auto reac = reacDir.first;
+    //    bool dir = reacDir.second;
 
     //   if (dir != (reac->flowdir) || !(reac->enabled))
     //   { // wrong direction
@@ -974,9 +983,9 @@ void Simulation::nextStep()
     //   }
     // }
 
-    //new way by computing the total flow for each entity of the PAC
+    // new way by computing the total flow for each entity of the PAC
     map<SimEntity *, float> flowPerEnt;
-    for(auto &ent: cycle->entities)
+    for (auto &ent : cycle->entities)
       flowPerEnt[ent] = 0.;
 
     for (auto &reacDir : cycle->reacDirs)
@@ -987,14 +996,17 @@ void Simulation::nextStep()
       flowPerEnt[reac->product] += reac->flow;
     }
 
-    //compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
+    // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
     cycle->flow = flowPerEnt.begin()->second; // initialisation to a potential value, either <=0 or bigger than real value
-    for(auto &ent: cycle->entities){
-      if(flowPerEnt[ent]<0){
+    for (auto &ent : cycle->entities)
+    {
+      if (flowPerEnt[ent] < 0)
+      {
         cycle->flow = 0.;
         break;
       }
-      if(flowPerEnt[ent]<cycle->flow){
+      if (flowPerEnt[ent] < cycle->flow)
+      {
         cycle->flow = flowPerEnt[ent];
       }
     }
@@ -1002,16 +1014,16 @@ void Simulation::nextStep()
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
-      //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
+      // cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
-      //if (newRAC)
-        //LOG("RAC " << idPAC << " from min reac " << minreac->name);
+      // if (newRAC)
+      // LOG("RAC " << idPAC << " from min reac " << minreac->name);
       if (cycle->flow > pacList->maxRAC)
         pacList->maxRAC = cycle->flow;
     }
     RACList.add(cycle->wasRAC);
   }
-  //cout << "-" << endl;
+  // cout << "-" << endl;
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
   // listeners.call(&SimulationListener::newStep, this);
@@ -1030,14 +1042,16 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
-  if(!express) LOG("--------- Start thread ---------");
+  if (!express)
+    LOG("--------- Start thread ---------");
   finished->setValue(false);
   while (!finished->boolValue() && !threadShouldExit())
   {
     nextStep();
   }
 
-  if(!express) LOG("--------- End thread ---------");
+  if (!express)
+    LOG("--------- End thread ---------");
 
   Array<float> entityValues;
   for (auto &ent : entities)
@@ -1049,7 +1063,7 @@ void Simulation::run()
 
   if (express)
   {
-    //writeJSONConcents();
+    // writeJSONConcents();
     return;
   }
 
@@ -1097,7 +1111,7 @@ SimEntity *Simulation::getSimEntityForName(String nameToFind)
     if (se->name == nameToFind)
       return se;
   }
-  LOGWARNING("Failed to find SimEntity for name "<<nameToFind);
+  LOGWARNING("Failed to find SimEntity for name " << nameToFind);
   return nullptr;
 }
 
@@ -1108,7 +1122,7 @@ SimReaction *Simulation::getSimReactionForName(String nameToFind)
     if (sr->name == nameToFind)
       return sr;
   }
-  LOGWARNING("Failed to find SimReaction for name "<<nameToFind);
+  LOGWARNING("Failed to find SimReaction for name " << nameToFind);
   return nullptr;
 }
 
@@ -1209,23 +1223,27 @@ Colour JSON2Color(var data)
 
 SimEntity::SimEntity(var data)
 {
-  if (data.isVoid()){
-    constructionFailed=true;
-    return;
-  }
-    
-  if (data.getDynamicObject() == nullptr){
-    constructionFailed=true;
+  if (data.isVoid())
+  {
+    constructionFailed = true;
     return;
   }
 
-  if (data.getDynamicObject()->hasProperty("name")){
-    name = (data.getDynamicObject()->getProperty("name"));
-    cout<< "name:"<< name<<endl;
+  if (data.getDynamicObject() == nullptr)
+  {
+    constructionFailed = true;
+    return;
   }
-  else{
+
+  if (data.getDynamicObject()->hasProperty("name"))
+  {
+    name = (data.getDynamicObject()->getProperty("name"));
+    cout << "name:" << name << endl;
+  }
+  else
+  {
     LOGWARNING("No name for Entity");
-    constructionFailed=true;
+    constructionFailed = true;
     return;
   }
 
@@ -1287,7 +1305,7 @@ var SimEntity::toJSONData()
   data.getDynamicObject()->setProperty("freeEnergy", freeEnergy);
   data.getDynamicObject()->setProperty("level", level);
   data.getDynamicObject()->setProperty("draw", draw);
-  
+
   var comp;
   for (auto &i : composition)
   {
@@ -1301,12 +1319,18 @@ var SimEntity::toJSONData()
 
 void SimEntity::increase(float incr)
 {
-  concent += incr;
+  change += incr;
 }
 
 void SimEntity::decrease(float decr)
 {
-  concent = jmax(0.f, concent - decr);
+  change -= decr;
+}
+
+void SimEntity::refresh()
+{
+  concent = jmax(0.f, concent + change);
+  change = 0.f;
 }
 
 void SimEntity::nameFromCompo()
@@ -1360,8 +1384,8 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
   reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
   reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
   product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
-  name= r->niceName; //name from the original reaction
-  //setName(); //to rename automatically
+  name = r->niceName; // name from the original reaction
+  // setName(); //to rename automatically
 }
 
 SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate), energy(barrier)
@@ -1371,51 +1395,65 @@ SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate
 
 SimReaction::SimReaction(var data)
 {
-  if (data.isVoid()){
-    constructionFailed=true;
+  if (data.isVoid())
+  {
+    constructionFailed = true;
     return;
   }
-    
-  if (data.getDynamicObject() == nullptr){
-    constructionFailed=true;
+
+  if (data.getDynamicObject() == nullptr)
+  {
+    constructionFailed = true;
     return;
   }
 
   Simulation *simul = Simulation::getInstance();
-  if (data.getDynamicObject()->hasProperty("reactant1")){
+  if (data.getDynamicObject()->hasProperty("reactant1"))
+  {
     reactant1 = simul->getSimEntityForName(data["reactant1"]);
-   if(reactant1==nullptr){
-     // LOGWARNING("No reactant1 for reaction");
-      constructionFailed=true;
+    if (reactant1 == nullptr)
+    {
+      // LOGWARNING("No reactant1 for reaction");
+      constructionFailed = true;
       return;
-    }}
-  else{
-    constructionFailed=true;
+    }
+  }
+  else
+  {
+    constructionFailed = true;
     return;
   }
 
   // to change on same model
-  if (data.getDynamicObject()->hasProperty("reactant2")){
+  if (data.getDynamicObject()->hasProperty("reactant2"))
+  {
     reactant2 = simul->getSimEntityForName(data["reactant2"]);
-    if(reactant2==nullptr){
-      //LOGWARNING("No reactant2 for reaction");
-      constructionFailed=true;
+    if (reactant2 == nullptr)
+    {
+      // LOGWARNING("No reactant2 for reaction");
+      constructionFailed = true;
       return;
-    }}
-      else{
-    constructionFailed=true;
+    }
+  }
+  else
+  {
+    constructionFailed = true;
     return;
   }
 
-  if (data.getDynamicObject()->hasProperty("product")){
+  if (data.getDynamicObject()->hasProperty("product"))
+  {
     product = simul->getSimEntityForName(data["product"]);
-    if(product==nullptr){
-      //LOGWARNING("No product for reaction");
-      constructionFailed=true;
+    if (product == nullptr)
+    {
+      // LOGWARNING("No product for reaction");
+      constructionFailed = true;
       return;
-    }}
-      else{
-    constructionFailed=true;
+    }
+  }
+  else
+  {
+    constructionFailed = true;
     return;
   }
 
@@ -1430,7 +1468,6 @@ SimReaction::SimReaction(var data)
 
   if (data.getDynamicObject()->hasProperty("idSAT"))
     idSAT = data["idSAT"];
-
 }
 
 var SimReaction::toJSONData()
@@ -1439,7 +1476,7 @@ var SimReaction::toJSONData()
   data.getDynamicObject()->setProperty("reactant1", reactant1->name);
   data.getDynamicObject()->setProperty("reactant2", reactant2->name);
   data.getDynamicObject()->setProperty("product", product->name);
-  data.getDynamicObject()->setProperty("name",name);
+  data.getDynamicObject()->setProperty("name", name);
 
   data.getDynamicObject()->setProperty("assocRate", assocRate);
   data.getDynamicObject()->setProperty("dissocRate", dissocRate);
@@ -1471,8 +1508,9 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 void SimReaction::computeBarrier()
 {
   // compute energy barrier
-  if(reactant1==nullptr||reactant2==nullptr||product==nullptr){
-    LOGWARNING("Null reactant or product for reaction "<<name);
+  if (reactant1 == nullptr || reactant2 == nullptr || product == nullptr)
+  {
+    LOGWARNING("Null reactant or product for reaction " << name);
     return;
   }
   float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
