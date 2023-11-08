@@ -1,11 +1,42 @@
 --- Minimal PACs ---
-2->3 3->4 4->2+2 
+B2->Bf2 Bf2->BB BB->B1+B1 B1->Bf1 Bf1->B2 
+A2->Af2 Af2->AA AA->A1+A1 A1->Af1 Af1->A2 
 
 
 --- CACs ---
-2->3 3->4 4->2+2 
+B2->Bf2 Bf2->BB BB->B1+B1 B1->Bf1 Bf1->B2 
 Witness: 
-	1: 1
-	2: 1
-	3: 0.75
-	4: 0.585938
+	Fa: 1
+	Fb: 1
+	A1: 1
+	A2: 1
+	AA: 1
+	Af1: 1
+	Af2: 1
+	Wa: 1
+	X: 1
+	Y: 1
+	B1: 1
+	B2: 0.75
+	BB: 1.3125
+	Bf1: 0.4375
+	Bf2: 0.34375
+	Wb: 0
+A2->Af2 Af2->AA AA->A1+A1 A1->Af1 Af1->A2 
+Witness: 
+	Fa: 1
+	Fb: 1
+	A1: 1
+	A2: 0.75
+	AA: 1.3125
+	Af1: 0.4375
+	Af2: 0.34375
+	Wa: 0
+	X: 1
+	Y: 1
+	B1: 1
+	B2: 1
+	BB: 1
+	Bf1: 1
+	Bf2: 1
+	Wb: 1

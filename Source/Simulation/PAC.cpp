@@ -35,35 +35,37 @@ float parseExpr(const string &input)
 			// unary operator, should be "-", we do 0-operand1
 			operand2 = operand1;
 			operand1 = "0.";
-		}else{
+		}
+		else
+		{
 			operand2 = match[3].str();
 		}
 
 		// Calculate the result based on the operator and operands
 		double result = 0.0;
-	
-			// Calculate the result based on the operator and numeric operands
-			if (op == '+')
-			{
-				result = stod(operand1) + stod(operand2);
-			}
-			else if (op == '-')
-			{
-				result = stod(operand1) - stod(operand2);
-			}
-			else if (op == '*')
-			{
-				result = stod(operand1) * stod(operand2);
-			}
-			else if (op == '/')
-			{
-				result = stod(operand1) / stod(operand2);
-			}		
-			else
-			{
-				cout << "Unknown operator: " << op << endl;
-				return 0.;
-			}
+
+		// Calculate the result based on the operator and numeric operands
+		if (op == '+')
+		{
+			result = stod(operand1) + stod(operand2);
+		}
+		else if (op == '-')
+		{
+			result = stod(operand1) - stod(operand2);
+		}
+		else if (op == '*')
+		{
+			result = stod(operand1) * stod(operand2);
+		}
+		else if (op == '/')
+		{
+			result = stod(operand1) / stod(operand2);
+		}
+		else
+		{
+			cout << "Unknown operator: " << op << endl;
+			return 0.;
+		}
 
 		// Convert the result to a string and replace the matched substring
 		ostringstream oss;
@@ -213,7 +215,7 @@ map<string, float> parseModelReal(const string &output)
 
 	// Regex pattern to match variable assignments
 	// regex pattern(R"(define-fun ([a-zA-Z0-9_]+) \(\) Real\n\s+([0-9.]+))");
-	//search for concentrations only
+	// search for concentrations only
 	regex pattern(R"(define-fun (conc[0-9_]+) \(\) Real\n\s+([^\n]+)\)\n)");
 
 	// Iterate over matches
@@ -223,22 +225,22 @@ map<string, float> parseModelReal(const string &output)
 	{
 		smatch match = *it;
 		string varName = match.str(1);
-		//cout << "varName: " << varName << " is " << match.str(2) << "\n";
+		// cout << "varName: " << varName << " is " << match.str(2) << "\n";
 		float varValue = parseExpr(match.str(2));
-		//cout << varName << " " << varValue << " from " << match.str(2) << endl;
+		// cout << varName << " " << varValue << " from " << match.str(2) << endl;
 		model[varName] = varValue;
 	}
 
 	return model;
 }
 
-void PAC::computeCAC(Simulation *simul)
+void PAC::computeCAC(Simulation *simul, string z3path)
 {
 	// use z3 to test the existence of a witness for the CAC
 	stringstream clauses;
 	string inputFile = "z3CAC.smt2";
 	string outputFile = "z3CACmodel.txt";
-	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3CAClog.txt";
 
 	// realistic coefs: coefs come from actual concentrations of entities
 	// declare concentrations variable
@@ -284,7 +286,7 @@ void PAC::computeCAC(Simulation *simul)
 	inputStream << clauses.str();
 	inputStream << "(check-sat)\n";
 	inputStream << "(get-model)\n";
-	
+
 	inputStream.close();
 
 	system(z3Command.c_str());
@@ -416,39 +418,41 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
-void PAClist::computeCACS()
+void PAClist::computeCACS(string z3path)
 {
 	// compute CACs among the PACs
 	LOG("Computing CACs");
 	int nbCAC = 0;
 	ofstream pacFile;
-	if(Settings::getInstance()->printPACsToFile->boolValue()){
+	if (Settings::getInstance()->printPACsToFile->boolValue())
+	{
 		pacFile.open("PAC_list.txt", ofstream::out | ofstream::app);
 		pacFile << endl
 				<< "--- CACs ---" << endl;
 	}
 	for (auto &pac : cycles)
 	{
-		pac->computeCAC(simul);
+		pac->computeCAC(simul,z3path);
 		if (pac->isCAC)
 		{
 			nbCAC++;
-			if(Settings::getInstance()->printPACsToFile->boolValue()){
-				
+			if (Settings::getInstance()->printPACsToFile->boolValue())
+			{
+
 				pacFile << pac->toString() << endl;
-				pacFile << "Witness: "<<endl;
+				pacFile << "Witness: " << endl;
 				for (auto &w : pac->witness)
 				{
-					pacFile << "\t"<<w.first->name << ": " << w.second << endl;
+					pacFile << "\t" << w.first->name << ": " << w.second << endl;
 				}
 			}
 		}
 	}
-	if(Settings::getInstance()->printPACsToFile->boolValue()){
+	if (Settings::getInstance()->printPACsToFile->boolValue())
+	{
 		pacFile.close();
 	}
 	LOG(String(nbCAC) + " CACs found");
-	
 }
 
 void PAClist::run()
@@ -495,10 +499,44 @@ void PAClist::PACsWithZ3()
 	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
 
 	LOG("Using solver: Z3");
+
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
-	string z3Command = "z3 " + inputFile + " > " + outputFile + " 2> z3log.txt";
+	vector<string> z3commands;
+	z3commands.push_back("z3");
+	z3commands.push_back(Settings::getInstance()->pathToz3->stringValue().toStdString());
 
+	string z3path;
+	for (int z3id = 0; z3id <= 1; z3id++)
+	{
+
+		z3path = z3commands[z3id];
+		string z3command = z3path + " z3test.smt2 > testResult.txt";
+		ofstream testFile;
+		testFile.open("z3test.smt2", ofstream::out | ofstream::trunc);
+		testFile << "(assert true)" << endl;
+		testFile << "(check-sat)" << endl;
+		testFile.close();
+		const int satReturnValue = system(z3command.c_str());
+		ifstream sol_file("testResult.txt");
+		string testSat;
+
+		sol_file >> testSat;
+
+		if (testSat == "sat")
+		{
+			break;
+		}
+
+		if (z3id == 0)
+			LOG("z3 not accessible directly, using path specified in Settings: " + z3commands[1]);
+		else
+		{
+			LOG("z3 path failed, aborting");
+			return;
+		}
+	}
+	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
 	stringstream clauses;
@@ -637,7 +675,7 @@ void PAClist::PACsWithZ3()
 			inputStream << "(get-model)\n";
 
 			inputStream.close();
-
+			cout << z3Command;
 			system(z3Command.c_str());
 
 			ifstream outputStream(outputFile);
@@ -742,7 +780,7 @@ void PAClist::PACsWithZ3()
 		pacFile.close();
 	}
 
-	computeCACS();
+	computeCACS(z3path);
 
 	simul->PACsGenerated = true;
 	simul->updateParams();
@@ -755,7 +793,7 @@ void PAClist::PACsWithSAT()
 	Settings *settings = Settings::getInstance();
 
 	// declare SAT solvers
-	String kissatCommand = settings->pathToKissat->stringValue() + " -q dimacs.txt > model.txt";
+	String kissatCommand = "kissat -q dimacs.txt > model.txt";
 	SATSolver minisat("minisat", "minisat dimacs.txt model.txt >SATlog.txt", "SAT", false);
 	SATSolver kissat("kissat", kissatCommand, "SATISFIABLE", true);
 

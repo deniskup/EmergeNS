@@ -50,7 +50,7 @@ public:
     bool isCAC = false; // is this PAC a CAC ?
     Array<pair<SimEntity *,float>> witness; //for CAC: vector of concentrations witnessing the CAC
 
-    void computeCAC(Simulation *simul); // test for CAC and compute witness if yes
+    void computeCAC(Simulation *simul, string z3path="z3"); // test for CAC and compute witness if yes
 
 };
 
@@ -80,7 +80,7 @@ public:
 
     void computePACs(int numSolv); // compute PACs from the simulation
 
-    void computeCACS(); // compute CACs among the PACs
+    void computeCACS(string z3path="z3"); // compute CACs among the PACs
 
     void clear(); // clear everything
 };

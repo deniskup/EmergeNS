@@ -5,18 +5,41 @@ sat
   (define-fun conc1 () Real
     1.0)
   (define-fun conc2 () Real
-    (/ 3.0 4.0))
+    1.0)
   (define-fun conc3 () Real
-    (/ 75.0 128.0))
+    (/ 3.0 4.0))
+  (define-fun conc4 () Real
+    (/ 21.0 16.0))
+  (define-fun conc5 () Real
+    (/ 7.0 16.0))
+  (define-fun conc6 () Real
+    (/ 11.0 32.0))
+  (define-fun conc7 () Real
+    0.0)
+  (define-fun conc8 () Real
+    1.0)
+  (define-fun conc9 () Real
+    1.0)
+  (define-fun conc10 () Real
+    1.0)
+  (define-fun conc11 () Real
+    1.0)
+  (define-fun conc12 () Real
+    1.0)
+  (define-fun conc13 () Real
+    1.0)
+  (define-fun conc14 () Real
+    1.0)
+  (define-fun conc15 () Real
+    1.0)
+  (define-fun coef9 () Real
+    (- (/ 2575153.0 16000000.0)))
+  (define-fun coef8 () Real
+    (/ 3310911.0 16000000.0))
   (define-fun coef2 () Real
-    (- (/ 5731743.0 640000000.0)))
+    (- (/ 367879.0 3200000.0)))
   (define-fun coef1 () Real
-    (/ 1250703.0 128000000.0))
+    (- (/ 4046669.0 32000000.0)))
   (define-fun coef0 () Real
-    (/ 21113.0 2000000.0))
+    (/ 4782427.0 32000000.0))
 )
-
-coef0: 21113.0/2000000.0 = 0.0105565
-coef2: -5731743.0/640000000.0 = - 0.00895584843
-
-Bilan entité 2: 0.00895584843 * 2 - 0.0105565 = 0.007355

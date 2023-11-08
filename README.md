@@ -5,7 +5,7 @@
 2. Install the required Juce version somewhere (like a "Software" folder) with <br>
  ```git clone --branch=develop-local https://github.com/benkuper/JUCE```
 
-3. In the Juce folder, go in extras/Projucer/Builds/[YourOS]Makefile <br>
+3. In the Juce folder, go in extras/Projucer/Builds/[YourOS] <br>
    For Linux ```make -j 4```<br>
    For Mac open with xcode and compile, or ```sudo xcodebuild -project Builds/MacOSX/EmergenceNS.xcodeproj -alltargets -parallelizeTargets -configuration Release build```<br>
 4. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>

@@ -12,7 +12,7 @@ public:
     Settings();
     ~Settings();
 
-    StringParameter *pathToKissat; 
+    StringParameter *pathToz3; 
 
     IntParameter *maxDiameterPACs; //diameter to stop
     IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter

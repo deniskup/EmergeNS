@@ -19,7 +19,7 @@ juce_ImplementSingleton(Simulation)
 {
   simNotifier.dropMessageOnOverflow = false;
 
-  dt = addFloatParameter("dt", "time step in ms", .001, 0.f);
+  dt = addFloatParameter("dt", "time step in ms", .01, 0.f);
   totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
   pointsDrawn = addIntParameter("Checkpoints", "Number of checkpoints to draw points and observe RACs", 100, 1);
   perCent = addIntParameter("Progress", "Percentage of the simulation done", 0, 0, 100);
