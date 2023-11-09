@@ -1,4 +1,4 @@
--comprendre pourquoi les PAC ne se comportent pas symetriquement dans model004
+-comprendre pourquoi les RAC sont erratiques quand on recharge le fichier
 
 -regler dt plus finement
 
