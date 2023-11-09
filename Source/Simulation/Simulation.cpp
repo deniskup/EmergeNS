@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define DT_PRECISION 5
+
 juce_ImplementSingleton(Simulation)
 
     Simulation::Simulation() : ControllableContainer("Simulation"),
@@ -42,6 +44,8 @@ juce_ImplementSingleton(Simulation)
 
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
+
+  dt->setAttributeInternal("stringDecimals", DT_PRECISION);
 }
 
 Simulation::~Simulation()
@@ -325,6 +329,7 @@ void Simulation::importJSONData(var data)
     }
   }
   ready = true;
+  dt->setAttributeInternal("stringDecimals", DT_PRECISION);
   computeBarriers();
   updateParams();
   toImport = false;

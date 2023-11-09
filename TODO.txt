@@ -1,6 +1,3 @@
--comprendre pourquoi les RAC sont erratiques quand on recharge le fichier
-
--regler dt plus finement
 
 -bug a regler: ignore free energy/barriers does not work.
 

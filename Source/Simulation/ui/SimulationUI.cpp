@@ -32,7 +32,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
     // maxCUI.reset(maxC->createLabelParameter())
 
-    dtUI->setSize(100, 20);
+    dtUI->setSize(150, 20);
     totalTimeUI->setSize(200, 20);
     perCentUI->setSize(100, 20);
     maxConcentUI->setSize(150, 20);
