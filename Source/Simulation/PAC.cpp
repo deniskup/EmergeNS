@@ -103,6 +103,7 @@ PAC::PAC(var data, Simulation *simul)
 			if (e == nullptr)
 			{
 				constructionFailed = true;
+				LOGWARNING("PAC construction failed: entity " + ent["ent"].toString() + " not found");
 				return;
 			}
 			entities.add(e);
@@ -118,12 +119,13 @@ PAC::PAC(var data, Simulation *simul)
 			if (r == nullptr)
 			{
 				constructionFailed = true;
+				LOGWARNING("PAC construction failed: reaction " + reacd["reac"].toString() + " not found");
 				return;
 			}
 			reacDirs.add(make_pair(r, reacd["dir"]));
 		}
 	}
-	// cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
+	 cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
 }
 
 var PAC::toJSONData()

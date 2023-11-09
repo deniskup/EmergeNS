@@ -320,7 +320,7 @@ void Simulation::importJSONData(var data)
           LOGWARNING("PAC construction failed, not added to list");
           continue;
         }
-        pacList->addCycle(new PAC(cvar, this));
+        pacList->addCycle(cyc);
       }
     }
   }
@@ -998,7 +998,7 @@ void Simulation::nextStep()
     }
 
     // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
-    cycle->flow = flowPerEnt.begin()->second; // initialisation to a potential value, either <=0 or bigger than real value
+    cycle->flow = flowPerEnt[cycle->entities[0]]; // initialisation to a potential value, either <=0 or bigger than real value
     for (auto &ent : cycle->entities)
     {
       if (flowPerEnt[ent] < 0)
@@ -1362,6 +1362,7 @@ void SimEntity::importFromManual()
   composition = entity->composition;
   draw = entity->draw->boolValue();
   primary = entity->primary->boolValue();
+  name = entity->niceName;
 }
 
 void SimReaction::importFromManual()
@@ -1370,6 +1371,7 @@ void SimReaction::importFromManual()
   dissocRate = reaction->dissocRate->floatValue();
   energy = reaction->energy->floatValue();
   enabled = reaction->shouldIncludeInSimulation();
+  name=reaction->niceName;
 }
 
 void SimReaction::setName()
