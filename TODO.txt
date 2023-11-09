@@ -1,3 +1,6 @@
+-fenetre avec diagramme de Venn sur les CAC
+ Cliquer dans zone => calcule si compatible (bouton pour calcul all, affiche zones vert et rouge)
+ bouton pour mettre startConcent ou currentConcent à ce vecteur si oui
 
 -bug a regler: ignore free energy/barriers does not work.
 
