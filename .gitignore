@@ -4,9 +4,11 @@ Builds/*
 !Builds/LinuxMakefile_CI
 Resources/**
 
-z3constraints.smt2
-z3log.txt
-z3model.txt
+*z3constraints.smt2
+*z3log.txt
+*z3model.txt
+*z3CAC*
+*PAC_list.txt
 Resources/generated.ens
 Resources/z3constraints.smt2
 
