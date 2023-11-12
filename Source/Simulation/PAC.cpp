@@ -236,35 +236,25 @@ map<string, float> parseModelReal(const string &output)
 	return model;
 }
 
-void PAC::computeCAC(Simulation *simul, string z3path)
+void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated)
 {
-	// use z3 to test the existence of a witness for the CAC
-	stringstream clauses;
-	string inputFile = "z3CAC.smt2";
-	string outputFile = "z3CACmodel.txt";
-	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3CAClog.txt";
 
-	// realistic coefs: coefs come from actual concentrations of entities
-	// declare concentrations variable
-	for (auto &e : simul->entities)
-	{
-		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
-		// bounds
-		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
-	}
-	// compute coefs from concentrations
-	for (auto &rd : reacDirs)
+// compute coefs from concentrations
+	for (auto &rd : pac->reacDirs)
 	{
 		SimReaction *r = rd.first;
+		if (reacsTreated.find(r) != reacsTreated.end())
+			continue;
 		clauses << "(declare-const coef" << r->idSAT << " Real)\n";
 		// coef is assocRate*reac1*reac2-dissocRate*prod
 		clauses << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+		reacsTreated.insert(r);
 	}
 	// for entities of the PAC, verify positive flow from reactions of the PAC
-	for (auto &e : entities)
+	for (auto &e : pac->entities)
 	{
 		clauses << "(assert (> (+";
-		for (auto &rd : reacDirs)
+		for (auto &rd : pac->reacDirs)
 		{
 			SimReaction *r = rd.first;
 			if (r->reactant1 == e)
@@ -282,6 +272,27 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 		}
 		clauses << " 0) 0.00001))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
 	}
+
+}
+
+void PAC::computeCAC(Simulation *simul, string z3path)
+{
+	// use z3 to test the existence of a witness for the CAC
+	stringstream clauses;
+	string inputFile = "z3CAC.smt2";
+	string outputFile = "z3CACmodel.txt";
+	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+
+	// realistic coefs: coefs come from actual concentrations of entities
+	// declare concentrations variable
+	for (auto &e : simul->entities)
+	{
+		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
+		// bounds
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+	}
+	set<SimReaction *> reacsTreated;//empty set of reactions already treated
+	addCACclause(clauses, this, reacsTreated);
 	// call z3
 	//  write to file
 	ofstream inputStream(inputFile);
@@ -560,7 +571,7 @@ void PAClist::PACsWithZ3()
 		r->idSAT = j;
 		clauses << "(declare-const reac" << j << " Bool)\n";
 		clauses << "(declare-const dir" << j << " Bool)\n";
-		clauses << "(declare-const coef" << j << " Real)\n";
+		clauses << "(declare-const coef" << j << " Int)\n";
 		j++;
 	}
 
