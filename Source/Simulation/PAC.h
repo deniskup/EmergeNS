@@ -80,7 +80,10 @@ public:
 
     void computePACs(int numSolv); // compute PACs from the simulation
 
+    //CACs
+    OwnedArray<pair<vector<int>,Array<pair<SimEntity *,float>>>> multiCACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
+        //the Array is the witness concentrations
     void computeCACS(string z3path="z3"); // compute CACs among the PACs
-
+    void computeMultiCACS(string z3path="z3"); 
     void clear(); // clear everything
 };

@@ -468,6 +468,22 @@ void PAClist::computeCACS(string z3path)
 	LOG(String(nbCAC) + " CACs found");
 }
 
+void PAClist::computeMultiCACS(string z3path)
+{
+	multiCACs.clear();
+	const int CACsMax = Settings::getInstance()->CACSetMax->intValue();
+	bool found=true;
+	for(int setSize=2; setSize<=CACsMax; setSize++){
+		found=false;
+		//find cliques in computed sets of size SetSize-1, and test them with z3.
+		
+		//TODO
+
+		if(!found)
+			break;
+	}
+}
+
 void PAClist::run()
 { // clear PACs if some were computed
 	cycles.clear();
@@ -1427,7 +1443,8 @@ void PAClist::PACsWithSAT()
 	int dmax_stop = settings->maxDiameterPACs->intValue(); // maximal diameter
 	dmax_stop = jmin(dmax_stop, Nent);					   // put to Nent if bigger
 
-	int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
+	//int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
+	int doubleReacMax = 1; // maximal number of double reactions, obsolete
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
 
