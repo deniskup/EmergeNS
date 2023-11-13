@@ -18,7 +18,7 @@ Settings::Settings() : ControllableContainer("Settings")
 
     nonMinimalPACs = addBoolParameter("Non minimal PACs", "Look for non minimal PACs", false);
 
-    pathToz3 = addStringParameter("Path to z3", "Path to z3 solver", "~/usr/bin/z3");
+    pathToz3 = addStringParameter("Path to z3", "Path to z3 solver", "/usr/local/bin/z3");
 
     autoLoadLists = addBoolParameter("Auto load lists", "Auto load manual lists on generation", true);
 
