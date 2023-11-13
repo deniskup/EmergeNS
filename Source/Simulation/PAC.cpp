@@ -322,6 +322,11 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 		isCAC = false;
 		return;
 	}
+	if(firstLine == "unknown")
+	{
+		LOGWARNING("Z3 returned unknown on CACs");
+		return;
+	}
 	if (firstLine != "sat")
 	{
 		LOGWARNING("Error in Z3 output");
@@ -704,7 +709,6 @@ void PAClist::PACsWithZ3()
 			inputStream << "(get-model)\n";
 
 			inputStream.close();
-			cout << z3Command;
 			system(z3Command.c_str());
 
 			ifstream outputStream(outputFile);
@@ -723,6 +727,11 @@ void PAClist::PACsWithZ3()
 			if (firstLine == "unsat")
 			{
 				break;
+			}
+			if(firstLine == "unknown")
+			{
+				LOGWARNING("Z3 returned unknown on PACs");
+				return;
 			}
 			if (firstLine != "sat")
 			{
