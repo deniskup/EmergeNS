@@ -1,3 +1,13 @@
+- boucle infinie dans le calcul de CAC (verifier parsing expression)
+
+- erreur dans Z3 pour les PAC non CAC
+
+- verifier que les PAC sont reels, il semble y en avoir beaucoup.
+
+- barre de progression pour le calcul des CAC
+
+-dans Mac, la commande z3 sans chemin ne marche pas
+
 -fenetre avec diagramme de Venn sur les CAC
  Cliquer dans zone => calcule si compatible (bouton pour calcul all, affiche zones vert et rouge)
  bouton pour mettre startConcent ou currentConcent à ce vecteur si oui
