@@ -19,9 +19,14 @@ float parseExpr(const string &input)
 
 	// Create a map to store variable values
 	map<string, double> variables;
-
+	int nbIter=0;
 	while (iter != end)
 	{
+		nbIter++;
+		if(nbIter>10){
+			cout <<" Failed to parse expression: "<< input << endl;
+			return 0.0;
+		}
 		smatch match = *iter;
 
 		// Extract matched components
@@ -301,10 +306,11 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 	inputStream << "(get-model)\n";
 
 	inputStream.close();
-
+	//cout << "Calling Z3 on CAC "<<toString()<< endl;
 	system(z3Command.c_str());
-
+	//cout << "Z3 done" << endl;
 	ifstream outputStream(outputFile);
+	isCAC=false;
 	if (!outputStream)
 	{
 		cerr << "Failed to open file: " << outputFile << endl;
@@ -319,12 +325,11 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 	string firstLine = z3Output.substr(0, newlinePos);
 	if (firstLine == "unsat")
 	{
-		isCAC = false;
 		return;
 	}
 	if(firstLine == "unknown")
 	{
-		LOGWARNING("Z3 returned unknown on CACs");
+		LOGWARNING("Z3 timeout on CAC: "+toString());
 		return;
 	}
 	if (firstLine != "sat")
@@ -450,6 +455,7 @@ void PAClist::computeCACS(string z3path)
 	}
 	for (auto &pac : cycles)
 	{
+		cout <<"."<<flush;
 		pac->computeCAC(simul,z3path);
 		if (pac->isCAC)
 		{
@@ -570,6 +576,8 @@ void PAClist::PACsWithZ3()
 			return;
 		}
 	}
+	//add timeout
+	z3path+=" -t:"+ to_string(Settings::getInstance()->z3timeout->intValue());
 	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 

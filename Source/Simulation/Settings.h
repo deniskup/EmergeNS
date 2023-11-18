@@ -14,6 +14,7 @@ public:
 
     StringParameter *pathToz3; 
 
+    IntParameter *z3timeout; //timeout for z3 in ms
     
     IntParameter *maxDiameterPACs; //diameter to stop
     IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter

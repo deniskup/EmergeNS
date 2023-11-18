@@ -20,6 +20,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     pathToz3 = addStringParameter("Path to z3", "Path to z3 solver", "/usr/local/bin/z3");
 
+    z3timeout = addIntParameter("z3 timeout", "Timeout for z3 in ms", 2000, 0);
+
     autoLoadLists = addBoolParameter("Auto load lists", "Auto load manual lists on generation", true);
 
 }

@@ -16,3 +16,4 @@ Resources/z3constraints.smt2
 
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
+Resources/z3constraints.smt2
