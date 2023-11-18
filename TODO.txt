@@ -1,4 +1,4 @@
-- boucle infinie dans le calcul de CAC (verifier parsing expression)
+- in generation:remove constraint that entities must be created from smaller ones.
 
 - erreur dans Z3 pour les PAC non CAC
 

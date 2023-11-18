@@ -713,7 +713,7 @@ void Simulation::fetchGenerate()
       int nbDecomps = compos[idComp]->decomps.size();
       nbReac = jmin(nbReac, nbDecomps);
 
-      // we are looping throug possible rections to create the entity e
+      // we are looping through possible rections to create the entity e
       int nbReacDone = 0;
       bool reacFinished = false;
       while (!reacFinished)
