@@ -1,5 +1,7 @@
 - in generation:remove constraint that entities must be created from smaller ones.
 
+- multiCACs implementation
+
 - erreur dans Z3 pour les PAC non CAC
 
 - verifier que les PAC sont reels, il semble y en avoir beaucoup.

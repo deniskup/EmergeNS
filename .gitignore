@@ -3,7 +3,6 @@ Builds/*
 !Builds/VisualStudio2022_CI
 !Builds/LinuxMakefile_CI
 Resources/**
-
 z3constraints.smt2
 z3log.txt
 z3model.txt
@@ -11,9 +10,7 @@ z3CAC*
 PAC_list.txt
 Resources/generated.ens
 Resources/z3constraints.smt2
-
 *autosave
-
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
-Resources/z3constraints.smt2
+

@@ -214,7 +214,7 @@ var Simulation::toJSONData()
     cycs.append(cyc);
   }
   data.getDynamicObject()->setProperty("cycles", cycs);
-
+  
   return data;
 }
 
@@ -328,6 +328,7 @@ void Simulation::importJSONData(var data)
       }
     }
   }
+
   ready = true;
   dt->setAttributeInternal("stringDecimals", DT_PRECISION);
   computeBarriers();

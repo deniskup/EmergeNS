@@ -73,17 +73,20 @@ public:
       //the thread function
     void run() override;
 
+
     void PACsWithSAT(); // compute PACs with SAT solver minisat (numSolver 0) or kissat (numSolver 1)
     void PACsWithZ3(); // compute PACs with SMT Solver Z3 (numSolver >1)
 
     int numSolver; // index of the current sat solver
+    string z3path=""; // path to z3 executable
+    void setZ3path(); // set the path to z3 executable
 
     void computePACs(int numSolv); // compute PACs from the simulation
 
     //CACs
     OwnedArray<pair<vector<int>,Array<pair<SimEntity *,float>>>> multiCACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
         //the Array is the witness concentrations
-    void computeCACS(string z3path="z3"); // compute CACs among the PACs
-    void computeMultiCACS(string z3path="z3"); 
+    void computeCACS(); // compute CACs among the PACs
+    void computeMultiCACS(); 
     void clear(); // clear everything
 };

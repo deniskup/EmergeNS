@@ -15,6 +15,7 @@ namespace NSCommandIDs
 	static const int PACwithZ3 = 0x60007;
 	static const int fetchManual = 0x60008;
 	static const int renameReacs = 0x60009;
+	static const int computeCACs = 0x60010;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -71,6 +72,11 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
+	case NSCommandIDs::computeCACs:
+		result.setInfo("Compute CACs", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
 	default:
 		OrganicMainContentComponent::getCommandInfo(commandID, result);
 		break;
@@ -88,6 +94,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		// NSCommandIDs::PACminisat,
 		// NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
+		NSCommandIDs::computeCACs,
 		NSCommandIDs::loadManual,
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
@@ -110,6 +117,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCACs);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::fetchManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
@@ -159,6 +167,12 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	{
 
 		Simulation::getInstance()->pacList->computePACs(2);
+	}
+	break;
+
+	case NSCommandIDs::computeCACs:
+	{
+		Simulation::getInstance()->pacList->computeCACS();
 	}
 	break;
 

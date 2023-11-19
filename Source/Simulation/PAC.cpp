@@ -19,12 +19,13 @@ float parseExpr(const string &input)
 
 	// Create a map to store variable values
 	map<string, double> variables;
-	int nbIter=0;
+	int nbIter = 0;
 	while (iter != end)
 	{
 		nbIter++;
-		if(nbIter>10){
-			cout <<" Failed to parse expression: "<< input << endl;
+		if (nbIter > 10)
+		{
+			cout << " Failed to parse expression: " << input << endl;
 			return 0.0;
 		}
 		smatch match = *iter;
@@ -130,7 +131,7 @@ PAC::PAC(var data, Simulation *simul)
 			reacDirs.add(make_pair(r, reacd["dir"]));
 		}
 	}
-	 cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
+	cout << "PAC loaded: " << toString() << " with " << entities.size() << " entities and " << reacDirs.size() << " reactions" << endl;
 }
 
 var PAC::toJSONData()
@@ -244,7 +245,7 @@ map<string, float> parseModelReal(const string &output)
 void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated)
 {
 
-// compute coefs from concentrations
+	// compute coefs from concentrations
 	for (auto &rd : pac->reacDirs)
 	{
 		SimReaction *r = rd.first;
@@ -277,7 +278,6 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 		}
 		clauses << " 0) 0.00001))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
 	}
-
 }
 
 void PAC::computeCAC(Simulation *simul, string z3path)
@@ -286,7 +286,7 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 	stringstream clauses;
 	string inputFile = "z3CAC.smt2";
 	string outputFile = "z3CACmodel.txt";
-	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
 
 	// realistic coefs: coefs come from actual concentrations of entities
 	// declare concentrations variable
@@ -296,7 +296,7 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 		// bounds
 		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
 	}
-	set<SimReaction *> reacsTreated;//empty set of reactions already treated
+	set<SimReaction *> reacsTreated; // empty set of reactions already treated
 	addCACclause(clauses, this, reacsTreated);
 	// call z3
 	//  write to file
@@ -306,11 +306,11 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 	inputStream << "(get-model)\n";
 
 	inputStream.close();
-	//cout << "Calling Z3 on CAC "<<toString()<< endl;
+	// cout << "Calling Z3 on CAC "<<toString()<< endl;
 	system(z3Command.c_str());
-	//cout << "Z3 done" << endl;
+	// cout << "Z3 done" << endl;
 	ifstream outputStream(outputFile);
-	isCAC=false;
+	isCAC = false;
 	if (!outputStream)
 	{
 		cerr << "Failed to open file: " << outputFile << endl;
@@ -327,9 +327,9 @@ void PAC::computeCAC(Simulation *simul, string z3path)
 	{
 		return;
 	}
-	if(firstLine == "unknown")
+	if (firstLine == "unknown")
 	{
-		LOGWARNING("Z3 timeout on CAC: "+toString());
+		LOGWARNING("Z3 timeout on CAC: " + toString());
 		return;
 	}
 	if (firstLine != "sat")
@@ -441,8 +441,9 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
-void PAClist::computeCACS(string z3path)
+void PAClist::computeCACS()
 {
+	setZ3path();
 	// compute CACs among the PACs
 	LOG("Computing CACs");
 	int nbCAC = 0;
@@ -455,8 +456,8 @@ void PAClist::computeCACS(string z3path)
 	}
 	for (auto &pac : cycles)
 	{
-		cout <<"."<<flush;
-		pac->computeCAC(simul,z3path);
+		cout << "." << flush;
+		pac->computeCAC(simul, z3path);
 		if (pac->isCAC)
 		{
 			nbCAC++;
@@ -479,18 +480,19 @@ void PAClist::computeCACS(string z3path)
 	LOG(String(nbCAC) + " CACs found");
 }
 
-void PAClist::computeMultiCACS(string z3path)
+void PAClist::computeMultiCACS()
 {
 	multiCACs.clear();
 	const int CACsMax = Settings::getInstance()->CACSetMax->intValue();
-	bool found=true;
-	for(int setSize=2; setSize<=CACsMax; setSize++){
-		found=false;
-		//find cliques in computed sets of size SetSize-1, and test them with z3.
-		
-		//TODO
+	bool found = true;
+	for (int setSize = 2; setSize <= CACsMax; setSize++)
+	{
+		found = false;
+		// find cliques in computed sets of size SetSize-1, and test them with z3.
 
-		if(!found)
+		// TODO
+
+		if (!found)
 			break;
 	}
 }
@@ -533,20 +535,14 @@ map<string, bool> parseModel(const string &output)
 	return model;
 }
 
-void PAClist::PACsWithZ3()
+void PAClist::setZ3path()
 {
-	// we implement here more directly the constraint from Blockhuis:
-	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
-
-	LOG("Using solver: Z3");
-
-	string inputFile = "z3constraints.smt2";
-	string outputFile = "z3model.txt";
+	if (z3path != "") //already has been done
+		return;
 	vector<string> z3commands;
 	z3commands.push_back("z3");
 	z3commands.push_back(Settings::getInstance()->pathToz3->stringValue().toStdString());
 
-	string z3path;
 	for (int z3id = 0; z3id <= 1; z3id++)
 	{
 
@@ -576,9 +572,21 @@ void PAClist::PACsWithZ3()
 			return;
 		}
 	}
-	//add timeout
-	z3path+=" -t:"+ to_string(Settings::getInstance()->z3timeout->intValue());
-	string z3Command = z3path +" "+ inputFile + " > " + outputFile + " 2> z3log.txt";
+	// add timeout
+	z3path += " -t:" + to_string(Settings::getInstance()->z3timeout->intValue());
+}
+
+void PAClist::PACsWithZ3()
+{
+	// we implement here more directly the constraint from Blockhuis:
+	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
+
+	LOG("Using solver: Z3");
+	setZ3path();
+	string inputFile = "z3constraints.smt2";
+	string outputFile = "z3model.txt";
+
+	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
 	stringstream clauses;
@@ -736,7 +744,7 @@ void PAClist::PACsWithZ3()
 			{
 				break;
 			}
-			if(firstLine == "unknown")
+			if (firstLine == "unknown")
 			{
 				LOGWARNING("Z3 returned unknown on PACs");
 				return;
@@ -826,7 +834,7 @@ void PAClist::PACsWithZ3()
 		pacFile.close();
 	}
 
-	computeCACS(z3path);
+	computeCACS();
 
 	simul->PACsGenerated = true;
 	simul->updateParams();
@@ -1460,7 +1468,7 @@ void PAClist::PACsWithSAT()
 	int dmax_stop = settings->maxDiameterPACs->intValue(); // maximal diameter
 	dmax_stop = jmin(dmax_stop, Nent);					   // put to Nent if bigger
 
-	//int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
+	// int doubleReacMax = settings->maxDoubleReacPACs->intValue(); // maximal number of double reactions
 	int doubleReacMax = 1; // maximal number of double reactions, obsolete
 
 	const int maxCycles = settings->maxPACperDiameter->intValue(); // max number of cycles of some level before timeout
