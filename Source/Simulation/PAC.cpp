@@ -280,72 +280,6 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	}
 }
 
-void PAC::computeCAC(Simulation *simul, string z3path)
-{
-	// use z3 to test the existence of a witness for the CAC
-	stringstream clauses;
-	string inputFile = "z3CAC.smt2";
-	string outputFile = "z3CACmodel.txt";
-	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
-
-	// realistic coefs: coefs come from actual concentrations of entities
-	// declare concentrations variable
-	for (auto &e : simul->entities)
-	{
-		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
-		// bounds
-		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
-	}
-	set<SimReaction *> reacsTreated; // empty set of reactions already treated
-	addCACclause(clauses, this, reacsTreated);
-	// call z3
-	//  write to file
-	ofstream inputStream(inputFile);
-	inputStream << clauses.str();
-	inputStream << "(check-sat)\n";
-	inputStream << "(get-model)\n";
-
-	inputStream.close();
-	// cout << "Calling Z3 on CAC "<<toString()<< endl;
-	system(z3Command.c_str());
-	// cout << "Z3 done" << endl;
-	ifstream outputStream(outputFile);
-	isCAC = false;
-	if (!outputStream)
-	{
-		cerr << "Failed to open file: " << outputFile << endl;
-		return;
-	}
-
-	string z3Output((istreambuf_iterator<char>(outputStream)),
-					istreambuf_iterator<char>());
-
-	// test if satisfiable
-	size_t newlinePos = z3Output.find('\n');
-	string firstLine = z3Output.substr(0, newlinePos);
-	if (firstLine == "unsat")
-	{
-		return;
-	}
-	if (firstLine == "unknown")
-	{
-		LOGWARNING("Z3 timeout on CAC: " + toString());
-		return;
-	}
-	if (firstLine != "sat")
-	{
-		LOGWARNING("Error in Z3 output");
-		return;
-	}
-	isCAC = true;
-	// parse the witness of concentrations
-	map<string, float> model = parseModelReal(z3Output);
-	for (auto &e : simul->entities)
-	{
-		witness.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
-	}
-}
-
 void PAClist::addCycle(PAC *newpac)
 {
 	// we only test if is is included in existing one, other direction is taken care of by SAT solver
@@ -441,6 +375,82 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
+void PACList::computeCAC(set<int> pacIds)
+{
+	// use z3 to test the existence of a witness for the CAC
+	stringstream clauses;
+	string inputFile = "z3CAC.smt2";
+	string outputFile = "z3CACmodel.txt";
+	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+
+	// realistic coefs: coefs come from actual concentrations of entities
+	// declare concentrations variable
+	for (auto &e : simul->entities)
+	{
+		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
+		// bounds
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+	}
+	set<SimReaction *> reacsTreated; // empty set of reactions already treated
+	for (auto i : pacIds)
+	{
+		addCACclause(clauses, cycles[i], reacsTreated);
+	}
+
+	// call z3
+	//  write to file
+	ofstream inputStream(inputFile);
+	inputStream << clauses.str();
+	inputStream << "(check-sat)\n";
+	inputStream << "(get-model)\n";
+
+	inputStream.close();
+	// cout << "Calling Z3 on CAC "<<toString()<< endl;
+	system(z3Command.c_str());
+	// cout << "Z3 done" << endl;
+	ifstream outputStream(outputFile);
+	isCAC = false;
+	if (!outputStream)
+	{
+		cerr << "Failed to open file: " << outputFile << endl;
+		return;
+	}
+
+	string z3Output((istreambuf_iterator<char>(outputStream)),
+					istreambuf_iterator<char>());
+
+	// test if satisfiable
+	size_t newlinePos = z3Output.find('\n');
+	string firstLine = z3Output.substr(0, newlinePos);
+	if (firstLine == "unsat")
+	{
+		return;
+	}
+	if (firstLine == "unknown")
+	{
+		stringstream cac;
+		cac << pacIds[0] for (int i = 1; i < pacIds.size(); i++)
+		{
+			cac << "," << pacIds[i];
+		}
+		LOGWARNING("Z3 timeout on CAC: " + cac.str());
+		return;
+	}
+	if (firstLine != "sat")
+	{
+		LOGWARNING("Error in Z3 output");
+		return;
+	}
+	// parse the witness of concentrations
+	map<string, float> model = parseModelReal(z3Output);
+	witnessType witness;
+	for (auto &e : simul->entities)
+	{
+		witness.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
+	}
+	CACs.push_back(make_pair(pacIds, witness));
+}
+
 void PAClist::computeCACS()
 {
 	setZ3path();
@@ -454,47 +464,96 @@ void PAClist::computeCACS()
 		pacFile << endl
 				<< "--- CACs ---" << endl;
 	}
-	for (auto &pac : cycles)
+	CACs.clear();
+	const int CACsMax = Settings::getInstance()->CACSetMax->intValue();
+	bool found = true;
+	for (int setSize = 1; setSize <= CACsMax; setSize++)
 	{
-		cout << "." << flush;
-		pac->computeCAC(simul, z3path);
-		if (pac->isCAC)
-		{
-			nbCAC++;
-			if (Settings::getInstance()->printPACsToFile->boolValue())
-			{
+		found = false;
+		// find cliques in computed sets of size SetSize-1, and test them with z3.
 
-				pacFile << pac->toString() << endl;
-				pacFile << "Witness: " << endl;
-				for (auto &w : pac->witness)
+		set<set<int>> candidates;
+
+		if (setSize == 1)
+		{
+			// put all pacs as singletons
+			for (int i = 0; i < cycles.size(); i++)
+			{
+				set<int> singleton;
+				singleton.insert(i);
+				candidates.push_back(singleton);
+			}
+		}
+		else
+		{
+			// we only build sets that have all their subsets of size setSize-1 in the list of CACs
+
+			for (int i = 0; i < CACs.size(); i++)
+			{
+				vector<int> set = CACs[i].first;
+				if (set.size() == setSize - 1)
 				{
-					pacFile << "\t" << w.first->name << ": " << w.second << endl;
+					// we now look for another set of size setSize-1 that has intersection of size setSize-2 with set
+					for (int j = i + 1; j < CACs.size(); j++)
+					{
+						vector<int> set2 = CACs[j].first;
+						if (set2.size() == setSize - 1)
+						{
+							vector<int> intersection;
+							set_intersection(trueSets[i].begin(), trueSets[i].end(),
+											 trueSets[j].begin(), trueSets[j].end(),
+											 back_inserter(intersection));
+							if (intersection.size() == setSize - 2)
+							{
+								// we have found a candidate
+								set<int> candidate;
+								// take it as the union of the two sets
+								for (auto &e : set)
+									candidate.insert(e);
+								for (auto &e : set2)
+									candidate.insert(e);
+								// add it to the list of candidates
+								candidates.push_back(candidate);
+							}
+						}
+					}
 				}
 			}
 		}
+		// actually test the candidates
+		for (auto &cand : candidates)
+		{
+			bool res = computeCAC(cand);
+			if (res)
+			{
+				found = true;
+				nbCAC++;
+				// print last cac of CACs to file
+				if (Settings::getInstance()->printPACsToFile->boolValue())
+				{
+					pacFile << CACs.back().first.size() << "-CAC: ";
+					for (auto &e : CACs.back().first)
+					{
+						pacFile << e << ",";
+					}
+					pacFile << endl;
+					pacFile << "Witness: " << endl;
+					for (auto &w : CACs.back().second)
+					{
+						pacFile << "\t" << w.first->name << ": " << w.second << endl;
+					}
+				}
+			}
+		}
+		if (!found)
+			break;
 	}
+
 	if (Settings::getInstance()->printPACsToFile->boolValue())
 	{
 		pacFile.close();
 	}
 	LOG(String(nbCAC) + " CACs found");
-}
-
-void PAClist::computeMultiCACS()
-{
-	multiCACs.clear();
-	const int CACsMax = Settings::getInstance()->CACSetMax->intValue();
-	bool found = true;
-	for (int setSize = 2; setSize <= CACsMax; setSize++)
-	{
-		found = false;
-		// find cliques in computed sets of size SetSize-1, and test them with z3.
-
-		// TODO
-
-		if (!found)
-			break;
-	}
 }
 
 void PAClist::run()
@@ -537,7 +596,7 @@ map<string, bool> parseModel(const string &output)
 
 void PAClist::setZ3path()
 {
-	if (z3path != "") //already has been done
+	if (z3path != "") // already has been done
 		return;
 	vector<string> z3commands;
 	z3commands.push_back("z3");
@@ -1602,4 +1661,43 @@ void PAClist::PACsWithSAT()
 
 	simul->updateParams();
 	// simul->printPACs();
+}
+
+var PAClist::toJSONData()
+{
+	var data = new DynamicObject();
+	// save cycles
+	Array<var> cyclesData;
+	for (auto &c : cycles)
+	{
+		cyclesData.add(c->toJSONData());
+	}
+	data->setProperty("cycles", cyclesData);
+	// save CACs
+	Array<var> CACsData;
+	for (auto &c : CACs)
+	{
+		// TODO
+	}
+
+	return data;
+}
+
+void PAClist::fromJSONData(var data)
+{
+	clear();
+	// load cycles
+	Array<var> cyclesData = data.getProperty("cycles");
+	for (auto &c : cyclesData)
+	{
+		PAC *pac = new PAC();
+		pac->fromJSONData(c);
+		cycles.add(pac);
+	}
+	// load CACs
+	Array<var> CACsData = data.getProperty("CACs");
+	for (auto &c : CACsData)
+	{
+		// TODO
+	}
 }
