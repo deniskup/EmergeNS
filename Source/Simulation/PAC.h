@@ -87,7 +87,7 @@ public:
     void computePACs(int numSolv); // compute PACs from the simulation
 
     //CACs
-    OwnedArray<pair<set<int>,witnessType>> CACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
+    Array<pair<set<int>,witnessType>> CACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
         //the Array is the witness concentrations
     bool computeCAC(set<int>); // test for CAC and compute witness if yes
     void computeCACS(); // compute CACs among the PACs

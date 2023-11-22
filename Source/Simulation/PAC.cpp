@@ -428,7 +428,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	if (firstLine == "unknown")
 	{
 		stringstream cac;
-		auto it=pacIds.begin();
+		auto it = pacIds.begin();
 		cac << *it;
 		it++;
 		for (; it != pacIds.end(); it++)
@@ -450,7 +450,8 @@ bool PAClist::computeCAC(set<int> pacIds)
 	{
 		witness.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
 	}
-	CACs.push_back(make_pair(pacIds, witness));
+
+	CACs.add(make_pair(pacIds, witness));
 	return true;
 }
 
@@ -484,7 +485,7 @@ void PAClist::computeCACS()
 			{
 				set<int> singleton;
 				singleton.insert(i);
-				candidates.push_back(singleton);
+				candidates.insert(singleton);
 			}
 		}
 		else
@@ -493,37 +494,66 @@ void PAClist::computeCACS()
 
 			for (int i = 0; i < CACs.size(); i++)
 			{
-				vector<int> set = CACs[i].first;
-				if (set.size() == setSize - 1)
+				set<int> set1 = CACs[i].first;
+				if (set1.size() == setSize - 1)
 				{
 					// we now look for another set of size setSize-1 that has intersection of size setSize-2 with set
 					for (int j = i + 1; j < CACs.size(); j++)
 					{
-						vector<int> set2 = CACs[j].first;
+						set<int> set2 = CACs[j].first;
 						if (set2.size() == setSize - 1)
 						{
 							vector<int> intersection;
-							set_intersection(trueSets[i].begin(), trueSets[i].end(),
-											 trueSets[j].begin(), trueSets[j].end(),
+							set_intersection(set1.begin(), set1.end(),
+											 set2.begin(), set2.end(),
 											 back_inserter(intersection));
 							if (intersection.size() == setSize - 2)
 							{
 								// we have found a candidate
 								set<int> candidate;
 								// take it as the union of the two sets
-								for (auto &e : set)
+								for (auto &e : set1)
 									candidate.insert(e);
 								for (auto &e : set2)
 									candidate.insert(e);
-								// add it to the list of candidates
-								candidates.push_back(candidate);
+								// verify that every subset of size setSize-1 is in the list of CACs
+								bool ok = true;
+								for (auto k : candidate)
+								{
+									set<int> subset;
+									for (auto l : candidate)
+									{
+										if (l != k)
+										{
+											subset.insert(l);
+										}
+									}
+									// search for subset in CACs
+									ok = false;
+									for (auto &c : CACs)
+									{
+										if (c.first == subset)
+										{
+											ok = true;
+											break;
+										}
+									}
+									if (!ok) // one of the subsets is already not a CAC
+										break;
+								}
+								// add it to the list of candidates if all subsets ok
+								if (ok)
+									candidates.insert(candidate);
 							}
 						}
 					}
 				}
 			}
 		}
+		if(candidates.size() ==0) break;
+		LOG("Testing " + to_string(candidates.size()) + " candidates of size " + to_string(setSize));
 		// actually test the candidates
+		int localNbCAC = 0;
 		for (auto &cand : candidates)
 		{
 			bool res = computeCAC(cand);
@@ -531,23 +561,34 @@ void PAClist::computeCACS()
 			{
 				found = true;
 				nbCAC++;
+				localNbCAC++;
 				// print last cac of CACs to file
+				stringstream cac;
+				auto it = cand.begin();
+				cac << *it;
+				it++;
+				for (; it != cand.end(); it++)
+				{
+					cac << "," << *it;
+				}
+				LOG("CAC found: " + cac.str());
 				if (Settings::getInstance()->printPACsToFile->boolValue())
 				{
-					pacFile << CACs.back().first.size() << "-CAC: ";
-					for (auto &e : CACs.back().first)
+					pacFile << cand.size() << "-CAC: ";
+					for (auto &e : CACs.getLast().first)
 					{
 						pacFile << e << ",";
 					}
 					pacFile << endl;
 					pacFile << "Witness: " << endl;
-					for (auto &w : CACs.back().second)
+					for (auto &w : CACs.getLast().second)
 					{
 						pacFile << "\t" << w.first->name << ": " << w.second << endl;
 					}
 				}
 			}
 		}
+		LOG(String(localNbCAC) + " CACs found of size " + String(setSize));
 		if (!found)
 			break;
 	}
@@ -1675,7 +1716,7 @@ var PAClist::toJSONData()
 	{
 		cyclesData.add(c->toJSONData());
 	}
-	data->setProperty("cycles", cyclesData);
+	data.getDynamicObject()->setProperty("cycles", cyclesData);
 	// save CACs
 	Array<var> CACsData;
 	for (auto &c : CACs)
@@ -1690,15 +1731,24 @@ void PAClist::fromJSONData(var data)
 {
 	clear();
 	// load cycles
-	Array<var> cyclesData = data.getProperty("cycles");
+	if (!data.getDynamicObject()->hasProperty("cycles"))
+	{
+		LOGWARNING("No cycles found in PAClist JSON data");
+		return;
+	}
+	Array<var> cyclesData = data["cycles"];
 	for (auto &c : cyclesData)
 	{
-		PAC *pac = new PAC();
-		pac->fromJSONData(c);
+		PAC *pac = new PAC(c, simul);
 		cycles.add(pac);
 	}
 	// load CACs
-	Array<var> CACsData = data.getProperty("CACs");
+	if (!data.getDynamicObject()->hasProperty("CACs"))
+	{
+		LOGWARNING("No CACs found in PAClist JSON data");
+		return;
+	}
+	Array<var> CACsData = data["CACs"];
 	for (auto &c : CACsData)
 	{
 		// TODO
