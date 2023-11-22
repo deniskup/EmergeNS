@@ -375,7 +375,7 @@ void PAClist::computePACs(int numSolv)
 	startThread();
 }
 
-void PACList::computeCAC(set<int> pacIds)
+bool PAClist::computeCAC(set<int> pacIds)
 {
 	// use z3 to test the existence of a witness for the CAC
 	stringstream clauses;
@@ -409,11 +409,10 @@ void PACList::computeCAC(set<int> pacIds)
 	system(z3Command.c_str());
 	// cout << "Z3 done" << endl;
 	ifstream outputStream(outputFile);
-	isCAC = false;
 	if (!outputStream)
 	{
 		cerr << "Failed to open file: " << outputFile << endl;
-		return;
+		return false;
 	}
 
 	string z3Output((istreambuf_iterator<char>(outputStream)),
@@ -424,22 +423,25 @@ void PACList::computeCAC(set<int> pacIds)
 	string firstLine = z3Output.substr(0, newlinePos);
 	if (firstLine == "unsat")
 	{
-		return;
+		return false;
 	}
 	if (firstLine == "unknown")
 	{
 		stringstream cac;
-		cac << pacIds[0] for (int i = 1; i < pacIds.size(); i++)
+		auto it=pacIds.begin();
+		cac << *it;
+		it++;
+		for (; it != pacIds.end(); it++)
 		{
-			cac << "," << pacIds[i];
+			cac << "," << *it;
 		}
 		LOGWARNING("Z3 timeout on CAC: " + cac.str());
-		return;
+		return false;
 	}
 	if (firstLine != "sat")
 	{
 		LOGWARNING("Error in Z3 output");
-		return;
+		return false;
 	}
 	// parse the witness of concentrations
 	map<string, float> model = parseModelReal(z3Output);
@@ -449,6 +451,7 @@ void PACList::computeCAC(set<int> pacIds)
 		witness.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
 	}
 	CACs.push_back(make_pair(pacIds, witness));
+	return true;
 }
 
 void PAClist::computeCACS()

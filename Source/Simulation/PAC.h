@@ -19,7 +19,7 @@ public:
     bool printsExtraString; //is there an extra string printed by the SAT solver before SAT or SATISFIABLE, and before the values
 };
 
-type witnessType=Array<pair<SimEntity *,float>>; // a witness is a vector of concentrations
+typedef Array<pair<SimEntity *,float>> witnessType; // a witness is a vector of concentrations
 
 class PAC
 {
@@ -52,7 +52,7 @@ public:
     //bool isCAC = false; // is this PAC a CAC ?
     //Array<pair<SimEntity *,float>> witness; //for CAC: vector of concentrations witnessing the CAC
 
-    void computeCAC(Simulation *simul, string z3path="z3"); // test for CAC and compute witness if yes
+  
 
 };
 
@@ -89,8 +89,8 @@ public:
     //CACs
     OwnedArray<pair<set<int>,witnessType>> CACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
         //the Array is the witness concentrations
+    bool computeCAC(set<int>); // test for CAC and compute witness if yes
     void computeCACS(); // compute CACs among the PACs
-    void computeMultiCACS(); 
     void clear(); // clear everything
 
     // save/load to JSON
