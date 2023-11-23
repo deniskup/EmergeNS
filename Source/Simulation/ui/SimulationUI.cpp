@@ -93,7 +93,7 @@ SimulationUI::~SimulationUI()
 //==============================================================================
 void SimulationUI::paint(juce::Graphics &g)
 {
-  
+
     // the 1.01 is to left a margin for the top curve
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -116,12 +116,15 @@ void SimulationUI::paint(juce::Graphics &g)
         paramsToDisplay << "No simulation loaded";
     else
     {
-        paramsToDisplay << simul->entities.size() << " entities ("<<simul->primEnts.size()<<" primary)        ";
-        //paramsToDisplay << ((simul->numLevels == -1) ? "?" : String(simul->numLevels)) << " levels         ";
+        paramsToDisplay << simul->entities.size() << " entities (" << simul->primEnts.size() << " primary)        ";
+        // paramsToDisplay << ((simul->numLevels == -1) ? "?" : String(simul->numLevels)) << " levels         ";
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
-        //paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
+        // paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
         paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->cycles.size()) : "?") << " PACs        ";
-        paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->CACs.size())  : "?") << " CACs";
+        int bCACs = simul->pacList->basicCACs.size();
+        paramsToDisplay << (simul->PACsGenerated ? String(bCACs) : "?") << " CACs ";
+        if (bCACs > 0 && simul->PACsGenerated)
+            paramsToDisplay << " (" <<  String(simul->pacList->CACs.size() - bCACs) << " multiCACs)\n\n";
     }
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);
@@ -132,7 +135,6 @@ void SimulationUI::paint(juce::Graphics &g)
         return;
     if (simul->express)
         return;
-
 
     float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
     // float maxConcent = 5;

@@ -340,6 +340,8 @@ void PAClist::clear()
 {
 	cycles.clear();
 	nonMinimals.clear();
+	CACs.clear();
+	basicCACs.clear();
 	simul->PACsGenerated = false;
 	maxRAC = 0.;
 }
@@ -387,8 +389,8 @@ void PAClist::affectSATIds()
 	
 }
 
-// 0 for minisat, 1 for kissat, 2 for z3
-void PAClist::computePACs(int numSolv)
+// 0 for minisat, 1 for kissat, 2 for z3, 3 for CACs
+void PAClist::compute(int numSolv)
 {
 
 	numSolver = numSolv;
@@ -449,11 +451,11 @@ bool PAClist::computeCAC(set<int> pacIds)
 	{
 		stringstream cac;
 		auto it = pacIds.begin();
-		cac << *it;
+		cac << *it+1; //+1 when displaying
 		it++;
 		for (; it != pacIds.end(); it++)
 		{
-			cac << "," << *it;
+			cac << "," << *it+1;
 		}
 		LOGWARNING("Z3 timeout on CAC: " + cac.str());
 		return false;
@@ -475,7 +477,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	return true;
 }
 
-void PAClist::computeCACS()
+void PAClist::computeCACs()
 {
 	setZ3path();
 	affectSATIds();
@@ -490,6 +492,7 @@ void PAClist::computeCACS()
 				<< "--- CACs ---" << endl;
 	}
 	CACs.clear();
+	basicCACs.clear();
 	const int CACsMax = Settings::getInstance()->CACSetMax->intValue();
 	bool found = true;
 	for (int setSize = 1; setSize <= CACsMax; setSize++)
@@ -583,14 +586,16 @@ void PAClist::computeCACS()
 				found = true;
 				nbCAC++;
 				localNbCAC++;
+				if(cand.size()==1)
+					basicCACs.add(*cand.begin());
 				// print last cac of CACs to file
 				stringstream cac;
 				auto it = cand.begin();
-				cac << *it;
+				cac << *it+1;
 				it++;
 				for (; it != cand.end(); it++)
 				{
-					cac << "," << *it;
+					cac << "," << *it+1;
 				}
 				LOG("CAC found: " + cac.str());
 				if (Settings::getInstance()->printPACsToFile->boolValue())
@@ -622,16 +627,17 @@ void PAClist::computeCACS()
 }
 
 void PAClist::run()
-{ // clear PACs if some were computed
-	cycles.clear();
-	nonMinimals.clear();
+{ 
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
 
 	if (numSolver <= 1)
 		PACsWithSAT();
-	else
+	else if (numSolver==2){
 		PACsWithZ3();
+	}
+	else
+		computeCACs();
 
 	// print execution time
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
@@ -704,6 +710,10 @@ void PAClist::PACsWithZ3()
 {
 	// we implement here more directly the constraint from Blockhuis:
 	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
+	
+	// clear PACs if some were computed
+	cycles.clear();
+	nonMinimals.clear();
 
 	LOG("Using solver: Z3");
 	setZ3path();
@@ -954,7 +964,7 @@ void PAClist::PACsWithZ3()
 		pacFile.close();
 	}
 
-	computeCACS();
+	computeCACs();
 
 	simul->PACsGenerated = true;
 	simul->updateParams();
@@ -1724,6 +1734,62 @@ void PAClist::PACsWithSAT()
 	// simul->printPACs();
 }
 
+var PAClist::CACtoJSON(CACType cac)
+{
+	var data = new DynamicObject();
+	var pacids;
+	int i=0;
+	for (auto &p : cac.first)
+	{
+		var pacid = new DynamicObject();
+		pacid.getDynamicObject()->setProperty("id", p);
+		pacids.append(pacid);
+		i++;
+	}
+	data.getDynamicObject()->setProperty("pacids", pacids);
+	//witnessType is Array<pair<SimEntity *,float>>
+	var witness;
+	for (auto &w : cac.second)
+	{
+		var wdata = new DynamicObject();
+		wdata.getDynamicObject()->setProperty("entity", w.first->name);
+		wdata.getDynamicObject()->setProperty("value", w.second);
+		witness.append(wdata);
+	}
+	data.getDynamicObject()->setProperty("witness", witness);
+
+	return data;
+}
+
+CACType PAClist::JSONtoCAC(var data)
+{
+	set<int> pacids;
+	CACType dummyCAC=make_pair(pacids, witnessType());
+	//test pacids exists and is an array
+	if(!data.hasProperty("pacids") || !data["pacids"].isArray())
+	{
+		LOGWARNING("PAClist::JSONtoCAC: pacids not found or not an array");
+		return dummyCAC;
+	}
+	Array<var> *pacidsData = data["pacids"].getArray();
+	for (auto &p : *pacidsData)
+	{
+		pacids.insert(p["id"]);
+	}
+	if(!data.hasProperty("witness") || !data["witness"].isArray())
+	{
+		LOGWARNING("PAClist::JSONtoCAC: witness not found or not an array");
+		return dummyCAC;
+	}
+	Array<var> *witnessData = data["witness"].getArray();
+	witnessType witness;
+	for (auto &w : *witnessData)
+	{
+		witness.add(make_pair(simul->getSimEntityForName(w["entity"]), w["value"]));
+	}
+	return make_pair(pacids, witness);
+}
+
 var PAClist::toJSONData()
 {
 	var data = new DynamicObject();
@@ -1738,7 +1804,7 @@ var PAClist::toJSONData()
 	Array<var> CACsData;
 	for (auto &c : CACs)
 	{
-		// TODO
+		data.getDynamicObject()->setProperty("CACs", CACtoJSON(c));
 	}
 
 	return data;
@@ -1768,6 +1834,6 @@ void PAClist::fromJSONData(var data)
 	Array<var> CACsData = data["CACs"];
 	for (auto &c : CACsData)
 	{
-		// TODO
+		CACs.add(JSONtoCAC(c));
 	}
 }

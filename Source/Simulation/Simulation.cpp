@@ -207,14 +207,8 @@ var Simulation::toJSONData()
 
   // cycles
   // todo: JSON for paclist
-  var cycs;
-  for (auto &c : pacList->cycles)
-  {
-    var cyc = c->toJSONData();
-    cycs.append(cyc);
-  }
-  data.getDynamicObject()->setProperty("cycles", cycs);
-  
+  var pacListData = pacList->toJSONData();
+  data.getDynamicObject()->setProperty("pacList", pacListData);
   return data;
 }
 
@@ -308,25 +302,10 @@ void Simulation::importJSONData(var data)
     }
   }
 
-  // cycles
-  // a remplacer avec pacList->importJSONData
-  pacList->cycles.clear();
-  if (PACsGenerated && data.getDynamicObject()->hasProperty("cycles"))
+  // PACList
+  if (data.getDynamicObject()->hasProperty("pacList"))
   {
-    auto cycs = data.getDynamicObject()->getProperty("cycles").getArray();
-    if (cycs != nullptr)
-    {
-      for (auto &cvar : *cycs)
-      {
-        PAC *cyc = new PAC(cvar, this);
-        if (cyc->constructionFailed)
-        {
-          LOGWARNING("PAC construction failed, not added to list");
-          continue;
-        }
-        pacList->addCycle(cyc);
-      }
-    }
+    pacList->fromJSONData(data.getDynamicObject()->getProperty("pacList"));
   }
 
   ready = true;

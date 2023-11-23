@@ -19,7 +19,7 @@ public:
     bool printsExtraString; //is there an extra string printed by the SAT solver before SAT or SATISFIABLE, and before the values
 };
 
-typedef Array<pair<SimEntity *,float>> witnessType; // a witness is a vector of concentrations
+
 
 class PAC
 {
@@ -55,7 +55,8 @@ public:
   
 
 };
-
+typedef Array<pair<SimEntity *,float>> witnessType; // a witness is a vector of concentrations
+typedef pair<set<int>,witnessType> CACType; // a CAC is a pair of a set of PACs and a witness
 
 class PAClist : public Thread
 {
@@ -85,13 +86,16 @@ public:
     string z3path=""; // path to z3 executable
     void setZ3path(); // set the path to z3 executable
 
-    void computePACs(int numSolv); // compute PACs from the simulation
+    void compute(int numSolv); // compute PACs or CACs 
 
     //CACs
-    Array<pair<set<int>,witnessType>> CACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
+    Array<int> basicCACs; // indexes of the PACs in "cycles" that are basic CACs
+    Array<CACType> CACs; // indexes of the PACs in "cycles" that are CACs. each is a vector because we also treat pairs, etc.
         //the Array is the witness concentrations
     bool computeCAC(set<int>); // test for CAC and compute witness if yes
-    void computeCACS(); // compute CACs among the PACs
+    void computeCACs(); // compute CACs among the PACs
+    var CACtoJSON(CACType); // save CACs to JSON
+    CACType JSONtoCAC(var); // load CACs from JSON
     void clear(); // clear everything
 
     // save/load to JSON

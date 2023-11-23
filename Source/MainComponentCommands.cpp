@@ -42,7 +42,7 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 	// 	break;
 
 	case NSCommandIDs::PACwithZ3:
-		result.setInfo("PACs with Z3", "", "General", result.readOnlyInKeyEditor);
+		result.setInfo("Compute PACs", "", "General", result.readOnlyInKeyEditor);
 		result.addDefaultKeypress(KeyPress::createFromDescription("p").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 	
@@ -166,13 +166,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::PACwithZ3:
 	{
 
-		Simulation::getInstance()->pacList->computePACs(2);
+		Simulation::getInstance()->pacList->compute(2);
 	}
 	break;
 
 	case NSCommandIDs::computeCACs:
 	{
-		Simulation::getInstance()->pacList->computeCACS();
+		Simulation::getInstance()->pacList->compute(3);
 	}
 	break;
 
