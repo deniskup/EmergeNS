@@ -76,6 +76,7 @@ public:
       //the thread function
     void run() override;
 
+    void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
 
     void PACsWithSAT(); // compute PACs with SAT solver minisat (numSolver 0) or kissat (numSolver 1)
     void PACsWithZ3(); // compute PACs with SMT Solver Z3 (numSolver >1)

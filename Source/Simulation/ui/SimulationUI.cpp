@@ -116,12 +116,12 @@ void SimulationUI::paint(juce::Graphics &g)
         paramsToDisplay << "No simulation loaded";
     else
     {
-        paramsToDisplay << simul->entities.size() << " entities         ";
-        paramsToDisplay << ((simul->numLevels == -1) ? "?" : String(simul->numLevels)) << " levels         ";
+        paramsToDisplay << simul->entities.size() << " entities ("<<simul->primEnts.size()<<" primary)        ";
+        //paramsToDisplay << ((simul->numLevels == -1) ? "?" : String(simul->numLevels)) << " levels         ";
         paramsToDisplay << simul->reactions.size() << " reactions\n\n";
-        paramsToDisplay << simul->primEnts.size() << " primary entities        ";
-        paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
-        paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->cycles.size()) : "?") << " PACs";
+        //paramsToDisplay << simul->entitiesDrawn.size() << " drawn entities        ";
+        paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->cycles.size()) : "?") << " PACs        ";
+        paramsToDisplay << (simul->PACsGenerated ? String(simul->pacList->CACs.size())  : "?") << " CACs";
     }
 
     paramsLabel.setText(paramsToDisplay, dontSendNotification);

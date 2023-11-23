@@ -367,7 +367,27 @@ void cleanKissatOutput()
 	system("mv model2.txt model.txt");
 }
 
-// 0 for minisat, 1 for kissat
+void PAClist::affectSATIds()
+{
+	// entities
+	int i = 0;
+	for (auto &e : simul->entities)
+	{
+		e->idSAT = i;
+		i++;
+	}
+
+	// reactions
+	int j = 0;
+	for (auto &r : simul->reactions)
+	{
+		r->idSAT = j;
+		j++;
+	}
+	
+}
+
+// 0 for minisat, 1 for kissat, 2 for z3
 void PAClist::computePACs(int numSolv)
 {
 
@@ -458,6 +478,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 void PAClist::computeCACS()
 {
 	setZ3path();
+	affectSATIds();
 	// compute CACs among the PACs
 	LOG("Computing CACs");
 	int nbCAC = 0;
@@ -686,6 +707,7 @@ void PAClist::PACsWithZ3()
 
 	LOG("Using solver: Z3");
 	setZ3path();
+	affectSATIds();
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
 
@@ -696,23 +718,18 @@ void PAClist::PACsWithZ3()
 	//------------declare variables------------
 
 	// entities
-	int i = 0;
+
 	for (auto &e : simul->entities)
 	{
-		e->idSAT = i;
-		clauses << "(declare-const ent" << i << " Bool)\n";
-		i++;
+		clauses << "(declare-const ent" << e->idSAT << " Bool)\n";
 	}
 
 	// reactions
-	int j = 0;
 	for (auto &r : simul->reactions)
 	{
-		r->idSAT = j;
-		clauses << "(declare-const reac" << j << " Bool)\n";
-		clauses << "(declare-const dir" << j << " Bool)\n";
-		clauses << "(declare-const coef" << j << " Int)\n";
-		j++;
+		clauses << "(declare-const reac" << r->idSAT << " Bool)\n";
+		clauses << "(declare-const dir" << r->idSAT << " Bool)\n";
+		clauses << "(declare-const coef" << r->idSAT << " Int)\n";
 	}
 
 	//------------constraints------------
