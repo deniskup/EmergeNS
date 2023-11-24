@@ -1794,19 +1794,19 @@ var PAClist::toJSONData()
 {
 	var data = new DynamicObject();
 	// save cycles
-	Array<var> cyclesData;
+	var cyclesData;
 	for (auto &c : cycles)
 	{
-		cyclesData.add(c->toJSONData());
+		cyclesData.append(c->toJSONData());
 	}
 	data.getDynamicObject()->setProperty("cycles", cyclesData);
 	// save CACs
-	Array<var> CACsData;
+	var CACsData;
 	for (auto &c : CACs)
 	{
-		data.getDynamicObject()->setProperty("CACs", CACtoJSON(c));
+		CACsData.append(CACtoJSON(c));
 	}
-
+	data.getDynamicObject()->setProperty("CACs", CACsData);
 	return data;
 }
 
@@ -1814,26 +1814,30 @@ void PAClist::fromJSONData(var data)
 {
 	clear();
 	// load cycles
-	if (!data.getDynamicObject()->hasProperty("cycles"))
+	if (!data.getDynamicObject()->hasProperty("cycles") || !data["cycles"].isArray())
 	{
-		LOGWARNING("No cycles found in PAClist JSON data");
+		LOGWARNING("wrong PAC format in PAClist JSON data");
 		return;
 	}
-	Array<var> cyclesData = data["cycles"];
-	for (auto &c : cyclesData)
+	Array<var> *cyclesData = data["cycles"].getArray();
+	for (auto &c : *cyclesData)
 	{
 		PAC *pac = new PAC(c, simul);
 		cycles.add(pac);
 	}
+	simul->PACsGenerated = true;
 	// load CACs
-	if (!data.getDynamicObject()->hasProperty("CACs"))
+	if (!data.getDynamicObject()->hasProperty("CACs") || !data["CACs"].isArray())
 	{
-		LOGWARNING("No CACs found in PAClist JSON data");
+		LOGWARNING("Wrong CAC format in PAClist JSON data");
 		return;
 	}
-	Array<var> CACsData = data["CACs"];
-	for (auto &c : CACsData)
+	Array<var> *CACsData = data["CACs"].getArray();
+	for (auto &c : *CACsData)
 	{
-		CACs.add(JSONtoCAC(c));
+		CACType cac = JSONtoCAC(c);
+		CACs.add(cac);
+		if(cac.first.size()==1)
+			basicCACs.add(*(cac.first.begin()));
 	}
 }
