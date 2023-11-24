@@ -136,6 +136,8 @@ public:
   BoolParameter *ignoreFreeEnergy;
   BoolParameter *ignoreBarriers;
 
+  EnumParameter *setCAC;
+
   // actually just equal to not generated
   //  bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
 

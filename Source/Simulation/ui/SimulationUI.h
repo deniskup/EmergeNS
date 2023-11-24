@@ -39,6 +39,7 @@ public:
     unique_ptr<BoolToggleUI> detectEqUI;
     unique_ptr<FloatParameterLabelUI> epsilonEqUI;
 
+    unique_ptr<EnumParameterUI> setCACUI;
 
     //for diplaying paramaters
     Label paramsLabel;

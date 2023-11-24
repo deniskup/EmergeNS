@@ -41,7 +41,7 @@ juce_ImplementSingleton(Simulation)
   detectEquilibrium = addBoolParameter("Detect Equil.", "Detect equilibrium and stop simulation", false);
   epsilonEq = addFloatParameter("Eps.", "Epsilon for equilibrium detection", 0.001f, 0.f, 1.f);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
-
+  setCAC = addEnumParameter("Set CAC", "Set current concentrations according to CAC witness");
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
 
@@ -151,9 +151,20 @@ void Simulation::updateParams()
     numLevels = jmax(numLevels, ent->level);
   }
 
+  setCAC->clearOptions();
+  setCAC->addOption("None",-1);
+  int opt=1;
+  for (auto &cac: pacList->CACs)
+  {
+    setCAC->addOption(pacList->CACToString(cac),opt);
+    opt++;
+  }
+
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
+
+
 
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()

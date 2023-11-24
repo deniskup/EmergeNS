@@ -27,6 +27,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
     detectEqUI.reset(simul->detectEquilibrium->createToggle());
     epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
+    setCACUI.reset(simul->setCAC->createUI());
 
     // local parameter, won't be saved in the file.
     // maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
@@ -46,6 +47,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     pointsDrawnUI->setSize(150, 20);
     detectEqUI->setSize(120, 20);
     epsilonEqUI->setSize(100, 20);
+    setCACUI->setSize(100, 20);
 
     addAndMakeVisible(dtUI.get());
     addAndMakeVisible(totalTimeUI.get());
@@ -63,6 +65,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
     addAndMakeVisible(ignoreBarriersUI.get());
     addAndMakeVisible(detectEqUI.get());
     addAndMakeVisible(epsilonEqUI.get());
+    addAndMakeVisible(setCACUI.get());
 
     // saveSimBT.addListener(this);
     // addAndMakeVisible(&saveSimBT);
@@ -238,6 +241,7 @@ void SimulationUI::resized()
     ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(150));
     explore.removeFromLeft(70);
     ignoreBarriersUI->setBounds(explore.removeFromLeft(130));
+    setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
 
     paramsLabel.setBounds(br.reduced(10));
 }
