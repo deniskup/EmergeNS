@@ -945,11 +945,12 @@ void PAClist::PACsWithZ3()
 		pacFile << endl;
 		pacFile.close();
 	}
+	simul->PACsGenerated = true;
+	simul->updateParams();
 
 	computeCACs();
 
-	simul->PACsGenerated = true;
-	simul->updateParams();
+
 }
 
 String PAClist::CACToString(CACType cac)
