@@ -1175,6 +1175,18 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     cancel();
 }
 
+void Simulation::setConcToCAC(int idCAC){
+  if(idCAC<1) return;
+  CACType cac = pacList->CACfromInt(idCAC);
+  for(auto entConc : cac.second){
+    auto ent = entConc.first;
+    float conc=entConc.second;
+    ent->concent = conc;
+    ent->entity->concent->setValue(conc); 
+  }
+
+}
+
 void Simulation::onContainerParameterChanged(Parameter *p)
 {
   ControllableContainer::onContainerParameterChanged(p);
@@ -1186,6 +1198,10 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   if (p == detectEquilibrium)
   {
     epsilonEq->hideInEditor = !detectEquilibrium->boolValue();
+  }
+  if(p==setCAC){
+    if(setCAC->intValue()<1) return;
+    setConcToCAC(setCAC->intValue());
   }
 }
 

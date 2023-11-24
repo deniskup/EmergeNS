@@ -1,6 +1,8 @@
+- verify why witnesses not always give visible RACs
+
 - in generation:remove constraint that entities must be created from smaller ones.
 
-- multiCACs implementation
+- stop PAC/CAC thread manually
 
 - erreur dans Z3 pour les PAC non CAC
 

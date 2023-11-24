@@ -622,6 +622,7 @@ void PAClist::run()
 
 	// print execution time
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
+	simul->updateParams();
 }
 
 // Function to parse the model from Z3 output, retrieve boolean variables

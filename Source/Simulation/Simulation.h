@@ -149,6 +149,8 @@ public:
   void computeRates();    // compute rates of reactions from their barriers and energy of entities
   void computeBarriers(); // compute barriers from rates and energy of entities
 
+  void setConcToCAC(int idCAC); // set concentrations to CAC witness
+
   bool toImport = false; // to know if we have to import from manual changes
   bool ready;            // to know if ready to be launched, ie parameters generated
   float recordConcent;   // record the higher concentration reached
