@@ -152,19 +152,17 @@ void Simulation::updateParams()
   }
 
   setCAC->clearOptions();
-  setCAC->addOption("None",-1);
-  int opt=1;
-  for (auto &cac: pacList->CACs)
+  setCAC->addOption("None", -1);
+  int opt = 1;
+  /*for (auto &cac : pacList->CACs)
   {
-    setCAC->addOption(pacList->CACToString(cac),opt);
+    setCAC->addOption(pacList->CACToString(cac), opt);
     opt++;
   }
-
+  */
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
-
-
 
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()
@@ -825,7 +823,7 @@ void Simulation::nextStep()
     stop();
     return;
   }
-  
+
   // loop through reactions (first to see brief RACs)
   for (auto &reac : reactions)
   {
@@ -888,7 +886,6 @@ void Simulation::nextStep()
     }
     ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
-
 
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
@@ -1036,6 +1033,8 @@ void Simulation::stop()
 
 void Simulation::cancel()
 {
+  if (isComputing)
+    shouldStop = true; //to stop PAC/CAC computation
   stopThread(500);
 }
 
@@ -1177,16 +1176,18 @@ void Simulation::onContainerTriggerTriggered(Trigger *t)
     cancel();
 }
 
-void Simulation::setConcToCAC(int idCAC){
-  if(idCAC<1) return;
+void Simulation::setConcToCAC(int idCAC)
+{
+  if (idCAC < 1)
+    return;
   CACType cac = pacList->CACfromInt(idCAC);
-  for(auto entConc : cac.second){
+  for (auto entConc : cac.second)
+  {
     auto ent = entConc.first;
-    float conc=entConc.second;
+    float conc = entConc.second;
     ent->concent = conc;
-    ent->entity->concent->setValue(conc); 
+    ent->entity->concent->setValue(conc);
   }
-
 }
 
 void Simulation::onContainerParameterChanged(Parameter *p)
@@ -1201,8 +1202,10 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     epsilonEq->hideInEditor = !detectEquilibrium->boolValue();
   }
-  if(p==setCAC){
-    if(setCAC->intValue()<1) return;
+  if (p == setCAC)
+  {
+    if (setCAC->intValue() < 1)
+      return;
     setConcToCAC(setCAC->intValue());
   }
 }
@@ -1385,7 +1388,7 @@ void SimReaction::importFromManual()
   dissocRate = reaction->dissocRate->floatValue();
   energy = reaction->energy->floatValue();
   enabled = reaction->shouldIncludeInSimulation();
-  name=reaction->niceName;
+  name = reaction->niceName;
 }
 
 void SimReaction::setName()

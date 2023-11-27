@@ -473,6 +473,7 @@ void PAClist::computeCACs()
 	bool found = true;
 	for (int setSize = 1; setSize <= CACsMax; setSize++)
 	{
+		if(simul->shouldStop) break;
 		found = false;
 		// find cliques in computed sets of size SetSize-1, and test them with z3.
 
@@ -557,6 +558,7 @@ void PAClist::computeCACs()
 		int localNbCAC = 0;
 		for (auto &cand : candidates)
 		{
+			if(simul->shouldStop) break;
 			bool res = computeCAC(cand);
 			if (res)
 			{
@@ -605,6 +607,9 @@ void PAClist::computeCACs()
 
 void PAClist::run()
 {
+	//mark beginning of computation
+	simul->isComputing=true;
+	simul->shouldStop=false;
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
 
@@ -621,6 +626,11 @@ void PAClist::run()
 		computeCACs();
 
 	// print execution time
+	simul->isComputing=false;
+	if(simul->shouldStop){
+		LOG("Computation stopped manually");
+		simul->shouldStop=false;
+	}
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
 	simul->updateParams();
 }
@@ -696,6 +706,8 @@ void PAClist::PACsWithZ3()
 	// clear PACs if some were computed
 	cycles.clear();
 	nonMinimals.clear();
+	CACs.clear();
+	basicCACs.clear();
 
 	LOG("Using solver: Z3");
 	setZ3path();
@@ -786,6 +798,7 @@ void PAClist::PACsWithZ3()
 
 	for (int pacSize = 3; pacSize <= maxSize; pacSize++)
 	{
+		if(simul->shouldStop) break;
 		int pacsFound = 0;
 		stringstream sizeClauses;
 		// pacsize entities
@@ -828,6 +841,7 @@ void PAClist::PACsWithZ3()
 
 		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
 		{
+			if(simul->shouldStop) break;
 			// write to file
 			ofstream inputStream(inputFile);
 			inputStream << clauses.str();

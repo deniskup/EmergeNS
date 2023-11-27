@@ -187,6 +187,10 @@ public:
   BoolParameter *oneColor; // to display RACs
   bool PACsGenerated = false;
 
+  //is a PAC/CAC computation currently happening
+  bool isComputing=false;
+  bool shouldStop=false; //the stop button has been pressed
+
   // todo search and replace cycles to pacList->cycles etc in relevant files
 
   // different from the default getJSONData and loadJSONData which only saves parameters.
