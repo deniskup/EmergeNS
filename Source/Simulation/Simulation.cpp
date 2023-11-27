@@ -158,16 +158,16 @@ void Simulation::updateParams()
   // }
   // else
   // {
-    setCAC->addOption("None", -1,true);
-    int opt = 1;
-    //int nbCAC=pacList->CACs.size();
-    for (auto &cac : pacList->CACs)
-    //for (int i=0;i<nbCAC;i++)
-    {
-      setCAC->addOption(pacList->CACToString(cac), opt,false);
-      //setCAC->addOption("Cac"+to_string(opt), opt,false);
-      opt++;
-    }
+  setCAC->addOption("None", -1, true);
+  int opt = 1;
+  // int nbCAC=pacList->CACs.size();
+  for (auto &cac : pacList->CACs)
+  // for (int i=0;i<nbCAC;i++)
+  {
+    setCAC->addOption(pacList->CACToString(cac), opt, false);
+    // setCAC->addOption("Cac"+to_string(opt), opt,false);
+    opt++;
+  }
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));

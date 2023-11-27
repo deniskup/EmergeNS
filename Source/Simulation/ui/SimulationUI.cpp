@@ -97,6 +97,11 @@ SimulationUI::~SimulationUI()
 void SimulationUI::paint(juce::Graphics &g)
 {
 
+    if(simul->shouldUpdate){
+        simul->updateParams();
+        simul->shouldUpdate = false;
+    }
+
     // the 1.01 is to left a margin for the top curve
     float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
     // (Our component is opaque, so we must completely fill the background with a solid colour)

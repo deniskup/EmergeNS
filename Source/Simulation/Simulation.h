@@ -190,6 +190,7 @@ public:
   //is a PAC/CAC computation currently happening
   bool isComputing=false;
   bool shouldStop=false; //the stop button has been pressed
+  bool shouldUpdate=false; //CAC list has to be refreshed
 
   // todo search and replace cycles to pacList->cycles etc in relevant files
 
