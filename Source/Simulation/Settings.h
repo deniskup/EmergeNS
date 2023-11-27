@@ -21,6 +21,9 @@ public:
     IntParameter *CACSetMax; //maximal number of PACs to look for
     //IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
 
+    FloatParameter *CACRobustness; //threshold for accepting CAC witness
+
+
     BoolParameter *nonMinimalPACs; //look for non minimal PACs
 
 

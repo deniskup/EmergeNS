@@ -825,18 +825,8 @@ void Simulation::nextStep()
     stop();
     return;
   }
-  // add primary->boolValue() entities
-  for (auto &ent : entities)
-  {
-    ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
-    if (ent->primary)
-    {
-      ent->concent += ent->creationRate * dt->floatValue();
-    }
-    ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
-  }
-
-  // loop through reactions
+  
+  // loop through reactions (first to see brief RACs)
   for (auto &reac : reactions)
   {
     if (!reac->enabled)
@@ -887,6 +877,18 @@ void Simulation::nextStep()
       reac->flow = directCoef - reverseCoef;
     }
   }
+
+  // creation/destruction
+  for (auto &ent : entities)
+  {
+    ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
+    if (ent->primary)
+    {
+      ent->concent += ent->creationRate * dt->floatValue();
+    }
+    ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
+  }
+
 
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
@@ -982,7 +984,7 @@ void Simulation::nextStep()
 
     // new way by computing the total flow for each entity of the PAC
     map<SimEntity *, float> flowPerEnt;
-    for (auto &ent : cycle->entities)
+    for (auto &ent : entities)
       flowPerEnt[ent] = 0.;
 
     for (auto &reacDir : cycle->reacDirs)

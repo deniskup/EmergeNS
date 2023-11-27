@@ -276,7 +276,7 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 				clauses << " coef" << r->idSAT;
 			}
 		}
-		clauses << " 0) 0.00001))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
+		clauses << " 0) " << Settings::getInstance()->CACRobustness->floatValue() <<"))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
 	}
 }
 

@@ -12,6 +12,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     CACSetMax = addIntParameter("Max Set CACs", "Maximal simultaneous CACs to test", 6, 1);
 
+    CACRobustness = addFloatParameter("CAC Robustness", "Threshold for CAC witness", .0001, .0);
+
     //maxDoubleReacPACs = addIntParameter("(SAT) Max doubleReac", "Maximal number of double reactions in PAC searching", 2, 0);
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);

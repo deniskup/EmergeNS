@@ -1,20 +1,8 @@
-- verify why witnesses not always give visible RACs
+- bug EnumParameterUI setCAC segfault a regler
 
 - in generation:remove constraint that entities must be created from smaller ones.
 
 - stop PAC/CAC thread manually
-
-- erreur dans Z3 pour les PAC non CAC
-
-- verifier que les PAC sont reels, il semble y en avoir beaucoup.
-
-- barre de progression pour le calcul des CAC
-
--dans Mac, la commande z3 sans chemin ne marche pas
-
--fenetre avec diagramme de Venn sur les CAC
- Cliquer dans zone => calcule si compatible (bouton pour calcul all, affiche zones vert et rouge)
- bouton pour mettre startConcent ou currentConcent à ce vecteur si oui
 
 -bug a regler: ignore free energy/barriers does not work.
 
