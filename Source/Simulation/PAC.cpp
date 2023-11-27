@@ -473,7 +473,7 @@ void PAClist::computeCACs()
 	bool found = true;
 	for (int setSize = 1; setSize <= CACsMax; setSize++)
 	{
-		if(simul->shouldStop) break;
+		//if(simul->shouldStop) break;
 		found = false;
 		// find cliques in computed sets of size SetSize-1, and test them with z3.
 
