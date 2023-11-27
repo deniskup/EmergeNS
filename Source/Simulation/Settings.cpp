@@ -1,6 +1,5 @@
 #include "Settings.h"
 
-#define CACROB_PRECISION 5
 
 juce_ImplementSingleton(Settings);
 

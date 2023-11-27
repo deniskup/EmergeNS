@@ -152,14 +152,23 @@ void Simulation::updateParams()
   }
 
   setCAC->clearOptions();
-  setCAC->addOption("None", -1);
-  int opt = 1;
-  /*for (auto &cac : pacList->CACs)
-  {
-    setCAC->addOption(pacList->CACToString(cac), opt);
-    opt++;
-  }
-  */
+  // if (isComputing)
+  // {
+  //   setCAC->addOption("Computing...", -1);
+  // }
+  // else
+  // {
+    setCAC->addOption("None", -1,true);
+    int opt = 1;
+    //int nbCAC=pacList->CACs.size();
+    for (auto &cac : pacList->CACs)
+    //for (int i=0;i<nbCAC;i++)
+    {
+      setCAC->addOption(pacList->CACToString(cac), opt,false);
+      //setCAC->addOption("Cac"+to_string(opt), opt,false);
+      opt++;
+    }
+  //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
@@ -318,7 +327,9 @@ void Simulation::importJSONData(var data)
   }
 
   ready = true;
+  // precision
   dt->setAttributeInternal("stringDecimals", DT_PRECISION);
+  Settings::getInstance()->CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
   computeBarriers();
   updateParams();
   toImport = false;
@@ -1034,7 +1045,7 @@ void Simulation::stop()
 void Simulation::cancel()
 {
   if (isComputing)
-    shouldStop = true; //to stop PAC/CAC computation
+    shouldStop = true; // to stop PAC/CAC computation
   stopThread(500);
 }
 
