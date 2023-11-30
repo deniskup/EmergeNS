@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1360,
-      "height": 697,
+      "width": 1366,
+      "height": 698,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1360,
-          "height": 697,
+          "width": 1366,
+          "height": 698,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 378,
-              "height": 697,
-              "currentContent": "Entities",
+              "width": 381,
+              "height": 698,
+              "currentContent": "Generation",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 976,
-              "height": 697,
+              "width": 979,
+              "height": 698,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 743,
-                  "height": 697,
+                  "width": 744,
+                  "height": 698,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 743,
-                      "height": 432,
+                      "width": 744,
+                      "height": 425,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -87,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 743,
-                      "height": 259,
+                      "width": 744,
+                      "height": 266,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -100,8 +100,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 227,
-                  "height": 697,
+                  "width": 229,
+                  "height": 698,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -130,10 +130,11 @@
     "parameters": [
       {
         "value": 0.05,
+        "stringDecimals": 5,
         "controlAddress": "/dt"
       },
       {
-        "value": 20.0,
+        "value": 200.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -146,12 +147,16 @@
         "controlAddress": "/maxConcent"
       },
       {
-        "value": false,
-        "controlAddress": "/autoScale"
+        "value": true,
+        "controlAddress": "/detectEquil"
       },
       {
-        "value": true,
-        "controlAddress": "/unicolor"
+        "value": 0.0001,
+        "controlAddress": "/eps"
+      },
+      {
+        "value": "None",
+        "controlAddress": "/setCAC"
       }
     ]
   },
@@ -172,7 +177,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.07898807525634766,
+            "value": 3.061136495317563e-41,
             "controlAddress": "/concent"
           },
           {
@@ -203,11 +208,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 2.599999904632568,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 5.49326229095459,
+            "value": 0.0007193989586085081,
             "controlAddress": "/concent"
           },
           {
@@ -242,11 +247,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 3.399999856948853,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 12.56596374511719,
+            "value": 100.0,
             "controlAddress": "/concent"
           },
           {
@@ -281,11 +286,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 2.099999904632568,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 55.18709945678711,
+            "value": 6.920604228973389,
             "controlAddress": "/concent"
           },
           {
@@ -320,11 +325,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 1.400000095367432,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 39.76644134521484,
+            "value": 2.923906803131104,
             "controlAddress": "/concent"
           },
           {
@@ -359,11 +364,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 10.60000038146973,
+            "value": 0.0,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.588730096817017,
+            "value": 0.7973993420600891,
             "controlAddress": "/concent"
           },
           {
@@ -600,12 +605,12 @@
   "generation": {
     "parameters": [
       {
-        "value": 1,
+        "value": 2,
         "hexMode": false,
         "controlAddress": "/primaryEntities"
       },
       {
-        "value": 6,
+        "value": 5,
         "hexMode": false,
         "controlAddress": "/levels"
       },
@@ -619,7 +624,7 @@
         "controlAddress": "/entities_level"
       },
       {
-        "value": 1.0,
+        "value": 0.4111674427986145,
         "controlAddress": "/proportionReactions"
       },
       {
@@ -656,9 +661,21 @@
         "controlAddress": "/energyPerLevel_Var"
       },
       {
+        "value": [
+          1.0,
+          1.0
+        ],
+        "controlAddress": "/energyBarrier_Var"
+      },
+      {
         "value": 40,
         "hexMode": false,
         "controlAddress": "/maxNumOfCurves"
+      },
+      {
+        "value": 50,
+        "hexMode": false,
+        "controlAddress": "/numRuns"
       },
       {
         "value": 500,
@@ -670,1323 +687,3199 @@
   "settings": {
     "parameters": [
       {
+        "value": 2,
+        "hexMode": false,
+        "controlAddress": "/maxSetCACs"
+      },
+      {
         "value": true,
         "controlAddress": "/printPACsToFile"
+      },
+      {
+        "value": false,
+        "controlAddress": "/autoLoadLists"
       }
     ]
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 55.18709945678711,
-    "recordEntity": "4",
-    "recordDrawn": 55.18709945678711,
-    "recordDrawnEntity": "4",
-    "numLevels": -1,
+    "recordConcent": 77.00681304931641,
+    "recordEntity": "23",
+    "recordDrawn": 77.00681304931641,
+    "recordDrawnEntity": "23",
+    "numLevels": 5,
     "PACsGenerated": true,
     "entities": [
       {
-        "name": "1",
+        "name": "10",
         "color": {
-          "H": 0.1418300718069077,
+          "H": 0.1869281232357025,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
-        "id": -1,
-        "concent": 0.07898807525634766,
-        "startConcent": 19.7840690612793,
-        "creationRate": 46.58519744873047,
-        "destructionRate": 0.1315934807062149,
+        "id": 0,
+        "concent": 5.054163932800293,
+        "startConcent": 24.72477149963379,
+        "creationRate": 45.62924957275391,
+        "destructionRate": 0.08133868128061295,
         "freeEnergy": 0.0,
-        "level": -1,
+        "level": 1,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 0
+          }
+        ]
       },
       {
-        "name": "2",
+        "name": "01",
         "color": {
-          "H": 0.3660130500793457,
+          "H": 0.1366013139486313,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": true,
+        "id": 1,
+        "concent": 8.202905654907227,
+        "startConcent": 0.916046142578125,
+        "creationRate": 46.52762985229492,
+        "destructionRate": 0.1274635642766953,
+        "freeEnergy": 0.0,
+        "level": 1,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 1
+          }
+        ]
+      },
+      {
+        "name": "11",
+        "color": {
+          "H": 0.5535947680473328,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 5.49326229095459,
-        "startConcent": 2.599999904632568,
+        "id": 2,
+        "concent": 1.309901595115662,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1025313138961792,
-        "freeEnergy": -8.039361953735352,
-        "level": -1,
+        "destructionRate": 0.1002694740891457,
+        "freeEnergy": -8.601345062255859,
+        "level": 2,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 1
+          }
+        ]
       },
       {
-        "name": "3",
+        "name": "02",
         "color": {
-          "H": 0.5960783958435059,
+          "H": 0.5071895122528076,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 12.56596374511719,
-        "startConcent": 3.399999856948853,
+        "id": 3,
+        "concent": 4.441251754760742,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.08488205820322037,
-        "freeEnergy": -12.58199214935303,
-        "level": -1,
+        "destructionRate": 0.1259898841381073,
+        "freeEnergy": -8.839371681213379,
+        "level": 2,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 2
+          }
+        ]
       },
       {
-        "name": "4",
+        "name": "20",
         "color": {
-          "H": 0.7405228614807129,
+          "H": 0.4241830110549927,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 55.18709945678711,
-        "startConcent": 2.099999904632568,
+        "id": 4,
+        "concent": 5.981208324432373,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.103299655020237,
-        "freeEnergy": -16.76122665405273,
-        "level": -1,
+        "destructionRate": 0.08943170309066772,
+        "freeEnergy": -8.247662544250488,
+        "level": 2,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 2
+          },
+          {
+            "coord": 0
+          }
+        ]
       },
       {
-        "name": "5",
+        "name": "03",
         "color": {
-          "H": 0.9803921580314636,
+          "H": 0.7006535530090332,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 39.76644134521484,
-        "startConcent": 1.400000095367432,
+        "id": 7,
+        "concent": 6.611747264862061,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.06553971767425537,
-        "freeEnergy": -20.0,
-        "level": -1,
+        "destructionRate": 0.08934392035007477,
+        "freeEnergy": -12.3668851852417,
+        "level": 3,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 3
+          }
+        ]
       },
       {
-        "name": "6",
+        "name": "12",
         "color": {
-          "H": 0.1444444507360458,
+          "H": 0.7627450823783875,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": -1,
-        "concent": 1.588730096817017,
-        "startConcent": 10.60000038146973,
+        "id": 8,
+        "concent": 1.344872117042542,
+        "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.09798003733158112,
-        "freeEnergy": -20.0,
-        "level": -1,
+        "destructionRate": 0.1356827914714813,
+        "freeEnergy": -12.2465295791626,
+        "level": 3,
         "draw": true,
-        "composition": null
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 2
+          }
+        ]
+      },
+      {
+        "name": "22",
+        "color": {
+          "H": 0.9823529720306396,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 9,
+        "concent": 1.020027756690979,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1195627003908157,
+        "freeEnergy": -16.59807586669922,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 2
+          },
+          {
+            "coord": 2
+          }
+        ]
+      },
+      {
+        "name": "40",
+        "color": {
+          "H": 0.9156862497329712,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 11,
+        "concent": 26.29344940185547,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1405608654022217,
+        "freeEnergy": -16.56524467468262,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 4
+          },
+          {
+            "coord": 0
+          }
+        ]
+      },
+      {
+        "name": "13",
+        "color": {
+          "H": 0.9653595089912415,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 13,
+        "concent": 5.065368175506592,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1435096561908722,
+        "freeEnergy": -16.85971069335938,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 3
+          }
+        ]
+      },
+      {
+        "name": "23",
+        "color": {
+          "H": 0.1130719035863876,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 15,
+        "concent": 77.00681304931641,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1414410471916199,
+        "freeEnergy": -21.03433609008789,
+        "level": 5,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 2
+          },
+          {
+            "coord": 3
+          }
+        ]
+      },
+      {
+        "name": "14",
+        "color": {
+          "H": 0.1522875875234604,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 16,
+        "concent": 6.058220386505127,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1299049854278564,
+        "freeEnergy": -20.9055290222168,
+        "level": 5,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 4
+          }
+        ]
+      },
+      {
+        "name": "32",
+        "color": {
+          "H": 0.1287581771612167,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 19,
+        "concent": 12.38363742828369,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1432981789112091,
+        "freeEnergy": -21.21126556396484,
+        "level": 5,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 3
+          },
+          {
+            "coord": 2
+          }
+        ]
       }
     ],
     "reactions": [
       {
-        "reactant1": "1",
-        "reactant2": "1",
-        "product": "2",
-        "assocRate": 1.0,
-        "dissocRate": 0.0003225146501790732,
+        "reactant1": "01",
+        "reactant2": "01",
+        "product": "02",
+        "name": "01+01=02",
+        "assocRate": 0.2327754199504852,
+        "dissocRate": 0.00003373237996129319,
         "idSAT": 0
       },
       {
-        "reactant1": "1",
-        "reactant2": "2",
-        "product": "3",
-        "assocRate": 1.0,
-        "dissocRate": 0.0106453699991107,
+        "reactant1": "01",
+        "reactant2": "02",
+        "product": "03",
+        "name": "01+02=03",
+        "assocRate": 0.2921848595142365,
+        "dissocRate": 0.008583769202232361,
         "idSAT": 1
       },
       {
-        "reactant1": "2",
-        "reactant2": "2",
-        "product": "4",
-        "assocRate": 1.0,
-        "dissocRate": 0.505350649356842,
+        "reactant1": "10",
+        "reactant2": "02",
+        "product": "12",
+        "name": "10+02=12",
+        "assocRate": 0.2400936186313629,
+        "dissocRate": 0.007955559529364109,
         "idSAT": 2
       },
       {
-        "reactant1": "1",
-        "reactant2": "3",
-        "product": "4",
-        "assocRate": 1.0,
-        "dissocRate": 0.01531022321432829,
+        "reactant1": "11",
+        "reactant2": "11",
+        "product": "22",
+        "name": "11+11=22",
+        "assocRate": 0.1818278878927231,
+        "dissocRate": 0.3328442871570587,
         "idSAT": 3
       },
       {
-        "reactant1": "1",
-        "reactant2": "4",
-        "product": "5",
-        "assocRate": 1.0,
-        "dissocRate": 0.03921196609735489,
+        "reactant1": "10",
+        "reactant2": "12",
+        "product": "22",
+        "name": "10+12=22",
+        "assocRate": 0.5043588280677795,
+        "dissocRate": 0.006499606650322676,
         "idSAT": 4
       },
       {
-        "reactant1": "2",
-        "reactant2": "3",
-        "product": "5",
-        "assocRate": 0.5372170209884644,
-        "dissocRate": 1.0,
+        "reactant1": "20",
+        "reactant2": "20",
+        "product": "40",
+        "name": "20+20=40",
+        "assocRate": 0.3283146321773529,
+        "dissocRate": 0.3061431646347046,
         "idSAT": 5
       },
       {
-        "reactant1": "1",
-        "reactant2": "5",
-        "product": "6",
-        "assocRate": 1.0,
-        "dissocRate": 1.0,
+        "reactant1": "10",
+        "reactant2": "03",
+        "product": "13",
+        "name": "10+03=13",
+        "assocRate": 0.5668825507164001,
+        "dissocRate": 0.006342840380966663,
         "idSAT": 6
       },
       {
-        "reactant1": "2",
-        "reactant2": "4",
-        "product": "6",
-        "assocRate": 0.008224904537200928,
-        "dissocRate": 1.0,
+        "reactant1": "02",
+        "reactant2": "11",
+        "product": "13",
+        "name": "02+11=13",
+        "assocRate": 0.2665836215019226,
+        "dissocRate": 0.4766074120998383,
         "idSAT": 7
       },
       {
-        "reactant1": "3",
-        "reactant2": "3",
-        "product": "6",
-        "assocRate": 0.005718868691474199,
-        "dissocRate": 1.0,
+        "reactant1": "20",
+        "reactant2": "03",
+        "product": "23",
+        "name": "20+03=23",
+        "assocRate": 0.877016544342041,
+        "dissocRate": 0.5763629078865051,
         "idSAT": 8
+      },
+      {
+        "reactant1": "01",
+        "reactant2": "22",
+        "product": "23",
+        "name": "01+22=23",
+        "assocRate": 0.4388917088508606,
+        "dissocRate": 0.005196537356823683,
+        "idSAT": 9
+      },
+      {
+        "reactant1": "10",
+        "reactant2": "13",
+        "product": "23",
+        "name": "10+13=23",
+        "assocRate": 0.7093915939331055,
+        "dissocRate": 0.01091111823916435,
+        "idSAT": 10
+      },
+      {
+        "reactant1": "11",
+        "reactant2": "03",
+        "product": "14",
+        "name": "11+03=14",
+        "assocRate": 0.3560363352298737,
+        "dissocRate": 0.3790753483772278,
+        "idSAT": 11
+      },
+      {
+        "reactant1": "20",
+        "reactant2": "12",
+        "product": "32",
+        "name": "20+12=32",
+        "assocRate": 0.8879335522651672,
+        "dissocRate": 0.4334703981876373,
+        "idSAT": 12
       }
     ],
     "primEnts": [
       {
-        "ent": "1"
+        "ent": "10"
+      },
+      {
+        "ent": "01"
       }
     ],
-    "cycles": [
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+1=2",
-            "dir": true
-          },
-          {
-            "reac": "2+2=4",
-            "dir": true
-          },
-          {
-            "reac": "1+3=4",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "2+2=4",
-            "dir": true
-          },
-          {
-            "reac": "1+3=4",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": true
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "5"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+1=2",
-            "dir": true
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+1=2",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+3=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": true
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "2+2=4",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+3=4",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": true
-          },
-          {
-            "reac": "1+3=4",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+1=2",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "2+2=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "2+3=5",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "2"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": false
-          },
-          {
-            "reac": "2+4=6",
-            "dir": true
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+3=4",
-            "dir": true
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          },
-          {
-            "reac": "3+3=6",
-            "dir": false
-          }
-        ]
-      },
-      {
-        "entities": [
-          {
-            "ent": "1"
-          },
-          {
-            "ent": "3"
-          },
-          {
-            "ent": "4"
-          },
-          {
-            "ent": "5"
-          },
-          {
-            "ent": "6"
-          }
-        ],
-        "reacDirs": [
-          {
-            "reac": "1+2=3",
-            "dir": false
-          },
-          {
-            "reac": "1+4=5",
-            "dir": true
-          },
-          {
-            "reac": "2+3=5",
-            "dir": false
-          },
-          {
-            "reac": "1+5=6",
-            "dir": true
-          },
-          {
-            "reac": "2+4=6",
-            "dir": false
-          }
-        ]
-      }
-    ]
+    "pacList": {
+      "cycles": [
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "11+11=22",
+              "dir": true
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "10+02=12",
+              "dir": true
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": true
+            },
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": false
+            },
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "11+11=22",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "11+11=22",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": false
+            },
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": true
+            },
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": true
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "10+02=12",
+              "dir": true
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "10+02=12",
+              "dir": false
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "10"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": false
+            },
+            {
+              "reac": "10+02=12",
+              "dir": true
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            },
+            {
+              "reac": "10+13=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "10+02=12",
+              "dir": false
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": false
+            },
+            {
+              "reac": "10+03=13",
+              "dir": false
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": true
+            },
+            {
+              "reac": "01+22=23",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "01"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+01=02",
+              "dir": false
+            },
+            {
+              "reac": "10+02=12",
+              "dir": true
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "10+03=13",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": false
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "01+22=23",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "11"
+            },
+            {
+              "ent": "02"
+            },
+            {
+              "ent": "03"
+            },
+            {
+              "ent": "12"
+            },
+            {
+              "ent": "22"
+            },
+            {
+              "ent": "13"
+            },
+            {
+              "ent": "23"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "01+02=03",
+              "dir": false
+            },
+            {
+              "reac": "10+02=12",
+              "dir": true
+            },
+            {
+              "reac": "11+11=22",
+              "dir": false
+            },
+            {
+              "reac": "10+12=22",
+              "dir": true
+            },
+            {
+              "reac": "02+11=13",
+              "dir": true
+            },
+            {
+              "reac": "20+03=23",
+              "dir": false
+            },
+            {
+              "reac": "10+13=23",
+              "dir": true
+            }
+          ]
+        }
+      ],
+      "CACs": [
+        {
+          "pacids": [
+            {
+              "id": 0
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 44.0
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 0.0009765619761310518
+            },
+            {
+              "entity": "12",
+              "value": 0.3129880130290985
+            },
+            {
+              "entity": "22",
+              "value": 1.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 24.0
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 1
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 0.003556729992851615
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.907349997054553e-6
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.0378418006002903
+            },
+            {
+              "entity": "22",
+              "value": 3.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.01624579913914204
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 4
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 0.008377079851925373
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 0.00006103519990574569
+            },
+            {
+              "entity": "12",
+              "value": 0.1002350002527237
+            },
+            {
+              "entity": "22",
+              "value": 7.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.0546875
+            },
+            {
+              "entity": "23",
+              "value": 4.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 5
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.75
+            },
+            {
+              "entity": "01",
+              "value": 0.0078125
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 2.75
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 1.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 30.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 8
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.0009765619761310518
+            },
+            {
+              "entity": "01",
+              "value": 0.01074219960719347
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 44.0
+            },
+            {
+              "entity": "20",
+              "value": 19.8882007598877
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 1.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 24.0
+            },
+            {
+              "entity": "23",
+              "value": 30.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 9
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.00390625
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 58.0
+            },
+            {
+              "entity": "02",
+              "value": 0.015625
+            },
+            {
+              "entity": "20",
+              "value": 0.6533200144767761
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.02050779946148396
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.5
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 10
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 1.8125
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.667969942092896
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.0703125
+            },
+            {
+              "entity": "22",
+              "value": 0.5
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 68.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 13
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.0234375
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 1.8125
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 0.01843260042369366
+            },
+            {
+              "entity": "03",
+              "value": 35.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.0234375
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 14
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.0001220699996338226
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 3.601560115814209
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 35.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.0234375
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 2.0
+            },
+            {
+              "entity": "23",
+              "value": 0.5
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 15
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 0.125
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 0.2805179953575134
+            },
+            {
+              "entity": "20",
+              "value": 0.6589660048484802
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 1.192089982282596e-7
+            },
+            {
+              "entity": "22",
+              "value": 0.0625
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.01581249944865704
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 16
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 0.0078125
+            },
+            {
+              "entity": "11",
+              "value": 91.95510101318359
+            },
+            {
+              "entity": "02",
+              "value": 1.75
+            },
+            {
+              "entity": "20",
+              "value": 0.3277739882469177
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.015625
+            },
+            {
+              "entity": "22",
+              "value": 1.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 90.0
+            },
+            {
+              "entity": "23",
+              "value": 0.5
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 17
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.625
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.875
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.25
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.25
+            },
+            {
+              "entity": "23",
+              "value": 3.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 18
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.125
+            },
+            {
+              "entity": "01",
+              "value": 58.0078010559082
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 0.001953119994141161
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 0.4204100072383881
+            },
+            {
+              "entity": "12",
+              "value": 0.04882809892296791
+            },
+            {
+              "entity": "22",
+              "value": 0.5429689884185791
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.0625
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 19
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.009765620343387127
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.337829947471619
+            },
+            {
+              "entity": "03",
+              "value": 10.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.25
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 20.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 20
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 3.296880006790161
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.46875
+            },
+            {
+              "entity": "22",
+              "value": 0.5
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0625
+            },
+            {
+              "entity": "23",
+              "value": 91.5
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 21
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 0.00390625
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 0.01953119970858097
+            },
+            {
+              "entity": "03",
+              "value": 33.75
+            },
+            {
+              "entity": "12",
+              "value": 0.01074219960719347
+            },
+            {
+              "entity": "22",
+              "value": 0.0234375
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.0078125
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 23
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.03125
+            },
+            {
+              "entity": "01",
+              "value": 1.0
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 10.0
+            },
+            {
+              "entity": "12",
+              "value": 1.0
+            },
+            {
+              "entity": "22",
+              "value": 0.25
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 6.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 24
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 1.125
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 0.8730469942092896
+            },
+            {
+              "entity": "03",
+              "value": 0.4375
+            },
+            {
+              "entity": "12",
+              "value": 0.46875
+            },
+            {
+              "entity": "22",
+              "value": 0.5
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0625
+            },
+            {
+              "entity": "23",
+              "value": 1.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 26
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.0
+            },
+            {
+              "entity": "01",
+              "value": 0.7539060115814209
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 12.97420024871826
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.25
+            },
+            {
+              "entity": "22",
+              "value": 0.5
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 19.375
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 0
+            },
+            {
+              "id": 5
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 1.335330009460449
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.8125
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 0.0009765619761310518
+            },
+            {
+              "entity": "12",
+              "value": 0.01831050030887127
+            },
+            {
+              "entity": "22",
+              "value": 0.5625
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 1.0
+            },
+            {
+              "entity": "23",
+              "value": 64.5
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 0
+            },
+            {
+              "id": 8
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 1.0
+            },
+            {
+              "entity": "01",
+              "value": 0.0078125
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 85.0
+            },
+            {
+              "entity": "20",
+              "value": 79.5625
+            },
+            {
+              "entity": "03",
+              "value": 0.25
+            },
+            {
+              "entity": "12",
+              "value": 0.3203119933605194
+            },
+            {
+              "entity": "22",
+              "value": 1.0
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 47.0
+            },
+            {
+              "entity": "23",
+              "value": 30.0
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 0
+            },
+            {
+              "id": 9
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.0004882809880655259
+            },
+            {
+              "entity": "01",
+              "value": 0.01171880029141903
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 0.07977289706468582
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 27.0
+            },
+            {
+              "entity": "22",
+              "value": 0.5546879768371582
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.5507810115814209
+            },
+            {
+              "entity": "23",
+              "value": 0.125
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 0
+            },
+            {
+              "id": 13
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.00292969006113708
+            },
+            {
+              "entity": "01",
+              "value": 0.015625
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 1.0
+            },
+            {
+              "entity": "20",
+              "value": 0.015625
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 3.5625
+            },
+            {
+              "entity": "22",
+              "value": 0.5507810115814209
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.5546879768371582
+            },
+            {
+              "entity": "23",
+              "value": 0.03125
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 0
+            },
+            {
+              "id": 16
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.03125
+            },
+            {
+              "entity": "01",
+              "value": 0.002075199969112873
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 6.274899959564209
+            },
+            {
+              "entity": "20",
+              "value": 0.000833511003293097
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.5
+            },
+            {
+              "entity": "22",
+              "value": 0.5546879768371582
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 3.5
+            },
+            {
+              "entity": "23",
+              "value": 0.001953119994141161
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 1
+            },
+            {
+              "id": 5
+            }
+          ],
+          "witness": [
+            {
+              "entity": "10",
+              "value": 0.015625
+            },
+            {
+              "entity": "01",
+              "value": 0.001464840024709702
+            },
+            {
+              "entity": "11",
+              "value": 1.0
+            },
+            {
+              "entity": "02",
+              "value": 0.625
+            },
+            {
+              "entity": "20",
+              "value": 1.0
+            },
+            {
+              "entity": "03",
+              "value": 1.0
+            },
+            {
+              "entity": "12",
+              "value": 0.359375
+            },
+            {
+              "entity": "22",
+              "value": 0.5488280057907104
+            },
+            {
+              "entity": "40",
+              "value": 1.0
+            },
+            {
+              "entity": "13",
+              "value": 0.3466799855232239
+            },
+            {
+              "entity": "23",
+              "value": 0.25
+            },
+            {
+              "entity": "14",
+              "value": 1.0
+            },
+            {
+              "entity": "32",
+              "value": 1.0
+            }
+          ]
+        }
+      ]
+    }
   }
 }

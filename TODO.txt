@@ -1,4 +1,5 @@
 - segFault on ent->entities sur setCAC
+- error in Z3 output
 
 - in generation:remove constraint that entities must be created from smaller ones.
 
