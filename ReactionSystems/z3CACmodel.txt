@@ -1,55 +1,39 @@
 sat
 (model 
   (define-fun conc0 () Real
-    1.0)
+    (/ 159.0 8192.0))
   (define-fun conc1 () Real
-    1.0)
+    (/ 1.0 4096.0))
   (define-fun conc2 () Real
-    1.0)
+    (/ 26195.0 16384.0))
   (define-fun conc3 () Real
-    (/ 3.0 4.0))
+    (/ 2095815.0 262144.0))
   (define-fun conc4 () Real
-    (/ 21.0 16.0))
+    5.0)
   (define-fun conc5 () Real
-    (/ 7.0 16.0))
+    1.0)
   (define-fun conc6 () Real
-    (/ 11.0 32.0))
+    1.0)
   (define-fun conc7 () Real
-    0.0)
+    (/ 3417.0 1024.0))
   (define-fun conc8 () Real
     1.0)
   (define-fun conc9 () Real
-    1.0)
+    6.0)
   (define-fun conc10 () Real
-    1.0)
+    (/ 154885.0 16384.0))
   (define-fun conc11 () Real
-    (/ 3.0 4.0))
-  (define-fun conc12 () Real
-    (/ 21.0 16.0))
-  (define-fun conc13 () Real
-    (/ 7.0 16.0))
-  (define-fun conc14 () Real
-    (/ 11.0 32.0))
-  (define-fun conc15 () Real
-    0.0)
-  (define-fun coef9 () Real
-    (- (/ 2575153.0 16000000.0)))
-  (define-fun coef8 () Real
-    (/ 3310911.0 16000000.0))
-  (define-fun coef2 () Real
-    (- (/ 367879.0 3200000.0)))
-  (define-fun coef1 () Real
-    (- (/ 4046669.0 32000000.0)))
-  (define-fun coef0 () Real
-    (/ 4782427.0 32000000.0))
-  (define-fun coef11 () Real
-    (- (/ 2575153.0 16000000.0)))
-  (define-fun coef10 () Real
-    (/ 3310911.0 16000000.0))
-  (define-fun coef5 () Real
-    (- (/ 367879.0 3200000.0)))
-  (define-fun coef4 () Real
-    (- (/ 4046669.0 32000000.0)))
+    1.0)
   (define-fun coef3 () Real
-    (/ 4782427.0 32000000.0))
+    (/ 127439121.0 204800000000.0))
+  (define-fun coef8 () Real
+    (- (/ 293043.0 1638400000.0)))
+  (define-fun coef7 () Real
+    (/ 9618206353.0 34359738368000.0))
+  (define-fun coef6 () Real
+    (/ 6392772339.0 13107200000000.0))
+  (define-fun coef5 () Real
+    (- (/ 1566257.0 4096000000.0)))
+  (define-fun coef0 () Real
+    (- (/ 246692655553.0 419430400000000.0)))
 )

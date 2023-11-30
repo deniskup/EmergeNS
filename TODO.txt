@@ -1,12 +1,10 @@
-- bug EnumParameterUI setCAC segfault a regler
+- segFault on ent->entities sur setCAC
 
 - in generation:remove constraint that entities must be created from smaller ones.
 
-- stop PAC/CAC thread manually
+- bug a regler: ignore free energy/barriers does not work.
 
--bug a regler: ignore free energy/barriers does not work.
-
--energies de liaison pour calculer libre: faire comme Sarkar
+- energies de liaison pour calculer libre: faire comme Sarkar
 
 - Classement des entités par alpha numérique (comme les réactions)
 
