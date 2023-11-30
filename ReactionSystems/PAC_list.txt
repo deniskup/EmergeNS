@@ -4,7 +4,7 @@ A2->Af2 Af2->AA AA->A1+A1 A1->Af1 Af1->A2
 
 
 --- CACs ---
-B2->Bf2 Bf2->BB BB->B1+B1 B1->Bf1 Bf1->B2 
+1-CAC: 0,
 Witness: 
 	Fa: 1
 	Fb: 1
@@ -17,21 +17,21 @@ Witness:
 	X: 1
 	Y: 1
 	B1: 1
-	B2: 1
-	BB: 1.25484
-	Bf1: 0.617741
-	Bf2: 0.638978
-	Wb: 0.25
-A2->Af2 Af2->AA AA->A1+A1 A1->Af1 Af1->A2 
+	B2: 0.75
+	BB: 1.3125
+	Bf1: 0.4375
+	Bf2: 0.34375
+	Wb: 0
+1-CAC: 1,
 Witness: 
 	Fa: 1
 	Fb: 1
 	A1: 1
-	A2: 1
-	AA: 1.25484
-	Af1: 0.617741
-	Af2: 0.638978
-	Wa: 0.25
+	A2: 0.75
+	AA: 1.3125
+	Af1: 0.4375
+	Af2: 0.34375
+	Wa: 0
 	X: 1
 	Y: 1
 	B1: 1
@@ -40,3 +40,21 @@ Witness:
 	Bf1: 1
 	Bf2: 1
 	Wb: 1
+2-CAC: 0,1,
+Witness: 
+	Fa: 1
+	Fb: 1
+	A1: 1
+	A2: 0.75
+	AA: 1.3125
+	Af1: 0.4375
+	Af2: 0.34375
+	Wa: 0
+	X: 1
+	Y: 1
+	B1: 1
+	B2: 0.75
+	BB: 1.3125
+	Bf1: 0.4375
+	Bf2: 0.34375
+	Wb: 0

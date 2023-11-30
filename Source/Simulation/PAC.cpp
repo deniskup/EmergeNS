@@ -633,6 +633,8 @@ void PAClist::run()
 	}
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
 	simul->shouldUpdate=true;
+	// update the parameters of the simulation in the UI
+  	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
 }
 
 // Function to parse the model from Z3 output, retrieve boolean variables
