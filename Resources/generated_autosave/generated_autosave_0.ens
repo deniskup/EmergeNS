@@ -49,7 +49,7 @@
               "type": 0,
               "width": 381,
               "height": 698,
-              "currentContent": "Generation",
+              "currentContent": "Entities",
               "tabs": [
                 {
                   "name": "Entities"
@@ -77,7 +77,7 @@
                     {
                       "type": 0,
                       "width": 744,
-                      "height": 425,
+                      "height": 426,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -165,32 +165,63 @@
       {
         "parameters": [
           {
-            "value": 46.58519744873047,
+            "value": 45.62924957275391,
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1315934807062149,
+            "value": 0.08133868128061295,
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 19.7840690612793,
+            "value": 24.72477149963379,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
-            "controlAddress": "/concent"
+            "value": 2.614713430404663,
+            "controlAddress": "/conc"
           },
           {
             "value": [
+              0.8784313797950745,
               1.0,
-              0.8509804010391235,
               0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "1",
+        "niceName": "10",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": 46.52762985229492,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1274635642766953,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.916046142578125,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 7.996286392211914,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": [
+              1.0,
+              0.8196078538894653,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "01",
         "type": "Entity"
       },
       {
@@ -204,7 +235,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.1025313138961792,
+            "value": 0.1002694740891457,
             "controlAddress": "/destructionRate"
           },
           {
@@ -212,24 +243,102 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0007193989586085081,
-            "controlAddress": "/concent"
+            "value": 2.032595157623291,
+            "controlAddress": "/conc"
           },
           {
-            "value": -8.039361953735352,
+            "value": -8.601345062255859,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0,
+              0.6784313917160034,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "11",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1259898841381073,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 5.546220779418945,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.839371681213379,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.0,
+              0.95686274766922,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "02",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.08943170309066772,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 6.814053058624268,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -8.247662544250488,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
               0.0,
               1.0,
-              0.196078434586525,
+              0.5450980663299561,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "2",
+        "niceName": "20",
         "type": "Entity"
       },
       {
@@ -243,7 +352,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.08488205820322037,
+            "value": 0.08934392035007477,
             "controlAddress": "/destructionRate"
           },
           {
@@ -251,55 +360,16 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 100.0,
-            "controlAddress": "/concent"
+            "value": 14.58444881439209,
+            "controlAddress": "/conc"
           },
           {
-            "value": -12.58199214935303,
+            "value": -12.3668851852417,
             "controlAddress": "/freeEnergy"
           },
           {
             "value": [
-              0.0,
-              0.4235294163227081,
-              1.0,
-              1.0
-            ],
-            "controlAddress": "/color"
-          }
-        ],
-        "niceName": "3",
-        "type": "Entity"
-      },
-      {
-        "parameters": [
-          {
-            "value": false,
-            "controlAddress": "/primary"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/creationRate"
-          },
-          {
-            "value": 0.103299655020237,
-            "controlAddress": "/destructionRate"
-          },
-          {
-            "value": 0.0,
-            "controlAddress": "/startConcent"
-          },
-          {
-            "value": 6.920604228973389,
-            "controlAddress": "/concent"
-          },
-          {
-            "value": -16.76122665405273,
-            "controlAddress": "/freeEnergy"
-          },
-          {
-            "value": [
-              0.4431372582912445,
+              0.2039215713739395,
               0.0,
               1.0,
               1.0
@@ -307,7 +377,7 @@
             "controlAddress": "/color"
           }
         ],
-        "niceName": "4",
+        "niceName": "03",
         "type": "Entity"
       },
       {
@@ -321,7 +391,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.06553971767425537,
+            "value": 0.1356827914714813,
             "controlAddress": "/destructionRate"
           },
           {
@@ -329,8 +399,164 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.923906803131104,
-            "controlAddress": "/concent"
+            "value": 1.76601254940033,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -12.2465295791626,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              0.5764706134796143,
+              0.0,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "12",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1195627003908157,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 1.020846366882324,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -16.59807586669922,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.105882354080677,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "22",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1405608654022217,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 34.12561798095703,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -16.56524467468262,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.5058823823928833,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "40",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1435096561908722,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 10.74494075775146,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -16.85971069335938,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.2078431397676468,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "13",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1414410471916199,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 66.41925811767578,
+            "controlAddress": "/conc"
           },
           {
             "value": -20.0,
@@ -339,14 +565,14 @@
           {
             "value": [
               1.0,
+              0.6784313917160034,
               0.0,
-              0.1176470592617989,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "5",
+        "niceName": "23",
         "type": "Entity"
       },
       {
@@ -360,7 +586,7 @@
             "controlAddress": "/creationRate"
           },
           {
-            "value": 0.09798003733158112,
+            "value": 0.1299049854278564,
             "controlAddress": "/destructionRate"
           },
           {
@@ -368,8 +594,8 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.7973993420600891,
-            "controlAddress": "/concent"
+            "value": 8.384243965148926,
+            "controlAddress": "/conc"
           },
           {
             "value": -20.0,
@@ -378,14 +604,53 @@
           {
             "value": [
               1.0,
-              0.8666666746139526,
+              0.9137254953384399,
               0.0,
               1.0
             ],
             "controlAddress": "/color"
           }
         ],
-        "niceName": "6",
+        "niceName": "14",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/primary"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/creationRate"
+          },
+          {
+            "value": 0.1432981789112091,
+            "controlAddress": "/destructionRate"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/startConcent"
+          },
+          {
+            "value": 6.321183204650879,
+            "controlAddress": "/conc"
+          },
+          {
+            "value": -20.0,
+            "controlAddress": "/freeEnergy"
+          },
+          {
+            "value": [
+              1.0,
+              0.772549033164978,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "32",
         "type": "Entity"
       }
     ],
@@ -400,199 +665,287 @@
       {
         "parameters": [
           {
-            "value": "/1",
+            "value": "/01",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/1",
+            "value": "/01",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/2",
+            "value": "/02",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 1.457681179046631,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+1=2",
+        "niceName": "01+01=02",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/1",
+            "value": "/01",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/2",
+            "value": "/02",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/3",
+            "value": "/03",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 1.230368614196777,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+2=3",
+        "niceName": "01+02=03",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/2",
+            "value": "/10",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/2",
+            "value": "/02",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/4",
+            "value": "/12",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 1.426726341247559,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "2+2=4",
+        "niceName": "10+02=12",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/1",
+            "value": "/11",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/3",
+            "value": "/11",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/4",
+            "value": "/22",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 1.100080490112305,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+3=4",
+        "niceName": "11+11=22",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/1",
+            "value": "/10",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/4",
+            "value": "/12",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/5",
+            "value": "/22",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.6844673156738281,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+4=5",
+        "niceName": "10+12=22",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/2",
+            "value": "/20",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/3",
+            "value": "/20",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/5",
+            "value": "/40",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 1.11378288269043,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "2+3=5",
+        "niceName": "20+20=40",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/1",
+            "value": "/10",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/5",
+            "value": "/03",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/6",
+            "value": "/13",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.5676031112670898,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "1+5=6",
+        "niceName": "10+03=13",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/2",
+            "value": "/02",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/4",
+            "value": "/11",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/6",
+            "value": "/13",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.7410621643066406,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "2+4=6",
+        "niceName": "02+11=13",
         "type": "Reaction"
       },
       {
         "parameters": [
           {
-            "value": "/3",
+            "value": "/20",
             "controlAddress": "/reactant1"
           },
           {
-            "value": "/3",
+            "value": "/03",
             "controlAddress": "/reactant2"
           },
           {
-            "value": "/6",
+            "value": "/23",
             "controlAddress": "/product"
           },
           {
-            "value": 0.0,
+            "value": 0.1312294006347656,
             "controlAddress": "/energyBarrier"
           }
         ],
-        "niceName": "3+3=6",
+        "niceName": "20+03=23",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/01",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/22",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/23",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.8235025405883789,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "01+22=23",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/10",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/13",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/23",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.3433475494384766,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "10+13=23",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/11",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/03",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/14",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.9700202941894531,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "11+03=14",
+        "type": "Reaction"
+      },
+      {
+        "parameters": [
+          {
+            "value": "/20",
+            "controlAddress": "/reactant1"
+          },
+          {
+            "value": "/12",
+            "controlAddress": "/reactant2"
+          },
+          {
+            "value": "/32",
+            "controlAddress": "/product"
+          },
+          {
+            "value": 0.1188583374023438,
+            "controlAddress": "/energyBarrier"
+          }
+        ],
+        "niceName": "20+12=32",
         "type": "Reaction"
       }
     ],
@@ -604,11 +957,6 @@
   },
   "generation": {
     "parameters": [
-      {
-        "value": 2,
-        "hexMode": false,
-        "controlAddress": "/primaryEntities"
-      },
       {
         "value": 5,
         "hexMode": false,
@@ -703,9 +1051,9 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 77.00681304931641,
+    "recordConcent": 66.41925811767578,
     "recordEntity": "23",
-    "recordDrawn": 77.00681304931641,
+    "recordDrawn": 66.41925811767578,
     "recordDrawnEntity": "23",
     "numLevels": 5,
     "PACsGenerated": true,
@@ -720,7 +1068,7 @@
         },
         "primary": true,
         "id": 0,
-        "concent": 5.054163932800293,
+        "concent": 2.614713430404663,
         "startConcent": 24.72477149963379,
         "creationRate": 45.62924957275391,
         "destructionRate": 0.08133868128061295,
@@ -729,7 +1077,7 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
             "coord": 0
@@ -746,7 +1094,7 @@
         },
         "primary": true,
         "id": 1,
-        "concent": 8.202905654907227,
+        "concent": 7.996286392211914,
         "startConcent": 0.916046142578125,
         "creationRate": 46.52762985229492,
         "destructionRate": 0.1274635642766953,
@@ -758,7 +1106,7 @@
             "coord": 0
           },
           {
-            "coord": 1
+            "coord": 0
           }
         ]
       },
@@ -772,7 +1120,7 @@
         },
         "primary": false,
         "id": 2,
-        "concent": 1.309901595115662,
+        "concent": 2.032595157623291,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1002694740891457,
@@ -781,10 +1129,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
-            "coord": 1
+            "coord": 0
           }
         ]
       },
@@ -798,7 +1146,7 @@
         },
         "primary": false,
         "id": 3,
-        "concent": 4.441251754760742,
+        "concent": 5.546220779418945,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1259898841381073,
@@ -810,7 +1158,7 @@
             "coord": 0
           },
           {
-            "coord": 2
+            "coord": 0
           }
         ]
       },
@@ -824,7 +1172,7 @@
         },
         "primary": false,
         "id": 4,
-        "concent": 5.981208324432373,
+        "concent": 6.814053058624268,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.08943170309066772,
@@ -833,7 +1181,7 @@
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 0
           },
           {
             "coord": 0
@@ -850,7 +1198,7 @@
         },
         "primary": false,
         "id": 7,
-        "concent": 6.611747264862061,
+        "concent": 14.58444881439209,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.08934392035007477,
@@ -862,7 +1210,7 @@
             "coord": 0
           },
           {
-            "coord": 3
+            "coord": 0
           }
         ]
       },
@@ -876,7 +1224,7 @@
         },
         "primary": false,
         "id": 8,
-        "concent": 1.344872117042542,
+        "concent": 1.76601254940033,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1356827914714813,
@@ -885,10 +1233,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
-            "coord": 2
+            "coord": 0
           }
         ]
       },
@@ -902,7 +1250,7 @@
         },
         "primary": false,
         "id": 9,
-        "concent": 1.020027756690979,
+        "concent": 1.020846366882324,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1195627003908157,
@@ -911,10 +1259,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 0
           },
           {
-            "coord": 2
+            "coord": 0
           }
         ]
       },
@@ -928,7 +1276,7 @@
         },
         "primary": false,
         "id": 11,
-        "concent": 26.29344940185547,
+        "concent": 34.12561798095703,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1405608654022217,
@@ -937,7 +1285,7 @@
         "draw": true,
         "composition": [
           {
-            "coord": 4
+            "coord": 0
           },
           {
             "coord": 0
@@ -954,7 +1302,7 @@
         },
         "primary": false,
         "id": 13,
-        "concent": 5.065368175506592,
+        "concent": 10.74494075775146,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1435096561908722,
@@ -963,10 +1311,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
-            "coord": 3
+            "coord": 0
           }
         ]
       },
@@ -980,7 +1328,7 @@
         },
         "primary": false,
         "id": 15,
-        "concent": 77.00681304931641,
+        "concent": 66.41925811767578,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1414410471916199,
@@ -989,10 +1337,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 0
           },
           {
-            "coord": 3
+            "coord": 0
           }
         ]
       },
@@ -1006,7 +1354,7 @@
         },
         "primary": false,
         "id": 16,
-        "concent": 6.058220386505127,
+        "concent": 8.384243965148926,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1299049854278564,
@@ -1015,10 +1363,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 0
           },
           {
-            "coord": 4
+            "coord": 0
           }
         ]
       },
@@ -1032,7 +1380,7 @@
         },
         "primary": false,
         "id": 19,
-        "concent": 12.38363742828369,
+        "concent": 6.321183204650879,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.1432981789112091,
@@ -1041,10 +1389,10 @@
         "draw": true,
         "composition": [
           {
-            "coord": 3
+            "coord": 0
           },
           {
-            "coord": 2
+            "coord": 0
           }
         ]
       }
@@ -1127,8 +1475,8 @@
         "reactant2": "03",
         "product": "23",
         "name": "20+03=23",
-        "assocRate": 0.877016544342041,
-        "dissocRate": 0.5763629078865051,
+        "assocRate": 0.4743655025959015,
+        "dissocRate": 0.877016544342041,
         "idSAT": 8
       },
       {
@@ -1137,7 +1485,7 @@
         "product": "23",
         "name": "01+22=23",
         "assocRate": 0.4388917088508606,
-        "dissocRate": 0.005196537356823683,
+        "dissocRate": 0.01461909618228674,
         "idSAT": 9
       },
       {
@@ -1146,7 +1494,7 @@
         "product": "23",
         "name": "10+13=23",
         "assocRate": 0.7093915939331055,
-        "dissocRate": 0.01091111823916435,
+        "dissocRate": 0.03069557249546051,
         "idSAT": 10
       },
       {
@@ -1154,7 +1502,7 @@
         "reactant2": "03",
         "product": "14",
         "name": "11+03=14",
-        "assocRate": 0.3560363352298737,
+        "assocRate": 0.1439554393291473,
         "dissocRate": 0.3790753483772278,
         "idSAT": 11
       },
@@ -1163,8 +1511,8 @@
         "reactant2": "12",
         "product": "32",
         "name": "20+12=32",
-        "assocRate": 0.8879335522651672,
-        "dissocRate": 0.4334703981876373,
+        "assocRate": 0.5416959524154663,
+        "dissocRate": 0.8879335522651672,
         "idSAT": 12
       }
     ],
@@ -2410,7 +2758,7 @@
             },
             {
               "entity": "01",
-              "value": 0.003556729992851615
+              "value": 0.01071310043334961
             },
             {
               "entity": "11",
@@ -2442,7 +2790,7 @@
             },
             {
               "entity": "13",
-              "value": 0.01624579913914204
+              "value": 0.04413510113954544
             },
             {
               "entity": "23",
@@ -2471,7 +2819,7 @@
             },
             {
               "entity": "01",
-              "value": 0.008377079851925373
+              "value": 0.010589599609375
             },
             {
               "entity": "11",
@@ -2487,15 +2835,15 @@
             },
             {
               "entity": "03",
-              "value": 0.00006103519990574569
+              "value": 0.00001525879997643642
             },
             {
               "entity": "12",
-              "value": 0.1002350002527237
+              "value": 0.1632499992847443
             },
             {
               "entity": "22",
-              "value": 7.0
+              "value": 10.0
             },
             {
               "entity": "40",
@@ -2503,11 +2851,11 @@
             },
             {
               "entity": "13",
-              "value": 0.0546875
+              "value": 0.0625
             },
             {
               "entity": "23",
-              "value": 4.0
+              "value": 2.0
             },
             {
               "entity": "14",
@@ -2532,7 +2880,7 @@
             },
             {
               "entity": "01",
-              "value": 0.0078125
+              "value": 0.015625
             },
             {
               "entity": "11",
@@ -2568,7 +2916,7 @@
             },
             {
               "entity": "23",
-              "value": 30.0
+              "value": 11.0
             },
             {
               "entity": "14",
@@ -2593,7 +2941,7 @@
             },
             {
               "entity": "01",
-              "value": 0.01074219960719347
+              "value": 0.02148439921438694
             },
             {
               "entity": "11",
@@ -2605,7 +2953,7 @@
             },
             {
               "entity": "20",
-              "value": 19.8882007598877
+              "value": 20.6564998626709
             },
             {
               "entity": "03",
@@ -2629,7 +2977,7 @@
             },
             {
               "entity": "23",
-              "value": 30.0
+              "value": 11.0
             },
             {
               "entity": "14",
@@ -2666,7 +3014,7 @@
             },
             {
               "entity": "20",
-              "value": 0.6533200144767761
+              "value": 1.841799974441528
             },
             {
               "entity": "03",
@@ -2678,7 +3026,7 @@
             },
             {
               "entity": "22",
-              "value": 0.02050779946148396
+              "value": 0.0419921986758709
             },
             {
               "entity": "40",
@@ -2715,7 +3063,7 @@
             },
             {
               "entity": "01",
-              "value": 1.8125
+              "value": 1.9375
             },
             {
               "entity": "11",
@@ -2723,7 +3071,7 @@
             },
             {
               "entity": "02",
-              "value": 1.667969942092896
+              "value": 1.625
             },
             {
               "entity": "20",
@@ -2735,7 +3083,7 @@
             },
             {
               "entity": "12",
-              "value": 0.0703125
+              "value": 0.109375
             },
             {
               "entity": "22",
@@ -2751,7 +3099,7 @@
             },
             {
               "entity": "23",
-              "value": 68.0
+              "value": 25.0
             },
             {
               "entity": "14",
@@ -2772,7 +3120,7 @@
           "witness": [
             {
               "entity": "10",
-              "value": 0.0234375
+              "value": 0.046875
             },
             {
               "entity": "01",
@@ -2788,7 +3136,7 @@
             },
             {
               "entity": "20",
-              "value": 0.01843260042369366
+              "value": 0.0522461012005806
             },
             {
               "entity": "03",
@@ -2800,7 +3148,7 @@
             },
             {
               "entity": "22",
-              "value": 0.0234375
+              "value": 0.05078120157122612
             },
             {
               "entity": "40",
@@ -2841,7 +3189,7 @@
             },
             {
               "entity": "11",
-              "value": 3.601560115814209
+              "value": 3.59375
             },
             {
               "entity": "02",
@@ -2861,7 +3209,7 @@
             },
             {
               "entity": "22",
-              "value": 0.0234375
+              "value": 0.02636720053851604
             },
             {
               "entity": "40",
@@ -2873,7 +3221,7 @@
             },
             {
               "entity": "23",
-              "value": 0.5
+              "value": 0.25
             },
             {
               "entity": "14",
@@ -2898,7 +3246,7 @@
             },
             {
               "entity": "01",
-              "value": 0.125
+              "value": 0.5
             },
             {
               "entity": "11",
@@ -2906,11 +3254,11 @@
             },
             {
               "entity": "02",
-              "value": 0.2805179953575134
+              "value": 0.064239501953125
             },
             {
               "entity": "20",
-              "value": 0.6589660048484802
+              "value": 1.850299954414368
             },
             {
               "entity": "03",
@@ -2918,7 +3266,7 @@
             },
             {
               "entity": "12",
-              "value": 1.192089982282596e-7
+              "value": 3.814699994109105e-6
             },
             {
               "entity": "22",
@@ -2930,7 +3278,7 @@
             },
             {
               "entity": "13",
-              "value": 0.01581249944865704
+              "value": 0.04369829967617989
             },
             {
               "entity": "23",
@@ -2959,19 +3307,19 @@
             },
             {
               "entity": "01",
-              "value": 0.0078125
+              "value": 0.015625
             },
             {
               "entity": "11",
-              "value": 91.95510101318359
+              "value": 98.47049713134766
             },
             {
               "entity": "02",
-              "value": 1.75
+              "value": 1.625
             },
             {
               "entity": "20",
-              "value": 0.3277739882469177
+              "value": 0.7934269905090332
             },
             {
               "entity": "03",
@@ -2979,7 +3327,7 @@
             },
             {
               "entity": "12",
-              "value": 0.015625
+              "value": 0.01425169967114925
             },
             {
               "entity": "22",
@@ -2991,11 +3339,11 @@
             },
             {
               "entity": "13",
-              "value": 90.0
+              "value": 89.5
             },
             {
               "entity": "23",
-              "value": 0.5
+              "value": 0.4296880066394806
             },
             {
               "entity": "14",
@@ -3032,7 +3380,7 @@
             },
             {
               "entity": "20",
-              "value": 1.875
+              "value": 1.6875
             },
             {
               "entity": "03",
@@ -3056,7 +3404,7 @@
             },
             {
               "entity": "23",
-              "value": 3.0
+              "value": 1.0
             },
             {
               "entity": "14",
@@ -3138,7 +3486,7 @@
           "witness": [
             {
               "entity": "10",
-              "value": 0.009765620343387127
+              "value": 0.00390625
             },
             {
               "entity": "01",
@@ -3154,7 +3502,7 @@
             },
             {
               "entity": "20",
-              "value": 1.337829947471619
+              "value": 1.337399959564209
             },
             {
               "entity": "03",
@@ -3178,7 +3526,7 @@
             },
             {
               "entity": "23",
-              "value": 20.0
+              "value": 7.0
             },
             {
               "entity": "14",
@@ -3203,7 +3551,7 @@
             },
             {
               "entity": "01",
-              "value": 3.296880006790161
+              "value": 3.28125
             },
             {
               "entity": "11",
@@ -3239,7 +3587,7 @@
             },
             {
               "entity": "23",
-              "value": 91.5
+              "value": 32.5
             },
             {
               "entity": "14",
@@ -3268,7 +3616,7 @@
             },
             {
               "entity": "11",
-              "value": 0.00390625
+              "value": 0.03125
             },
             {
               "entity": "02",
@@ -3276,19 +3624,19 @@
             },
             {
               "entity": "20",
-              "value": 0.01953119970858097
+              "value": 0.05541989952325821
             },
             {
               "entity": "03",
-              "value": 33.75
+              "value": 33.5
             },
             {
               "entity": "12",
-              "value": 0.01074219960719347
+              "value": 0.015625
             },
             {
               "entity": "22",
-              "value": 0.0234375
+              "value": 0.046875
             },
             {
               "entity": "40",
@@ -3296,7 +3644,7 @@
             },
             {
               "entity": "13",
-              "value": 0.0078125
+              "value": 0.03125
             },
             {
               "entity": "23",
@@ -3361,7 +3709,7 @@
             },
             {
               "entity": "23",
-              "value": 6.0
+              "value": 2.5
             },
             {
               "entity": "14",
@@ -3386,7 +3734,7 @@
             },
             {
               "entity": "01",
-              "value": 1.125
+              "value": 1.1875
             },
             {
               "entity": "11",
@@ -3398,7 +3746,7 @@
             },
             {
               "entity": "20",
-              "value": 0.8730469942092896
+              "value": 3.0625
             },
             {
               "entity": "03",
@@ -3459,7 +3807,7 @@
             },
             {
               "entity": "20",
-              "value": 12.97420024871826
+              "value": 13.15620040893555
             },
             {
               "entity": "03",
@@ -3483,7 +3831,7 @@
             },
             {
               "entity": "23",
-              "value": 19.375
+              "value": 6.875
             },
             {
               "entity": "14",
@@ -3511,7 +3859,7 @@
             },
             {
               "entity": "01",
-              "value": 1.335330009460449
+              "value": 5.0625
             },
             {
               "entity": "11",
@@ -3519,7 +3867,7 @@
             },
             {
               "entity": "02",
-              "value": 1.8125
+              "value": 7.75
             },
             {
               "entity": "20",
@@ -3531,11 +3879,11 @@
             },
             {
               "entity": "12",
-              "value": 0.01831050030887127
+              "value": 0.06020360067486763
             },
             {
               "entity": "22",
-              "value": 0.5625
+              "value": 0.625
             },
             {
               "entity": "40",
@@ -3543,11 +3891,11 @@
             },
             {
               "entity": "13",
-              "value": 1.0
+              "value": 4.25
             },
             {
               "entity": "23",
-              "value": 64.5
+              "value": 97.0
             },
             {
               "entity": "14",
@@ -3575,7 +3923,7 @@
             },
             {
               "entity": "01",
-              "value": 0.0078125
+              "value": 0.015625
             },
             {
               "entity": "11",
@@ -3587,7 +3935,7 @@
             },
             {
               "entity": "20",
-              "value": 79.5625
+              "value": 82.65619659423828
             },
             {
               "entity": "03",
@@ -3611,7 +3959,7 @@
             },
             {
               "entity": "23",
-              "value": 30.0
+              "value": 11.0
             },
             {
               "entity": "14",
@@ -3651,7 +3999,7 @@
             },
             {
               "entity": "20",
-              "value": 0.07977289706468582
+              "value": 0.05322270095348358
             },
             {
               "entity": "03",
@@ -3675,7 +4023,7 @@
             },
             {
               "entity": "23",
-              "value": 0.125
+              "value": 0.03125
             },
             {
               "entity": "14",
@@ -3715,7 +4063,7 @@
             },
             {
               "entity": "20",
-              "value": 0.015625
+              "value": 0.02020259946584702
             },
             {
               "entity": "03",
@@ -3739,7 +4087,7 @@
             },
             {
               "entity": "23",
-              "value": 0.03125
+              "value": 0.015625
             },
             {
               "entity": "14",
@@ -3779,7 +4127,7 @@
             },
             {
               "entity": "20",
-              "value": 0.000833511003293097
+              "value": 0.0000686646017129533
             },
             {
               "entity": "03",
@@ -3803,71 +4151,7 @@
             },
             {
               "entity": "23",
-              "value": 0.001953119994141161
-            },
-            {
-              "entity": "14",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 5
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.015625
-            },
-            {
-              "entity": "01",
-              "value": 0.001464840024709702
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 0.625
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "03",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.359375
-            },
-            {
-              "entity": "22",
-              "value": 0.5488280057907104
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "13",
-              "value": 0.3466799855232239
-            },
-            {
-              "entity": "23",
-              "value": 0.25
+              "value": 0.0004882809880655259
             },
             {
               "entity": "14",

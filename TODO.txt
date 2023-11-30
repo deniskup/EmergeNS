@@ -1,5 +1,5 @@
-- segFault on ent->entities sur setCAC
-- error in Z3 output
+
+- error in Z3 output : because of e-05 in float printing
 
 - in generation:remove constraint that entities must be created from smaller ones.
 

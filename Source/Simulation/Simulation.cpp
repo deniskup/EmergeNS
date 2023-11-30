@@ -1197,7 +1197,8 @@ void Simulation::setConcToCAC(int idCAC)
     auto ent = entConc.first;
     float conc = entConc.second;
     ent->concent = conc;
-    ent->entity->concent->setValue(conc);
+    if (ent->entity != nullptr)
+      ent->entity->concent->setValue(conc);
   }
 }
 

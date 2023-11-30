@@ -439,6 +439,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	if (firstLine != "sat")
 	{
 		LOGWARNING("Error in Z3 output");
+		system("cp z3CAC.smt2 z3CACerror.smt2");
 		return false;
 	}
 	// parse the witness of concentrations
@@ -880,6 +881,7 @@ void PAClist::PACsWithZ3()
 			if (firstLine != "sat")
 			{
 				LOGWARNING("Error in Z3 output");
+				system("cp z3constraints.smt2 z3constrainserror.smt2");
 				return;
 			}
 
