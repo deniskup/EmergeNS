@@ -253,7 +253,9 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 			continue;
 		clauses << "(declare-const coef" << r->idSAT << " Real)\n";
 		// coef is assocRate*reac1*reac2-dissocRate*prod
-		clauses << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+		//avoid printing in scientific format, print decimal values at the level of C++
+
+		clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
 		reacsTreated.insert(r);
 	}
 	// for entities of the PAC, verify positive flow from reactions of the PAC

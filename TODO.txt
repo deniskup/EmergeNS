@@ -1,5 +1,6 @@
 
-- error in Z3 output : because of e-05 in float printing
+- ask that at least one entity of the cycle really increases, taking into account every reaction and creation/destruction
+look for empirically and analytically
 
 - in generation:remove constraint that entities must be created from smaller ones.
 
