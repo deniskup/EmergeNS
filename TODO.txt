@@ -1,3 +1,4 @@
+-Settings change is not taken into account on Mac without reloading
 
 - ask that at least one entity of the cycle really increases, taking into account every reaction and creation/destruction
 look for empirically and analytically
