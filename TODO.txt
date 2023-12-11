@@ -1,7 +1,14 @@
 -Settings change is not taken into account on Mac without reloading
 
+-Settings: PAC redundancy (proportion reaction & nombre reaction different)
+and later: estimation of total number of PACs
+
 - ask that at least one entity of the cycle really increases, taking into account every reaction and creation/destruction
 look for empirically and analytically
+
+- in generation:remove constraint that entities must be created from smaller ones.
+after forwards pass, do backward pass, etc, keeping the same proba for reactions
+retirer si le niveau max est pas atteint
 
 - in generation:remove constraint that entities must be created from smaller ones.
 
