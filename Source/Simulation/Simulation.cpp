@@ -332,7 +332,6 @@ void Simulation::importJSONData(var data)
   Settings::getInstance()->CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
   computeBarriers();
   updateParams();
-  toImport = false;
 }
 
 void Simulation::importFromManual()
@@ -521,6 +520,7 @@ void Simulation::fetchGenerate()
     cur_id++;
     e->color = Colour::fromHSV(randFloat(.2), 1, 1, 1);
     e->draw = false;
+    e->toImport = false;
     if (gen->showAll->boolValue())
     {
       e->draw = true;

@@ -219,8 +219,10 @@ void Reaction::onContainerParameterChangedInternal(Parameter *p)
     }
   }
   updateWarnAndRates();
-  if (simReac != nullptr)
+  if (simReac != nullptr){
     simReac->toImport = true;
+    simReac->reaction=this;
+  }
 }
 
 void Reaction::onExternalParameterValueChanged(Parameter *p)

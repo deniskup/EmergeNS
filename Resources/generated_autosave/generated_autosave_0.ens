@@ -35,21 +35,21 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1366,
-      "height": 698,
+      "width": 1432,
+      "height": 780,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1366,
-          "height": 698,
+          "width": 1432,
+          "height": 780,
           "direction": 1,
           "shifters": [
             {
               "type": 0,
-              "width": 381,
-              "height": 698,
-              "currentContent": "Generation",
+              "width": 414,
+              "height": 780,
+              "currentContent": "Entities",
               "tabs": [
                 {
                   "name": "Entities"
@@ -64,20 +64,20 @@
             },
             {
               "type": 1,
-              "width": 979,
-              "height": 698,
+              "width": 1012,
+              "height": 780,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 744,
-                  "height": 698,
+                  "width": 760,
+                  "height": 780,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 744,
-                      "height": 426,
+                      "width": 760,
+                      "height": 467,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -87,8 +87,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 744,
-                      "height": 266,
+                      "width": 760,
+                      "height": 307,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -100,9 +100,9 @@
                 },
                 {
                   "type": 0,
-                  "width": 229,
-                  "height": 698,
-                  "currentContent": "Logger",
+                  "width": 245,
+                  "height": 780,
+                  "currentContent": "Inspector",
                   "tabs": [
                     {
                       "name": "Logger"
@@ -134,7 +134,7 @@
         "controlAddress": "/dt"
       },
       {
-        "value": 200.0,
+        "value": 20.0,
         "controlAddress": "/totalTime"
       },
       {
@@ -145,10 +145,6 @@
       {
         "value": 0.5,
         "controlAddress": "/maxConcent"
-      },
-      {
-        "value": true,
-        "controlAddress": "/detectEquil"
       },
       {
         "value": 0.0001,
@@ -177,7 +173,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 100.0,
+            "value": 24.86251258850098,
             "controlAddress": "/concent"
           },
           {
@@ -208,7 +204,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 4.985475063323975,
             "controlAddress": "/concent"
           },
           {
@@ -243,7 +239,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.356624930694924e-19,
+            "value": 31.61864852905273,
             "controlAddress": "/concent"
           },
           {
@@ -282,7 +278,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 5.634379386901855,
             "controlAddress": "/concent"
           },
           {
@@ -321,7 +317,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 3.238394975662231,
             "controlAddress": "/concent"
           },
           {
@@ -360,7 +356,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 8.250493049621582,
             "controlAddress": "/concent"
           },
           {
@@ -399,7 +395,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 3.096028827079251e-41,
             "controlAddress": "/concent"
           },
           {
@@ -438,7 +434,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 3.096028827079251e-41,
             "controlAddress": "/concent"
           },
           {
@@ -477,7 +473,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 4.723186492919922,
             "controlAddress": "/concent"
           },
           {
@@ -516,7 +512,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.0,
+            "value": 3.339725971221924,
             "controlAddress": "/concent"
           },
           {
@@ -555,7 +551,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 3.061136495317563e-41,
+            "value": 3.096028827079251e-41,
             "controlAddress": "/concent"
           },
           {
@@ -594,7 +590,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 4.765721321105957,
+            "value": 3.096028827079251e-41,
             "controlAddress": "/concent"
           },
           {
@@ -633,7 +629,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 100.0,
+            "value": 0.0,
             "controlAddress": "/concent"
           },
           {
@@ -1051,27 +1047,27 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 64.46472930908203,
-    "recordEntity": "23",
-    "recordDrawn": 64.46472930908203,
-    "recordDrawnEntity": "23",
+    "recordConcent": 39.54853820800781,
+    "recordEntity": "14",
+    "recordDrawn": 39.54853820800781,
+    "recordDrawnEntity": "14",
     "numLevels": 5,
-    "PACsGenerated": true,
+    "PACsGenerated": false,
     "entities": [
       {
         "name": "10",
         "color": {
-          "H": 0.07516339421272278,
+          "H": 0.05359476804733276,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 0,
-        "concent": 4.765721321105957,
-        "startConcent": 24.29522514343262,
-        "creationRate": 46.27111053466797,
-        "destructionRate": 0.09216401726007462,
+        "concent": 4.789882659912109,
+        "startConcent": 15.26116371154785,
+        "creationRate": 47.46733474731445,
+        "destructionRate": 0.1260712593793869,
         "freeEnergy": 0.0,
         "level": 1,
         "draw": true,
@@ -1087,17 +1083,17 @@
       {
         "name": "01",
         "color": {
-          "H": 0.05620914697647095,
+          "H": 0.1379085034132004,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": true,
         "id": 1,
-        "concent": 3.439404249191284,
-        "startConcent": 33.93696594238281,
-        "creationRate": 46.78716659545898,
-        "destructionRate": 0.1091286987066269,
+        "concent": 4.266477584838867,
+        "startConcent": 4.517166137695312,
+        "creationRate": 45.72080230712891,
+        "destructionRate": 0.1310940682888031,
         "freeEnergy": 0.0,
         "level": 1,
         "draw": true,
@@ -1113,18 +1109,18 @@
       {
         "name": "11",
         "color": {
-          "H": 0.4862745404243469,
+          "H": 0.5764706134796143,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 2,
-        "concent": 9.075943946838379,
+        "concent": 1.884346842765808,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.09157083183526993,
-        "freeEnergy": -8.853759765625,
+        "destructionRate": 0.1125133186578751,
+        "freeEnergy": -8.042216300964355,
         "level": 2,
         "draw": true,
         "composition": [
@@ -1139,18 +1135,18 @@
       {
         "name": "20",
         "color": {
-          "H": 0.5633987188339233,
+          "H": 0.4045751690864563,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 3,
-        "concent": 0.9616965651512146,
+        "concent": 10.86391258239746,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1265613287687302,
-        "freeEnergy": -8.091421127319336,
+        "destructionRate": 0.07689152657985687,
+        "freeEnergy": -8.491395950317383,
         "level": 2,
         "draw": true,
         "composition": [
@@ -1165,18 +1161,18 @@
       {
         "name": "02",
         "color": {
-          "H": 0.5196079015731812,
+          "H": 0.4758170247077942,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 4,
-        "concent": 55.35019683837891,
+        "concent": 1.863055348396301,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1092303842306137,
-        "freeEnergy": -8.130817413330078,
+        "destructionRate": 0.07833117246627808,
+        "freeEnergy": -8.584425926208496,
         "level": 2,
         "draw": true,
         "composition": [
@@ -1189,46 +1185,46 @@
         ]
       },
       {
-        "name": "21",
+        "name": "12",
         "color": {
-          "H": 0.645098090171814,
+          "H": 0.6130719184875488,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 6,
-        "concent": 0.8323720693588257,
+        "id": 5,
+        "concent": 17.11216163635254,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.09654735028743744,
-        "freeEnergy": -12.70119094848633,
+        "destructionRate": 0.07278443872928619,
+        "freeEnergy": -12.35944843292236,
         "level": 3,
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 1
           },
           {
-            "coord": 1
+            "coord": 2
           }
         ]
       },
       {
         "name": "30",
         "color": {
-          "H": 0.6830065250396729,
+          "H": 0.6352941393852234,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 7,
-        "concent": 2.347405195236206,
+        "id": 6,
+        "concent": 1.361457228660583,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1162506192922592,
-        "freeEnergy": -12.4655818939209,
+        "destructionRate": 0.09557224810123444,
+        "freeEnergy": -12.34697246551514,
         "level": 3,
         "draw": true,
         "composition": [
@@ -1241,46 +1237,72 @@
         ]
       },
       {
-        "name": "12",
+        "name": "03",
         "color": {
-          "H": 0.7745098471641541,
+          "H": 0.7640523314476013,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 7,
+        "concent": 4.985475063323975,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.1171804815530777,
+        "freeEnergy": -12.51027965545654,
+        "level": 3,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 3
+          }
+        ]
+      },
+      {
+        "name": "21",
+        "color": {
+          "H": 0.7248365879058838,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 8,
-        "concent": 17.24682998657227,
+        "concent": 8.250493049621582,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1004370525479317,
-        "freeEnergy": -12.93778705596924,
+        "destructionRate": 0.1271802186965942,
+        "freeEnergy": -12.87658309936523,
         "level": 3,
         "draw": true,
         "composition": [
           {
-            "coord": 1
+            "coord": 2
           },
           {
-            "coord": 2
+            "coord": 1
           }
         ]
       },
       {
         "name": "31",
         "color": {
-          "H": 0.8771241903305054,
+          "H": 0.9941176772117615,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 10,
-        "concent": 0.05097134411334991,
+        "id": 9,
+        "concent": 20.4150390625,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.07288731634616852,
-        "freeEnergy": -16.8807487487793,
+        "destructionRate": 0.1292258203029633,
+        "freeEnergy": -16.3621997833252,
         "level": 4,
         "draw": true,
         "composition": [
@@ -1293,20 +1315,98 @@
         ]
       },
       {
-        "name": "40",
+        "name": "04",
         "color": {
-          "H": 0.8196078538894653,
+          "H": 0.9470587968826294,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 10,
+        "concent": 2.323707342147827,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.06738968193531036,
+        "freeEnergy": -16.84435653686523,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 0
+          },
+          {
+            "coord": 4
+          }
+        ]
+      },
+      {
+        "name": "13",
+        "color": {
+          "H": 0.8444444537162781,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 11,
+        "concent": 3.238394975662231,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.06443077325820923,
+        "freeEnergy": -16.76115417480469,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 1
+          },
+          {
+            "coord": 3
+          }
+        ]
+      },
+      {
+        "name": "22",
+        "color": {
+          "H": 0.9039216041564941,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 12,
-        "concent": 0.6681166291236877,
+        "concent": 5.634379386901855,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.06596056371927261,
-        "freeEnergy": -16.76826477050781,
+        "destructionRate": 0.1198723465204239,
+        "freeEnergy": -16.87943267822266,
+        "level": 4,
+        "draw": true,
+        "composition": [
+          {
+            "coord": 2
+          },
+          {
+            "coord": 2
+          }
+        ]
+      },
+      {
+        "name": "40",
+        "color": {
+          "H": 0.9228758215904236,
+          "S": 1.0,
+          "B": 1.0,
+          "A": 255
+        },
+        "primary": false,
+        "id": 13,
+        "concent": 31.61864852905273,
+        "startConcent": 0.0,
+        "creationRate": 0.0,
+        "destructionRate": 0.06968069076538086,
+        "freeEnergy": -17.02353477478027,
         "level": 4,
         "draw": true,
         "composition": [
@@ -1319,25 +1419,25 @@
         ]
       },
       {
-        "name": "22",
+        "name": "32",
         "color": {
-          "H": 0.9967320561408997,
+          "H": 0.06143790483474731,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 13,
-        "concent": 56.59468841552734,
+        "id": 14,
+        "concent": 24.86251258850098,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.1223130002617836,
-        "freeEnergy": -16.84814071655273,
-        "level": 4,
+        "destructionRate": 0.132653072476387,
+        "freeEnergy": -20.99918746948242,
+        "level": 5,
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 3
           },
           {
             "coord": 2
@@ -1347,18 +1447,18 @@
       {
         "name": "41",
         "color": {
-          "H": 0.1509803980588913,
+          "H": 0.05882352590560913,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 14,
-        "concent": 14.86490154266357,
+        "id": 15,
+        "concent": 3.339725971221924,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.06524297595024109,
-        "freeEnergy": -21.13276100158691,
+        "destructionRate": 0.07899034768342972,
+        "freeEnergy": -20.90296173095703,
         "level": 5,
         "draw": true,
         "composition": [
@@ -1371,219 +1471,238 @@
         ]
       },
       {
-        "name": "32",
+        "name": "14",
         "color": {
-          "H": 0.1098039150238037,
-          "S": 1.0,
-          "B": 1.0,
-          "A": 255
-        },
-        "primary": false,
-        "id": 15,
-        "concent": 7.711587429046631,
-        "startConcent": 0.0,
-        "creationRate": 0.0,
-        "destructionRate": 0.1362864673137665,
-        "freeEnergy": -20.62984275817871,
-        "level": 5,
-        "draw": true,
-        "composition": [
-          {
-            "coord": 3
-          },
-          {
-            "coord": 2
-          }
-        ]
-      },
-      {
-        "name": "23",
-        "color": {
-          "H": 0.007843127474188805,
+          "H": 0.1431372612714767,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
         "id": 16,
-        "concent": 64.46472930908203,
+        "concent": 39.54853820800781,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.06602305173873901,
-        "freeEnergy": -21.01633834838867,
+        "destructionRate": 0.1283322870731354,
+        "freeEnergy": -21.35126304626465,
         "level": 5,
         "draw": true,
         "composition": [
           {
-            "coord": 2
+            "coord": 1
           },
           {
-            "coord": 3
+            "coord": 4
           }
         ]
       },
       {
-        "name": "50",
+        "name": "05",
         "color": {
-          "H": 0.09607842564582825,
+          "H": 0.1013071835041046,
           "S": 1.0,
           "B": 1.0,
           "A": 255
         },
         "primary": false,
-        "id": 18,
-        "concent": 41.32600021362305,
+        "id": 17,
+        "concent": 4.723186492919922,
         "startConcent": 0.0,
         "creationRate": 0.0,
-        "destructionRate": 0.0593094564974308,
-        "freeEnergy": -21.36736869812012,
+        "destructionRate": 0.1020676270127296,
+        "freeEnergy": -20.9792423248291,
         "level": 5,
         "draw": true,
         "composition": [
           {
-            "coord": 5
+            "coord": 0
           },
           {
-            "coord": 0
+            "coord": 5
           }
         ]
       }
     ],
     "reactions": [
       {
-        "reactant1": "01",
-        "reactant2": "10",
-        "product": "11",
-        "name": "01+10=11",
-        "assocRate": 0.7992913126945496,
-        "dissocRate": 0.000114173730253242,
-        "idSAT": 0
-      },
-      {
         "reactant1": "10",
         "reactant2": "10",
         "product": "20",
         "name": "10+10=20",
-        "assocRate": 0.5413795113563538,
-        "dissocRate": 0.0001657456450629979,
-        "idSAT": 1
+        "assocRate": 0.3565934896469116,
+        "dissocRate": 0.00007318249117815867,
+        "idSAT": 0
       },
       {
         "reactant1": "01",
         "reactant2": "01",
         "product": "02",
         "name": "01+01=02",
-        "assocRate": 0.9530735611915588,
-        "dissocRate": 0.0002805157564580441,
-        "idSAT": 2
+        "assocRate": 0.9687018990516663,
+        "dissocRate": 0.0001811429101508111,
+        "idSAT": 0
       },
       {
         "reactant1": "10",
-        "reactant2": "20",
-        "product": "30",
-        "name": "10+20=30",
-        "assocRate": 0.7377117872238159,
-        "dissocRate": 0.009294217452406883,
-        "idSAT": 3
+        "reactant2": "02",
+        "product": "12",
+        "name": "10+02=12",
+        "assocRate": 0.3689422607421875,
+        "dissocRate": 0.008462271653115749,
+        "idSAT": 0
       },
       {
         "reactant1": "01",
-        "reactant2": "11",
-        "product": "12",
-        "name": "01+11=12",
-        "assocRate": 0.2856184244155884,
-        "dissocRate": 0.004809674806892872,
-        "idSAT": 4
-      },
-      {
-        "reactant1": "20",
-        "reactant2": "20",
-        "product": "40",
-        "name": "20+20=40",
-        "assocRate": 0.6850264668464661,
-        "dissocRate": 0.3814710378646851,
-        "idSAT": 5
+        "reactant2": "02",
+        "product": "03",
+        "name": "01+02=03",
+        "assocRate": 0.6882305145263672,
+        "dissocRate": 0.0135755455121398,
+        "idSAT": 0
       },
       {
         "reactant1": "10",
-        "reactant2": "30",
-        "product": "40",
-        "name": "10+30=40",
-        "assocRate": 0.1893462538719177,
-        "dissocRate": 0.002562272362411022,
-        "idSAT": 6
+        "reactant2": "11",
+        "product": "21",
+        "name": "10+11=21",
+        "assocRate": 0.429595947265625,
+        "dissocRate": 0.003416027640923858,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "10",
+        "reactant2": "21",
+        "product": "31",
+        "name": "10+21=31",
+        "assocRate": 0.140808179974556,
+        "dissocRate": 0.004313638899475336,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "20",
+        "reactant2": "11",
+        "product": "31",
+        "name": "20+11=31",
+        "assocRate": 0.7510682940483093,
+        "dissocRate": 0.8915023803710938,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "02",
+        "reactant2": "02",
+        "product": "04",
+        "name": "02+02=04",
+        "assocRate": 0.646562933921814,
+        "dissocRate": 0.8944113850593567,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "02",
+        "reactant2": "11",
+        "product": "13",
+        "name": "02+11=13",
+        "assocRate": 0.237385630607605,
+        "dissocRate": 0.207508847117424,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "10",
+        "reactant2": "03",
+        "product": "13",
+        "name": "10+03=13",
+        "assocRate": 0.1784991919994354,
+        "dissocRate": 0.002543928567320108,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "11",
+        "reactant2": "11",
+        "product": "22",
+        "name": "11+11=22",
+        "assocRate": 0.483584076166153,
+        "dissocRate": 0.218377485871315,
+        "idSAT": 0
       },
       {
         "reactant1": "02",
         "reactant2": "20",
         "product": "22",
         "name": "02+20=22",
-        "assocRate": 0.2270017266273499,
-        "dissocRate": 0.1213956996798515,
-        "idSAT": 7
+        "assocRate": 0.7613797187805176,
+        "dissocRate": 0.9265986084938049,
+        "idSAT": 0
       },
       {
-        "reactant1": "01",
-        "reactant2": "21",
-        "product": "22",
-        "name": "01+21=22",
-        "assocRate": 0.8685822486877441,
-        "dissocRate": 0.01373452227562666,
-        "idSAT": 8
-      },
-      {
-        "reactant1": "11",
+        "reactant1": "10",
         "reactant2": "30",
-        "product": "41",
-        "name": "11+30=41",
-        "assocRate": 0.2860123217105865,
-        "dissocRate": 0.3446796834468842,
-        "idSAT": 9
+        "product": "40",
+        "name": "10+30=40",
+        "assocRate": 0.5595813393592834,
+        "dissocRate": 0.005210243165493011,
+        "idSAT": 0
       },
       {
-        "reactant1": "20",
-        "reactant2": "12",
+        "reactant1": "02",
+        "reactant2": "30",
         "product": "32",
-        "name": "20+12=32",
-        "assocRate": 0.5589125156402588,
-        "dissocRate": 0.833271324634552,
-        "idSAT": 10
+        "name": "02+30=32",
+        "assocRate": 0.1904268115758896,
+        "dissocRate": 0.1779457777738571,
+        "idSAT": 0
       },
       {
         "reactant1": "11",
         "reactant2": "21",
         "product": "32",
         "name": "11+21=32",
-        "assocRate": 0.1504559516906738,
-        "dissocRate": 0.3794710338115692,
-        "idSAT": 11
-      },
-      {
-        "reactant1": "01",
-        "reactant2": "31",
-        "product": "32",
-        "name": "01+31=32",
-        "assocRate": 0.5980208516120911,
-        "dissocRate": 0.01407685037702322,
-        "idSAT": 12
-      },
-      {
-        "reactant1": "11",
-        "reactant2": "12",
-        "product": "23",
-        "name": "11+12=23",
-        "assocRate": 0.2567771673202515,
-        "dissocRate": 0.5574741363525391,
-        "idSAT": 13
+        "assocRate": 0.3641022145748138,
+        "dissocRate": 0.3359785974025726,
+        "idSAT": 0
       },
       {
         "reactant1": "10",
-        "reactant2": "40",
-        "product": "50",
-        "name": "10+40=50",
-        "assocRate": 0.8854356408119202,
-        "dissocRate": 0.008908232674002647,
-        "idSAT": 14
+        "reactant2": "22",
+        "product": "32",
+        "name": "10+22=32",
+        "assocRate": 0.3760131001472473,
+        "dissocRate": 0.006109648384153843,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "11",
+        "reactant2": "30",
+        "product": "41",
+        "name": "11+30=41",
+        "assocRate": 0.5596229434013367,
+        "dissocRate": 0.3347855806350708,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "01",
+        "reactant2": "13",
+        "product": "14",
+        "name": "01+13=14",
+        "assocRate": 0.3126782774925232,
+        "dissocRate": 0.003174232551828027,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "02",
+        "reactant2": "12",
+        "product": "14",
+        "name": "02+12=14",
+        "assocRate": 0.2957077026367188,
+        "dissocRate": 0.1967596262693405,
+        "idSAT": 0
+      },
+      {
+        "reactant1": "02",
+        "reactant2": "03",
+        "product": "05",
+        "name": "02+03=05",
+        "assocRate": 0.1369851678609848,
+        "dissocRate": 0.1537512391805649,
+        "idSAT": 0
       }
     ],
     "primEnts": [
@@ -1595,4091 +1714,8 @@
       }
     ],
     "pacList": {
-      "cycles": [
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "02"
-            },
-            {
-              "ent": "22"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+01=02",
-              "dir": true
-            },
-            {
-              "reac": "02+20=22",
-              "dir": true
-            },
-            {
-              "reac": "01+21=22",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "30"
-            },
-            {
-              "ent": "40"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "10+20=30",
-              "dir": false
-            },
-            {
-              "reac": "20+20=40",
-              "dir": true
-            },
-            {
-              "reac": "10+30=40",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "40"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "10+10=20",
-              "dir": true
-            },
-            {
-              "reac": "20+20=40",
-              "dir": true
-            },
-            {
-              "reac": "10+30=40",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "12"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "01+11=12",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": false
-            },
-            {
-              "reac": "10+10=20",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "12"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+11=12",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "12"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": false
-            },
-            {
-              "reac": "01+11=12",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "40"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "20+20=40",
-              "dir": true
-            },
-            {
-              "reac": "10+30=40",
-              "dir": false
-            },
-            {
-              "reac": "20+12=32",
-              "dir": false
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "12"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+11=12",
-              "dir": true
-            },
-            {
-              "reac": "02+20=22",
-              "dir": false
-            },
-            {
-              "reac": "01+21=22",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "10+10=20",
-              "dir": false
-            },
-            {
-              "reac": "20+12=32",
-              "dir": false
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "21"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "02+20=22",
-              "dir": false
-            },
-            {
-              "reac": "01+21=22",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "10+10=20",
-              "dir": false
-            },
-            {
-              "reac": "02+20=22",
-              "dir": false
-            },
-            {
-              "reac": "01+21=22",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "21"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "10+10=20",
-              "dir": false
-            },
-            {
-              "reac": "02+20=22",
-              "dir": true
-            },
-            {
-              "reac": "01+21=22",
-              "dir": false
-            },
-            {
-              "reac": "20+12=32",
-              "dir": false
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "10+10=20",
-              "dir": false
-            },
-            {
-              "reac": "02+20=22",
-              "dir": true
-            },
-            {
-              "reac": "01+21=22",
-              "dir": false
-            },
-            {
-              "reac": "20+12=32",
-              "dir": false
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "12"
-            },
-            {
-              "ent": "40"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": false
-            },
-            {
-              "reac": "01+11=12",
-              "dir": true
-            },
-            {
-              "reac": "20+20=40",
-              "dir": false
-            },
-            {
-              "reac": "10+30=40",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "30"
-            },
-            {
-              "ent": "40"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": false
-            },
-            {
-              "reac": "10+20=30",
-              "dir": true
-            },
-            {
-              "reac": "20+20=40",
-              "dir": false
-            },
-            {
-              "reac": "10+30=40",
-              "dir": true
-            },
-            {
-              "reac": "20+12=32",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": false
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "10"
-            },
-            {
-              "ent": "01"
-            },
-            {
-              "ent": "11"
-            },
-            {
-              "ent": "20"
-            },
-            {
-              "ent": "40"
-            },
-            {
-              "ent": "22"
-            },
-            {
-              "ent": "32"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "01+10=11",
-              "dir": true
-            },
-            {
-              "reac": "20+20=40",
-              "dir": true
-            },
-            {
-              "reac": "10+30=40",
-              "dir": false
-            },
-            {
-              "reac": "02+20=22",
-              "dir": false
-            },
-            {
-              "reac": "01+21=22",
-              "dir": true
-            },
-            {
-              "reac": "11+21=32",
-              "dir": true
-            },
-            {
-              "reac": "01+31=32",
-              "dir": false
-            }
-          ]
-        }
-      ],
-      "CACs": [
-        {
-          "pacids": [
-            {
-              "id": 0
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 0.009658809751272202
-            },
-            {
-              "entity": "02",
-              "value": 55.0
-            },
-            {
-              "entity": "21",
-              "value": 0.1357419937849045
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 5.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 19.51560020446777
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 44.89450073242188
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 3
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 3.814699994109105e-6
-            },
-            {
-              "entity": "01",
-              "value": 0.5
-            },
-            {
-              "entity": "11",
-              "value": 2.65625
-            },
-            {
-              "entity": "20",
-              "value": 0.01885480061173439
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 79.0
-            },
-            {
-              "entity": "31",
-              "value": 0.04993439838290215
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 4
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.009765620343387127
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 54.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 2.526859998703003
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.02758870087563992
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 5
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 0.02471919916570187
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 2.539060115814209
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 60.0
-            },
-            {
-              "entity": "31",
-              "value": 0.02734380029141903
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 6
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.25
-            },
-            {
-              "entity": "01",
-              "value": 0.0078125
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.484380006790161
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 2.547849893569946
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 7
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.00009155269799521193
-            },
-            {
-              "entity": "11",
-              "value": 7.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 0.3595120012760162
-            },
-            {
-              "entity": "30",
-              "value": 0.02761079929769039
-            },
-            {
-              "entity": "12",
-              "value": 1.492550015449524
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.797119975090027
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 8
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 0.0078125
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 11.89840030670166
-            },
-            {
-              "entity": "21",
-              "value": 0.00292969006113708
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 0.4826659858226776
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 20.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 9
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 63.0
-            },
-            {
-              "entity": "20",
-              "value": 48.5
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 0.03992370143532753
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.03075109981000423
-            },
-            {
-              "entity": "31",
-              "value": 0.3990359902381897
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 10
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 2.5625
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 34.28120040893555
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.464840054512024
-            },
-            {
-              "entity": "31",
-              "value": 0.0390625
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 64.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 11
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 65.0
-            },
-            {
-              "entity": "20",
-              "value": 47.75
-            },
-            {
-              "entity": "02",
-              "value": 0.04457569867372513
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 9.744629859924316
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 3.976560115814209
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 25.77510070800781
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 12
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 63.0
-            },
-            {
-              "entity": "20",
-              "value": 48.5
-            },
-            {
-              "entity": "02",
-              "value": 0.03649089857935905
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.7687940001487732
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 3.374020099639893
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 25.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 13
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 65.0
-            },
-            {
-              "entity": "20",
-              "value": 47.75
-            },
-            {
-              "entity": "02",
-              "value": 0.04331019893288612
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.8048179745674133
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 3.875
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 25.77510070800781
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 14
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 3.0
-            },
-            {
-              "entity": "01",
-              "value": 0.001464840024709702
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.764649987220764
-            },
-            {
-              "entity": "30",
-              "value": 0.001831050030887127
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.786129951477051
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.6796879768371582
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 15
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.001953119994141161
-            },
-            {
-              "entity": "01",
-              "value": 4.5
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 2.566410064697266
-            },
-            {
-              "entity": "30",
-              "value": 0.5
-            },
-            {
-              "entity": "12",
-              "value": 1.479249954223633
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.783200025558472
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 16
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0078125
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 59.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 33.83290100097656
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 3.359380006790161
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 0.5518569946289062
-            },
-            {
-              "entity": "40",
-              "value": 1.796450018882751
-            },
-            {
-              "entity": "22",
-              "value": 63.26169967651367
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 23.39439964294434
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 1
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 15.0
-            },
-            {
-              "entity": "21",
-              "value": 7.113279819488525
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 28.05470085144043
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 2
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.015625
-            },
-            {
-              "entity": "01",
-              "value": 0.0625
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 2.0
-            },
-            {
-              "entity": "02",
-              "value": 15.0
-            },
-            {
-              "entity": "21",
-              "value": 14.21090030670166
-            },
-            {
-              "entity": "30",
-              "value": 6.320310115814209
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 7.183469772338867
-            },
-            {
-              "entity": "22",
-              "value": 56.10350036621094
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 3
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.00001525879997643642
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 2.65625
-            },
-            {
-              "entity": "20",
-              "value": 0.5
-            },
-            {
-              "entity": "02",
-              "value": 55.0
-            },
-            {
-              "entity": "21",
-              "value": 6.514649868011475
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 20.0
-            },
-            {
-              "entity": "31",
-              "value": 1.284389972686768
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 51.4296989440918
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 6.709219932556152
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 4
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0390625
-            },
-            {
-              "entity": "01",
-              "value": 0.02734380029141903
-            },
-            {
-              "entity": "11",
-              "value": 0.25
-            },
-            {
-              "entity": "20",
-              "value": 8.0
-            },
-            {
-              "entity": "02",
-              "value": 3.696039915084839
-            },
-            {
-              "entity": "21",
-              "value": 32.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.5906329751014709
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 55.2943000793457
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 3.170039892196655
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 5
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 0.0078125
-            },
-            {
-              "entity": "02",
-              "value": 74.0
-            },
-            {
-              "entity": "21",
-              "value": 0.25
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 10.0
-            },
-            {
-              "entity": "31",
-              "value": 0.125
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.15625
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.0703125
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 6
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0703125
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 0.0078125
-            },
-            {
-              "entity": "02",
-              "value": 74.0
-            },
-            {
-              "entity": "21",
-              "value": 0.25
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 9.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.15625
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.0625
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 7
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.00390625
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 10.0
-            },
-            {
-              "entity": "20",
-              "value": 0.0078125
-            },
-            {
-              "entity": "02",
-              "value": 57.0
-            },
-            {
-              "entity": "21",
-              "value": 0.125
-            },
-            {
-              "entity": "30",
-              "value": 0.875
-            },
-            {
-              "entity": "12",
-              "value": 95.24459838867188
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 0.001525879953987896
-            },
-            {
-              "entity": "22",
-              "value": 0.84375
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.4979250133037567
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 14
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0078125
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 0.5
-            },
-            {
-              "entity": "02",
-              "value": 59.0
-            },
-            {
-              "entity": "21",
-              "value": 7.0
-            },
-            {
-              "entity": "30",
-              "value": 0.25
-            },
-            {
-              "entity": "12",
-              "value": 8.226559638977051
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 0.4453119933605194
-            },
-            {
-              "entity": "22",
-              "value": 55.17770004272461
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 2.763920068740845
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 0
-            },
-            {
-              "id": 15
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.01538090035319328
-            },
-            {
-              "entity": "01",
-              "value": 0.1171879991889
-            },
-            {
-              "entity": "11",
-              "value": 0.125
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 51.4375
-            },
-            {
-              "entity": "21",
-              "value": 13.0
-            },
-            {
-              "entity": "30",
-              "value": 1.297359943389893
-            },
-            {
-              "entity": "12",
-              "value": 0.9531630277633667
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.793339967727661
-            },
-            {
-              "entity": "22",
-              "value": 96.19920349121094
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.6407999992370605
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 3
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.0002441410033497959
-            },
-            {
-              "entity": "11",
-              "value": 5.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 97.5
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.6762700080871582
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 5
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.5
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 50.76559829711914
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 30.0
-            },
-            {
-              "entity": "31",
-              "value": 0.9516599774360657
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 20.125
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 6
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 0.00390625
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.734380006790161
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.6757810115814209
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 7
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.001953119994141161
-            },
-            {
-              "entity": "11",
-              "value": 55.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 0.04507450014352798
-            },
-            {
-              "entity": "30",
-              "value": 1.8125
-            },
-            {
-              "entity": "12",
-              "value": 1.502689957618713
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.804690003395081
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 8
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 0.0078125
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 11.89840030670166
-            },
-            {
-              "entity": "21",
-              "value": 0.00292969006113708
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 0.4826659858226776
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 20.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 9
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0625
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 90.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 0.02771000005304813
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.492190003395081
-            },
-            {
-              "entity": "31",
-              "value": 0.2382809966802597
-            },
-            {
-              "entity": "40",
-              "value": 1.84375
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 10
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 1.0
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 2.5625
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 34.28120040893555
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.464840054512024
-            },
-            {
-              "entity": "31",
-              "value": 0.0390625
-            },
-            {
-              "entity": "40",
-              "value": 2.75
-            },
-            {
-              "entity": "22",
-              "value": 64.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 11
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0625
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 90.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 4.285160064697266
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 6.78125
-            },
-            {
-              "entity": "40",
-              "value": 1.84375
-            },
-            {
-              "entity": "22",
-              "value": 8.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 35.6953010559082
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 12
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0625
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 90.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 3.171880006790161
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 53.34420013427734
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.84375
-            },
-            {
-              "entity": "22",
-              "value": 6.125
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 35.75
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 13
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0625
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 90.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 4.0625
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 2.0
-            },
-            {
-              "entity": "12",
-              "value": 53.22660064697266
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 1.84375
-            },
-            {
-              "entity": "22",
-              "value": 7.625
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 35.6953010559082
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            },
-            {
-              "id": 16
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.25
-            },
-            {
-              "entity": "11",
-              "value": 99.75
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 8.59375
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 1.628909945487976
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 3.773439884185791
-            },
-            {
-              "entity": "40",
-              "value": 1.808590054512024
-            },
-            {
-              "entity": "22",
-              "value": 16.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 39.56639862060547
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 3
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.03125
-            },
-            {
-              "entity": "11",
-              "value": 9.5
-            },
-            {
-              "entity": "20",
-              "value": 5.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 19.51560020446777
-            },
-            {
-              "entity": "12",
-              "value": 18.0
-            },
-            {
-              "entity": "31",
-              "value": 45.58010101318359
-            },
-            {
-              "entity": "40",
-              "value": 44.89450073242188
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 60.36940002441406
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 4
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.03710940107703209
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 6.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 2.526859998703003
-            },
-            {
-              "entity": "30",
-              "value": 28.125
-            },
-            {
-              "entity": "12",
-              "value": 0.248306006193161
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 64.64839935302734
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 5
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.015625
-            },
-            {
-              "entity": "01",
-              "value": 0.25
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 2.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 50.7578010559082
-            },
-            {
-              "entity": "30",
-              "value": 6.320310115814209
-            },
-            {
-              "entity": "12",
-              "value": 15.0
-            },
-            {
-              "entity": "31",
-              "value": 1.898929953575134
-            },
-            {
-              "entity": "40",
-              "value": 7.183469772338867
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 20.12350082397461
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 6
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.0234375
-            },
-            {
-              "entity": "11",
-              "value": 1.0
-            },
-            {
-              "entity": "20",
-              "value": 5.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 16.94820022583008
-            },
-            {
-              "entity": "30",
-              "value": 19.51560020446777
-            },
-            {
-              "entity": "12",
-              "value": 2.0
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 44.89450073242188
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 6.711180210113525
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 7
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.00006103519990574569
-            },
-            {
-              "entity": "11",
-              "value": 7.0
-            },
-            {
-              "entity": "20",
-              "value": 6.0
-            },
-            {
-              "entity": "02",
-              "value": 1.0
-            },
-            {
-              "entity": "21",
-              "value": 0.3594360053539276
-            },
-            {
-              "entity": "30",
-              "value": 28.10939979553223
-            },
-            {
-              "entity": "12",
-              "value": 0.2487870007753372
-            },
-            {
-              "entity": "31",
-              "value": 1.0
-            },
-            {
-              "entity": "40",
-              "value": 64.64839935302734
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 8
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.015625
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 0.0078125
-            },
-            {
-              "entity": "20",
-              "value": 2.0
-            },
-            {
-              "entity": "02",
-              "value": 11.90229988098145
-            },
-            {
-              "entity": "21",
-              "value": 0.001953119994141161
-            },
-            {
-              "entity": "30",
-              "value": 6.320310115814209
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 0.9648439884185791
-            },
-            {
-              "entity": "40",
-              "value": 7.183469772338867
-            },
-            {
-              "entity": "22",
-              "value": 40.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 2.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 10
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.015625
-            },
-            {
-              "entity": "01",
-              "value": 1.0
-            },
-            {
-              "entity": "11",
-              "value": 2.5625
-            },
-            {
-              "entity": "20",
-              "value": 2.0
-            },
-            {
-              "entity": "02",
-              "value": 17.14060020446777
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 6.320310115814209
-            },
-            {
-              "entity": "12",
-              "value": 0.7324219942092896
-            },
-            {
-              "entity": "31",
-              "value": 0.0390625
-            },
-            {
-              "entity": "40",
-              "value": 7.183469772338867
-            },
-            {
-              "entity": "22",
-              "value": 64.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 1.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 2
-            },
-            {
-              "id": 16
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.03125
-            },
-            {
-              "entity": "01",
-              "value": 0.25
-            },
-            {
-              "entity": "11",
-              "value": 60.0
-            },
-            {
-              "entity": "20",
-              "value": 5.0
-            },
-            {
-              "entity": "02",
-              "value": 1.694180011749268
-            },
-            {
-              "entity": "21",
-              "value": 1.0
-            },
-            {
-              "entity": "30",
-              "value": 19.51560020446777
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 2.245729923248291
-            },
-            {
-              "entity": "40",
-              "value": 44.89450073242188
-            },
-            {
-              "entity": "22",
-              "value": 15.83590030670166
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 23.79129981994629
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 3
-            },
-            {
-              "id": 8
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0625
-            },
-            {
-              "entity": "01",
-              "value": 0.0002441410033497959
-            },
-            {
-              "entity": "11",
-              "value": 3.0
-            },
-            {
-              "entity": "20",
-              "value": 0.7369999885559082
-            },
-            {
-              "entity": "02",
-              "value": 0.75
-            },
-            {
-              "entity": "21",
-              "value": 47.0
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 1.0
-            },
-            {
-              "entity": "31",
-              "value": 81.25
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 1.0
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 0.5
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 3
-            },
-            {
-              "id": 16
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.0004882809880655259
-            },
-            {
-              "entity": "01",
-              "value": 0.125
-            },
-            {
-              "entity": "11",
-              "value": 5.0
-            },
-            {
-              "entity": "20",
-              "value": 1.0
-            },
-            {
-              "entity": "02",
-              "value": 53.29159927368164
-            },
-            {
-              "entity": "21",
-              "value": 12.60179996490479
-            },
-            {
-              "entity": "30",
-              "value": 54.33589935302734
-            },
-            {
-              "entity": "12",
-              "value": 37.24729919433594
-            },
-            {
-              "entity": "31",
-              "value": 4.716430187225342
-            },
-            {
-              "entity": "40",
-              "value": 1.796589970588684
-            },
-            {
-              "entity": "22",
-              "value": 99.64710235595703
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 24.98439979553223
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 4
-            },
-            {
-              "id": 8
-            }
-          ],
-          "witness": [
-            {
-              "entity": "10",
-              "value": 0.125
-            },
-            {
-              "entity": "01",
-              "value": 0.008789059706032276
-            },
-            {
-              "entity": "11",
-              "value": 0.15625
-            },
-            {
-              "entity": "20",
-              "value": 54.0
-            },
-            {
-              "entity": "02",
-              "value": 0.5336229801177979
-            },
-            {
-              "entity": "21",
-              "value": 96.88179779052734
-            },
-            {
-              "entity": "30",
-              "value": 1.0
-            },
-            {
-              "entity": "12",
-              "value": 0.1656319946050644
-            },
-            {
-              "entity": "31",
-              "value": 16.20899963378906
-            },
-            {
-              "entity": "40",
-              "value": 1.0
-            },
-            {
-              "entity": "22",
-              "value": 53.87889862060547
-            },
-            {
-              "entity": "41",
-              "value": 1.0
-            },
-            {
-              "entity": "32",
-              "value": 6.0
-            },
-            {
-              "entity": "23",
-              "value": 1.0
-            },
-            {
-              "entity": "50",
-              "value": 1.0
-            }
-          ]
-        }
-      ]
+      "cycles": null,
+      "CACs": null
     }
   }
 }

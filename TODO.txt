@@ -1,3 +1,5 @@
+-verify that conditions with dir in PAC searching are needed
+
 -Settings change is not taken into account on Mac without reloading
 
 -Settings: PAC redundancy (proportion reaction & nombre reaction different)

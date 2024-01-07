@@ -53,6 +53,7 @@ void Entity::onContainerParameterChangedInternal(Parameter *p)
   }
   if(simEnt!=nullptr){
     simEnt->toImport=true;
+    simEnt->entity=this;
   }
   //Simulation::getInstance()->toImport = true; §§make jassertfalse when closing
 }
