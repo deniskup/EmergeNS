@@ -242,6 +242,8 @@ map<string, float> parseModelReal(const string &output)
 	return model;
 }
 
+//add the clause for a CAC to be part of a multiCAC. 
+//reacsTreated is the set of reactions for which variables coef have already been declared
 void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated)
 {
 
@@ -279,6 +281,16 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 			}
 		}
 		clauses << " 0) " << Settings::getInstance()->CACRobustness->floatValue() <<"))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
+	}
+
+	// acceleration option: ask that acceleration is above a threshold
+	if(Settings::getInstance()->CacAccelUse->boolValue()){
+		//declare acceleration variables for all entities and reactions not already treated
+		for (auto &e : pac->entities)
+		{
+			clauses << "(declare-const acc" << e->idSAT << " Real)\n";
+		}
+		//TODO continue
 	}
 }
 

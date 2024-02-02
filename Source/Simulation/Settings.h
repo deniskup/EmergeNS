@@ -24,6 +24,8 @@ public:
     //IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
 
     FloatParameter *CACRobustness; //threshold for accepting CAC witness
+    BoolParameter *CacAccelUse; //acceleration threshold for CAC search
+    FloatParameter *CACAccelThresh; //acceleration threshold for CAC search
 
 
     BoolParameter *nonMinimalPACs; //look for non minimal PACs
