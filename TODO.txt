@@ -26,6 +26,7 @@ retirer si le niveau max est pas atteint
 - mouseOver sur les courbes -> suivre exemple de NodeConnectionViewUI.cpp dans benkuper/LeGrandMechantLoop/Source/Node/Connection/ui
 /NodeConnectionViewUI.cpp
 
+-tester pour la detection de PAC ce qui est le plus rapide entre Int et Real comme type des coefficients vitesse.
 
 inclusion RAC plus fine:
 si inclusion d'entités et inclusion de foods, alors inclusion de RACs.
