@@ -979,7 +979,8 @@ void PAClist::PACsWithZ3()
 	}
 	simul->PACsGenerated = true;
 
-	computeCACs();
+	//continue with CACs
+	//computeCACs();
 
 
 }
