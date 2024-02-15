@@ -771,13 +771,17 @@ void PAClist::PACsWithZ3()
 	}
 
 	// if distinct reactants and dir is false, then one reactant must be false
-	for (auto &r : simul->reactions)
+	//TODO verify with blokhuis that this is OK, and that dir is needed
+ 	for (auto &r : simul->reactions)
 	{
 		if (r->reactant1 != r->reactant2)
 		{
-			clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
+		
+			//clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
+			//not care about dir here, from Blokhuis
+			clauses << "(assert (=> (and reac" << r->idSAT << ") (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
 		}
-	}
+	} 
 
 	// true reactions with coefs produce a positive amount of every true entity. Strictly positive otherwise putting everything to 0 works
 	for (auto &ent : simul->entities)
