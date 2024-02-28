@@ -33,6 +33,9 @@ Settings::Settings() : ControllableContainer("Settings")
 
     CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
 
+    csvFile = addStringParameter("CSV file", "Path to CSV file to import a list of reactions", "");
+
+
 }
 
 Settings::~Settings()

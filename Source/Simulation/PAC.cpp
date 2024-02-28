@@ -732,6 +732,7 @@ void PAClist::PACsWithZ3()
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
 
+
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
@@ -739,13 +740,14 @@ void PAClist::PACsWithZ3()
 	//------------declare variables------------
 
 	// entities
-
+	LOG("has " + to_string(simul->entities.size()) + " entities.");
 	for (auto &e : simul->entities)
 	{
 		clauses << "(declare-const ent" << e->idSAT << " Bool)\n";
 	}
 
 	// reactions
+	LOG("has " + to_string(simul->reactions.size()) + " reactions.");
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(declare-const reac" << r->idSAT << " Bool)\n";
@@ -979,7 +981,7 @@ void PAClist::PACsWithZ3()
 	}
 	simul->PACsGenerated = true;
 
-	computeCACs();
+	//computeCACs();
 
 
 }

@@ -5,6 +5,8 @@
 #include "Settings.h"
 #include "Statistics.h"
 #include "Util.h"
+//#include <SimpleXlsxWriter.hpp> // Inclure la bibliothèque C++ Excel
+
 
 using namespace std;
 
@@ -14,6 +16,7 @@ juce_ImplementSingleton(Simulation)
 
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation"),
+               
                                curStep(0),
                                ready(false),
                                simNotifier(1000), // max messages async that can be sent at once
@@ -356,6 +359,178 @@ void Simulation::importFromManual()
 
   updateParams();
 }
+
+//tkosc
+
+void Simulation::importCsvData(String filename) 
+{
+  // get csv file to parse
+  juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
+  LOG("will parse text file : " + myfilename);
+
+  ifstream file;
+  file.open(  myfilename.toUTF8(), ios::in);  
+   if(!file.is_open()) throw juce::OSCFormatError("can't open excel file");
+  
+    vector<vector<string> > database; // csv file content stored here
+    vector<string> row;
+    string line, element;
+
+    // start parsing the csv file
+    while(getline(file, line)){ 
+       
+      cout << line << "\n"; //print the data of the string
+      row.clear();
+      stringstream str(line);
+ 
+        while(getline(str, element, ',')){ 
+          while (element.find_first_of('"')!=element.npos) element.erase(element.find_first_of('"'), 1); // remove '"' characters of string
+          row.push_back(element);
+        }
+      database.push_back(row);
+    }
+
+/*
+  // sanity check
+  cout << "number of lines in csv file : " << database.size() << "\n";
+  for (unsigned int i=0; i<database.size(); i++){
+    //LOG("printing line : " + to_string(i) + " with " << to_string(database[i].size()) + " elements");
+    for (unsigned int j=0; j<database[i].size(); j++){
+      cout << database[i][j] << "\t";
+    } // end j loop
+    cout << "\n";
+  } // end i loop
+*/
+
+
+
+
+// here I will init entities with ones of the csv content.
+
+// get column index of reactants and products
+int colr = -1; int colp = -1; int colstoi_r = -1; int colstoi_p = -1;
+vector<string> firstline = database[0];
+for (unsigned int j=0; j<firstline.size(); j++){
+  if      (firstline[j].find("Reactant_name")!=firstline[j].npos)   colr = j;
+  else if (firstline[j].find("Product_name")!=firstline[j].npos)    colp = j;
+  else if (firstline[j].find("Reactant_stoi")!=firstline[j].npos)   colstoi_r = j;
+  else if (firstline[j].find("Product_stoi")!=firstline[j].npos)    colstoi_p = j;
+}
+
+// sanity check
+if (colr<0 || colp<0 || colstoi_r<0 || colstoi_p<0) throw juce::OSCFormatError("csv index error");
+
+entities.clear(); 
+reactions.clear();
+
+
+unordered_map<string, SimEntity*> myentities;
+
+// loop over all reactions, skipping first element (column names)
+for (unsigned int i=1; i<database.size(); i++){
+  //cout << endl;
+  unordered_map<string, int> mreactants;
+  unordered_map<string, int> mproducts;
+
+  // retrieve reactants stoechio coeff
+  stringstream current_stoi(database[i][colstoi_r]);
+  string stoi;
+  vector<int> vstoi;
+  while (getline(current_stoi, stoi, '-')) vstoi.push_back(atoi(stoi.c_str()));
+  
+  // retrieve reactants and associate them to their stoechio
+  stringstream current_reac(database[i][colr]);
+  string r; int cr=0;
+  while (getline(current_reac, r, '-')){
+    if (cr>=vstoi.size()) throw runtime_error("mismatch between reactants and stoechio");
+    mreactants[r] = vstoi[cr];
+    cr++;
+  }
+
+
+  // retrieve products stoechio coeff
+  stringstream current_stoi2(database[i][colstoi_p]);
+  stoi.clear(); vstoi.clear();
+  while (getline(current_stoi2, stoi, '-')) vstoi.push_back(atoi(stoi.c_str()));
+
+  // retrieve reactants and associate them to their stoechio
+  stringstream current_prod(database[i][colp]);
+  string p; int cp=0;
+  while (getline(current_prod, p, '-')){
+    if (cp>=vstoi.size()) throw runtime_error("mismatch between products and stoechio");
+    mproducts[p] = vstoi[cp];
+    cp++;
+  }
+
+  
+  // raise exception if number of reactants differs from 2 or 
+  if (mreactants.size()!=2) throw juce::OSCFormatError("csv file contains reactions with Nreactants != 2. Not supported");
+  if (mproducts.size()!=1) throw juce::OSCFormatError("csv file contains reactions with Nproduct != 1. Not supported");
+
+/*
+  cout << "---CHECK---\n reaction #" << i << endl;
+  cout << "reactants : \n";
+  for (const auto& it : mreactants){
+         LOG(it.first << " " << it.second);
+  }
+  cout << "products : \n";
+    for (const auto& it : mproducts){
+         LOG(it.first << " " << it.second);
+    }
+*/
+
+ 
+
+  SimEntity * simp;
+  vector<SimEntity*> simr(2);
+  unordered_map<string, int>::iterator it;
+
+  // add reactants to simul->entities if not already added
+  for (it = mreactants.begin(); it != mreactants.end(); it++)
+  {
+    int i = std::distance(mreactants.begin(), it);
+    simr[i] = myentities[it->first]; 
+    if (simr[i]==NULL)
+    {
+      myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      myentities[it->first]->name = it->first;
+      simr[i] = myentities[it->first];
+      entities.add(simr[i]);
+    }
+  }
+
+  // add products to simul->entities if not already added
+  for (it = mproducts.begin(); it != mproducts.end(); it++)
+  {
+    simp = myentities[it->first];
+    if (simp==NULL)
+    {
+      myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      myentities[it->first]->name = it->first;
+      simp = myentities[it->first]; 
+      entities.add(simp);
+    }
+  }
+
+  // add the current reaction to simul->reactions
+  SimReaction * reac = new SimReaction(simr[0], simr[1], simp, 1., 1., 0.);
+  reac->name = reac->reactant1->name + " + " + reac->reactant2->name + " = " + reac->product->name;
+  reactions.add(reac); // use dumb values at init for the moment
+
+
+} // end reaction loop
+
+ // establishLinks(); necessary ?
+
+// directly import SimReactions and SimEntities as reaction and entity lists
+loadToManualMode(); 
+
+
+//pacList->compute(2); // command to start PAC calculation
+
+
+}
+
 
 void Simulation::computeRates()
 {

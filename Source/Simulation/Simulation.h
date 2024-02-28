@@ -197,6 +197,8 @@ public:
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
   void importJSONData(var data);
+  
+  void importCsvData(String); //tkosc.
 
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities
