@@ -893,7 +893,7 @@ void Simulation::nextStep()
     ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
     if (ent->primary)
     {
-      ent->concent += ent->creationRate * dt->floatValue();
+      ent->increase(ent->creationRate * dt->floatValue());
     }
     ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
