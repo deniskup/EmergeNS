@@ -368,6 +368,11 @@ void Simulation::importCsvData(String filename)
   juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
   LOG("will parse text file : " + myfilename);
 
+  // clear what is in current simulation
+  clearParams();
+  //entities.clear(); 
+  //reactions.clear();
+
   ifstream file;
   file.open(  myfilename.toUTF8(), ios::in);  
    if(!file.is_open()) throw juce::OSCFormatError("can't open excel file");
@@ -420,8 +425,6 @@ for (unsigned int j=0; j<firstline.size(); j++){
 // sanity check
 if (colr<0 || colp<0 || colstoi_r<0 || colstoi_p<0) throw juce::OSCFormatError("csv index error");
 
-entities.clear(); 
-reactions.clear();
 
 
 unordered_map<string, SimEntity*> myentities;
@@ -520,10 +523,14 @@ for (unsigned int i=1; i<database.size(); i++){
 
 } // end reaction loop
 
- // establishLinks(); necessary ?
+//
+ready = true;
+updateParams();
 
 // directly import SimReactions and SimEntities as reaction and entity lists
+// into the graphics interface
 loadToManualMode(); 
+
 
 
 //pacList->compute(2); // command to start PAC calculation

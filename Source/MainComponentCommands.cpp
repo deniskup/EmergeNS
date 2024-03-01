@@ -79,7 +79,7 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		break;
 	
 	case NSCommandIDs::parseCsvFile:
-		result.setInfo("Parse Excel File", "", "General", result.readOnlyInKeyEditor);
+		result.setInfo("Parse CSV File", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
