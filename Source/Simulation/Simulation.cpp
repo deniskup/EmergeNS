@@ -866,6 +866,9 @@ void Simulation::nextStep()
 
     float directCoef = reacConcent * reac->assocRate;
     float reverseCoef = prodConcent * reac->dissocRate;
+    
+    if(!reac->isReversible)
+      reverseCoef = 0.;
 
     float directIncr = directCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();

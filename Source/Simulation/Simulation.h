@@ -84,7 +84,7 @@ public:
   Array<SimEntity *> reactants;
   Array<SimEntity *> products;
 
-
+  bool isReversible=true; //can the reaction go the other way ?
   bool enabled = true; // to know if the reaction is enabled or not
 
   bool toImport=false; // the corresponding reaction has been modified

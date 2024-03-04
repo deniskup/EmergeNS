@@ -1,3 +1,5 @@
+-reactions irreversibles (bool isReversible)
+
 -verify that conditions with dir in PAC searching are needed
 
 -Settings change is not taken into account on Mac without reloading

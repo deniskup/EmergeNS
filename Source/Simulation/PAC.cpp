@@ -828,6 +828,9 @@ void PAClist::PACsWithZ3()
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
+		if(!r->isReversible){
+			clauses << "(assert (= dir" << r->idSAT << " false))\n";
+		}
 	}
 
 	// each reaction has one product and one reactant true
