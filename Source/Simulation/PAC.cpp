@@ -192,7 +192,7 @@ String PAC::toString()
 		// 	res += r1name + plus + r2name + "->" + r->product->name + " ";
 		// }
 		// same but with list of reactants and products, filter by containment
-		String reac = r->name + " ";
+		String reac = "";
 		if (d)
 		{ // prod->react
 			for (auto &e : r->products)
@@ -229,6 +229,7 @@ String PAC::toString()
 			// remove last "+"
 			reac = reac.substring(0, reac.length() - 1);
 		}
+		res += reac + " ";
 	}
 	return res;
 }
@@ -308,7 +309,7 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 			clauses << "conc" << e->idSAT << " ";
 		}
 		clauses << "))))\n";
-		
+
 		reacsTreated.insert(r);
 	}
 	// for entities of the PAC, verify positive flow from reactions of the PAC
