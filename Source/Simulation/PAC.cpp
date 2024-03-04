@@ -168,28 +168,66 @@ String PAC::toString()
 		auto r = rd.first;
 		bool d = rd.second;
 		// auto p = r->product;
-		auto r1 = r->reactant1;
-		auto r2 = r->reactant2;
-		String plus = "+";
-		String r1name = r1->name;
-		String r2name = r2->name;
-		if (!entities.contains(r1))
-		{
-			plus = "";
-			r1name = "";
-		}
-		if (!entities.contains(r2))
-		{
-			plus = "";
-			r2name = "";
-		}
+		// auto r1 = r->reactant1;
+		// auto r2 = r->reactant2;
+		// String plus = "+";
+		// String r1name = r1->name;
+		// String r2name = r2->name;
+		// if (!entities.contains(r1))
+		// {
+		// 	plus = "";
+		// 	r1name = "";
+		// }
+		// if (!entities.contains(r2))
+		// {
+		// 	plus = "";
+		// 	r2name = "";
+		// }
+		// if (d)
+		// { // 1->2
+		// 	res += r->product->name + "->" + r1name + plus + r2name + " ";
+		// }
+		// else
+		// { // 2->1
+		// 	res += r1name + plus + r2name + "->" + r->product->name + " ";
+		// }
+		// same but with list of reactants and products, filter by containment
+		String reac = r->name + " ";
 		if (d)
-		{ // 1->2
-			res += r->product->name + "->" + r1name + plus + r2name + " ";
+		{ // prod->react
+			for (auto &e : r->products)
+			{
+				if (entities.contains(e))
+					reac += e->name + "+";
+			}
+			// remove last "+"
+			reac = reac.substring(0, reac.length() - 1);
+			reac += "->";
+			for (auto &e : r->reactants)
+			{
+				if (entities.contains(e))
+					reac += e->name + "+";
+			}
+			// remove last "+"
+			reac = reac.substring(0, reac.length() - 1);
 		}
 		else
-		{ // 2->1
-			res += r1name + plus + r2name + "->" + r->product->name + " ";
+		{ // reacts->prod
+			for (auto &e : r->reactants)
+			{
+				if (entities.contains(e))
+					reac += e->name + "+";
+			}
+			// remove last "+"
+			reac = reac.substring(0, reac.length() - 1);
+			reac += "->";
+			for (auto &e : r->products)
+			{
+				if (entities.contains(e))
+					reac += e->name + "+";
+			}
+			// remove last "+"
+			reac = reac.substring(0, reac.length() - 1);
 		}
 	}
 	return res;
@@ -242,8 +280,8 @@ map<string, float> parseModelReal(const string &output)
 	return model;
 }
 
-//add the clause for a CAC to be part of a multiCAC. 
-//reacsTreated is the set of reactions for which variables coef have already been declared
+// add the clause for a CAC to be part of a multiCAC.
+// reacsTreated is the set of reactions for which variables coef have already been declared
 void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated)
 {
 
@@ -255,9 +293,22 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 			continue;
 		clauses << "(declare-const coef" << r->idSAT << " Real)\n";
 		// coef is assocRate*reac1*reac2-dissocRate*prod
-		//avoid printing in scientific format, print decimal values at the level of C++
+		// avoid printing in scientific format, print decimal values at the level of C++
 
-		clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+		//clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+		//use reactants and products vectors
+		clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
+		for (auto &e : r->reactants)
+		{
+			clauses << "conc" << e->idSAT << " ";
+		}
+		clauses << ") (* " << r->dissocRate << " ";
+		for (auto &e : r->products)
+		{
+			clauses << "conc" << e->idSAT << " ";
+		}
+		clauses << "))))\n";
+		
 		reacsTreated.insert(r);
 	}
 	// for entities of the PAC, verify positive flow from reactions of the PAC
@@ -267,30 +318,45 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 		for (auto &rd : pac->reacDirs)
 		{
 			SimReaction *r = rd.first;
-			if (r->reactant1 == e)
+			// if (r->reactant1 == e)
+			// {
+			// 	clauses << " (- coef" << r->idSAT << ")";
+			// }
+			// if (r->reactant2 == e)
+			// {
+			// 	clauses << " (- coef" << r->idSAT << ")";
+			// }
+			// if (r->product == e)
+			// {
+			// 	clauses << " coef" << r->idSAT;
+			// }
+			for (auto er : r->reactants)
 			{
-				clauses << " (- coef" << r->idSAT << ")";
+				if (er == e)
+				{
+					clauses << " (- coef" << r->idSAT << ")";
+				}
 			}
-			if (r->reactant2 == e)
+			for (auto p : r->products)
 			{
-				clauses << " (- coef" << r->idSAT << ")";
-			}
-			if (r->product == e)
-			{
-				clauses << " coef" << r->idSAT;
+				if (p == e)
+				{
+					clauses << " coef" << r->idSAT;
+				}
 			}
 		}
-		clauses << " 0) " << Settings::getInstance()->CACRobustness->floatValue() <<"))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
+		clauses << " 0) " << Settings::getInstance()->CACRobustness->floatValue() << "))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
 	}
 
 	// acceleration option: ask that acceleration is above a threshold
-	if(Settings::getInstance()->CacAccelUse->boolValue()){
-		//declare acceleration variables for all entities and reactions not already treated
+	if (Settings::getInstance()->CacAccelUse->boolValue())
+	{
+		// declare acceleration variables for all entities and reactions not already treated
 		for (auto &e : pac->entities)
 		{
 			clauses << "(declare-const acc" << e->idSAT << " Real)\n";
 		}
-		//TODO continue
+		// TODO continue
 	}
 }
 
@@ -488,7 +554,7 @@ void PAClist::computeCACs()
 	bool found = true;
 	for (int setSize = 1; setSize <= CACsMax; setSize++)
 	{
-		//if(simul->shouldStop) break;
+		// if(simul->shouldStop) break;
 		found = false;
 		// find cliques in computed sets of size SetSize-1, and test them with z3.
 
@@ -573,7 +639,8 @@ void PAClist::computeCACs()
 		int localNbCAC = 0;
 		for (auto &cand : candidates)
 		{
-			if(simul->shouldStop) break;
+			if (simul->shouldStop)
+				break;
 			bool res = computeCAC(cand);
 			if (res)
 			{
@@ -622,9 +689,9 @@ void PAClist::computeCACs()
 
 void PAClist::run()
 {
-	//mark beginning of computation
-	simul->isComputing=true;
-	simul->shouldStop=false;
+	// mark beginning of computation
+	simul->isComputing = true;
+	simul->shouldStop = false;
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
 
@@ -641,15 +708,16 @@ void PAClist::run()
 		computeCACs();
 
 	// print execution time
-	simul->isComputing=false;
-	if(simul->shouldStop){
+	simul->isComputing = false;
+	if (simul->shouldStop)
+	{
 		LOG("Computation stopped manually");
-		simul->shouldStop=false;
+		simul->shouldStop = false;
 	}
 	LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
-	simul->shouldUpdate=true;
+	simul->shouldUpdate = true;
 	// update the parameters of the simulation in the UI
-  	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
+	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
 }
 
 // Function to parse the model from Z3 output, retrieve boolean variables
@@ -761,27 +829,39 @@ void PAClist::PACsWithZ3()
 		clauses << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
 	}
 
-	// each reaction has its product and one reactant true
+	// each reaction has one product and one reactant true
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(assert (=> reac" << r->idSAT << " (and";
-		clauses << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
-		clauses << " ent" << r->product->idSAT;
+		//clauses << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
+		clauses << "(or";
+		for(auto &e : r->reactants)
+		{
+			clauses << " ent" << e->idSAT;
+		}
+		clauses << ")";
+		//clauses << " ent" << r->product->idSAT;
+		clauses << "(or";
+		for(auto &e : r->products)
+		{
+			clauses << " ent" << e->idSAT;
+		}
+		clauses << ")";
 		clauses << ")))\n";
 	}
 
 	// if distinct reactants and dir is false, then one reactant must be false
-	//TODO verify with blokhuis that this is OK, and that dir is needed
- 	for (auto &r : simul->reactions)
-	{
-		if (r->reactant1 != r->reactant2)
-		{
-		
-			//clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
-			//not care about dir here, from Blokhuis
-			clauses << "(assert (=> (and reac" << r->idSAT << ") (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
-		}
-	} 
+	// TODO verify with blokhuis that this is OK, and that dir is needed
+	// for (auto &r : simul->reactions)
+	// {
+	// 	if (r->reactant1 != r->reactant2)
+	// 	{
+
+	// 		// clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
+	// 		// not care about dir here, from Blokhuis
+	// 		clauses << "(assert (=> (and reac" << r->idSAT << ") (or (not ent" << r->reactant1->idSAT << ") (not ent" << r->reactant2->idSAT << "))))\n";
+	// 	}
+	// }
 
 	// true reactions with coefs produce a positive amount of every true entity. Strictly positive otherwise putting everything to 0 works
 	for (auto &ent : simul->entities)
@@ -790,21 +870,37 @@ void PAClist::PACsWithZ3()
 		for (auto &r : simul->reactions)
 		{
 			int j = r->idSAT;
-			if (r->reactant1 == ent && r->reactant2 == ent)
+			int stoc=0;
+			for(auto &e : r->reactants)
+			{
+				if(e==ent)
+				{
+					stoc--;
+				}
+			}
+			for(auto &e : r->products)
+			{
+				if(e==ent)
+				{
+					stoc++;
+				}
+			}
+
+			if (stoc!=0)
 			{
 				// add coefj+coefj
-				clauses << " (ite reac" << j << " (+ (- coef" << j << ") (- coef" << j << ")) 0)";
+				clauses << " (ite reac" << j << " (* "<<stoc << " coef" << j << ") 0)";
 			}
-			else if (r->reactant1 == ent || r->reactant2 == ent)
-			{
-				// add coefj
-				clauses << " (ite reac" << j << " (- coef" << j << ") 0)";
-			}
-			else if (r->product == ent)
-			{
-				// add -coefj
-				clauses << " (ite reac" << j << " coef" << j << " 0)";
-			}
+			// else if (r->reactant1 == ent || r->reactant2 == ent)
+			// {
+			// 	// add coefj
+			// 	clauses << " (ite reac" << j << " (- coef" << j << ") 0)";
+			// }
+			// else if (r->product == ent)
+			// {
+			// 	// add -coefj
+			// 	clauses << " (ite reac" << j << " coef" << j << " 0)";
+			// }
 			// else{
 			// add 0, in case where ent does not appear in enough reactions ,and help with debugging
 			//	clauses << "      0\n";
@@ -819,7 +915,8 @@ void PAClist::PACsWithZ3()
 
 	for (int pacSize = 3; pacSize <= maxSize; pacSize++)
 	{
-		if(simul->shouldStop) break;
+		if (simul->shouldStop)
+			break;
 		int pacsFound = 0;
 		stringstream sizeClauses;
 		// pacsize entities
@@ -862,7 +959,8 @@ void PAClist::PACsWithZ3()
 
 		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
 		{
-			if(simul->shouldStop) break;
+			if (simul->shouldStop)
+				break;
 			// write to file
 			ofstream inputStream(inputFile);
 			inputStream << clauses.str();
@@ -983,10 +1081,8 @@ void PAClist::PACsWithZ3()
 	}
 	simul->PACsGenerated = true;
 
-	//continue with CACs
-	//computeCACs();
-
-
+	// continue with CACs
+	// computeCACs();
 }
 
 String PAClist::CACToString(CACType cac)
@@ -1005,27 +1101,28 @@ String PAClist::CACToString(CACType cac)
 
 CACType PAClist::dummyCAC()
 {
-  set<int> emptyset;
-  CACType dumCAC=make_pair(emptyset,witnessType());
-  return dumCAC;
+	set<int> emptyset;
+	CACType dumCAC = make_pair(emptyset, witnessType());
+	return dumCAC;
 }
 
 CACType PAClist::CACfromInt(int i)
 {
 
-  if (i<1 || i>CACs.size())
-  {
-    LOGWARNING("CACfromInt: CAC index out of bounds:"+to_string(i));
-    return dummyCAC();
-  }
-  int j=1;
-  for (auto &cac: CACs)
-  {
-    if(i==j) return cac;
-    j++;
-  }
-  LOGWARNING("CACfromInt: CAC not found:"+to_string(i));
-  return dummyCAC();
+	if (i < 1 || i > CACs.size())
+	{
+		LOGWARNING("CACfromInt: CAC index out of bounds:" + to_string(i));
+		return dummyCAC();
+	}
+	int j = 1;
+	for (auto &cac : CACs)
+	{
+		if (i == j)
+			return cac;
+		j++;
+	}
+	LOGWARNING("CACfromInt: CAC not found:" + to_string(i));
+	return dummyCAC();
 }
 
 var PAClist::CACtoJSON(CACType cac)
