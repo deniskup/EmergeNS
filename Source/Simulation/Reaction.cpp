@@ -44,10 +44,20 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   // Entity *e2 = r->reactant2->entity;
   // Entity *e3 = r->product->entity;
 
-  Entity *e1 = r->reactants[0]->entity;
-  Entity *e2 = r->reactants[1]->entity;
-  Entity *e3 = r->products[0]->entity;
-
+  // Entity *e1 = r->reactants[0]->entity;
+  // Entity *e2 = r->reactants[1]->entity;
+  // Entity *e3 = r->products[0]->entity;
+  //do the above with safeguards
+  Entity *e1 = nullptr;
+  Entity *e2 = nullptr;
+  Entity *e3 = nullptr;
+  if (r->reactants.size() > 0)
+    e1 = r->reactants[0]->entity;
+  if (r->reactants.size() > 1)
+    e2 = r->reactants[1]->entity;
+  if (r->products.size() > 0)
+    e3 = r->products[0]->entity;
+  
   reactant1->setValueFromTarget(e1, false);
   reactant2->setValueFromTarget(e2, false);
   product->setValueFromTarget(e3, false);
