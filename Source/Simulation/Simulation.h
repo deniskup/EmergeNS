@@ -11,6 +11,9 @@ class Reaction;
 
 typedef Array<int> Compo;
 
+
+  
+
 class SimEntity
 {
 public:
@@ -198,7 +201,16 @@ public:
   var toJSONData();
   void importJSONData(var data);
   
+struct tempReaction // TO REMOVE, only temporary
+  {
+    vector<pair<SimEntity*, int>> reactants;
+    vector<pair<SimEntity*, int>> products;
+  };
+
   void importCsvData(String); //tkosc.
+  void SearchReversibleReactionsInCsvFile(vector<tempReaction>);
+
+  
 
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities
