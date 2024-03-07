@@ -489,13 +489,9 @@ for (unsigned int i=1; i<database.size(); i++){
   // + add them to simulation instance
   Array<SimEntity*> simp; // products
   Array<SimEntity*> simr; // reactants
-  //simp.resize(mproducts.size());
-  //simr.resize(mreactants.size());
-  unordered_map<string, int>::iterator it;
 
 
   // add reactants to simul->entities if not already added
-  //for (it = mreactants.begin(); it != mreactants.end(); it++)
   for (auto [key, value]: mreactants)
   {
     // add entity to simr
@@ -504,16 +500,11 @@ for (unsigned int i=1; i<database.size(); i++){
     simr.add(mye);
 
     // check whether current entity has already been added to simulation entity array
-    //int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
     bool alreadyAdded2Sim = false;
     for (auto& e : entities){ if (e->name==key) alreadyAdded2Sim = true; break;}
 
     if (!alreadyAdded2Sim) // if current entity was not already stored
     {
-      //myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      //myentities[it->first]->name = it->first;
-      ///SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      //simr[i] = myentities[it->first];
       entities.add(mye);
     }
   } // end loop over reactants
@@ -524,39 +515,30 @@ for (unsigned int i=1; i<database.size(); i++){
 //  for (it = mproducts.begin(); it != mproducts.end(); it++)
   for (auto [key, value]: mproducts)
   {
+    // add entity to simp
     SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
     mye->name = key;
     simp.add(mye);
 
-    //int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
-    //simp[i] = myentities[it->first];
     bool alreadyAdded2Sim = false;
     for (auto& e : entities) if (e->name==key){ alreadyAdded2Sim = true; break;}
 
     if (!alreadyAdded2Sim) // if current entity was not already stored
     {
-      //myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      //myentities[it->first]->name = it->first;
-      //simp[i] = myentities[it->first]; 
-      //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
       entities.add(mye);
     } // end if
   } // end loop over products
 
 
 // check
-for (const auto& r: simr){std::cout << "reactant name : " << r->name << std::endl;}
-for (const auto& p: simp){std::cout << "product name : " << p->name << std::endl;}
+//for (const auto& r: simr){std::cout << "reactant name : " << r->name << std::endl;}
+//for (const auto& p: simp){std::cout << "product name : " << p->name << std::endl;}
 
 
   // add the current reaction to simul->reactions
   SimReaction * reac = new SimReaction(simr, simp, 1., 1.); // use dumb rate values 
   reac->isReversible = false;
   reactions.add(reac); 
-//  tempReaction tr;
-  //for (it = mreactants.begin(); it != mreactants.end(); it++) tr.reactants.push_back(make_pair(myentities[it->first], it->second));
-  //for (it = mproducts.begin(); it != mproducts.end(); it++) tr.products.push_back(make_pair(myentities[it->first], it->second));
-  //tempreac.push_back(tr);
 
 } // end reaction loop
 
@@ -565,7 +547,7 @@ for (const auto& r : reactions) std::cout << r->name << std::endl;
 
 
 // check for reversible reactions stored as two separate reactions
-//SearchReversibleReactionsInCsvFile(tempreac);
+SearchReversibleReactionsInCsvFile();
 
 ready = true;
 updateParams();
