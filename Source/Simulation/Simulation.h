@@ -79,10 +79,15 @@ public:
 
   Reaction *reaction; // sourceReaction
 
-  SimEntity *reactant1;
-  SimEntity *reactant2;
-  SimEntity *product;
+  //old reactions 1+1<->1
+  // SimEntity *reactant1;
+  // SimEntity *reactant2;
+  // SimEntity *product;
 
+  Array<SimEntity *> reactants;
+  Array<SimEntity *> products;
+
+  bool isReversible=true; //can the reaction go the other way ?
   bool enabled = true; // to know if the reaction is enabled or not
 
   bool toImport=false; // the corresponding reaction has been modified
@@ -216,7 +221,7 @@ struct tempReaction // TO REMOVE, only temporary
   var concent2JSON(); // save start concentrations and current concentrations of entities
   
 
-  void filterReached(); // compute reached entities and reactions and keep only those
+  //void filterReached(); // compute reached entities and reactions and keep only those
 
   void clearParams();
   void updateParams(); // for display

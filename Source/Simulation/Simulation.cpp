@@ -57,75 +57,75 @@ Simulation::~Simulation()
   stopThread(500);
 }
 
-void Simulation::filterReached()
-{
-  // set primary entities to reached
-  for (auto &e : entities)
-  {
-    e->reached = false;
-    if (e->primary)
-    {
-      e->reached = true;
-    }
-  }
-  // propagate to composite ones using reactions
-  bool progress = true;
-  // create reaction table to remove used reactions
-  Array<SimReaction *> reacToCheck;
-  for (auto &r : reactions)
-  {
-    reacToCheck.add(r);
-    r->reached = false;
-  }
-  while (progress)
-  {
-    progress = false;
+// void Simulation::filterReached()
+// {
+//   // set primary entities to reached
+//   for (auto &e : entities)
+//   {
+//     e->reached = false;
+//     if (e->primary)
+//     {
+//       e->reached = true;
+//     }
+//   }
+//   // propagate to composite ones using reactions
+//   bool progress = true;
+//   // create reaction table to remove used reactions
+//   Array<SimReaction *> reacToCheck;
+//   for (auto &r : reactions)
+//   {
+//     reacToCheck.add(r);
+//     r->reached = false;
+//   }
+//   while (progress)
+//   {
+//     progress = false;
 
-    for (auto &r : reacToCheck)
-    {
-      SimEntity *r1 = r->reactant1;
-      SimEntity *r2 = r->reactant2;
-      SimEntity *p = r->product;
-      if (r1->reached && r2->reached)
-      {
-        p->reached = true;
-        progress = true;
-      }
-      if (p->reached)
-      {
-        r1->reached = true;
-        r2->reached = true;
-        progress = true;
-      }
-      if (progress)
-      {
-        r->reached = true;
-        reacToCheck.removeFirstMatchingValue(r);
-        break;
-      }
-    }
-  }
+//     for (auto &r : reacToCheck)
+//     {
+//       SimEntity *r1 = r->reactant1;
+//       SimEntity *r2 = r->reactant2;
+//       SimEntity *p = r->product;
+//       if (r1->reached && r2->reached)
+//       {
+//         p->reached = true;
+//         progress = true;
+//       }
+//       if (p->reached)
+//       {
+//         r1->reached = true;
+//         r2->reached = true;
+//         progress = true;
+//       }
+//       if (progress)
+//       {
+//         r->reached = true;
+//         reacToCheck.removeFirstMatchingValue(r);
+//         break;
+//       }
+//     }
+//   }
 
-  // remove unreached entities
-  for (int i = entities.size() - 1; i >= 0; i--)
-  {
-    if (!entities[i]->reached)
-    {
-      entities.remove(i);
-      cout << "removed entity " << i << endl;
-    }
-  }
+//   // remove unreached entities
+//   for (int i = entities.size() - 1; i >= 0; i--)
+//   {
+//     if (!entities[i]->reached)
+//     {
+//       entities.remove(i);
+//       cout << "removed entity " << i << endl;
+//     }
+//   }
 
-  // removed unreached reactions
-  for (int i = reactions.size() - 1; i >= 0; i--)
-  {
-    if (!reactions[i]->reached)
-    {
-      cout << "removed reaction " << reactions[i]->name << endl;
-      reactions.remove(i);
-    }
-  }
-}
+//   // removed unreached reactions
+//   for (int i = reactions.size() - 1; i >= 0; i--)
+//   {
+//     if (!reactions[i]->reached)
+//     {
+//       cout << "removed reaction " << reactions[i]->name << endl;
+//       reactions.remove(i);
+//     }
+//   }
+// }
 
 void Simulation::clearParams()
 {
@@ -1005,7 +1005,7 @@ void Simulation::fetchGenerate()
   ready = true;
 
   // filter unreached entities and reactions
-  filterReached();
+  // filterReached();
 
   LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
   updateParams();
@@ -1090,33 +1090,64 @@ void Simulation::nextStep()
     if (!reac->enabled)
       continue;
     // shorter names
-    float reac1Concent = reac->reactant1->concent;
-    float reac2Concent = reac->reactant2->concent;
-    float prodConcent = reac->product->concent;
-    // compute product of reactants concentrations
-    float reacConcent = reac1Concent * reac2Concent;
+    float minReacConcent = 100.;
+    float minProdConcent = 100.;
+    float reacConcent = 1.;
+    for (auto &ent : reac->reactants)
+    {
+      reacConcent *= ent->concent;
+      if (ent == reac->reactants[0] || ent->concent < minReacConcent)
+        minReacConcent = ent->concent;
+    }
+    float prodConcent = 1.;
+    for (auto &ent : reac->products)
+    {
+      prodConcent *= ent->concent;
+      if (ent == reac->products[0] || ent->concent < minProdConcent)
+        minProdConcent = ent->concent;
+    }
+
+    // float reac1Concent = reac->reactant1->concent;
+    // float reac2Concent = reac->reactant2->concent;
+    // float prodConcent = reac->product->concent;
+    //  compute product of reactants concentrations
+    // float reacConcent = reac1Concent * reac2Concent;
 
     float directCoef = reacConcent * reac->assocRate;
     float reverseCoef = prodConcent * reac->dissocRate;
+    
+    if(!reac->isReversible)
+      reverseCoef = 0.;
 
     float directIncr = directCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();
 
     // adjust the increments depending on available entities
-    directIncr = jmin(directIncr, reac1Concent, reac2Concent);
-    reverseIncr = jmin(reverseIncr, prodConcent);
+    directIncr = jmin(directIncr, minReacConcent);
+    reverseIncr = jmin(reverseIncr, minProdConcent);
 
     // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will make them
 
-    // increase entities
-    reac->reactant1->increase(reverseIncr);
-    reac->reactant2->increase(reverseIncr);
-    reac->product->increase(directIncr);
+    // increase and decrease entities
+    for (auto &ent : reac->reactants)
+    {
+      ent->increase(reverseIncr);
+      ent->decrease(directIncr);
+    }
+    for (auto &ent : reac->products)
+    {
+      ent->increase(directIncr);
+      ent->decrease(reverseIncr);
+    }
+
+    // reac->reactant1->increase(reverseIncr);
+    // reac->reactant2->increase(reverseIncr);
+    // reac->product->increase(directIncr);
 
     // decrease entities
-    reac->reactant1->decrease(directIncr);
-    reac->reactant2->decrease(directIncr);
-    reac->product->decrease(reverseIncr);
+    // reac->reactant1->decrease(directIncr);
+    // reac->reactant2->decrease(directIncr);
+    // reac->product->decrease(reverseIncr);
 
     // update flow needed only at checkpoints
     if (isCheck)
@@ -1142,7 +1173,7 @@ void Simulation::nextStep()
     ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
     if (ent->primary)
     {
-      ent->concent += ent->creationRate * dt->floatValue();
+      ent->increase(ent->creationRate * dt->floatValue());
     }
     ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
   }
@@ -1247,9 +1278,18 @@ void Simulation::nextStep()
     for (auto &reacDir : cycle->reacDirs)
     {
       SimReaction *reac = reacDir.first;
-      flowPerEnt[reac->reactant1] -= reac->flow;
-      flowPerEnt[reac->reactant2] -= reac->flow;
-      flowPerEnt[reac->product] += reac->flow;
+      // no need for dir, it is encoded in the sign of the flow
+      for (auto &ent : reac->reactants)
+      {
+        flowPerEnt[ent] -= reac->flow;
+      }
+      for (auto &ent : reac->products)
+      {
+        flowPerEnt[ent] += reac->flow;
+      }
+      // flowPerEnt[reac->reactant1] -= reac->flow;
+      // flowPerEnt[reac->reactant2] -= reac->flow;
+      // flowPerEnt[reac->product] += reac->flow;
     }
 
     // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
@@ -1654,7 +1694,25 @@ void SimReaction::importFromManual()
 
 void SimReaction::setName()
 {
-  name = reactant1->name + "+" + reactant2->name + "=" + product->name;
+  name = "";
+  // reactant1->name + "+" + reactant2->name + "=" + product->name;
+  for (auto &ent : reactants)
+  {
+    name += ent->name;
+    if (ent != reactants.getLast())
+    {
+      name += "+";
+    }
+  }
+  name += "=";
+  for (auto &ent : products)
+  {
+    name += ent->name;
+    if (ent != products.getLast())
+    {
+      name += "+";
+    }
+  }
 }
 
 SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
@@ -1663,15 +1721,31 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
                                         reaction(r)
 {
   r->simReac = this;
-  reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
-  reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
-  product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
   name = r->niceName; // name from the original reaction
-  // setName(); //to rename automatically
+
+  // reactant1 = (dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt;
+  // reactant2 = (dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt;
+  // product = (dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt;
+
+  reactants.clear();
+  products.clear();
+  // for now keep reactant1 and reactant2 for reactions, to not do all changes at once.
+  reactants.add((dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt);
+  reactants.add((dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt);
+  products.add((dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt);
+  // setName(); //to rename automatically the reaction
 }
 
-SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate), energy(barrier)
+// SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reactant1(r1), reactant2(r2), product(p), assocRate(aRate), dissocRate(dRate), energy(barrier)
+// {
+//   setName();
+// }
+
+SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : assocRate(aRate), dissocRate(dRate), energy(barrier)
 {
+  reactants.add(r1);
+  reactants.add(r2);
+  products.add(p);
   setName();
 }
 
@@ -1689,7 +1763,11 @@ SimReaction::SimReaction(var data)
     return;
   }
 
+  bool arrayMode = false;
+
   Simulation *simul = Simulation::getInstance();
+  SimEntity *reactant1;
+  // test whether the file uses old or new conventions, put in arrayMode
   if (data.getDynamicObject()->hasProperty("reactant1"))
   {
     reactant1 = simul->getSimEntityForName(data["reactant1"]);
@@ -1702,41 +1780,93 @@ SimReaction::SimReaction(var data)
   }
   else
   {
-    constructionFailed = true;
-    return;
+    arrayMode = true;
   }
 
-  // to change on same model
-  if (data.getDynamicObject()->hasProperty("reactant2"))
+  if (!arrayMode)
   {
-    reactant2 = simul->getSimEntityForName(data["reactant2"]);
-    if (reactant2 == nullptr)
+    SimEntity *reactant2;
+    SimEntity *product;
+    // to change on same model
+    if (data.getDynamicObject()->hasProperty("reactant2"))
     {
-      // LOGWARNING("No reactant2 for reaction");
+      reactant2 = simul->getSimEntityForName(data["reactant2"]);
+      if (reactant2 == nullptr)
+      {
+        // LOGWARNING("No reactant2 for reaction");
+        constructionFailed = true;
+        return;
+      }
+    }
+    else
+    {
       constructionFailed = true;
       return;
     }
-  }
-  else
-  {
-    constructionFailed = true;
-    return;
-  }
 
-  if (data.getDynamicObject()->hasProperty("product"))
-  {
-    product = simul->getSimEntityForName(data["product"]);
-    if (product == nullptr)
+    if (data.getDynamicObject()->hasProperty("product"))
     {
-      // LOGWARNING("No product for reaction");
+      product = simul->getSimEntityForName(data["product"]);
+      if (product == nullptr)
+      {
+        // LOGWARNING("No product for reaction");
+        constructionFailed = true;
+        return;
+      }
+    }
+    else
+    {
       constructionFailed = true;
       return;
     }
+    reactants.add(reactant1);
+    reactants.add(reactant2);
+    products.add(product);
   }
   else
-  {
-    constructionFailed = true;
-    return;
+  { // array mode
+    if (data.getDynamicObject()->hasProperty("reactants"))
+    {
+      auto reactantsData = data["reactants"].getArray();
+      for (auto &coord : *reactantsData)
+      {
+        SimEntity *reactant = simul->getSimEntityForName(coord["ent"]);
+        if (reactant == nullptr)
+        {
+          // LOGWARNING("No reactant for reaction");
+          constructionFailed = true;
+          return;
+        }
+        reactants.add(reactant);
+      }
+    }
+    else
+    {
+      constructionFailed = true;
+      return;
+    }
+
+    if (data.getDynamicObject()->hasProperty("products"))
+    {
+
+      auto productsData = data["products"].getArray();
+      for (auto &coord : *productsData)
+      {
+        SimEntity *product = simul->getSimEntityForName(coord["ent"]);
+        if (product == nullptr)
+        {
+          // LOGWARNING("No product for reaction");
+          constructionFailed = true;
+          return;
+        }
+        products.add(product);
+      }
+    }
+    else
+    {
+      constructionFailed = true;
+      return;
+    }
   }
 
   if (data.getDynamicObject()->hasProperty("name"))
@@ -1755,9 +1885,28 @@ SimReaction::SimReaction(var data)
 var SimReaction::toJSONData()
 {
   var data = new DynamicObject();
-  data.getDynamicObject()->setProperty("reactant1", reactant1->name);
-  data.getDynamicObject()->setProperty("reactant2", reactant2->name);
-  data.getDynamicObject()->setProperty("product", product->name);
+  // data.getDynamicObject()->setProperty("reactant1", reactant1->name);
+  // data.getDynamicObject()->setProperty("reactant2", reactant2->name);
+  // data.getDynamicObject()->setProperty("product", product->name);
+  // to array
+  var reactantsData;
+  for (auto r : reactants)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("ent", r->name);
+    reactantsData.append(coord);
+  }
+  data.getDynamicObject()->setProperty("reactants", reactantsData);
+
+  var productsData;
+  for (auto p : products)
+  {
+    var coord = new DynamicObject();
+    coord.getDynamicObject()->setProperty("ent", p->name);
+    productsData.append(coord);
+  }
+  data.getDynamicObject()->setProperty("products", productsData);
+
   data.getDynamicObject()->setProperty("name", name);
 
   data.getDynamicObject()->setProperty("assocRate", assocRate);
@@ -1770,15 +1919,42 @@ var SimReaction::toJSONData()
 
 bool SimReaction::contains(SimEntity *e)
 {
-  return (reactant1 == e || reactant2 == e || product == e);
+  // return (reactant1 == e || reactant2 == e || product == e);
+  for (auto r : reactants)
+  {
+    if (r == e)
+      return true;
+  }
+  for (auto p : products)
+  {
+    if (p == e)
+      return true;
+  }
+  return false;
 }
 
 void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 {
   // GA+GB
-  float energyLeft = noFreeEnergy ? 0.f : reactant1->freeEnergy + reactant2->freeEnergy;
+  // float energyLeft = noFreeEnergy ? 0.f : reactant1->freeEnergy + reactant2->freeEnergy;
+  float energyLeft = 0.f;
+  if (!noFreeEnergy)
+  {
+    for (auto r : reactants)
+    {
+      energyLeft += r->freeEnergy;
+    }
+  }
   // GAB
-  float energyRight = noFreeEnergy ? 0.f : product->freeEnergy;
+  // float energyRight = noFreeEnergy ? 0.f : product->freeEnergy;
+  float energyRight = 0.f;
+  if (!noFreeEnergy)
+  {
+    for (auto p : products)
+    {
+      energyRight += p->freeEnergy;
+    }
+  }
   // total energy G* of the reaction: activation + max of GA+GB and GAB.
   float energyStar = (noBarrier ? 0.f : energy) + jmax(energyLeft, energyRight);
   // k1=exp(GA+GB-G*)
@@ -1790,14 +1966,24 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 void SimReaction::computeBarrier()
 {
   // compute energy barrier
-  if (reactant1 == nullptr || reactant2 == nullptr || product == nullptr)
+  // if (reactant1 == nullptr || reactant2 == nullptr || product == nullptr)
+  // {
+  //   LOGWARNING("Null reactant or product for reaction " << name);
+  //   return;
+  // }
+  // float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
+  // ;
+  // float energyRight = product->freeEnergy;
+  float energyLeft = 0.f;
+  for (auto r : reactants)
   {
-    LOGWARNING("Null reactant or product for reaction " << name);
-    return;
+    energyLeft += r->freeEnergy;
   }
-  float energyLeft = reactant1->freeEnergy + reactant2->freeEnergy;
-  ;
-  float energyRight = product->freeEnergy;
+  float energyRight = 0.f;
+  for (auto p : products)
+  {
+    energyRight += p->freeEnergy;
+  }
 
   // we use that assocRate is exp(energyLeft - energyStar) to compute energyStar
   float energyStar = energyLeft - log(assocRate);
