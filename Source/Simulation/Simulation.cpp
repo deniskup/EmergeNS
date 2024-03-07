@@ -370,8 +370,6 @@ void Simulation::importCsvData(String filename)
 
   // clear what is in current simulation
   clearParams();
-  //entities.clear(); 
-  //reactions.clear();
 
   ifstream file;
   file.open(  myfilename.toUTF8(), ios::in);  
@@ -384,7 +382,7 @@ void Simulation::importCsvData(String filename)
     // start parsing the csv file
     while(getline(file, line)){ 
        
-      cout << line << "\n"; //print the data of the string
+      //cout << line << "\n"; //print the data of the string
       row.clear();
       stringstream str(line);
  
@@ -543,7 +541,7 @@ for (unsigned int i=1; i<database.size(); i++){
 } // end reaction loop
 
 // check
-for (const auto& r : reactions) std::cout << r->name << std::endl;
+//for (const auto& r : reactions) std::cout << r->name << std::endl;
 
 
 // check for reversible reactions stored as two separate reactions
@@ -569,35 +567,39 @@ loadToManualMode();
 
 
 
-void Simulation::SearchReversibleReactionsInCsvFile(vector<tempReaction> tempreac)
+void Simulation::SearchReversibleReactionsInCsvFile()
 {
 
   // reactions index that were found to match 
-  unordered_map<int, int> mr;
+  unordered_map<int, int> mr; // matches by convention i2 with i1 (with i2>i1), i.e mr[i2] = i1
+  // index of reversible reactions
+  unordered_map<int, int> rr; // reversible reactions, containing only i1 as keys
 
   // loop over reactions
-  for (unsigned int i=0; i<tempreac.size(); i++)
+  for (unsigned int ia=0; ia<reactions.size(); ia++)
   {
-    if (mr[i]>0) continue; // skip a reaction that already got a match   
-    tempReaction ra = tempreac[i];
+    if (mr.count(ia)>0) continue; // skip a reaction that already got a match   
+    SimReaction * ra = reactions[ia];
+
+    std::cout << "Looking at reaction " << ra->name << std::endl;
 
       // loop over reactions greater than current one
-      for (unsigned int j=i+1; j<tempreac.size(); j++)
+      for (unsigned int ib=ia+1; ib<reactions.size(); ib++)
       {
-        if (mr[j]>0) continue; // skip a reaction that already got a match   
-        tempReaction rb = tempreac[j];     
+        if (mr.count(ib)>0) continue; // skip a reaction that already got a match   
+        SimReaction * rb = reactions[ib];     
 
         // first trivial condition to check if both reactions have the same number of reactants & products
-        if ( (ra.reactants.size() != rb.products.size()) || (rb.reactants.size() != ra.products.size()) ) continue;
+        if ( (ra->reactants.size() != rb->products.size()) || (rb->reactants.size() != ra->products.size()) ) continue;
 
         // if condition above not reached, then Na(reactants) = Nb(products) and vice versa
 
         // get reactants & products names into vectors of strings
         vector<String> astr_r, astr_p, bstr_r, bstr_p;
-        for (int k=0; k<ra.reactants.size(); k++) astr_r.push_back(ra.reactants[k].first->name);
-        for (int k=0; k<ra.products.size(); k++) astr_p.push_back(ra.products[k].first->name);
-        for (int k=0; k<rb.reactants.size(); k++) bstr_r.push_back(rb.reactants[k].first->name);
-        for (int k=0; k<rb.products.size(); k++) bstr_r.push_back(rb.products[k].first->name);
+        for (int k=0; k<ra->reactants.size(); k++) astr_r.push_back(ra->reactants[k]->name);
+        for (int k=0; k<ra->products.size(); k++) astr_p.push_back(ra->products[k]->name);
+        for (int k=0; k<rb->reactants.size(); k++) bstr_r.push_back(rb->reactants[k]->name);
+        for (int k=0; k<rb->products.size(); k++) bstr_p.push_back(rb->products[k]->name);
 
         // sort vectors of strings to allow for a direct comparison
         std::sort(astr_r.begin(), astr_r.end());
@@ -605,34 +607,62 @@ void Simulation::SearchReversibleReactionsInCsvFile(vector<tempReaction> temprea
         std::sort(bstr_r.begin(), bstr_r.end());
         std::sort(bstr_p.begin(), bstr_p.end());
 
-        bool shouldContinue;
+        bool doesMatch=true;
         // compare reactants of Ra with products of Rb
         for (int k=0; k<astr_r.size(); k++)
         {
-          if (astr_r[k] != bstr_p[k]){ shouldContinue = true; break; }
+          if (!astr_r[k].equalsIgnoreCase(bstr_p[k])){ doesMatch = false; break; }
         }
-        if (shouldContinue) continue; // move to next reaction
+        if (!doesMatch) continue; // move to next reaction
 
         // compare products of Ra with reactants of Rb
         for (int k=0; k<astr_p.size(); k++)
         {
-          if (astr_p[k] != bstr_r[k]){ shouldContinue = true; break; }
+          if (!astr_p[k].equalsIgnoreCase(bstr_r[k])){ doesMatch = false; break; }
         }
-        if (shouldContinue) continue; // move to next reaction
+        if (!doesMatch) continue; // move to next reaction
 
+        //std::cout << "Found match r" << ia << " <--> " << ib << std::endl;
         // If made it up to here, then Rb should be the reverse reaction of Ra
-        mr[j] = i+1; // I use 'i+1' instead of 'i' because default value maps is 0
-        // Hence value 0 is equivalent of 'no match found'
-      } // end j loop
-  } // end i loop
+        mr[ib] = ia;
+        rr[ia]++;
+        break; 
+      } // end ib loop
+  } // end ia loop
 
-
-std::cout << "MatchReversibleReactions:: " << std::endl;
+cout << "SearchReversibleReactionsInCsvFile:: Matching " << reactions.size() << " reactions." << endl;
+cout << "SearchReversibleReactionsInCsvFile:: found " << mr.size() << " matches." << std::endl;
 for (auto & [key, value]: mr)
 {
-  std::cout << "Reactions r" << value-- << " <--> r" << key << std::endl;
-
+  std::cout << "Reactions r" << value+1 << " <--> r" << key+1 << std::endl;
 }
+
+// remove reverse reactions + update booleen of reversible reactions
+int nrm=0; // keep track of reactions removed for a correct indexing
+unsigned int nreac = reactions.size();
+for (unsigned int i=0; i<nreac; i++)
+{
+  // if current reaction is reverse of another one, remove it
+  if (mr.count(i)>0)
+  {
+    cout << "removing reaction #" << i << endl;
+    reactions.remove(i-nrm);
+    nrm++;
+  }
+  // if current reaction has a reverse one, add it and update its isReversible value
+  if (rr.count(i)>0)
+  {
+    reactions[i-nrm]->isReversible = true;
+  }
+} // end loop
+
+cout << "Sanity Check:: new size = " << reactions.size() << endl;
+// sanity check
+for (auto& r : reactions)
+{
+  cout << r->name << endl;
+}
+
 
 }
 

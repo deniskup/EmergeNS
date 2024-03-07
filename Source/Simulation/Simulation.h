@@ -215,7 +215,7 @@ struct tempReaction // TO REMOVE, only temporary
   };
 
   void importCsvData(String); //tkosc.
-  void SearchReversibleReactionsInCsvFile(vector<tempReaction>);
+  void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
 
   
 
