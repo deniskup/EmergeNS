@@ -490,21 +490,25 @@ for (unsigned int i=1; i<database.size(); i++){
 
 
   // add reactants to simul->entities if not already added
-  for (auto [key, value]: mreactants)
+  for (auto [key, value]: mreactants) // key = name ; value = stoechiometry
   {
-    // add entity to simr
-    SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-    mye->name = key;
-    simr.add(mye);
-
-    // check whether current entity has already been added to simulation entity array
-    bool alreadyAdded2Sim = false;
-    for (auto& e : entities){ if (e->name==key) alreadyAdded2Sim = true; break;}
-
-    if (!alreadyAdded2Sim) // if current entity was not already stored
+    // repeat operation according to stoechiometry of entity
+    for (int stoe=0; stoe<value; stoe++)
     {
-      entities.add(mye);
-    }
+      // add entity to simr
+      SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      mye->name = key;
+      simr.add(mye);
+
+      // check whether current entity has already been added to simulation entity array
+      bool alreadyAdded2Sim = false;
+      for (auto& e : entities){ if (e->name==key) alreadyAdded2Sim = true; break;}
+
+      if (!alreadyAdded2Sim) // if current entity was not already stored
+      {
+        entities.add(mye);
+      }
+    } // end stoechiometry loop
   } // end loop over reactants
 
 
@@ -513,18 +517,21 @@ for (unsigned int i=1; i<database.size(); i++){
 //  for (it = mproducts.begin(); it != mproducts.end(); it++)
   for (auto [key, value]: mproducts)
   {
-    // add entity to simp
-    SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-    mye->name = key;
-    simp.add(mye);
-
-    bool alreadyAdded2Sim = false;
-    for (auto& e : entities) if (e->name==key){ alreadyAdded2Sim = true; break;}
-
-    if (!alreadyAdded2Sim) // if current entity was not already stored
+    for (int stoe=0; stoe<value; stoe++)
     {
-      entities.add(mye);
-    } // end if
+      // add entity to simp
+      SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      mye->name = key;
+      simp.add(mye);
+
+      bool alreadyAdded2Sim = false;
+      for (auto& e : entities) if (e->name==key){ alreadyAdded2Sim = true; break;}
+
+      if (!alreadyAdded2Sim) // if current entity was not already stored
+      {
+        entities.add(mye);
+      } // end if
+    } // end stoechio loop
   } // end loop over products
 
 
@@ -629,14 +636,14 @@ void Simulation::SearchReversibleReactionsInCsvFile()
         break; 
       } // end ib loop
   } // end ia loop
-
+/*
 cout << "SearchReversibleReactionsInCsvFile:: Matching " << reactions.size() << " reactions." << endl;
 cout << "SearchReversibleReactionsInCsvFile:: found " << mr.size() << " matches." << std::endl;
 for (auto & [key, value]: mr)
 {
   std::cout << "Reactions r" << value+1 << " <--> r" << key+1 << std::endl;
 }
-
+*/
 // remove reverse reactions + update booleen of reversible reactions
 int nrm=0; // keep track of reactions removed for a correct indexing
 unsigned int nreac = reactions.size();
@@ -645,7 +652,6 @@ for (unsigned int i=0; i<nreac; i++)
   // if current reaction is reverse of another one, remove it
   if (mr.count(i)>0)
   {
-    cout << "removing reaction #" << i << endl;
     reactions.remove(i-nrm);
     nrm++;
   }
