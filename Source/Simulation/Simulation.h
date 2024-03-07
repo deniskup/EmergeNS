@@ -71,6 +71,8 @@ class SimReaction
 public:
   SimReaction(Reaction *);
   SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate, float barrier = 0.f);
+  SimReaction(Array<SimEntity *> r, Array<SimEntity *> p, float assocRate, float dissocRate, float barrier = 0.f);
+
 
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON

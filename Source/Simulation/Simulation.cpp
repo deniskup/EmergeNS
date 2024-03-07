@@ -424,16 +424,16 @@ if (colr<0 || colp<0 || colstoi_r<0 || colstoi_p<0) throw juce::OSCFormatError("
 
 
 
-unordered_map<string, SimEntity*> myentities;
+unordered_map<String, SimEntity*> myentities;
 
  // temporary
- vector<tempReaction> tempreac;
+ ///vector<tempReaction> tempreac;
 
 // loop over all reactions, skipping first element (column names)
 for (unsigned int i=1; i<database.size(); i++){
   //cout << endl;
-  unordered_map<string, int> mreactants; // molecule name, stoechio
-  unordered_map<string, int> mproducts; // molecule name, stoechio
+  unordered_map<String, int> mreactants; // molecule name, stoechio
+  unordered_map<String, int> mproducts; // molecule name, stoechio
 
   // retrieve reactants stoechio coeff
   stringstream current_stoi(database[i][colstoi_r]);
@@ -446,7 +446,8 @@ for (unsigned int i=1; i<database.size(); i++){
   string r; int cr=0;
   while (getline(current_reac, r, '-')){
     if (cr>=vstoi.size()) throw runtime_error("mismatch between reactants and stoechio");
-    mreactants[r] = vstoi[cr];
+    String rbis = (string) r;
+    mreactants[rbis] = vstoi[cr];
     cr++;
   }
 
@@ -461,7 +462,8 @@ for (unsigned int i=1; i<database.size(); i++){
   string p; int cp=0;
   while (getline(current_prod, p, '-')){
     if (cp>=vstoi.size()) throw runtime_error("mismatch between products and stoechio");
-    mproducts[p] = vstoi[cp];
+    String pbis = (String) p;
+    mproducts[pbis] = vstoi[cp];
     cp++;
   }
 
@@ -483,57 +485,87 @@ for (unsigned int i=1; i<database.size(); i++){
 */
 
  
-  // store reactants, products and current reaction into SimEntity and SImReaction objects
+  // store reactants, products and current reaction into SimEntity and SimReaction objects
   // + add them to simulation instance
-  //SimEntity * simp; // product
-  vector<SimEntity*> simp(mproducts.size());
-  vector<SimEntity*> simr(mreactants.size()); // reactants
+  Array<SimEntity*> simp; // products
+  Array<SimEntity*> simr; // reactants
+  //simp.resize(mproducts.size());
+  //simr.resize(mreactants.size());
   unordered_map<string, int>::iterator it;
 
- 
 
   // add reactants to simul->entities if not already added
-  for (it = mreactants.begin(); it != mreactants.end(); it++)
+  //for (it = mreactants.begin(); it != mreactants.end(); it++)
+  for (auto [key, value]: mreactants)
   {
-    int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
-    simr[i] = myentities[it->first]; 
-    if (simr[i]==NULL) // if current entity was not already stored
+    // add entity to simr
+    SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+    mye->name = key;
+    simr.add(mye);
+
+    // check whether current entity has already been added to simulation entity array
+    //int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
+    bool alreadyAdded2Sim = false;
+    for (auto& e : entities){ if (e->name==key) alreadyAdded2Sim = true; break;}
+
+    if (!alreadyAdded2Sim) // if current entity was not already stored
     {
-      myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      myentities[it->first]->name = it->first;
-      simr[i] = myentities[it->first];
-      entities.add(simr[i]);
+      //myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      //myentities[it->first]->name = it->first;
+      ///SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      //simr[i] = myentities[it->first];
+      entities.add(mye);
     }
-  }
+  } // end loop over reactants
+
+
 
   // add products to simul->entities if not already added
-  for (it = mproducts.begin(); it != mproducts.end(); it++)
+//  for (it = mproducts.begin(); it != mproducts.end(); it++)
+  for (auto [key, value]: mproducts)
   {
-    int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
-    simp[i] = myentities[it->first];
-    if (simp[i]==NULL) // if current entity was not already stored
+    SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+    mye->name = key;
+    simp.add(mye);
+
+    //int i = std::distance(mreactants.begin(), it); // retrieve current index of loop
+    //simp[i] = myentities[it->first];
+    bool alreadyAdded2Sim = false;
+    for (auto& e : entities) if (e->name==key){ alreadyAdded2Sim = true; break;}
+
+    if (!alreadyAdded2Sim) // if current entity was not already stored
     {
-      myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      myentities[it->first]->name = it->first;
-      simp[i] = myentities[it->first]; 
-      entities.add(simp[i]);
-    }
-  }
+      //myentities[it->first] = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      //myentities[it->first]->name = it->first;
+      //simp[i] = myentities[it->first]; 
+      //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      entities.add(mye);
+    } // end if
+  } // end loop over products
+
+
+// check
+for (const auto& r: simr){std::cout << "reactant name : " << r->name << std::endl;}
+for (const auto& p: simp){std::cout << "product name : " << p->name << std::endl;}
+
 
   // add the current reaction to simul->reactions
-///  SimReaction * reac = new SimReaction(simr[0], simr[1], simp, 1., 1., 0.);
-///  reac->name = reac->reactant1->name + " + " + reac->reactant2->name + " = " + reac->product->name;
-///  reactions.add(reac); // use dumb values at init for the moment
-  tempReaction tr;
-  for (it = mreactants.begin(); it != mreactants.end(); it++) tr.reactants.push_back(make_pair(myentities[it->first], it->second));
-  for (it = mproducts.begin(); it != mproducts.end(); it++) tr.products.push_back(make_pair(myentities[it->first], it->second));
-  tempreac.push_back(tr);
+  SimReaction * reac = new SimReaction(simr, simp, 1., 1.); // use dumb rate values 
+  reac->isReversible = false;
+  reactions.add(reac); 
+//  tempReaction tr;
+  //for (it = mreactants.begin(); it != mreactants.end(); it++) tr.reactants.push_back(make_pair(myentities[it->first], it->second));
+  //for (it = mproducts.begin(); it != mproducts.end(); it++) tr.products.push_back(make_pair(myentities[it->first], it->second));
+  //tempreac.push_back(tr);
 
 } // end reaction loop
 
+// check
+for (const auto& r : reactions) std::cout << r->name << std::endl;
+
 
 // check for reversible reactions stored as two separate reactions
-SearchReversibleReactionsInCsvFile(tempreac);
+//SearchReversibleReactionsInCsvFile(tempreac);
 
 ready = true;
 updateParams();
@@ -547,6 +579,11 @@ loadToManualMode();
 }
 
 
+// struct tempReaction // TO REMOVE, only temporary
+//  {
+//    vector<pair<SimEntity*, int>> reactants;
+//    vector<pair<SimEntity*, int>> products;
+//  };
 
 
 
@@ -567,38 +604,53 @@ void Simulation::SearchReversibleReactionsInCsvFile(vector<tempReaction> temprea
       {
         if (mr[j]>0) continue; // skip a reaction that already got a match   
         tempReaction rb = tempreac[j];     
+
+        // first trivial condition to check if both reactions have the same number of reactants & products
         if ( (ra.reactants.size() != rb.products.size()) || (rb.reactants.size() != ra.products.size()) ) continue;
+
         // if condition above not reached, then Na(reactants) = Nb(products) and vice versa
+
+        // get reactants & products names into vectors of strings
         vector<String> astr_r, astr_p, bstr_r, bstr_p;
         for (int k=0; k<ra.reactants.size(); k++) astr_r.push_back(ra.reactants[k].first->name);
         for (int k=0; k<ra.products.size(); k++) astr_p.push_back(ra.products[k].first->name);
         for (int k=0; k<rb.reactants.size(); k++) bstr_r.push_back(rb.reactants[k].first->name);
         for (int k=0; k<rb.products.size(); k++) bstr_r.push_back(rb.products[k].first->name);
+
         // sort vectors of strings to allow for a direct comparison
         std::sort(astr_r.begin(), astr_r.end());
         std::sort(astr_p.begin(), astr_p.end());
         std::sort(bstr_r.begin(), bstr_r.end());
         std::sort(bstr_p.begin(), bstr_p.end());
+
         bool shouldContinue;
         // compare reactants of Ra with products of Rb
         for (int k=0; k<astr_r.size(); k++)
         {
           if (astr_r[k] != bstr_p[k]){ shouldContinue = true; break; }
         }
-        if (shouldContinue) continue;
+        if (shouldContinue) continue; // move to next reaction
+
         // compare products of Ra with reactants of Rb
         for (int k=0; k<astr_p.size(); k++)
         {
           if (astr_p[k] != bstr_r[k]){ shouldContinue = true; break; }
         }
-        if (shouldContinue) continue;
+        if (shouldContinue) continue; // move to next reaction
 
-        // If made it up to here, then Rb is the reverse reaction of Ra
-        mr[j]++;
-
+        // If made it up to here, then Rb should be the reverse reaction of Ra
+        mr[j] = i+1; // I use 'i+1' instead of 'i' because default value maps is 0
+        // Hence value 0 is equivalent of 'no match found'
       } // end j loop
   } // end i loop
 
+
+std::cout << "MatchReversibleReactions:: " << std::endl;
+for (auto & [key, value]: mr)
+{
+  std::cout << "Reactions r" << value-- << " <--> r" << key << std::endl;
+
+}
 
 }
 
@@ -1748,6 +1800,14 @@ SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate
   products.add(p);
   setName();
 }
+
+SimReaction::SimReaction(Array<SimEntity*> mReac, Array<SimEntity *> mProd, float aRate, float dRate, float barrier) : assocRate(aRate), dissocRate(dRate), energy(barrier)
+{
+  for (auto& r: mReac) reactants.add(r);
+  for (auto& p: mProd) products.add(p);
+  setName();
+}
+
 
 SimReaction::SimReaction(var data)
 {
