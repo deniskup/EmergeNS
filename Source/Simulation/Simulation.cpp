@@ -360,7 +360,7 @@ void Simulation::importFromManual()
   updateParams();
 }
 
-//tkosc
+
 
 void Simulation::importCsvData(String filename) 
 {
@@ -437,12 +437,12 @@ for (unsigned int i=1; i<database.size(); i++){
   stringstream current_stoi(database[i][colstoi_r]);
   string stoi;
   vector<int> vstoi;
-  while (getline(current_stoi, stoi, '-')) vstoi.push_back(atoi(stoi.c_str()));
+  while (getline(current_stoi, stoi, '_')) vstoi.push_back(atoi(stoi.c_str()));
   
   // retrieve reactants and associate them to their stoechio
   stringstream current_reac(database[i][colr]);
   string r; int cr=0;
-  while (getline(current_reac, r, '-')){
+  while (getline(current_reac, r, '_')){
     if (cr>=vstoi.size()) throw runtime_error("mismatch between reactants and stoechio");
     String rbis = (string) r;
     mreactants[rbis] = vstoi[cr];
@@ -453,12 +453,12 @@ for (unsigned int i=1; i<database.size(); i++){
   // retrieve products stoechio coeff
   stringstream current_stoi2(database[i][colstoi_p]);
   stoi.clear(); vstoi.clear();
-  while (getline(current_stoi2, stoi, '-')) vstoi.push_back(atoi(stoi.c_str()));
+  while (getline(current_stoi2, stoi, '_')) vstoi.push_back(atoi(stoi.c_str()));
 
   // retrieve reactants and associate them to their stoechio
   stringstream current_prod(database[i][colp]);
   string p; int cp=0;
-  while (getline(current_prod, p, '-')){
+  while (getline(current_prod, p, '_')){
     if (cp>=vstoi.size()) throw runtime_error("mismatch between products and stoechio");
     String pbis = (String) p;
     mproducts[pbis] = vstoi[cp];
@@ -488,7 +488,6 @@ for (unsigned int i=1; i<database.size(); i++){
   Array<SimEntity*> simp; // products
   Array<SimEntity*> simr; // reactants
 
-
   // add reactants to simul->entities if not already added
   for (auto [key, value]: mreactants) // key = name ; value = stoechiometry
   {
@@ -502,7 +501,14 @@ for (unsigned int i=1; i<database.size(); i++){
 
       // check whether current entity has already been added to simulation entity array
       bool alreadyAdded2Sim = false;
-      for (auto& e : entities){ if (e->name==key) alreadyAdded2Sim = true; break;}
+      for (auto& e : entities)
+      { 
+        if (e->name==key)
+        { 
+          alreadyAdded2Sim = true; 
+          break;
+        }
+      }
 
       if (!alreadyAdded2Sim) // if current entity was not already stored
       {
@@ -525,7 +531,14 @@ for (unsigned int i=1; i<database.size(); i++){
       simp.add(mye);
 
       bool alreadyAdded2Sim = false;
-      for (auto& e : entities) if (e->name==key){ alreadyAdded2Sim = true; break;}
+      for (auto& e : entities)
+      { 
+        if (e->name==key)
+        { 
+          alreadyAdded2Sim = true; 
+          break;
+        }
+      }
 
       if (!alreadyAdded2Sim) // if current entity was not already stored
       {
@@ -556,6 +569,9 @@ SearchReversibleReactionsInCsvFile();
 
 ready = true;
 updateParams();
+
+
+
 
 // directly import SimReactions and SimEntities as reaction and entity lists
 // into the graphics interface
@@ -588,7 +604,7 @@ void Simulation::SearchReversibleReactionsInCsvFile()
     if (mr.count(ia)>0) continue; // skip a reaction that already got a match   
     SimReaction * ra = reactions[ia];
 
-    std::cout << "Looking at reaction " << ra->name << std::endl;
+    //std::cout << "Looking at reaction " << ra->name << std::endl;
 
       // loop over reactions greater than current one
       for (unsigned int ib=ia+1; ib<reactions.size(); ib++)
@@ -636,6 +652,7 @@ void Simulation::SearchReversibleReactionsInCsvFile()
         break; 
       } // end ib loop
   } // end ia loop
+
 /*
 cout << "SearchReversibleReactionsInCsvFile:: Matching " << reactions.size() << " reactions." << endl;
 cout << "SearchReversibleReactionsInCsvFile:: found " << mr.size() << " matches." << std::endl;
@@ -644,6 +661,7 @@ for (auto & [key, value]: mr)
   std::cout << "Reactions r" << value+1 << " <--> r" << key+1 << std::endl;
 }
 */
+
 // remove reverse reactions + update booleen of reversible reactions
 int nrm=0; // keep track of reactions removed for a correct indexing
 unsigned int nreac = reactions.size();
@@ -662,12 +680,21 @@ for (unsigned int i=0; i<nreac; i++)
   }
 } // end loop
 
-cout << "Sanity Check:: new size = " << reactions.size() << endl;
+/*
 // sanity check
+cout << "Sanity Check:: new size = " << reactions.size() << endl;
+cout << "--- Irreversible reactions information ---" << endl;
+int nirr=0;
 for (auto& r : reactions)
 {
-  cout << r->name << endl;
+  if (r->isReversible){ cout << r->name << endl; nirr++;}
 }
+cout << "SearchReversibleReactionsInCsvFile:: Has " << reactions.size() << " reactions, with " << nirr << " irreversible" << endl;
+*/
+
+// basic printings
+LOG("end parsing csv file");
+LOG("has " + to_string(entities.size()) + " entites & " + to_string(reactions.size()) + " reactions.");
 
 
 }
