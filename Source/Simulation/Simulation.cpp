@@ -1447,22 +1447,27 @@ void SimReaction::setName()
 {
   name = "";
   // reactant1->name + "+" + reactant2->name + "=" + product->name;
+  bool first=true;
   for (auto &ent : reactants)
   {
-    name += ent->name;
-    if (ent != reactants.getLast())
+     if (!first)
     {
       name += "+";
     }
+    name += ent->name;
+   
+    first=false;
   }
   name += "=";
+  first=true;
   for (auto &ent : products)
   {
-    name += ent->name;
-    if (ent != products.getLast())
+     if (!first)
     {
       name += "+";
     }
+    name += ent->name;
+    first=false;
   }
 }
 
