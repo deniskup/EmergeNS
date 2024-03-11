@@ -427,6 +427,8 @@ unordered_map<String, SimEntity*> myentities;
  // temporary
  ///vector<tempReaction> tempreac;
 
+ int entID=0; // id of entities
+
 // loop over all reactions, skipping first element (column names)
 for (unsigned int i=1; i<database.size(); i++){
   //cout << endl;
@@ -495,9 +497,9 @@ for (unsigned int i=1; i<database.size(); i++){
     for (int stoe=0; stoe<value; stoe++)
     {
       // add entity to simr
-      SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      mye->name = key;
-      simr.add(mye);
+      //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      //mye->name = key;
+      //simr.add(mye);
 
       // check whether current entity has already been added to simulation entity array
       bool alreadyAdded2Sim = false;
@@ -506,14 +508,21 @@ for (unsigned int i=1; i<database.size(); i++){
         if (e->name==key)
         { 
           alreadyAdded2Sim = true; 
+          simr.add(e);
           break;
         }
       }
 
-      if (!alreadyAdded2Sim) // if current entity was not already stored
-      {
+      if (!alreadyAdded2Sim) // if current entity was not already stored, init a new one
+        {
+        SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+        mye->name = key; 
+        mye->id = entID; mye->idSAT = entID;
+        simr.add(mye);
         entities.add(mye);
-      }
+        entID++;
+        }
+
     } // end stoechiometry loop
   } // end loop over reactants
 
@@ -526,9 +535,9 @@ for (unsigned int i=1; i<database.size(); i++){
     for (int stoe=0; stoe<value; stoe++)
     {
       // add entity to simp
-      SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      mye->name = key;
-      simp.add(mye);
+      //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+      //mye->name = key;
+      //simp.add(mye);
 
       bool alreadyAdded2Sim = false;
       for (auto& e : entities)
@@ -536,14 +545,21 @@ for (unsigned int i=1; i<database.size(); i++){
         if (e->name==key)
         { 
           alreadyAdded2Sim = true; 
+          simp.add(e);
           break;
         }
       }
 
-      if (!alreadyAdded2Sim) // if current entity was not already stored
-      {
+      if (!alreadyAdded2Sim) // if current entity was not already stored, init a new one
+        {
+        SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
+        mye->name = key; 
+        mye->id = entID; mye->idSAT = entID;
+        simp.add(mye);
         entities.add(mye);
-      } // end if
+        entID++;
+        } // end if
+
     } // end stoechio loop
   } // end loop over products
 
@@ -560,12 +576,19 @@ for (unsigned int i=1; i<database.size(); i++){
 
 } // end reaction loop
 
-// check
-//for (const auto& r : reactions) std::cout << r->name << std::endl;
-
 
 // check for reversible reactions stored as two separate reactions
 SearchReversibleReactionsInCsvFile();
+
+// sanity check
+/*
+for (const auto& r : reactions)
+  {
+  cout << "adding reaction name " << r->name << endl;
+  for (auto& e: r->reactants) cout << "\thas reactant " << e->idSAT << endl;
+  for (auto& e: r->products) cout << "\thas product " << e->idSAT << endl;
+  } 
+*/
 
 ready = true;
 updateParams();
