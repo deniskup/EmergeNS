@@ -491,7 +491,7 @@ for (unsigned int i=1; i<database.size(); i++){
   Array<SimEntity*> simr; // reactants
 
   // add reactants to simul->entities if not already added
-  for (auto [mmane, stoe]: mreactants) 
+  for (auto [mname, stoe]: mreactants) 
   {
     // repeat operation according to stoechiometry of entity
     for (int s=0; s<stoe; s++)
@@ -505,7 +505,7 @@ for (unsigned int i=1; i<database.size(); i++){
       bool alreadyAdded2Sim = false;
       for (auto& e : entities)
       { 
-        if (e->name==mmane)
+        if (e->name==mname)
         { 
           alreadyAdded2Sim = true; 
           simr.add(e);
@@ -516,7 +516,7 @@ for (unsigned int i=1; i<database.size(); i++){
       if (!alreadyAdded2Sim) // if current entity was not already stored, init a new one
         {
         SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-        mye->name = key; 
+        mye->name = mname; 
         mye->id = entID; mye->idSAT = entID;
         simr.add(mye);
         entities.add(mye);
