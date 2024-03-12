@@ -491,21 +491,21 @@ for (unsigned int i=1; i<database.size(); i++){
   Array<SimEntity*> simr; // reactants
 
   // add reactants to simul->entities if not already added
-  for (auto [key, value]: mreactants) // key = name ; value = stoechiometry
+  for (auto [mmane, stoe]: mreactants) 
   {
     // repeat operation according to stoechiometry of entity
-    for (int stoe=0; stoe<value; stoe++)
+    for (int s=0; s<stoe; s++)
     {
       // add entity to simr
       //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      //mye->name = key;
+      //mye->name = mmane;
       //simr.add(mye);
 
       // check whether current entity has already been added to simulation entity array
       bool alreadyAdded2Sim = false;
       for (auto& e : entities)
       { 
-        if (e->name==key)
+        if (e->name==mmane)
         { 
           alreadyAdded2Sim = true; 
           simr.add(e);
@@ -530,19 +530,19 @@ for (unsigned int i=1; i<database.size(); i++){
 
   // add products to simul->entities if not already added
 //  for (it = mproducts.begin(); it != mproducts.end(); it++)
-  for (auto [key, value]: mproducts)
+  for (auto [mname, stoe]: mproducts)
   {
-    for (int stoe=0; stoe<value; stoe++)
+    for (int s=0; s<stoe; s++)
     {
       // add entity to simp
       //SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-      //mye->name = key;
+      //mye->name = mname;
       //simp.add(mye);
 
       bool alreadyAdded2Sim = false;
       for (auto& e : entities)
       { 
-        if (e->name==key)
+        if (e->name==mname)
         { 
           alreadyAdded2Sim = true; 
           simp.add(e);
@@ -553,7 +553,7 @@ for (unsigned int i=1; i<database.size(); i++){
       if (!alreadyAdded2Sim) // if current entity was not already stored, init a new one
         {
         SimEntity * mye = new SimEntity(false, 1., 0., 0., 0.);  // use dumb value at initialization for the moment
-        mye->name = key; 
+        mye->name = mname; 
         mye->id = entID; mye->idSAT = entID;
         simp.add(mye);
         entities.add(mye);
