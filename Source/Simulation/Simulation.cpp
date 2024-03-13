@@ -615,6 +615,8 @@ loadToManualMode();
 
 void Simulation::SearchReversibleReactionsInCsvFile()
 {
+  LOG("Initial composition : " + to_string(entities.size()) + " entites & " + to_string(reactions.size()) + " reactions.");
+
 
   // reactions index that were found to match 
   unordered_map<int, int> mr; // matches by convention i2 with i1 (with i2>i1), i.e mr[i2] = i1
@@ -716,8 +718,7 @@ cout << "SearchReversibleReactionsInCsvFile:: Has " << reactions.size() << " rea
 */
 
 // basic printings
-LOG("end parsing csv file");
-LOG("has " + to_string(entities.size()) + " entites & " + to_string(reactions.size()) + " reactions.");
+LOG("Final composition : " + to_string(entities.size()) + " entites & " + to_string(reactions.size()) + " reactions.");
 
 
 }
