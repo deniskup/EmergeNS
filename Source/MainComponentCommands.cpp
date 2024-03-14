@@ -16,7 +16,8 @@ namespace NSCommandIDs
 	static const int fetchManual = 0x60008;
 	static const int renameReacs = 0x60009;
 	static const int computeCACs = 0x60010;
-	static const int steadyStates = 0x60011;
+	static const int parseCsvFile = 0x60011;
+	static const int steadyStates = 0x60012;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
