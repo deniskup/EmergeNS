@@ -59,6 +59,9 @@
         <FILE id="Qw1YRj" name="Settings.h" compile="0" resource="0" file="Source/Simulation/Settings.h"/>
         <FILE id="H8bR8k" name="Simulation.h" compile="0" resource="0" file="Source/Simulation/Simulation.h"/>
         <FILE id="p4F7v6" name="Simulation.cpp" compile="1" resource="0" file="Source/Simulation/Simulation.cpp"/>
+        <FILE id="DoXUOl" name="SteadyStates.cpp" compile="1" resource="0"
+              file="Source/Simulation/SteadyStates.cpp"/>
+        <FILE id="HxDELV" name="SteadyStates.h" compile="0" resource="0" file="Source/Simulation/SteadyStates.h"/>
         <FILE id="z28CFG" name="Statistics.cpp" compile="1" resource="0" file="Source/Simulation/Statistics.cpp"/>
         <FILE id="BUtSiN" name="Statistics.h" compile="0" resource="0" file="Source/Simulation/Statistics.h"/>
         <FILE id="bj1PHy" name="Util.cpp" compile="1" resource="0" file="Source/Simulation/Util.cpp"/>

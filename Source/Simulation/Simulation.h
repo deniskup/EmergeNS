@@ -3,6 +3,7 @@
 #pragma once
 #include <JuceHeader.h>
 #include "PAC.h"
+#include "SteadyStates.h"
 using namespace juce;
 using namespace std;
 

@@ -51,6 +51,7 @@
 		D5AD34FD2951048E47C75452 /* IOKit.framework */ = {isa = PBXBuildFile; fileRef = 5310EA5CBC9D152C73B414D8; };
 		EAE544A3F8ADEDE5960C264D /* include_juce_core.mm */ = {isa = PBXBuildFile; fileRef = 2F15FC5A32107F5E083CD650; };
 		EB79FEB1008F17C067D2C223 /* PACUI.cpp */ = {isa = PBXBuildFile; fileRef = 48F73767A72C8D61533FE10D; };
+		ED7EFB546DF9D12CADD1C9B8 /* SteadyStates.cpp */ = {isa = PBXBuildFile; fileRef = FB681EF776A25D6A16BA5E15; };
 		F34AE2E6390E2FBC86D0636E /* Main.cpp */ = {isa = PBXBuildFile; fileRef = 9EC0C402F7E2CEA90A038BD5; };
 		F8513DF1E55AD29FEFB24087 /* EntityUI.cpp */ = {isa = PBXBuildFile; fileRef = 25A0FA04997684B70632E61E; };
 		FB4790411EA2687DD2287B98 /* WebKit.framework */ = {isa = PBXBuildFile; fileRef = AB18201445A02AF468BA32C2; };
@@ -76,6 +77,7 @@
 		337EDC1D47699E7B0471A30B /* SettingsUI.h */ /* SettingsUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SettingsUI.h; path = ../../Source/Simulation/ui/SettingsUI.h; sourceTree = SOURCE_ROOT; };
 		34775FCE8D79E259E7C2C223 /* GenerationUI.h */ /* GenerationUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenerationUI.h; path = ../../Source/Simulation/ui/GenerationUI.h; sourceTree = SOURCE_ROOT; };
 		3CE103B6FC49120DB71A055B /* Entity.h */ /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../Source/Simulation/Entity.h; sourceTree = SOURCE_ROOT; };
+		3D5690C29AFD8D43233EE051 /* SteadyStates.h */ /* SteadyStates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SteadyStates.h; path = ../../Source/Simulation/SteadyStates.h; sourceTree = SOURCE_ROOT; };
 		3EDAAD93A12A43D70A06086E /* juce_osc */ /* juce_osc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_osc; path = ../../JUCE/modules/juce_osc; sourceTree = SOURCE_ROOT; };
 		469CB20A298492D8A306BC2D /* ReactionUI.cpp */ /* ReactionUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionUI.cpp; path = ../../Source/Simulation/ui/ReactionUI.cpp; sourceTree = SOURCE_ROOT; };
 		48F73767A72C8D61533FE10D /* PACUI.cpp */ /* PACUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PACUI.cpp; path = ../../Source/Simulation/ui/PACUI.cpp; sourceTree = SOURCE_ROOT; };
@@ -140,6 +142,7 @@
 		EAECDD9F00C30A7B00179823 /* Reaction.cpp */ /* Reaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Reaction.cpp; path = ../../Source/Simulation/Reaction.cpp; sourceTree = SOURCE_ROOT; };
 		EE17CAEE78682725DB5BBF14 /* Settings.cpp */ /* Settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Settings.cpp; path = ../../Source/Simulation/Settings.cpp; sourceTree = SOURCE_ROOT; };
 		FB13568AE887A042A24B8615 /* include_juce_events.mm */ /* include_juce_events.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_events.mm; path = ../../JuceLibraryCode/include_juce_events.mm; sourceTree = SOURCE_ROOT; };
+		FB681EF776A25D6A16BA5E15 /* SteadyStates.cpp */ /* SteadyStates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SteadyStates.cpp; path = ../../Source/Simulation/SteadyStates.cpp; sourceTree = SOURCE_ROOT; };
 		FD64CFBD901EF3587D8EDD34 /* juce_data_structures */ /* juce_data_structures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_data_structures; path = ../../JUCE/modules/juce_data_structures; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -199,6 +202,8 @@
 				BB013463E169E25B6719AB6E,
 				20F925379B77181596EEDB1D,
 				2EEFFE67A4CBED22C54E8AFB,
+				FB681EF776A25D6A16BA5E15,
+				3D5690C29AFD8D43233EE051,
 				4DBF9F1D0A2E3555D7B43C2B,
 				BB3ACC0D2C9A265AD098E785,
 				086E2A709DB2A17B51F3FF2F,
@@ -444,6 +449,7 @@
 				03FC72E5065CEF9E0C533385,
 				7901AB2D0CDD47E7997BA379,
 				FD74B3EC7E4E6FF0A5C8EA84,
+				ED7EFB546DF9D12CADD1C9B8,
 				8EAC159D59629BBA0E4E8827,
 				04BEEEBD7B492EBEEC19CF12,
 				F34AE2E6390E2FBC86D0636E,
@@ -585,7 +591,7 @@
 					"NDEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x70008",
+					"JUCE_PROJUCER_VERSION=0x7000a",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
@@ -652,7 +658,7 @@
 					"DEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x70008",
+					"JUCE_PROJUCER_VERSION=0x7000a",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",

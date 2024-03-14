@@ -917,7 +917,7 @@ void PAClist::PACsWithZ3()
 
 	int maxSize = jmin(simul->entities.size(), simul->reactions.size(), Settings::getInstance()->maxDiameterPACs->intValue());
 
-	for (int pacSize = 3; pacSize <= maxSize; pacSize++)
+	for (int pacSize = 2; pacSize <= maxSize; pacSize++)
 	{
 		if (simul->shouldStop)
 			break;
