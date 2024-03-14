@@ -12,6 +12,9 @@ class Reaction;
 
 typedef Array<int> Compo;
 
+
+  
+
 class SimEntity
 {
 public:
@@ -69,6 +72,8 @@ class SimReaction
 public:
   SimReaction(Reaction *);
   SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float assocRate, float dissocRate, float barrier = 0.f);
+  SimReaction(Array<SimEntity *> r, Array<SimEntity *> p, float assocRate, float dissocRate, float barrier = 0.f);
+
 
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
@@ -203,6 +208,17 @@ public:
   // different from the default getJSONData and loadJSONData which only saves parameters.
   var toJSONData();
   void importJSONData(var data);
+  
+struct tempReaction // TO REMOVE, only temporary
+  {
+    vector<pair<SimEntity*, int>> reactants;
+    vector<pair<SimEntity*, int>> products;
+  };
+
+  void importCsvData(String); //tkosc.
+  void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
+
+  
 
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities

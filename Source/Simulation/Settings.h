@@ -35,6 +35,8 @@ public:
 
     BoolParameter *autoLoadLists;
 
+    StringParameter * csvFile; // if used, input excel file name
+
     //void onContainerParameterChanged(Parameter *p) override;
 
   //   class SettingsListener

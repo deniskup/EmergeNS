@@ -463,7 +463,8 @@ bool PAClist::computeCAC(set<int> pacIds)
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
 
 	// realistic coefs: coefs come from actual concentrations of entities
-	// declare concentrations variable
+	// declare concentrations variablefile:///home/thomas/Mod%C3%A8les/emergENS/EmergenceNS/ReactionSystems/z3constraints.smt2
+
 	for (auto &e : simul->entities)
 	{
 		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
@@ -484,7 +485,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	inputStream << "(get-model)\n";
 
 	inputStream.close();
-	// cout << "Calling Z3 on CAC "<<toString()<< endl;
+	 //cout << "Calling Z3" << endl;
 	system(z3Command.c_str());
 	// cout << "Z3 done" << endl;
 	ifstream outputStream(outputFile);
@@ -801,20 +802,25 @@ void PAClist::PACsWithZ3()
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
 
+
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
+
+	std::cout << inputFile << std::endl; // #erase
+	std::cout << outputFile << std::endl; // #erase
 
 	stringstream clauses;
 	//------------declare variables------------
 
 	// entities
-
+	LOG("has " + to_string(simul->entities.size()) + " entities.");
 	for (auto &e : simul->entities)
 	{
 		clauses << "(declare-const ent" << e->idSAT << " Bool)\n";
 	}
 
 	// reactions
+	LOG("has " + to_string(simul->reactions.size()) + " reactions.");
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(declare-const reac" << r->idSAT << " Bool)\n";
@@ -1085,8 +1091,9 @@ void PAClist::PACsWithZ3()
 	}
 	simul->PACsGenerated = true;
 
-	// continue with CACs
-	// computeCACs();
+	//computeCACs();
+
+
 }
 
 String PAClist::CACToString(CACType cac)

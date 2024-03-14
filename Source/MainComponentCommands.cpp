@@ -77,6 +77,11 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.setInfo("Compute CACs", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
+	
+	case NSCommandIDs::parseCsvFile:
+		result.setInfo("Parse CSV File", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
 
 	case NSCommandIDs::steadyStates:
 		result.setInfo("Compute Steady States", "", "General", result.readOnlyInKeyEditor);
@@ -105,8 +110,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists,
-		NSCommandIDs::renameReacs,
-		NSCommandIDs::steadyStates
+		NSCommandIDs::renameReacs
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -130,7 +134,6 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::renameReacs);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::steadyStates);
 	}
 	return menu;
 }
@@ -219,6 +222,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::renameReacs:
 	{
 		ReactionManager::getInstance()->autoRename();
+		//refresh interface
+	}
+	break;
+
+	case NSCommandIDs::parseCsvFile:
+	{
+		Simulation::getInstance()->importCsvData("");
 		//refresh interface
 	}
 	break;
