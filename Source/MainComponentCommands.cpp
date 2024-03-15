@@ -191,7 +191,7 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	case NSCommandIDs::steadyStates:
 	{
-		//Simulation::getInstance()->pacList->compute(3);
+		//TODO test function and print results
 	}
 	break;
 
