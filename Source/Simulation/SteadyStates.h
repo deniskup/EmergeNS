@@ -21,7 +21,7 @@ class Simulation;
 
 // };
 
-typedef Array<pair<SimEntity *, float>> witnessType; // a witness is a vector of concentrations
+typedef Array<float> State; // a witness is a vector of concentrations
 
 class SteadyStateslist : public Thread
 {
@@ -32,7 +32,7 @@ public:
 
     Simulation *simul;
 
-    Array<witnessType> steadyStates; // list of steady states
+    Array<State> steadyStates; // list of steady states
 
     Array<Array<float>> jacobiMatrix; // Jacobian matrix
 
@@ -43,13 +43,19 @@ public:
 
     void printSteadyStates(); // print list of SteadyStates to cout
 
+    string z3path = ""; // path to z3 executable
+
+    void computeSteadyStates(); // compute steady states
+
+    void setZ3path();   // set the path to z3 executable
+
     void computeWithZ3(); // compute steady states with Z3
 
     void computeJacobiMatrix(); // compute the Jacobian matrix
 
-    bool isStable(witnessType &w);
+   // bool isStable(witnessType &w);
 
-    void filterStableStates(); // filter out unstable states
+   // void filterStableStates(); // filter out unstable states
 
     // save/load to JSON
     var toJSONData();

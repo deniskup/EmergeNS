@@ -111,7 +111,9 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists,
-		NSCommandIDs::renameReacs
+		NSCommandIDs::renameReacs,
+		NSCommandIDs::parseCsvFile,
+		NSCommandIDs::steadyStates
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -135,6 +137,8 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::renameReacs);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::parseCsvFile);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::steadyStates);
 	}
 	return menu;
 }
@@ -192,7 +196,8 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::steadyStates:
 	{
 		//TODO test function and print results
-		Simulation::getInstance()->steadyStatesList->computeJacobiMatrix();
+		//Simulation::getInstance()->steadyStatesList->computeJacobiMatrix();
+		Simulation::getInstance()->steadyStatesList->computeSteadyStates();
 	}
 	break;
 
