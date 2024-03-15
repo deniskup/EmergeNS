@@ -20,7 +20,8 @@ juce_ImplementSingleton(Simulation)
                                curStep(0),
                                ready(false),
                                simNotifier(1000), // max messages async that can be sent at once
-                               pacList(new PAClist(this))
+                               pacList(new PAClist(this)),
+                               steadyStatesList(new SteadyStateslist(this))
 {
   simNotifier.dropMessageOnOverflow = false;
 

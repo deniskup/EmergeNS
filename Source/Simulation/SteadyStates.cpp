@@ -57,6 +57,19 @@ void SteadyStateslist::computeWithZ3()
 void SteeadyStateslist::computeJacobiMatrix()
 {
 	//compute Jacobian matrix
+
+	// Init a vector<string> of size #entites
+	vector<string> dcdt(simul->entities.size());
+
+	for (auto& r : simul->reactions)
+	{
+		vector<int> stoec(simul->entities.size(), 0);
+		for (auto& reactant : r.reactants)
+		{
+			stoec[reactant->id]++;
+		}
+
+	}
 	
 }
 

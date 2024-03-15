@@ -226,6 +226,10 @@ struct tempReaction // TO REMOVE, only temporary
 
   //void filterReached(); // compute reached entities and reactions and keep only those
 
+  // steady states
+  unique_ptr<SteadyStateslist> steadyStatesList;
+
+
   void clearParams();
   void updateParams(); // for display
   void fetchGenerate();
