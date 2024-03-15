@@ -427,24 +427,7 @@ void PAClist::clear()
 	maxRAC = 0.;
 }
 
-void PAClist::affectSATIds()
-{
-	// entities
-	int i = 0;
-	for (auto &e : simul->entities)
-	{
-		e->idSAT = i;
-		i++;
-	}
 
-	// reactions
-	int j = 0;
-	for (auto &r : simul->reactions)
-	{
-		r->idSAT = j;
-		j++;
-	}
-}
 
 // 0 for minisat, 1 for kissat, 2 for z3, 3 for CACs
 void PAClist::compute(int numSolv)
@@ -539,7 +522,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 void PAClist::computeCACs()
 {
 	setZ3path();
-	affectSATIds();
+	simul->affectSATIds();
 	// compute CACs among the PACs
 	LOG("Computing CACs");
 	int nbCAC = 0;
@@ -798,7 +781,7 @@ void PAClist::PACsWithZ3()
 
 	LOG("Using solver: Z3");
 	setZ3path();
-	affectSATIds();
+	simul->affectSATIds();
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
 

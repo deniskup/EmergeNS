@@ -726,6 +726,24 @@ LOG("Final composition : " + to_string(entities.size()) + " entites & " + to_str
 
 
 
+void Simulation::affectSATIds()
+{
+	// entities
+	int i = 0;
+	for (auto &e : entities)
+	{
+		e->idSAT = i;
+		i++;
+	}
+
+	// reactions
+	int j = 0;
+	for (auto &r : reactions)
+	{
+		r->idSAT = j;
+		j++;
+	}
+}
 
 
 void Simulation::computeRates()

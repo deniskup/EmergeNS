@@ -149,6 +149,9 @@ public:
 
   EnumParameter *setCAC;
 
+  void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
+
+
   // actually just equal to not generated
   //  bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
 
