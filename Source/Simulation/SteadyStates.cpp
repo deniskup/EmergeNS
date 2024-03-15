@@ -54,7 +54,7 @@ void SteadyStateslist::computeWithZ3()
 
 }
 
-void SteeadyStateslist::computeJacobiMatrix()
+void SteadyStateslist::computeJacobiMatrix()
 {
 	//compute Jacobian matrix
 
@@ -64,7 +64,7 @@ void SteeadyStateslist::computeJacobiMatrix()
 	for (auto& r : simul->reactions)
 	{
 		vector<int> stoec(simul->entities.size(), 0);
-		for (auto& reactant : r.reactants)
+		for (auto& reactant : r->reactants)
 		{
 			stoec[reactant->id]++;
 		}
