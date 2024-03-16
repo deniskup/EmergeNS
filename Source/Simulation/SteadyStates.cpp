@@ -92,7 +92,10 @@ void SteadyStateslist::setZ3path()
 		}
 	}
 	// add timeout
-	z3path += " -t:" + to_string(Settings::getInstance()->z3timeout->intValue());
+	int timeout=Settings::getInstance()->z3timeout->intValue();
+	if(timeout>0){
+		z3path += " -t:" + to_string(timeout);
+	}
 }
 
 void SteadyStateslist::computeWithZ3()

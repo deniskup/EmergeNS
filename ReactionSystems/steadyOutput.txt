@@ -1,2 +1,2 @@
-unknown
-(error "line 32 column 10: model is not available")
+unsat
+(error "line 23 column 10: model is not available")
