@@ -152,7 +152,7 @@ void SteadyStateslist::computeWithZ3()
 	// 1. concentrations are positive
 	for (auto &e : simul->entities)
 	{
-		clauses << "(assert (> conc" << e->idSAT << " 0))\n";
+		clauses << "(assert (>= conc" << e->idSAT << " 0))\n";
 	}
 
 	// 2. flows computation
