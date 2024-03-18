@@ -196,8 +196,8 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::steadyStates:
 	{
 		//TODO test function and print results
-		//Simulation::getInstance()->steadyStatesList->computeJacobiMatrix();
-		Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+		Simulation::getInstance()->steadyStatesList->computeJacobiMatrix();
+		//Simulation::getInstance()->steadyStatesList->computeSteadyStates();
 	}
 	break;
 

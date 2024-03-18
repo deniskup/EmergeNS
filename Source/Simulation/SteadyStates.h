@@ -34,7 +34,8 @@ public:
 
     Array<State> steadyStates; // list of steady states
 
-    Array<Array<float>> jacobiMatrix; // Jacobian matrix
+    Array<Array<string>> strJacobiMatrix; // Jacobian matrix (formal)
+    //Array<Array<float>> jacobiMatrix; // Jacobian matrix
 
     // the thread function
     void run() override;
@@ -51,7 +52,7 @@ public:
 
     void computeWithZ3(); // compute steady states with Z3
 
-    void computeJacobiMatrix(); // compute the Jacobian matrix
+    void computeJacobiMatrix(); // formally compute the Jacobian matrix (i.e matrix elements are strings)
 
    // bool isStable(witnessType &w);
 
@@ -60,4 +61,9 @@ public:
     // save/load to JSON
     var toJSONData();
     void fromJSONData(var data);
+
+
+    private :
+    string PartialDerivate(string, string); // formally calculate derivate of arg1 wrt arg2
+    void defaultJacobiMatrix(int); // default value of Jacobi matrix (size arg * arg) = null matrix
 };
