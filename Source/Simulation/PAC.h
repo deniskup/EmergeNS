@@ -8,6 +8,8 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
+map<string, float> parseModelReal(const string &output);
+
 class SATSolver{
 public:
     SATSolver(){};
