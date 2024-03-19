@@ -1,6 +1,8 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <sstream>
+#include <stack>
 using namespace juce;
 using namespace std;
 
@@ -8,18 +10,7 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
-// class SteadyStates
-// {
-// public:
-//     SteadyStates(){};
-//     SteadyStates(var data, Simulation *simul); // import from JSON, TODO
-//     ~SteadyStates(){
-//         entities.clear();
-//         reacDirs.clear();
-//     };
-//     var toJSONData();                 // save to JSON, TODO
 
-// };
 
 typedef Array<float> State; // a witness is a vector of concentrations
 
@@ -53,6 +44,7 @@ public:
     void computeWithZ3(); // compute steady states with Z3
 
     void computeJacobiMatrix(); // formally compute the Jacobian matrix (i.e matrix elements are strings)
+    Array<Array<float>> evaluateJacobiMatrix(Array<float>); // evaluate jacobi matrix at a specific input vector
 
    // bool isStable(witnessType &w);
 
@@ -66,4 +58,5 @@ public:
     private :
     string PartialDerivate(string, string); // formally calculate derivate of arg1 wrt arg2
     void defaultJacobiMatrix(int); // default value of Jacobi matrix (size arg * arg) = null matrix
+    //void evaluateFormalExpression
 };

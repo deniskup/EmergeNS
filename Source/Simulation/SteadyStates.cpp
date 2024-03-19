@@ -39,6 +39,7 @@ void SteadyStateslist::run()
 	// measure time
 	uint32 startTime = Time::getMillisecondCounter();
 
+
 	computeWithZ3();
 
 	// print execution time
@@ -53,6 +54,8 @@ void SteadyStateslist::run()
 	// update the parameters of the simulation in the UI
 	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
 }
+
+
 
 void SteadyStateslist::setZ3path()
 {
@@ -324,74 +327,6 @@ void SteadyStateslist::computeWithZ3()
 
 
 
-
-
-// input term should be of the form "k0*ci*...*cj + k1*ci*...*cj"
-string SteadyStateslist::PartialDerivate(string term, string var)
-{
-
-  ///cout << "input term (to derivate wrt to " << var <<  ") : " << term << endl;
-  
-  std::string partial = "";
-
-  // get ready for the while loop
-  std::stringstream sterm(term);
-  std::string subterm = "";
-
-  while(std::getline(sterm, subterm, '+')) // separate each term of the input string 
-  {
-	///cout << "\t\tsubterm " << subterm << endl;
-	if (subterm.find(var)==subterm.npos) 
-	{
-		///cout << "\tno dependence on " << var << endl;
-		partial += "0.+"; // remove case where derivate = 0 straight away
-		///cout << "\t\tpow = 0" << endl;
-		continue;
-	}
-
-  	stringstream ssubterm(subterm);
-  	string fac = "";
-
-	// find power dependence of current subterm wrt to variable
-  	int pow=0;
-  	while(getline(ssubterm, fac, '*'))
-    {
-    	if (fac==var) pow++;
-    }
-
-	///cout << "\t\tpower equals " << pow << endl;
-    
-    // init partial derivate of current subterm
-  	string subpartial = to_string(pow) + ".*" + subterm;
-
-	// reduce power of var by 1, by chanchin var into a '1'
-	subpartial.replace(subpartial.find(var.c_str()), var.size(), "1");
-
-   
-  // remove subsequent double products
-  while (subpartial.find("**")!=subpartial.npos) subpartial.replace(subpartial.find("**"), 2, "*");
-  
-  // remove first character and last characters if equal to '*'
-  //if (subpartial.at(0)=='*') subpartial.erase(0, 1);
-  //if (subpartial[subpartial.size()-1]=='*') subpartial.erase(subpartial.size()-1, 1);
-
-  // add subpartial to total partial derivative
-  partial += subpartial + "+";
-  ///cout << "\t\t" << subpartial << endl;
-  
-}
-
-// clean last character
-if (partial[partial.size()-1]=='+') partial.erase(partial.size()-1, 1);
-
-///cout << "output term : " << partial << endl << endl;
-
-return partial;
-
-} 
-
-
-
 void SteadyStateslist::defaultJacobiMatrix(int size)
 {
 
@@ -415,6 +350,73 @@ void SteadyStateslist::defaultJacobiMatrix(int size)
 
 
 
+// input term should be of the form "k0*ci*...*cj + k1*ci*...*cj"
+string SteadyStateslist::PartialDerivate(string term, string var)
+{
+
+  ///cout << "input term (to derivate wrt to " << var <<  ") : " << term << endl;
+  
+  std::string partial = "";
+
+  // get ready for the while loop
+  std::stringstream sterm(term);
+  std::string subterm = "";
+
+  while(getline(sterm, subterm, '#')) // separate each term of the input string 
+  {
+		///cout << "\t\tsubterm " << subterm << endl;
+		if (subterm.find(var)==subterm.npos) 
+		{
+			///cout << "\tno dependence on " << var << endl;
+			partial += "+0."; // remove case where derivate = 0 straight away
+			///cout << "\t\tpow = 0" << endl;
+			continue;
+		}
+
+  	stringstream ssubterm(subterm);
+  	string fac = "";
+
+		// find power dependence of current subterm wrt to variable
+  	int pow=0;
+  	while(getline(ssubterm, fac, '*'))
+    {
+    	if (fac==var) pow++;
+    }
+
+		///cout << "\t\tpower equals " << pow << endl;
+    
+    // init partial derivate of current subterm
+  	string subpartial = subterm + "*" + to_string(pow) + ".";
+
+		// reduce power of var by 1, by chanchin var into a '1'
+		subpartial.replace(subpartial.find(var.c_str()), var.size(), "1.");
+
+   
+  	// remove subsequent double products
+  	while (subpartial.find("**")!=subpartial.npos) subpartial.replace(subpartial.find("**"), 2, "*");
+  
+  	// remove first character and last characters if equal to '*'
+  	//if (subpartial.at(0)=='*') subpartial.erase(0, 1);
+  	//if (subpartial[subpartial.size()-1]=='*') subpartial.erase(subpartial.size()-1, 1);
+
+  	// add subpartial to total partial derivative
+  	partial += subpartial;
+  	///cout << "\t\t" << subpartial << endl;
+  
+}
+
+// clean last character
+if (partial[partial.size()-1]=='+') partial.erase(partial.size()-1, 1);
+
+///cout << "output term : " << partial << endl << endl;
+
+return partial;
+
+} 
+
+
+
+
 void SteadyStateslist::computeJacobiMatrix()
 {
 
@@ -427,8 +429,7 @@ void SteadyStateslist::computeJacobiMatrix()
 	// init jacobi matrix with "0." only
 	defaultJacobiMatrix(simul->entities.size());
 
-
-	cout << "simu  has " << simul->entities.size() << " entites" << endl;
+	//cout << "simu  has " << simul->entities.size() << " entites" << endl;
 
 
 	for (auto& r : simul->reactions)
@@ -481,26 +482,33 @@ void SteadyStateslist::computeJacobiMatrix()
 			//cout << "\tbackward factor associated : " << fac_backward << endl;
 		}
 
-		// add forward or backward factors to time derivate of concentrations
+		// add forward or backward terms to time derivate of concentrations
+		//bool isFirst=true;
+		string sep="#";
 		for (auto& [id, st] : stoec)
 		{
 			if (st<0) // reactant case
 			{
-				dcdt[id] += to_string(st) + ".*" + fac_forward + "+";
-				if (r->isReversible) dcdt[id] += to_string(abs(st)) + "*" + fac_backward + "+";
+				dcdt[id] += sep + to_string(st) + ".*" + fac_forward;
+				if (r->isReversible) dcdt[id] += sep + "+" + to_string(abs(st)) + "*" + fac_backward;
 			}
 			if (st>0) // product case
 			{
-				dcdt[id] += to_string(st) + ".*" + fac_forward + "+";
-				if (r->isReversible) dcdt[id] += to_string(-st) + "*" + fac_backward + "+";
+				dcdt[id] += sep + "+" + to_string(st) + ".*" + fac_forward;
+				if (r->isReversible) dcdt[id] += sep + to_string(-st) + "*" + fac_backward;
 			}
+			// if (isFirst)
+			// 	{
+			// 		isFirst=false;
+			// 		sep="#";
+			// 	}
 		}
 	} // end reaction loop
 
-	// remove last character '+'
+	// remove first character '#'
 	for (auto& der : dcdt)
 	{
-		if (der[der.size()-1]=='+') der.erase(der.size()-1, 1);
+		if (der[0]=='#') der.erase(0, 1);
 		//cout << der << endl;
 	}
 
@@ -520,23 +528,234 @@ void SteadyStateslist::computeJacobiMatrix()
 	}
 
 
-	// sanity check
-	for (auto& cp : dcdt) cout << cp << endl;
-	cout << endl;
-	for (auto& line : strJacobiMatrix)
+	// // sanity check
+	// for (auto& cp : dcdt) cout << cp << endl;
+	// cout << endl;
+	// for (auto& line : strJacobiMatrix)
+	// {
+	// 	for (auto& el : line) cout << el << ";;\t";
+	// 	cout << endl;
+	// }
+
+	// test evaluate jacobi matrix
+	Array<float> witness = {1., 2., 3., 4.};
+	Array<Array<float>> jacobiMatrix = evaluateJacobiMatrix(witness);
+
+
+  // sanity check
+	for (auto& line : jacobiMatrix)
 	{
-		for (auto& el : line) cout << el << ";;\t";
+		for (auto& el : line) cout << el << "\t";
 		cout << endl;
 	}
-
-
-	// call function evaluer_expression de chatGPT
-	// ne pas oublier de résoudre les multiplications par -1
-	// astuce
-
 	
 
+} // end computeJacobiMatrix
+
+
+
+
+
+// Function to check if a character is an operator
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
 }
+
+// Fonction pour effectuer une opération entre deux opérandes
+float applyOperation(float a, float b, char op) {
+    switch (op) {
+        case '+':
+            return (a + b);
+        case '-':
+            return (a - b);
+        case '*':
+            return (a * b);
+        case '/':
+            if (b != 0)
+                return (a / b);
+            else
+                throw  juce::OSCFormatError("Division par zéro !");
+        default:
+            throw juce::OSCFormatError("Opérateur invalide !");
+    }
+}
+
+
+
+// Fonction pour évaluer une expression formelle
+float evaluateExpression(const string& expr)
+{
+	// case where string to evaluate starts with '+' or '-' will be pathological
+	// --> add operand '0.' at the beginning of the string
+	string expression = expr;
+  if (expression[0] == '-' || expression[0] == '+') expression = "0." + expression;
+
+  stack<float> operandStack;
+  stack<char> operatorStack;
+
+  for (size_t i = 0; i < expression.length(); ++i)
+	{
+    if (expression[i] == ' ') continue; // Ignore spaces
+
+    if (isdigit(expression[i])) // first case : character is a digit
+		{
+      // Extract operand of expression
+      string operandStr;
+      while (i < expression.length() && (isdigit(expression[i]) || expression[i]=='.' )) 
+			{
+       	operandStr += expression[i];
+        i++;
+      }
+      i--;
+
+			// convert current chain into a float and put it in the operand stack
+      operandStack.push(stof(operandStr));
+			//cout << "\tadded operand " << operandStr << " converted to " << stof(operandStr) << endl;
+    } 
+
+		else if (expression[i] == '(') // 2nd case : open bracket --> put it in the operator stack
+		{
+      operatorStack.push(expression[i]);
+    } 
+
+		else if (expression[i] == ')')  // 3rd case : closing bracket
+		{
+			// when encountering a closing brancket, perform operations downward until open bracket is reached
+      while (!operatorStack.empty() && operatorStack.top() != '(')
+			{
+        char op = operatorStack.top(); // get most upstream operator
+        operatorStack.pop(); // remove it from the stack
+
+				// get two most upstream operands
+        float operand2 = operandStack.top(); 
+        operandStack.pop();
+        float operand1 = operandStack.top();
+        operandStack.pop();
+
+				// perform operation, then stack it
+        operandStack.push(applyOperation(operand1, operand2, op));
+      }
+
+      // Pop opening bracket
+      if (!operatorStack.empty()) operatorStack.pop();
+      else // pathological case
+			{
+				LOG("Warning : found non paired bracket in formal expression --> return 0. Jacobi Matrix is suspect");
+				return 0.;
+			}
+    } // end closing bracket case
+
+
+		// 4th case : when encountering an operator, perform calculation respecting priority rules
+		else if (isOperator(expression[i])) 
+		{
+      while (!operatorStack.empty() && 
+             isOperator(operatorStack.top()) && 
+             ((expression[i] != '*' && expression[i] != '/') || 
+             (operatorStack.top() == '*' || operatorStack.top() == '/'))) 
+			{
+       	char op = operatorStack.top();
+       	operatorStack.pop();
+
+       	float operand2 = operandStack.top();
+       	operandStack.pop();
+
+       	float operand1 = operandStack.top();
+       	operandStack.pop();
+
+       	operandStack.push(applyOperation(operand1, operand2, op));
+
+				//cout << "op --> " << operand1 << " " << op << " " << operand2 << " = " << applyOperation(operand1, operand2, op) << endl;
+
+    	}
+
+      // Mettre l'opérateur dans la pile des opérateurs
+      operatorStack.push(expression[i]);
+    } 
+		
+		else 
+		{
+			string bad = {expression[i]};
+      LOG("Warning : non-valid caracter in expression, return 0. ! Bad wharacter is : '" + bad + "'");
+			return 0.;
+    }
+
+  } // end for loop over characters of string expression
+
+    // Perform remaining operations
+    while (!operatorStack.empty()) 
+		{
+      char op = operatorStack.top();
+      operatorStack.pop();
+
+      float operand2 = operandStack.top();
+      operandStack.pop();
+
+      float operand1 = operandStack.top();
+      operandStack.pop();
+
+      operandStack.push(applyOperation(operand1, operand2, op));
+
+			//cout << "op --> " << operand1 << " " << op << " " << operand2 << " = " << applyOperation(operand1, operand2, op) << endl;
+    }
+
+    // operand stack eventually contains result of operations
+		///cout << expression << " = " << operandStack.top() << endl;
+    if (!operandStack.empty()) return operandStack.top();
+    else 
+		{
+			LOG("Warning : Problem when evaluating string expression");
+			return 0.;
+		}
+} // end func
+
+
+
+
+
+
+Array<Array<float>> SteadyStateslist::evaluateJacobiMatrix(Array<float> witness)
+{		
+	Array<Array<float>> nullJacobiMatrix;
+	Array<Array<float>> jacobiMatrix;
+	// init jacobi matrix as null matrix
+	for (unsigned int i=0; i<strJacobiMatrix.size(); i++)
+	{
+		Array<float> line;
+		for (unsigned int j=0; j<strJacobiMatrix.size(); j++) line.add(0.);
+		nullJacobiMatrix.add(line);
+	}
+	jacobiMatrix = nullJacobiMatrix;
+
+
+	for (unsigned int i=0; i<strJacobiMatrix.size(); i++)
+	{
+		for (unsigned int j=0; j<strJacobiMatrix.getReference(i).size(); j++) // a bit overkilled, Jacobi Matrix should be square and its size correct
+		{
+			string expression = strJacobiMatrix.getReference(i).getReference(j);
+
+			//cout << "will evaluate string '" << expression << "'" << endl;
+ 
+			// replace variables c_i by their numerical values contained in witness
+			for (int k=0; k<strJacobiMatrix.size(); k++)
+			{
+				string var = "c" + to_string(k);
+				while (expression.find(var.c_str()) != expression.npos)
+				{
+					expression.replace(expression.find(var.c_str()), var.size(), to_string(witness[k]));
+				}
+			}
+
+			float eval = evaluateExpression(expression);
+			jacobiMatrix.getReference(i).getReference(j) = eval;
+		} // end loop over Jacobi matrix columns
+	} // end loop over Jacobi matrix lines
+
+  return jacobiMatrix;
+
+} // end func
+
+
 
 
 var SteadyStateslist::toJSONData()
