@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include <sstream>
 #include <stack>
+#include <Eigen/Dense>
 using namespace juce;
 using namespace std;
 

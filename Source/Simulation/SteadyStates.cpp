@@ -543,11 +543,11 @@ void SteadyStateslist::computeJacobiMatrix()
 
 
   // sanity check
-	for (auto& line : jacobiMatrix)
-	{
-		for (auto& el : line) cout << el << "\t";
-		cout << endl;
-	}
+	// for (auto& line : jacobiMatrix)
+	// {
+	// 	for (auto& el : line) cout << el << "\t";
+	// 	cout << endl;
+	// }
 	
 
 } // end computeJacobiMatrix
