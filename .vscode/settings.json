@@ -70,7 +70,8 @@
       "charconv": "cpp",
       "compare": "cpp",
       "concepts": "cpp",
-      "numbers": "cpp"
+      "numbers": "cpp",
+      "core": "cpp"
     },
     "C_Cpp.intelliSenseEngine": "Tag Parser",
   //  "C_Cpp.intelliSenseEngine" : "default",

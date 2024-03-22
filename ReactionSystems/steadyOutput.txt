@@ -1,0 +1,17 @@
+sat
+(
+  (define-fun conc1 () Real
+    1.8609105?)
+  (define-fun flow2 () Real
+    0.2495265?)
+  (define-fun flow3 () Real
+    (- 0.1699094?))
+  (define-fun conc4 () Real
+    7.9617069?)
+  (define-fun flow1 () Real
+    0.3014272?)
+  (define-fun conc2 () Real
+    3.8391721?)
+  (define-fun conc3 () Real
+    5.1900677?)
+)

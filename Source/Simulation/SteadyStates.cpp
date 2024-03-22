@@ -7,9 +7,21 @@
 #include "PAC.h" //for ParseModel
 
 using namespace std;
+//using Eigen::MatrixXd;
+
+
 
 ///////////////////////////////////////////////////////////
-///////////////// STEADY STate List ////////////////////////
+///////////////// out of class functions /////////////////
+///////////////////////////////////////////////////////////
+
+
+
+
+
+
+///////////////////////////////////////////////////////////
+///////////////// SteadyStatelist METHODS /////////////////
 ///////////////////////////////////////////////////////////
 
 SteadyStateslist::~SteadyStateslist()
@@ -40,9 +52,9 @@ void SteadyStateslist::run()
 	uint32 startTime = Time::getMillisecondCounter();
 
 
-	computeWithZ3();
+	computeWithZ3(); // search for stationnary points
 
-	// print execution time
+	// print z3 execution time
 	simul->isComputing = false;
 	if (simul->shouldStop)
 	{
@@ -53,6 +65,13 @@ void SteadyStateslist::run()
 	simul->shouldUpdate = true;
 	// update the parameters of the simulation in the UI
 	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
+
+	// stability of stationnary points
+
+	computeJacobiMatrix(); // formally calculate jacobi matrix of chemical reaction network
+
+	keepStableSteadyStatesOnly();
+
 }
 
 
@@ -324,10 +343,482 @@ void SteadyStateslist::computeWithZ3()
 	//	simul->PACsGenerated = true;
 }
 
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
+{
+
+	// affect id to entities in reactions
+	simul->affectSATIds();
+
+	// init rate vector
+	vector<Polynom> rateVector(simul->entities.size());
+
+	// loop over reactions
+	for (auto& r: simul->reactions)
+	{
+
+		// build forward monom of current reaction
+		Monom forwardRate;
+		forwardRate.coef = r->assocRate;
+		for (auto& reac : r->reactants)
+		{
+			forwardRate.variables.add(reac->idSAT);
+		}
+
+		// build backward monom of current reaction (if reversible)
+		Monom backwardRate;
+		if (r->isReversible)
+		{
+			backwardRate.coef = r->dissocRate;
+			for (auto& prod : r->products)
+			{
+				backwardRate.variables.add(prod->idSAT);
+			}
+		}
+
+
+		// retrieve stoechiometry vector of current reaction
+		//cout << "In reaction " << r->idSAT << endl;
+		map<int, int> stoec;
+		for (auto& reactant : r->reactants)
+		{
+			stoec[reactant->idSAT]--;
+		}
+		for (auto& product : r->products)
+		{
+			stoec[product->idSAT]++;
+		}
+
+
+		// add forward/backward monoms for each entity involved in the reaction
+		for (auto& [entID, sto] : stoec)
+		{
+			// entity is either consumed or produced by reaction
+			Monom mon = forwardRate; 
+			// multiply reaction rate by stoechiometry and add it to the rate vector
+			mon.coef *= (float) sto; // multiply rate constant by stoechiometry 
+			rateVector[entID].add(mon);
+
+			// opposite if reaction is reversible  
+			if (r->isReversible) 
+			{
+				Monom mon = backwardRate;
+				// multiply reaction rate by (-stoechiometry) and add it to the rate vector 
+				mon.coef *= -1. * (float) sto; // multiply rate constant by opposite stoechiometry 
+				rateVector[entID].add(mon);
+			}
+		} // end loop over stoechiometry vector of reaction
+ 
+	} // end reaction loop
+
+
+	// // sanity check
+	// int ic=-1;
+	// for (auto& polynomrate : rateVector) 
+	// {
+	// 	ic++;
+	// 	cout << "entity #" << ic << endl;
+	// 	for (auto& monom : polynomrate)
+	// 		{
+	// 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
+	// 			cout << "\tvar =";
+	// 			for (auto& id : monom.variables) cout << "  " << id;
+	// 			cout << endl;
+	// 		} 
+	// 		cout << "------------" << endl;
+	// } // end sanity check
+
+	return rateVector;
+
+
+} // end func computeConcentrationRateVector
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+// function to derivate a Polynom (arg1) wrt to variable var (arg2)
+Polynom SteadyStateslist::partialDerivate(const Polynom& poly, int var)
+{
+  Polynom derivative;
+	// loop over each monom of the polynom
+  for (const auto& monom : poly) 
+	{
+    int count = 0; 
+    for (int v : monom.variables) if (v == var) count++; // count occurence of variable var
+
+    // if variable is there
+    if (count > 0)
+		{ 
+      Monom derivedMonom;
+      derivedMonom.coef = monom.coef * (float) count; // power of variable is absorbed in constant coef
+      // Rebuild liste of variables removing one occurence of var
+      bool removedOne = false;
+      for (int v : monom.variables) 
+			{
+        if (v == var && !removedOne)
+				{
+          removedOne = true; // remove one occurence of var
+        } 
+				else 
+				{
+          derivedMonom.variables.add(v);
+         }
+      } // end loop over monom variables
+
+      derivative.add(derivedMonom); // add monom derivative to polynome derivative
+    } // end if var is present in monom to derivate
+  } // end monom loop
+  
+	return derivative;
+} // end partialDerivate
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+void SteadyStateslist::computeJacobiMatrix()
+{
+	// retrieve vector of entity rates
+	vector<Polynom> rateVector = computeConcentrationRateVector();
+
+	// set size of jacobi matrix
+	//jacobiMatrix.resize(simul->entities.size(), simul->entities.size());
+
+	// calculate jacobi matrix
+	for (unsigned int i=0; i<simul->entities.size(); i++)
+	{
+		Array<Polynom> column;
+		for (unsigned int j=0; j<simul->entities.size(); j++)
+		{
+			Polynom derivate = partialDerivate(rateVector[i], j);
+			column.add(derivate);  // add element i,j
+		}		
+		// add column
+		jacobiMatrix.add(column);
+	}
+
+	// sanity check
+	// for (unsigned int i=0; i<simul->entities.size(); i++)
+	// {
+	// 	for (unsigned int j=0; j<simul->entities.size(); j++)
+	// 	{
+	// 		cout << "########## element (" << i << "," << j << ") ##########" << endl;
+	// 		for (auto& monom : jacobiMatrix[i][j])
+	// 		{
+	// 			cout << "-----------\tcoeff = " << monom.coef << endl;
+	// 			cout << "\tvar =";
+	// 			for (auto& id : monom.variables) cout << "  " << id;
+	// 			cout << endl;
+	// 		} 
+	// 	}
+	// } // end sanity check
+
+
+}
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
 
 
 
-void SteadyStateslist::defaultJacobiMatrix(int size)
+float SteadyStateslist::evaluatePolynom(Polynom poly, State witness) 
+{
+	float val=0.;
+
+	for (Monom monom : poly)
+	{
+		float f = monom.coef;
+		for (int ient : monom.variables) f *= witness[ient];
+		val += f;
+	}
+ 	return val;
+}
+
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+
+Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
+{
+	Eigen::MatrixXd jm(witness.size(), witness.size());
+
+	//cout << "witness size : " << witness.size() << endl;
+	//cout << "JM size : " << jacobiMatrix.size() << endl;
+
+	if (jacobiMatrix.size()!=witness.size()) 
+	{
+		LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
+		return jm;
+	}
+
+	for (unsigned int i=0; i<witness.size(); i++)
+	{
+		if (jacobiMatrix[i].size()!=witness.size()) 
+		{
+			LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
+			return jm;
+		}
+		for (unsigned int j=0; j<witness.size(); j++)
+		{
+			jm(i,j) = evaluatePolynom(jacobiMatrix[i][j], witness);
+		}
+	}
+
+	return jm;
+}
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
+{
+
+	// init eigen solver objects for current jacobi matrix
+	Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+
+	if (es.info() == Eigen::Success) // if diagonalization succeeded
+	//if (1==0)
+	{
+		//cout << "diagonalization succeeded" << endl;
+
+		// retrieve eigenvalues if diagonalized
+		Eigen::VectorXcd  ev =  es.eigenvalues();
+
+		//cout << "eigenvalues are " << endl;
+		//cout << ev << endl;
+
+		bool isCertain = true;
+		for (unsigned int i=0; i<ev.size(); i++) // loop over eigenvalues
+		{
+			if (ev[i].real() > epsilon) return false; // one positive eigenvalue implies non stability 
+			if (abs(ev[i].real()) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
+		}
+		if (isCertain) return true;
+		else
+		{
+			LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
+			return true;
+		}
+
+	} // end if diagonalization succeeded
+
+	else // diagonalization failed
+	{
+		// in this case try triangularization
+		// cout << "trying triangularization" << endl;
+
+	
+		Eigen::RealSchur<Eigen::MatrixXd> rs;
+	  rs.compute(jm); 
+
+		//cout << "triangular matrix : " << endl;
+		//cout << rs.matrixT() << endl;
+
+    if (rs.info() == Eigen::Success) // if triangularization succeeded
+		{
+			//cout << "triangularization succeeded" << endl;
+
+			// retrieve diagonal values if diagonalized
+			Array<float> diag;
+			Eigen::MatrixXd tMatrix = rs.matrixT();
+			for (int i=0; i<tMatrix.rows(); i++) diag.add(tMatrix(i,i));
+
+			// sparse signs of diagonal elements
+			bool isCertain = true;
+			for (unsigned int i=0; i<diag.size(); i++) // loop over eigenvalues
+			{
+				if (diag[i] > epsilon) return false; // one positive eigenvalue implies non stability 
+				if (abs(diag[i]) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
+			}
+			if (isCertain) return true;
+			else
+			{
+				LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
+				return true;
+			}
+		} // end if diagonalization succeeded
+	} // end non diagonalizable case
+
+	return true; // try to habe a bit cleaner function to avoid such return default value
+
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+
+void SteadyStateslist::keepStableSteadyStatesOnly()
+{
+
+	// State mywit = {1.861, 3.839, 5.189, 7.960};
+	// Array<State> testSteadyStates;
+	// testSteadyStates.add(mywit);
+
+	int nss = steadyStates.size();
+
+	// loop over steady states
+	int dynamicIndex=-1;
+	for (State& witness : steadyStates)
+	{
+		dynamicIndex++;
+
+		if (witness.size() != simul->entities.size()) continue; // this case occurs and bothers me
+
+		// cout << "at steady state : (";
+		// for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
+		// cout << ")\n";
+
+		// evaluate jacobi matrx at current state vector
+		Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
+
+		//cout << "---- Jacobi Matrix ----" << endl;
+		//cout << jm << endl;
+
+		// is steady state stable ?
+		bool stable = isStable(jm);
+		if (!stable)
+		{
+			steadyStates.remove(dynamicIndex);
+			dynamicIndex--;
+		}
+	}
+
+LOG("System has " + to_string(nss) + " steady states, and " + to_string(steadyStates.size()) + " are stable.");
+	
+}
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+
+
+var SteadyStateslist::toJSONData()
+{
+	var data = new DynamicObject();
+	// // save cycles
+	// var cyclesData;
+	// for (auto &c : cycles)
+	// {
+	// 	cyclesData.append(c->toJSONData());
+	// }
+	// data.getDynamicObject()->setProperty("cycles", cyclesData);
+	// // save CACs
+	// var CACsData;
+	// for (auto &c : CACs)
+	// {
+	// 	CACsData.append(CACtoJSON(c));
+	// }
+	// data.getDynamicObject()->setProperty("CACs", CACsData);
+	return data;
+}
+
+void SteadyStateslist::fromJSONData(var data)
+{
+	// clear();
+	// // load cycles
+	// if (!data.getDynamicObject()->hasProperty("cycles") || !data["cycles"].isArray())
+	// {
+	// 	LOGWARNING("wrong PAC format in SteadyStateslist JSON data");
+	// 	return;
+	// }
+	// Array<var> *cyclesData = data["cycles"].getArray();
+	// for (auto &c : *cyclesData)
+	// {
+	// 	PAC *pac = new PAC(c, simul);
+	// 	cycles.add(pac);
+	// }
+	// simul->PACsGenerated = true;
+	// // load CACs
+	// if (!data.getDynamicObject()->hasProperty("CACs") || !data["CACs"].isArray())
+	// {
+	// 	LOGWARNING("Wrong CAC format in SteadyStateslist JSON data");
+	// 	return;
+	// }
+	// Array<var> *CACsData = data["CACs"].getArray();
+	// for (auto &c : *CACsData)
+	// {
+	// 	CACType cac = JSONtoCAC(c);
+	// 	CACs.add(cac);
+	// 	if (cac.first.size() == 1)
+	// 		basicCACs.add(*(cac.first.begin()));
+	// }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////:
+///////////////////////////////////////////////////////////////////:
+////////////////////  OLD MATERIAL  /////////////////////////////////:
+///////////////////////////////////////////////////////////////////:
+///////////////////////////////////////////////////////////////////:
+
+
+
+
+// Function to check if a character is an operator
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+
+// Function to perform an operation between two input operands
+float applyOperation(float a, float b, char op) {
+    switch (op) {
+        case '+':
+            return (a + b);
+        case '-':
+            return (a - b);
+        case '*':
+            return (a * b);
+        case '/':
+            if (b != 0)
+                return (a / b);
+            else
+                throw  juce::OSCFormatError("Division par zéro !");
+        default:
+            throw juce::OSCFormatError("Opérateur invalide !");
+    }
+}
+
+
+
+
+
+
+void SteadyStateslist::defaultJacobiMatrix_old(int size)
 {
 
 // init Jacobi Matrix with 0 only
@@ -336,10 +827,10 @@ void SteadyStateslist::defaultJacobiMatrix(int size)
 	{
 		Array<string> zeroline;
 		for (int j=0; j<size; j++) zeroline.add("0.");
-		strJacobiMatrix.add(zeroline);
+		strJacobiMatrix_old.add(zeroline);
 	}
 
-	// for (auto& line : strJacobiMatrix)
+	// for (auto& line : strJacobiMatrix_old)
 	// {
 	// 	for (auto& el : line) cout << el << "  ";
 	// 	cout << endl; 
@@ -351,7 +842,7 @@ void SteadyStateslist::defaultJacobiMatrix(int size)
 
 
 // input term should be of the form "k0*ci*...*cj + k1*ci*...*cj"
-string SteadyStateslist::PartialDerivate(string term, string var)
+string SteadyStateslist::PartialDerivate_old(string term, string var)
 {
 
   ///cout << "input term (to derivate wrt to " << var <<  ") : " << term << endl;
@@ -417,7 +908,7 @@ return partial;
 
 
 
-void SteadyStateslist::computeJacobiMatrix()
+void SteadyStateslist::computeJacobiMatrix_old()
 {
 
 	// affect id to entities in reactions
@@ -427,7 +918,7 @@ void SteadyStateslist::computeJacobiMatrix()
 	vector<string> dcdt(simul->entities.size());
 
 	// init jacobi matrix with "0." only
-	defaultJacobiMatrix(simul->entities.size());
+	defaultJacobiMatrix_old(simul->entities.size());
 
 	//cout << "simu  has " << simul->entities.size() << " entites" << endl;
 
@@ -497,11 +988,6 @@ void SteadyStateslist::computeJacobiMatrix()
 				dcdt[id] += sep + "+" + to_string(st) + ".*" + fac_forward;
 				if (r->isReversible) dcdt[id] += sep + to_string(-st) + "*" + fac_backward;
 			}
-			// if (isFirst)
-			// 	{
-			// 		isFirst=false;
-			// 		sep="#";
-			// 	}
 		}
 	} // end reaction loop
 
@@ -520,10 +1006,9 @@ void SteadyStateslist::computeJacobiMatrix()
 		for (unsigned int j=0; j<dcdt.size(); j++) // j is column index, i.e entities as variables
 		{
 			string var = "c" + to_string(j);
-			string partial = PartialDerivate(dcdt[i], var);
-			strJacobiMatrix.getReference(i).getReference(j) = partial;
-			//cout << "\t("<<i<<j<<") " + var + "  " + partial << "\t\t" << strJacobiMatrix[i][j] << endl;
-
+			string partial = PartialDerivate_old(dcdt[i], var);
+			strJacobiMatrix_old.getReference(i).getReference(j) = partial;
+			//cout << "\t("<<i<<j<<") " + var + "  " + partial << "\t\t" << strJacobiMatrix_old[i][j] << endl;
 		}
 	}
 
@@ -531,21 +1016,10 @@ void SteadyStateslist::computeJacobiMatrix()
 	// // sanity check
 	// for (auto& cp : dcdt) cout << cp << endl;
 	// cout << endl;
-	// for (auto& line : strJacobiMatrix)
+	// cout << "--- FORMAL JACOBI MATRIX ---" << endl;
+	// for (auto& line : strJacobiMatrix_old)
 	// {
 	// 	for (auto& el : line) cout << el << ";;\t";
-	// 	cout << endl;
-	// }
-
-	// test evaluate jacobi matrix
-	Array<float> witness = {1., 2., 3., 4.};
-	Array<Array<float>> jacobiMatrix = evaluateJacobiMatrix(witness);
-
-
-  // sanity check
-	// for (auto& line : jacobiMatrix)
-	// {
-	// 	for (auto& el : line) cout << el << "\t";
 	// 	cout << endl;
 	// }
 	
@@ -555,35 +1029,108 @@ void SteadyStateslist::computeJacobiMatrix()
 
 
 
-
-// Function to check if a character is an operator
-bool isOperator(char c) {
-    return (c == '+' || c == '-' || c == '*' || c == '/');
-}
-
-// Fonction pour effectuer une opération entre deux opérandes
-float applyOperation(float a, float b, char op) {
-    switch (op) {
-        case '+':
-            return (a + b);
-        case '-':
-            return (a - b);
-        case '*':
-            return (a * b);
-        case '/':
-            if (b != 0)
-                return (a / b);
-            else
-                throw  juce::OSCFormatError("Division par zéro !");
-        default:
-            throw juce::OSCFormatError("Opérateur invalide !");
-    }
+void SteadyStateslist::stableSteadyStates_old()
+{
+	for (auto& w : steadyStates)
+	{
+		bool stable = isStable_old(w);
+	}
 }
 
 
 
-// Fonction pour évaluer une expression formelle
-float evaluateExpression(const string& expr)
+
+bool SteadyStateslist::isStable_old(State witness)
+{
+
+	// implementation
+	// if jacobi matrix is diagonalizable, thn either :
+	// 1/ all eigenvalues have real parts strictly negative (smaller than epsilon) --> return true
+	// 2/ one eigenvalue has real part strictly positive (greater than epsilon) --> return false; 
+	// 3/ what if -epsilon <= eigenvalue <= epsilon ?
+
+	// if jacobi matrix can't be diogonalized, then triangularize it
+	// look at diagonal elements and same discussion as above holds
+
+	// if jacobi matrix triangularization failed for some reason, print warning for the moment.
+
+	Eigen::MatrixXd jm = evaluateJacobiMatrix_old(witness);
+
+	Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+	cout << "Diagonalizing jacobi matrix" << endl;
+
+	//if (es.info() == Eigen::Success)
+	if (1==0)
+	{
+		cout << "diagonalization succeeded" << endl;
+
+		// retrieve eigenvalues if diagonalized
+		Eigen::VectorXcd  ev =  es.eigenvalues();
+
+		bool isCertain = true;
+
+		for (unsigned int i=0; i<ev.size(); i++)
+		{
+			if (ev[i].real() > epsilon) return false;
+			if (abs(ev[i].real()) < epsilon) isCertain = false;
+		}
+
+		if (isCertain) return true;
+		else
+		{
+			LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
+			return true;
+		}
+
+	} // end if diagonalization succeeded
+
+	else 
+	{
+		cout << "diagonalization failed" << endl;
+		// in this case try triangularization
+	
+// condition below is false
+// chatGPT suggests instead 
+		// 	Eigen::HouseholderQR<Eigen::MatrixXd> qr;
+	  //   qr.compute(jm); // Décomposition QR de la matrice A
+
+    // if (!qr.householderQ().isUnitary() || !qr.matrixQR().upperTriangular()) 
+		// {
+		//  	LOG("Warning: pathological jacobi matrix, neither diagonalizable nor triangularizable, stability is assumed but not certain");
+    //   return true;
+	  // }
+		// else 
+		// {
+    // 	///Eigen::MatrixXd R = qr.matrixQR().triangularView<Eigen::Upper>(); // Retrieve R matrix (upper triangle)
+    // 	Eigen::MatrixXd Q = qr.householderQ(); // Retrieve orthogonal Q matrix
+    // 	Eigen::MatrixXd T = Q.transpose() * jm * Q; // Triangularisation of jacobi matrix
+
+		// 	// apply same discussion as diagonalizable case
+		// 	bool isCertain = true;
+		// 	for (unsigned int i=0; i<T.diagonal().size(); i++)
+		// 	{
+		// 		//if (T.diagonal(i).real() > epsilon) return false;
+		// 		//if (abs(T.diagonal(i).real()) < epsilon) isCertain = false;
+		// 	}
+		// 	if (isCertain) return true;
+		// 	else
+		// 	{
+		// 		LOG("Warning, too small diagonal element encountered, can't decide stability of stationnary point. Stability assumed !");
+		// 		return true;
+		// 	}
+		// } // end if success of triangularization
+	} // end triangularizable case
+
+	return true; // try to habe a bit cleaner function to avoid such return default value
+
+}
+
+
+
+
+
+// Fonction to evaluate a formal (polynomial) expression
+float SteadyStateslist::evaluateExpression_old(const string& expr)
 {
 	// case where string to evaluate starts with '+' or '-' will be pathological
 	// --> add operand '0.' at the beginning of the string
@@ -714,30 +1261,32 @@ float evaluateExpression(const string& expr)
 
 
 
-Array<Array<float>> SteadyStateslist::evaluateJacobiMatrix(Array<float> witness)
+
+//Array<Array<float>> SteadyStateslist::evaluateJacobiMatrix(Array<float> witness)
+Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix_old(Array<float> witness)
 {		
-	Array<Array<float>> nullJacobiMatrix;
-	Array<Array<float>> jacobiMatrix;
+	Eigen::MatrixXd nullJacobiMatrix(strJacobiMatrix_old.size(), strJacobiMatrix_old.size());
+	Eigen::MatrixXd jacobiMatrix(strJacobiMatrix_old.size(), strJacobiMatrix_old.size());
+
+
 	// init jacobi matrix as null matrix
-	for (unsigned int i=0; i<strJacobiMatrix.size(); i++)
+	for (unsigned int i=0; i<strJacobiMatrix_old.size(); i++)
 	{
-		Array<float> line;
-		for (unsigned int j=0; j<strJacobiMatrix.size(); j++) line.add(0.);
-		nullJacobiMatrix.add(line);
+		for (unsigned int j=0; j<strJacobiMatrix_old.size(); j++) nullJacobiMatrix(i, j) = 0.;
 	}
 	jacobiMatrix = nullJacobiMatrix;
 
 
-	for (unsigned int i=0; i<strJacobiMatrix.size(); i++)
+	for (unsigned int i=0; i<strJacobiMatrix_old.size(); i++)
 	{
-		for (unsigned int j=0; j<strJacobiMatrix.getReference(i).size(); j++) // a bit overkilled, Jacobi Matrix should be square and its size correct
+		for (unsigned int j=0; j<strJacobiMatrix_old.getReference(i).size(); j++) // a bit overkilled, Jacobi Matrix should be square and its size correct
 		{
-			string expression = strJacobiMatrix.getReference(i).getReference(j);
+			string expression = strJacobiMatrix_old.getReference(i).getReference(j);
 
 			//cout << "will evaluate string '" << expression << "'" << endl;
  
 			// replace variables c_i by their numerical values contained in witness
-			for (int k=0; k<strJacobiMatrix.size(); k++)
+			for (int k=0; k<strJacobiMatrix_old.size(); k++)
 			{
 				string var = "c" + to_string(k);
 				while (expression.find(var.c_str()) != expression.npos)
@@ -746,10 +1295,17 @@ Array<Array<float>> SteadyStateslist::evaluateJacobiMatrix(Array<float> witness)
 				}
 			}
 
-			float eval = evaluateExpression(expression);
-			jacobiMatrix.getReference(i).getReference(j) = eval;
+			float eval = evaluateExpression_old(expression);
+			//jacobiMatrix.getReference(i).getReference(j) = eval;
+			jacobiMatrix(i, j) = eval;
 		} // end loop over Jacobi matrix columns
 	} // end loop over Jacobi matrix lines
+
+	cout << "\n-----EVALUATED JACOBI MATRIX-----" << endl;
+	cout << "witness = ( ";
+	for (unsigned int i=0; i<witness.size(); i++) cout << witness[i] << "  ";
+	cout << " )." << endl;
+	cout << jacobiMatrix << endl;
 
   return jacobiMatrix;
 
@@ -758,54 +1314,8 @@ Array<Array<float>> SteadyStateslist::evaluateJacobiMatrix(Array<float> witness)
 
 
 
-var SteadyStateslist::toJSONData()
-{
-	var data = new DynamicObject();
-	// // save cycles
-	// var cyclesData;
-	// for (auto &c : cycles)
-	// {
-	// 	cyclesData.append(c->toJSONData());
-	// }
-	// data.getDynamicObject()->setProperty("cycles", cyclesData);
-	// // save CACs
-	// var CACsData;
-	// for (auto &c : CACs)
-	// {
-	// 	CACsData.append(CACtoJSON(c));
-	// }
-	// data.getDynamicObject()->setProperty("CACs", CACsData);
-	return data;
-}
 
-void SteadyStateslist::fromJSONData(var data)
-{
-	// clear();
-	// // load cycles
-	// if (!data.getDynamicObject()->hasProperty("cycles") || !data["cycles"].isArray())
-	// {
-	// 	LOGWARNING("wrong PAC format in SteadyStateslist JSON data");
-	// 	return;
-	// }
-	// Array<var> *cyclesData = data["cycles"].getArray();
-	// for (auto &c : *cyclesData)
-	// {
-	// 	PAC *pac = new PAC(c, simul);
-	// 	cycles.add(pac);
-	// }
-	// simul->PACsGenerated = true;
-	// // load CACs
-	// if (!data.getDynamicObject()->hasProperty("CACs") || !data["CACs"].isArray())
-	// {
-	// 	LOGWARNING("Wrong CAC format in SteadyStateslist JSON data");
-	// 	return;
-	// }
-	// Array<var> *CACsData = data["CACs"].getArray();
-	// for (auto &c : *CACsData)
-	// {
-	// 	CACType cac = JSONtoCAC(c);
-	// 	CACs.add(cac);
-	// 	if (cac.first.size() == 1)
-	// 		basicCACs.add(*(cac.first.begin()));
-	// }
-}
+
+
+
+	
