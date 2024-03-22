@@ -38,7 +38,6 @@ public:
 
     Array<State> steadyStates; // list of steady states
 
-    Array<Array<string>> strJacobiMatrix_old; // Jacobian matrix (formal)
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 
 
@@ -76,24 +75,11 @@ public:
 
 
 
-    // old public material
-    void computeJacobiMatrix_old(); // formally compute the Jacobian matrix (i.e matrix elements are strings)
-    //Array<Array<float>> evaluateJacobiMatrix(Array<float>); // evaluate jacobi matrix at a specific input vector
-    Eigen::MatrixXd evaluateJacobiMatrix_old(Array<float>); // evaluate jacobi matrix at a specific input vector
-    void stableSteadyStates_old();
-    bool isStable_old(State);
-
-
     private :
     vector<Polynom> computeConcentrationRateVector();
     Polynom partialDerivate(const Polynom&, int); // calculate derivate of input polynom (arg1) wrt to variable var (arg2)
     float evaluatePolynom(Polynom, State); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
     bool isStable(Eigen::MatrixXd&);
-
-    // old private material
-    string PartialDerivate_old(string, string); // formally calculate derivate of arg1 wrt arg2
-    void defaultJacobiMatrix_old(int); // default value of Jacobi matrix (size arg * arg) = null matrix
-    float evaluateExpression_old(const string&); // Fonction to evaluate a formal (polynomial) expression
-    //void evaluateFormalExpression
+    
     double epsilon = 1e-5; // arbitrary small quantity
 };
