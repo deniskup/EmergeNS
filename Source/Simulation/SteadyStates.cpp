@@ -488,19 +488,21 @@ void SteadyStateslist::computeJacobiMatrix()
 	vector<Polynom> rateVector = computeConcentrationRateVector();
 
 	// set size of jacobi matrix
+	jacobiMatrix.clear();
 	//jacobiMatrix.resize(simul->entities.size(), simul->entities.size());
 
 	// calculate jacobi matrix
 	for (unsigned int i=0; i<simul->entities.size(); i++)
 	{
-		Array<Polynom> column;
+		Array<Polynom> line;
 		for (unsigned int j=0; j<simul->entities.size(); j++)
 		{
 			Polynom derivate = partialDerivate(rateVector[i], j);
-			column.add(derivate);  // add element i,j
+			//jacobiMatrix[i][j] = derivate;
+			line.add(derivate);  // add element i,j
 		}		
 		// add column
-		jacobiMatrix.add(column);
+		jacobiMatrix.add(line);
 	}
 
 	// sanity check
@@ -552,8 +554,8 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
 {
 	Eigen::MatrixXd jm(witness.size(), witness.size());
 
-	//cout << "witness size : " << witness.size() << endl;
-	//cout << "JM size : " << jacobiMatrix.size() << endl;
+	cout << "witness size : " << witness.size() << "\t";
+	cout << "JM size : " << jacobiMatrix.size() << endl;
 
 	if (jacobiMatrix.size()!=witness.size()) 
 	{
@@ -565,6 +567,8 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
 	{
 		if (jacobiMatrix[i].size()!=witness.size()) 
 		{
+			cout << "witness size : " << witness.size() << "\t";
+			cout << "JM column size : " << jacobiMatrix[i].size() << endl;
 			LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
 			return jm;
 		}
@@ -666,9 +670,6 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
 void SteadyStateslist::keepStableSteadyStatesOnly()
 {
 
-	// State mywit = {1.861, 3.839, 5.189, 7.960};
-	// Array<State> testSteadyStates;
-	// testSteadyStates.add(mywit);
 
 	int nss = steadyStates.size();
 
@@ -678,17 +679,17 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 	{
 		dynamicIndex++;
 
-		if (witness.size() != simul->entities.size()) continue; // this case occurs and bothers me
+		 cout << "at steady state : (";
+		 for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
+		 cout << ")\n";
 
-		// cout << "at steady state : (";
-		// for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
-		// cout << ")\n";
+		if (witness.size() != simul->entities.size()) continue; // this case occurs and bothers me
 
 		// evaluate jacobi matrx at current state vector
 		Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
 
-		//cout << "---- Jacobi Matrix ----" << endl;
-		//cout << jm << endl;
+		cout << "---- Jacobi Matrix ----" << endl;
+		cout << jm << endl;
 
 		// is steady state stable ?
 		bool stable = isStable(jm);
@@ -720,6 +721,20 @@ var SteadyStateslist::toJSONData()
 	// 	cyclesData.append(c->toJSONData());
 	// }
 	// data.getDynamicObject()->setProperty("cycles", cyclesData);
+
+	// save steady states
+	// var steadystateListData;
+	// for (auto &s : steadyStates)
+	// {
+	// 	var state = new DynamicObject();
+	// 	state.getDynamicObject()->setProperty("state", s);
+
+
+	// 	steadystateListData.append(state);
+	// }
+	// data.getDynamicObject()->setProperty("steadyStates!!", steadystateListData);
+
+
 	// // save CACs
 	// var CACsData;
 	// for (auto &c : CACs)

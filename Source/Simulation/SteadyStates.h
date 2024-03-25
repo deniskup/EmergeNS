@@ -61,24 +61,27 @@ public:
     Eigen::MatrixXd evaluateJacobiMatrix(State&); // evaluate jacobi matrix at a given concentration vector
 
     void keepStableSteadyStatesOnly(); // removes unstables steady states based on jacobi matrix eigenvalues criteria
-    
-
-    
-
-   
 
    // void filterStableStates(); // filter out unstable states
 
+
+
     // save/load to JSON
+
     var toJSONData();
+
     void fromJSONData(var data);
 
 
 
     private :
-    vector<Polynom> computeConcentrationRateVector();
+
+    vector<Polynom> computeConcentrationRateVector(); // calculates time derivative vector of concentration, assuming mass action kinetics
+
     Polynom partialDerivate(const Polynom&, int); // calculate derivate of input polynom (arg1) wrt to variable var (arg2)
+
     float evaluatePolynom(Polynom, State); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
+
     bool isStable(Eigen::MatrixXd&);
     
     double epsilon = 1e-5; // arbitrary small quantity
