@@ -589,71 +589,49 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
 bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
 {
 
-	// init eigen solver objects for current jacobi matrix
-	Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+	// as a general info, commands to diagonalize a matrix are :
+	// //init eigen solver objects for current jacobi matrix
+	// Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+	// if (es.info() == Eigen::Success) // if diagonalization succeeded
+	// {
+				// retrieve eigenvalues :
+				//cout << es.eigenvalues() << endl;
+				//cout << es.eigenvectors() << endl;
+	// 	// retrieve eigenvalues if diagonalized
+		//}
 
-	if (es.info() == Eigen::Success) // if diagonalization succeeded
-	//if (1==0)
-	{
-		//cout << "diagonalization succeeded" << endl;
+		// jacobi matrix should be always triangularizable on C
+		// so I directly reach this option without bothering on diagonalization
+		Eigen::ComplexSchur<Eigen::MatrixXd> cs;
+	  cs.compute(jm); 
 
-		// retrieve eigenvalues if diagonalized
-		Eigen::VectorXcd  ev =  es.eigenvalues();
-
-		//cout << "eigenvalues are " << endl;
-		//cout << ev << endl;
-
-		bool isCertain = true;
-		for (unsigned int i=0; i<ev.size(); i++) // loop over eigenvalues
+		// just in case it failed, print a warning
+		if (cs.info() != Eigen::Success)
 		{
-			if (ev[i].real() > epsilon) return false; // one positive eigenvalue implies non stability 
-			if (abs(ev[i].real()) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
+			LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, returning true by default");
+			return true;
 		}
-		if (isCertain) return true;
+
+		// retrieve upper triangular matrix
+		Eigen::MatrixXcd triang = cs.matrixT();
+
+		cout << "--------triang. of jacobi matrix---------" << endl;
+		cout << triang << endl;
+
+		// sparse signs of real part of diagonal elements
+		bool isCertain = true;
+		for (unsigned int i=0; i<triang.rows(); i++) // loop over eigenvalues
+		{
+			if (triang(i,i).real() > epsilon) return false; // one positive eigenvalue implies non stability 
+			if (abs(triang(i,i)) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
+		}
+		if (isCertain) return true; // no diagonal element too close from 0 and all negative
 		else
 		{
 			LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
 			return true;
 		}
-
-	} // end if diagonalization succeeded
-
-	else // diagonalization failed
-	{
-		// in this case try triangularization
-		// cout << "trying triangularization" << endl;
-
 	
-		Eigen::RealSchur<Eigen::MatrixXd> rs;
-	  rs.compute(jm); 
-
-		//cout << "triangular matrix : " << endl;
-		//cout << rs.matrixT() << endl;
-
-    if (rs.info() == Eigen::Success) // if triangularization succeeded
-		{
-			//cout << "triangularization succeeded" << endl;
-
-			// retrieve diagonal values if diagonalized
-			Array<float> diag;
-			Eigen::MatrixXd tMatrix = rs.matrixT();
-			for (int i=0; i<tMatrix.rows(); i++) diag.add(tMatrix(i,i));
-
-			// sparse signs of diagonal elements
-			bool isCertain = true;
-			for (unsigned int i=0; i<diag.size(); i++) // loop over eigenvalues
-			{
-				if (diag[i] > epsilon) return false; // one positive eigenvalue implies non stability 
-				if (abs(diag[i]) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
-			}
-			if (isCertain) return true;
-			else
-			{
-				LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
-				return true;
-			}
-		} // end if diagonalization succeeded
-	} // end non diagonalizable case
 
 	return true; // try to habe a bit cleaner function to avoid such return default value
 
@@ -683,7 +661,13 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 		 for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
 		 cout << ")\n";
 
-		if (witness.size() != simul->entities.size()) continue; // this case occurs and bothers me
+		if (witness.size() != simul->entities.size()) // this case occurs and bothers me, remove steady state by hand
+		{
+			steadyStates.remove(dynamicIndex);
+			dynamicIndex--;
+			continue; 
+		}
+		
 
 		// evaluate jacobi matrx at current state vector
 		Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
