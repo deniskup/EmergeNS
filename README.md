@@ -35,7 +35,13 @@ Possible errors and how to fix
 8. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
 /!\ Warning: on Mac use version 14 or less
 
-9. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
+Possible errors and how to fix
+
+   - ft2build.h missing  ->  in Projucer, add "/usr/include/freetype2" in the Header Search Paths of "Debug" and "Release" config of Linux MakeFile
+   - package gtk+ not found -> ```sudo apt-get install build-essential libgtk-3-dev```
+   - package webkit2gtk-4.0 not found -> ```sudo apt-get install libwebkit2gtk-4.0-dev```
+     
+10. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
 
 
 
