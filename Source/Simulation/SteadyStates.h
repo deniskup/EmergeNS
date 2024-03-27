@@ -36,7 +36,8 @@ public:
 
     Simulation *simul;
 
-    Array<State> steadyStates; // list of steady states
+    Array<State> steadyStates; // list of stable steady states
+    Array<State> partSteadyStates; // list of partially stable steady states
 
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 
@@ -82,7 +83,7 @@ public:
 
     float evaluatePolynom(Polynom, State); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
 
-    bool isStable(Eigen::MatrixXd&);
+    bool isStable(Eigen::MatrixXd&, State&);
     
-    double epsilon = 1e-10; // arbitrary small quantity
+    double epsilon = 1e-7; // arbitrary small quantity
 };

@@ -185,7 +185,7 @@ void SteadyStateslist::computeWithZ3()
 	{
 		clauses << "(assert (= flow" << r->idSAT << " (+";
 		// assocrate
-		clauses << fixed << setprecision(4) << " (* " << r->assocRate;
+		clauses << fixed << setprecision(5) << " (* " << r->assocRate;
 		for (auto &e : r->reactants)
 		{
 			clauses << " conc" << e->idSAT;
@@ -328,7 +328,7 @@ void SteadyStateslist::computeWithZ3()
 		out.precision(3);
 		out << fixed << "(";
   	for (auto& c : s) out << c << ", ";
-		out << "\b\b)";
+		out << ")";
 		LOG(out.str());
 	}
 
@@ -603,7 +603,7 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
 /////////////////////////////////////////////////////////////////////////:
 
 
-bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
+bool SteadyStateslist::isStable(Eigen::MatrixXd& jm, State& witness)
 {
 
 	// as a general info, commands to diagonalize a matrix are :
@@ -640,12 +640,21 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
 		for (unsigned int i=0; i<triang.rows(); i++) // loop over eigenvalues
 		{
 			if (triang(i,i).real() > epsilon) return false; // one positive eigenvalue implies non stability 
-			if (triang(i,i).real() <= epsilon && triang(i,i).real() > 0.)  isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
+			if (abs(triang(i,i).real()))  isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
 		}
-		if (isCertain) return true; // no diagonal element too close from 0 and all negative
+		if (isCertain) // no diagonal element too close from 0 and all negative
+		{
+			return true;
+		} 
 		else
 		{
-			LOG("Warning, too small eigenvalue encountered, can't decide stability of stationnary point. Stability assumed !");
+			LOG("WARNING, can't decide stability of stationnary point (assumed true) :");
+			ostringstream out;
+			out.precision(3);
+			out << fixed << "(";
+  		for (auto& c : witness) out << c << ", ";
+			out << ")";
+			LOG(out.str());
 			return true;
 		}
 	
@@ -671,7 +680,7 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 	// loop over steady states
 	for (int iw=steadyStates.size()-1; iw>=0; iw--)
 	{
-		State& witness = steadyStates.getReference(iw);
+		State witness = steadyStates.getReference(iw);
 
 		cout << "at steady state : (";
 		for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
@@ -690,7 +699,7 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 		cout << jm << endl;
 
 		// is steady state stable ?
-		bool stable = isStable(jm);
+		bool stable = isStable(jm, witness);
 		if (!stable) steadyStates.remove(iw);
 		
 	}
@@ -703,7 +712,7 @@ for (auto& s: steadyStates)
 	out.precision(3);
 	out << fixed << "(";
   for (auto& c : s) out << c << ", ";
-	out << ")\n";
+	out << ")";
 	LOG(out.str());
 }
 
