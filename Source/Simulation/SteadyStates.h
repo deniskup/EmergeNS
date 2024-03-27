@@ -84,5 +84,5 @@ public:
 
     bool isStable(Eigen::MatrixXd&);
     
-    double epsilon = 1e-5; // arbitrary small quantity
+    double epsilon = 1e-10; // arbitrary small quantity
 };

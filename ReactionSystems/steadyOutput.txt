@@ -1,38 +1,17 @@
-(error "line 34 column 59: unknown constant e-05")
 sat
 (
-  (define-fun flow2 () Real
-    1.0)
-  (define-fun flow3 () Real
-    0.0)
-  (define-fun conc3 () Real
-    0.0469655?)
   (define-fun conc1 () Real
-    130.7478958?)
-  (define-fun conc14 () Real
-    0.0)
-  (define-fun conc13 () Real
-    0.0)
-  (define-fun conc12 () Real
-    0.0)
-  (define-fun conc10 () Real
-    0.0)
-  (define-fun conc8 () Real
-    0.0)
-  (define-fun conc7 () Real
-    0.0)
-  (define-fun conc6 () Real
-    0.0)
-  (define-fun conc5 () Real
-    0.0)
-  (define-fun conc9 () Real
-    10.8155930?)
-  (define-fun conc11 () Real
-    0.0)
+    1.8609099?)
+  (define-fun flow2 () Real
+    0.2495277?)
+  (define-fun flow3 () Real
+    (- 0.1699103?))
   (define-fun conc4 () Real
-    0.0)
+    7.9617418?)
   (define-fun flow1 () Real
-    1.0033235?)
+    0.3014273?)
   (define-fun conc2 () Real
-    86.7288146?)
+    3.8393366?)
+  (define-fun conc3 () Real
+    5.1899581?)
 )

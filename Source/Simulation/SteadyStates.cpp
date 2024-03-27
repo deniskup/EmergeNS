@@ -153,7 +153,7 @@ void SteadyStateslist::computeWithZ3()
 	stringstream clauses;
 
 	// decimal printing of floats
-	clauses << fixed << setprecision(10) << endl;
+	//clauses << fixed << setprecision(10);
 
 	//------ pretty printing -------
 	clauses << "(set-option :pp.decimal true)\n";
@@ -185,7 +185,7 @@ void SteadyStateslist::computeWithZ3()
 	{
 		clauses << "(assert (= flow" << r->idSAT << " (+";
 		// assocrate
-		clauses << " (* " << r->assocRate;
+		clauses << fixed << setprecision(4) << " (* " << r->assocRate;
 		for (auto &e : r->reactants)
 		{
 			clauses << " conc" << e->idSAT;
@@ -292,7 +292,9 @@ void SteadyStateslist::computeWithZ3()
 			return;
 		}
 
-		LOG("Steady state found");
+		// print steady states
+		LOG("Steady state found"); 
+	
 
 		// Parse the model
 		map<string, float> model = parseModelReal(z3Output);
@@ -318,6 +320,18 @@ void SteadyStateslist::computeWithZ3()
 
 		modClauses << ")))\n";
 	}
+
+	// print steady states 	
+	for (auto& s: steadyStates)
+	{
+		ostringstream out;
+		out.precision(3);
+		out << fixed << "(";
+  	for (auto& c : s) out << c << ", ";
+		out << "\b\b)";
+		LOG(out.str());
+	}
+
 	bool toPrint=true; //settings later
 	if (numStS > 0)
 	{
@@ -626,7 +640,7 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm)
 		for (unsigned int i=0; i<triang.rows(); i++) // loop over eigenvalues
 		{
 			if (triang(i,i).real() > epsilon) return false; // one positive eigenvalue implies non stability 
-			if (abs(triang(i,i)) < epsilon) isCertain = false; // if -epsilon < eigenvalue < epsilon : tricky case
+			if (triang(i,i).real() <= epsilon && triang(i,i).real() > 0.)  isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
 		}
 		if (isCertain) return true; // no diagonal element too close from 0 and all negative
 		else
@@ -659,9 +673,9 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 	{
 		State& witness = steadyStates.getReference(iw);
 
-		//  cout << "at steady state : (";
-		//  for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
-		//  cout << ")\n";
+		cout << "at steady state : (";
+		for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
+		cout << ")\n";
 
 		if (witness.size() != simul->entities.size()) // just in case
 		{
@@ -681,7 +695,18 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 		
 	}
 
-LOG("System has " + to_string(nss) + " steady states, and " + to_string(steadyStates.size()) + " are stable.");
+// print stable steady states 
+LOG("System has " + to_string(nss) + " steady state(s), and " + to_string(steadyStates.size()) + " is/are stable.");
+for (auto& s: steadyStates)
+{
+	ostringstream out;
+	out.precision(3);
+	out << fixed << "(";
+  for (auto& c : s) out << c << ", ";
+	out << ")\n";
+	LOG(out.str());
+}
+
 	
 }
 
