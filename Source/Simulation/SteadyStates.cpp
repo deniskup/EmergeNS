@@ -152,6 +152,9 @@ void SteadyStateslist::computeWithZ3()
 
 	stringstream clauses;
 
+	// decimal printing of floats
+	clauses << fixed << setprecision(10) << endl;
+
 	//------ pretty printing -------
 	clauses << "(set-option :pp.decimal true)\n";
 	clauses << "(set-option :pp.decimal_precision 7)\n";
@@ -661,6 +664,7 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 		//  cout << ")\n";
 
 		if (witness.size() != simul->entities.size()) // just in case
+		{
 			steadyStates.remove(iw);
 			continue; 
 		}

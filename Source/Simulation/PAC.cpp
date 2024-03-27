@@ -298,7 +298,7 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 
 		//clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
 		//use reactants and products vectors
-		clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
+		clauses << fixed << setprecision(10) << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
 		for (auto &e : r->reactants)
 		{
 			clauses << "conc" << e->idSAT << " ";
