@@ -37,7 +37,8 @@ public:
     Simulation *simul;
 
     Array<State> steadyStates; // list of stable steady states
-    Array<State> partSteadyStates; // list of partially stable steady states
+    Array<State> stableStates; // list of stable steady states
+    Array<State> partiallyStableStates; // list of partially stable steady states
 
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 
@@ -46,6 +47,8 @@ public:
     void run() override;
 
     void clear(); // clear everything
+
+    void printOneSteadyState(State&); // print one SteadyState to cout
 
     void printSteadyStates(); // print list of SteadyStates to cout
 
@@ -61,7 +64,7 @@ public:
 
     Eigen::MatrixXd evaluateJacobiMatrix(State&); // evaluate jacobi matrix at a given concentration vector
 
-    void keepStableSteadyStatesOnly(); // removes unstables steady states based on jacobi matrix eigenvalues criteria
+    void evaluateSteadyStatesStability(); // removes unstables steady states based on jacobi matrix eigenvalues criteria
 
    // void filterStableStates(); // filter out unstable states
 
@@ -85,5 +88,7 @@ public:
 
     bool isStable(Eigen::MatrixXd&, State&);
     
+    bool isPartiallyStable(Eigen::MatrixXd&, State&);
+
     double epsilon = 1e-7; // arbitrary small quantity
 };

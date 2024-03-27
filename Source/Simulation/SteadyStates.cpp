@@ -17,9 +17,6 @@ using namespace std;
 
 
 
-
-
-
 ///////////////////////////////////////////////////////////
 ///////////////// SteadyStatelist METHODS /////////////////
 ///////////////////////////////////////////////////////////
@@ -29,10 +26,31 @@ SteadyStateslist::~SteadyStateslist()
 	stopThread(500);
 }
 
+
+void SteadyStateslist::printOneSteadyState(State& s)
+{
+	ostringstream out;
+	out.precision(3);
+	out << fixed << "(";
+  for (auto& c : s) out << c << ", ";
+	out << ")";
+	LOG(out.str());
+}
+
+
+////////////////////////////////////////////////////:
+
+
 void SteadyStateslist::printSteadyStates()
 {
-	/// ***
+	for (auto& s: steadyStates)
+	{
+		printOneSteadyState(s);
+	}
 }
+
+
+////////////////////////////////////////////////////:
 
 void SteadyStateslist::clear()
 {
@@ -70,7 +88,7 @@ void SteadyStateslist::run()
 
 	computeJacobiMatrix(); // formally calculate jacobi matrix of chemical reaction network
 
-	keepStableSteadyStatesOnly();
+	evaluateSteadyStatesStability();
 
 }
 
@@ -293,7 +311,7 @@ void SteadyStateslist::computeWithZ3()
 		}
 
 		// print steady states
-		LOG("Steady state found"); 
+		LOG("1 Steady state found..."); 
 	
 
 		// Parse the model
@@ -321,22 +339,13 @@ void SteadyStateslist::computeWithZ3()
 		modClauses << ")))\n";
 	}
 
-	// print steady states 	
-	for (auto& s: steadyStates)
-	{
-		ostringstream out;
-		out.precision(3);
-		out << fixed << "(";
-  	for (auto& c : s) out << c << ", ";
-		out << ")";
-		LOG(out.str());
-	}
 
 	bool toPrint=true; //settings later
 	if (numStS > 0)
 	{
 
-		LOG(String(numStS) + " Steady states found");
+		LOG(String(numStS) + " Steady states found with Z3. List:");	
+		printSteadyStates();
 
 		if (toPrint)
 		{
@@ -640,7 +649,7 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm, State& witness)
 		for (unsigned int i=0; i<triang.rows(); i++) // loop over eigenvalues
 		{
 			if (triang(i,i).real() > epsilon) return false; // one positive eigenvalue implies non stability 
-			if (abs(triang(i,i).real()))  isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
+			if (abs(triang(i,i).real()) <= epsilon)  isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
 		}
 		if (isCertain) // no diagonal element too close from 0 and all negative
 		{
@@ -648,13 +657,21 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm, State& witness)
 		} 
 		else
 		{
-			LOG("WARNING, can't decide stability of stationnary point (assumed true) :");
-			ostringstream out;
-			out.precision(3);
-			out << fixed << "(";
-  		for (auto& c : witness) out << c << ", ";
-			out << ")";
-			LOG(out.str());
+			if (jm.rows() < jacobiMatrix.size())
+			{
+				LOG("WARNING, can't decide partial stability of stationnary point (assumed true) :");
+			}
+			else
+			{
+				LOG("WARNING, can't decide global stability of stationnary point (assumed true) :");
+			}
+			printOneSteadyState(witness);
+			// ostringstream out;
+			// out.precision(3);
+			// out << fixed << "(";
+  		// for (auto& c : witness) out << c << ", ";
+			// out << ")";
+			// LOG(out.str());
 			return true;
 		}
 	
@@ -669,11 +686,76 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd& jm, State& witness)
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-
-
-void SteadyStateslist::keepStableSteadyStatesOnly()
+bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd& jm, State& witness)
 {
+	// retrieve index where witness elements are 0
+	Array<int> zeroindex;
+	for (int k=0; k<witness.size(); k++)
+	{
+		if (witness.getReference(k)==0.) zeroindex.add(k);
+	}
 
+	// Init sub jacobi matrix
+	int subsize = witness.size() - zeroindex.size();
+	Eigen::MatrixXd subjm(subsize, subsize);
+
+	// Retrieve elements of global jacobi matrix associated to non-zero witness element
+	Array<float> eljm;
+	for (int i=0; i<witness.size(); i++)
+	{
+		if (zeroindex.contains(i)) continue;
+		for (int j=0; j<witness.size(); j++)
+		{
+			if (zeroindex.contains(j)) continue;
+			eljm.add(jm(i,j));
+		}
+	}
+
+	// sanity check on sizes
+	if (eljm.size() != (subsize*subsize))
+	{
+		LOG("Warning, size issue with partial Jacobi Matrix");
+		LOG("partial stability can't be trusted for steady state:");
+		printOneSteadyState(witness);
+	}
+
+	// Fill sub jacobi matrix
+	for (int i=0; i<subsize; i++)
+	{
+		for (int j=0; j<subsize; j++)
+		{
+			int index = j + i*subsize;
+			subjm(i,j) = eljm.getReference(index);
+		}
+	}
+
+cout << "----- Sub Jacobi Matrix-----" << endl;
+cout << subjm << endl;
+
+// build sub witness state
+State subWitness;
+for (int k=0; k<witness.size();k++)
+{
+	if (!zeroindex.contains(k)) subWitness.add(witness.getReference(k));
+}
+
+bool stable = isStable(subjm, witness);
+
+
+
+return stable;
+
+}
+
+
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+void SteadyStateslist::evaluateSteadyStatesStability()
+{
 
 	int nss = steadyStates.size();	// keep track of how many steady states there are
 
@@ -682,7 +764,7 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 	{
 		State witness = steadyStates.getReference(iw);
 
-		cout << "at steady state : (";
+		cout << "evaluating steady state : (";
 		for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
 		cout << ")\n";
 
@@ -698,26 +780,28 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 		cout << "---- Jacobi Matrix ----" << endl;
 		cout << jm << endl;
 
-		// is steady state stable ?
+		// is steady state globally stable ?
 		bool stable = isStable(jm, witness);
-		if (!stable) steadyStates.remove(iw);
-		
+		//if (!stable) steadyStates.remove(iw);
+		if (stable) stableStates.add(witness);
+
+		// steady state has 0. components ?
+		bool shouldGoPartial = witness.contains(0.);
+		// if yes, check partial stability
+		if (shouldGoPartial)
+		{
+			bool partiallyStable = isPartiallyStable(jm, witness);
+			if (partiallyStable) partiallyStableStates.add(witness);
+		}
 	}
 
 // print stable steady states 
-LOG("System has " + to_string(nss) + " steady state(s), and " + to_string(steadyStates.size()) + " is/are stable.");
-for (auto& s: steadyStates)
-{
-	ostringstream out;
-	out.precision(3);
-	out << fixed << "(";
-  for (auto& c : s) out << c << ", ";
-	out << ")";
-	LOG(out.str());
-}
-
+string plural = "";
+if (stableStates.size()>1) plural = "s";
+LOG("System has " + to_string(stableStates.size()) + " stable steady state" + plural);
+for (auto& s: stableStates) printOneSteadyState(s);
 	
-}
+} // end func evaluateSteadyStatesStability
 
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
