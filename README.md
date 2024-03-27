@@ -9,15 +9,23 @@
    For Linux ```make -j 4```<br>
    For Mac open  Projucer.xcodeproj with xcode and compile<br>
 
+Possible errors and how to fix
+   Compiler g++ must be installed:  ```sudo apt install g++```
    If you get an error about package freetype2 missing, install package libfreetype6-dev with ```sudo apt install libfreetype6-dev```
+   If you get an error about file curl.h missing, install virtual package libcurl-dev with e.g. ```sudo apt install libcurl4-openssl-dev```
+   Xlib.h missing  ->  ```sudo apt install libx11-dev```
+   Xrandr.h missing  ->  ```sudo apt install libxrandr-dev```
+   Xinerama.h missing  ->  ```sudo apt install libxinerama-dev```
+   Xcursor.h missing  ->  ```sudo apt install libxcursor-dev```
+ 
    
-4. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
+5. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
 
-5. In File>Global path, add the Path to Juce.
+6. In File>Global path, add the Path to Juce.
 
-6. Save the project
+7. Save the project
 
-7. Make sure you have z3 installed and that the command "z3" works in your terminal.
+8. Make sure you have z3 installed and that the command "z3" works in your terminal.
 
 => Next steps to be done after every git pull:
 
