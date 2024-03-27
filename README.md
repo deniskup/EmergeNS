@@ -24,14 +24,16 @@ Possible errors and how to fix
 
 6. In File>Global path, add the Path to Juce.
 
-7. Save the project
+7. Click on the top right icon: "Sign in", and select "Enable GPL Mode"
 
-8. Make sure you have z3 installed and that the command "z3" works in your terminal.
+8. Save the project in File->Save Project
+
+9. Make sure you have z3 installed (```sudo apt install z3```) and that the command "z3" works in your terminal.
 
 => Next steps to be done after every git pull:
 
-8. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj'
-/!\ Warning: on mac use version 14 or less
+8. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
+/!\ Warning: on Mac use version 14 or less
 
 9. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
 
