@@ -40,6 +40,7 @@ public:
     unique_ptr<FloatParameterLabelUI> epsilonEqUI;
 
     unique_ptr<EnumParameterUI> setCACUI;
+    unique_ptr<EnumParameterUI> setSteadyStateUI;
 
     //for diplaying paramaters
     Label paramsLabel;

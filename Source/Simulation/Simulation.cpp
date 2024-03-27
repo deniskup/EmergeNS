@@ -46,6 +46,7 @@ juce_ImplementSingleton(Simulation)
   epsilonEq = addFloatParameter("Eps.", "Epsilon for equilibrium detection", 0.001f, 0.f, 1.f);
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
   setCAC = addEnumParameter("Set CAC", "Set current concentrations according to CAC witness");
+  setSteadyState = addEnumParameter("Set Steady State", "Set current concentrations to steady state");
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
 
@@ -170,6 +171,17 @@ void Simulation::updateParams()
   {
     setCAC->addOption(pacList->CACToString(cac), opt, false);
     // setCAC->addOption("Cac"+to_string(opt), opt,false);
+    opt++;
+  }
+
+
+  // set steady states
+  setSteadyState->clearOptions();
+  setSteadyState->addOption("None", -1, true);
+  opt = 1;
+  for (auto &ss : steadyStatesList->steadyStates)
+  {
+    setSteadyState->addOption(String(opt), opt, false);
     opt++;
   }
   //}
@@ -1631,6 +1643,22 @@ void Simulation::setConcToCAC(int idCAC)
   }
 }
 
+void Simulation::setConcToSteadyState(int idSS)
+{
+  if (idSS < 1)
+    return;
+  State ss = steadyStatesList->steadyStates[idSS - 1];
+  int ident=0;
+  for (auto ent: entities)
+  {
+    float conc = ss[ident];
+    ent->concent = conc;
+    ident++;
+    if (ent->entity != nullptr)
+      ent->entity->concent->setValue(conc);
+  }
+}
+
 void Simulation::onContainerParameterChanged(Parameter *p)
 {
   ControllableContainer::onContainerParameterChanged(p);
@@ -1648,6 +1676,12 @@ void Simulation::onContainerParameterChanged(Parameter *p)
     if (setCAC->intValue() < 1)
       return;
     setConcToCAC(setCAC->intValue());
+  }
+  if (p == setSteadyState)
+  {
+    if (setSteadyState->intValue() < 1)
+      return;
+    setConcToSteadyState(setSteadyState->intValue());
   }
 }
 

@@ -15,3 +15,7 @@ Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
 ReactionSystems/z3CACmodel.txt
 ReactionSystems/z3CAC.smt2
+Builds/LinuxMakefile_CI/Makefile
+Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
+Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
+Builds/MacOSX_CI/EmergenceNS.xcodeproj/project.pbxproj

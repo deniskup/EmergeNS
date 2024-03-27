@@ -148,6 +148,7 @@ public:
   BoolParameter *ignoreBarriers;
 
   EnumParameter *setCAC;
+  EnumParameter *setSteadyState;
 
   void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
 
@@ -164,6 +165,7 @@ public:
   void computeBarriers(); // compute barriers from rates and energy of entities
 
   void setConcToCAC(int idCAC); // set concentrations to CAC witness
+  void setConcToSteadyState(int idSS); // set concentrations to Steady State
 
   bool toImport = false; // to know if we have to import from manual changes
   bool ready;            // to know if ready to be launched, ie parameters generated
