@@ -8,6 +8,8 @@
 3. In the Juce folder, go in extras/Projucer/Builds/[YourOS] <br>
    For Linux ```make -j 4```<br>
    For Mac open  Projucer.xcodeproj with xcode and compile<br>
+
+   If you get an error about package freetype2 missing, install package libfreetype6-dev with ```sudo apt install libfreetype6-dev```
    
 4. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
 
