@@ -649,26 +649,22 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 {
 
 
-	int nss = steadyStates.size();
+	int nss = steadyStates.size();	// keep track of how many steady states there are
 
 	// loop over steady states
-	int dynamicIndex=-1;
-	for (State& witness : steadyStates)
+	for (int iw=steadyStates.size()-1; iw>=0; iw--)
 	{
-		dynamicIndex++;
+		State& witness = steadyStates.getReference(iw);
 
-		 cout << "at steady state : (";
-		 for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
-		 cout << ")\n";
+		//  cout << "at steady state : (";
+		//  for (int k=0; k<witness.size(); k++) cout << witness[k] << ",  ";
+		//  cout << ")\n";
 
-		if (witness.size() != simul->entities.size()) // this case occurs and bothers me, remove steady state by hand
-		{
-			steadyStates.remove(dynamicIndex);
-			dynamicIndex--;
+		if (witness.size() != simul->entities.size()) // just in case
+			steadyStates.remove(iw);
 			continue; 
 		}
 		
-
 		// evaluate jacobi matrx at current state vector
 		Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
 
@@ -677,11 +673,8 @@ void SteadyStateslist::keepStableSteadyStatesOnly()
 
 		// is steady state stable ?
 		bool stable = isStable(jm);
-		if (!stable)
-		{
-			steadyStates.remove(dynamicIndex);
-			dynamicIndex--;
-		}
+		if (!stable) steadyStates.remove(iw);
+		
 	}
 
 LOG("System has " + to_string(nss) + " steady states, and " + to_string(steadyStates.size()) + " are stable.");
