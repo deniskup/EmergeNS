@@ -353,11 +353,34 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
 		// declare acceleration variables for all entities and reactions not already treated
-		for (auto &e : pac->entities)
+		
+		// for (auto &e : pac->entities)
+		// {
+		// 	//acceleration due to reactions of the PAC
+		// 	clauses << "(declare-const acc" << e->idSAT << " Real)\n";
+		// }
+		
+		for (auto &e : simul->entities)
 		{
-			clauses << "(declare-const acc" << e->idSAT << " Real)\n";
+			//total variation of entity e 
+			clauses << "(declare-const d_ent" << e->idSAT << " Real)\n";
 		}
-		// TODO continue
+		for(auto &r: pac->reacDirs)
+		{
+			SimReaction *r = rd.first;
+			//variation in the flow of reaction r
+			clauses << "(declare-const d_flow" << r->idSAT << " Real)\n";
+		}
+		// compute d_ent for all entities: using reaction list and concentrations as before
+		//TODO
+
+		//compute d_flow for all reactions: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
+		//TODO
+
+		//state acc>epsilon_acc for all entities: using reaction d_flows where entity is involved
+		//TODO
+
+
 	}
 }
 
