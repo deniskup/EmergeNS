@@ -163,7 +163,7 @@ void Simulation::updateParams()
   // }
   // else
   // {
-  setCAC->addOption("None", -1, true);
+  setCAC->addOption("CAC", -1, true);
   int opt = 1;
   // int nbCAC=pacList->CACs.size();
   for (auto &cac : pacList->CACs)
@@ -177,7 +177,7 @@ void Simulation::updateParams()
 
   // set steady states
   setSteadyState->clearOptions();
-  setSteadyState->addOption("None", -1, true);
+  setSteadyState->addOption("SteadyState", -1, true);
   opt = 1;
   for (auto &ss : steadyStatesList->steadyStates)
   {

@@ -263,7 +263,7 @@ void SteadyStateslist::computeWithZ3()
 	stringstream modClauses; // additional clauses forbidding some models
 
 	// int maxSteadyStates=Settings::getInstance()->maxSteadyStates->intValue();
-	int maxSteadyStates = 2;
+	int maxSteadyStates = 4;
 	int numStS;
 	for (numStS = 0; numStS < maxSteadyStates; numStS++)
 	{

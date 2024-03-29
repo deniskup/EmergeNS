@@ -283,7 +283,7 @@ map<string, float> parseModelReal(const string &output)
 
 // add the clause for a CAC to be part of a multiCAC.
 // reacsTreated is the set of reactions for which variables coef have already been declared
-void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated)
+void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated, Simulation *simul)
 {
 
 	// compute coefs from concentrations
@@ -296,8 +296,8 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 		// coef is assocRate*reac1*reac2-dissocRate*prod
 		// avoid printing in scientific format, print decimal values at the level of C++
 
-		//clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
-		//use reactants and products vectors
+		// clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+		// use reactants and products vectors
 		clauses << fixed << setprecision(10) << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
 		for (auto &e : r->reactants)
 		{
@@ -353,34 +353,105 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
 		// declare acceleration variables for all entities and reactions not already treated
-		
+
 		// for (auto &e : pac->entities)
 		// {
 		// 	//acceleration due to reactions of the PAC
 		// 	clauses << "(declare-const acc" << e->idSAT << " Real)\n";
 		// }
-		
+
+		// compute d_ent for all entities: using reaction list and concentrations as before
 		for (auto &e : simul->entities)
 		{
-			//total variation of entity e 
-			clauses << "(declare-const d_ent" << e->idSAT << " Real)\n";
+			clauses << "(assert (= d_ent" << e->idSAT << " (+";
+			for (auto &rd : pac->reacDirs)
+			{
+				SimReaction *r = rd.first;
+
+				for (auto er : r->reactants)
+				{
+					if (er == e)
+					{
+						clauses << " (- coef" << r->idSAT << ")";
+					}
+				}
+				for (auto p : r->products)
+				{
+					if (p == e)
+					{
+						clauses << " coef" << r->idSAT;
+					}
+				}
+			}
+			// clauses << " 0";
+			// creation/destruction of e
+			clauses << " " << e->creationRate << " (* -1. " << e->destructionRate << " conc" << e->idSAT << "))";
+			clauses << "))\n";
 		}
-		for(auto &r: pac->reacDirs)
+
+		// compute d_flow for all reactions: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
+		for (auto &rd : pac->reacDirs)
 		{
 			SimReaction *r = rd.first;
-			//variation in the flow of reaction r
-			clauses << "(declare-const d_flow" << r->idSAT << " Real)\n";
+			clauses << "(assert (= d_flow" << r->idSAT << " (* coef" << r->idSAT << " (+";
+			int i = 0;
+			for (auto &e : r->reactants)
+			{
+				clauses << " (* d_ent" << e->idSAT;
+				int j = 0;
+				for (auto &eother : r->reactants)
+				{
+					if (j != i)
+					{
+						clauses << " conc" << eother->idSAT;
+					}
+					j++;
+				}
+				i++;
+				clauses << ")";
+			}
+			i = 0;
+			for (auto &e : r->products)
+			{
+				clauses << " (* -1. d_ent" << e->idSAT;
+				int j = 0;
+				for (auto &eother : r->products)
+				{
+					if (j != i)
+					{
+						clauses << " conc" << eother->idSAT;
+					}
+					j++;
+				}
+				i++;
+			}
+			clauses << ")))))\n";
 		}
-		// compute d_ent for all entities: using reaction list and concentrations as before
-		//TODO
 
-		//compute d_flow for all reactions: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
-		//TODO
-
-		//state acc>epsilon_acc for all entities: using reaction d_flows where entity is involved
-		//TODO
-
-
+		// state acc>epsilon_acc for all entities: using reaction d_flows of the pac where entity is involved
+		for (auto &e : pac->entities)
+		{
+			clauses << "(assert (> (+";
+			for (auto &rd : pac->reacDirs)
+			{
+				SimReaction *r = rd.first;
+				for (auto er : r->reactants)
+				{
+					if (er == e)
+					{
+						clauses << " (- d_flow" << r->idSAT << ")";
+					}
+				}
+				for (auto p : r->products)
+				{
+					if (p == e)
+					{
+						clauses << " d_flow" << r->idSAT;
+					}
+				}
+			}
+			clauses << " 0) " << Settings::getInstance()->CACAccelThresh->floatValue() << "))\n";
+		}
 	}
 }
 
@@ -450,8 +521,6 @@ void PAClist::clear()
 	maxRAC = 0.;
 }
 
-
-
 // 0 for minisat, 1 for kissat, 2 for z3, 3 for CACs
 void PAClist::compute(int numSolv)
 {
@@ -477,10 +546,23 @@ bool PAClist::computeCAC(set<int> pacIds)
 		// bounds
 		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
 	}
+	if (Settings::getInstance()->CacAccelUse->boolValue())
+	{
+		// add derivatives
+		for (auto &e : simul->entities)
+		{
+			// total variation of entity e
+			clauses << "(declare-const d_ent" << e->idSAT << " Real)\n";
+		}
+		for (auto &r : simul->reactions)
+		{
+			clauses << "(declare-const d_flow" << r->idSAT << " Real)\n";
+		}
+	}
 	set<SimReaction *> reacsTreated; // empty set of reactions already treated
 	for (auto i : pacIds)
 	{
-		addCACclause(clauses, cycles[i], reacsTreated);
+		addCACclause(clauses, cycles[i], reacsTreated, simul);
 	}
 
 	// call z3
@@ -491,7 +573,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	inputStream << "(get-model)\n";
 
 	inputStream.close();
-	 //cout << "Calling Z3" << endl;
+	// cout << "Calling Z3" << endl;
 	system(z3Command.c_str());
 	// cout << "Z3 done" << endl;
 	ifstream outputStream(outputFile);
@@ -548,6 +630,11 @@ void PAClist::computeCACs()
 	simul->affectSATIds();
 	// compute CACs among the PACs
 	LOG("Computing CACs");
+	if (Settings::getInstance()->CacAccelUse->boolValue())
+	{
+		LOG("Using acceleration threshold " + String(Settings::getInstance()->CACAccelThresh->floatValue()) + " for CACs");
+	}
+
 	int nbCAC = 0;
 	ofstream pacFile;
 	if (Settings::getInstance()->printPACsToFile->boolValue())
@@ -788,12 +875,11 @@ void PAClist::setZ3path()
 		}
 	}
 	// add timeout
-	int timeout=Settings::getInstance()->z3timeout->intValue();
-	if (timeout>0)
+	int timeout = Settings::getInstance()->z3timeout->intValue();
+	if (timeout > 0)
 	{
 		z3path += " -t:" + to_string(timeout);
 	}
-
 }
 
 void PAClist::PACsWithZ3()
@@ -813,11 +899,10 @@ void PAClist::PACsWithZ3()
 	string inputFile = "z3constraints.smt2";
 	string outputFile = "z3model.txt";
 
-
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
-	std::cout << inputFile << std::endl; // #erase
+	std::cout << inputFile << std::endl;  // #erase
 	std::cout << outputFile << std::endl; // #erase
 
 	stringstream clauses;
@@ -845,7 +930,8 @@ void PAClist::PACsWithZ3()
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(assert (= dir" << r->idSAT << " (< coef" << r->idSAT << " 0)))\n";
-		if(!r->isReversible){
+		if (!r->isReversible)
+		{
 			clauses << "(assert (= dir" << r->idSAT << " false))\n";
 		}
 	}
@@ -854,16 +940,16 @@ void PAClist::PACsWithZ3()
 	for (auto &r : simul->reactions)
 	{
 		clauses << "(assert (=> reac" << r->idSAT << " (and";
-		//clauses << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
+		// clauses << "(or ent" << r->reactant1->idSAT << " ent" << r->reactant2->idSAT << ")";
 		clauses << "(or";
-		for(auto &e : r->reactants)
+		for (auto &e : r->reactants)
 		{
 			clauses << " ent" << e->idSAT;
 		}
 		clauses << ")";
-		//clauses << " ent" << r->product->idSAT;
+		// clauses << " ent" << r->product->idSAT;
 		clauses << "(or";
-		for(auto &e : r->products)
+		for (auto &e : r->products)
 		{
 			clauses << " ent" << e->idSAT;
 		}
@@ -891,26 +977,26 @@ void PAClist::PACsWithZ3()
 		for (auto &r : simul->reactions)
 		{
 			int j = r->idSAT;
-			int stoc=0;
-			for(auto &e : r->reactants)
+			int stoc = 0;
+			for (auto &e : r->reactants)
 			{
-				if(e==ent)
+				if (e == ent)
 				{
 					stoc--;
 				}
 			}
-			for(auto &e : r->products)
+			for (auto &e : r->products)
 			{
-				if(e==ent)
+				if (e == ent)
 				{
 					stoc++;
 				}
 			}
 
-			if (stoc!=0)
+			if (stoc != 0)
 			{
 				// add coefj+coefj
-				clauses << " (ite reac" << j << " (* "<<stoc << " coef" << j << ") 0)";
+				clauses << " (ite reac" << j << " (* " << stoc << " coef" << j << ") 0)";
 			}
 			// else if (r->reactant1 == ent || r->reactant2 == ent)
 			// {
@@ -1102,9 +1188,7 @@ void PAClist::PACsWithZ3()
 	}
 	simul->PACsGenerated = true;
 
-	//computeCACs();
-
-
+	// computeCACs();
 }
 
 String PAClist::CACToString(CACType cac)
