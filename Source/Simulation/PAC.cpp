@@ -285,7 +285,6 @@ map<string, float> parseModelReal(const string &output)
 // reacsTreated is the set of reactions for which variables coef have already been declared
 void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated, Simulation *simul)
 {
-
 	// compute coefs from concentrations
 	for (auto &rd : pac->reacDirs)
 	{
@@ -389,12 +388,20 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 			clauses << "))\n";
 		}
 
-		// compute d_flow for all reactions: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
+		// state that d_flow>threshold for some reaction: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
+		// we would like to do it for the smallest reaction instead of any reaction.
+		
+
+		//be careful of direction of reactions: negative dflow could mean that reaction increases.
+
+		//maybe good strategy: ask that acceleration*flow>threshold for all reactions
+
 		for (auto &rd : pac->reacDirs)
 		{
 			SimReaction *r = rd.first;
-			clauses << "(assert (= d_flow" << r->idSAT << " (* coef" << r->idSAT << " (+";
+			clauses << "(assert (= d_flow"<<r->idSAT<<" (* coef" << r->idSAT << " (+";
 			int i = 0;
+			 clauses << "(* " <<r->assocRate << "(+ ";
 			for (auto &e : r->reactants)
 			{
 				clauses << " (* d_ent" << e->idSAT;
@@ -410,10 +417,12 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 				i++;
 				clauses << ")";
 			}
+			clauses << ")";
 			i = 0;
+			clauses << "(* (- " <<r->dissocRate << " ) (+ ";
 			for (auto &e : r->products)
 			{
-				clauses << " (* -1. d_ent" << e->idSAT;
+				clauses << " (* d_ent" << e->idSAT;
 				int j = 0;
 				for (auto &eother : r->products)
 				{
@@ -425,33 +434,36 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 				}
 				i++;
 			}
-			clauses << ")))))\n";
+			clauses << "))))))\n";
 		}
 
-		// state acc>epsilon_acc for all entities: using reaction d_flows of the pac where entity is involved
-		for (auto &e : pac->entities)
-		{
-			clauses << "(assert (> (+";
-			for (auto &rd : pac->reacDirs)
+		// in progress, for acceleration on entities
+		//  state acc>epsilon_acc for all entities: using reaction d_flows of the pac where entity is involved
+
+		//TODO: constrain only entity that is the slowest, by introducing variables for dC_ent.
+			for (auto &e : pac->entities)
 			{
-				SimReaction *r = rd.first;
-				for (auto er : r->reactants)
+				clauses << "(assert (> (+";
+				for (auto &rd : pac->reacDirs)
 				{
-					if (er == e)
+					SimReaction *r = rd.first;
+					for (auto er : r->reactants)
 					{
-						clauses << " (- d_flow" << r->idSAT << ")";
+						if (er == e)
+						{
+							clauses << " (- d_flow" << r->idSAT << ")";
+						}
+					}
+					for (auto p : r->products)
+					{
+						if (p == e)
+						{
+							clauses << " d_flow" << r->idSAT;
+						}
 					}
 				}
-				for (auto p : r->products)
-				{
-					if (p == e)
-					{
-						clauses << " d_flow" << r->idSAT;
-					}
-				}
+				clauses << " 0) " << Settings::getInstance()->CACAccelThresh->floatValue() << "))\n";
 			}
-			clauses << " 0) " << Settings::getInstance()->CACAccelThresh->floatValue() << "))\n";
-		}
 	}
 }
 
