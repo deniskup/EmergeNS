@@ -1400,7 +1400,7 @@ void PAClist::fromJSONData(var data)
 	// load cycles
 	if (!data.getDynamicObject()->hasProperty("cycles") || !data["cycles"].isArray())
 	{
-		LOGWARNING("wrong PAC format in PAClist JSON data");
+		LOG("No PACs in PAClist JSON data");
 		return;
 	}
 	Array<var> *cyclesData = data["cycles"].getArray();
@@ -1413,7 +1413,7 @@ void PAClist::fromJSONData(var data)
 	// load CACs
 	if (!data.getDynamicObject()->hasProperty("CACs") || !data["CACs"].isArray())
 	{
-		LOGWARNING("Wrong CAC format in PAClist JSON data");
+		LOG("No CACs in PAClist JSON data");
 		return;
 	}
 	Array<var> *CACsData = data["CACs"].getArray();
