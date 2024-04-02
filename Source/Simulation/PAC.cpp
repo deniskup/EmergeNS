@@ -351,6 +351,31 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	// acceleration option: ask that acceleration is above a threshold
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
+		// add untreated reactions
+		for (auto &r : simul->reactions)
+		{
+			if (reacsTreated.find(r) == reacsTreated.end())
+			{
+				clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+				// coef is assocRate*reac1*reac2-dissocRate*prod
+				// avoid printing in scientific format, print decimal values at the level of C++
+
+				// clauses << fixed << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " conc" << r->reactant1->idSAT << " conc" << r->reactant2->idSAT << ") (* " << r->dissocRate << " conc" << r->product->idSAT << "))))\n";
+				// use reactants and products vectors
+				clauses << fixed << setprecision(10) << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
+				for (auto &e : r->reactants)
+				{
+					clauses << "conc" << e->idSAT << " ";
+				}
+				clauses << ") (* " << r->dissocRate << " ";
+				for (auto &e : r->products)
+				{
+					clauses << "conc" << e->idSAT << " ";
+				}
+				clauses << "))))\n";
+			}
+		}
+
 		// declare acceleration variables for all entities and reactions not already treated
 
 		// for (auto &e : pac->entities)
@@ -359,14 +384,37 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 		// 	clauses << "(declare-const acc" << e->idSAT << " Real)\n";
 		// }
 
-		// compute d_ent for all entities: using reaction list and concentrations as before
+		// compute d_ent and dC_ent for all entities: using reaction list and concentrations as before
 		for (auto &e : simul->entities)
 		{
-			clauses << "(assert (= d_ent" << e->idSAT << " (+";
+			clauses << "(assert (= dC_ent" << e->idSAT << " (+";
 			for (auto &rd : pac->reacDirs)
 			{
 				SimReaction *r = rd.first;
 
+				for (auto er : r->reactants)
+				{
+					if (er == e)
+					{
+						clauses << " (- coef" << r->idSAT << ")";
+					}
+				}
+				for (auto p : r->products)
+				{
+					if (p == e)
+					{
+						clauses << " coef" << r->idSAT;
+					}
+				}
+			}
+			clauses << " 0)))\n";
+		}
+
+		for (auto &e : simul->entities)
+		{
+			clauses << "(assert (= d_ent" << e->idSAT << " (+";
+			for (auto &r : simul->reactions)
+			{
 				for (auto er : r->reactants)
 				{
 					if (er == e)
@@ -390,18 +438,17 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 
 		// state that d_flow>threshold for some reaction: using product derivative rule e.g. d_flow1 = coef1*conc1*d_ent2+coef1*conc2*d_ent1-coef1*d_ent3
 		// we would like to do it for the smallest reaction instead of any reaction.
-		
 
-		//be careful of direction of reactions: negative dflow could mean that reaction increases.
+		// be careful of direction of reactions: negative dflow could mean that reaction increases.
 
-		//maybe good strategy: ask that acceleration*flow>threshold for all reactions
+		// maybe good strategy: ask that acceleration*flow>threshold for all reactions
 
 		for (auto &rd : pac->reacDirs)
 		{
 			SimReaction *r = rd.first;
-			clauses << "(assert (= d_flow"<<r->idSAT<<" (* coef" << r->idSAT << " (+";
+			clauses << "(assert (= d_flow" << r->idSAT << " (* coef" << r->idSAT << " (+";
 			int i = 0;
-			 clauses << "(* " <<r->assocRate << "(+ ";
+			clauses << " (* " << r->assocRate << " (+";
 			for (auto &e : r->reactants)
 			{
 				clauses << " (* d_ent" << e->idSAT;
@@ -417,53 +464,79 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 				i++;
 				clauses << ")";
 			}
-			clauses << ")";
+			clauses << "))";
 			i = 0;
-			clauses << "(* (- " <<r->dissocRate << " ) (+ ";
-			for (auto &e : r->products)
+			clauses << " (* (- " << r->dissocRate << " )";
+			if (r->products.size() == 1)
 			{
-				clauses << " (* d_ent" << e->idSAT;
-				int j = 0;
-				for (auto &eother : r->products)
-				{
-					if (j != i)
-					{
-						clauses << " conc" << eother->idSAT;
-					}
-					j++;
-				}
-				i++;
+				clauses << " d_ent" << r->products[0]->idSAT;
 			}
-			clauses << "))))))\n";
+			else
+			{
+				clauses << "(+ ";
+				for (auto &e : r->products)
+				{
+					clauses << " (* d_ent" << e->idSAT;
+					int j = 0;
+					for (auto &eother : r->products)
+					{
+						if (j != i)
+						{
+							clauses << " conc" << eother->idSAT;
+						}
+						j++;
+					}
+					i++;
+					clauses << ")";
+				}
+				clauses << ")";
+			}
+			clauses << ")))))\n";
 		}
 
 		// in progress, for acceleration on entities
 		//  state acc>epsilon_acc for all entities: using reaction d_flows of the pac where entity is involved
 
-		//TODO: constrain only entity that is the slowest, by introducing variables for dC_ent.
-			for (auto &e : pac->entities)
+		// TODO: look at what happens at the beginning or in the middle of stable RACs, and implement a relevant constraint here.
+
+		//  we only care about small dC_ent here, by ignoring those above some threshold.
+
+		// we ask that one dC_ent is small
+		clauses << "(assert (or";
+		for (auto &e : pac->entities)
+		{
+			clauses << " (< dC_ent" << e->idSAT << " " << 2 * (Settings::getInstance()->CACRobustness->floatValue()) << ")";
+		}
+		clauses << "))\n";
+
+		// for the small dC_ent, we ask big acceleration
+		for (auto &e : pac->entities)
+		{
+			clauses << "(assert (or ";
+			// ignore if dC_ent is too big, ie 2 times the minimum value asked.
+			clauses << "(> dC_ent" << e->idSAT << " " << 2 * (Settings::getInstance()->CACRobustness->floatValue()) << ")";
+			// for small dC_ent, we want that the acceleration is above a threshold
+			clauses << " (> (+";
+			for (auto &rd : pac->reacDirs)
 			{
-				clauses << "(assert (> (+";
-				for (auto &rd : pac->reacDirs)
+				SimReaction *r = rd.first;
+				for (auto er : r->reactants)
 				{
-					SimReaction *r = rd.first;
-					for (auto er : r->reactants)
+					if (er == e)
 					{
-						if (er == e)
-						{
-							clauses << " (- d_flow" << r->idSAT << ")";
-						}
-					}
-					for (auto p : r->products)
-					{
-						if (p == e)
-						{
-							clauses << " d_flow" << r->idSAT;
-						}
+						clauses << " (- d_flow" << r->idSAT << ")";
 					}
 				}
-				clauses << " 0) " << Settings::getInstance()->CACAccelThresh->floatValue() << "))\n";
+				for (auto p : r->products)
+				{
+					if (p == e)
+					{
+						clauses << " d_flow" << r->idSAT;
+					}
+				}
 			}
+			clauses << " 0) " << Settings::getInstance()->CACAccelThresh->floatValue() << ")))\n";
+		}
 	}
 }
 
@@ -565,6 +638,8 @@ bool PAClist::computeCAC(set<int> pacIds)
 		{
 			// total variation of entity e
 			clauses << "(declare-const d_ent" << e->idSAT << " Real)\n";
+			// variation of entity e due to reactions of the PAC
+			clauses << "(declare-const dC_ent" << e->idSAT << " Real)\n";
 		}
 		for (auto &r : simul->reactions)
 		{

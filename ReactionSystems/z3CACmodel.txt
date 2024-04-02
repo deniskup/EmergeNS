@@ -1,2 +1,55 @@
-unknown
-(error "line 36 column 10: model is not available")
+sat
+(
+  (define-fun conc1 () Real
+    5.0)
+  (define-fun conc3 () Real
+    5.0)
+  (define-fun conc4 () Real
+    (/ 64231.0 4096.0))
+  (define-fun conc0 () Real
+    1.0)
+  (define-fun conc2 () Real
+    5.0)
+  (define-fun d_flow4 () Real
+    (- (/ 242814013884877875025035582279908606823.0
+      16777216000000000000000000000000000000.0)))
+  (define-fun d_flow3 () Real
+    (- (/ 2683729562182844750622072776866461643.0
+      262144000000000000000000000000000000.0)))
+  (define-fun d_flow1 () Real
+    (- (/ 630798035105039616853019347851679.0 409600000000000000000000000000000.0)))
+  (define-fun d_flow0 () Real
+    (/ 3154377506381527463431959448473073.0 819200000000000000000000000000000.0))
+  (define-fun d_ent4 () Real
+    (- (/ 319159200147337.0 40960000000000.0)))
+  (define-fun d_ent3 () Real
+    (/ 15619157529863.0 5120000000000.0))
+  (define-fun d_ent2 () Real
+    (- (/ 102394723589807.0 40960000000000.0)))
+  (define-fun d_ent1 () Real
+    (- (/ 580557896412847.0 40960000000000.0)))
+  (define-fun d_ent0 () Real
+    (/ 56826874211079.0 5120000000000.0))
+  (define-fun dC_ent4 () Real
+    (/ 1995799852663.0 40960000000000.0))
+  (define-fun dC_ent3 () Real
+    (/ 1234890109703.0 5120000000000.0))
+  (define-fun dC_ent2 () Real
+    (/ 5276410193.0 40960000000000.0))
+  (define-fun dC_ent1 () Real
+    (- (/ 43209617690287.0 40960000000000.0)))
+  (define-fun dC_ent0 () Real
+    (/ 4613490422023.0 5120000000000.0))
+  (define-fun coef2 () Real
+    (/ 10618854461.0 2000000000.0))
+  (define-fun coef4 () Real
+    (/ 31329420549807.0 40960000000000.0))
+  (define-fun coef3 () Real
+    (- (/ 3666702587143.0 5120000000000.0)))
+  (define-fun coef1 () Real
+    (- (/ 949926749.0 2000000000.0)))
+  (define-fun coef0 () Real
+    (/ 580087751.0 2000000000.0))
+  (define-fun d_flow2 () Real
+    0.0)
+)

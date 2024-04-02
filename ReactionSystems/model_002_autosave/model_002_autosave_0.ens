@@ -36,25 +36,25 @@
     "mainLayout": {
       "type": 1,
       "width": 1920,
-      "height": 1126,
+      "height": 1148,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 1920,
-          "height": 1126,
+          "height": 1148,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
               "width": 605,
-              "height": 1126,
+              "height": 1148,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
                   "width": 605,
-                  "height": 475,
+                  "height": 486,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -68,7 +68,7 @@
                 {
                   "type": 0,
                   "width": 605,
-                  "height": 644,
+                  "height": 655,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -80,20 +80,20 @@
             },
             {
               "type": 1,
-              "width": 1309,
-              "height": 1126,
+              "width": 1308,
+              "height": 1148,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 875,
-                  "height": 1126,
+                  "height": 1148,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 875,
-                      "height": 664,
+                      "height": 675,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -104,7 +104,7 @@
                     {
                       "type": 0,
                       "width": 875,
-                      "height": 455,
+                      "height": 466,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -116,8 +116,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 428,
-                  "height": 1126,
+                  "width": 427,
+                  "height": 1148,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -146,10 +146,11 @@
     "parameters": [
       {
         "value": 0.001,
+        "stringDecimals": 5,
         "controlAddress": "/dt"
       },
       {
-        "value": 30.0,
+        "value": 4.600008010864258,
         "controlAddress": "/totalTime"
       },
       {
@@ -162,12 +163,16 @@
         "controlAddress": "/maxConcent"
       },
       {
-        "value": false,
-        "controlAddress": "/autoScale"
-      },
-      {
         "value": 0.0001,
         "controlAddress": "/eps"
+      },
+      {
+        "value": "CAC",
+        "controlAddress": "/setCAC"
+      },
+      {
+        "value": "SteadyState",
+        "controlAddress": "/setSteadyState"
       }
     ]
   },
@@ -188,7 +193,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 21.34709739685059,
+            "value": 11.32390880584717,
             "controlAddress": "/concent"
           },
           {
@@ -219,11 +224,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 24.59999847412109,
+            "value": 27.49999809265137,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.000566494127269834,
+            "value": 0.4840431213378906,
             "controlAddress": "/concent"
           },
           {
@@ -258,11 +263,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 3.5,
+            "value": 6.599999904632568,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.002797815715894103,
+            "value": 1.906527638435364,
             "controlAddress": "/concent"
           },
           {
@@ -297,11 +302,11 @@
             "controlAddress": "/destructionRate"
           },
           {
-            "value": 4.5,
+            "value": 7.699999809265137,
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.000781540176831185,
+            "value": 0.5016323328018188,
             "controlAddress": "/concent"
           },
           {
@@ -340,7 +345,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.005036549177020788,
+            "value": 2.339915990829468,
             "controlAddress": "/concent"
           },
           {
@@ -567,12 +572,30 @@
   "settings": {
     "parameters": [
       {
+        "value": 1,
+        "hexMode": false,
+        "controlAddress": "/maxSetCACs"
+      },
+      {
+        "value": true,
+        "controlAddress": "/cacAcceleration"
+      },
+      {
+        "value": 0.1,
+        "controlAddress": "/cacAccelThresh"
+      },
+      {
         "value": true,
         "controlAddress": "/printPACsToFile"
       },
       {
         "value": true,
         "controlAddress": "/nonMinimalPACs"
+      },
+      {
+        "value": 12000,
+        "hexMode": false,
+        "controlAddress": "/z3Timeout"
       },
       {
         "value": false,
@@ -582,10 +605,10 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 24.06385803222656,
-    "recordEntity": "2",
-    "recordDrawn": 24.06385803222656,
-    "recordDrawnEntity": "1",
+    "recordConcent": 15.67360877990723,
+    "recordEntity": "5",
+    "recordDrawn": 15.67360877990723,
+    "recordDrawnEntity": "5",
     "numLevels": -1,
     "PACsGenerated": true,
     "entities": [
@@ -599,7 +622,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 21.34709739685059,
+        "concent": 11.32390880584717,
         "startConcent": 7.082486152648926,
         "creationRate": 10.69792652130127,
         "destructionRate": 0.5,
@@ -618,8 +641,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0005664941272698343,
-        "startConcent": 24.59999847412109,
+        "concent": 0.4840431213378906,
+        "startConcent": 27.49999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
         "freeEnergy": -0.1466317176818848,
@@ -637,8 +660,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.002797815715894103,
-        "startConcent": 3.5,
+        "concent": 1.906527638435364,
+        "startConcent": 6.599999904632568,
         "creationRate": 0.0,
         "destructionRate": 0.5,
         "freeEnergy": -0.3566223382949829,
@@ -656,8 +679,8 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.0007815401768311858,
-        "startConcent": 4.5,
+        "concent": 0.5016323328018188,
+        "startConcent": 7.699999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
         "freeEnergy": 0.4948822855949402,
@@ -675,7 +698,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.005036549177020788,
+        "concent": 2.339915990829468,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -687,46 +710,96 @@
     ],
     "reactions": [
       {
-        "reactant1": "1",
-        "reactant2": "2",
-        "product": "3",
-        "name": "",
+        "reactants": [
+          {
+            "ent": "1"
+          },
+          {
+            "ent": "2"
+          }
+        ],
+        "products": [
+          {
+            "ent": "3"
+          }
+        ],
+        "name": "1+2=3",
         "assocRate": 0.3062633574008942,
         "dissocRate": 0.248254582285881,
         "idSAT": 0
       },
       {
-        "reactant1": "1",
-        "reactant2": "3",
-        "product": "4",
-        "name": "",
+        "reactants": [
+          {
+            "ent": "1"
+          },
+          {
+            "ent": "3"
+          }
+        ],
+        "products": [
+          {
+            "ent": "4"
+          }
+        ],
+        "name": "1+3=4",
         "assocRate": 0.07072276622056961,
         "dissocRate": 0.1657154411077499,
         "idSAT": 1
       },
       {
-        "reactant1": "2",
-        "reactant2": "2",
-        "product": "4",
-        "name": "",
+        "reactants": [
+          {
+            "ent": "2"
+          },
+          {
+            "ent": "2"
+          }
+        ],
+        "products": [
+          {
+            "ent": "4"
+          }
+        ],
+        "name": "2+2=4",
         "assocRate": 0.3791519701480865,
         "dissocRate": 0.8338744044303894,
         "idSAT": 2
       },
       {
-        "reactant1": "1",
-        "reactant2": "4",
-        "product": "5",
-        "name": "",
+        "reactants": [
+          {
+            "ent": "1"
+          },
+          {
+            "ent": "4"
+          }
+        ],
+        "products": [
+          {
+            "ent": "5"
+          }
+        ],
+        "name": "1+4=5",
         "assocRate": 0.228402853012085,
         "dissocRate": 0.1184950023889542,
         "idSAT": 3
       },
       {
-        "reactant1": "2",
-        "reactant2": "3",
-        "product": "5",
-        "name": "",
+        "reactants": [
+          {
+            "ent": "2"
+          },
+          {
+            "ent": "3"
+          }
+        ],
+        "products": [
+          {
+            "ent": "5"
+          }
+        ],
+        "name": "2+3=5",
         "assocRate": 0.2613496780395508,
         "dissocRate": 0.3678794503211975,
         "idSAT": 4
@@ -737,6 +810,254 @@
         "ent": "1"
       }
     ],
-    "cycles": null
+    "pacList": {
+      "cycles": [
+        {
+          "entities": [
+            {
+              "ent": "2"
+            },
+            {
+              "ent": "4"
+            },
+            {
+              "ent": "5"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "2+2=4",
+              "dir": true
+            },
+            {
+              "reac": "1+4=5",
+              "dir": true
+            },
+            {
+              "reac": "2+3=5",
+              "dir": false
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "2"
+            },
+            {
+              "ent": "3"
+            },
+            {
+              "ent": "4"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "1+2=3",
+              "dir": false
+            },
+            {
+              "reac": "1+3=4",
+              "dir": false
+            },
+            {
+              "reac": "2+2=4",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "2"
+            },
+            {
+              "ent": "3"
+            },
+            {
+              "ent": "4"
+            },
+            {
+              "ent": "5"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "1+2=3",
+              "dir": false
+            },
+            {
+              "reac": "1+3=4",
+              "dir": false
+            },
+            {
+              "reac": "1+4=5",
+              "dir": false
+            },
+            {
+              "reac": "2+3=5",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "2"
+            },
+            {
+              "ent": "3"
+            },
+            {
+              "ent": "4"
+            },
+            {
+              "ent": "5"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "1+3=4",
+              "dir": false
+            },
+            {
+              "reac": "2+2=4",
+              "dir": false
+            },
+            {
+              "reac": "1+4=5",
+              "dir": false
+            },
+            {
+              "reac": "2+3=5",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "1"
+            },
+            {
+              "ent": "3"
+            },
+            {
+              "ent": "4"
+            },
+            {
+              "ent": "5"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "1+2=3",
+              "dir": false
+            },
+            {
+              "reac": "1+3=4",
+              "dir": true
+            },
+            {
+              "reac": "1+4=5",
+              "dir": true
+            },
+            {
+              "reac": "2+3=5",
+              "dir": false
+            }
+          ]
+        }
+      ],
+      "CACs": [
+        {
+          "pacids": [
+            {
+              "id": 0
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 1.0
+            },
+            {
+              "entity": "2",
+              "value": 1.0
+            },
+            {
+              "entity": "3",
+              "value": 10.0
+            },
+            {
+              "entity": "4",
+              "value": 1.0
+            },
+            {
+              "entity": "5",
+              "value": 5.766600131988525
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 1
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 1.0
+            },
+            {
+              "entity": "2",
+              "value": 1.0
+            },
+            {
+              "entity": "3",
+              "value": 1.1875
+            },
+            {
+              "entity": "4",
+              "value": 0.4616700112819672
+            },
+            {
+              "entity": "5",
+              "value": 97.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 4
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 1.0
+            },
+            {
+              "entity": "2",
+              "value": 5.0
+            },
+            {
+              "entity": "3",
+              "value": 5.0
+            },
+            {
+              "entity": "4",
+              "value": 5.0
+            },
+            {
+              "entity": "5",
+              "value": 15.68140029907227
+            }
+          ]
+        }
+      ]
+    }
   }
 }
