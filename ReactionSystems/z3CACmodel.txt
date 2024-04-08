@@ -1,21 +1,23 @@
 sat
 (
   (define-fun conc1 () Real
-    (/ 35.0 8.0))
+    (/ 3.0 1024.0))
   (define-fun conc3 () Real
-    5.0)
+    (/ 131.0 2.0))
   (define-fun conc4 () Real
-    14.0)
+    (/ 31.0 4096.0))
+  (define-fun conc5 () Real
+    (/ 5.0 1024.0))
   (define-fun conc0 () Real
     1.0)
   (define-fun conc2 () Real
-    5.0)
+    1.0)
   (define-fun coef4 () Real
-    (/ 11334238041.0 20000000000.0))
+    (/ 4180281.0 5000000000.0))
   (define-fun coef3 () Real
-    (- (/ 2584578843.0 5000000000.0)))
-  (define-fun coef1 () Real
-    (- (/ 949926749.0 2000000000.0)))
+    (- (/ 13535225063.0 4096000000000.0)))
+  (define-fun coef2 () Real
+    (/ 11.0 4096.0))
   (define-fun coef0 () Real
-    (/ 789034217.0 8000000000.0))
+    (- (/ 7049049.0 2500000000.0)))
 )
