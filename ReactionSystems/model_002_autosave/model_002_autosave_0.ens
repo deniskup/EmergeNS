@@ -36,25 +36,25 @@
     "mainLayout": {
       "type": 1,
       "width": 1920,
-      "height": 1148,
+      "height": 1108,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 1920,
-          "height": 1148,
+          "height": 1108,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
               "width": 605,
-              "height": 1148,
+              "height": 1108,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
                   "width": 605,
-                  "height": 486,
+                  "height": 467,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -68,7 +68,7 @@
                 {
                   "type": 0,
                   "width": 605,
-                  "height": 655,
+                  "height": 635,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -81,19 +81,19 @@
             {
               "type": 1,
               "width": 1308,
-              "height": 1148,
+              "height": 1108,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 875,
-                  "height": 1148,
+                  "height": 1108,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 875,
-                      "height": 675,
+                      "height": 656,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -104,7 +104,7 @@
                     {
                       "type": 0,
                       "width": 875,
-                      "height": 466,
+                      "height": 446,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -117,7 +117,7 @@
                 {
                   "type": 0,
                   "width": 427,
-                  "height": 1148,
+                  "height": 1108,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -163,6 +163,10 @@
         "controlAddress": "/maxConcent"
       },
       {
+        "value": true,
+        "controlAddress": "/detectEquil"
+      },
+      {
         "value": 0.0001,
         "controlAddress": "/eps"
       },
@@ -193,7 +197,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 11.32390880584717,
+            "value": 11.32342529296875,
             "controlAddress": "/concent"
           },
           {
@@ -228,7 +232,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.4840431213378906,
+            "value": 0.4841067790985107,
             "controlAddress": "/concent"
           },
           {
@@ -267,7 +271,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.906527638435364,
+            "value": 1.906745433807373,
             "controlAddress": "/concent"
           },
           {
@@ -306,7 +310,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 0.5016323328018188,
+            "value": 0.5016930103302002,
             "controlAddress": "/concent"
           },
           {
@@ -345,7 +349,7 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.339915990829468,
+            "value": 2.340217113494873,
             "controlAddress": "/concent"
           },
           {
@@ -577,6 +581,11 @@
         "controlAddress": "/maxSetCACs"
       },
       {
+        "value": 0.001,
+        "stringDecimals": 5,
+        "controlAddress": "/cacRobustness"
+      },
+      {
         "value": true,
         "controlAddress": "/cacAcceleration"
       },
@@ -590,6 +599,10 @@
       },
       {
         "value": true,
+        "controlAddress": "/printHistoryToFile"
+      },
+      {
+        "value": false,
         "controlAddress": "/nonMinimalPACs"
       },
       {
@@ -605,9 +618,9 @@
   },
   "currentSimul": {
     "ready": true,
-    "recordConcent": 15.67360877990723,
+    "recordConcent": 15.67770385742188,
     "recordEntity": "5",
-    "recordDrawn": 15.67360877990723,
+    "recordDrawn": 15.67770385742188,
     "recordDrawnEntity": "5",
     "numLevels": -1,
     "PACsGenerated": true,
@@ -622,7 +635,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 11.32390880584717,
+        "concent": 11.32342529296875,
         "startConcent": 7.082486152648926,
         "creationRate": 10.69792652130127,
         "destructionRate": 0.5,
@@ -641,7 +654,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.4840431213378906,
+        "concent": 0.4841067790985107,
         "startConcent": 27.49999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -660,7 +673,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 1.906527638435364,
+        "concent": 1.906745433807373,
         "startConcent": 6.599999904632568,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -679,7 +692,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.5016323328018188,
+        "concent": 0.5016930103302002,
         "startConcent": 7.699999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -698,7 +711,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 2.339915990829468,
+        "concent": 2.340217113494873,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -818,6 +831,33 @@
               "ent": "2"
             },
             {
+              "ent": "3"
+            },
+            {
+              "ent": "4"
+            }
+          ],
+          "reacDirs": [
+            {
+              "reac": "1+2=3",
+              "dir": false
+            },
+            {
+              "reac": "1+3=4",
+              "dir": false
+            },
+            {
+              "reac": "2+2=4",
+              "dir": true
+            }
+          ]
+        },
+        {
+          "entities": [
+            {
+              "ent": "2"
+            },
+            {
               "ent": "4"
             },
             {
@@ -849,33 +889,6 @@
             },
             {
               "ent": "4"
-            }
-          ],
-          "reacDirs": [
-            {
-              "reac": "1+2=3",
-              "dir": false
-            },
-            {
-              "reac": "1+3=4",
-              "dir": false
-            },
-            {
-              "reac": "2+2=4",
-              "dir": true
-            }
-          ]
-        },
-        {
-          "entities": [
-            {
-              "ent": "2"
-            },
-            {
-              "ent": "3"
-            },
-            {
-              "ent": "4"
             },
             {
               "ent": "5"
@@ -883,11 +896,11 @@
           ],
           "reacDirs": [
             {
-              "reac": "1+2=3",
+              "reac": "1+3=4",
               "dir": false
             },
             {
-              "reac": "1+3=4",
+              "reac": "2+2=4",
               "dir": false
             },
             {
@@ -917,11 +930,11 @@
           ],
           "reacDirs": [
             {
-              "reac": "1+3=4",
+              "reac": "1+2=3",
               "dir": false
             },
             {
-              "reac": "2+2=4",
+              "reac": "1+3=4",
               "dir": false
             },
             {
@@ -973,7 +986,7 @@
         {
           "pacids": [
             {
-              "id": 0
+              "id": 1
             }
           ],
           "witness": [
@@ -995,36 +1008,7 @@
             },
             {
               "entity": "5",
-              "value": 5.766600131988525
-            }
-          ]
-        },
-        {
-          "pacids": [
-            {
-              "id": 1
-            }
-          ],
-          "witness": [
-            {
-              "entity": "1",
-              "value": 1.0
-            },
-            {
-              "entity": "2",
-              "value": 1.0
-            },
-            {
-              "entity": "3",
-              "value": 1.1875
-            },
-            {
-              "entity": "4",
-              "value": 0.4616700112819672
-            },
-            {
-              "entity": "5",
-              "value": 97.0
+              "value": 5.78125
             }
           ]
         },
@@ -1053,7 +1037,7 @@
             },
             {
               "entity": "5",
-              "value": 15.68140029907227
+              "value": 15.6855001449585
             }
           ]
         }

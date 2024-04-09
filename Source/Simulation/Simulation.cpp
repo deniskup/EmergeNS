@@ -1228,8 +1228,11 @@ void Simulation::start(bool restart)
   }
   pacList->maxRAC = 0.;
 
-  history.clear();
-
+  RAChistory.clear();
+  for (auto &pac : pacList->cycles)
+  {
+    RAChistory.add(new RACHist());
+  }
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
   startThread();
@@ -1463,6 +1466,18 @@ void Simulation::nextStep()
       }
     }
 
+    if (Settings::getInstance()->printHistoryToFile->boolValue())
+   {
+  //   // update history with flowPerEnt
+     Array<float> RACflows;
+      for (auto &ent : cycle->entities)
+      {
+        RACflows.add(flowPerEnt[ent]);
+      }
+      RAChistory[idPAC-1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
+      //cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
+   }
+
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
     {
@@ -1478,27 +1493,27 @@ void Simulation::nextStep()
   }
   // cout << "-" << endl;
 
-  if (Settings::getInstance()->printHistoryToFile->boolValue())
-  {
-    // update history
-    Array<float> concents;
-    Array<float> flows;
-    Array<float> racs;
+  // if (Settings::getInstance()->printHistoryToFile->boolValue())
+  // {
+  //   // update history
+  //   Array<float> concents;
+  //   Array<float> flows;
+  //   Array<float> racs;
 
-    for (auto &ent : entities)
-    {
-      concents.add(ent->concent);
-    }
-    for (auto &reac : reactions)
-    {
-      flows.add(reac->flow);
-    }
-    for (auto &cycle : pacList->cycles)
-    {
-      racs.add(cycle->flow);
-    }
-    history.add(new Snapshot(curStep, concents, flows, racs));
-  }
+  //   for (auto &ent : entities)
+  //   {
+  //     concents.add(ent->concent);
+  //   }
+  //   for (auto &reac : reactions)
+  //   {
+  //     flows.add(reac->flow);
+  //   }
+  //   for (auto &cycle : pacList->cycles)
+  //   {
+  //     racs.add(cycle->flow);
+  //   }
+  //   history.add(new Snapshot(curStep, concents, flows, racs));
+  // }
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
   // listeners.call(&SimulationListener::newStep, this);
 }
@@ -1560,47 +1575,41 @@ void Simulation::run()
   startTrigger->setEnabled(true);
 }
 
-void Simulation::writeHistory(string filename){
-  if (filename == "")
-    filename = "history.csv";
-  ofstream historyFile;
-  historyFile.open(filename, ofstream::out | ofstream::trunc);
-  //prepare csv to be readable by R
-  historyFile << "Step,";
-  for (auto &ent : entities)
+void Simulation::writeHistory(){
+  for(int idPAC0=0;idPAC0<RAChistory.size();idPAC0++)
   {
-    historyFile << ent->name << ",";
-  }
-  for (auto &reac : reactions)
-  {
-    historyFile << reac->name << ",";
-  }
-  int i=0;
-  for(auto &cycle : pacList->cycles)
-  {
-    historyFile << "RAC"<< i<< ",";
-    i++;
-  }
-  historyFile << endl;
-  for (auto &snap : history)
-  {
-    historyFile << snap->step << ",";
-    for (auto &conc : snap->concents)
+    int idPAC = idPAC0+1;
+    String filename = "RAC" + String(idPAC) + ".csv";
+    ofstream historyFile;
+    historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    //prepare csv to be readable by R
+    historyFile << "Step,RAC,";
+    //test if no entities
+    if (RAChistory[idPAC0]->hist.size() == 0)
     {
-      historyFile << conc << ",";
+      LOG("RAC "+String(idPAC)+ " history empty");
+      historyFile.close();
+      continue;
     }
-    for (auto &flow : snap->flows)
+    for (int e=0;e<RAChistory[idPAC0]->hist[0]->flows.size();e++)
     {
-      historyFile << flow << ",";
-    }
-    for (auto &rac : snap->RACs)
-    {
-      historyFile << rac << ",";
+      historyFile << "ent" << e+1 << ",";
     }
     historyFile << endl;
+    int i=0;
+    for (auto &snap : RAChistory[idPAC0]->hist)
+    {
+      i++;
+      historyFile<<i<<","<< snap->rac<<",";
+      for (int e=0;e<snap->flows.size();e++)
+      {
+        historyFile << snap->flows[e] << ",";
+      }
+      historyFile << endl;
+    }
+    historyFile.close();
   }
-  LOG("History written to " << filename);
-
+LOG("RAC History written to files RACi.csv");
 }
 
 void Simulation::writeJSONConcents(string filename)
