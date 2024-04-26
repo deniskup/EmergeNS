@@ -1,4 +1,6 @@
 #include "SteadyStates.h"
+
+//#include <Eigen/Eigenvalues> 
 #include "Simulation.h"
 #include "Settings.h"
 #include <regex>
@@ -14,6 +16,174 @@ using namespace std;
 ///////////////////////////////////////////////////////////
 ///////////////// out of class functions /////////////////
 ///////////////////////////////////////////////////////////
+
+// Function to check if a character is an operator
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+
+// Fonction to perform arithmetic operation between two operands
+long double applyOperation(long double a, long double b, char op)
+{
+  switch (op) {
+    case '+':
+      return (a + b);
+    case '-':
+      return (a - b);
+    case '*':
+      return (a * b);
+    case '/':
+      if (b != 0) return (a / b);
+      else throw juce::OSCFormatError("Division par zéro !");  
+    case '^':
+      return pow(a, b);
+    default:
+      throw juce::OSCFormatError("Opérateur invalide !");
+    }
+    return 0.;
+}
+
+
+
+// Function to evaluate formal expression
+// input argument : string containing operations to perform, such as :
+// "1 + 3*2 - 2^4/6"
+// can handle operators '+', '-', '*', '/', '^' and their relative priority 
+// can't handle stuff such as brackets
+// spaces do not matter, function will ignore them.
+long double evaluate_expression(const string& expr)
+{
+  // remove all spaces from input expression which can trigger unexpected behaviors
+  string expression = expr;
+	while (expression.find_first_of(" ") != expression.npos) expression.erase(expression.find_first_of(" "), 1);
+  
+
+  // case where string to evaluate starts with '+' or '-' will be pathological
+  // --> add operand '0.' at the beginning of the string
+  if (expression[0] == '-' || expression[0] == '+') expression = "0." + expression;
+
+
+  stack<long double> operandStack;
+  stack<char> operatorStack;
+  
+  for (size_t i = 0; i < expression.length(); ++i)
+  {
+    if (expression[i] == ' ') continue; // Ignore spaces, already taken into account but you never know
+    
+    //cout << expression[i] << endl;
+    
+    if (isdigit(expression[i])) // first case : character is a digit
+    {
+    //cout << "--> is a digit" << endl;
+      // Extract complete operand of expression
+      string operandStr;
+      while (i < expression.length() && (isdigit(expression[i]) || expression[i]=='.' )) 
+      {
+        operandStr += expression[i];
+        i++;
+      }
+      i--;
+
+      // convert current chain into a long double and put it in the operand stack
+      operandStack.push(stold(operandStr));
+      //cout << "\tadded operand " << operandStr << " converted to " << stold(operandStr) << endl;
+    } 
+     
+    // if encountering a power operation, perform it straight away
+    else if (expression[i]=='^')
+    {  
+    	//cout << "power operator ! " << endl;
+    	char op = expression[i];
+    
+    	long double operand1 = operandStack.top();
+    	operandStack.pop();
+    
+    	// operand2 should be next operand, extract it
+    	i++;
+    	string operandStr;
+    	while (i < expression.length() && (isdigit(expression[i]) || expression[i]=='.' )) 
+    	{
+      	operandStr += expression[i];
+      	i++;
+    	}
+    	i--;
+    	long double operand2 = stold(operandStr);
+      
+    	operandStack.push(applyOperation(operand1, operand2, op));
+
+    //cout << "op --> " << operand1 << " " << op << " " << operand2 << " = " << applyOperation(operand1, operand2, op) << endl;
+    
+    }
+
+
+    // 3rd case : when encountering an operator different than '^', perform calculation respecting priority rules
+    else if (isOperator(expression[i])) 
+    {
+    //cout << "is operator" << endl;
+
+			// perform all previous '*' and '/' operations if current expression is '+' or '-'
+      while (!operatorStack.empty() && 
+             isOperator(operatorStack.top()) && 
+             ((expression[i] != '*' && expression[i] != '/') || 
+             (operatorStack.top() == '*' || operatorStack.top() == '/'))) 
+      {
+       	char op = operatorStack.top();
+       	operatorStack.pop();
+
+       	long double operand2 = operandStack.top();
+       	operandStack.pop();
+
+       	long double operand1 = operandStack.top();
+       	operandStack.pop();
+
+       	operandStack.push(applyOperation(operand1, operand2, op));
+
+	//cout << "op --> " << operand1 << " " << op << " " << operand2 << " = " << applyOperation(operand1, operand2, op) << endl;
+
+    	}
+
+      // Add current operator to stack operators
+      operatorStack.push(expression[i]);
+    } 
+
+		else 
+		{
+			string bad = {expression[i]};
+      LOG("Warning : non-valid caracter in expression, return 0. ! Bad wharacter is : '" + bad + "'");
+			return 0.;
+    }
+
+  } // end for loop over characters of string expression
+  
+    //cout << "performing remaining operations" << endl; 
+
+    // Perform remaining operations
+    while (!operatorStack.empty()) 
+		{
+      char op = operatorStack.top();
+      operatorStack.pop();
+
+      long double operand2 = operandStack.top();
+      operandStack.pop();
+
+      long double operand1 = operandStack.top();
+      operandStack.pop();
+
+      operandStack.push(applyOperation(operand1, operand2, op));
+
+			//cout << "op --> " << operand1 << " " << op << " " << operand2 << " = " << applyOperation(operand1, operand2, op) << endl;
+    }
+
+    // operand stack eventually contains result of operations
+		//cout << expression << " = " << operandStack.top() << endl;
+    if (!operandStack.empty()) return operandStack.top();
+    else 
+		{
+			LOG("Warning : Problem when evaluating string expression, returning 0");
+			return 0.;
+		}
+} // end func
+
 
 
 
@@ -55,6 +225,8 @@ void SteadyStateslist::printSteadyStates()
 void SteadyStateslist::clear()
 {
 	steadyStates.clear();
+	stableStates.clear();
+	partiallyStableStates.clear();
 }
 
 void SteadyStateslist::computeSteadyStates(){
@@ -70,9 +242,11 @@ void SteadyStateslist::run()
 	uint32 startTime = Time::getMillisecondCounter();
 
 
-	computeWithZ3(); // search for stationnary points
+	//computeWithZ3(); // search for stationnary points
+	computeWithMSolve(); // search for stationnary points
 
-	// print z3 execution time
+
+	// print z3/msolve execution time
 	simul->isComputing = false;
 	if (simul->shouldStop)
 	{
@@ -84,7 +258,9 @@ void SteadyStateslist::run()
 	// update the parameters of the simulation in the UI
 	simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
 
-	// stability of stationnary points
+
+
+	// evaluate stability of stationnary points
 
 	computeJacobiMatrix(); // formally calculate jacobi matrix of chemical reaction network
 
@@ -140,6 +316,8 @@ void SteadyStateslist::setZ3path()
 
 void SteadyStateslist::computeWithZ3()
 {
+clear();
+
 	// compute steady states
 	setZ3path();
 	LOG("Computing steady states with Z3...");
@@ -373,6 +551,303 @@ void SteadyStateslist::computeWithZ3()
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
+// find most inner list elements between [...] of msolve outputs and returns them as a string list
+vector<string> extract_msolve_intervals(const string& chain)
+{
+  vector<string> result;
+  size_t pos = 0;
+
+  while (pos != string::npos) 
+	{
+    size_t start = chain.find_first_of('[', pos);
+    size_t end = chain.find_first_of(']', start);
+		// first '[' might not be the most inner one. Loop back from closing bracket to retrieve most inner ']'
+    for (int k=end; k>=0; k--)
+     {
+      if (chain[k]=='[') 
+      {
+  	    start = k;
+   		  break;
+      }
+    }
+
+  	// store inner list      
+  	if (start != string::npos && end != string::npos) 
+		{
+    	string element = chain.substr(start + 1, end - start - 1);
+    	result.push_back(element);
+    	pos = end + 1;
+    } 
+		else 
+			{
+        break;
+      }
+  }
+
+    return result;
+}
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+// input string interval has the form "A, B"
+// where A and B can contain arithmetic operations
+long double evaluate_interval_center(string str_interval)
+{
+
+	int separator = str_interval.find(',');
+	if (separator == str_interval.npos) 
+	{	
+		LOG("problem in root solution interval, comma missing. return 0.");
+		return 0.;
+	}
+	string sinf = "";
+	string ssup = "";
+
+	for (int k=0; k<separator; k++) sinf += str_interval[k];
+	for (int k=separator+1; k<str_interval.size(); k++) ssup += str_interval[k];
+
+
+	long double inf = evaluate_expression(sinf);
+	long double sup = evaluate_expression(ssup);
+
+	long double center = (inf + sup) / 2.;
+
+	//cout << sinf << "\t" << ssup << endl;
+	//cout << "center = " << center << endl;
+	
+	return center;
+}
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+
+
+
+void SteadyStateslist::setMSolvepath()
+{
+	if (msolvepath != "") // already has been done
+		return;
+	
+	msolvepath = Settings::getInstance()->pathToMSolve->stringValue().toStdString();
+	
+}
+
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
+
+
+void SteadyStateslist::computeWithMSolve()
+{
+clear();
+
+cout << "setting msolve path" << endl;
+	// compute steady states
+	setMSolvepath();
+	//msolvepath = "/home/thomas/Modèles/msolve-0.6.5/msolve";
+
+
+	LOG("Computing steady states with msolve...");
+	// set idSAT for entities and reactions
+	// to be changed to simul->affectSATIds();
+	int idSAT = 0;
+	for (auto &e : simul->entities)
+	{
+		idSAT++;
+		e->idSAT = idSAT;
+	}
+	idSAT = 0;
+	for (auto &r : simul->reactions)
+	{
+		idSAT++;
+		r->idSAT = idSAT;
+	}
+
+	string inputFile = "msolveSteadyConstraints.ms";
+	string outputFile = "msolveSteadyOutput.ms";
+	// string steadyFile= "SteadyStates.txt";
+
+	string msolveCommand = msolvepath + " -p 32 " +  " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+
+	//std::cout << inputFile << std::endl;  // #erase
+	//std::cout << outputFile << std::endl; // #erase
+
+	vector<Polynom> rateVector = computeConcentrationRateVector();
+
+
+	// clauses for msolve
+	stringstream clauses;
+
+	// first line of clause file contains variable names
+	string line = "";
+	for (int i=0; i<simul->entities.size(); i++) 
+	{
+		if (i == (simul->entities.size()-1)) line += "c" + to_string(i) + "\n";
+		else line += "c" + to_string(i) + ", ";
+	}
+	clauses << line;
+
+	// add a 0 on second line
+	clauses << "0\n";
+
+	// set digit precision for polynoms writing
+	int ndigits = 5;
+	double factor = pow(10, ndigits);
+	clauses << fixed << setprecision(ndigits);
+
+	// transpose rate vector into as many (string) polynoms for msolve
+	int count=-1;
+	for (auto& poly : rateVector)
+	{
+		count++;
+		bool isFirst = true;
+		for (auto& mono : poly)
+		{
+			double coef = mono.coef * factor;
+			//double integercoef = mono.coef;
+			long int integercoef = round(coef); 
+			if (isFirst)
+			{
+				clauses << integercoef;
+				isFirst = false;
+			}
+			else
+			{
+				string sign = (integercoef < 0) ? "-" : "+";
+				clauses << " " << sign << " " << abs(integercoef);
+			}
+			for (auto& v : mono.variables) 
+			{
+				int pow = v.second;
+				if (pow > 1)
+				{	
+					clauses << "*c" << v.first << "^" << pow;
+				}
+				else 
+				{
+					clauses << "*c" << v.first;
+				}
+			}
+		}
+	if (count<(rateVector.size()-1)) clauses << ",\n";
+	}
+
+	// write clauses into txt file
+ 	ofstream inputStream(inputFile);
+	inputStream << clauses.str();
+	inputStream.close();
+
+
+
+	// launch msolve command
+	system(msolveCommand.c_str());
+
+	// retrieve output result
+	ifstream outputStream(outputFile);
+	if (!outputStream)
+	{
+		cerr << "Failed to open file: " << outputFile << endl;
+		return;
+	}
+
+	string msolveOutput((istreambuf_iterator<char>(outputStream)),
+					istreambuf_iterator<char>());
+
+	//cout << "MSolve out ?" << endl;
+	//cout << msolveOutput << endl;
+
+	// check if a finite number of solutions were found
+	int mark1 = msolveOutput.find_first_of("[");
+	int mark2 = msolveOutput.find_first_of(",");
+	string dim = "";
+	for (int k=mark1+1; k<mark2; k++) dim += msolveOutput.at(k);
+	//cout << "MSolve dim ? --> " << dim << endl;
+
+	// only treat the case where dim = 0 : there exist a finite number of steady states
+	if (dim != "0")
+	{
+		LOG("non finite number of steady state, either none or infinite. Exiting");
+		return;
+	}
+
+	// Retrieve lists of steady state intervals from msolve output
+
+	// extract all root intervals
+	vector<string> list = extract_msolve_intervals(msolveOutput);
+	// for (auto& element : list)
+	// {
+	// 	cout << element << endl;
+	// }
+	// make sure number of msolve roots is a multiple of Nentities 
+	int nsol = list.size() / simul->entities.size();
+	if ((list.size() % simul->entities.size()) != 0)
+	{
+		LOG("total number of concentration solutions isn't a multiple of Nentities. Exiting");
+		return;
+	}
+
+	// convert intervals to long double
+	// and store according to the number of solutions
+	for (int i=0; i<nsol; i++)
+	{
+		// vector of increasing index
+		vector<int> l(simul->entities.size(), 0);
+		iota(l.begin(), l.end(), i*simul->entities.size());
+		
+		State state;
+		bool keepState = true;
+		for (auto& index : l)
+		{
+			long double centerLd = evaluate_interval_center(list[index]);
+			float center = (float) centerLd; // move to float precision
+			if (center>=0)
+			{
+				state.add( (float) centerLd);
+			}
+			else
+			{
+				keepState = false;
+				break;
+			}
+		}
+		if (keepState) 
+		{
+			if (state.size() != simul->entities.size())
+			{
+				LOG("steady state size different from Nentities. State not kept.");
+			}
+			else
+			{
+				steadyStates.add(state);
+			}
+		}
+	}
+
+	// print result
+	string sStr="";
+	if (steadyStates.size()>1) sStr = 's';
+	LOG(" msolve found " + to_string(steadyStates.size()) + " steady state" + sStr);
+
+	// sanity check
+	//printSteadyStates();
+
+}
+
+
+
+
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+/////////////////////////////////////////////////////////////////////////:
+
 
 vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 {
@@ -387,26 +862,6 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 	for (auto& r: simul->reactions)
 	{
 
-		// build forward monom of current reaction
-		Monom forwardRate;
-		forwardRate.coef = r->assocRate;
-		for (auto& reac : r->reactants)
-		{
-			forwardRate.variables.add(reac->idSAT);
-		}
-
-		// build backward monom of current reaction (if reversible)
-		Monom backwardRate;
-		if (r->isReversible)
-		{
-			backwardRate.coef = r->dissocRate;
-			for (auto& prod : r->products)
-			{
-				backwardRate.variables.add(prod->idSAT);
-			}
-		}
-
-
 		// retrieve stoechiometry vector of current reaction
 		//cout << "In reaction " << r->idSAT << endl;
 		map<int, int> stoec;
@@ -419,11 +874,30 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 			stoec[product->idSAT]++;
 		}
 
+		
+		// build forward and backward monom of current reaction
+		Monom forwardRate, backwardRate;
+		forwardRate.coef = r->assocRate;
+		backwardRate.coef = r->dissocRate;
+		//for (auto& reac : r->reactants)
+		for (auto& [id, st] : stoec)
+		{
+			//forwardRate.variables.add(reac->idSAT);
+			if (st<0) // entity 'c_id' is a product, add "c_id^st" to monom 
+			{
+				forwardRate.variables.add(make_pair(id, abs(st)));
+			}
+			if (st>0 /*&& r->isReversible*/) // can possibly avoid useless effort if reaction is irreversible. I keep it for symmetric reasons
+			{
+				backwardRate.variables.add(make_pair(id, st));
+			}
+		}
+
+
 
 		// add forward/backward monoms for each entity involved in the reaction
-		for (auto& [entID, sto] : stoec)
+		for (auto& [entID, sto] : stoec) // entity is either consumed or produced by reaction. Information carried by sign of stoechiometry
 		{
-			// entity is either consumed or produced by reaction
 			Monom mon = forwardRate; 
 			// multiply reaction rate by stoechiometry and add it to the rate vector
 			mon.coef *= (float) sto; // multiply rate constant by stoechiometry 
@@ -441,6 +915,29 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
  
 	} // end reaction loop
 
+	// // add creation and destruction rates for each entity
+	for (int ir=0; ir<rateVector.size(); ir++)
+	{
+
+		//cout << "entity #" << ir << " : " << simul->entities[ir]->name << endl;
+		//cout << "kc = " << simul->entities[ir]->creationRate << "\tkd = " << simul->entities[ir]->destructionRate << endl;
+		// creation rate
+		if (simul->entities[ir]->creationRate > 0 && simul->entities[ir]->primary)
+		{
+			Monom creat;
+			creat.coef = simul->entities[ir]->creationRate;
+			rateVector[ir].add(creat);
+		}
+
+		if (simul->entities[ir]->destructionRate > 0)
+		{
+			Monom dest;
+			dest.coef = -1. * simul->entities[ir]->destructionRate;
+			dest.variables.add(make_pair(ir, 1)); // destruction rate has the form -kd*c_i
+			rateVector[ir].add(dest);
+		}
+	}
+
 
 	// // sanity check
 	// int ic=-1;
@@ -451,14 +948,68 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 	// 	for (auto& monom : polynomrate)
 	// 		{
 	// 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
-	// 			cout << "\tvar =";
-	// 			for (auto& id : monom.variables) cout << "  " << id;
+	// 			cout << "\tvars =";
+	// 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
 	// 			cout << endl;
 	// 		} 
 	// 		cout << "------------" << endl;
 	// } // end sanity check
 
-	return rateVector;
+
+	// factorize monoms with same variables together
+	vector<Polynom> factRateVector(simul->entities.size());
+	int irv=-1;
+	for (auto& poly : rateVector)
+	{
+		irv++;
+		Array<int> match;
+		for (int i=0; i<poly.size(); i++)
+		{
+			if (match.contains(i)) continue;
+			map<int, int> m1;
+			for (auto& p : poly[i].variables) m1[p.first] = p.second;
+			for (int j=i+1; j<poly.size(); j++)
+			{
+				map<int, int> m2;
+				for (auto& p : poly[j].variables) m2[p.first] = p.second;
+				if (m1==m2)
+				{
+					match.add(j);
+					poly.getReference(i).coef += poly[j].coef;
+				}
+			} // end internal loop over monoms
+		} // end first loop on monoms
+		Polynom factPoly;
+		for (int i=0; i<poly.size(); i++)
+		{
+			if (match.contains(i)) continue;
+			factPoly.add(poly[i]);
+		}
+	factRateVector[irv] = factPoly;
+	} // end rate Vector loop
+
+
+
+	// sanity check
+	// cout << "\n\n----- Sanity check on factorization -------" << endl;
+	// int ic2=-1;
+	// for (auto& polynomrate : factRateVector) 
+	// {
+	// 	ic2++;
+	// 	cout << "entity #" << ic2 << endl;
+	// 	for (auto& monom : polynomrate)
+	// 		{
+	// 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
+	// 			cout << "\tvars =";
+	// 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
+	// 			cout << endl;
+	// 		} 
+	// 		cout << "------------" << endl;
+	// } // end sanity check
+
+
+
+	return factRateVector;
 
 
 } // end func computeConcentrationRateVector
@@ -476,29 +1027,49 @@ Polynom SteadyStateslist::partialDerivate(const Polynom& poly, int var)
   for (const auto& monom : poly) 
 	{
     int count = 0; 
-    for (int v : monom.variables) if (v == var) count++; // count occurence of variable var
+    //for (int v : monom.variables) if (v == var) count++; // count occurence of variable var
+    for (pair p : monom.variables)
+		{
+			int v = p.first;
+			int pow = p.second;
+			if (v == var) count = pow; // count occurence of variable var
+		}
 
-    // if variable is there
+    // if input argument variable is in the monom
     if (count > 0)
 		{ 
       Monom derivedMonom;
       derivedMonom.coef = monom.coef * (float) count; // power of variable is absorbed in constant coef
       // Rebuild liste of variables removing one occurence of var
-      bool removedOne = false;
-      for (int v : monom.variables) 
+      // bool removedOne = false;
+      // for (int v : monom.variables) 
+			// {
+      //   if (v == var && !removedOne)
+			// 	{
+      //     removedOne = true; // remove one occurence of var
+      //   } 
+			// 	else 
+			// 	{
+      //     derivedMonom.variables.add(v);
+      //   }
+	    for (pair p : monom.variables)
 			{
-        if (v == var && !removedOne)
+				int v = p.first;
+				int pow = p.second;
+				if (v==var) 
 				{
-          removedOne = true; // remove one occurence of var
-        } 
-				else 
+					if (pow>1) // only add strictly positive powers of current variable
+					{
+						derivedMonom.variables.add(make_pair(v, pow-1));
+					}
+				}
+				else // leave untouched variable not equal to input var argument
 				{
-          derivedMonom.variables.add(v);
-         }
-      } // end loop over monom variables
-
+					derivedMonom.variables.add(make_pair(v, pow));
+				}
+			}
       derivative.add(derivedMonom); // add monom derivative to polynome derivative
-    } // end if var is present in monom to derivate
+		}
   } // end monom loop
   
 	return derivative;
@@ -531,7 +1102,8 @@ void SteadyStateslist::computeJacobiMatrix()
 		jacobiMatrix.add(line);
 	}
 
-	// sanity check
+	// sanity check 
+	// cout << "---- Jacobi Matrix ----" << endl;
 	// for (unsigned int i=0; i<simul->entities.size(); i++)
 	// {
 	// 	for (unsigned int j=0; j<simul->entities.size(); j++)
@@ -541,7 +1113,7 @@ void SteadyStateslist::computeJacobiMatrix()
 	// 		{
 	// 			cout << "-----------\tcoeff = " << monom.coef << endl;
 	// 			cout << "\tvar =";
-	// 			for (auto& id : monom.variables) cout << "  " << id;
+	// 			for (auto& p : monom.variables) cout << " c" << p.first << "^" << p.second;
 	// 			cout << endl;
 	// 		} 
 	// 	}
@@ -563,7 +1135,12 @@ float SteadyStateslist::evaluatePolynom(Polynom poly, State witness)
 	for (Monom monom : poly)
 	{
 		float f = monom.coef;
-		for (int ient : monom.variables) f *= witness[ient];
+		for (pair p : monom.variables) 
+		{
+			int ient = p.first;
+			int pow = p.second;
+			for (int k=0; k<pow; k++) f *= witness[ient];
+		}
 		val += f;
 	}
  	return val;
@@ -580,8 +1157,8 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State& witness)
 {
 	Eigen::MatrixXd jm(witness.size(), witness.size());
 
-	cout << "witness size : " << witness.size() << "\t";
-	cout << "JM size : " << jacobiMatrix.size() << endl;
+	//cout << "witness size : " << witness.size() << "\t";
+	//cout << "JM size : " << jacobiMatrix.size() << endl;
 
 	if (jacobiMatrix.size()!=witness.size()) 
 	{
@@ -777,29 +1354,37 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 		// evaluate jacobi matrx at current state vector
 		Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
 
-		cout << "---- Jacobi Matrix ----" << endl;
-		cout << jm << endl;
+		//cout << "---- Jacobi Matrix ----" << endl;
+		//cout << jm << endl;
 
 		// is steady state globally stable ?
 		bool stable = isStable(jm, witness);
-		//if (!stable) steadyStates.remove(iw);
 		if (stable) stableStates.add(witness);
 
-		// steady state has 0. components ?
+		// if (stable) cout << "--> stable !" << endl;
+		// else cout << "--> unstable !" << endl;
+
+		// steady state contains 0. elements ?
 		bool shouldGoPartial = witness.contains(0.);
 		// if yes, check partial stability
 		if (shouldGoPartial)
 		{
 			bool partiallyStable = isPartiallyStable(jm, witness);
 			if (partiallyStable) partiallyStableStates.add(witness);
+			// if (partiallyStable) cout << "--> partially stable !" << endl;
+			// else cout << "--> partially unstable !" << endl;
 		}
 	}
 
 // print stable steady states 
-string plural = "";
-if (stableStates.size()>1) plural = "s";
-LOG("System has " + to_string(stableStates.size()) + " stable steady state" + plural);
+string plural = (stableStates.size()>1) ? "s" : "";
+LOG("System has " + to_string(stableStates.size()) + " stable steady state" + plural + " : ");
 for (auto& s: stableStates) printOneSteadyState(s);
+
+// print partially stable steady states
+plural = (partiallyStableStates.size()>1) ? "s" : "";
+LOG("System has " + to_string(partiallyStableStates.size()) + " partially stable steady state" + plural + " : ");
+for (auto& s: partiallyStableStates) printOneSteadyState(s);
 	
 } // end func evaluateSteadyStatesStability
 

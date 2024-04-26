@@ -2,9 +2,7 @@
 
 #include <JuceHeader.h>
 #include <sstream>
-#include <stack>
 #include <Eigen/Dense>
-//#include <Eigen/Eigenvalues> 
 
 using namespace juce;
 using namespace std;
@@ -14,16 +12,13 @@ class SimReaction;
 class Simulation;
 
 
-class Monom{ // reprensent a polynomial term such as k*c_1*c_3
-public:
-    float coef; // here coef = k in the example above
-    Array<int> variables; // variables = {1, 3} in the example above
-};
-
+class Monom{ // represent a polynomial term such as k*c_1*c_3
+ public:
+     float coef; // here coef = k in the example above
+     Array<pair<int, int>> variables; // variables = {1, 3} in the example above
+ };
 
 typedef Array<Monom> Polynom; // a polynom is a sum of monom
-
-
 
 typedef Array<float> State; // a witness is a vector of concentrations
 
@@ -53,12 +48,18 @@ public:
     void printSteadyStates(); // print list of SteadyStates to cout
 
     string z3path = ""; // path to z3 executable
+    
+    string msolvepath = ""; // path to msolve executable
 
     void computeSteadyStates(); // compute steady states
 
     void setZ3path();   // set the path to z3 executable
 
+    void setMSolvepath();   // set the path to msolve executable
+
     void computeWithZ3(); // compute steady states with Z3
+
+    void computeWithMSolve(); // compute steady states with msolve
 
     void computeJacobiMatrix(); // formal calculation of jacobi matrix 
 

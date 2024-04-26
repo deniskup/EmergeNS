@@ -6,7 +6,11 @@ Resources/**
 z3constraints.smt2
 z3log.txt
 z3model.txt
+z3test.smt2
 z3CAC*
+msolvesteadylog.txt
+*.ms
+steady*
 PAC_list.txt
 Resources/generated.ens
 Resources/z3constraints.smt2
@@ -15,6 +19,9 @@ Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
 ReactionSystems/z3CACmodel.txt
 ReactionSystems/z3CAC.smt2
+ReactionSystems/steadyConstraints.smt2
+ReactionSystems/*.ms
+ReactionSystems/msolvesteadylog.txt
 Builds/LinuxMakefile_CI/Makefile
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
