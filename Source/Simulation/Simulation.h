@@ -119,6 +119,24 @@ public:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
 
+class RACSnapshot
+{
+  public:
+  RACSnapshot(float r, Array<float> f) : rac(r), flows(f) {}
+  float rac;
+  Array<float> flows;
+};
+
+class RACHist
+{
+  public:
+  RACHist(){}
+  OwnedArray<RACSnapshot> hist;
+};
+//   int step;
+//   Array<float> flows;
+// };
+
 class Simulation : public ControllableContainer,
                    public Thread
 
@@ -149,6 +167,8 @@ public:
 
   EnumParameter *setCAC;
   EnumParameter *setSteadyState;
+
+  OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
 
   void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
 
@@ -227,6 +247,8 @@ struct tempReaction // TO REMOVE, only temporary
 
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities
+
+  void writeHistory();
   
 
   //void filterReached(); // compute reached entities and reactions and keep only those

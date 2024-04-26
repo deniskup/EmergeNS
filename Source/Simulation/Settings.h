@@ -34,7 +34,11 @@ public:
 
     BoolParameter *printPACsToFile; //print PACs to file
 
+    BoolParameter *printHistoryToFile; //print RACs to file
+
     BoolParameter *autoLoadLists;
+
+
 
     StringParameter * csvFile; // if used, input excel file name
 

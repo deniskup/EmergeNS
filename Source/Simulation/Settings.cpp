@@ -23,6 +23,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);
 
+    printHistoryToFile = addBoolParameter("Print History to file", "Print concentrations and RACS to history.csv", false);
+
     nonMinimalPACs = addBoolParameter("Non minimal PACs", "Look for non minimal PACs", false);
 
     pathToz3 = addStringParameter("Path to z3", "Path to z3 solver", "/usr/local/bin/z3");
@@ -35,7 +37,7 @@ Settings::Settings() : ControllableContainer("Settings")
 
     CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
 
-    csvFile = addStringParameter("CSV file", "Path to CSV file to import a list of reactions", "");
+    csvFile = addStringParameter("CSV Reactions file", "Path to CSV file to import a list of reactions", "");
 
 
 }
