@@ -862,6 +862,8 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 	for (auto& r: simul->reactions)
 	{
 
+		if (!r->enabled) continue;
+
 		// retrieve stoechiometry vector of current reaction
 		//cout << "In reaction " << r->idSAT << endl;
 		map<int, int> stoec;
