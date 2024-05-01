@@ -1241,6 +1241,8 @@ void Simulation::start(bool restart)
 void Simulation::nextStep()
 {
 
+  nSteps++;
+
   bool isCheck = (curStep % checkPoint == 0);
   if (displayLog && isCheck)
   {
@@ -1367,6 +1369,12 @@ void Simulation::nextStep()
       recordDrawn = ent->concent;
       recordDrawnEntity = ent->name;
     }
+
+    if (Settings::getInstance()->printHistoryToFile->boolValue())
+    {
+      ent->concentHistory.add(ent->concent);
+    }
+
   }
   maxVarSpeed = maxVar / dt->floatValue();
 
@@ -1391,7 +1399,7 @@ void Simulation::nextStep()
 
   // for now we don't care about RACs in express mode
   if (express)
-    return;
+    return; // #tkosc : should go below the following block ?
 
   // storing current concentrations for drawing
   Array<float> entityValues;
@@ -1476,6 +1484,8 @@ void Simulation::nextStep()
       }
       RAChistory[idPAC-1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
       //cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
+
+      
    }
 
     PACsValues.add(cycle->flow);
@@ -1533,6 +1543,7 @@ void Simulation::cancel()
 void Simulation::run()
 {
   curStep = 0;
+  nSteps = 0;
   if (!express)
     LOG("--------- Start thread ---------");
   finished->setValue(false);
@@ -1575,7 +1586,12 @@ void Simulation::run()
   startTrigger->setEnabled(true);
 }
 
+
+///////////////////////////////////////////////////////////////////:
+
+
 void Simulation::writeHistory(){
+
   for(int idPAC0=0;idPAC0<RAChistory.size();idPAC0++)
   {
     int idPAC = idPAC0+1;
@@ -1609,8 +1625,41 @@ void Simulation::writeHistory(){
     }
     historyFile.close();
   }
-LOG("RAC History written to files RACi.csv");
+  LOG("RAC History written to files RACi.csv");
+
+  // store concentration all entity concentrations history to csv file
+  String concentFilename = "./concentrationDynamic.csv";
+  ofstream outfile;
+  outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
+
+  // 1st line of the file is column name : time and entities
+  outfile << "time, runID, ";
+  for (size_t ient=0; ient<entities.size(); ient++)
+  {
+    string comma = (ient == (entities.size()-1)) ? "" : ", ";
+    outfile << "c" << to_string(ient) << comma;
+  }
+  outfile << endl;
+
+  // now store concentration history
+  for (size_t s=0; s<(nSteps-1); s++)
+  {
+    outfile << "i_run, ";
+    int c = 0;
+    for (auto& ent : entities)
+    {
+      string comma = (c==(entities.size()-1)) ? "" : ", ";
+      outfile << ent->concentHistory[s] << comma;
+      c++;
+    }
+    outfile << endl;
+  }
+  // close concentration file output
+  outfile.close();
+
 }
+
+///////////////////////////////////////////////////////////////////:
 
 void Simulation::writeJSONConcents(string filename)
 {

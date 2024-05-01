@@ -38,6 +38,8 @@ public:
   float creationRate;
   float destructionRate;
   float freeEnergy;
+  
+  Array<float> concentHistory; // history of entity concentration 
 
   float change=0.f; // variation of concentration in the last dt
 
@@ -151,6 +153,7 @@ public:
   // for drawing
   int maxSteps;
   int curStep;
+  int nSteps;
   IntParameter *perCent;
   BoolParameter *finished;
   FloatParameter *dt;

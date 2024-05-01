@@ -12,6 +12,7 @@ msolvesteadylog.txt
 *.ms
 steady*
 PAC_list.txt
+concentrationDynamic.csv
 Resources/generated.ens
 Resources/z3constraints.smt2
 *autosave
@@ -22,6 +23,7 @@ ReactionSystems/z3CAC.smt2
 ReactionSystems/steadyConstraints.smt2
 ReactionSystems/*.ms
 ReactionSystems/msolvesteadylog.txt
+ReactionSystems/concentrationDynamic.csv
 Builds/LinuxMakefile_CI/Makefile
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
