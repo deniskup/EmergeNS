@@ -1644,7 +1644,9 @@ void Simulation::writeHistory(){
   // now store concentration history
   for (size_t s=0; s<(nSteps-1); s++)
   {
-    outfile << "i_run, ";
+    float fs = (float) s;
+    float time = fs * dt->floatValue();
+    outfile <<  time << ", i_run, ";
     int c = 0;
     for (auto& ent : entities)
     {
