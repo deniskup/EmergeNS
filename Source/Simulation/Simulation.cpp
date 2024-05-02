@@ -1346,6 +1346,12 @@ void Simulation::nextStep()
 
   for (auto &ent : entities)
   {
+
+    if (Settings::getInstance()->printHistoryToFile->boolValue())
+    {
+      ent->concentHistory.add(ent->concent);
+    }
+
     // update concentration
     ent->refresh();
 
@@ -1370,10 +1376,10 @@ void Simulation::nextStep()
       recordDrawnEntity = ent->name;
     }
 
-    if (Settings::getInstance()->printHistoryToFile->boolValue())
-    {
-      ent->concentHistory.add(ent->concent);
-    }
+    // if (Settings::getInstance()->printHistoryToFile->boolValue())
+    // {
+    //   ent->concentHistory.add(ent->concent);
+    // }
 
   }
   maxVarSpeed = maxVar / dt->floatValue();
