@@ -1639,7 +1639,7 @@ void Simulation::writeHistory(){
   outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
 
   // 1st line of the file is column name : time and entities
-  outfile << "time, runID,";
+  outfile << "time,runID,";
   for (size_t ient=0; ient<entities.size(); ient++)
   {
     string comma = (ient == (entities.size()-1)) ? "" : ",";
