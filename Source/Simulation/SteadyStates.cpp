@@ -699,7 +699,7 @@ cout << "setting msolve path" << endl;
 	clauses << "0\n";
 
 	// set digit precision for polynoms writing
-	int ndigits = 5;
+	int ndigits = 4;
 	double factor = pow(10, ndigits);
 	clauses << fixed << setprecision(ndigits);
 

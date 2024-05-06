@@ -1643,7 +1643,7 @@ void Simulation::writeHistory(){
   for (size_t ient=0; ient<entities.size(); ient++)
   {
     string comma = (ient == (entities.size()-1)) ? "" : ",";
-    outfile << "c" << to_string(ient) << comma;
+    outfile << "[" << entities[ient]->name << "]" << comma;
   }
   outfile << endl;
 
@@ -1652,7 +1652,7 @@ void Simulation::writeHistory(){
   {
     float fs = (float) s;
     float time = fs * dt->floatValue();
-    outfile <<  time << ", i_run, ";
+    outfile <<  time << ",i_run,";
     int c = 0;
     for (auto& ent : entities)
     {
