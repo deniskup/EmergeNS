@@ -267,10 +267,15 @@ void Reaction::updateWarnAndRates()
 
   for (auto c : reactants->controllables)
   {
-    if (((TargetParameter *)c)->targetContainer == NULL || !c->enabled->boolValue())
-    {
-      disabledReactantsNames.add(c->niceName);
-    }
+
+    Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+    
+      if (e==NULL || !e->enabled->boolValue())
+      {
+        disabledReactantsNames.add(c->niceName);
+      }
+    
+    
   }
   
   if(disabledReactantsNames.size() > 0)
@@ -283,10 +288,13 @@ void Reaction::updateWarnAndRates()
 
   for (auto c : products->controllables)
   {
-    if (((TargetParameter *)c)->targetContainer == NULL || !c->enabled->boolValue())
-    {
-      disabledProductsNames.add(c->niceName);
-    }
+    Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+    
+      if (e==NULL || !e->enabled->boolValue())
+      {
+        disabledProductsNames.add(c->niceName);
+      }
+    
   }
 
   if(disabledProductsNames.size() > 0)
