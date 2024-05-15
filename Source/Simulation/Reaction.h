@@ -13,13 +13,16 @@ public:
     Reaction(SimReaction *);
     ~Reaction();
 
-    void addParams();
+  
 
-    //void fromSimReaction(SimReaction *r);
-
+    //to remove when lists work
     TargetParameter *reactant1;
     TargetParameter *reactant2;
     TargetParameter *product;
+
+    std::unique_ptr<ControllableContainer> reactants;
+    std::unique_ptr<ControllableContainer> products;
+
     FloatParameter *energy;
 
     FloatParameter *assocRate;  // reactants to product
@@ -31,11 +34,16 @@ public:
 
     SimReaction *simReac = nullptr; // pointer to the corresponding SimReaction
 
+    void addParams();
+
+    void controllableAdded(Controllable *) override;
+
+
     bool reached;   // can this reaction be built from primary entities ?
 
     void updateWarnAndRates();
 
-    void updateLinks();
+//    void updateLinks();
 
     void autoRename();
 
@@ -45,9 +53,14 @@ public:
 
     void onContainerNiceNameChanged() override;
     //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
-    void onContainerParameterChangedInternal(Parameter *p) override;
+    
+
+
+    void onControllableFeedbackUpdateInternal(ControllableContainer *,Controllable *) override;
+
     // External refers to the parameter not being a direct child of this container
     void onExternalParameterValueChanged(Parameter *p) override;
+
 
     void afterLoadJSONDataInternal() override;
 

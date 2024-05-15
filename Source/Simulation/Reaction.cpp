@@ -3,32 +3,6 @@
 #include "EntityManager.h"
 #include "Simulation.h"
 
-void Reaction::addParams()
-{
-
-  reactant1 = addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
-  reactant2 = addTargetParameter("Reactant 2", "Reactant 2", EntityManager::getInstance());
-  product = addTargetParameter("Product", "Product", EntityManager::getInstance());
-
-  reactant1->targetType = TargetParameter::CONTAINER;
-  reactant1->maxDefaultSearchLevel = 0;
-
-  reactant2->targetType = TargetParameter::CONTAINER;
-  reactant2->maxDefaultSearchLevel = 0;
-
-  product->targetType = TargetParameter::CONTAINER;
-  product->maxDefaultSearchLevel = 0;
-
-  energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 100.f);
-
-  assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f);
-  dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .5f);
-  assocRate->setControllableFeedbackOnly(true);
-  dissocRate->setControllableFeedbackOnly(true);
-
-  showWarningInUI = true;
-}
-
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
   addParams();
@@ -47,7 +21,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   // Entity *e1 = r->reactants[0]->entity;
   // Entity *e2 = r->reactants[1]->entity;
   // Entity *e3 = r->products[0]->entity;
-  //do the above with safeguards
+  // do the above with safeguards
   Entity *e1 = nullptr;
   Entity *e2 = nullptr;
   Entity *e3 = nullptr;
@@ -57,7 +31,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     e2 = r->reactants[1]->entity;
   if (r->products.size() > 0)
     e3 = r->products[0]->entity;
-  
+
   reactant1->setValueFromTarget(e1, false);
   reactant2->setValueFromTarget(e2, false);
   product->setValueFromTarget(e3, false);
@@ -75,34 +49,87 @@ Reaction::~Reaction()
 {
 }
 
-void Reaction::updateLinks()
+void Reaction::addParams()
 {
-  // update links to entity to listen to changes
-  linkedR1 = reactant1->targetContainer.get();
-  registerLinkedInspectable(linkedR1.get());
-  if (linkedR1 != nullptr)
-  {
-    ((Entity *)linkedR1.get())->enabled->addParameterListener(this);
-    ((Entity *)linkedR1.get())->freeEnergy->addParameterListener(this);
-  }
-  linkedR2 = reactant2->targetContainer.get();
-  registerLinkedInspectable(linkedR2.get());
-  if (linkedR2 != nullptr)
-  {
-    ((Entity *)linkedR2.get())->enabled->addParameterListener(this);
-    ((Entity *)linkedR2.get())->freeEnergy->addParameterListener(this);
-  }
+  saveAndLoadRecursiveData = true;
 
-  linkedP = product->targetContainer.get();
-  registerLinkedInspectable(linkedP.get());
-  if (linkedP != nullptr)
-  {
-    ((Entity *)linkedP.get())->enabled->addParameterListener(this);
-    ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
-  }
+  reactant1 = addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
+  reactant2 = addTargetParameter("Reactant 2", "Reactant 2", EntityManager::getInstance());
+  product = addTargetParameter("Product", "Product", EntityManager::getInstance());
 
-  updateWarnAndRates();
+  reactant1->targetType = TargetParameter::CONTAINER;
+  reactant1->maxDefaultSearchLevel = 0;
+
+  reactant2->targetType = TargetParameter::CONTAINER;
+  reactant2->maxDefaultSearchLevel = 0;
+
+  product->targetType = TargetParameter::CONTAINER;
+  product->maxDefaultSearchLevel = 0;
+
+  reactants.reset(new ControllableContainer("Reactants"));
+  reactants->userCanAddControllables = true;
+  reactants->userAddControllablesFilters.add(TargetParameter::getTypeStringStatic());
+  addChildControllableContainer(reactants.get());
+
+  products.reset(new ControllableContainer("Products"));
+  products->userCanAddControllables = true;
+  products->userAddControllablesFilters.add(TargetParameter::getTypeStringStatic());
+  addChildControllableContainer(products.get());
+
+  energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 100.f);
+
+  assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f);
+  dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .5f);
+  assocRate->setControllableFeedbackOnly(true);
+  dissocRate->setControllableFeedbackOnly(true);
+
+  showWarningInUI = true;
 }
+
+void Reaction::controllableAdded(Controllable *c)
+{
+  if (c->parentContainer == reactants.get() || c->parentContainer == products.get())
+  {
+    TargetParameter *tp = (TargetParameter *)c;
+    if (!isCurrentlyLoadingData)
+    { // rename only if not loading data
+      String targetName = c->parentContainer == reactants.get() ? "Reactant 1" : "Product 1";
+      tp->setNiceName(tp->parentContainer->getUniqueNameInContainer(targetName));
+    }
+    tp->targetType = TargetParameter::CONTAINER;
+    tp->maxDefaultSearchLevel = 0;
+    tp->setRootContainer(EntityManager::getInstance());
+  }
+}
+
+// void Reaction::updateLinks()
+// {
+//   // update links to entity to listen to changes
+//   linkedR1 = reactant1->targetContainer.get();
+//   registerLinkedInspectable(linkedR1.get());
+//   if (linkedR1 != nullptr)
+//   {
+//     ((Entity *)linkedR1.get())->enabled->addParameterListener(this);
+//     ((Entity *)linkedR1.get())->freeEnergy->addParameterListener(this);
+//   }
+//   linkedR2 = reactant2->targetContainer.get();
+//   registerLinkedInspectable(linkedR2.get());
+//   if (linkedR2 != nullptr)
+//   {
+//     ((Entity *)linkedR2.get())->enabled->addParameterListener(this);
+//     ((Entity *)linkedR2.get())->freeEnergy->addParameterListener(this);
+//   }
+
+//   linkedP = product->targetContainer.get();
+//   registerLinkedInspectable(linkedP.get());
+//   if (linkedP != nullptr)
+//   {
+//     ((Entity *)linkedP.get())->enabled->addParameterListener(this);
+//     ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
+//   }
+
+//   updateWarnAndRates();
+// }
 
 void Reaction::autoRename()
 {
@@ -136,7 +163,7 @@ void Reaction::inferEntities()
       name2 = name.substring(pos + 1).trim();
       for (int i = 0; i < name1.length(); i++)
       {
-        //namep will be inferred from name1 and name2 by adding the corresponding digits
+        // namep will be inferred from name1 and name2 by adding the corresponding digits
         namep += (char)((name1[i] - '0') + (name2[i] - '0') + '0');
       }
     }
@@ -172,93 +199,42 @@ void Reaction::inferEntities()
 void Reaction::onContainerNiceNameChanged()
 {
   inferEntities();
-  //change name of SimReaction if exists
+  // change name of SimReaction if exists
   if (simReac != nullptr)
   {
     simReac->name = niceName;
   }
 }
 
-void Reaction::onContainerParameterChangedInternal(Parameter *p)
+void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer *cc, Controllable *c)
 {
+  if (cc == reactants.get() || cc == products.get())
+  {
+    TargetParameter *tp = (TargetParameter *)c;
+    if (Entity *e = dynamic_cast<Entity *>(tp->previousTargetContainer.get()))
+    {
 
-  if (p == reactant1)
-  {
-    // unregister old one
-    unregisterLinkedInspectable(linkedR1.get());
-    if (linkedR1 != nullptr)
-    {
-      ((Entity *)linkedR1.get())->enabled->removeParameterListener(this);
-      ((Entity *)linkedR1.get())->freeEnergy->removeParameterListener(this);
+      // unregister old one
+      unregisterLinkedInspectable(e);
+      e->enabled->removeParameterListener(this);
+      e->freeEnergy->removeParameterListener(this);
     }
-    // update new one
-    linkedR1 = reactant1->targetContainer.get();
-    registerLinkedInspectable(linkedR1.get());
-    if (linkedR1 != nullptr)
+
+    if (Entity *e = tp->getTargetContainerAs<Entity>())
     {
-      ((Entity *)linkedR1.get())->enabled->addParameterListener(this);
-      ((Entity *)linkedR1.get())->freeEnergy->addParameterListener(this);
-    }
-  }
-  else if (p == reactant2)
-  {
-    unregisterLinkedInspectable(linkedR2.get());
-    if (linkedR2 != nullptr)
-    {
-      ((Entity *)linkedR2.get())->enabled->removeParameterListener(this);
-      ((Entity *)linkedR2.get())->freeEnergy->removeParameterListener(this);
-    }
-    linkedR2 = reactant2->targetContainer.get();
-    registerLinkedInspectable(linkedR2.get());
-    if (linkedR2 != nullptr)
-    {
-      ((Entity *)linkedR2.get())->enabled->addParameterListener(this);
-      ((Entity *)linkedR2.get())->freeEnergy->addParameterListener(this);
-    }
-  }
-  else if (p == product)
-  {
-    unregisterLinkedInspectable(linkedP.get());
-    if (linkedP != nullptr)
-    {
-      ((Entity *)linkedP.get())->enabled->removeParameterListener(this);
-      ((Entity *)linkedP.get())->freeEnergy->removeParameterListener(this);
-    }
-    linkedP = product->targetContainer.get();
-    registerLinkedInspectable(linkedP.get());
-    if (linkedP != nullptr)
-    {
-      ((Entity *)linkedP.get())->enabled->addParameterListener(this);
-      ((Entity *)linkedP.get())->freeEnergy->addParameterListener(this);
+
+      registerLinkedInspectable(e);
+
+      e->enabled->addParameterListener(this);
+      e->freeEnergy->addParameterListener(this);
     }
   }
   updateWarnAndRates();
-  if (simReac != nullptr){
-    simReac->toImport = true;
-    simReac->reaction=this;
-  }
 }
 
 void Reaction::onExternalParameterValueChanged(Parameter *p)
 {
-  if (linkedR1 != nullptr)
-  {
-    Entity *r1 = (Entity *)linkedR1.get();
-    if (p == r1->enabled || p == r1->freeEnergy)
-      updateWarnAndRates();
-  }
-  if (linkedR2 != nullptr)
-  {
-    Entity *r2 = (Entity *)linkedR2.get();
-    if (p == r2->enabled || p == r2->freeEnergy)
-      updateWarnAndRates();
-  }
-  if (linkedP != nullptr)
-  {
-    Entity *pr = (Entity *)linkedP.get();
-    if (p == pr->enabled || p == pr->freeEnergy)
-      updateWarnAndRates();
-  }
+  updateWarnAndRates();
 }
 
 void Reaction::afterLoadJSONDataInternal()
@@ -272,33 +248,48 @@ void Reaction::updateWarnAndRates()
     return;
   bool someWarn = false;
 
-  if (linkedR1 == nullptr || !((Entity *)linkedR1.get())->enabled->boolValue())
-  {
-    setWarningMessage("Reactant 1 is null or disabled, this reaction will not be included in simulation", "R1");
-    someWarn = true;
-  }
-  else
-    clearWarning("R1");
+  StringArray disabledReactantsNames;
+  StringArray disabledProductsNames;
 
-  if (linkedR2 == nullptr || !((Entity *)linkedR2.get())->enabled->boolValue())
+  for (auto c : reactants->controllables)
   {
-    setWarningMessage("Reactant 2 is null or disabled, this reaction will not be included in simulation", "R2");
+    if (((TargetParameter *)c)->targetContainer == NULL || !c->enabled->boolValue())
+    {
+      disabledReactantsNames.add(c->niceName);
+    }
+  }
+  
+  if(disabledReactantsNames.size() > 0)
+  {
+    setWarningMessage("Some reactants are disabled or null: " + disabledReactantsNames.joinIntoString(", "), "DisabledReactants");
     someWarn = true;
   }
   else
-    clearWarning("R2");
+    clearWarning("DisabledReactants");
 
-  if (linkedP == nullptr || !((Entity *)linkedP.get())->enabled->boolValue())
+  for (auto c : products->controllables)
   {
-    setWarningMessage("Product is null or disabled, this reaction will not be included in simulation", "P");
+    if (((TargetParameter *)c)->targetContainer == NULL || !c->enabled->boolValue())
+    {
+      disabledProductsNames.add(c->niceName);
+    }
+  }
+
+  if(disabledProductsNames.size() > 0)
+  {
+    setWarningMessage("Some products are disabled or null: " + disabledProductsNames.joinIntoString(", "), "DisabledProducts");
     someWarn = true;
   }
   else
-    clearWarning("P");
+    clearWarning("DisabledProducts");
+  
+ 
   if (someWarn)
     return;
   // energies of reactants and products
   // GA+GB
+
+  //to update with new system
   float energyLeft = ((Entity *)linkedR1.get())->freeEnergy->floatValue() + ((Entity *)linkedR2.get())->freeEnergy->floatValue();
   // GAB
   float energyRight = ((Entity *)linkedP.get())->freeEnergy->floatValue();
@@ -309,6 +300,13 @@ void Reaction::updateWarnAndRates()
   // k2=exp(GAB-G*)
   float newDissocRate = exp(energyRight - energyStar);
   dissocRate->setValue(newDissocRate);
+
+  // to implement better later, via listening functions
+  if (simReac != nullptr)
+  {
+    simReac->toImport = true;
+    simReac->reaction = this;
+  }
 }
 
 bool Reaction::shouldIncludeInSimulation()
