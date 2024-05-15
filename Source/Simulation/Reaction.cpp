@@ -5,7 +5,17 @@
 
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
+  
   addParams();
+
+  //2->1 by default
+  if(!Engine::mainEngine->isLoadingFile)
+  {
+    reactants->addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
+    reactants->addTargetParameter("Reactant 2", "Reactant 2", EntityManager::getInstance());
+    products->addTargetParameter("Product 1", "Product 1", EntityManager::getInstance());
+  }
+
 }
 
 Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
@@ -22,6 +32,8 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   // Entity *e2 = r->reactants[1]->entity;
   // Entity *e3 = r->products[0]->entity;
   // do the above with safeguards
+
+  //to change
   Entity *e1 = nullptr;
   Entity *e2 = nullptr;
   Entity *e3 = nullptr;
@@ -76,6 +88,8 @@ void Reaction::addParams()
   products->userAddControllablesFilters.add(TargetParameter::getTypeStringStatic());
   addChildControllableContainer(products.get());
 
+
+  
   energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 100.f);
 
   assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f);
