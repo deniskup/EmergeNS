@@ -61,6 +61,7 @@ public:
     // External refers to the parameter not being a direct child of this container
     void onExternalParameterValueChanged(Parameter *p) override;
 
+    void onControllableRemoved(Controllable*) override;
 
     void afterLoadJSONDataInternal() override;
 
