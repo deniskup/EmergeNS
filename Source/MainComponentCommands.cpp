@@ -5,8 +5,8 @@
 
 namespace NSCommandIDs
 {
-	static const int computeCompositions = 0x60000;
-	static const int normalizeEnergies = 0x60001;
+	//static const int computeCompositions = 0x60000;
+	// static const int normalizeEnergies = 0x60001;
 	// static const int PACminisat = 0x60002;
 	// static const int PACkissat = 0x60003;
 	static const int loadManual = 0x60004;
@@ -24,14 +24,14 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 {
 	switch (commandID)
 	{
-	case NSCommandIDs::computeCompositions:
-		result.setInfo("Compute Compositions", "", "General", result.readOnlyInKeyEditor);
-		break;
+	///case NSCommandIDs::computeCompositions:
+	// 	result.setInfo("Compute Compositions", "", "General", result.readOnlyInKeyEditor);
+	// 	break;
 
-	case NSCommandIDs::normalizeEnergies:
-		result.setInfo("Normalize Energies", "", "General", result.readOnlyInKeyEditor);
+	// case NSCommandIDs::normalizeEnergies:
+		// result.setInfo("Normalize Energies", "", "General", result.readOnlyInKeyEditor);
 
-		break;
+	//	break;
 
 	// case NSCommandIDs::PACminisat:
 	// 	result.setInfo("PACs with minisat", "", "General", result.readOnlyInKeyEditor);
@@ -101,8 +101,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 	OrganicMainContentComponent::getAllCommands(commands);
 
 	const CommandID ids[] = {
-		NSCommandIDs::computeCompositions,
-		NSCommandIDs::normalizeEnergies,
+		//NSCommandIDs::computeCompositions,
+		// NSCommandIDs::normalizeEnergies,
 		// NSCommandIDs::PACminisat,
 		// NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
@@ -126,8 +126,8 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 
 	if (menuName == "Simulation")
 	{
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
+		//menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
+		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
@@ -154,17 +154,17 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	switch (info.commandID)
 	{
-	case NSCommandIDs::computeCompositions:
-	{
-		EntityManager::getInstance()->computeCompositions();
-	}
-	break;
+	//case NSCommandIDs::computeCompositions:
+	//{
+		//EntityManager::getInstance()->computeCompositions();
+	//}
+	//break;
 
-	case NSCommandIDs::normalizeEnergies:
-	{
-		EntityManager::getInstance()->normEnergies();
-	}
-	break;
+	// case NSCommandIDs::normalizeEnergies:
+	//{
+		// EntityManager::getInstance()->normEnergies();
+	//}
+	//break;
 
 	// case NSCommandIDs::PACminisat:
 	// {

@@ -16,9 +16,9 @@ public:
   
 
     //to remove when lists work
-    TargetParameter *reactant1;
-    TargetParameter *reactant2;
-    TargetParameter *product;
+    // TargetParameter *reactant1;
+    // TargetParameter *reactant2;
+    // TargetParameter *product;
 
     std::unique_ptr<ControllableContainer> reactants;
     std::unique_ptr<ControllableContainer> products;
@@ -28,9 +28,9 @@ public:
     FloatParameter *assocRate;  // reactants to product
     FloatParameter *dissocRate; // product to reactants
 
-    WeakReference<ControllableContainer> linkedR1;
-    WeakReference<ControllableContainer> linkedR2;
-    WeakReference<ControllableContainer> linkedP;
+    // WeakReference<ControllableContainer> linkedR1;
+    // WeakReference<ControllableContainer> linkedR2;
+    // WeakReference<ControllableContainer> linkedP;
 
     SimReaction *simReac = nullptr; // pointer to the corresponding SimReaction
 

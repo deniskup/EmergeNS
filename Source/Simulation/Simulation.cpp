@@ -550,7 +550,7 @@ void Simulation::importCsvData(String filename)
         }
 
       } // end stoechiometry loop
-    }   // end loop over reactants
+    } // end loop over reactants
 
     // add products to simul->entities if not already added
     //  for (it = mproducts.begin(); it != mproducts.end(); it++)
@@ -586,7 +586,7 @@ void Simulation::importCsvData(String filename)
         } // end if
 
       } // end stoechio loop
-    }   // end loop over products
+    } // end loop over products
 
     // check
     // for (const auto& r: simr){std::cout << "reactant name : " << r->name << std::endl;}
@@ -705,7 +705,7 @@ void Simulation::SearchReversibleReactionsInCsvFile()
       rr[ia]++;
       break;
     } // end ib loop
-  }   // end ia loop
+  } // end ia loop
 
   /*
   cout << "SearchReversibleReactionsInCsvFile:: Matching " << reactions.size() << " reactions." << endl;
@@ -1380,7 +1380,6 @@ void Simulation::nextStep()
     // {
     //   ent->concentHistory.add(ent->concent);
     // }
-
   }
   maxVarSpeed = maxVar / dt->floatValue();
 
@@ -1481,18 +1480,16 @@ void Simulation::nextStep()
     }
 
     if (Settings::getInstance()->printHistoryToFile->boolValue())
-   {
-  //   // update history with flowPerEnt
-     Array<float> RACflows;
+    {
+      //   // update history with flowPerEnt
+      Array<float> RACflows;
       for (auto &ent : cycle->entities)
       {
         RACflows.add(flowPerEnt[ent]);
       }
-      RAChistory[idPAC-1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
-      //cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
-
-      
-   }
+      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
+      // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
+    }
 
     PACsValues.add(cycle->flow);
     if (cycle->flow > 0)
@@ -1585,45 +1582,44 @@ void Simulation::run()
 
   updateConcentLists();
 
-  if(Settings::getInstance()->printHistoryToFile->boolValue())
+  if (Settings::getInstance()->printHistoryToFile->boolValue())
     writeHistory();
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
 }
 
-
 ///////////////////////////////////////////////////////////////////:
 
+void Simulation::writeHistory()
+{
 
-void Simulation::writeHistory(){
-
-  for(int idPAC0=0;idPAC0<RAChistory.size();idPAC0++)
+  for (int idPAC0 = 0; idPAC0 < RAChistory.size(); idPAC0++)
   {
-    int idPAC = idPAC0+1;
+    int idPAC = idPAC0 + 1;
     String filename = "RAC" + String(idPAC) + ".csv";
     ofstream historyFile;
     historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
-    //prepare csv to be readable by R
+    // prepare csv to be readable by R
     historyFile << "Step,RAC,";
-    //test if no entities
+    // test if no entities
     if (RAChistory[idPAC0]->hist.size() == 0)
     {
-      LOG("RAC "+String(idPAC)+ " history empty");
+      LOG("RAC " + String(idPAC) + " history empty");
       historyFile.close();
       continue;
     }
-    for (int e=0;e<RAChistory[idPAC0]->hist[0]->flows.size();e++)
+    for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
     {
-      historyFile << "ent" << e+1 << ",";
+      historyFile << "ent" << e + 1 << ",";
     }
     historyFile << endl;
-    int i=0;
+    int i = 0;
     for (auto &snap : RAChistory[idPAC0]->hist)
     {
       i++;
-      historyFile<<i<<","<< snap->rac<<",";
-      for (int e=0;e<snap->flows.size();e++)
+      historyFile << i << "," << snap->rac << ",";
+      for (int e = 0; e < snap->flows.size(); e++)
       {
         historyFile << snap->flows[e] << ",";
       }
@@ -1640,23 +1636,23 @@ void Simulation::writeHistory(){
 
   // 1st line of the file is column name : time and entities
   outfile << "time,runID,";
-  for (size_t ient=0; ient<entities.size(); ient++)
+  for (size_t ient = 0; ient < entities.size(); ient++)
   {
-    string comma = (ient == (entities.size()-1)) ? "" : ",";
+    string comma = (ient == (entities.size() - 1)) ? "" : ",";
     outfile << "[" << entities[ient]->name << "]" << comma;
   }
   outfile << endl;
 
   // now store concentration history
-  for (size_t s=0; s<(nSteps-1); s++)
+  for (size_t s = 0; s < (nSteps - 1); s++)
   {
-    float fs = (float) s;
+    float fs = (float)s;
     float time = fs * dt->floatValue();
-    outfile <<  time << ",i_run,";
+    outfile << time << ",i_run,";
     int c = 0;
-    for (auto& ent : entities)
+    for (auto &ent : entities)
     {
-      string comma = (c==(entities.size()-1)) ? "" : ",";
+      string comma = (c == (entities.size() - 1)) ? "" : ",";
       outfile << ent->concentHistory[s] << comma;
       c++;
     }
@@ -1664,7 +1660,6 @@ void Simulation::writeHistory(){
   }
   // close concentration file output
   outfile.close();
-
 }
 
 ///////////////////////////////////////////////////////////////////:
@@ -2046,9 +2041,60 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
   reactants.clear();
   products.clear();
   // for now keep reactant1 and reactant2 for reactions, to not do all changes at once.
-  reactants.add((dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt);
-  reactants.add((dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt);
-  products.add((dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt);
+  // reactants.add((dynamic_cast<Entity *>(r->reactant1->targetContainer.get()))->simEnt);
+  // reactants.add((dynamic_cast<Entity *>(r->reactant2->targetContainer.get()))->simEnt);
+  // products.add((dynamic_cast<Entity *>(r->product->targetContainer.get()))->simEnt);
+
+  for (auto c : r->reactants->controllables)
+  {
+    Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+    if (e != nullptr)
+    {
+      SimEntity *se = e->simEnt;
+      if (se != nullptr)
+      {
+        reactants.add(se);
+      }
+      else
+      {
+        LOGWARNING("No SimEntity for reactant in reaction");
+        constructionFailed = true;
+        return;
+      }
+    }
+    else
+    {
+      LOGWARNING("No Entity for reactant in reaction");
+      constructionFailed = true;
+      return;
+    }
+  }
+
+  for (auto c : r->products->controllables)
+  {
+    Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+    if (e != nullptr)
+    {
+      SimEntity *se = e->simEnt;
+      if (se != nullptr)
+      {
+        products.add(se);
+      }
+      else
+      {
+        LOGWARNING("No SimEntity for product in reaction");
+        constructionFailed = true;
+        return;
+      }
+    }
+    else
+    {
+      LOGWARNING("No Entity for product in reaction");
+      constructionFailed = true;
+      return;
+    }
+  }
+
   // setName(); //to rename automatically the reaction
 }
 
