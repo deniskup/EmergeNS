@@ -5,6 +5,7 @@
 using namespace juce;
 
 class SimReaction;
+class Entity;
 
 class Reaction : public BaseItem
 {
@@ -38,6 +39,10 @@ public:
 
     void controllableAdded(Controllable *) override;
 
+    void controllableRemoved(Controllable *) override;
+
+    void addReactant(Entity *e);
+    void addProduct(Entity *e);
 
     bool reached;   // can this reaction be built from primary entities ?
 
@@ -61,7 +66,7 @@ public:
     // External refers to the parameter not being a direct child of this container
     void onExternalParameterValueChanged(Parameter *p) override;
 
-    void onControllableRemoved(Controllable*) override;
+    //void onControllableRemoved(Controllable*) override;
 
     void afterLoadJSONDataInternal() override;
 

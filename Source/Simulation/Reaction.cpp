@@ -3,8 +3,6 @@
 #include "EntityManager.h"
 #include "Simulation.h"
 
-
-
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
   addParams();
@@ -12,16 +10,9 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
   // 2->1 by default
   if (!Engine::mainEngine->isLoadingFile)
   {
-    // should be addControllable ?
-    TargetParameter *tp=reactants->addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
-    tp->saveValueOnly=false;
-    ((BaseItem *)tp)->userCanRemove=true;
-  tp=    reactants->addTargetParameter("Reactant 2", "Reactant 2", EntityManager::getInstance());
-  tp->saveValueOnly=false;
-  ((BaseItem *)tp)->userCanRemove=true;
-    tp=products->addTargetParameter("Product 1", "Product 1", EntityManager::getInstance());
-    tp->saveValueOnly=false;
-    ((BaseItem *)tp)->userCanRemove=true;
+    addReactant(nullptr);
+    addReactant(nullptr);
+    addProduct(nullptr);
   }
 }
 
@@ -55,28 +46,15 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   // reactant2->setValueFromTarget(e2, false);
   // product->setValueFromTarget(e3, false);
 
-  int i = 0;
+
   for (auto e : r->reactants)
   {
-    i++;
-    String name = "Reac " + String(i);
-    TargetParameter *tp = reactants->addTargetParameter(name, name, EntityManager::getInstance());
-    tp->setValueFromTarget(e->entity, false);
-    tp->saveValueOnly = false;
-    ((BaseItem *)tp)->userCanRemove = true;
-    // reactants->addControllable((Controllable *)(e->entity));
-    // ??
+    addReactant(e->entity);
   }
 
-  i = 0;
   for (auto e : r->products)
   {
-    i++;
-    String name = "Prod " + String(i);
-    TargetParameter *tp = products->addTargetParameter(name, name, EntityManager::getInstance());
-    tp->setValueFromTarget(e->entity, false);
-    tp->saveValueOnly = false;
-    ((BaseItem *)tp)->userCanRemove = true;
+    addProduct(e->entity);
   }
 
   if (r->energy < -.5f)
@@ -146,6 +124,28 @@ void Reaction::controllableAdded(Controllable *c)
   }
 }
 
+void Reaction::controllableRemoved(Controllable *)
+{
+  updateWarnAndRates();
+}
+
+void Reaction::addReactant(Entity *e)
+{
+  TargetParameter *tp = reactants->addTargetParameter("Reactant " + String(reactants->controllables.size() + 1), "Reactant " + String(reactants->controllables.size() + 1), EntityManager::getInstance());
+  if (e != NULL)
+    tp->setValueFromTarget(e, false);
+  tp->saveValueOnly = false;
+  ((BaseItem *)tp)->userCanRemove = true;
+}
+
+void Reaction::addProduct(Entity *e)
+{
+  TargetParameter *tp = products->addTargetParameter("Product " + String(products->controllables.size() + 1), "Product " + String(products->controllables.size() + 1), EntityManager::getInstance());
+  if (e != NULL)
+    tp->setValueFromTarget(e, false);
+  tp->saveValueOnly = false;
+  ((BaseItem *)tp)->userCanRemove = true;
+}
 // void Reaction::updateLinks()
 // {
 //   // update links to entity to listen to changes
@@ -258,10 +258,10 @@ void Reaction::autoRename()
 
 void Reaction::inferEntities()
 {
-  if(isCurrentlyLoadingData)
+  if (isCurrentlyLoadingData)
     return;
-    //only infer for empty reactions
-  if(reactants->controllables.size() >0 || products->controllables.size() >0)
+  // only infer for empty reactions
+  if (reactants->controllables.size() > 0 || products->controllables.size() > 0)
     return;
   String name = niceName;
   int pos = name.indexOfChar('+');
@@ -294,11 +294,7 @@ void Reaction::inferEntities()
       Entity *reactantEntity = EntityManager::getInstance()->getEntityFromName(reactantName);
       if (reactantEntity != nullptr)
       {
-          TargetParameter *tp = reactants->addTargetParameter("Reactant " + String(i + 1), "Reactant " + String(i + 1), EntityManager::getInstance());
-          tp->setValueFromTarget(reactantEntity, false);
-          tp->saveValueOnly = false;
-          ((BaseItem *)tp)->userCanRemove = true;
-        
+        addReactant(reactantEntity);
       }
       else
       {
@@ -314,13 +310,7 @@ void Reaction::inferEntities()
       Entity *productEntity = EntityManager::getInstance()->getEntityFromName(productName);
       if (productEntity != nullptr)
       {
-        
-          TargetParameter *tp = products->addTargetParameter("Product " + String(i + 1), "Product " + String(i + 1), EntityManager::getInstance());
-          tp->setValueFromTarget(productEntity, false);
-          tp->saveValueOnly = false;
-          ((BaseItem *)tp)->userCanRemove = true;
-        
-      
+        addProduct(productEntity);
       }
       else
       {
@@ -390,11 +380,6 @@ void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer *cc, C
 }
 
 void Reaction::onExternalParameterValueChanged(Parameter *p)
-{
-  updateWarnAndRates();
-}
-
-void Reaction::onControllableRemoved(Controllable *c)
 {
   updateWarnAndRates();
 }
