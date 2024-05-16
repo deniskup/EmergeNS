@@ -11,6 +11,7 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
   // 2->1 by default
   if (!Engine::mainEngine->isLoadingFile)
   {
+    //should be addControllable ?
     reactants->addTargetParameter("Reactant 1", "Reactant 1", EntityManager::getInstance());
     reactants->addTargetParameter("Reactant 2", "Reactant 2", EntityManager::getInstance());
     products->addTargetParameter("Product 1", "Product 1", EntityManager::getInstance());
@@ -53,8 +54,10 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
     i++;
     String name = "Reactant " + String(i);
     reactants->addTargetParameter(name, name, EntityManager::getInstance());
-    TargetParameter *tp = (TargetParameter *)reactants->controllables.getLast();
+    TargetParameter *tp = (TargetParameter *)reactants.getLast();
     tp->setValueFromTarget(e->entity, false);
+    //reactants->addControllable((Controllable *)(e->entity));
+   // ??
   }
 
   i = 0;
