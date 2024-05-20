@@ -136,7 +136,7 @@ void Reaction::addReactant(Entity *e)
   if (e != NULL)
     tp->setValueFromTarget(e, false);
   tp->saveValueOnly = false;
- // ((BaseItem *)tp)->userCanRemove = true;
+  tp->isRemovableByUser = true;
 }
 
 //also to fix as above
@@ -146,7 +146,7 @@ void Reaction::addProduct(Entity *e)
   if (e != NULL)
     tp->setValueFromTarget(e, false);
   tp->saveValueOnly = false;
-  //((BaseItem *)tp)->userCanRemove = true;
+ tp->isRemovableByUser = true;
 }
 
 void Reaction::clearReactants()

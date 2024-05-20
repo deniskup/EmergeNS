@@ -11,7 +11,7 @@
    
 4. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
 
-5. In File>Global path, add the Path to Juce.
+5. In File>Global path, add the Path to Juce. For Windows add "/bigobj" in "Extra Compiler Flags" of Exporters>Visual Studio Code if it's not there already.
 
 6. Save the project
 
