@@ -126,6 +126,7 @@ void Reaction::controllableAdded(Controllable *c)
 
 void Reaction::controllableRemoved(Controllable *)
 {
+  cout <<" bouh" << endl;
   updateWarnAndRates();
 }
 
