@@ -1,3 +1,5 @@
+-simul start ne marche pas sauf si on change le dt (ou autre), a regler
+
 -reactions irreversibles (bool isReversible)
 
 -verify that conditions with dir in PAC searching are needed
