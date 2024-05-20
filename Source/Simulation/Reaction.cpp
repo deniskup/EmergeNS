@@ -136,7 +136,7 @@ void Reaction::addReactant(Entity *e)
   if (e != NULL)
     tp->setValueFromTarget(e, false);
   tp->saveValueOnly = false;
-  ((BaseItem *)tp)->userCanRemove = true;
+ // ((BaseItem *)tp)->userCanRemove = true;
 }
 
 //also to fix as above
@@ -146,7 +146,17 @@ void Reaction::addProduct(Entity *e)
   if (e != NULL)
     tp->setValueFromTarget(e, false);
   tp->saveValueOnly = false;
-  ((BaseItem *)tp)->userCanRemove = true;
+  //((BaseItem *)tp)->userCanRemove = true;
+}
+
+void Reaction::clearReactants()
+{
+ while(!reactants->controllables.isEmpty()) reactants->removeControllable(reactants->controllables.getLast());
+}
+
+void Reaction::clearProducts()
+{
+ while(!products->controllables.isEmpty()) products->removeControllable(products->controllables.getLast());
 }
 // void Reaction::updateLinks()
 // {

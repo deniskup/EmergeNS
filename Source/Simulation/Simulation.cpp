@@ -855,20 +855,20 @@ void Simulation::establishLinks()
     {
       LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
 
-       r->reactants->controllables.clear();
-       r->products->controllables.clear();
+       r->clearReactants();
+       r->clearProducts();
 
       // creates a bug for now, to understand...
 
-      // auto sr = r->simReac;
-        // for(auto &se : sr->reactants)
-        // {
-        //   r->addReactant(se->entity);
-        // }
-      //  for(auto &se : sr->products)
-      //  {
-      //    r->addProduct(se->entity);
-      //  }
+      auto sr = r->simReac;
+        for(auto &se : sr->reactants)
+        {
+          r->addReactant(se->entity);
+        }
+       for(auto &se : sr->products)
+       {
+         r->addProduct(se->entity);
+       }
     }
     if (!found)
     {

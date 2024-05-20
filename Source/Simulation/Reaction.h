@@ -44,6 +44,9 @@ public:
     void addReactant(Entity *e);
     void addProduct(Entity *e);
 
+    void clearReactants();
+    void clearProducts();
+
     bool reached;   // can this reaction be built from primary entities ?
 
     void updateWarnAndRates();
