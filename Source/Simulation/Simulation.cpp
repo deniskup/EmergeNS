@@ -850,21 +850,25 @@ void Simulation::establishLinks()
         break;
       }
     }
-    if(r->reactants->controllables.size() == 0 || r->products->controllables.size() == 0)
-    {
-      LOG("Old file format, updating manual reactants and products from Simreactions");
-      r->reactants->controllables.clear();
-      r->products->controllables.clear();
-      auto sr = r->simReac;
-      for(auto &se : sr->reactants)
-      {
-        r->addReactant(se->entity);
-      }
-      for(auto &se : sr->products)
-      {
-        r->addProduct(se->entity);
-      }
 
+    if (r->reactants->controllables.size() == 0 || r->products->controllables.size() == 0)
+    {
+      LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
+
+       r->reactants->controllables.clear();
+       r->products->controllables.clear();
+
+      // creates a bug for now, to understand...
+
+      // auto sr = r->simReac;
+        // for(auto &se : sr->reactants)
+        // {
+        //   r->addReactant(se->entity);
+        // }
+      //  for(auto &se : sr->products)
+      //  {
+      //    r->addProduct(se->entity);
+      //  }
     }
     if (!found)
     {
