@@ -50,6 +50,8 @@ juce_ImplementSingleton(Simulation)
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
 
   dt->setAttributeInternal("stringDecimals", DT_PRECISION);
+  maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
+  maxSteps = jmax(1, maxSteps);
 }
 
 Simulation::~Simulation()
@@ -287,6 +289,8 @@ void Simulation::importJSONData(var data)
       }
       entities.add(e);
     }
+    maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
+    maxSteps = jmax(1, maxSteps);
   }
 
   // reactions

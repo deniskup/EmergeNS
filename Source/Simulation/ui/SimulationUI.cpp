@@ -366,8 +366,9 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::FINISHED:
     {
-        resized();
-        repaint();
+        shouldRepaint=true;
+        //resized();
+        //repaint();
     }
     break;
     }

@@ -126,11 +126,9 @@ void Reaction::controllableAdded(Controllable *c)
 
 void Reaction::controllableRemoved(Controllable *)
 {
-  cout <<" bouh" << endl;
   updateWarnAndRates();
 }
 
-//to fix, this creates a bug
 void Reaction::addReactant(Entity *e)
 {
   TargetParameter *tp = reactants->addTargetParameter("Reactant " + String(reactants->controllables.size() + 1), "Reactant " + String(reactants->controllables.size() + 1), EntityManager::getInstance());
@@ -140,7 +138,6 @@ void Reaction::addReactant(Entity *e)
   tp->isRemovableByUser = true;
 }
 
-//also to fix as above
 void Reaction::addProduct(Entity *e)
 {
   TargetParameter *tp = products->addTargetParameter("Product " + String(products->controllables.size() + 1), "Product " + String(products->controllables.size() + 1), EntityManager::getInstance());
