@@ -858,7 +858,7 @@ void Simulation::establishLinks()
 
     if (r->reactants->controllables.size() == 0 || r->products->controllables.size() == 0)
     {
-      LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
+      //LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
 
        r->clearReactants();
        r->clearProducts();

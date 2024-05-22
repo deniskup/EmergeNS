@@ -59,7 +59,7 @@ public:
 
     void computeWithZ3(); // compute steady states with Z3
 
-    void computeWithMSolve(); // compute steady states with msolve
+    bool computeWithMSolve(); // compute steady states with msolve, returns true if call successful
 
     void computeJacobiMatrix(); // formal calculation of jacobi matrix 
 
