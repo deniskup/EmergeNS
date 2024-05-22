@@ -24,6 +24,8 @@ public:
   SimEntity(var data); // import from JSON
   var toJSONData();    // save to JSON
 
+  ~SimEntity(); //delete and remove pointers to it
+
   bool constructionFailed=false;
   
   String name;
@@ -79,6 +81,8 @@ public:
 
   SimReaction(var data); // import from JSON
   var toJSONData();      // save to JSON
+
+  ~SimReaction(); //delete and remove pointers to it
 
   bool constructionFailed=false;
 

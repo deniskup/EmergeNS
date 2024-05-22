@@ -843,6 +843,7 @@ void Simulation::establishLinks()
   {
     if (!r->shouldIncludeInSimulation())
       continue;
+    r->simReac = nullptr;
     found = false;
     for (auto &sr : reactions)
     {
@@ -865,6 +866,10 @@ void Simulation::establishLinks()
       // creates a bug for now, to understand...
 
       auto sr = r->simReac;
+      if(sr==nullptr){
+        LOG("SimReaction not found for reaction " + r->niceName);
+        continue;
+      }
         for(auto &se : sr->reactants)
         {
           r->addReactant(se->entity);
@@ -1967,6 +1972,17 @@ var SimEntity::toJSONData()
   return data;
 }
 
+SimEntity::~SimEntity()
+{
+  for (auto &ent :EntityManager::getInstance()->items)
+  {
+    if (ent->simEnt == this)
+    {
+      ent->simEnt = nullptr;
+    }
+  }
+}
+
 void SimEntity::increase(float incr)
 {
   change += incr;
@@ -2168,10 +2184,11 @@ SimReaction::SimReaction(var data)
     reactant1 = simul->getSimEntityForName(data["reactant1"]);
     if (reactant1 == nullptr)
     {
-      // LOGWARNING("No reactant1 for reaction");
+      LOGWARNING("reactant1 null for SimReaction");
       constructionFailed = true;
       return;
     }
+    arrayMode=false;
   }
   else
   {
@@ -2188,13 +2205,14 @@ SimReaction::SimReaction(var data)
       reactant2 = simul->getSimEntityForName(data["reactant2"]);
       if (reactant2 == nullptr)
       {
-        // LOGWARNING("No reactant2 for reaction");
+        LOGWARNING("reactant2 null for SimReaction");
         constructionFailed = true;
         return;
       }
     }
     else
     {
+      LOGWARNING("No reactant2 for SimReaction");
       constructionFailed = true;
       return;
     }
@@ -2204,13 +2222,14 @@ SimReaction::SimReaction(var data)
       product = simul->getSimEntityForName(data["product"]);
       if (product == nullptr)
       {
-        // LOGWARNING("No product for reaction");
+        LOGWARNING("Product null for SimReaction");
         constructionFailed = true;
         return;
       }
     }
     else
     {
+      LOGWARNING("No product for SimReaction");
       constructionFailed = true;
       return;
     }
@@ -2228,7 +2247,7 @@ SimReaction::SimReaction(var data)
         SimEntity *reactant = simul->getSimEntityForName(coord["ent"]);
         if (reactant == nullptr)
         {
-          // LOGWARNING("No reactant for reaction");
+          LOGWARNING("Reactants null for Simreaction");
           constructionFailed = true;
           return;
         }
@@ -2237,6 +2256,7 @@ SimReaction::SimReaction(var data)
     }
     else
     {
+      LOGWARNING("No reactants for Simreaction");
       constructionFailed = true;
       return;
     }
@@ -2310,6 +2330,17 @@ var SimReaction::toJSONData()
   data.getDynamicObject()->setProperty("idSAT", idSAT);
 
   return data;
+}
+
+SimReaction::~SimReaction()
+{
+  for (auto &r : ReactionManager::getInstance()->items)
+  {
+    if (r->simReac == this)
+    {
+      r->simReac = nullptr;
+    }
+  }
 }
 
 bool SimReaction::contains(SimEntity *e)

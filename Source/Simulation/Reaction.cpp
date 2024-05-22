@@ -46,7 +46,6 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
   // reactant2->setValueFromTarget(e2, false);
   // product->setValueFromTarget(e3, false);
 
-
   for (auto e : r->reactants)
   {
     addReactant(e->entity);
@@ -113,11 +112,19 @@ void Reaction::controllableAdded(Controllable *c)
   if (c->parentContainer == reactants.get() || c->parentContainer == products.get())
   {
     TargetParameter *tp = (TargetParameter *)c;
-    if (!isCurrentlyLoadingData)
-    { // rename only if not loading data
-      String targetName = c->parentContainer == reactants.get() ? "Reactant 1" : "Product 1";
-      tp->setNiceName(tp->parentContainer->getUniqueNameInContainer(targetName));
-    }
+    // if (!isCurrentlyLoadingData)
+    // { // rename only if not loading data
+    //   String targetName;
+    //   if (c->parentContainer == reactants.get())
+    //   {
+    //     targetName = "Reactant 1";
+    //   }
+    //   else
+    //   {
+    //     targetName = "Product 1";// + String(products->controllables.size());
+    //   }
+    //   tp->setNiceName(tp->parentContainer->getUniqueNameInContainer(targetName));
+    // }
     tp->targetType = TargetParameter::CONTAINER;
     tp->maxDefaultSearchLevel = 0;
     tp->setRootContainer(EntityManager::getInstance());
@@ -144,17 +151,19 @@ void Reaction::addProduct(Entity *e)
   if (e != NULL)
     tp->setValueFromTarget(e, false);
   tp->saveValueOnly = false;
- tp->isRemovableByUser = true;
+  tp->isRemovableByUser = true;
 }
 
 void Reaction::clearReactants()
 {
- while(!reactants->controllables.isEmpty()) reactants->removeControllable(reactants->controllables.getLast());
+  while (!reactants->controllables.isEmpty())
+    reactants->removeControllable(reactants->controllables.getLast());
 }
 
 void Reaction::clearProducts()
 {
- while(!products->controllables.isEmpty()) products->removeControllable(products->controllables.getLast());
+  while (!products->controllables.isEmpty())
+    products->removeControllable(products->controllables.getLast());
 }
 // void Reaction::updateLinks()
 // {

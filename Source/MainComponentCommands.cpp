@@ -18,6 +18,7 @@ namespace NSCommandIDs
 	static const int computeCACs = 0x60010;
 	static const int parseCsvFile = 0x60011;
 	static const int steadyStates = 0x60012;
+	static const int reacsFromNames = 0x60013;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -73,6 +74,12 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.setInfo("Rename Reactions", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
+	
+	case NSCommandIDs::reacsFromNames:
+		result.setInfo("Infer Reactions from names", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
 
 	case NSCommandIDs::computeCACs:
 		result.setInfo("Compute CACs", "", "General", result.readOnlyInKeyEditor);
@@ -112,6 +119,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists,
 		NSCommandIDs::renameReacs,
+		NSCommandIDs::reacsFromNames,
 		NSCommandIDs::parseCsvFile,
 		NSCommandIDs::steadyStates
 		};
@@ -137,6 +145,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::renameReacs);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::reacsFromNames);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::parseCsvFile);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::steadyStates);
 	}
@@ -228,6 +237,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::renameReacs:
 	{
 		ReactionManager::getInstance()->autoRename();
+		//refresh interface
+	}
+	break;
+
+		case NSCommandIDs::reacsFromNames:
+	{
+		ReactionManager::getInstance()->inferAllReacs();
 		//refresh interface
 	}
 	break;
