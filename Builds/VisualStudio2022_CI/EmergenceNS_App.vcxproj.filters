@@ -2,6 +2,147 @@
 
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="EmergenceNS\Eigen\src\Householder">
+      <UniqueIdentifier>{A3CA099F-475A-1684-6EEA-358D070442BB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\IterativeLinearSolvers">
+      <UniqueIdentifier>{D97F6E31-CEE4-71EE-15DD-D4A2F60F450F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Jacobi">
+      <UniqueIdentifier>{0EC8C6CD-11D4-19F6-1F79-D07B29B870F1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\KLUSupport">
+      <UniqueIdentifier>{68A929F4-E594-33C6-417A-BD6C50C5F6A7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\LU\arch">
+      <UniqueIdentifier>{990942E3-70DA-79E2-496D-C9C68F35A646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\LU">
+      <UniqueIdentifier>{F7FE3159-734C-FEEE-B0A9-A01EF4F299D6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\MetisSupport">
+      <UniqueIdentifier>{38E53D40-12F3-7C55-20E8-8018F8B23C55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\misc">
+      <UniqueIdentifier>{060796CC-337A-A6AA-A3FF-A13F60019457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\OrderingMethods">
+      <UniqueIdentifier>{E5D3D8DA-9614-8398-51FA-FAC648346270}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\PardisoSupport">
+      <UniqueIdentifier>{6A67B6D3-A4E9-BD5D-15F2-6DEF854F6938}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\PaStiXSupport">
+      <UniqueIdentifier>{920CCD4A-EEC4-93CC-624A-FE8688F5B1EB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\plugins">
+      <UniqueIdentifier>{74DB7EBA-8B35-21E0-9835-6D9EE589719A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\QR">
+      <UniqueIdentifier>{930AB53E-5CA0-0762-F6E3-A74895A6B2BF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SparseCholesky">
+      <UniqueIdentifier>{64246937-1540-49CB-F8BF-6E050ADEB038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SparseCore">
+      <UniqueIdentifier>{3816AA44-939C-299E-17CB-64BEA427FE04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SparseLU">
+      <UniqueIdentifier>{4DA3FC43-FF9B-79D2-CE2F-5F0C902F5C29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SparseQR">
+      <UniqueIdentifier>{270BDE9E-9759-9FCF-9474-E7E0ACE6CC38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SPQRSupport">
+      <UniqueIdentifier>{BFF721FC-4FE5-9D6B-6978-1900CD134DAE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\StlSupport">
+      <UniqueIdentifier>{9A233C92-0F9F-6588-9CCA-C452EB2213F5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SuperLUSupport">
+      <UniqueIdentifier>{A8A47439-2823-1F69-C2CD-0A121EF3D302}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\SVD">
+      <UniqueIdentifier>{E1811AD0-0EB0-D4BE-08E2-DCBAC1EF8FCF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\UmfPackSupport">
+      <UniqueIdentifier>{384029A2-B682-6F51-25F9-2DF396680A2B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Geometry\arch">
+      <UniqueIdentifier>{67E50880-6A5F-5C44-4FF3-2F750614EC60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Geometry">
+      <UniqueIdentifier>{A7D0E773-9870-2E62-85B0-EEDBFCDBCB63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\AltiVec">
+      <UniqueIdentifier>{EED3F7CF-8709-43B5-0AA8-C1FD269859F9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\AVX">
+      <UniqueIdentifier>{8AB87291-C111-AC75-4D30-733FA5B702B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\AVX512">
+      <UniqueIdentifier>{DB4588DB-C397-DF3A-9713-0192C449B090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\CUDA">
+      <UniqueIdentifier>{BB74C220-C8DA-6547-1AB9-EAA37C2F6A48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\Default">
+      <UniqueIdentifier>{5B1C4718-6E09-4EDB-C0AA-893E8FEC89A9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\GPU">
+      <UniqueIdentifier>{61F4060E-75D5-4B8D-B432-05827A1610E0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\HIP\hcc">
+      <UniqueIdentifier>{6FFC0982-F6E4-51F1-AC48-6F240052BD93}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\HIP">
+      <UniqueIdentifier>{3A697A03-F019-34F1-1072-BCFA73ED9E45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\MSA">
+      <UniqueIdentifier>{BBFC4A0C-192E-9FF9-1103-7F7552BFD486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\NEON">
+      <UniqueIdentifier>{31687B5E-7055-EC68-3FF4-DD2931EEF2F8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\SSE">
+      <UniqueIdentifier>{35026262-042C-C06A-C932-6F16A9C4621A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\SVE">
+      <UniqueIdentifier>{AB6B6F3A-5205-93C0-24F7-388D6693C8A5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\SYCL">
+      <UniqueIdentifier>{79F588E8-3879-F7CF-729F-C277D3368416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch\ZVector">
+      <UniqueIdentifier>{3F7A9901-39A9-8877-32D5-7312F85E18FB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\arch">
+      <UniqueIdentifier>{C7D01D73-65EE-AEDF-A398-6FB266C70FDD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\functors">
+      <UniqueIdentifier>{70738124-922C-D4E6-F9FE-9C3EFB2012F2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core\products">
+      <UniqueIdentifier>{4CF40717-AA9D-B3B2-F084-CC8978394517}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Core">
+      <UniqueIdentifier>{721EDA8B-7A50-320E-25BD-EC2CD9D3BA90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\CholmodSupport">
+      <UniqueIdentifier>{E9E356FA-3CA4-D927-324A-41728B322565}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Cholesky">
+      <UniqueIdentifier>{8AF57A27-DC6D-5124-603B-5E076F262D9E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src\Eigenvalues">
+      <UniqueIdentifier>{864A9450-A4A2-7EAC-F82C-B51A39CB07B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen\src">
+      <UniqueIdentifier>{5AC668D5-5F1B-0A8C-4858-56215F656C90}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EmergenceNS\Eigen">
+      <UniqueIdentifier>{CCF52839-1D2F-6838-0442-FEF2723893AE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EmergenceNS\Resources">
       <UniqueIdentifier>{9C47215E-EF94-570B-9E72-80CA9F09E536}</UniqueIdentifier>
     </Filter>
@@ -22,6 +163,9 @@
     </Filter>
     <Filter Include="JUCE Modules\juce_core\containers">
       <UniqueIdentifier>{42F7BE9D-3C8A-AE26-289B-8F355C068036}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JUCE Modules\juce_core\detail">
+      <UniqueIdentifier>{4C5ED3D6-28D2-8BFF-F891-96201A9DE159}</UniqueIdentifier>
     </Filter>
     <Filter Include="JUCE Modules\juce_core\files">
       <UniqueIdentifier>{7868764A-6572-381A-906C-9C26792A4C29}</UniqueIdentifier>
@@ -535,6 +679,9 @@
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\SteadyStates.cpp">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\Statistics.cpp">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClCompile>
@@ -557,6 +704,9 @@
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\containers\juce_DynamicObject.cpp">
+      <Filter>JUCE Modules\juce_core\containers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JUCE\modules\juce_core\containers\juce_Enumerate_test.cpp">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\containers\juce_FixedSizeFunction_test.cpp">
@@ -653,6 +803,9 @@
       <Filter>JUCE Modules\juce_core\memory</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\memory\juce_MemoryBlock.cpp">
+      <Filter>JUCE Modules\juce_core\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JUCE\modules\juce_core\memory\juce_SharedResourcePointer_test.cpp">
       <Filter>JUCE Modules\juce_core\memory</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_core\misc\juce_ConsoleApplication.cpp">
@@ -990,6 +1143,9 @@
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.cpp">
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JUCE\modules\juce_events\interprocess\juce_ChildProcessManager.cpp">
+      <Filter>JUCE Modules\juce_events\interprocess</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.cpp">
       <Filter>JUCE Modules\juce_events\interprocess</Filter>
@@ -1853,6 +2009,9 @@
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_NativeMessageBox.cpp">
+      <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_NativeScaleFactorNotifier.cpp">
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_ResizableWindow.cpp">
@@ -2727,6 +2886,876 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Eigen\src\Householder\BlockHouseholder.h">
+      <Filter>EmergenceNS\Eigen\src\Householder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Householder\Householder.h">
+      <Filter>EmergenceNS\Eigen\src\Householder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Householder\HouseholderSequence.h">
+      <Filter>EmergenceNS\Eigen\src\Householder</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\BasicPreconditioners.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\BiCGSTAB.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\ConjugateGradient.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\IncompleteCholesky.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\IncompleteLUT.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\IterativeSolverBase.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\LeastSquareConjugateGradient.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\IterativeLinearSolvers\SolveWithGuess.h">
+      <Filter>EmergenceNS\Eigen\src\IterativeLinearSolvers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Jacobi\Jacobi.h">
+      <Filter>EmergenceNS\Eigen\src\Jacobi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\KLUSupport\KLUSupport.h">
+      <Filter>EmergenceNS\Eigen\src\KLUSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\arch\InverseSize4.h">
+      <Filter>EmergenceNS\Eigen\src\LU\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\Determinant.h">
+      <Filter>EmergenceNS\Eigen\src\LU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\FullPivLU.h">
+      <Filter>EmergenceNS\Eigen\src\LU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\InverseImpl.h">
+      <Filter>EmergenceNS\Eigen\src\LU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\PartialPivLU.h">
+      <Filter>EmergenceNS\Eigen\src\LU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\LU\PartialPivLU_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\LU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\MetisSupport\MetisSupport.h">
+      <Filter>EmergenceNS\Eigen\src\MetisSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\blas.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\Image.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\Kernel.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\lapack.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\lapacke.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\lapacke_mangling.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\misc\RealSvd2x2.h">
+      <Filter>EmergenceNS\Eigen\src\misc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\OrderingMethods\Amd.h">
+      <Filter>EmergenceNS\Eigen\src\OrderingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\OrderingMethods\Eigen_Colamd.h">
+      <Filter>EmergenceNS\Eigen\src\OrderingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\OrderingMethods\Ordering.h">
+      <Filter>EmergenceNS\Eigen\src\OrderingMethods</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\PardisoSupport\PardisoSupport.h">
+      <Filter>EmergenceNS\Eigen\src\PardisoSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\PaStiXSupport\PaStiXSupport.h">
+      <Filter>EmergenceNS\Eigen\src\PaStiXSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\ArrayCwiseBinaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\ArrayCwiseUnaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\BlockMethods.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\CommonCwiseBinaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\CommonCwiseUnaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\IndexedViewMethods.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\MatrixCwiseBinaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\MatrixCwiseUnaryOps.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\plugins\ReshapedMethods.h">
+      <Filter>EmergenceNS\Eigen\src\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\ColPivHouseholderQR.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\ColPivHouseholderQR_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\CompleteOrthogonalDecomposition.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\FullPivHouseholderQR.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\HouseholderQR.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\QR\HouseholderQR_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\QR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCholesky\SimplicialCholesky.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCholesky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCholesky\SimplicialCholesky_impl.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCholesky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\AmbiVector.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\CompressedStorage.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\ConservativeSparseSparseProduct.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\MappedSparseMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseAssign.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseBlock.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseColEtree.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseCompressedBase.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseCwiseBinaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseCwiseUnaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseDenseProduct.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseDiagonalProduct.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseDot.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseFuzzy.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseMap.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseMatrixBase.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparsePermutation.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseProduct.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseRedux.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseRef.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseSelfAdjointView.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseSolverBase.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseSparseProductWithPruning.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseTranspose.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseTriangularView.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseUtil.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseVector.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\SparseView.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseCore\TriangularSolver.h">
+      <Filter>EmergenceNS\Eigen\src\SparseCore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_column_bmod.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_column_dfs.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_copy_to_ucol.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_gemm_kernel.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_heap_relax_snode.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_kernel_bmod.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_Memory.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_panel_bmod.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_panel_dfs.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_pivotL.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_pruneL.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_relax_snode.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_Structs.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_SupernodalMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLU_Utils.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseLU\SparseLUImpl.h">
+      <Filter>EmergenceNS\Eigen\src\SparseLU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SparseQR\SparseQR.h">
+      <Filter>EmergenceNS\Eigen\src\SparseQR</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SPQRSupport\SuiteSparseQRSupport.h">
+      <Filter>EmergenceNS\Eigen\src\SPQRSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\StlSupport\details.h">
+      <Filter>EmergenceNS\Eigen\src\StlSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\StlSupport\StdDeque.h">
+      <Filter>EmergenceNS\Eigen\src\StlSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\StlSupport\StdList.h">
+      <Filter>EmergenceNS\Eigen\src\StlSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\StlSupport\StdVector.h">
+      <Filter>EmergenceNS\Eigen\src\StlSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SuperLUSupport\SuperLUSupport.h">
+      <Filter>EmergenceNS\Eigen\src\SuperLUSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SVD\BDCSVD.h">
+      <Filter>EmergenceNS\Eigen\src\SVD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SVD\JacobiSVD.h">
+      <Filter>EmergenceNS\Eigen\src\SVD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SVD\JacobiSVD_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\SVD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SVD\SVDBase.h">
+      <Filter>EmergenceNS\Eigen\src\SVD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\SVD\UpperBidiagonalization.h">
+      <Filter>EmergenceNS\Eigen\src\SVD</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\UmfPackSupport\UmfPackSupport.h">
+      <Filter>EmergenceNS\Eigen\src\UmfPackSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\arch\Geometry_SIMD.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry\arch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\AlignedBox.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\AngleAxis.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\EulerAngles.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Homogeneous.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Hyperplane.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\OrthoMethods.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\ParametrizedLine.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Quaternion.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Rotation2D.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\RotationBase.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Scaling.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Transform.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Translation.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Geometry\Umeyama.h">
+      <Filter>EmergenceNS\Eigen\src\Geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\MatrixProduct.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\MatrixProductCommon.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\MatrixProductMMA.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AltiVec\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AltiVec</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX512\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX512</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX512\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX512</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX512\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX512</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\AVX512\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\AVX512</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\CUDA\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\CUDA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\BFloat16.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\ConjHelper.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\GenericPacketMathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\GenericPacketMathFunctionsFwd.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\Half.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\Settings.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\Default\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\GPU\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\GPU\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\GPU\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\GPU</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\eigen-3.4.0\Eigen\src\Core\arch\HIP\hcc\math_constants.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\HIP\hcc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\MSA\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\MSA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\MSA\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\MSA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\MSA\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\MSA</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\NEON\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\NEON\GeneralBlockPanelKernel.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\NEON\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\NEON\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\NEON\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\NEON</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SSE\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SSE\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SSE\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SSE\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SSE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SVE\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SVE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SVE\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SVE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SVE\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SVE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SYCL\InteropHeaders.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SYCL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SYCL\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SYCL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SYCL\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SYCL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SYCL\SyclMemoryModel.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SYCL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\SYCL\TypeCasting.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\SYCL</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\ZVector\Complex.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\ZVector</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\ZVector\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\ZVector</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\arch\ZVector\PacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core\arch\ZVector</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\AssignmentFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\BinaryFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\NullaryFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\StlFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\TernaryFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\functors\UnaryFunctors.h">
+      <Filter>EmergenceNS\Eigen\src\Core\functors</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralBlockPanelKernel.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixMatrix_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixMatrixTriangular.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixMatrixTriangular_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixVector.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\GeneralMatrixVector_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\Parallelizer.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointMatrixMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointMatrixMatrix_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointMatrixVector.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointMatrixVector_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointProduct.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\SelfadjointRank2Update.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularMatrixMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularMatrixMatrix_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularMatrixVector.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularMatrixVector_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularSolverMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularSolverMatrix_BLAS.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\products\TriangularSolverVector.h">
+      <Filter>EmergenceNS\Eigen\src\Core\products</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ArithmeticSequence.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Array.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ArrayBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ArrayWrapper.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Assign.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Assign_MKL.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\AssignEvaluator.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\BandMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Block.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\BooleanRedux.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CommaInitializer.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ConditionEstimator.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CoreEvaluators.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CoreIterators.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CwiseBinaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CwiseNullaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CwiseTernaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CwiseUnaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\CwiseUnaryView.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\DenseBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\DenseCoeffsBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\DenseStorage.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Diagonal.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\DiagonalMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\DiagonalProduct.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Dot.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\EigenBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ForceAlignedAccess.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Fuzzy.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\GeneralProduct.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\GenericPacketMath.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\GlobalFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\IndexedView.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Inverse.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\IO.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Map.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\MapBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\MathFunctions.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\MathFunctionsImpl.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Matrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\MatrixBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\NestByValue.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\NoAlias.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\NumTraits.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\PartialReduxEvaluator.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\PermutationMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\PlainObjectBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Product.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ProductEvaluators.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Random.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Redux.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Ref.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Replicate.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Reshaped.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\ReturnByValue.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Reverse.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Select.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\SelfAdjointView.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\SelfCwiseBinaryOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Solve.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\SolverBase.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\SolveTriangular.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\StableNorm.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\StlIterators.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Stride.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Swap.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Transpose.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Transpositions.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\TriangularMatrix.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\VectorBlock.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\VectorwiseOp.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Core\Visitor.h">
+      <Filter>EmergenceNS\Eigen\src\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\CholmodSupport\CholmodSupport.h">
+      <Filter>EmergenceNS\Eigen\src\CholmodSupport</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Cholesky\LDLT.h">
+      <Filter>EmergenceNS\Eigen\src\Cholesky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Cholesky\LLT.h">
+      <Filter>EmergenceNS\Eigen\src\Cholesky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Cholesky\LLT_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\Cholesky</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\ComplexEigenSolver.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\ComplexSchur.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\ComplexSchur_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\EigenSolver.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\GeneralizedEigenSolver.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\GeneralizedSelfAdjointEigenSolver.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\HessenbergDecomposition.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\MatrixBaseEigenvalues.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\RealQZ.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\RealSchur.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\RealSchur_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\SelfAdjointEigenSolver.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\SelfAdjointEigenSolver_LAPACKE.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Eigen\src\Eigenvalues\Tridiagonalization.h">
+      <Filter>EmergenceNS\Eigen\src\Eigenvalues</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Engine\EmergenceNSEngine.h">
       <Filter>EmergenceNS\Source\Engine</Filter>
     </ClInclude>
@@ -2778,6 +3807,9 @@
     <ClInclude Include="..\..\Source\Simulation\Simulation.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\SteadyStates.h">
+      <Filter>EmergenceNS\Source\Simulation</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Statistics.h">
       <Filter>EmergenceNS\Source\Simulation</Filter>
     </ClInclude>
@@ -2806,6 +3838,9 @@
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_ElementComparator.h">
+      <Filter>JUCE Modules\juce_core\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_Enumerate.h">
       <Filter>JUCE Modules\juce_core\containers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_FixedSizeFunction.h">
@@ -2852,6 +3887,9 @@
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_Variant.h">
       <Filter>JUCE Modules\juce_core\containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JUCE\modules\juce_core\detail\juce_CallbackListenerList.h">
+      <Filter>JUCE Modules\juce_core\detail</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_core\files\juce_AndroidDocument.h">
       <Filter>JUCE Modules\juce_core\files</Filter>
@@ -3327,6 +4365,9 @@
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_LockingAsyncUpdater.h">
       <Filter>JUCE Modules\juce_events\broadcasters</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_ChildProcessManager.h">
+      <Filter>JUCE Modules\juce_events\interprocess</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\interprocess\juce_ConnectedChildProcess.h">
       <Filter>JUCE Modules\juce_events\interprocess</Filter>
     </ClInclude>
@@ -3388,6 +4429,9 @@
       <Filter>JUCE Modules\juce_events\native</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_MultiTimer.h">
+      <Filter>JUCE Modules\juce_events\timers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_TimedCallback.h">
       <Filter>JUCE Modules\juce_events\timers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_Timer.h">
@@ -4159,6 +5203,9 @@
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_NativeMessageBox.h">
+      <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_NativeScaleFactorNotifier.h">
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_ResizableWindow.h">
@@ -4991,6 +6038,96 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Source\Eigen\Cholesky">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\CholmodSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Core">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Dense">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Eigen">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Eigenvalues">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Geometry">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Householder">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\IterativeLinearSolvers">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Jacobi">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\KLUSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\LU">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\MetisSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\OrderingMethods">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\PardisoSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\PaStiXSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\QR">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\QtAlignedMalloc">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\Sparse">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SparseCholesky">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SparseCore">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SparseLU">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SparseQR">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SPQRSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\StdDeque">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\StdList">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\StdVector">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SuperLUSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\SVD">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
+    <None Include="..\..\Source\Eigen\UmfPackSupport">
+      <Filter>EmergenceNS\Eigen</Filter>
+    </None>
     <None Include="..\..\Resources\default.nslayout">
       <Filter>EmergenceNS\Resources</Filter>
     </None>

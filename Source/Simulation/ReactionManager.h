@@ -15,5 +15,6 @@ public:
 	~ReactionManager();
 
 	void autoRename();
+	void inferAllReacs();
 
 };

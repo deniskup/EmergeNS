@@ -5,8 +5,8 @@
 
 namespace NSCommandIDs
 {
-	static const int computeCompositions = 0x60000;
-	static const int normalizeEnergies = 0x60001;
+	//static const int computeCompositions = 0x60000;
+	// static const int normalizeEnergies = 0x60001;
 	// static const int PACminisat = 0x60002;
 	// static const int PACkissat = 0x60003;
 	static const int loadManual = 0x60004;
@@ -16,20 +16,23 @@ namespace NSCommandIDs
 	static const int fetchManual = 0x60008;
 	static const int renameReacs = 0x60009;
 	static const int computeCACs = 0x60010;
+	static const int parseCsvFile = 0x60011;
+	static const int steadyStates = 0x60012;
+	static const int reacsFromNames = 0x60013;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
 {
 	switch (commandID)
 	{
-	case NSCommandIDs::computeCompositions:
-		result.setInfo("Compute Compositions", "", "General", result.readOnlyInKeyEditor);
-		break;
+	///case NSCommandIDs::computeCompositions:
+	// 	result.setInfo("Compute Compositions", "", "General", result.readOnlyInKeyEditor);
+	// 	break;
 
-	case NSCommandIDs::normalizeEnergies:
-		result.setInfo("Normalize Energies", "", "General", result.readOnlyInKeyEditor);
+	// case NSCommandIDs::normalizeEnergies:
+		// result.setInfo("Normalize Energies", "", "General", result.readOnlyInKeyEditor);
 
-		break;
+	//	break;
 
 	// case NSCommandIDs::PACminisat:
 	// 	result.setInfo("PACs with minisat", "", "General", result.readOnlyInKeyEditor);
@@ -71,9 +74,25 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.setInfo("Rename Reactions", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
+	
+	case NSCommandIDs::reacsFromNames:
+		result.setInfo("Infer Reactions from names", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
 
 	case NSCommandIDs::computeCACs:
 		result.setInfo("Compute CACs", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+	
+	case NSCommandIDs::parseCsvFile:
+		result.setInfo("Parse CSV File", "", "General", result.readOnlyInKeyEditor);
+		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
+		break;
+
+	case NSCommandIDs::steadyStates:
+		result.setInfo("Compute Steady States", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 
@@ -89,8 +108,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 	OrganicMainContentComponent::getAllCommands(commands);
 
 	const CommandID ids[] = {
-		NSCommandIDs::computeCompositions,
-		NSCommandIDs::normalizeEnergies,
+		//NSCommandIDs::computeCompositions,
+		// NSCommandIDs::normalizeEnergies,
 		// NSCommandIDs::PACminisat,
 		// NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
@@ -99,7 +118,10 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists,
-		NSCommandIDs::renameReacs
+		NSCommandIDs::renameReacs,
+		NSCommandIDs::reacsFromNames,
+		NSCommandIDs::parseCsvFile,
+		NSCommandIDs::steadyStates
 		};
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -112,8 +134,8 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 
 	if (menuName == "Simulation")
 	{
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
+		//menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCompositions);
+		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::normalizeEnergies);
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACminisat);
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
@@ -123,6 +145,9 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::renameReacs);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::reacsFromNames);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::parseCsvFile);
+		menu.addCommandItem(&getCommandManager(), NSCommandIDs::steadyStates);
 	}
 	return menu;
 }
@@ -138,17 +163,17 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	switch (info.commandID)
 	{
-	case NSCommandIDs::computeCompositions:
-	{
-		EntityManager::getInstance()->computeCompositions();
-	}
-	break;
+	//case NSCommandIDs::computeCompositions:
+	//{
+		//EntityManager::getInstance()->computeCompositions();
+	//}
+	//break;
 
-	case NSCommandIDs::normalizeEnergies:
-	{
-		EntityManager::getInstance()->normEnergies();
-	}
-	break;
+	// case NSCommandIDs::normalizeEnergies:
+	//{
+		// EntityManager::getInstance()->normEnergies();
+	//}
+	//break;
 
 	// case NSCommandIDs::PACminisat:
 	// {
@@ -173,6 +198,14 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::computeCACs:
 	{
 		Simulation::getInstance()->pacList->compute(3);
+	}
+	break;
+
+
+	case NSCommandIDs::steadyStates:
+	{
+		//TODO test function and print results
+		Simulation::getInstance()->steadyStatesList->computeSteadyStates();
 	}
 	break;
 
@@ -204,6 +237,20 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 	case NSCommandIDs::renameReacs:
 	{
 		ReactionManager::getInstance()->autoRename();
+		//refresh interface
+	}
+	break;
+
+		case NSCommandIDs::reacsFromNames:
+	{
+		ReactionManager::getInstance()->inferAllReacs();
+		//refresh interface
+	}
+	break;
+
+	case NSCommandIDs::parseCsvFile:
+	{
+		Simulation::getInstance()->importCsvData("");
 		//refresh interface
 	}
 	break;

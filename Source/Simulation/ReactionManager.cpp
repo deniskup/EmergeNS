@@ -21,3 +21,10 @@ void ReactionManager::autoRename()
         r->autoRename();
     }
 }
+
+void ReactionManager::inferAllReacs()
+{
+    for( auto &r: items){
+        r->inferEntities();
+    }
+}

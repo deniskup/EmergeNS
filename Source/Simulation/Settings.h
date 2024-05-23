@@ -15,6 +15,7 @@ public:
     ~Settings();
 
     StringParameter *pathToz3; 
+    StringParameter *pathToMSolve; 
 
     IntParameter *z3timeout; //timeout for z3 in ms
     
@@ -33,7 +34,13 @@ public:
 
     BoolParameter *printPACsToFile; //print PACs to file
 
+    BoolParameter *printHistoryToFile; //print RACs to file
+
     BoolParameter *autoLoadLists;
+
+
+
+    StringParameter * csvFile; // if used, input excel file name
 
     //void onContainerParameterChanged(Parameter *p) override;
 
