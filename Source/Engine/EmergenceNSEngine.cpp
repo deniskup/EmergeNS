@@ -40,6 +40,35 @@ void EmergenceNSEngine::clearInternal()
 	// Generation::getInstance()->clear();
 }
 
+void EmergenceNSEngine::parseCommandline(const String &commandLine)
+{
+	// Call parent function
+	Engine::parseCommandline(commandLine);
+
+	//Compile with task MakeRelease for better performance
+
+	// Check if the argument is "simul"
+	if (commandLine.contains("simul"))
+	{
+		// Compute the PACs
+		//ReactionManager::getInstance()->computePACs();
+
+		// Run the simulation
+		//Simulation::getInstance()->run();
+
+		// Output the results in a file
+		//String outputFilePath = "simulation_results.txt";
+		//Simulation::getInstance()->outputResults(outputFilePath);
+
+		// Print a message when finished
+		//cout << "Simulation completed. Results saved in " << outputFilePath << std::endl;
+		LOG("Command line simul test OK");
+		//quit application
+		JUCEApplication::getInstance()->systemRequestedQuit();
+	}
+}
+
+
 var EmergenceNSEngine::getJSONData()
 {
 	var data = Engine::getJSONData();
