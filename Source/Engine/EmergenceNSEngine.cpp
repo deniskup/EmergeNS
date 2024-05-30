@@ -44,6 +44,9 @@ void EmergenceNSEngine::parseCommandline(const String &commandLine)
 {
 	// Call parent function
 	Engine::parseCommandline(commandLine);
+	//this contains already several command option like
+	// -headless : run the engine without GUI
+	// -f "path/to/file.ens": load the file with absolute path
 
 	//Compile with task MakeRelease for better performance
 
