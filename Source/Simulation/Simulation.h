@@ -251,6 +251,8 @@ struct tempReaction // TO REMOVE, only temporary
   void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
 
   
+  // print simulation content
+  void PrintSimuToFile(string);
 
   void writeJSONConcents(string filename="");
   var concent2JSON(); // save start concentrations and current concentrations of entities

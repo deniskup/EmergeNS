@@ -377,6 +377,12 @@ void Simulation::importFromManual()
 
 void Simulation::importCsvData(String filename)
 {
+
+  juce::var dummy("kujhdsb");
+	Settings::getInstance()->pathToz3 = addStringParameter("Path to z3", String("path to z3 solver"), String("Dummy"));
+
+	//Settings::getInstance()->pathToz3->setValueInternal(dummy);
+  return;
   // get csv file to parse
   juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
   LOG("will parse text file : " + myfilename);
@@ -1690,6 +1696,62 @@ void Simulation::writeHistory()
   // close concentration file output
   outfile.close();
 }
+
+///////////////////////////////////////////////////////////////////:
+
+
+void Simulation::PrintSimuToFile(string filename="model.txt")
+{
+  ofstream output;
+  output.open(filename, ofstream::out | ofstream::trunc);
+
+
+  output << "--------------------------" << endl;
+  output << "---- Simulation Content ----" << endl;
+  output << "--------------------------\n" << endl;
+  output << "--- Some global parameters" << endl;
+  output << "Nprimaries: " << Generation::getInstance()->primEntities->stringValue() << endl;
+  output << "path to z3: " << Settings::getInstance()->pathToz3->stringValue() << endl;
+  output << "z3 timeout: " << Settings::getInstance()->z3timeout->floatValue() / 1000. << "s" << endl;
+  output << "maxlevel: " << Generation::getInstance()->numLevels->stringValue() << endl;
+  output << "reaction proportion: " << Generation::getInstance()->propReactions->stringValue() << endl;
+  output << endl;
+
+  output << "--- Entities [name; composition; free energy]" << endl;
+  for (auto & e : entities)
+  {
+    output << "[ " << e->name << " ; (";
+    for (auto & i : e->composition) output << i;
+    output << ") ; " << e->freeEnergy << " ]" << endl;
+  }
+  output << endl;
+
+  output << "--- Reactions 'reactants --> products' [k+ ; k-]" << endl;
+  for (auto & r : reactions)
+  {
+    output << "'";
+    int nreac = r->reactants.size();
+    int c=0;
+    for (auto & reac : r->reactants) 
+    {
+      output << reac->name;
+      if (c<(nreac-1)) output << " + ";
+      c++;
+    }
+    output << " --> ";
+    int nprod = r->products.size();
+    c=0;
+    for (auto & prod : r->products) 
+    {
+      output << prod->name;
+      if (c<(nprod-1)) output << " + ";
+      c++;
+    }
+    output << " \t[" << r->assocRate << " ; " << r->dissocRate << "]" << endl;
+  }
+}
+
+
 
 ///////////////////////////////////////////////////////////////////:
 
