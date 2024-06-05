@@ -948,6 +948,10 @@ void PAClist::setZ3path()
 
 		sol_file >> testSat;
 
+		// remove test files
+		string rm = "rm z3test.smt2 testResult.txt";
+		system(rm.c_str());
+
 		if (testSat == "sat")
 		{
 			break;
@@ -960,6 +964,7 @@ void PAClist::setZ3path()
 			LOG("z3 path failed, aborting");
 			return;
 		}
+
 	}
 	// add timeout
 	int timeout = Settings::getInstance()->z3timeout->intValue();
@@ -983,14 +988,29 @@ void PAClist::PACsWithZ3()
 	LOG("Using solver: Z3");
 	setZ3path();
 	simul->affectSATIds();
-	string inputFile = "z3constraints.smt2";
+
+	// input using a random integer
+	int randint = rand();
+	string inputFile = "z3constraints_" + to_string(randint) + ".smt2";
+	int count=0;
+	while (access(inputFile.c_str(), F_OK) != -1)
+	{
+		count++;
+		if (count>100) throw juce::OSCFormatError("too many tries trying to generate a random file for z3");
+		randint = rand();
+		inputFile = "z3constraints_" + to_string(randint) + ".smt2";
+	}
+	//DBG("rand int : " + to_string(randint));
+	//DBG("while counter ? : " + to_string(count));
+
+	// output file name
 	string outputFile = "z3model.txt";
 
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3log.txt";
 	bool printPACsToFile = Settings::getInstance()->printPACsToFile->boolValue();
 
-	std::cout << inputFile << std::endl;  // #erase
-	std::cout << outputFile << std::endl; // #erase
+	//std::cout << inputFile << std::endl;  // #erase
+	//std::cout << outputFile << std::endl; // #erase
 
 	stringstream clauses;
 	//------------declare variables------------
@@ -1165,6 +1185,10 @@ void PAClist::PACsWithZ3()
 
 			inputStream.close();
 			system(z3Command.c_str());
+
+			// remove intput stream from system 
+			string rm = "rm " + inputFile;
+			system(rm.c_str());
 
 			ifstream outputStream(outputFile);
 			if (!outputStream)

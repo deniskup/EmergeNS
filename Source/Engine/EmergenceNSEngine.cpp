@@ -123,7 +123,10 @@ void EmergenceNSEngine::parseCommandline(const String &commandLine)
 		}
 
 		// Generate a reaction network
+		//Simulation::Simulation * simu = new Simulation::Simulation();
 		Simulation::getInstance()->fetchGenerate();
+
+		DBG("num per level : " + Generation::getInstance()->entPerLevNum->stringValue());
 
 		// write model to txt file
 		//Simulation::getInstance()->PrintSimuToFile(model2file.c_str());
