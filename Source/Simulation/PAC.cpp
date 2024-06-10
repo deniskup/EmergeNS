@@ -625,11 +625,22 @@ bool PAClist::computeCAC(set<int> pacIds)
 	// realistic coefs: coefs come from actual concentrations of entities
 	// declare concentrations variablefile:///home/thomas/Mod%C3%A8les/emergENS/EmergenceNS/ReactionSystems/z3constraints.smt2
 
+	// calculate max concentration ofr CAC range
+	float upperConc = 0.;
+	for (auto & e : simul->primEnts)
+	{
+		float cstar = 0.;
+		if (e->destructionRate>0.) cstar = e->creationRate / e->destructionRate;
+		if (cstar > upperConc) upperConc = cstar;
+	}
+	if (upperConc == 0.) upperConc = 100.;
+
 	for (auto &e : simul->entities)
 	{
 		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
 		// bounds
-		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+		//clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " " << to_string(round(upperConc)+1) << ")))\n";
 	}
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
@@ -978,6 +989,9 @@ void PAClist::PACsWithZ3()
 {
 	// we implement here more directly the constraint from Blockhuis:
 	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
+
+	DBG("PAC::Nentities : " + to_string(Simulation::getInstance()->entities.size()));
+
 
 	// clear PACs if some were computed
 	cycles.clear();
