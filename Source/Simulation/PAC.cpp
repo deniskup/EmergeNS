@@ -7,6 +7,35 @@
 
 using namespace std;
 
+
+string scientificStringFormat(float number)
+{
+	const int expSize = 2;
+	const int ndigits = 2;
+
+
+	// get approx decimal part with ndigits
+	std::ostringstream oss;
+	oss << scientific << number;
+	unsigned int ePos = oss.str().find("e");
+	unsigned int dPos = oss.str().find(".");
+	string strdec = oss.str().substr(0, ePos);
+	float approxdec = floor(atof(strdec.c_str())*pow(10, ndigits) + 0.5) / pow(10, ndigits);
+
+	// init output string with approx decimal part
+	std::ostringstream oss2;
+	oss2.precision(ndigits+1);
+	oss2 << approxdec;
+	cout << "start : " << oss2.str() << endl;
+
+	// add exponent part to output string
+	std::string output = oss2.str() + oss.str().substr(ePos, oss.str().size() - ePos);
+	cout << "output : " << output << endl;
+
+	return output;
+}
+
+
 float parseExpr(const string &input)
 {
 	string output = input;
@@ -210,6 +239,13 @@ String PAC::toString()
 			}
 			// remove last "+"
 			reac = reac.substring(0, reac.length() - 1);
+			// add kinetic rate constants
+			//auto test = format("{:.0e}\n", r->dissocRate); // s == "1e+05"
+			reac += " [";
+			reac += String(scientificStringFormat(r->dissocRate));
+			reac += ":";
+			reac += String(scientificStringFormat(r->assocRate));
+			reac += "]";
 		}
 		else
 		{ // reacts->prod
@@ -228,6 +264,11 @@ String PAC::toString()
 			}
 			// remove last "+"
 			reac = reac.substring(0, reac.length() - 1);
+			reac += " [";
+			reac += String(scientificStringFormat(r->assocRate));
+			reac += ":";
+			reac += String(scientificStringFormat(r->dissocRate));
+			reac += "]";
 		}
 		res += reac + " ";
 	}
