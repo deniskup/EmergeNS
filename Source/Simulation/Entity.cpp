@@ -1,4 +1,4 @@
-
+#include "Settings.h"
 #include "Entity.h"
 #include "Simulation.h"
 
@@ -53,6 +53,10 @@ void Entity::onContainerParameterChangedInternal(Parameter *p)
   }
   if(simEnt!=nullptr){
     simEnt->toImport=true;
+    if(Settings::getInstance()->autoLoadLists->boolValue())
+    {
+      simEnt->importFromManual();
+    }
     simEnt->entity=this;
   }
   //Simulation::getInstance()->toImport = true; §§make jassertfalse when closing

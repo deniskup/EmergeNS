@@ -1,4 +1,4 @@
-
+#include "Settings.h"
 #include "Reaction.h"
 #include "EntityManager.h"
 #include "Simulation.h"
@@ -280,8 +280,9 @@ void Reaction::inferEntities()
   if (isCurrentlyLoadingData)
     return;
   // only infer for empty reactions
-  if (reactants->controllables.size() > 0 || products->controllables.size() > 0)
-    return;
+  // if (!newReac)
+  //   return;
+ // DBG("Infering entities for reaction " + niceName);
   String name = niceName;
   int pos = name.indexOfChar('+');
   int pos2 = name.indexOfChar('=');
@@ -305,6 +306,10 @@ void Reaction::inferEntities()
       NLOG("InferEntities", "Invalid reaction name format: " + name);
       return;
     }
+
+  //clear reactants and products
+    clearReactants();
+    clearProducts();
 
     // Infer entities from reactant names
     for (int i = 0; i < reactantNames.size(); ++i)
@@ -364,7 +369,7 @@ void Reaction::inferEntities()
 
 void Reaction::onContainerNiceNameChanged()
 {
-  inferEntities();
+ // inferEntities();
   // change name of SimReaction if exists
   if (simReac != nullptr)
   {
@@ -488,6 +493,10 @@ void Reaction::updateWarnAndRates()
   if (simReac != nullptr)
   {
     simReac->toImport = true;
+    if(Settings::getInstance()->autoLoadLists->boolValue())
+    {
+      simReac->importFromManual();
+    }
     simReac->reaction = this;
   }
 }
