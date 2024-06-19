@@ -629,7 +629,12 @@ bool PAClist::computeCAC(set<int> pacIds)
 	{
 		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
 		// bounds
-		clauses << "(assert (and (>= conc" << e->idSAT << " 0) (<= conc" << e->idSAT << " 100)))\n";
+		clauses << "(assert (and (>= conc" << e->idSAT << " 0)";
+		float maxConc=Settings::getInstance()->CACConcBound->floatValue();
+		if(maxConc> .0){
+			clauses << "(<= conc" << e->idSAT << " "<< maxConc <<")";
+		}
+		clauses <<"))\n";
 	}
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{

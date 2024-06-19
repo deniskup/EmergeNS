@@ -19,6 +19,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     CACAccelThresh = addFloatParameter("CAC Accel. Thresh.", "Acceleration threshold for CAC search", .0);
 
+    CACConcBound = addFloatParameter("CAC Conc. Bound", "Bound on the concentration for CAC witnesses, 0 or negative for no bound", .0);
+
     //maxDoubleReacPACs = addIntParameter("(SAT) Max doubleReac", "Maximal number of double reactions in PAC searching", 2, 0);
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);

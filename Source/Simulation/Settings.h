@@ -27,7 +27,7 @@ public:
     FloatParameter *CACRobustness; //threshold for accepting CAC witness
     BoolParameter *CacAccelUse; //acceleration threshold for CAC search
     FloatParameter *CACAccelThresh; //acceleration threshold for CAC search
-
+    FloatParameter *CACConcBound; //bound on the concentration for CAC witnesses, 0 or negative for no bound
 
     BoolParameter *nonMinimalPACs; //look for non minimal PACs
 
@@ -47,7 +47,7 @@ public:
   //   class SettingsListener
   // {
   // public:
-  //   virtual ~SettingsListener() {}
+  //   virtual ~SettingsListener() {
   //   virtual void updateSettingsUI(Settings *){};
   // };
 
