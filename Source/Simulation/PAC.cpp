@@ -1000,7 +1000,7 @@ void PAClist::multiPACs()
 			}
 			if (!compatible)
 			{
-				LOG("Incompatible PACs: " << to_string(i) << "," << to_string(j) << " with reaction " << r_incomp->name);
+				//LOG("Incompatible PACs: " << to_string(i) << "," << to_string(j) << " with reaction " << r_incomp->name);
 				continue;
 			}
 
