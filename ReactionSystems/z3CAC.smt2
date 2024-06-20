@@ -14,28 +14,35 @@
 (assert (and (>= conc6 0)))
 (declare-const conc7 Real)
 (assert (and (>= conc7 0)))
-(declare-const conc8 Real)
-(assert (and (>= conc8 0)))
-(declare-const coef0 Real)
-(assert (= coef0 (- (* 0.3678794503 conc0 conc2 ) (* 0.0836195648 conc3 ))))
-(declare-const coef1 Real)
-(assert (= coef1 (- (* 0.0000095827 conc3 conc1 ) (* 0.3678794503 conc5 ))))
-(declare-const coef2 Real)
-(assert (= coef2 (- (* 0.0836187676 conc5 conc0 ) (* 0.3678794503 conc6 ))))
-(declare-const coef3 Real)
-(assert (= coef3 (- (* 0.3678794503 conc6 conc1 ) (* 0.0024787427 conc7 ))))
-(declare-const coef4 Real)
-(assert (= coef4 (- (* 0.3678794503 conc8 conc0 ) (* 0.0000066166 conc7 ))))
-(declare-const coef5 Real)
-(assert (= coef5 (- (* 0.3678794503 conc2 conc4 ) (* 0.0043202550 conc8 ))))
-(declare-const coef6 Real)
-(assert (= coef6 (- (* 0.0002686177 conc2 conc1 ) (* 0.3678794503 conc4 ))))
-(assert (> (+ (- coef0) (- coef5) (- coef6) 0) 0.0000000000))
-(assert (> (+ coef0 (- coef1) 0) 0.0000000000))
-(assert (> (+ (- coef5) coef6 0) 0.0000000000))
-(assert (> (+ coef1 (- coef2) 0) 0.0000000000))
-(assert (> (+ coef2 (- coef3) 0) 0.0000000000))
+;	clauses for CAC a2b->a2 a2->a2b2 a2b2->ab+ab ab->a2b 
+(declare-const coef0 Real);	flow of a2+b=a2b
+(assert (= coef0 (- (* 0.3678794503 conc2 conc1 ) (* 0.3678794503 conc4 ))))
+(declare-const coef1 Real);	flow of a2+b2=a2b2
+(assert (= coef1 (- (* 0.3678794503 conc2 conc3 ) (* 0.3678794503 conc6 ))))
+(declare-const coef2 Real);	flow of ab+ab=a2b2
+(assert (= coef2 (- (* 0.3678794503 conc7 conc7 ) (* 0.3678794503 conc6 ))))
+(declare-const coef5 Real);	flow of ab+a=a2b
+(assert (= coef5 (- (* 0.3678794503 conc7 conc0 ) (* 0.3678794503 conc4 ))))
+;	production of a2
+(assert (> (+ (- coef0) (- coef1) 0) 0.0000000000))
+;	production of a2b
+(assert (> (+ coef0 coef5 0) 0.0000000000))
+;	production of a2b2
+(assert (> (+ coef1 coef2 0) 0.0000000000))
+;	production of ab
+(assert (> (+ (- coef2) (- coef2) (- coef5) 0) 0.0000000000))
+;	clauses for CAC b2->a2b2 a2b2->ab+ab ab2->b2 ab->ab2 
+(declare-const coef3 Real);	flow of a+b2=ab2
+(assert (= coef3 (- (* 0.3678794503 conc0 conc3 ) (* 0.3678794503 conc5 ))))
+(declare-const coef4 Real);	flow of ab+b=ab2
+(assert (= coef4 (- (* 0.3678794503 conc7 conc1 ) (* 0.3678794503 conc5 ))))
+;	production of b2
+(assert (> (+ (- coef1) (- coef3) 0) 0.0000000000))
+;	production of ab2
 (assert (> (+ coef3 coef4 0) 0.0000000000))
-(assert (> (+ (- coef4) coef5 0) 0.0000000000))
+;	production of a2b2
+(assert (> (+ coef1 coef2 0) 0.0000000000))
+;	production of ab
+(assert (> (+ (- coef2) (- coef2) (- coef4) 0) 0.0000000000))
 (check-sat)
 (get-model)

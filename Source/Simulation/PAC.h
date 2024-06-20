@@ -95,6 +95,7 @@ public:
         //the Array is the witness concentrations
     bool computeCAC(set<int>); // test for CAC and compute witness if yes
     void computeCACs(); // compute CACs among the PACs
+    void multiPACs(); // compute simultaneous PACs
     CACType dummyCAC();
     CACType CACfromInt(int); // convert an int to a CAC
     String CACToString(CACType); // print CACs to string

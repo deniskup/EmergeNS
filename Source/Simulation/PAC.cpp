@@ -286,12 +286,13 @@ map<string, float> parseModelReal(const string &output)
 void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTreated, Simulation *simul)
 {
 	// compute coefs from concentrations
+	clauses << ";	clauses for CAC " << pac->toString() << "\n";
 	for (auto &rd : pac->reacDirs)
 	{
 		SimReaction *r = rd.first;
 		if (reacsTreated.find(r) != reacsTreated.end())
 			continue;
-		clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+		clauses << "(declare-const coef" << r->idSAT << " Real);	flow of " << r->name << "\n";
 		// coef is assocRate*reac1*reac2-dissocRate*prod
 		// avoid printing in scientific format, print decimal values at the level of C++
 
@@ -314,6 +315,7 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	// for entities of the PAC, verify positive flow from reactions of the PAC
 	for (auto &e : pac->entities)
 	{
+		clauses << ";	production of " << e->name << "\n";
 		clauses << "(assert (> (+";
 		for (auto &rd : pac->reacDirs)
 		{
@@ -614,6 +616,69 @@ void PAClist::compute(int numSolv)
 	startThread();
 }
 
+// look for concentrations realizing the PAC witness
+// void PAClist::witnessCAC(int pacId)
+// {
+// 	PAC *pac = cycles[pacId];
+// 	stringstream clauses;
+// 	string inputFile = "z3CAC.smt2";
+// 	string outputFile = "z3CACmodel.txt";
+// 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
+
+// 	// realistic coefs: coefs come from actual concentrations of entities
+// 	// declare concentrations variable
+// 	for (auto &e : simul->entities)
+// 	{
+// 		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
+// 		// bounds
+// 		clauses << "(assert (and (>= conc" << e->idSAT << " 0)";
+// 		float maxConc = Settings::getInstance()->CACConcBound->floatValue();
+// 		if (maxConc > .0)
+// 		{
+// 			clauses << "(<= conc" << e->idSAT << " " << maxConc << ")";
+// 		}
+// 		clauses << "))\n";
+// 	}
+
+// 	// compute reaction flows coefs
+// 	for (auto &rd : pac->reacDirs)
+// 	{
+// 		SimReaction *r = rd.first;
+// 		// clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+
+// 		// replace the variable coef by the constant in the pac witness, but first save this witness in the PAC structure TODO
+
+// 		clauses << fixed << setprecision(10) << "(assert (= coef" << r->idSAT << " (- (* " << r->assocRate << " ";
+// 		for (auto &e : r->reactants)
+// 		{
+// 			clauses << "conc" << e->idSAT << " ";
+// 		}
+// 		clauses << ") (* " << r->dissocRate << " ";
+// 		for (auto &e : r->products)
+// 		{
+// 			clauses << "conc" << e->idSAT << " ";
+// 		}
+// 		clauses << "))))\n";
+// 	}
+
+// 	// call z3
+// 	//  write to file
+// 	ofstream inputStream(inputFile);
+// 	inputStream << clauses.str();
+// 	inputStream << "(check-sat)\n";
+// 	inputStream << "(get-model)\n";
+
+// 	inputStream.close();
+// 	// cout << "Calling Z3" << endl;
+// 	system(z3Command.c_str());
+// 	// cout << "Z3 done" << endl;
+// 	ifstream outputStream(outputFile);
+// 	if (!outputStream)
+// 	{
+// 		cerr << "Failed to open file: " << outputFile << endl;
+// 	}
+// }
+
 bool PAClist::computeCAC(set<int> pacIds)
 {
 	// use z3 to test the existence of a witness for the CAC
@@ -630,11 +695,12 @@ bool PAClist::computeCAC(set<int> pacIds)
 		clauses << "(declare-const conc" << e->idSAT << " Real)\n";
 		// bounds
 		clauses << "(assert (and (>= conc" << e->idSAT << " 0)";
-		float maxConc=Settings::getInstance()->CACConcBound->floatValue();
-		if(maxConc> .0){
-			clauses << "(<= conc" << e->idSAT << " "<< maxConc <<")";
+		float maxConc = Settings::getInstance()->CACConcBound->floatValue();
+		if (maxConc > .0)
+		{
+			clauses << "(<= conc" << e->idSAT << " " << maxConc << ")";
 		}
-		clauses <<"))\n";
+		clauses << "))\n";
 	}
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
@@ -874,6 +940,150 @@ void PAClist::computeCACs()
 	LOG(String(nbCAC) + " CACs found");
 }
 
+// test the existence of vectors working for simultaneous PACS, for now only 2
+void PAClist::multiPACs()
+{
+	// use z3 to test the existence of a witness for the CAC
+	string inputFile = "z3multiPAC.smt2";
+	string outputFile = "z3multiPACmodel.txt";
+	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3multiPAClog.txt";
+
+	int nbMulti=0;
+	// explore all pairs of PACs from the PAClist
+	for (int i = 0; i < cycles.size(); i++)
+	{
+		if(simul->shouldStop) break;
+		for (int j = i + 1; j < cycles.size(); j++)
+		{
+			if(simul->shouldStop) break;
+			stringstream clauses;
+			PAC *pac1 = cycles[i];
+			PAC *pac2 = cycles[j];
+
+			// comment in the  with the PACs
+			clauses << "; multiPACs\n";
+			clauses << "; PAC1: " << pac1->toString() << "\n";
+			clauses << "; PAC2: " << pac2->toString() << "\n";
+
+			// declare flow variables for reactions in one PAC or another. If appears in both, test that same direction
+			set<SimReaction *> reacsTreated; // empty set of reactions already treated
+			for (auto &rd : pac1->reacDirs)
+			{
+				SimReaction *r = rd.first;
+				clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+				reacsTreated.insert(r);
+			}
+			bool compatible = true; // no inverse reactions
+			SimReaction *r_incomp;
+			for (auto &rd : pac2->reacDirs)
+			{
+				SimReaction *r = rd.first;
+				if (reacsTreated.find(r) == reacsTreated.end())
+				{
+					clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+				}
+				else
+				{
+					for (auto &rd1 : pac1->reacDirs)
+					{
+						if (rd1.first == r)
+						{
+							if (rd1.second != rd.second)
+							{
+								compatible = false;
+								r_incomp = r;
+							}
+							break;
+						}
+					}
+				}
+			}
+			if (!compatible)
+			{
+				LOG("Incompatible PACs: " << to_string(i) << "," << to_string(j) << " with reaction " << r_incomp->name);
+				continue;
+			}
+
+			// declare a lambda function to add the clauses for a PAC
+			auto addPACclause = [&](PAC *pac)
+			{
+				// for entities of the PAC, verify positive flow from reactions of the PAC
+				for (auto &e : pac->entities)
+				{
+					clauses << ";	production of " << e->name << "\n";
+					clauses << "(assert (> (+";
+					for (auto &rd : pac->reacDirs)
+					{
+						SimReaction *r = rd.first;
+						for (auto er : r->reactants)
+						{
+							if (er == e)
+							{
+								clauses << " (- coef" << r->idSAT << ")";
+							}
+						}
+						for (auto p : r->products)
+						{
+							if (p == e)
+							{
+								clauses << " coef" << r->idSAT;
+							}
+						}
+					}
+					clauses << " 0) " << "0" << "))\n"; // last 0 to treat the case of no reaction, should not happen. .00001 to avoid numerical errors, and have real CAC
+				}
+			};
+
+			// add the clauses for the two PACs
+			addPACclause(pac1);
+			addPACclause(pac2);
+
+			// call z3
+			//  write to file, overwritting previous file
+			ofstream inputStream(inputFile);
+			inputStream << clauses.str();
+			inputStream << "(check-sat)\n";
+			inputStream << "(get-model)\n";
+
+			inputStream.close();
+			// cout << "Calling Z3" << endl;
+			system(z3Command.c_str());
+			// cout << "Z3 done" << endl;
+			ifstream outputStream(outputFile);
+			if (!outputStream)
+			{
+				cerr << "Failed to open file: " << outputFile << endl;
+			}
+
+			string z3Output((istreambuf_iterator<char>(outputStream)),
+							istreambuf_iterator<char>());
+
+			// test if satisfiable
+			size_t newlinePos = z3Output.find('\n');
+			string firstLine = z3Output.substr(0, newlinePos);
+			if (firstLine == "unsat")
+			{
+				LOG("No solution for PACs: " + to_string(i+1) + "," + to_string(j+1));
+				continue;
+			}
+			if (firstLine == "unknown")
+			{
+				LOGWARNING("Z3 timeout on CAC: " + to_string(i+1) + "," + to_string(j+1));
+				continue;
+			}
+			if (firstLine != "sat")
+			{
+				LOGWARNING("Error in Z3 output");
+				system("cp z3multiPAC.smt2 z3multiPACerror.smt2");
+				continue;
+			}
+			nbMulti++;
+			LOG("MultiPAC: " + to_string(i+1) + "," + to_string(j+1));
+		}
+	}
+	LOG(String(nbMulti) + " MultiPACs found");
+}
+
 void PAClist::run()
 {
 	// mark beginning of computation
@@ -890,6 +1100,8 @@ void PAClist::run()
 	else if (numSolver == 2)
 	{
 		PACsWithZ3();
+		if (Settings::getInstance()->multiPACs->boolValue())
+			multiPACs();
 	}
 	else
 		computeCACs();
@@ -1063,6 +1275,9 @@ void PAClist::PACsWithZ3()
 	// }
 
 	// true reactions with coefs produce a positive amount of every true entity. Strictly positive otherwise putting everything to 0 works
+
+	// do the following via a function addPACclause instead
+
 	for (auto &ent : simul->entities)
 	{
 		clauses << "(assert (=> ent" << ent->idSAT << " (> (+";

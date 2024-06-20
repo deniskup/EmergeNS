@@ -11,6 +11,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     maxPACperDiameter = addIntParameter("Max #PACs per size", "Timeout for number of PACs of some size", 300, 1);
 
+    multiPACs =  addBoolParameter("MultiPACs","Look for MultiPACs", false);
+
     CACSetMax = addIntParameter("Max Set CACs", "Maximal simultaneous CACs to test", 6, 1);
 
     CACRobustness = addFloatParameter("CAC Robustness", "Threshold for CAC witness", .0001, .0);
