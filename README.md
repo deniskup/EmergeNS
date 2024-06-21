@@ -1,3 +1,5 @@
+![Screenshot](bifurc.png)
+
 -------------Emergence of Natural Selection-------------
 
 1. ```git clone --recurse-submodule https://github.com/deniskup/EmergenceNS.git``` (or after clone, do "git init submodule " and "git submodule update --init --recursive")
