@@ -544,6 +544,8 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 
 void PAClist::addCycle(PAC *newpac)
 {
+	// print pac to log
+	LOG("PAC: " + newpac->toString());
 	// we only test if is is included in existing one, other direction is taken care of by SAT solver
 	// except if Settings::nonMinimal is set to true
 	bool nonMinTest = Settings::getInstance()->nonMinimalPACs->boolValue();
@@ -948,14 +950,16 @@ void PAClist::multiPACs()
 	string outputFile = "z3multiPACmodel.txt";
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3multiPAClog.txt";
 
-	int nbMulti=0;
+	int nbMulti = 0;
 	// explore all pairs of PACs from the PAClist
 	for (int i = 0; i < cycles.size(); i++)
 	{
-		if(simul->shouldStop) break;
+		if (simul->shouldStop)
+			break;
 		for (int j = i + 1; j < cycles.size(); j++)
 		{
-			if(simul->shouldStop) break;
+			if (simul->shouldStop)
+				break;
 			stringstream clauses;
 			PAC *pac1 = cycles[i];
 			PAC *pac2 = cycles[j];
@@ -1000,7 +1004,7 @@ void PAClist::multiPACs()
 			}
 			if (!compatible)
 			{
-				//LOG("Incompatible PACs: " << to_string(i) << "," << to_string(j) << " with reaction " << r_incomp->name);
+				// LOG("Incompatible PACs: " << to_string(i) << "," << to_string(j) << " with reaction " << r_incomp->name);
 				continue;
 			}
 
@@ -1063,12 +1067,12 @@ void PAClist::multiPACs()
 			string firstLine = z3Output.substr(0, newlinePos);
 			if (firstLine == "unsat")
 			{
-				LOG("No solution for PACs: " + to_string(i+1) + "," + to_string(j+1));
+				LOG("No solution for PACs: " + to_string(i + 1) + "," + to_string(j + 1));
 				continue;
 			}
 			if (firstLine == "unknown")
 			{
-				LOGWARNING("Z3 timeout on CAC: " + to_string(i+1) + "," + to_string(j+1));
+				LOGWARNING("Z3 timeout on CAC: " + to_string(i + 1) + "," + to_string(j + 1));
 				continue;
 			}
 			if (firstLine != "sat")
@@ -1078,7 +1082,7 @@ void PAClist::multiPACs()
 				continue;
 			}
 			nbMulti++;
-			LOG("MultiPAC: " + to_string(i+1) + "," + to_string(j+1));
+			LOG("MultiPAC: " + to_string(i + 1) + "," + to_string(j + 1));
 		}
 	}
 	LOG(String(nbMulti) + " MultiPACs found");
@@ -1192,10 +1196,7 @@ void PAClist::PACsWithZ3()
 	// there must exist coefficients for the reactions, such that the cycle produces every of its entity
 
 	// clear PACs if some were computed
-	cycles.clear();
-	nonMinimals.clear();
-	CACs.clear();
-	basicCACs.clear();
+	clear();
 
 	LOG("Using solver: Z3");
 	setZ3path();
@@ -1259,6 +1260,78 @@ void PAClist::PACsWithZ3()
 		}
 		clauses << ")";
 		clauses << ")))\n";
+	}
+
+	//each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
+	for (auto &e : simul->entities)
+	{
+		clauses << "(assert (=> ent" << e->idSAT << " (or";
+		for (auto &r : simul->reactions)
+		{
+			if(r->reactants.contains(e)){
+				//dir false and reac
+				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+			}
+			if(r->products.contains(e)){
+				//dir true and reac
+				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
+			}
+		}
+		clauses << ")))\n";
+		//now same but at most 1
+		clauses << "(assert (=> ent" << e->idSAT << " ((_ at-most 1)";
+		for (auto &r : simul->reactions)
+		{
+			if(r->reactants.contains(e)){
+				//dir false and reac
+				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+			}
+			if(r->products.contains(e)){
+				//dir true and reac
+				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
+			}
+		}
+		clauses << ")))\n";
+
+	}
+
+	// checking that foods are primary if this option is activated
+	if (Settings::getInstance()->primFood->boolValue())
+	{
+		for (auto &r : simul->reactions)
+		{
+			// if dir false, all non-food reactants must be true
+
+			clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
+			for (auto &e : r->reactants)
+			{
+				if (!e->primary)
+				{
+					clauses << " ent" << e->idSAT;
+				}
+			}
+			clauses << ")))\n";
+
+			// same if dir is true with products
+			clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
+			for (auto &e : r->products)
+			{
+				if (!e->primary)
+				{
+					clauses << " ent" << e->idSAT;
+				}
+			}
+			clauses << ")))\n";
+		}
+	}
+
+	// if PACmustContain is a valid entity, then it must be in the PAC
+	for (auto e : simul->entities)
+	{
+		if (e->name == Settings::getInstance()->PACmustContain->stringValue())
+		{
+			clauses << "(assert ent" << e->idSAT << ")\n";
+		}
 	}
 
 	// if distinct reactants and dir is false, then one reactant must be false
@@ -1325,9 +1398,10 @@ void PAClist::PACsWithZ3()
 
 	stringstream modClauses; // additional clauses forbidding some models
 
+	int minSize = jmax(2, Settings::getInstance()->minDiameterPACs->intValue());
 	int maxSize = jmin(simul->entities.size(), simul->reactions.size(), Settings::getInstance()->maxDiameterPACs->intValue());
 
-	for (int pacSize = 2; pacSize <= maxSize; pacSize++)
+	for (int pacSize = minSize; pacSize <= maxSize; pacSize++)
 	{
 		if (simul->shouldStop)
 			break;
@@ -1417,8 +1491,11 @@ void PAClist::PACsWithZ3()
 
 			pacsFound++;
 
-			// Parse the model
+			// Parse the model and print it to z3satmodel.txt, also copy the input file to z3sat.smt2
 			map<string, bool> model = parseModel(z3Output);
+			system("cp z3constraints.smt2 z3sat.smt2");
+			ofstream satFile;
+			satFile.open("z3satmodel.txt", ofstream::out);
 
 			PAC *pac = new PAC();
 			for (auto &r : simul->reactions)
@@ -1427,6 +1504,7 @@ void PAClist::PACsWithZ3()
 				if (model["reac" + to_string(j)])
 				{
 					pac->reacDirs.add(make_pair(r, model["dir" + to_string(j)]));
+					satFile << "reac" << j << " " << model["dir" + to_string(j)] << "  "<< r->name<<"\n";
 				}
 			}
 			for (auto &e : simul->entities)
@@ -1435,8 +1513,11 @@ void PAClist::PACsWithZ3()
 				if (model["ent" + to_string(i)])
 				{
 					pac->entities.add(e);
+					satFile << "ent" << i << "  " << e->name << "\n";
 				}
 			}
+
+			satFile.close();
 
 			addCycle(pac);
 

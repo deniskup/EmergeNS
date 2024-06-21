@@ -14,35 +14,103 @@
 (assert (and (>= conc6 0)))
 (declare-const conc7 Real)
 (assert (and (>= conc7 0)))
-;	clauses for CAC a2b->a2 a2->a2b2 a2b2->ab+ab ab->a2b 
-(declare-const coef0 Real);	flow of a2+b=a2b
-(assert (= coef0 (- (* 0.3678794503 conc2 conc1 ) (* 0.3678794503 conc4 ))))
-(declare-const coef1 Real);	flow of a2+b2=a2b2
-(assert (= coef1 (- (* 0.3678794503 conc2 conc3 ) (* 0.3678794503 conc6 ))))
-(declare-const coef2 Real);	flow of ab+ab=a2b2
-(assert (= coef2 (- (* 0.3678794503 conc7 conc7 ) (* 0.3678794503 conc6 ))))
-(declare-const coef5 Real);	flow of ab+a=a2b
-(assert (= coef5 (- (* 0.3678794503 conc7 conc0 ) (* 0.3678794503 conc4 ))))
-;	production of a2
-(assert (> (+ (- coef0) (- coef1) 0) 0.0000000000))
-;	production of a2b
-(assert (> (+ coef0 coef5 0) 0.0000000000))
-;	production of a2b2
-(assert (> (+ coef1 coef2 0) 0.0000000000))
-;	production of ab
-(assert (> (+ (- coef2) (- coef2) (- coef5) 0) 0.0000000000))
-;	clauses for CAC b2->a2b2 a2b2->ab+ab ab2->b2 ab->ab2 
-(declare-const coef3 Real);	flow of a+b2=ab2
-(assert (= coef3 (- (* 0.3678794503 conc0 conc3 ) (* 0.3678794503 conc5 ))))
-(declare-const coef4 Real);	flow of ab+b=ab2
-(assert (= coef4 (- (* 0.3678794503 conc7 conc1 ) (* 0.3678794503 conc5 ))))
-;	production of b2
-(assert (> (+ (- coef1) (- coef3) 0) 0.0000000000))
-;	production of ab2
-(assert (> (+ coef3 coef4 0) 0.0000000000))
-;	production of a2b2
-(assert (> (+ coef1 coef2 0) 0.0000000000))
-;	production of ab
-(assert (> (+ (- coef2) (- coef2) (- coef4) 0) 0.0000000000))
+(declare-const conc8 Real)
+(assert (and (>= conc8 0)))
+(declare-const conc9 Real)
+(assert (and (>= conc9 0)))
+(declare-const d_ent0 Real)
+(declare-const dC_ent0 Real)
+(declare-const d_ent1 Real)
+(declare-const dC_ent1 Real)
+(declare-const d_ent2 Real)
+(declare-const dC_ent2 Real)
+(declare-const d_ent3 Real)
+(declare-const dC_ent3 Real)
+(declare-const d_ent4 Real)
+(declare-const dC_ent4 Real)
+(declare-const d_ent5 Real)
+(declare-const dC_ent5 Real)
+(declare-const d_ent6 Real)
+(declare-const dC_ent6 Real)
+(declare-const d_ent7 Real)
+(declare-const dC_ent7 Real)
+(declare-const d_ent8 Real)
+(declare-const dC_ent8 Real)
+(declare-const d_ent9 Real)
+(declare-const dC_ent9 Real)
+(declare-const d_flow0 Real)
+(declare-const d_flow1 Real)
+(declare-const d_flow2 Real)
+(declare-const d_flow3 Real)
+(declare-const d_flow4 Real)
+(declare-const d_flow5 Real)
+(declare-const d_flow6 Real)
+(declare-const d_flow7 Real)
+(declare-const d_flow8 Real)
+(declare-const d_flow9 Real)
+(declare-const d_flow10 Real)
+(declare-const d_flow11 Real)
+;	clauses for CAC y2->c1 c1->c2 c2->c3 c3->c2+y2 
+(declare-const coef4 Real);	flow of x2+y2=c1
+(assert (= coef4 (- (* 0.3678794503 conc4 conc5 ) (* 0.3678794503 conc6 ))))
+(declare-const coef6 Real);	flow of c1+x2=c2
+(assert (= coef6 (- (* 0.3678794503 conc6 conc4 ) (* 0.3678794503 conc7 ))))
+(declare-const coef7 Real);	flow of c2+y1=c3
+(assert (= coef7 (- (* 0.3678794503 conc7 conc3 ) (* 0.3678794503 conc8 ))))
+(declare-const coef8 Real);	flow of c2+y2=c3
+(assert (= coef8 (- (* 0.3678794503 conc7 conc5 ) (* 0.3678794503 conc8 ))))
+;	production of y2
+(assert (> (+ (- coef4) (- coef8) 0) 0.0010000000))
+;	production of c1
+(assert (> (+ coef4 (- coef6) 0) 0.0010000000))
+;	production of c2
+(assert (> (+ coef6 (- coef7) (- coef8) 0) 0.0010000000))
+;	production of c3
+(assert (> (+ coef7 coef8 0) 0.0010000000))
+(declare-const coef0 Real)
+(assert (= coef0 (- (* 0.3678794503 conc0 conc9 ) (* 0.3678794503 conc2 ))))
+(declare-const coef1 Real)
+(assert (= coef1 (- (* 0.3678794503 conc0 conc9 ) (* 0.3678794503 conc3 ))))
+(declare-const coef2 Real)
+(assert (= coef2 (- (* 0.3678794503 conc2 conc3 ) (* 0.3678794503 conc4 ))))
+(declare-const coef3 Real)
+(assert (= coef3 (- (* 0.3678794503 conc2 conc3 ) (* 0.3678794503 conc5 ))))
+(declare-const coef5 Real)
+(assert (= coef5 (- (* 0.3678794503 conc6 conc2 ) (* 0.3678794503 conc7 ))))
+(declare-const coef9 Real)
+(assert (= coef9 (- (* 0.3678794503 conc8 conc3 ) (* 0.3678794503 conc1 ))))
+(declare-const coef10 Real)
+(assert (= coef10 (- (* 0.3678794503 conc8 conc4 ) (* 0.3678794503 conc1 ))))
+(declare-const coef11 Real)
+(assert (= coef11 (- (* 0.3678794503 conc0 conc0 ) (* 0.3678794503 conc1 ))))
+(assert (= dC_ent0 (+ 0)))
+(assert (= dC_ent1 (+ 0)))
+(assert (= dC_ent2 (+ 0)))
+(assert (= dC_ent3 (+ (- coef7) 0)))
+(assert (= dC_ent4 (+ (- coef4) (- coef6) 0)))
+(assert (= dC_ent5 (+ (- coef4) (- coef8) 0)))
+(assert (= dC_ent6 (+ coef4 (- coef6) 0)))
+(assert (= dC_ent7 (+ coef6 (- coef7) (- coef8) 0)))
+(assert (= dC_ent8 (+ coef7 coef8 0)))
+(assert (= dC_ent9 (+ 0)))
+(assert (= d_ent0 (+ (- coef0) (- coef1) (- coef11) (- coef11) 0.1000000015 (* -1. 0.1000000015 conc0))))
+(assert (= d_ent1 (+ coef9 coef10 coef11 0.1000000015 (* -1. 0.1000000015 conc1))))
+(assert (= d_ent2 (+ coef0 (- coef2) (- coef3) (- coef5) 0.1000000015 (* -1. 0.1000000015 conc2))))
+(assert (= d_ent3 (+ coef1 (- coef2) (- coef3) (- coef7) (- coef9) 0.1000000015 (* -1. 0.1000000015 conc3))))
+(assert (= d_ent4 (+ coef2 (- coef4) (- coef6) (- coef10) 0.1000000015 (* -1. 0.1000000015 conc4))))
+(assert (= d_ent5 (+ coef3 (- coef4) (- coef8) 0.1000000015 (* -1. 0.1000000015 conc5))))
+(assert (= d_ent6 (+ coef4 (- coef5) (- coef6) 0.1000000015 (* -1. 0.1000000015 conc6))))
+(assert (= d_ent7 (+ coef5 coef6 (- coef7) (- coef8) 0.1000000015 (* -1. 0.1000000015 conc7))))
+(assert (= d_ent8 (+ coef7 coef8 (- coef9) (- coef10) 0.1000000015 (* -1. 0.1000000015 conc8))))
+(assert (= d_ent9 (+ (- coef0) (- coef1) 0.1000000015 (* -1. 0.1000000015 conc9))))
+(assert (= d_flow4 (* coef4 (+ (* 0.3678794503 (+ (* d_ent4 conc5) (* d_ent5 conc4))) (* (- 0.3678794503 ) d_ent6)))))
+(assert (= d_flow6 (* coef6 (+ (* 0.3678794503 (+ (* d_ent6 conc4) (* d_ent4 conc6))) (* (- 0.3678794503 ) d_ent7)))))
+(assert (= d_flow7 (* coef7 (+ (* 0.3678794503 (+ (* d_ent7 conc3) (* d_ent3 conc7))) (* (- 0.3678794503 ) d_ent8)))))
+(assert (= d_flow8 (* coef8 (+ (* 0.3678794503 (+ (* d_ent7 conc5) (* d_ent5 conc7))) (* (- 0.3678794503 ) d_ent8)))))
+(assert (or (< dC_ent5 0.0020000001) (< dC_ent6 0.0020000001) (< dC_ent7 0.0020000001) (< dC_ent8 0.0020000001)))
+(assert (or (> dC_ent5 0.0020000001) (> (+ (- d_flow4) (- d_flow8) 0) -0.1000000015)))
+(assert (or (> dC_ent6 0.0020000001) (> (+ d_flow4 (- d_flow6) 0) -0.1000000015)))
+(assert (or (> dC_ent7 0.0020000001) (> (+ d_flow6 (- d_flow7) (- d_flow8) 0) -0.1000000015)))
+(assert (or (> dC_ent8 0.0020000001) (> (+ d_flow7 d_flow8 0) -0.1000000015)))
 (check-sat)
 (get-model)

@@ -19,10 +19,15 @@ public:
 
     IntParameter *z3timeout; //timeout for z3 in ms
     
+    IntParameter *minDiameterPACs; //
     IntParameter *maxDiameterPACs; //diameter to stop
     IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter
 
+    StringParameter *PACmustContain; //some entity that PACs must contain
+
     BoolParameter *multiPACs; //look for multiPACs
+
+    BoolParameter *primFood; //only primary can be food
 
     IntParameter *CACSetMax; //maximal number of PACs to look for
     //IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
