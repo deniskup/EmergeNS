@@ -1,112 +1,55 @@
 sat
 (
-  (define-fun conc2 () Real
-    1.0)
-  (define-fun conc8 () Real
-    (/ 1535.0 512.0))
-  (define-fun conc9 () Real
-    33.0)
-  (define-fun conc3 () Real
-    5.0)
-  (define-fun conc6 () Real
-    (/ 3.0 4.0))
-  (define-fun conc1 () Real
+  (define-fun conc15 () Real
+    0.0)
+  (define-fun conc10 () Real
     1.0)
   (define-fun conc5 () Real
-    1.0)
+    (/ 7.0 16.0))
   (define-fun conc7 () Real
+    0.0)
+  (define-fun conc4 () Real
+    (/ 21.0 16.0))
+  (define-fun conc14 () Real
+    (/ 11.0 32.0))
+  (define-fun conc11 () Real
+    (/ 3.0 4.0))
+  (define-fun conc3 () Real
+    (/ 3.0 4.0))
+  (define-fun conc6 () Real
+    (/ 11.0 32.0))
+  (define-fun conc1 () Real
+    1.0)
+  (define-fun conc12 () Real
+    (/ 21.0 16.0))
+  (define-fun conc13 () Real
+    (/ 7.0 16.0))
+  (define-fun conc2 () Real
     1.0)
   (define-fun conc0 () Real
     1.0)
-  (define-fun conc4 () Real
-    2.0)
-  (define-fun d_flow8 () Real
-    (- (/ 639406607786152355304963653683373811.0
-      262144000000000000000000000000000000.0)))
-  (define-fun d_flow7 () Real
-    (/ 3223771545606806549948706182061977.0 1310720000000000000000000000000000.0))
-  (define-fun d_flow6 () Real
-    (- (/ 57284408386881235483446287665247.0 2048000000000000000000000000000000.0)))
-  (define-fun d_flow4 () Real
-    (/ 439143361708297712177871526669.0 1600000000000000000000000000000.0))
-  (define-fun d_ent9 () Real
-    (- (/ 12636383533.0 500000000.0)))
-  (define-fun d_ent8 () Real
-    (- (/ 18388601895001.0 2560000000000.0)))
-  (define-fun d_ent7 () Real
-    (/ 231764053689.0 2560000000000.0))
-  (define-fun d_ent6 () Real
-    (/ 15715178027.0 40000000000.0))
-  (define-fun d_ent5 () Real
-    (/ 8943149436793.0 5120000000000.0))
-  (define-fun d_ent4 () Real
-    (- (/ 3783963932217.0 2560000000000.0)))
-  (define-fun d_ent3 () Real
-    (/ 1846107268743.0 1280000000000.0))
-  (define-fun d_ent2 () Real
-    (/ 371558244803.0 40000000000.0))
-  (define-fun d_ent1 () Real
-    (/ 35761561363663.0 5120000000000.0))
-  (define-fun d_ent0 () Real
-    (- (/ 11036383509.0 500000000.0)))
-  (define-fun dC_ent9 () Real
+  (define-fun conc9 () Real
     0.0)
-  (define-fun dC_ent8 () Real
-    (/ 3678794503.0 2560000000000.0))
-  (define-fun dC_ent7 () Real
-    (/ 467206901881.0 2560000000000.0))
-  (define-fun dC_ent6 () Real
-    (/ 11036383509.0 40000000000.0))
-  (define-fun dC_ent5 () Real
-    (/ 1408978294649.0 5120000000000.0))
-  (define-fun dC_ent4 () Real
-    (- (/ 25751561521.0 40000000000.0)))
-  (define-fun dC_ent3 () Real
-    (- (/ 150830574623.0 204800000000.0)))
-  (define-fun dC_ent2 () Real
+  (define-fun conc8 () Real
     0.0)
-  (define-fun dC_ent1 () Real
-    0.0)
-  (define-fun dC_ent0 () Real
-    0.0)
-  (define-fun coef11 () Real
-    0.0)
-  (define-fun coef10 () Real
-    (/ 4705178169337.0 2560000000000.0))
   (define-fun coef9 () Real
-    (/ 26351205024989.0 5120000000000.0))
-  (define-fun coef5 () Real
-    (- (/ 3678794503.0 40000000000.0)))
-  (define-fun coef3 () Real
-    (/ 3678794503.0 2500000000.0))
-  (define-fun coef2 () Real
-    (/ 11036383509.0 10000000000.0))
-  (define-fun coef1 () Real
-    (/ 25751561521.0 2500000000.0))
-  (define-fun coef0 () Real
-    (/ 3678794503.0 312500000.0))
+    (- (/ 25751561521.0 160000000000.0)))
   (define-fun coef8 () Real
-    (- (/ 3763406776569.0 5120000000000.0)))
-  (define-fun coef7 () Real
-    (/ 150830574623.0 204800000000.0))
-  (define-fun coef6 () Real
-    (/ 3678794503.0 20000000000.0))
+    (/ 33109150527.0 160000000000.0))
+  (define-fun coef2 () Real
+    (- (/ 3678794503.0 32000000000.0)))
+  (define-fun coef1 () Real
+    (- (/ 40466739533.0 320000000000.0)))
+  (define-fun coef0 () Real
+    (/ 47824328539.0 320000000000.0))
+  (define-fun coef11 () Real
+    (- (/ 25751561521.0 160000000000.0)))
+  (define-fun coef10 () Real
+    (/ 33109150527.0 160000000000.0))
+  (define-fun coef5 () Real
+    (- (/ 3678794503.0 32000000000.0)))
   (define-fun coef4 () Real
-    (/ 3678794503.0 8000000000.0))
-  (define-fun d_flow0 () Real
-    0.0)
-  (define-fun d_flow11 () Real
-    0.0)
-  (define-fun d_flow3 () Real
-    0.0)
-  (define-fun d_flow2 () Real
-    0.0)
-  (define-fun d_flow1 () Real
-    0.0)
-  (define-fun d_flow10 () Real
-    0.0)
-  (define-fun d_flow9 () Real
-    0.0)
-  (define-fun d_flow5 () Real
-    0.0)
+    (- (/ 40466739533.0 320000000000.0)))
+  (define-fun coef3 () Real
+    (/ 47824328539.0 320000000000.0))
 )

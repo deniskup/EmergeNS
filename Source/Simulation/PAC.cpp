@@ -353,12 +353,14 @@ void addCACclause(stringstream &clauses, PAC *pac, set<SimReaction *> &reacsTrea
 	// acceleration option: ask that acceleration is above a threshold
 	if (Settings::getInstance()->CacAccelUse->boolValue())
 	{
+		clauses << ";	acceleration clauses\n";
 		// add untreated reactions
 		for (auto &r : simul->reactions)
 		{
 			if (reacsTreated.find(r) == reacsTreated.end())
 			{
 				clauses << "(declare-const coef" << r->idSAT << " Real)\n";
+				reacsTreated.insert(r);
 				// coef is assocRate*reac1*reac2-dissocRate*prod
 				// avoid printing in scientific format, print decimal values at the level of C++
 
