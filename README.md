@@ -40,7 +40,8 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 => Next steps to be done after every git pull:
 
 9. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
-/!\ Warning: on Mac use version 14 or less
+    
+/!\ Warning: on Mac use version 14 or less of xcode
 
 Possible errors and how to fix
 
