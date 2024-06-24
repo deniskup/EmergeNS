@@ -30,7 +30,7 @@ Possible errors and how to fix
 
 7. Make sure you have z3 installed and that the command "z3" works in your terminal.
 
-8. Make sure you have msolve installed and the command "msolve" works in your terminal.
+8. For multistability detection (optional): Make sure you have msolve installed and the command "msolve" works in your terminal.
 If not, check the webpage https://msolve.lip6.fr to install it. Installation procedure is explained on the INSTALL file of the associated github page (see 'github' thread on the msolve web page).
 You will need to have GMP and FLINT libraries installed on your system. For ubuntu users, you can type :
    ```sudo apt get libgmp-dev```
