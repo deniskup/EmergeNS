@@ -28,7 +28,7 @@ Possible errors and how to fix
 
 6. Save the project
 
-7. Make sure you have z3 installed and that the command "z3" works in your terminal.
+7. Make sure you have z3 installed and that the command "z3" works in your terminal (you can also specify a path to the exectuable in the software settings).
 
 8. For multistability detection (optional): Make sure you have msolve installed and the command "msolve" works in your terminal.
 If not, check the webpage https://msolve.lip6.fr to install it. Installation procedure is explained on the INSTALL file of the associated github page (see 'github' thread on the msolve web page).
