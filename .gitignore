@@ -19,8 +19,7 @@ Resources/z3constraints.smt2
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
 ReactionSystems/z3CACmodel.txt
-ReactionSystems/z3CAC.smt2
-ReactionSystems/steadyConstraints.smt2
+ReactionSystems/*.smt2
 ReactionSystems/*.ms
 ReactionSystems/msolvesteadylog.txt
 ReactionSystems/concentrationDynamic.csv
@@ -28,4 +27,3 @@ Builds/LinuxMakefile_CI/Makefile
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergenceNS_App.vcxproj.filters
 Builds/MacOSX_CI/EmergenceNS.xcodeproj/project.pbxproj
-ReactionSystems/dummy.txt
