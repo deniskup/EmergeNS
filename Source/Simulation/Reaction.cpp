@@ -3,6 +3,8 @@
 #include "EntityManager.h"
 #include "Simulation.h"
 
+#define CONSTANTS_PRECISION 7
+
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
   addParams();
@@ -103,6 +105,8 @@ void Reaction::addParams()
   dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .5f);
   assocRate->setControllableFeedbackOnly(true);
   dissocRate->setControllableFeedbackOnly(true);
+  assocRate->setAttributeInternal("stringDecimals", CONSTANTS_PRECISION);
+  dissocRate->setAttributeInternal("stringDecimals", CONSTANTS_PRECISION);
 
   showWarningInUI = true;
 }
@@ -282,7 +286,7 @@ void Reaction::inferEntities()
   // only infer for empty reactions
   // if (!newReac)
   //   return;
- // DBG("Infering entities for reaction " + niceName);
+  // DBG("Infering entities for reaction " + niceName);
   String name = niceName;
   int pos = name.indexOfChar('+');
   int pos2 = name.indexOfChar('=');
@@ -307,7 +311,7 @@ void Reaction::inferEntities()
       return;
     }
 
-  //clear reactants and products
+    // clear reactants and products
     clearReactants();
     clearProducts();
 
@@ -369,7 +373,7 @@ void Reaction::inferEntities()
 
 void Reaction::onContainerNiceNameChanged()
 {
- // inferEntities();
+  // inferEntities();
   // change name of SimReaction if exists
   if (simReac != nullptr)
   {
@@ -493,7 +497,7 @@ void Reaction::updateWarnAndRates()
   if (simReac != nullptr)
   {
     simReac->toImport = true;
-    if(Settings::getInstance()->autoLoadLists->boolValue())
+    if (Settings::getInstance()->autoLoadLists->boolValue())
     {
       simReac->importFromManual();
     }
@@ -530,4 +534,10 @@ bool Reaction::shouldIncludeInSimulation()
   }
 
   return true;
+}
+
+// when a parameter is changed, update the reaction
+void Reaction::onContainerParameterChanged(Parameter *p)
+{
+  updateWarnAndRates();
 }
