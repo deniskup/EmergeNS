@@ -16,7 +16,7 @@ public:
 
 	void clearInternal() override;
 
-	void parseCommandline(const String &) override;
+	bool parseCommandline(const String &) override;
 
 	var getJSONData() override;
 	void loadJSONDataInternalEngine(var data, ProgressTask* loadingTask) override;

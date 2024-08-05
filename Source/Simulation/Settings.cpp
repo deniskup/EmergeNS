@@ -6,10 +6,17 @@ juce_ImplementSingleton(Settings);
 Settings::Settings() : ControllableContainer("Settings")
 {
 
+    minDiameterPACs = addIntParameter("Min PAC size", "Minimal size in PAC searching", 1, 1);
 
-    maxDiameterPACs = addIntParameter("Max size", "Maximal size in PAC searching", 20, 1);
+    maxDiameterPACs = addIntParameter("Max PAC size", "Maximal size in PAC searching", 20, 1);
 
     maxPACperDiameter = addIntParameter("Max #PACs per size", "Timeout for number of PACs of some size", 300, 1);
+
+    PACmustContain = addStringParameter("PAC must contain", "some entity that PACs must contain", "");
+
+    multiPACs =  addBoolParameter("MultiPACs","Look for MultiPACs", false);
+
+    primFood = addBoolParameter("Primary food", "Only primary can be food", false);
 
     CACSetMax = addIntParameter("Max Set CACs", "Maximal simultaneous CACs to test", 6, 1);
 
@@ -18,6 +25,8 @@ Settings::Settings() : ControllableContainer("Settings")
     CacAccelUse = addBoolParameter("CAC Acceleration", "Use acceleration threshold for CAC search", false);
 
     CACAccelThresh = addFloatParameter("CAC Accel. Thresh.", "Acceleration threshold for CAC search", .0);
+
+    CACConcBound = addFloatParameter("CAC Conc. Bound", "Bound on the concentration for CAC witnesses, 0 or negative for no bound", .0);
 
     //maxDoubleReacPACs = addIntParameter("(SAT) Max doubleReac", "Maximal number of double reactions in PAC searching", 2, 0);
 

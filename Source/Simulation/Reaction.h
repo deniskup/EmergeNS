@@ -60,16 +60,17 @@ public:
     bool shouldIncludeInSimulation();
 
     void onContainerNiceNameChanged() override;
-    //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
     
-
-
+    
+    //"Internal" refers to the fact that the mother class has its own handling of the original function (before override), calling the internal in the middle of the code.
     void onControllableFeedbackUpdateInternal(ControllableContainer *,Controllable *) override;
 
     // External refers to the parameter not being a direct child of this container
     void onExternalParameterValueChanged(Parameter *p) override;
 
     //void onControllableRemoved(Controllable*) override;
+
+    void onContainerParameterChanged(Parameter *) override;
 
     void afterLoadJSONDataInternal() override;
 

@@ -379,9 +379,9 @@ void Simulation::importCsvData(String filename)
 {
 
   juce::var dummy("kujhdsb");
-	Settings::getInstance()->pathToz3 = addStringParameter("Path to z3", String("path to z3 solver"), String("Dummy"));
+  Settings::getInstance()->pathToz3 = addStringParameter("Path to z3", String("path to z3 solver"), String("Dummy"));
 
-	//Settings::getInstance()->pathToz3->setValueInternal(dummy);
+  // Settings::getInstance()->pathToz3->setValueInternal(dummy);
   return;
   // get csv file to parse
   juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
@@ -864,26 +864,27 @@ void Simulation::establishLinks()
 
     if (r->reactants->controllables.size() == 0 || r->products->controllables.size() == 0)
     {
-      //LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
+      // LOG("Reaction " + r->niceName + " has " + String(r->reactants->controllables.size()) + " reactants and " + String(r->products->controllables.size()) + " products.");
 
-       r->clearReactants();
-       r->clearProducts();
+      r->clearReactants();
+      r->clearProducts();
 
       // creates a bug for now, to understand...
 
       auto sr = r->simReac;
-      if(sr==nullptr){
+      if (sr == nullptr)
+      {
         LOG("SimReaction not found for reaction " + r->niceName);
         continue;
       }
-        for(auto &se : sr->reactants)
-        {
-          r->addReactant(se->entity);
-        }
-       for(auto &se : sr->products)
-       {
-         r->addProduct(se->entity);
-       }
+      for (auto &se : sr->reactants)
+      {
+        r->addReactant(se->entity);
+      }
+      for (auto &se : sr->products)
+      {
+        r->addProduct(se->entity);
+      }
     }
     if (!found)
     {
@@ -1699,16 +1700,15 @@ void Simulation::writeHistory()
 
 ///////////////////////////////////////////////////////////////////:
 
-
-void Simulation::PrintSimuToFile(string filename="model.txt")
+void Simulation::PrintSimuToFile(string filename = "model.txt")
 {
   ofstream output;
   output.open(filename, ofstream::out | ofstream::trunc);
 
-
   output << "--------------------------" << endl;
   output << "---- Simulation Content ----" << endl;
-  output << "--------------------------\n" << endl;
+  output << "--------------------------\n"
+         << endl;
   output << "--- Some global parameters" << endl;
   output << "Nprimaries: " << Generation::getInstance()->primEntities->stringValue() << endl;
   output << "path to z3: " << Settings::getInstance()->pathToz3->stringValue() << endl;
@@ -1718,40 +1718,41 @@ void Simulation::PrintSimuToFile(string filename="model.txt")
   output << endl;
 
   output << "--- Entities [name; composition; free energy]" << endl;
-  for (auto & e : entities)
+  for (auto &e : entities)
   {
     output << "[ " << e->name << " ; (";
-    for (auto & i : e->composition) output << i;
+    for (auto &i : e->composition)
+      output << i;
     output << ") ; " << e->freeEnergy << " ]" << endl;
   }
   output << endl;
 
   output << "--- Reactions 'reactants --> products' [k+ ; k-]" << endl;
-  for (auto & r : reactions)
+  for (auto &r : reactions)
   {
     output << "'";
     int nreac = r->reactants.size();
-    int c=0;
-    for (auto & reac : r->reactants) 
+    int c = 0;
+    for (auto &reac : r->reactants)
     {
       output << reac->name;
-      if (c<(nreac-1)) output << " + ";
+      if (c < (nreac - 1))
+        output << " + ";
       c++;
     }
     output << " --> ";
     int nprod = r->products.size();
-    c=0;
-    for (auto & prod : r->products) 
+    c = 0;
+    for (auto &prod : r->products)
     {
       output << prod->name;
-      if (c<(nprod-1)) output << " + ";
+      if (c < (nprod - 1))
+        output << " + ";
       c++;
     }
     output << " \t[" << r->assocRate << " ; " << r->dissocRate << "]" << endl;
   }
 }
-
-
 
 ///////////////////////////////////////////////////////////////////:
 
@@ -2036,7 +2037,7 @@ var SimEntity::toJSONData()
 
 SimEntity::~SimEntity()
 {
-  for (auto &ent :EntityManager::getInstance()->items)
+  for (auto &ent : EntityManager::getInstance()->items)
   {
     if (ent->simEnt == this)
     {
@@ -2250,7 +2251,7 @@ SimReaction::SimReaction(var data)
       constructionFailed = true;
       return;
     }
-    arrayMode=false;
+    arrayMode = false;
   }
   else
   {

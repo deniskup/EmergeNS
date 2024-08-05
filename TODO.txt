@@ -1,3 +1,7 @@
+-gerer bug autoloadlist avec generation
+
+-bug PAC listing en partant d'une taille >2
+
 -reactions irreversibles (bool isReversible)
 
 -verify that conditions with dir in PAC searching are needed

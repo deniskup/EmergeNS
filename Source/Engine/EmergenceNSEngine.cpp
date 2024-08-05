@@ -41,18 +41,18 @@ void EmergenceNSEngine::clearInternal()
 }
 
 
-
-void EmergenceNSEngine::parseCommandline(const String &commandLine)
+//the bool returned says whether a file has been loaded
+bool EmergenceNSEngine::parseCommandline(const String &commandLine)
 {
 	// Call parent function
-	Engine::parseCommandline(commandLine);
+	bool parentCall=Engine::parseCommandline(commandLine);
 	//this contains already several command option like
 	// -headless : run the engine without GUI
 	// -f "path/to/file.ens": load the file with absolute path
 
 	//Compile with task MakeRelease for better performance
 
-
+	bool fileLoaded=false;
 
 	// Check if the argument is "config"
 	if (commandLine.contains("config"))
@@ -84,7 +84,7 @@ void EmergenceNSEngine::parseCommandline(const String &commandLine)
   	 		 	throw juce::OSCFormatError("can't open config file");
 					JUCEApplication::getInstance()->systemRequestedQuit();
 				}
-
+				fileLoaded=true;
 				// store content of config file
 				//vector<vector<string>> configs; // config file content stored here
   			vector<string> row;
@@ -149,10 +149,12 @@ void EmergenceNSEngine::parseCommandline(const String &commandLine)
 
 
 		JUCEApplication::getInstance()->systemRequestedQuit();
+
+		
 	}
 
 
-
+return (fileLoaded||parentCall);
 
 }
 

@@ -1,3 +1,5 @@
+![Screenshot](bifurc.png)
+
 -------------Emergence of Natural Selection-------------
 
 1. ```git clone --recurse-submodule https://github.com/deniskup/EmergenceNS.git``` (or after clone, do "git init submodule " and "git submodule update --init --recursive")
@@ -26,9 +28,9 @@ Possible errors and how to fix
 
 6. Save the project
 
-7. Make sure you have z3 installed and that the command "z3" works in your terminal.
+7. Make sure you have z3 installed and that the command "z3" works in your terminal (you can also specify a path to the exectuable in the software settings).
 
-8. Make sure you have msolve installed and the command "msolve" works in your terminal.
+8. For multistability detection (optional): Make sure you have msolve installed and the command "msolve" works in your terminal.
 If not, check the webpage https://msolve.lip6.fr to install it. Installation procedure is explained on the INSTALL file of the associated github page (see 'github' thread on the msolve web page).
 You will need to have GMP and FLINT libraries installed on your system. For ubuntu users, you can type :
    ```sudo apt get libgmp-dev```
@@ -38,7 +40,8 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 => Next steps to be done after every git pull:
 
 9. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
-/!\ Warning: on Mac use version 14 or less
+    
+/!\ Warning: on Mac use version 14 or less of xcode
 
 Possible errors and how to fix
 

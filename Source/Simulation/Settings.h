@@ -19,15 +19,23 @@ public:
 
     IntParameter *z3timeout; //timeout for z3 in ms
     
+    IntParameter *minDiameterPACs; //
     IntParameter *maxDiameterPACs; //diameter to stop
     IntParameter *maxPACperDiameter; //timeout for number of PACs of some diameter
+
+    StringParameter *PACmustContain; //some entity that PACs must contain
+
+    BoolParameter *multiPACs; //look for multiPACs
+
+    BoolParameter *primFood; //only primary can be food
+
     IntParameter *CACSetMax; //maximal number of PACs to look for
     //IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
 
     FloatParameter *CACRobustness; //threshold for accepting CAC witness
     BoolParameter *CacAccelUse; //acceleration threshold for CAC search
     FloatParameter *CACAccelThresh; //acceleration threshold for CAC search
-
+    FloatParameter *CACConcBound; //bound on the concentration for CAC witnesses, 0 or negative for no bound
 
     BoolParameter *nonMinimalPACs; //look for non minimal PACs
 
@@ -47,7 +55,7 @@ public:
   //   class SettingsListener
   // {
   // public:
-  //   virtual ~SettingsListener() {}
+  //   virtual ~SettingsListener() {
   //   virtual void updateSettingsUI(Settings *){};
   // };
 
