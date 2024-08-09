@@ -120,7 +120,11 @@ public:
   float flow;    // flow = dProduct/dt due to the reaction
   bool flowdir;  // direction of the flow, same convention as in PAC
 
+  bool containsReactant(SimEntity *e);
+  bool containsProduct(SimEntity *e);
   bool contains(SimEntity *e);
+
+  int stoechiometryOfEntity(SimEntity *e);
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
@@ -128,16 +132,19 @@ public:
 class RACSnapshot
 {
   public:
-  RACSnapshot(float r, Array<float> f) : rac(r), flows(f) {}
+  RACSnapshot(float r, Array<float> f, Array<float> p) : rac(r), flows(f), specificities(p) {}
   float rac;
   Array<float> flows;
+  Array<float> specificities;
 };
 
 class RACHist
 {
   public:
   RACHist(){}
+  RACHist(Array<SimEntity*> e){ent = e;}
   OwnedArray<RACSnapshot> hist;
+  Array<SimEntity*> ent;
 };
 //   int step;
 //   Array<float> flows;

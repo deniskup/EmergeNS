@@ -26,11 +26,11 @@ string scientificStringFormat(float number)
 	std::ostringstream oss2;
 	oss2.precision(ndigits+1);
 	oss2 << approxdec;
-	cout << "start : " << oss2.str() << endl;
+	//cout << "start : " << oss2.str() << endl;
 
 	// add exponent part to output string
 	std::string output = oss2.str() + oss.str().substr(ePos, oss.str().size() - ePos);
-	cout << "output : " << output << endl;
+	//cout << "output : " << output << endl;
 
 	return output;
 }
@@ -292,6 +292,18 @@ bool PAC::includedIn(PAC *pac, bool onlyEnts)
 	}
 	return true;
 }
+
+bool PAC::containsReaction(SimReaction * r)
+{
+	for (auto & pair: reacDirs)
+	{
+		SimReaction * rp = pair.first;
+		if (rp == r) return true;
+	}
+	return false;
+}
+
+
 
 map<string, float> parseModelReal(const string &output)
 {

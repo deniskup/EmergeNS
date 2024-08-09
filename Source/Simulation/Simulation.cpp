@@ -1267,7 +1267,8 @@ void Simulation::start(bool restart)
   RAChistory.clear();
   for (auto &pac : pacList->cycles)
   {
-    RAChistory.add(new RACHist());
+    //RAChistory.add(new RACHist());
+    RAChistory.add(new RACHist(pac->entities));
   }
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
@@ -1478,7 +1479,7 @@ void Simulation::nextStep()
     //   }
     // }
 
-    // new way by computing the total flow for each entity of the PAC
+    // new way by computing the total cycle flow for each entity of the PAC
     map<SimEntity *, float> flowPerEnt;
     for (auto &ent : entities)
       flowPerEnt[ent] = 0.;
@@ -1515,15 +1516,64 @@ void Simulation::nextStep()
       }
     }
 
+    // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
+    map<SimEntity *, float> otherFlowPerEnt;
+    for (auto &ce : cycle->entities)
+      otherFlowPerEnt[ce] = 0.;
+
+    for (auto& ce : cycle->entities)
+    {
+      //if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
+      for (auto& r : reactions)
+      {
+        // does this reaction contains current cycle entity ?
+        int stoe = r->stoechiometryOfEntity(ce);
+        if (stoe == 0) continue;
+
+        if (cycle->containsReaction(r)) // if reaction is in the RAC, count 
+        {
+          otherFlowPerEnt[ce] += (float) stoe * r->flow;
+        }
+        else // if reaction is not in the RAC, count it only if it has a positive contribution
+        {
+          if ( (stoe<0 && r->flow<0) || (stoe>0 && r->flow>0) )  otherFlowPerEnt[ce] += (float) stoe * r->flow;  
+        }
+
+        // // check
+        // if (cycle->flow > 0 && curStep==13927)
+        // {
+        //   if (ce->name != "B1") continue;
+        //   cout << "reaction '" << r->name << "' cont. to cycle entity " << ce->name << ". stoe = " << stoe << ". flow = " << r->flow << endl;
+        // }   
+      }
+
+      // if (cycle->flow > 0 && curStep==13927)
+      // {
+      //   if (ce->name != "B1") continue;
+      //   cout << "flow due to cycle = " << flowPerEnt[ce] << endl;
+      //   cout << "total positive flow due to all reactions = " << otherFlowPerEnt[ce] << endl;
+      // }
+    }
+
     if (Settings::getInstance()->printHistoryToFile->boolValue())
     {
-      //   // update history with flowPerEnt
+      // update history with flowPerEnt
       Array<float> RACflows;
+      Array<float> RACspec;
       for (auto &ent : cycle->entities)
       {
         RACflows.add(flowPerEnt[ent]);
+        float spec = 0.;
+        if (cycle->flow != 0.) // if cycle is off, specificity has no sense and should remain 0
+        {
+          if (otherFlowPerEnt[ent]!=0.) spec = flowPerEnt[ent] / otherFlowPerEnt[ent];
+          else spec = 999.; // there shouldn't be a division by 0 above since otherFlowPerEnt at least contains flowPerEnt
+        // never too sure, I use dummy value to spot any unexpected behavior
+        }
+        RACspec.add(spec);
       }
-      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
+      //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
+      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACspec));
       // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
     }
 
@@ -1645,9 +1695,11 @@ void Simulation::writeHistory()
       historyFile.close();
       continue;
     }
-    for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
+    //for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
+    for (auto& ent : RAChistory[idPAC0]->ent)
     {
-      historyFile << "ent" << e + 1 << ",";
+      //historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
+      historyFile << ent->name << ",spec_" << ent->name << ",";
     }
     historyFile << endl;
     int i = 0;
@@ -1658,6 +1710,7 @@ void Simulation::writeHistory()
       for (int e = 0; e < snap->flows.size(); e++)
       {
         historyFile << snap->flows[e] << ",";
+        historyFile << snap->specificities[e] << ",";
       }
       historyFile << endl;
     }
@@ -2406,14 +2459,19 @@ SimReaction::~SimReaction()
   }
 }
 
-bool SimReaction::contains(SimEntity *e)
+bool SimReaction::containsReactant(SimEntity *e)
 {
-  // return (reactant1 == e || reactant2 == e || product == e);
   for (auto r : reactants)
   {
     if (r == e)
       return true;
   }
+  return false;
+}
+
+bool SimReaction::containsProduct(SimEntity *e)
+{
+
   for (auto p : products)
   {
     if (p == e)
@@ -2421,6 +2479,32 @@ bool SimReaction::contains(SimEntity *e)
   }
   return false;
 }
+
+bool SimReaction::contains(SimEntity *e)
+{
+  // // return (reactant1 == e || reactant2 == e || product == e);
+  // for (auto r : reactants)
+  // {
+  //   if (r == e)
+  //     return true;
+  // }
+  // for (auto p : products)
+  // {
+  //   if (p == e)
+  //     return true;
+  // }
+  // return false;
+  return (containsReactant(e) || containsProduct(e));
+}
+
+int SimReaction::stoechiometryOfEntity(SimEntity *e)
+{
+  int st = 0;
+  for (auto & sre : reactants) if (sre==e) st--;
+  for (auto & sre : products) if (sre==e) st++;
+  return st;
+}
+
 
 void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 {

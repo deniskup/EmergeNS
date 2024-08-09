@@ -49,6 +49,8 @@ public:
 
     bool includedIn(PAC *p, bool onlyEnts);
 
+    bool containsReaction(SimReaction *);
+
     //for CACs
 
     //bool isCAC = false; // is this PAC a CAC ?
