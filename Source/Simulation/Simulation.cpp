@@ -1517,9 +1517,14 @@ void Simulation::nextStep()
     }
 
     // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
-    map<SimEntity *, float> otherFlowPerEnt;
+    map<SimEntity *, float> otherPosFlowPerEnt;
     for (auto &ce : cycle->entities)
-      otherFlowPerEnt[ce] = 0.;
+      otherPosFlowPerEnt[ce] = 0.;
+
+    // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
+    map<SimEntity *, float> otherNegFlowPerEnt;
+    for (auto &ce : cycle->entities)
+      otherNegFlowPerEnt[ce] = 0.;
 
     for (auto& ce : cycle->entities)
     {
@@ -1532,11 +1537,13 @@ void Simulation::nextStep()
 
         if (cycle->containsReaction(r)) // if reaction is in the RAC, count 
         {
-          otherFlowPerEnt[ce] += (float) stoe * r->flow;
+          otherPosFlowPerEnt[ce] += (float) stoe * r->flow;
+          //otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
         }
-        else // if reaction is not in the RAC, count it only if it has a positive contribution
+        else // if reaction is not in the RAC, distinguish positive and negative contributions
         {
-          if ( (stoe<0 && r->flow<0) || (stoe>0 && r->flow>0) )  otherFlowPerEnt[ce] += (float) stoe * r->flow;  
+          if ( (stoe<0 && r->flow<0) || (stoe>0 && r->flow>0) )  otherPosFlowPerEnt[ce] += (float) stoe * r->flow;  
+          if ( (stoe<0 && r->flow>0) || (stoe>0 && r->flow<0) )  otherNegFlowPerEnt[ce] += abs((float) stoe * r->flow);  
         }
 
         // // check
@@ -1551,7 +1558,7 @@ void Simulation::nextStep()
       // {
       //   if (ce->name != "B1") continue;
       //   cout << "flow due to cycle = " << flowPerEnt[ce] << endl;
-      //   cout << "total positive flow due to all reactions = " << otherFlowPerEnt[ce] << endl;
+      //   cout << "total positive flow due to all reactions = " << otherPosFlowPerEnt[ce] << endl;
       // }
     }
 
@@ -1559,21 +1566,28 @@ void Simulation::nextStep()
     {
       // update history with flowPerEnt
       Array<float> RACflows;
-      Array<float> RACspec;
+      Array<float> RACposSpec;
+      Array<float> RACnegSpec;
       for (auto &ent : cycle->entities)
       {
         RACflows.add(flowPerEnt[ent]);
         float spec = 0.;
+        float spec2 = 0.;
         if (cycle->flow != 0.) // if cycle is off, specificity has no sense and should remain 0
         {
-          if (otherFlowPerEnt[ent]!=0.) spec = flowPerEnt[ent] / otherFlowPerEnt[ent];
-          else spec = 999.; // there shouldn't be a division by 0 above since otherFlowPerEnt at least contains flowPerEnt
+          if (otherPosFlowPerEnt[ent]!=0.) spec = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
+          else spec = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
+        // never too sure, I use dummy value to spot any unexpected behavior
+          //if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
+          if (flowPerEnt[ent]!=0.) spec2 = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
+            else spec2 = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
         // never too sure, I use dummy value to spot any unexpected behavior
         }
-        RACspec.add(spec);
+        RACposSpec.add(spec);
+        RACnegSpec.add(spec2);
       }
       //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
-      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACspec));
+      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec));
       // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
     }
 
@@ -1699,7 +1713,7 @@ void Simulation::writeHistory()
     for (auto& ent : RAChistory[idPAC0]->ent)
     {
       //historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
-      historyFile << ent->name << ",spec_" << ent->name << ",";
+      historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",";
     }
     historyFile << endl;
     int i = 0;
@@ -1710,7 +1724,8 @@ void Simulation::writeHistory()
       for (int e = 0; e < snap->flows.size(); e++)
       {
         historyFile << snap->flows[e] << ",";
-        historyFile << snap->specificities[e] << ",";
+        historyFile << snap->posSpecificities[e] << ",";
+        historyFile << snap->negSpecificities[e] << ",";
       }
       historyFile << endl;
     }
