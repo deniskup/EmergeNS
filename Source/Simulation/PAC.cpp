@@ -1612,12 +1612,8 @@ void PAClist::PACsWithZ3()
 
 		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
 		{
-		cout << "pac found : " << pacsFound << endl;
 			if (simul->shouldStop)
 				break;
-
-		cout << "writing constraints to file : " << inputFile << endl;
-		system("pwd");
 
 			// write to file
 			ofstream inputStream(inputFile);
