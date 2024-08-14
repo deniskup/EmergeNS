@@ -303,6 +303,38 @@ bool PAC::containsReaction(SimReaction * r)
 	return false;
 }
 
+void PAC::calculateRealisableScore()
+{
+
+	// Calculate norm of witness vector
+	float norm = 0.;
+	for (auto & p : reacFlows) 
+	{
+		float val = (float) p.second;
+		norm += val*val;
+	}
+	norm = sqrt(norm);
+
+	// calculate score
+	score = 0.;
+	for (auto & p : reacFlows) 
+	{
+		float kratio = 0.;
+		SimReaction * r = p.first;
+		float flow = (float) p.second;
+		//if (flow > 0.) kratio = (r->assocRate - r->dissocRate) / r->dissocRate;
+		//else kratio = (r->dissocRate - r->assocRate) / r->assocRate;
+		if (flow > 0.) kratio = log10(r->assocRate/r->dissocRate);
+		else kratio = log10(r->dissocRate/r->assocRate);
+		score += abs(flow/norm) * kratio;
+		//cout << "\tscore for reaction " << r->name << " : " << abs(flow/norm) * kratio << endl;
+		//cout << "\tlog10(kratio) = log10( " << r->assocRate << " / " << r->dissocRate << " ) = " << kratio << endl;
+	}
+	score /= (float) reacFlows.size();
+	//cout << "Total score : " << score << endl;
+}
+
+
 
 
 map<string, float> parseModelReal(const string &output)
@@ -328,6 +360,51 @@ map<string, float> parseModelReal(const string &output)
 		// cout << "varName: " << varName << " is " << match.str(2) << "\n";
 		float varValue = parseExpr(match.str(2));
 		// cout << varName << " " << varValue << " from " << match.str(2) << endl;
+		model[varName] = varValue;
+	}
+
+	return model;
+}
+
+
+map<string, int> parseModelInt(const string &output)
+{
+	map<string, int> model;
+
+	// Regex pattern to match variable assignments
+	// regex pattern(R"(define-fun ([a-zA-Z0-9_]+) \(\) Real\n\s+([0-9.]+))");
+	// search for concentrations only
+	regex pattern(R"(define-fun (coef[0-9_]+) \(\) Int\n\s+([^\n]+)\)\n)");
+
+	// Iterate over matches
+	sregex_iterator it(output.begin(), output.end(), pattern);
+	sregex_iterator end;
+	for (; it != end; ++it)
+	{
+		smatch match = *it;
+		string varName = match.str(1);
+		string strvarValue = match.str(2);
+
+		// remove bad characters
+		while(strvarValue.find("(")!=strvarValue.npos)
+		{
+			int pos = strvarValue.find("(");
+			strvarValue.erase(pos, 1);
+		}
+		while(strvarValue.find(" ")!=strvarValue.npos)
+		{
+			int pos = strvarValue.find(" ");
+			strvarValue.erase(pos, 1);
+		}
+		while(strvarValue.find(")")!=strvarValue.npos)
+		{
+			int pos = strvarValue.find(")");
+			strvarValue.erase(pos, 1);
+		}
+
+		int varValue = atoi(strvarValue.c_str());
+		//cout << "varName: " << varName << " is " << strvarValue  << " converted to " << varValue << "\n";
+		//int varValue = parseExpr(match.str(2));
 		model[varName] = varValue;
 	}
 
@@ -1535,8 +1612,13 @@ void PAClist::PACsWithZ3()
 
 		while (pacsFound < Settings::getInstance()->maxPACperDiameter->intValue())
 		{
+		cout << "pac found : " << pacsFound << endl;
 			if (simul->shouldStop)
 				break;
+
+		cout << "writing constraints to file : " << inputFile << endl;
+		system("pwd");
+
 			// write to file
 			ofstream inputStream(inputFile);
 			inputStream << clauses.str();
@@ -1548,9 +1630,7 @@ void PAClist::PACsWithZ3()
 			inputStream.close();
 			system(z3Command.c_str());
 
-			// remove intput stream from system 
-			string rm = "rm " + inputFile;
-			system(rm.c_str());
+			
 
 			ifstream outputStream(outputFile);
 			if (!outputStream)
@@ -1577,15 +1657,22 @@ void PAClist::PACsWithZ3()
 			if (firstLine != "sat")
 			{
 				LOGWARNING("Error in Z3 output");
-				system("cp z3constraints.smt2 z3constrainserror.smt2");
+				//system("cp z3constraints.smt2 z3constrainserror.smt2");
+				string comm = string("cp ") + inputFile +  string(" z3constrainserror.smt2");
+				system(comm.c_str());
 				return;
 			}
 
 			pacsFound++;
 
+
 			// Parse the model and print it to z3satmodel.txt, also copy the input file to z3sat.smt2
 			map<string, bool> model = parseModel(z3Output);
-			system("cp z3constraints.smt2 z3sat.smt2");
+			map<string, int> intModel = parseModelInt(z3Output);
+			//system("cp z3constraints.smt2 z3sat.smt2");
+			string comm = string("cp ") + inputFile +  string(" z3sat.smt2");
+			system(comm.c_str());
+
 			ofstream satFile;
 			satFile.open("z3satmodel.txt", ofstream::out);
 
@@ -1596,6 +1683,7 @@ void PAClist::PACsWithZ3()
 				if (model["reac" + to_string(j)])
 				{
 					pac->reacDirs.add(make_pair(r, model["dir" + to_string(j)]));
+					pac->reacFlows.add(make_pair(r, intModel["coef" + to_string(j)]));
 					satFile << "reac" << j << " " << model["dir" + to_string(j)] << "  "<< r->name<<"\n";
 				}
 			}
@@ -1609,9 +1697,25 @@ void PAClist::PACsWithZ3()
 				}
 			}
 
+
+			//cout << "PAC #" << pacsFound << endl;
+			pac->calculateRealisableScore();
+
+			// cout << pac->toString() << endl;
+			// cout << "WITNESS : ";
+			// for (auto & p : pac->reacFlows)
+			// {
+			// 	cout << p.second << " ; ";
+			// }
+			// cout << endl;
+
 			satFile.close();
 
 			addCycle(pac);
+
+			// remove intput stream from system 
+			string rm = "rm " + inputFile;
+			system(rm.c_str());
 
 			// add Clause forbidding PACs containing  this one
 

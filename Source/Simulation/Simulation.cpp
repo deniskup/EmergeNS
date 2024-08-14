@@ -1268,7 +1268,8 @@ void Simulation::start(bool restart)
   for (auto &pac : pacList->cycles)
   {
     //RAChistory.add(new RACHist());
-    RAChistory.add(new RACHist(pac->entities));
+    //RAChistory.add(new RACHist(pac->entities));
+    RAChistory.add(new RACHist(pac->entities, pac->score));
   }
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
@@ -1701,7 +1702,7 @@ void Simulation::writeHistory()
     ofstream historyFile;
     historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
     // prepare csv to be readable by R
-    historyFile << "Step,RAC,";
+    historyFile << "Score,Step,RAC,";
     // test if no entities
     if (RAChistory[idPAC0]->hist.size() == 0)
     {
@@ -1720,6 +1721,8 @@ void Simulation::writeHistory()
     for (auto &snap : RAChistory[idPAC0]->hist)
     {
       i++;
+      if (i==1) historyFile << RAChistory[idPAC0]->pacScore << ",";
+      else historyFile << ",";
       historyFile << i << "," << snap->rac << ",";
       for (int e = 0; e < snap->flows.size(); e++)
       {

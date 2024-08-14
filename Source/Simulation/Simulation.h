@@ -144,8 +144,10 @@ class RACHist
   public:
   RACHist(){}
   RACHist(Array<SimEntity*> e){ent = e;}
+  RACHist(Array<SimEntity*> e, float s){ent = e; pacScore = s;}
   OwnedArray<RACSnapshot> hist;
   Array<SimEntity*> ent;
+  float pacScore = 0.;
 };
 //   int step;
 //   Array<float> flows;

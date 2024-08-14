@@ -8,6 +8,7 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
+map<string, int> parseModelInt(const string &output);
 map<string, float> parseModelReal(const string &output);
 
 class SATSolver{
@@ -42,14 +43,19 @@ public:
 
     Array<SimEntity *> entities;
     Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
+    Array<pair<SimReaction *, int>> reacFlows;
 
     float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+
+    float score; // score of realasability = sum{ pacwitness_i * (k+ - k-) / k- }
 
     bool wasRAC = false; // was this PAC a RAC at some point
 
     bool includedIn(PAC *p, bool onlyEnts);
 
     bool containsReaction(SimReaction *);
+
+	void calculateRealisableScore();
 
     //for CACs
 
