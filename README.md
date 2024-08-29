@@ -24,13 +24,15 @@ Possible errors and how to fix
    
 5. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
 
-5. In File>Global path, add the Path to Juce.For Windows add "/bigobj" in "Extra Compiler Flags" of Exporters>Visual Studio Code if it's not there already.
+6. Clic on the icon on the top right to sign in, and then "Enable GPL mode"<br>
 
-6. Save the project
+7. In File>Global path, add the Path to Juce.For Windows add "/bigobj" in "Extra Compiler Flags" of Exporters>Visual Studio Code if it's not there already.<br>
 
-7. Make sure you have z3 installed and that the command "z3" works in your terminal (you can also specify a path to the exectuable in the software settings).
+8. Save the project<br>
 
-8. For multistability detection (optional): Make sure you have msolve installed and the command "msolve" works in your terminal.
+9. Make sure you have z3 installed and that the command "z3" works in your terminal (you can also specify a path to the exectuable in the software settings).<br>
+
+10. For multistability detection (optional): Make sure you have msolve installed and the command "msolve" works in your terminal.
 If not, check the webpage https://msolve.lip6.fr to install it. Installation procedure is explained on the INSTALL file of the associated github page (see 'github' thread on the msolve web page).
 You will need to have GMP and FLINT libraries installed on your system. For ubuntu users, you can type :
    ```sudo apt get libgmp-dev```
@@ -39,7 +41,7 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 
 => Next steps to be done after every git pull:
 
-9. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
+11. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
     
 /!\ Warning: on Mac use version 14 or less of xcode
 
@@ -49,7 +51,7 @@ Possible errors and how to fix
    - package gtk+ not found -> ```sudo apt install build-essential libgtk-3-dev```
    - package webkit2gtk-4.0 not found -> ```sudo apt install libwebkit2gtk-4.0-dev```
      
-10. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
+12. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
 
 
 
