@@ -241,11 +241,11 @@ String PAC::toString()
 			reac = reac.substring(0, reac.length() - 1);
 			// add kinetic rate constants
 			//auto test = format("{:.0e}\n", r->dissocRate); // s == "1e+05"
-			reac += " [";
-			reac += String(scientificStringFormat(r->dissocRate));
-			reac += ":";
-			reac += String(scientificStringFormat(r->assocRate));
-			reac += "]";
+			// reac += " [";
+			// reac += String(scientificStringFormat(r->dissocRate));
+			// reac += ":";
+			// reac += String(scientificStringFormat(r->assocRate));
+			// reac += "]";
 		}
 		else
 		{ // reacts->prod
@@ -263,12 +263,12 @@ String PAC::toString()
 					reac += e->name + "+";
 			}
 			// remove last "+"
-			reac = reac.substring(0, reac.length() - 1);
-			reac += " [";
-			reac += String(scientificStringFormat(r->assocRate));
-			reac += ":";
-			reac += String(scientificStringFormat(r->dissocRate));
-			reac += "]";
+			 reac = reac.substring(0, reac.length() - 1);
+			// reac += " [";
+			// reac += String(scientificStringFormat(r->assocRate));
+			// reac += ":";
+			// reac += String(scientificStringFormat(r->dissocRate));
+			// reac += "]";
 		}
 		res += reac + " ";
 	}
