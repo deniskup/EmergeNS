@@ -1430,6 +1430,9 @@ void PAClist::PACsWithZ3()
 	//each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
 	for (auto &e : simul->entities)
 	{
+		if(e->isolated){
+			continue;
+		}
 		clauses << "(assert (=> ent" << e->idSAT << " (or";
 		for (auto &r : simul->reactions)
 		{
@@ -1518,6 +1521,11 @@ void PAClist::PACsWithZ3()
 
 	for (auto &ent : simul->entities)
 	{
+		if(ent->isolated){
+			//not in the pac
+			clauses << "(assert (not ent" << ent->idSAT << "))\n";
+			continue;
+		}
 		clauses << "(assert (=> ent" << ent->idSAT << " (> (+";
 		for (auto &r : simul->reactions)
 		{

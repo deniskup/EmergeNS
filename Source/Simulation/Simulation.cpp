@@ -157,6 +157,9 @@ void Simulation::updateParams()
     numLevels = jmax(numLevels, ent->level);
   }
 
+  //compute isolated entities
+  computeIsolated();
+
   setCAC->clearOptions();
   // if (isComputing)
   // {
@@ -893,6 +896,23 @@ void Simulation::establishLinks()
   }
 }
 
+void Simulation::computeIsolated()
+{
+  // Find isolated entities
+  for (auto& e : entities)
+  {
+    e->isolated = true;
+    for (auto& r : reactions)
+    {
+      if (r->contains(e))
+      {
+       e-> isolated = false;
+        break;
+      }
+    }
+  }
+}
+
 void Simulation::loadToManualMode()
 {
   // clear previous  (beware of the order !)
@@ -1267,8 +1287,8 @@ void Simulation::start(bool restart)
   RAChistory.clear();
   for (auto &pac : pacList->cycles)
   {
-    //RAChistory.add(new RACHist());
-    //RAChistory.add(new RACHist(pac->entities));
+    // RAChistory.add(new RACHist());
+    // RAChistory.add(new RACHist(pac->entities));
     RAChistory.add(new RACHist(pac->entities, pac->score));
   }
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
@@ -1527,24 +1547,27 @@ void Simulation::nextStep()
     for (auto &ce : cycle->entities)
       otherNegFlowPerEnt[ce] = 0.;
 
-    for (auto& ce : cycle->entities)
+    for (auto &ce : cycle->entities)
     {
-      //if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
-      for (auto& r : reactions)
+      // if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
+      for (auto &r : reactions)
       {
         // does this reaction contains current cycle entity ?
         int stoe = r->stoechiometryOfEntity(ce);
-        if (stoe == 0) continue;
+        if (stoe == 0)
+          continue;
 
-        if (cycle->containsReaction(r)) // if reaction is in the RAC, count 
+        if (cycle->containsReaction(r)) // if reaction is in the RAC, count
         {
-          otherPosFlowPerEnt[ce] += (float) stoe * r->flow;
-          //otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
+          otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
+          // otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
         }
         else // if reaction is not in the RAC, distinguish positive and negative contributions
         {
-          if ( (stoe<0 && r->flow<0) || (stoe>0 && r->flow>0) )  otherPosFlowPerEnt[ce] += (float) stoe * r->flow;  
-          if ( (stoe<0 && r->flow>0) || (stoe>0 && r->flow<0) )  otherNegFlowPerEnt[ce] += abs((float) stoe * r->flow);  
+          if ((stoe < 0 && r->flow < 0) || (stoe > 0 && r->flow > 0))
+            otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
+          if ((stoe < 0 && r->flow > 0) || (stoe > 0 && r->flow < 0))
+            otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
         }
 
         // // check
@@ -1552,7 +1575,7 @@ void Simulation::nextStep()
         // {
         //   if (ce->name != "B1") continue;
         //   cout << "reaction '" << r->name << "' cont. to cycle entity " << ce->name << ". stoe = " << stoe << ". flow = " << r->flow << endl;
-        // }   
+        // }
       }
 
       // if (cycle->flow > 0 && curStep==13927)
@@ -1576,18 +1599,22 @@ void Simulation::nextStep()
         float spec2 = 0.;
         if (cycle->flow != 0.) // if cycle is off, specificity has no sense and should remain 0
         {
-          if (otherPosFlowPerEnt[ent]!=0.) spec = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
-          else spec = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
-        // never too sure, I use dummy value to spot any unexpected behavior
-          //if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
-          if (flowPerEnt[ent]!=0.) spec2 = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
-            else spec2 = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
-        // never too sure, I use dummy value to spot any unexpected behavior
+          if (otherPosFlowPerEnt[ent] != 0.)
+            spec = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
+          else
+            spec = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
+                         // never too sure, I use dummy value to spot any unexpected behavior
+          // if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
+          if (flowPerEnt[ent] != 0.)
+            spec2 = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
+          else
+            spec2 = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
+          // never too sure, I use dummy value to spot any unexpected behavior
         }
         RACposSpec.add(spec);
         RACnegSpec.add(spec2);
       }
-      //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
+      // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
       RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec));
       // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
     }
@@ -1710,10 +1737,10 @@ void Simulation::writeHistory()
       historyFile.close();
       continue;
     }
-    //for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
-    for (auto& ent : RAChistory[idPAC0]->ent)
+    // for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
+    for (auto &ent : RAChistory[idPAC0]->ent)
     {
-      //historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
+      // historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
       historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",";
     }
     historyFile << endl;
@@ -1721,8 +1748,10 @@ void Simulation::writeHistory()
     for (auto &snap : RAChistory[idPAC0]->hist)
     {
       i++;
-      if (i==1) historyFile << RAChistory[idPAC0]->pacScore << ",";
-      else historyFile << ",";
+      if (i == 1)
+        historyFile << RAChistory[idPAC0]->pacScore << ",";
+      else
+        historyFile << ",";
       historyFile << i << "," << snap->rac << ",";
       for (int e = 0; e < snap->flows.size(); e++)
       {
@@ -2518,11 +2547,14 @@ bool SimReaction::contains(SimEntity *e)
 int SimReaction::stoechiometryOfEntity(SimEntity *e)
 {
   int st = 0;
-  for (auto & sre : reactants) if (sre==e) st--;
-  for (auto & sre : products) if (sre==e) st++;
+  for (auto &sre : reactants)
+    if (sre == e)
+      st--;
+  for (auto &sre : products)
+    if (sre == e)
+      st++;
   return st;
 }
-
 
 void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 {

@@ -47,6 +47,8 @@ public:
 
   bool reached; //is the entity reached from primary entities ?
 
+  bool isolated=false; //true if the entity is not involved in any reaction
+
   void importFromManual(); // retrieve info from pointer to Manual settings
 
   bool enabled = true;
@@ -194,6 +196,7 @@ public:
   //  bool manualUpdate = false; //to put to true after loading to manual: adjust behaviours based on manual changes
 
   void establishLinks(); // establish links between lists and simulations, via names
+  void computeIsolated(); // compute isolated entities
 
   void importFromManual(); // import from manual changes using pointers
   void updateConcentLists(); //for each entity in the list, import its concentration from its simentity
