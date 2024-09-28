@@ -8,11 +8,11 @@
     <key>CFBundleIconFile</key>
     <string></string>
     <key>CFBundleIdentifier</key>
-    <string>com.yourcompany.EmergenceNS</string>
+    <string>com.yourcompany.EmergeNS</string>
     <key>CFBundleName</key>
-    <string>EmergenceNS</string>
+    <string>EmergeNS</string>
     <key>CFBundleDisplayName</key>
-    <string>EmergenceNS</string>
+    <string>EmergeNS</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>

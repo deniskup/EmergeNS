@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="ahcSKJ" name="EmergenceNS" projectType="guiapp" useAppConfig="0"
+<JUCERPROJECT id="ahcSKJ" name="EmergeNS" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1"
               headerPath="../../Source&#10;../../Modules">
-  <MAINGROUP id="wpK5db" name="EmergenceNS">
+  <MAINGROUP id="wpK5db" name="EmergeNS">
     <GROUP id="{FEB3B2F7-C973-94F1-626C-479D902FB3B4}" name="Eigen">
       <GROUP id="{26832459-BFEC-0DBA-ABD1-DA82B39167D3}" name="src">
         <GROUP id="{723E016C-5367-0BDE-305E-9272BF9C76E1}" name="Householder">
