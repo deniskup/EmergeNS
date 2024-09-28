@@ -22,7 +22,7 @@ Possible errors and how to fix
    - Xcursor.h missing  ->  ```sudo apt install libxcursor-dev```
  
    
-5. Open Projucer (in the build folder) and load EmergenceNS.jucer<br>
+5. Open Projucer (in the build folder) and load EmergeNS.jucer<br>
 
 6. Clic on the icon on the top right to sign in, and then "Enable GPL mode"<br>
 
@@ -41,7 +41,7 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 
 => Next steps to be done after every git pull:
 
-11. Compile with xcode '.../EmergenceNS/Builds/MacOSX/EmergenceNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergenceNS/Builds/LinuxMakefile for Linux
+11. Compile with xcode '.../EmergeNS/Builds/MacOSX/EmergeNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergeNS/Builds/LinuxMakefile for Linux
     
 /!\ Warning: on Mac use version 14 or less of xcode
 

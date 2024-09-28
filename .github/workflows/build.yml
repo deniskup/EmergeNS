@@ -3,7 +3,7 @@ name: Build
 on: workflow_dispatch
 
 env:
-  ProjectName: EmergenceNS
+  ProjectName: EmergeNS
 #   PackagesVersion: 1.2.10
 
 jobs:
@@ -148,13 +148,13 @@ jobs:
       - name: Zip the project
         run: |
           cd Builds
-          zip -r EmergenceNS_Mac.zip MacOSX_CI ../Resources
+          zip -r EmergeNS_Mac.zip MacOSX_CI ../Resources
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: EmergeNS_Mac
-          path: Builds/EmergenceNS_Mac.zip
+          path: Builds/EmergeNS_Mac.zip
 
       # - name: Create Package
       #   id: create_package

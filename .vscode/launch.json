@@ -8,7 +8,7 @@
             "name": "Make and debug in plugin host",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Builds/LinuxMakefile/build/EmergenceNS",
+            "program": "${workspaceFolder}/Builds/LinuxMakefile/build/EmergeNS",
             "args": [
             ],
             "stopAtEntry": false,

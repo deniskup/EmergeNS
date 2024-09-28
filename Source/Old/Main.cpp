@@ -13,11 +13,11 @@
 using namespace std;
 
 //==============================================================================
-class EmergenceNSApplication : public juce::JUCEApplication
+class EmergeNSApplication : public juce::JUCEApplication
 {
 public:
     //==============================================================================
-    EmergenceNSApplication() {}
+    EmergeNSApplication() {}
 
     const juce::String getApplicationName() override { return ProjectInfo::projectName; }
     const juce::String getApplicationVersion() override { return ProjectInfo::versionString; }
@@ -113,4 +113,4 @@ private:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION(EmergenceNSApplication)
+START_JUCE_APPLICATION(EmergeNSApplication)

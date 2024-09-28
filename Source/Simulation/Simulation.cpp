@@ -2174,6 +2174,12 @@ void SimEntity::importFromManual()
 
 void SimReaction::importFromManual()
 {
+  if(reaction == nullptr)
+  {
+    LOGERROR("Reaction is null here, should not happen");
+    return;
+  }
+
   assocRate = reaction->assocRate->floatValue();
   dissocRate = reaction->dissocRate->floatValue();
   energy = reaction->energy->floatValue();
@@ -2286,7 +2292,11 @@ SimReaction::SimReaction(Reaction *r) : assocRate(r->assocRate->floatValue()),
 //   setName();
 // }
 
-SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : assocRate(aRate), dissocRate(dRate), energy(barrier)
+SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : 
+reaction(nullptr),
+assocRate(aRate), 
+dissocRate(dRate), 
+energy(barrier)
 {
   reactants.add(r1);
   reactants.add(r2);
@@ -2294,7 +2304,11 @@ SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate
   setName();
 }
 
-SimReaction::SimReaction(Array<SimEntity *> mReac, Array<SimEntity *> mProd, float aRate, float dRate, float barrier) : assocRate(aRate), dissocRate(dRate), energy(barrier)
+SimReaction::SimReaction(Array<SimEntity *> mReac, Array<SimEntity *> mProd, float aRate, float dRate, float barrier) : 
+reaction(nullptr),
+assocRate(aRate), 
+dissocRate(dRate), 
+energy(barrier)
 {
   for (auto &r : mReac)
     reactants.add(r);
@@ -2303,7 +2317,8 @@ SimReaction::SimReaction(Array<SimEntity *> mReac, Array<SimEntity *> mProd, flo
   setName();
 }
 
-SimReaction::SimReaction(var data)
+SimReaction::SimReaction(var data) :
+reaction(nullptr)
 {
   if (data.isVoid())
   {

@@ -1,6 +1,6 @@
 
 
-#include "EmergenceNSEngine.h"
+#include "EmergeNSEngine.h"
 #include "Simulation/EntityManager.h"
 #include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
@@ -8,7 +8,7 @@
 #include "Simulation/Settings.h"
 #include "Simulation/Statistics.h"
 
-EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens")
+EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
 {
 
@@ -20,7 +20,7 @@ EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens"
 	addChildControllableContainer(Settings::getInstance());
 }
 
-EmergenceNSEngine::~EmergenceNSEngine()
+EmergeNSEngine::~EmergeNSEngine()
 {
 	isClearing = true;
 	Statistics::deleteInstance();
@@ -32,7 +32,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 
 }
 
-void EmergenceNSEngine::clearInternal()
+void EmergeNSEngine::clearInternal()
 {
 	Simulation::getInstance()->clearParams();
 	EntityManager::getInstance()->clear();
@@ -42,7 +42,7 @@ void EmergenceNSEngine::clearInternal()
 
 
 //the bool returned says whether a file has been loaded
-bool EmergenceNSEngine::parseCommandline(const String& commandLine)
+bool EmergeNSEngine::parseCommandline(const String& commandLine)
 {
 	// Call parent function
 	bool parentCall = Engine::parseCommandline(commandLine);
@@ -164,7 +164,7 @@ bool EmergenceNSEngine::parseCommandline(const String& commandLine)
 }
 
 
-var EmergenceNSEngine::getJSONData()
+var EmergeNSEngine::getJSONData()
 {
 	var data = Engine::getJSONData();
 	data.getDynamicObject()->setProperty(Simulation::getInstance()->shortName, Simulation::getInstance()->getJSONData());
@@ -177,7 +177,7 @@ var EmergenceNSEngine::getJSONData()
 	return data;
 }
 
-void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingTask)
+void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingTask)
 {
 	Simulation::getInstance()->loadJSONData(data.getProperty(Simulation::getInstance()->shortName, var()));
 	EntityManager::getInstance()->loadJSONData(data.getProperty(EntityManager::getInstance()->shortName, var()));
@@ -190,7 +190,7 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadi
 
 }
 
-String EmergenceNSEngine::getMinimumRequiredFileVersion()
+String EmergeNSEngine::getMinimumRequiredFileVersion()
 {
 	return "1.0.0";
 }

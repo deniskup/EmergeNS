@@ -6,7 +6,7 @@
 #include <cctype>
 
 #pragma warning(push)
-#pragma warning(disable: 4267) //on désactive les erreur de loss of data (du aux conversion size_t > int) -> mais ca serait complètement évité en utilisant les types de Juce plutôt que les types c++ natifs (ostringstream >> String)
+#pragma warning(disable: 4267) //on dï¿½sactive les erreur de loss of data (du aux conversion size_t > int) -> mais ca serait complï¿½tement ï¿½vitï¿½ en utilisant les types de Juce plutï¿½t que les types c++ natifs (ostringstream >> String)
 
 using namespace std;
 
@@ -828,7 +828,7 @@ bool PAClist::computeCAC(set<int> pacIds)
 	string z3Command = z3path + " " + inputFile + " > " + outputFile + " 2> z3CAClog.txt";
 
 	// realistic coefs: coefs come from actual concentrations of entities
-	// declare concentrations variablefile:///home/thomas/Mod%C3%A8les/emergENS/EmergenceNS/ReactionSystems/z3constraints.smt2
+	// declare concentrations variablefile:///home/thomas/Mod%C3%A8les/emergENS/EmergeNS/ReactionSystems/z3constraints.smt2
 
 	// calculate max concentration ofr CAC range
 	float upperConc = 0.;
@@ -1838,6 +1838,7 @@ var PAClist::CACtoJSON(CACType cac)
 	var witness;
 	for (auto& w : cac.second)
 	{
+		if(w.first == nullptr) continue;
 		var wdata = new DynamicObject();
 		wdata.getDynamicObject()->setProperty("entity", w.first->name);
 		wdata.getDynamicObject()->setProperty("value", w.second);

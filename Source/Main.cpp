@@ -11,19 +11,19 @@
 
 String getAppVersion();
 
-EmergenceNSApplication::EmergenceNSApplication() :
-  OrganicApplication("EmergenceNS", true)
+EmergeNSApplication::EmergeNSApplication() :
+  OrganicApplication("EmergeNS", true)
 {
 }
 
-EmergenceNSApplication::~EmergenceNSApplication()
+EmergeNSApplication::~EmergeNSApplication()
 {
 }
 
-void EmergenceNSApplication::initialiseInternal(const String&)
+void EmergeNSApplication::initialiseInternal(const String&)
 {
 
-  engine.reset(new EmergenceNSEngine());
+  engine.reset(new EmergeNSEngine());
 
   if (useWindow) mainComponent.reset(new MainContentComponent());
 
@@ -31,7 +31,7 @@ void EmergenceNSApplication::initialiseInternal(const String&)
 
 }
 
-bool EmergenceNSApplication::moreThanOneInstanceAllowed()
+bool EmergeNSApplication::moreThanOneInstanceAllowed()
 {
   return false;
 }
