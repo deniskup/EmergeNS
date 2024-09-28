@@ -2,7 +2,7 @@
 
 -------------Emergence of Natural Selection-------------
 
-1. ```git clone --recurse-submodule https://github.com/deniskup/EmergenceNS.git``` (or after clone, do "git init submodule " and "git submodule update --init --recursive")
+1. ```git clone --recurse-submodule https://github.com/deniskup/EmergeNS.git``` (or after clone, do "git init submodule " and "git submodule update --init --recursive")
 
 2. Install the required Juce version somewhere (like a "Software" folder) with <br>
  ```git clone --branch=develop-local https://github.com/benkuper/JUCE```
