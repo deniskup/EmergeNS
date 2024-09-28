@@ -59,8 +59,8 @@ bool EmergenceNSEngine::parseCommandline(const String &commandLine)
 	{
 		// parameters to give the model
 		string z3path = "";
-		int maxlevel;
-		float connection;
+		//int maxlevel;
+		//float connection;
 
 		// map of config parameters and their values
 		map<string, string> configs;
