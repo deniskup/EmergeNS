@@ -2,7 +2,11 @@
 
 #include <JuceHeader.h>
 #include <sstream>
+
+#pragma warning(push)
+#pragma warning(disable:4127) //remove warning C4127: conditional expression is constant
 #include <Eigen/Dense>
+#pragma warning(pop)
 
 using namespace juce;
 using namespace std;
