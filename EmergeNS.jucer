@@ -16,6 +16,8 @@
               file="Source/Engine/EmergeNSEngine.h"/>
       </GROUP>
       <GROUP id="{87A9DC7B-5819-AD03-3D54-9A82506A3449}" name="Simulation">
+        <FILE id="BowSo4" name="SimulationHelpers.h" compile="0" resource="0"
+              file="Source/Simulation/SimulationHelpers.h"/>
         <GROUP id="{FC51C38D-0EB8-27ED-53D6-8BBCA209472A}" name="ui">
           <FILE id="CMLWSw" name="EntityManagerUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/EntityManagerUI.cpp"/>
@@ -40,6 +42,10 @@
                 file="Source/Simulation/ui/SimulationUI.cpp"/>
           <FILE id="o6wALL" name="SimulationUI.h" compile="0" resource="0" file="Source/Simulation/ui/SimulationUI.h"/>
         </GROUP>
+        <FILE id="i8eM9d" name="SimReaction.cpp" compile="1" resource="0" file="Source/Simulation/SimReaction.cpp"/>
+        <FILE id="H0jhab" name="SimReaction.h" compile="0" resource="0" file="Source/Simulation/SimReaction.h"/>
+        <FILE id="vQzB0m" name="SimEntity.cpp" compile="1" resource="0" file="Source/Simulation/SimEntity.cpp"/>
+        <FILE id="DSKuqH" name="SimEntity.h" compile="0" resource="0" file="Source/Simulation/SimEntity.h"/>
         <FILE id="fcmwZX" name="PAC.h" compile="0" resource="0" file="Source/Simulation/PAC.h"/>
         <FILE id="psir5u" name="PAC.cpp" compile="1" resource="0" file="Source/Simulation/PAC.cpp"/>
         <FILE id="dgHatY" name="ReactionManager.h" compile="0" resource="0"

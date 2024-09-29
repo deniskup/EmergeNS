@@ -19,7 +19,7 @@ class Simulation;
 class Monom{ // represent a polynomial term such as k*c_1*c_3
  public:
      float coef; // here coef = k in the example above
-     Array<pair<int, int>> variables; // variables = {1, 3} in the example above
+     Array<std::pair<int, int>> variables; // variables = {1, 3} in the example above
  };
 
 typedef Array<Monom> Polynom; // a polynom is a sum of monom

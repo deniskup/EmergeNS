@@ -44,7 +44,7 @@ public:
 
     BoolParameter *printHistoryToFile; //print RACs to file
 
-    BoolParameter *autoLoadLists;
+    BoolParameter * userListMode;
 
 
 

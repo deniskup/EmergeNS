@@ -210,13 +210,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 
 	case NSCommandIDs::loadManual:
 	{
-		Simulation::getInstance()->loadToManualMode();
+		//Simulation::getInstance()->loadToManualMode();
 	}
 	break;
 
 	case NSCommandIDs::fetchManual:
 	{
-		Simulation::getInstance()->fetchManual();
+		//Simulation::getInstance()->fetchManual();
 	}
 	break;
 

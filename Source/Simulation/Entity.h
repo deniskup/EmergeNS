@@ -12,31 +12,25 @@ class SimEntity;
 class Entity : public BaseItem
 {
 public:
-    Entity(var params = var());
-    Entity(SimEntity *);
-    ~Entity();
+	Entity(var params = var());
+	Entity(SimEntity* e);
+	~Entity();
 
-    //void fromSimEntity(SimEntity *e);
-    
-    BoolParameter *primary;
-    FloatParameter *startConcent;
-    FloatParameter *concent;
-    FloatParameter *creationRate;    // absolute
-    FloatParameter *destructionRate; // proportional to concentration
-    FloatParameter *freeEnergy;
-    BoolParameter *draw;
+	BoolParameter* primary;
+	FloatParameter* startConcent;
+	FloatParameter* concent;
+	FloatParameter* creationRate;    // absolute
+	FloatParameter* destructionRate; // proportional to concentration
+	FloatParameter* freeEnergy;
+	BoolParameter* draw;
 
-    int id=-1; //will be used as index for primary entities
-    int level=-1;
-    Array<int> composition; // number of each primary entities
-    bool compHasBeenSet=false;
-    bool colorIsSet=false;
+	int id = -1; //will be used as index for primary entities
+	int level = -1;
+	Array<int> composition; // number of each primary entities
+	bool compHasBeenSet = false;
+	bool colorIsSet = false;
 
-    bool reached = true; // can this entity be built from primary entities ?
+	bool reached = true; // can this entity be built from primary entities ?
 
-    SimEntity *simEnt = nullptr;
-
-    void onContainerParameterChangedInternal(Parameter *p) override;
-
-    DECLARE_TYPE("Entity");
+	DECLARE_TYPE("Entity");
 };
