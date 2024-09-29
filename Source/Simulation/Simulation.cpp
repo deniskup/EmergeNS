@@ -1219,27 +1219,25 @@ void Simulation::fetchGenerate()
 
 	if (getUserListMode())
 	{
-		Array<UndoableAction*> actions;
+		Array<UndoableAction*> clearActions;
+		Array<Reaction*> oldReactions;
+		oldReactions.addArray(ReactionManager::getInstance()->items.getRawDataPointer(), ReactionManager::getInstance()->items.size());
+		clearActions.addArray(ReactionManager::getInstance()->getRemoveItemsUndoableAction(oldReactions));
+
 		Array<Entity*> oldEntities;
 		oldEntities.addArray(EntityManager::getInstance()->items.getRawDataPointer(), EntityManager::getInstance()->items.size());
-		actions.addArray(EntityManager::getInstance()->getRemoveItemsUndoableAction(oldEntities));
+		clearActions.addArray(EntityManager::getInstance()->getRemoveItemsUndoableAction(oldEntities));
+
+		UndoMaster::getInstance()->performActions("Clear old entity and reaction lists", clearActions);
 
 		Array<Entity*> newItems;
 		for (auto& e : entities) newItems.add(new Entity(e));
-		actions.add(EntityManager::getInstance()->getAddItemsUndoableAction(newItems));
-
+		UndoMaster::getInstance()->performAction("Generate new entity list", EntityManager::getInstance()->getAddItemsUndoableAction(newItems));
 
 		//same for reactions
-		Array<Reaction*> oldReactions;
-		oldReactions.addArray(ReactionManager::getInstance()->items.getRawDataPointer(), ReactionManager::getInstance()->items.size());
-		actions.addArray(ReactionManager::getInstance()->getRemoveItemsUndoableAction(oldReactions));
-
 		Array<Reaction*> newReactions;
 		for (auto& r : reactions) newReactions.add(new Reaction(r));
-		actions.add(ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
-
-
-		UndoMaster::getInstance()->performActions("Generate new user list", actions);
+		UndoMaster::getInstance()->performAction("Generate new reaction list", ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
 	}
 
 	//if (Settings::getInstance()->autoLoadLists->boolValue() && !express)
@@ -1313,6 +1311,15 @@ void Simulation::start(bool restart)
 	}
 
 	state = Simulating;
+
+	//warn here
+	if (getUserListMode())
+	{
+		for (auto& r : ReactionManager::getInstance()->items)
+		{
+			r->updateWarnAndRates();
+		}
+	}
 
 	if (restart)
 	{

@@ -123,8 +123,7 @@ void Reaction::controllableRemoved(Controllable* c)
 void Reaction::addReactant(Entity* e)
 {
 	TargetParameter* tp = reactants->addTargetParameter("Reactant " + String(reactants->controllables.size() + 1), "Reactant " + String(reactants->controllables.size() + 1), EntityManager::getInstance());
-	if (e != NULL)
-		tp->setValueFromTarget(e, false);
+	if (e != nullptr) tp->setValueFromTarget(e, false);
 	tp->saveValueOnly = false;
 	tp->isRemovableByUser = true;
 }
@@ -132,8 +131,7 @@ void Reaction::addReactant(Entity* e)
 void Reaction::addProduct(Entity* e)
 {
 	TargetParameter* tp = products->addTargetParameter("Product " + String(products->controllables.size() + 1), "Product " + String(products->controllables.size() + 1), EntityManager::getInstance());
-	if (e != NULL)
-		tp->setValueFromTarget(e, false);
+	if (e != nullptr) tp->setValueFromTarget(e, false);
 	tp->saveValueOnly = false;
 	tp->isRemovableByUser = true;
 }
@@ -328,8 +326,8 @@ void Reaction::updateWarnAndRates()
 		return;
 	bool someWarn = false;
 
-	int disabledReactants;
-	int disabledProducts;
+	int disabledReactants = 0;
+	int disabledProducts = 0;
 
 	float energyLeft = 0;
 
@@ -341,7 +339,8 @@ void Reaction::updateWarnAndRates()
 		else energyLeft += e->freeEnergy->floatValue();
 	}
 
-	if (Simulation::getInstance()->state == Simulation::Generating && disabledReactants > 0)
+	bool isSimulating = Simulation::getInstanceWithoutCreating() != nullptr && Simulation::getInstance()->state == Simulation::Simulating;
+	if(isSimulating && disabledReactants > 0)
 	{
 		setWarningMessage("Some reactants are disabled or null", "DisabledReactants");
 		someWarn = true;
@@ -358,7 +357,7 @@ void Reaction::updateWarnAndRates()
 		else energyRight += e->freeEnergy->floatValue();
 	}
 
-	if (Simulation::getInstance()->state == Simulation::Generating && disabledProducts > 0)
+	if (isSimulating && disabledProducts > 0)
 	{
 		setWarningMessage("Some products are disabled or null", "DisabledProducts");
 		someWarn = true;
