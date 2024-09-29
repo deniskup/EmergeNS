@@ -42,7 +42,7 @@ Settings::Settings() : ControllableContainer("Settings")
 
     z3timeout = addIntParameter("z3 timeout", "Timeout for z3 in ms", 2000, 0);
 
-    autoLoadLists = addBoolParameter("Auto load lists", "Auto load manual lists on generation", true);
+    autoLoadLists = addBoolParameter("User list mode", "Synchronize manual lists with simulation at all times", true);
 
     CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
 
