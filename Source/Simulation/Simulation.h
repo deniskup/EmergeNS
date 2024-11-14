@@ -134,11 +134,12 @@ public:
 class RACSnapshot
 {
   public:
-  RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm) {}
+  RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp) {}
   float rac;
   Array<float> flows;
   Array<float> posSpecificities;
   Array<float> negSpecificities;
+  Array<float> specificity;
 };
 
 class RACHist

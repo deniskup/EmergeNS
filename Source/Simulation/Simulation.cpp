@@ -1520,8 +1520,9 @@ void Simulation::nextStep()
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
       // flowPerEnt[reac->product] += reac->flow;
+      
     }
-
+    
     // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
     cycle->flow = flowPerEnt[cycle->entities[0]]; // initialisation to a potential value, either <=0 or bigger than real value
     for (auto &ent : cycle->entities)
@@ -1535,9 +1536,13 @@ void Simulation::nextStep()
       {
         cycle->flow = flowPerEnt[ent];
       }
+      if (ent->concent != 0.)
+      {
+        cycle->activity += 1./(ent->concent * (float) cycle->entities.size()) * flowPerEnt[ent];
+      }
     }
 
-    // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
+    // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
     map<SimEntity *, float> otherPosFlowPerEnt;
     for (auto &ce : cycle->entities)
       otherPosFlowPerEnt[ce] = 0.;
@@ -1546,6 +1551,11 @@ void Simulation::nextStep()
     map<SimEntity *, float> otherNegFlowPerEnt;
     for (auto &ce : cycle->entities)
       otherNegFlowPerEnt[ce] = 0.;
+    
+    // RAC entity change (absolute value) because of the RAC environment
+    map<SimEntity *, float> nonRACFlowPerEnt;
+    for (auto &ce : cycle->entities)
+      nonRACFlowPerEnt[ce] = 0.;
 
     for (auto &ce : cycle->entities)
     {
@@ -1568,6 +1578,7 @@ void Simulation::nextStep()
             otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
           if ((stoe < 0 && r->flow > 0) || (stoe > 0 && r->flow < 0))
             otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
+          nonRACFlowPerEnt[ce] += abs((float) stoe * r->flow);
         }
 
         // // check
@@ -1592,30 +1603,35 @@ void Simulation::nextStep()
       Array<float> RACflows;
       Array<float> RACposSpec;
       Array<float> RACnegSpec;
+      Array<float> RACspec;
       for (auto &ent : cycle->entities)
       {
         RACflows.add(flowPerEnt[ent]);
+        float specpos = 0.;
+        float specneg = 0.;
         float spec = 0.;
-        float spec2 = 0.;
-        if (cycle->flow != 0.) // if cycle is off, specificity has no sense and should remain 0
+        // positive specificity
+        if (cycle->flow != 0.) // if cycle is off, +/- specificities are set to 0
         {
           if (otherPosFlowPerEnt[ent] != 0.)
-            spec = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
+            specpos = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
           else
-            spec = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
+            specpos = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
                          // never too sure, I use dummy value to spot any unexpected behavior
-          // if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
+          // negative specificity
           if (flowPerEnt[ent] != 0.)
-            spec2 = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
+            specneg = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
           else
-            spec2 = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
+            specneg = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
           // never too sure, I use dummy value to spot any unexpected behavior
         }
-        RACposSpec.add(spec);
-        RACnegSpec.add(spec2);
+        spec = flowPerEnt[ent] / ( abs(flowPerEnt[ent]) + nonRACFlowPerEnt[ent]);
+        RACposSpec.add(specpos);
+        RACnegSpec.add(specneg);
+        RACspec.add(spec);
       }
       // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
-      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec));
+      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
       // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
     }
 
@@ -1741,7 +1757,7 @@ void Simulation::writeHistory()
     for (auto &ent : RAChistory[idPAC0]->ent)
     {
       // historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
-      historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",";
+      historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",spec_" << ent->name << ",";
     }
     historyFile << endl;
     int i = 0;
@@ -1758,6 +1774,7 @@ void Simulation::writeHistory()
         historyFile << snap->flows[e] << ",";
         historyFile << snap->posSpecificities[e] << ",";
         historyFile << snap->negSpecificities[e] << ",";
+        historyFile << snap->specificity[e] << ",";
       }
       historyFile << endl;
     }

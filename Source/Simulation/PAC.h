@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <unistd.h>
 using namespace juce;
 using namespace std;
 
@@ -46,6 +47,8 @@ public:
     Array<pair<SimReaction *, int>> reacFlows;
 
     float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+  
+    float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
 
     float score; // score of realasability = sum{ pacwitness_i * (k+ - k-) / k- }
 
