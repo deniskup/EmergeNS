@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <unistd.h>
 using namespace juce;
 using namespace std;
 
