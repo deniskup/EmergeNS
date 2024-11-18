@@ -1508,11 +1508,13 @@ void Simulation::nextStep()
     for (auto &reacDir : cycle->reacDirs)
     {
       SimReaction *reac = reacDir.first;
+      
       // no need for dir, it is encoded in the sign of the flow
+      // reactant/product is encoded in stoichiometry value
       for (auto &ent : reac->reactants)
       {
         int st = reac->stoechiometryOfEntity(ent);
-        flowPerEnt[ent] -= (float) st * reac->flow;
+        flowPerEnt[ent] += (float) st * reac->flow;
       }
       for (auto &ent : reac->products)
       {
