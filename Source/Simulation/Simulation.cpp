@@ -1511,11 +1511,13 @@ void Simulation::nextStep()
       // no need for dir, it is encoded in the sign of the flow
       for (auto &ent : reac->reactants)
       {
-        flowPerEnt[ent] -= reac->flow;
+        int st = reac->stoechiometryOfEntity(ent);
+        flowPerEnt[ent] -= (float) st * reac->flow;
       }
       for (auto &ent : reac->products)
       {
-        flowPerEnt[ent] += reac->flow;
+        int st = reac->stoechiometryOfEntity(ent);
+        flowPerEnt[ent] += (float) st * reac->flow;
       }
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
