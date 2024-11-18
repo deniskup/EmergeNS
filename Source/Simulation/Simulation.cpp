@@ -1513,13 +1513,13 @@ void Simulation::nextStep()
       // reactant/product is encoded in stoichiometry value
       for (auto &ent : reac->reactants)
       {
-        int st = reac->stoechiometryOfEntity(ent);
-        flowPerEnt[ent] += (float) st * reac->flow;
+        //int st = reac->stoechiometryOfEntity(ent);
+        flowPerEnt[ent] -= reac->flow;
       }
       for (auto &ent : reac->products)
       {
-        int st = reac->stoechiometryOfEntity(ent);
-        flowPerEnt[ent] += (float) st * reac->flow;
+        //int st = reac->stoechiometryOfEntity(ent);
+        flowPerEnt[ent] += reac->flow;
       }
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
@@ -1584,21 +1584,7 @@ void Simulation::nextStep()
             otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
           nonRACFlowPerEnt[ce] += abs((float) stoe * r->flow);
         }
-
-        // // check
-        // if (cycle->flow > 0 && curStep==13927)
-        // {
-        //   if (ce->name != "B1") continue;
-        //   cout << "reaction '" << r->name << "' cont. to cycle entity " << ce->name << ". stoe = " << stoe << ". flow = " << r->flow << endl;
-        // }
       }
-
-      // if (cycle->flow > 0 && curStep==13927)
-      // {
-      //   if (ce->name != "B1") continue;
-      //   cout << "flow due to cycle = " << flowPerEnt[ce] << endl;
-      //   cout << "total positive flow due to all reactions = " << otherPosFlowPerEnt[ce] << endl;
-      // }
     }
 
     if (Settings::getInstance()->printHistoryToFile->boolValue())
@@ -1761,7 +1747,7 @@ void Simulation::writeHistory()
     for (auto &ent : RAChistory[idPAC0]->ent)
     {
       // historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
-      historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",spec_" << ent->name << ",";
+      historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",spec_" << ent->name;
     }
     historyFile << endl;
     int i = 0;
@@ -1778,7 +1764,7 @@ void Simulation::writeHistory()
         historyFile << snap->flows[e] << ",";
         historyFile << snap->posSpecificities[e] << ",";
         historyFile << snap->negSpecificities[e] << ",";
-        historyFile << snap->specificity[e] << ",";
+        historyFile << snap->specificity[e];
       }
       historyFile << endl;
     }
