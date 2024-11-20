@@ -29,8 +29,7 @@ SimEntity::SimEntity(var data)
 
 	if (data.getDynamicObject()->hasProperty("name"))
 	{
-		data.getProperty("name", name);
-		LOG("name:" << name);
+		name=data.getProperty("name","unknown");
 	}
 	else
 	{

@@ -1,4 +1,11 @@
--gerer bug autoloadlist avec generation
+-URGENT: 
+    choisir une architecture pour SimEntity versus Entity etc:
+    -qu'est-ce qui est enregistré dans les fichiers
+    -quand est-ce qu'on transfert de l'un à l'autre
+    -quels sont les modes (generation/autoload)
+
+
+-bug with writeHistory (entity of RAChistory points to a non-accessible adress), to fix if we want to re-enable printing history to file.
 
 -bug PAC listing en partant d'une taille >2
 

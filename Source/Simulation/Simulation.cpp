@@ -1797,7 +1797,11 @@ void Simulation::run()
 	updateConcentLists();
 
 	if (Settings::getInstance()->printHistoryToFile->boolValue())
-		writeHistory();
+		{
+			LOG("Printing history to file not enabled for now, disabling it in Settings");
+			Settings::getInstance()->printHistoryToFile->setValue(false);
+			//writeHistory();
+		}
 
 	// listeners.call(&SimulationListener::simulationFinished, this);
 	startTrigger->setEnabled(true);
@@ -1825,7 +1829,7 @@ void Simulation::writeHistory()
 			continue;
 		}
 		// for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
-		for (auto& ent : RAChistory[idPAC0]->ent)
+		for (auto& ent : RAChistory[idPAC0]->ents)
 		{
 			// historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
 			historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",";
@@ -2097,11 +2101,12 @@ void Simulation::onContainerParameterChanged(Parameter* p)
 		setConcToSteadyState(setSteadyState->intValue());
 	}
 
-	if (liveUpdate->boolValue())
+	/*if (liveUpdate->boolValue())
 	{
 		if (p == totalTime || p == pointsDrawn)
 		{
 			start();
 		}
 	}
+	*/
 }
