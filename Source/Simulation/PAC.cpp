@@ -137,6 +137,14 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("entities"))
 	{
+		//if entities is not an array, error message
+		if (!data.getDynamicObject()->getProperty("entities").isArray())
+		{
+			constructionFailed = true;
+			LOGWARNING("PAC construction failed: entities is not an array");
+			return;
+		}
+
 		Array<var>* ents = data.getDynamicObject()->getProperty("entities").getArray();
 		for (auto& ent : *ents)
 		{
@@ -153,6 +161,14 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("reacDirs"))
 	{
+		//fail if not an array
+		if (!data.getDynamicObject()->getProperty("reacDirs").isArray())
+		{
+			constructionFailed = true;
+			LOGWARNING("PAC construction failed: reacDirs is not an array");
+			return;
+		}
+
 		Array<var>* reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
 		for (auto& reacd : *reacds)
 		{
