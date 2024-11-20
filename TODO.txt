@@ -1,11 +1,16 @@
 -URGENT: 
     choisir une architecture pour SimEntity versus Entity etc:
     -qu'est-ce qui est enregistré dans les fichiers
-    -quand est-ce qu'on transfert de l'un à l'autre
+    -quand est-ce qu'on transfère de l'un à l'autre
     -quels sont les modes (generation/autoload)
 
+Proposition:
+-sauvegarder seulement la current simul. Si "userList" activé dans les settings, charger les userList avec.
 
--bug with writeHistory (entity of RAChistory points to a non-accessible adress), to fix if we want to re-enable printing history to file.
+bug: "cannot access memory", maybe pointers are saved and are obsolete when trying to be reused.
+
+-bug with writeHistory (because of "cannot access memory"), likely to be fixed by the above, re-activate it if we want to re-use it.
+
 
 -bug PAC listing en partant d'une taille >2
 
