@@ -1,3 +1,5 @@
+-still problems of links Simentity <-> entity <-> PACs
+
 -bug PAC listing en partant d'une taille >2
 
 -reactions irreversibles (bool isReversible)

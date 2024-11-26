@@ -41,7 +41,7 @@ public:
 
 	bool isReversible = true; //can the reaction go the other way ?
 	bool enabled = true; // to know if the reaction is enabled or not
-
+	bool generatedFromUserList = true; // the reaction has been generated from the user list
 	bool toImport = false; // the corresponding reaction has been modified
 
 	bool reached; //is the reaction reached from primary entities ?

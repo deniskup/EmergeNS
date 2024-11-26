@@ -1250,10 +1250,10 @@ void Simulation::generateSimFromUserList() // this erases PACs
 	// entities.clear();
 	// reactions.clear();
 
-	//disable all entities before adding them back from user list
+	// disable all entities before adding them back from user list
 	for (auto &e : entities)
 	{
-		e->enabled = false;
+		e->generatedFromUserList = false;
 	}
 
 	// entities
@@ -1276,16 +1276,26 @@ void Simulation::generateSimFromUserList() // this erases PACs
 			se->updateFromEntity(e);
 			continue;
 		}
-		//else add it
+		// else add it
 		auto se = new SimEntity(e);
 		entities.add(se);
+		LOG("Added entity " << se->name << " to simulation");
+	}
+
+	// remove entities that are not in the user list
+	for (int i = entities.size() - 1; i >= 0; i--)
+	{
+		if (!entities[i]->generatedFromUserList)
+		{
+			entities.remove(i);
+		}
 	}
 
 	// reactions
-	//disable all reactions before adding them back from user list
+	// disable all reactions before adding them back from user list
 	for (auto &r : reactions)
 	{
-		r->enabled = false;
+		r->generatedFromUserList = false;
 	}
 
 	for (auto &r : rm->items)
@@ -1310,8 +1320,16 @@ void Simulation::generateSimFromUserList() // this erases PACs
 			sr->updateFromReaction(r);
 			continue;
 		}
-		//else add it
+		// else add it
 		reactions.add(new SimReaction(r));
+	}
+	// remove reactions that are not in the user list
+	for (int i = reactions.size() - 1; i >= 0; i--)
+	{
+		if (!reactions[i]->generatedFromUserList)
+		{
+			reactions.remove(i);
+		}
 	}
 
 	LOG("Generated Simulation entities and reactions from user list");
@@ -1336,7 +1354,7 @@ void Simulation::start(bool restart)
 
 	if (getUserListMode())
 	{
-		// generateSimFromUserList();
+		//generateSimFromUserList();
 	}
 	else
 	{

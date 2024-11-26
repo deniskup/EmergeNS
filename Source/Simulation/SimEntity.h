@@ -56,6 +56,7 @@ public:
     //void importFromManual(); // retrieve info from pointer to Manual settings
 
     bool enabled = true;
+    bool generatedFromUserList = true; // the entity has been generated from the user list
     bool toImport = false; // the corresponding entity has been modified
 
     int level;
