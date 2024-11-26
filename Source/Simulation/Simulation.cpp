@@ -14,13 +14,12 @@ using namespace std;
 
 juce_ImplementSingleton(Simulation)
 
-Simulation::Simulation() :
-	ControllableContainer("Simulation"),
-	Thread("Simulation"),
-	curStep(0),
-	simNotifier(1000), // max messages async that can be sent at once
-	pacList(new PAClist(this)),
-	steadyStatesList(new SteadyStateslist(this))
+	Simulation::Simulation() : ControllableContainer("Simulation"),
+							   Thread("Simulation"),
+							   curStep(0),
+							   simNotifier(1000), // max messages async that can be sent at once
+							   pacList(new PAClist(this)),
+							   steadyStatesList(new SteadyStateslist(this))
 {
 	simNotifier.dropMessageOnOverflow = false;
 
@@ -134,11 +133,11 @@ Simulation::~Simulation()
 
 void Simulation::clearParams()
 {
-	entities.clear();
 	entitiesDrawn.clear();
 	primEnts.clear();
-	reactions.clear();
 	pacList->clear();
+	reactions.clear();
+	entities.clear();
 	PACsGenerated = false;
 	numLevels = -1;
 }
@@ -149,7 +148,7 @@ void Simulation::updateParams()
 	entitiesDrawn.clear();
 	primEnts.clear();
 
-	for (auto& ent : entities)
+	for (auto &ent : entities)
 	{
 		if (ent->draw)
 			entitiesDrawn.add(ent);
@@ -158,7 +157,7 @@ void Simulation::updateParams()
 		numLevels = jmax(numLevels, ent->level);
 	}
 
-	//compute isolated entities
+	// compute isolated entities
 	computeIsolated();
 
 	setCAC->clearOptions();
@@ -171,8 +170,8 @@ void Simulation::updateParams()
 	setCAC->addOption("CAC", -1, true);
 	int opt = 1;
 	// int nbCAC=pacList->CACs.size();
-	for (auto& cac : pacList->CACs)
-		// for (int i=0;i<nbCAC;i++)
+	for (auto &cac : pacList->CACs)
+	// for (int i=0;i<nbCAC;i++)
 	{
 		setCAC->addOption(pacList->CACToString(cac), opt, false);
 		// setCAC->addOption("Cac"+to_string(opt), opt,false);
@@ -205,7 +204,7 @@ var Simulation::toJSONData()
 
 	// entities
 	var ents;
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		var ent = e->toJSONData();
 		ents.append(ent);
@@ -214,7 +213,7 @@ var Simulation::toJSONData()
 
 	// reactions
 	var reacs;
-	for (auto& r : reactions)
+	for (auto &r : reactions)
 	{
 		var reac = r->toJSONData();
 		reacs.append(reac);
@@ -223,7 +222,7 @@ var Simulation::toJSONData()
 
 	// primary entities
 	var prim_ents;
-	for (auto& e : primEnts)
+	for (auto &e : primEnts)
 	{
 		var coord = new DynamicObject();
 		coord.getDynamicObject()->setProperty("ent", e->name);
@@ -278,9 +277,9 @@ void Simulation::importJSONData(var data)
 			return;
 		}
 		auto ents = data.getDynamicObject()->getProperty("entities").getArray();
-		for (auto& evar : *ents)
+		for (auto &evar : *ents)
 		{
-			SimEntity* e = new SimEntity(evar);
+			SimEntity *e = new SimEntity(evar);
 			if (e->constructionFailed)
 			{
 				LOGWARNING("SimEntity construction failed, not added to list");
@@ -303,9 +302,9 @@ void Simulation::importJSONData(var data)
 			return;
 		}
 		auto reacs = data.getDynamicObject()->getProperty("reactions").getArray();
-		for (auto& rvar : *reacs)
+		for (auto &rvar : *reacs)
 		{
-			SimReaction* r = new SimReaction(rvar);
+			SimReaction *r = new SimReaction(rvar);
 			if (r->constructionFailed)
 			{
 				LOGWARNING("SimReaction construction failed, not added to list");
@@ -315,8 +314,6 @@ void Simulation::importJSONData(var data)
 			reactions.add(r);
 		}
 	}
-
-
 
 	// PACList
 	if (data.getDynamicObject()->hasProperty("pacList"))
@@ -331,59 +328,59 @@ void Simulation::importJSONData(var data)
 	updateParams();
 }
 
-//void Simulation::importFromManual()
+// void Simulation::importFromManual()
 //{
-//  LOG("Importing from manual lists");
-//  for (auto &e : entities)
-//  {
-//    if (e->toImport)
-//    {
-//      e->importFromManual();
-//      e->toImport = false;
-//    }
-//  }
-//  for (auto &r : reactions)
-//  {
-//    if (r->toImport)
-//    {
-//      r->importFromManual();
-//      r->toImport = false;
-//    }
-//  }
+//   LOG("Importing from manual lists");
+//   for (auto &e : entities)
+//   {
+//     if (e->toImport)
+//     {
+//       e->importFromManual();
+//       e->toImport = false;
+//     }
+//   }
+//   for (auto &r : reactions)
+//   {
+//     if (r->toImport)
+//     {
+//       r->importFromManual();
+//       r->toImport = false;
+//     }
+//   }
 //
-//  updateParams();
-//}
+//   updateParams();
+// }
 
 void Simulation::importCsvData(String filename)
 {
 
 	// CETTE FONCTION EST CHELOU !!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-	//juce::var dummy("kujhdsb");
+	// juce::var dummy("kujhdsb");
 
 	////Genre ca c'est pas ok, ca va rajouter un parameter a chaque fois qu'on appelle la fonction.
-	//Settings::getInstance()->pathToz3 = addStringParameter("Path to z3", String("path to z3 solver"), String("Dummy"));
+	// Settings::getInstance()->pathToz3 = addStringParameter("Path to z3", String("path to z3 solver"), String("Dummy"));
 
 	//// Settings::getInstance()->pathToz3->setValueInternal(dummy);
-	//return;
+	// return;
 	//// get csv file to parse
-	//juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
-	//LOG("will parse text file : " + myfilename);
+	// juce::String myfilename = Settings::getInstance()->csvFile->stringValue();
+	// LOG("will parse text file : " + myfilename);
 
 	//// clear what is in current simulation
-	//clearParams();
+	// clearParams();
 
-	//ifstream file;
-	//file.open(myfilename.toUTF8(), ios::in);
-	//if (!file.is_open())
-	//  throw std::exception("can't open excel file");
+	// ifstream file;
+	// file.open(myfilename.toUTF8(), ios::in);
+	// if (!file.is_open())
+	//   throw std::exception("can't open excel file");
 
-	//vector<vector<string>> database; // csv file content stored here
-	//vector<string> row;
-	//string line, element;
+	// vector<vector<string>> database; // csv file content stored here
+	// vector<string> row;
+	// string line, element;
 
 	//// start parsing the csv file
-	//while (getline(file, line))
+	// while (getline(file, line))
 	//{
 
 	//  // cout << line << "\n"; //print the data of the string
@@ -412,40 +409,40 @@ void Simulation::importCsvData(String filename)
 	//*/
 
 	//// get column index of reactants and products
-	//int colr = -1;
-	//int colp = -1;
-	//int colstoi_r = -1;
-	//int colstoi_p = -1;
-	//vector<string> firstline = database[0];
-	//for (unsigned int j = 0; j < firstline.size(); j++)
+	// int colr = -1;
+	// int colp = -1;
+	// int colstoi_r = -1;
+	// int colstoi_p = -1;
+	// vector<string> firstline = database[0];
+	// for (unsigned int j = 0; j < firstline.size(); j++)
 	//{
-	//  if (firstline[j].find("Reactant_name") != firstline[j].npos)
-	//    colr = j;
-	//  else if (firstline[j].find("Product_name") != firstline[j].npos)
-	//    colp = j;
-	//  else if (firstline[j].find("Reactant_stoi") != firstline[j].npos)
-	//    colstoi_r = j;
-	//  else if (firstline[j].find("Product_stoi") != firstline[j].npos)
-	//    colstoi_p = j;
-	//}
+	//   if (firstline[j].find("Reactant_name") != firstline[j].npos)
+	//     colr = j;
+	//   else if (firstline[j].find("Product_name") != firstline[j].npos)
+	//     colp = j;
+	//   else if (firstline[j].find("Reactant_stoi") != firstline[j].npos)
+	//     colstoi_r = j;
+	//   else if (firstline[j].find("Product_stoi") != firstline[j].npos)
+	//     colstoi_p = j;
+	// }
 
 	//// sanity check
-	//if (colr < 0 || colp < 0 || colstoi_r < 0 || colstoi_p < 0)
-	//  throw std::exception("csv index error");
+	// if (colr < 0 || colp < 0 || colstoi_r < 0 || colstoi_p < 0)
+	//   throw std::exception("csv index error");
 
-	//unordered_map<String, SimEntity *> myentities;
+	// unordered_map<String, SimEntity *> myentities;
 
 	//// temporary
 	///// vector<tempReaction> tempreac;
 
-	//int entID = 0; // id of entities
+	// int entID = 0; // id of entities
 
 	//// loop over all reactions, skipping first element (column names)
-	//for (unsigned int i = 1; i < database.size(); i++)
+	// for (unsigned int i = 1; i < database.size(); i++)
 	//{
-	//  // cout << endl;
-	//  unordered_map<String, int> mreactants; // molecule name, stoechio
-	//  unordered_map<String, int> mproducts;  // molecule name, stoechio
+	//   // cout << endl;
+	//   unordered_map<String, int> mreactants; // molecule name, stoechio
+	//   unordered_map<String, int> mproducts;  // molecule name, stoechio
 
 	//  // retrieve reactants stoechio coeff
 	//  stringstream current_stoi(database[i][colstoi_r]);
@@ -593,24 +590,24 @@ void Simulation::importCsvData(String filename)
 	//} // end reaction loop
 
 	//// check for reversible reactions stored as two separate reactions
-	//SearchReversibleReactionsInCsvFile();
+	// SearchReversibleReactionsInCsvFile();
 
 	//// sanity check
 	///*
-	//for (const auto& r : reactions)
-	//  {
-	//  cout << "adding reaction name " << r->name << endl;
-	//  for (auto& e: r->reactants) cout << "\thas reactant " << e->idSAT << endl;
-	//  for (auto& e: r->products) cout << "\thas product " << e->idSAT << endl;
-	//  }
+	// for (const auto& r : reactions)
+	//   {
+	//   cout << "adding reaction name " << r->name << endl;
+	//   for (auto& e: r->reactants) cout << "\thas reactant " << e->idSAT << endl;
+	//   for (auto& e: r->products) cout << "\thas product " << e->idSAT << endl;
+	//   }
 	//*/
 
-	//ready = true;
-	//updateParams();
+	// ready = true;
+	// updateParams();
 
 	//// directly import SimReactions and SimEntities as reaction and entity lists
 	//// into the graphics interface
-	//loadToManualMode();
+	// loadToManualMode();
 }
 
 // struct tempReaction // TO REMOVE, only temporary
@@ -633,7 +630,7 @@ void Simulation::SearchReversibleReactionsInCsvFile()
 	{
 		if (mr.count(ia) > 0)
 			continue; // skip a reaction that already got a match
-		SimReaction* ra = reactions[ia];
+		SimReaction *ra = reactions[ia];
 
 		// std::cout << "Looking at reaction " << ra->name << std::endl;
 
@@ -642,7 +639,7 @@ void Simulation::SearchReversibleReactionsInCsvFile()
 		{
 			if (mr.count(ib) > 0)
 				continue; // skip a reaction that already got a match
-			SimReaction* rb = reactions[ib];
+			SimReaction *rb = reactions[ib];
 
 			// first trivial condition to check if both reactions have the same number of reactants & products
 			if ((ra->reactants.size() != rb->products.size()) || (rb->reactants.size() != ra->products.size()))
@@ -752,7 +749,7 @@ void Simulation::affectSATIds()
 {
 	// entities
 	int i = 0;
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		e->idSAT = i;
 		i++;
@@ -760,7 +757,7 @@ void Simulation::affectSATIds()
 
 	// reactions
 	int j = 0;
-	for (auto& r : reactions)
+	for (auto &r : reactions)
 	{
 		r->idSAT = j;
 		j++;
@@ -769,7 +766,7 @@ void Simulation::affectSATIds()
 
 void Simulation::computeRates()
 {
-	for (auto& r : reactions)
+	for (auto &r : reactions)
 	{
 		r->computeRate(ignoreBarriers->boolValue(), ignoreFreeEnergy->boolValue());
 	}
@@ -777,38 +774,38 @@ void Simulation::computeRates()
 
 void Simulation::computeBarriers()
 {
-	for (auto& r : reactions)
+	for (auto &r : reactions)
 	{
 		r->computeBarrier();
 	}
 }
 
-//void Simulation::fetchManual()
+// void Simulation::fetchManual()
 //{
-//  clearParams();
-//  for (auto &e : EntityManager::getInstance()->items)
-//  {
-//    if (!e->enabled->boolValue())
-//      continue;
-//    auto se = new SimEntity(e);
-//    entities.add(se);
-//  }
+//   clearParams();
+//   for (auto &e : EntityManager::getInstance()->items)
+//   {
+//     if (!e->enabled->boolValue())
+//       continue;
+//     auto se = new SimEntity(e);
+//     entities.add(se);
+//   }
 //
-//  for (auto &r : ReactionManager::getInstance()->items)
-//  {
-//    if (!r->shouldIncludeInSimulation())
-//      continue;
-//    reactions.add(new SimReaction(r));
-//  }
+//   for (auto &r : ReactionManager::getInstance()->items)
+//   {
+//     if (!r->shouldIncludeInSimulation())
+//       continue;
+//     reactions.add(new SimReaction(r));
+//   }
 //
-//  // todo compute levels and primary entities
+//   // todo compute levels and primary entities
 //
-//  ready = true;
-//  updateParams();
-//}
+//   ready = true;
+//   updateParams();
+// }
 
 // link entities and simEntities via their names
-//void Simulation::establishLinks()
+// void Simulation::establishLinks()
 //{
 //  bool found;
 //  for (auto &e : EntityManager::getInstance()->items)
@@ -884,10 +881,10 @@ void Simulation::computeBarriers()
 void Simulation::computeIsolated()
 {
 	// Find isolated entities
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		e->isolated = true;
-		for (auto& r : reactions)
+		for (auto &r : reactions)
 		{
 			if (r->contains(e))
 			{
@@ -902,13 +899,12 @@ void Simulation::updateUserListFromSim()
 {
 	// clear previous  (beware of the order !)
 
-	//filter array to retrieve only disabled ones
-
+	// filter array to retrieve only disabled ones
 
 	// load entities
-	for (auto& se : entities)
+	for (auto &se : entities)
 	{
-		if (Entity* e = EntityManager::getInstance()->getItemWithName(se->name, true))
+		if (Entity *e = EntityManager::getInstance()->getItemWithName(se->name, true))
 		{
 			e->concent->setValue(se->concent);
 		}
@@ -925,8 +921,7 @@ void Simulation::fetchGenerate()
 
 	state = Generating;
 
-
-	Generation* gen = Generation::getInstance();
+	Generation *gen = Generation::getInstance();
 
 	numLevels = gen->numLevels->intValue(); // randInt(gen->numLevels->x, gen->numLevels->y);
 
@@ -940,7 +935,7 @@ void Simulation::fetchGenerate()
 
 	int cur_id = 0;
 
-	Array<Array<SimEntity*>> hierarchyEnt;
+	Array<Array<SimEntity *>> hierarchyEnt;
 
 	// Array<SimEntity *> primEnts; primEnts is part of Simulation
 
@@ -965,7 +960,7 @@ void Simulation::fetchGenerate()
 		const float concent = jmax(0.f, initConcentBase + randFloat(-initConcentVar, initConcentVar));
 		const float dRate = jmax(0.f, dRateBase + randFloat(-dRateVar, dRateVar));
 		const float cRate = jmax(0.f, cRateBase + randFloat(-cRateVar, cRateVar));
-		SimEntity* e = new SimEntity(true, concent, cRate, dRate, 0.f);
+		SimEntity *e = new SimEntity(true, concent, cRate, dRate, 0.f);
 		e->level = 1;
 		e->id = cur_id;
 		e->freeEnergy = 0;
@@ -993,7 +988,7 @@ void Simulation::fetchGenerate()
 		primEnts.add(e);
 	}
 	// add dummy level 0
-	hierarchyEnt.add(Array<SimEntity*>());
+	hierarchyEnt.add(Array<SimEntity *>());
 
 	// primEnts at level 1
 	hierarchyEnt.add(primEnts);
@@ -1064,7 +1059,7 @@ void Simulation::fetchGenerate()
 
 	for (int level = 2; level <= numLevels; level++)
 	{
-		Array<SimEntity*> levelEnt;
+		Array<SimEntity *> levelEnt;
 		int numEnts = 1;
 		switch (mode)
 		{
@@ -1085,16 +1080,16 @@ void Simulation::fetchGenerate()
 
 		// list all possible compositions from previous entities
 		// recall that CompoDecomps is a struct with a composition and a list of decompositions
-		Array<CompoDecomps*> compos; // first working thing, Hashtable or sorted array later ?
+		Array<CompoDecomps *> compos; // first working thing, Hashtable or sorted array later ?
 		for (int lev1 = 1; lev1 < level; lev1++)
 		{
 			int lev2 = level - lev1; // complement level
 			if (lev2 < lev1)
 				break; // no need to do the reverse cases
 			// compute all combinations
-			for (auto& ent1 : hierarchyEnt[lev1])
+			for (auto &ent1 : hierarchyEnt[lev1])
 			{
-				for (auto& ent2 : hierarchyEnt[lev2])
+				for (auto &ent2 : hierarchyEnt[lev2])
 				{
 					Array<int> newCompo;
 					for (int i = 0; i < nbPrimEnts; i++)
@@ -1103,7 +1098,7 @@ void Simulation::fetchGenerate()
 					}
 					// loop through existing ones
 					bool exists = false;
-					for (auto& cd : compos)
+					for (auto &cd : compos)
 					{
 						if (cd->compo == newCompo)
 						{ // if exists
@@ -1137,7 +1132,7 @@ void Simulation::fetchGenerate()
 			const float dRate = jmax(0.f, dRateBase + randFloat(-dRateVar, dRateVar));
 
 			const float energy = level * energyCoef + randFloat(-energyVar, energyVar);
-			SimEntity* e = new SimEntity(false, concent, 0., dRate, energy);
+			SimEntity *e = new SimEntity(false, concent, 0., dRate, energy);
 			e->level = level;
 			e->color = Colour::fromHSV(level * 1. / numLevels + randFloat(.2), 1, 1, 1); // color depends only on level
 			e->draw = false;
@@ -1176,8 +1171,8 @@ void Simulation::fetchGenerate()
 				int idDecomp = randInt(0, compos[idComp]->decomps.size() - 1);
 				if (mode != PROPREACTIONS || randFloat() < propReac)
 				{
-					SimEntity* e1 = compos[idComp]->decomps[idDecomp].first;
-					SimEntity* e2 = compos[idComp]->decomps[idDecomp].second;
+					SimEntity *e1 = compos[idComp]->decomps[idDecomp].first;
+					SimEntity *e2 = compos[idComp]->decomps[idDecomp].second;
 
 					// choice of activation barrier
 					float barrier = energyBarrierBase + randFloat(-energyBarrierVar, energyBarrierVar);
@@ -1208,7 +1203,7 @@ void Simulation::fetchGenerate()
 		hierarchyEnt.add(levelEnt);
 	}
 	// ready->setValue(true);
-	//ready = true;
+	// ready = true;
 
 	// filter unreached entities and reactions
 	// filterReached();
@@ -1216,60 +1211,106 @@ void Simulation::fetchGenerate()
 	LOG("Generated " << entities.size() << " entities and " << reactions.size() << " reactions");
 	updateParams();
 
-
 	if (getUserListMode())
 	{
-		Array<UndoableAction*> clearActions;
-		Array<Reaction*> oldReactions;
+		Array<UndoableAction *> clearActions;
+		Array<Reaction *> oldReactions;
 		oldReactions.addArray(ReactionManager::getInstance()->items.getRawDataPointer(), ReactionManager::getInstance()->items.size());
 		clearActions.addArray(ReactionManager::getInstance()->getRemoveItemsUndoableAction(oldReactions));
 
-		Array<Entity*> oldEntities;
+		Array<Entity *> oldEntities;
 		oldEntities.addArray(EntityManager::getInstance()->items.getRawDataPointer(), EntityManager::getInstance()->items.size());
 		clearActions.addArray(EntityManager::getInstance()->getRemoveItemsUndoableAction(oldEntities));
 
 		UndoMaster::getInstance()->performActions("Clear old entity and reaction lists", clearActions);
 
-		Array<Entity*> newItems;
-		for (auto& e : entities) newItems.add(new Entity(e));
+		Array<Entity *> newItems;
+		for (auto &e : entities)
+			newItems.add(new Entity(e));
 		UndoMaster::getInstance()->performAction("Generate new entity list", EntityManager::getInstance()->getAddItemsUndoableAction(newItems));
 
-		//same for reactions
-		Array<Reaction*> newReactions;
-		for (auto& r : reactions) newReactions.add(new Reaction(r));
+		// same for reactions
+		Array<Reaction *> newReactions;
+		for (auto &r : reactions)
+			newReactions.add(new Reaction(r));
 		UndoMaster::getInstance()->performAction("Generate new reaction list", ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
 	}
 
-	//if (Settings::getInstance()->autoLoadLists->boolValue() && !express)
-	//  loadToManualMode();
+	// if (Settings::getInstance()->autoLoadLists->boolValue() && !express)
+	//   loadToManualMode();
 }
 
-void Simulation::generateSimFromUserList()
+void Simulation::generateSimFromUserList() // this erases PACs
 {
 	state = Generating;
 
-	EntityManager* em = EntityManager::getInstance();
-	ReactionManager* rm = ReactionManager::getInstance();
+	EntityManager *em = EntityManager::getInstance();
+	ReactionManager *rm = ReactionManager::getInstance();
 
-	entities.clear();
-	reactions.clear();
+	// entities.clear();
+	// reactions.clear();
+
+	//disable all entities before adding them back from user list
+	for (auto &e : entities)
+	{
+		e->enabled = false;
+	}
 
 	// entities
-	for (auto& e : em->items)
+	for (auto &e : em->items)
 	{
-		if (!e->enabled->boolValue())
+		// if there is a simEntity with same name, we update it
+		if (SimEntity *se = getSimEntityForName(e->niceName))
+		{
+			if (se->entity != e)
+			{
+				if (se->entity)
+				{
+					LOGWARNING("SimEntity " << se->name << " rerouted from Entity" << se->entity->niceName << " to " << e->niceName);
+				}
+				else
+				{
+					LOGWARNING("SimEntity " << se->name << " was linked to no entity, rerouted to Entity" << e->niceName);
+				}
+			}
+			se->updateFromEntity(e);
 			continue;
+		}
+		//else add it
 		auto se = new SimEntity(e);
 		entities.add(se);
 	}
 
 	// reactions
-	for (auto& r : rm->items)
+	//disable all reactions before adding them back from user list
+	for (auto &r : reactions)
+	{
+		r->enabled = false;
+	}
+
+	for (auto &r : rm->items)
 	{
 		if (!r->shouldIncludeInSimulation())
 			continue;
 
-		r->updateWarnAndRates();
+		// if there is a simReaction with same name, we update it
+		if (SimReaction *sr = getSimReactionForName(r->niceName))
+		{
+			if (sr->reaction != r)
+			{
+				if (sr->reaction)
+				{
+					LOGWARNING("SimReaction " << sr->name << " rerouted from Reaction" << sr->reaction->niceName << " to " << r->niceName);
+				}
+				else
+				{
+					LOGWARNING("SimReaction " << sr->name << " was linked to no reaction, rerouted to Reaction" << r->niceName);
+				}
+			}
+			sr->updateFromReaction(r);
+			continue;
+		}
+		//else add it
 		reactions.add(new SimReaction(r));
 	}
 
@@ -1282,20 +1323,20 @@ void Simulation::start(bool restart)
 
 	stopThread(100);
 
-	//if (!ready)
+	// if (!ready)
 	//{
 	//	LOGWARNING("No simulation loaded, using manual lists");
 	//	//fetchManual();
-	//}
-	//else
+	// }
+	// else
 	//{
 	//	//if (!express)
 	//		//importFromManual(); // import entities and reactions from manual lists, only those who have been changed
-	//}
+	// }
 
 	if (getUserListMode())
 	{
-		generateSimFromUserList();
+		// generateSimFromUserList();
 	}
 	else
 	{
@@ -1312,10 +1353,10 @@ void Simulation::start(bool restart)
 
 	state = Simulating;
 
-	//warn here
+	// warn here
 	if (getUserListMode())
 	{
-		for (auto& r : ReactionManager::getInstance()->items)
+		for (auto &r : ReactionManager::getInstance()->items)
 		{
 			r->updateWarnAndRates();
 		}
@@ -1323,7 +1364,7 @@ void Simulation::start(bool restart)
 
 	if (restart)
 	{
-		for (auto& e : entities)
+		for (auto &e : entities)
 		{
 			e->concent = e->startConcent;
 		}
@@ -1339,7 +1380,7 @@ void Simulation::start(bool restart)
 	Array<float> entityValues;
 	Array<Colour> entityColors;
 
-	for (auto& ent : entitiesDrawn)
+	for (auto &ent : entitiesDrawn)
 	{
 		entityValues.add(ent->concent);
 		entityColors.add(ent->color);
@@ -1352,14 +1393,14 @@ void Simulation::start(bool restart)
 	recordDrawn = 0.;
 
 	// remove RACs
-	for (auto& pac : pacList->cycles)
+	for (auto &pac : pacList->cycles)
 	{
 		pac->wasRAC = false;
 	}
 	pacList->maxRAC = 0.;
 
 	RAChistory.clear();
-	for (auto& pac : pacList->cycles)
+	for (auto &pac : pacList->cycles)
 	{
 		// RAChistory.add(new RACHist());
 		// RAChistory.add(new RACHist(pac->entities));
@@ -1388,7 +1429,7 @@ void Simulation::nextStep()
 	}
 
 	// loop through reactions (first to see brief RACs)
-	for (auto& reac : reactions)
+	for (auto &reac : reactions)
 	{
 		if (!reac->enabled)
 			continue;
@@ -1396,14 +1437,14 @@ void Simulation::nextStep()
 		float minReacConcent = 100.;
 		float minProdConcent = 100.;
 		float reacConcent = 1.;
-		for (auto& ent : reac->reactants)
+		for (auto &ent : reac->reactants)
 		{
 			reacConcent *= ent->concent;
 			if (ent == reac->reactants[0] || ent->concent < minReacConcent)
 				minReacConcent = ent->concent;
 		}
 		float prodConcent = 1.;
-		for (auto& ent : reac->products)
+		for (auto &ent : reac->products)
 		{
 			prodConcent *= ent->concent;
 			if (ent == reac->products[0] || ent->concent < minProdConcent)
@@ -1432,12 +1473,12 @@ void Simulation::nextStep()
 		// to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will make them
 
 		// increase and decrease entities
-		for (auto& ent : reac->reactants)
+		for (auto &ent : reac->reactants)
 		{
 			ent->increase(reverseIncr);
 			ent->decrease(directIncr);
 		}
-		for (auto& ent : reac->products)
+		for (auto &ent : reac->products)
 		{
 			ent->increase(directIncr);
 			ent->decrease(reverseIncr);
@@ -1461,7 +1502,7 @@ void Simulation::nextStep()
 	}
 
 	// creation/destruction
-	for (auto& ent : entities)
+	for (auto &ent : entities)
 	{
 		ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
 		if (ent->primary)
@@ -1476,7 +1517,7 @@ void Simulation::nextStep()
 
 	float maxVar = 0.;
 
-	for (auto& ent : entities)
+	for (auto &ent : entities)
 	{
 
 		if (Settings::getInstance()->printHistoryToFile->boolValue())
@@ -1517,7 +1558,7 @@ void Simulation::nextStep()
 
 	if (displayLog)
 	{
-		for (auto& e : entities)
+		for (auto &e : entities)
 		{
 			if (e->draw && displayLog)
 				LOG(e->toString());
@@ -1540,7 +1581,7 @@ void Simulation::nextStep()
 
 	// storing current concentrations for drawing
 	Array<float> entityValues;
-	for (auto& ent : entitiesDrawn)
+	for (auto &ent : entitiesDrawn)
 	{
 		entityValues.add(ent->concent);
 	}
@@ -1550,11 +1591,11 @@ void Simulation::nextStep()
 	Array<bool> RACList;
 	// cout << setprecision(3);
 	int idPAC = 0;
-	for (auto& cycle : pacList->cycles)
+	for (auto &cycle : pacList->cycles)
 	{
 		idPAC++;
-		//bool newRAC = (cycle->flow == 0.);
-		// SimReaction *minreac = cycle->reacDirs[0].first;
+		// bool newRAC = (cycle->flow == 0.);
+		//  SimReaction *minreac = cycle->reacDirs[0].first;
 
 		// old way with only directions
 		//  for (auto &reacDir : cycle->reacDirs)
@@ -1575,19 +1616,19 @@ void Simulation::nextStep()
 		// }
 
 		// new way by computing the total cycle flow for each entity of the PAC
-		map<SimEntity*, float> flowPerEnt;
-		for (auto& ent : entities)
+		map<SimEntity *, float> flowPerEnt;
+		for (auto &ent : entities)
 			flowPerEnt[ent] = 0.;
 
-		for (auto& reacDir : cycle->reacDirs)
+		for (auto &reacDir : cycle->reacDirs)
 		{
-			SimReaction* reac = reacDir.first;
+			SimReaction *reac = reacDir.first;
 			// no need for dir, it is encoded in the sign of the flow
-			for (auto& ent : reac->reactants)
+			for (auto &ent : reac->reactants)
 			{
 				flowPerEnt[ent] -= reac->flow;
 			}
-			for (auto& ent : reac->products)
+			for (auto &ent : reac->products)
 			{
 				flowPerEnt[ent] += reac->flow;
 			}
@@ -1598,7 +1639,7 @@ void Simulation::nextStep()
 
 		// compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
 		cycle->flow = flowPerEnt[cycle->entities[0]]; // initialisation to a potential value, either <=0 or bigger than real value
-		for (auto& ent : cycle->entities)
+		for (auto &ent : cycle->entities)
 		{
 			if (flowPerEnt[ent] < 0)
 			{
@@ -1612,19 +1653,19 @@ void Simulation::nextStep()
 		}
 
 		// compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
-		map<SimEntity*, float> otherPosFlowPerEnt;
-		for (auto& ce : cycle->entities)
+		map<SimEntity *, float> otherPosFlowPerEnt;
+		for (auto &ce : cycle->entities)
 			otherPosFlowPerEnt[ce] = 0.;
 
 		// compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
-		map<SimEntity*, float> otherNegFlowPerEnt;
-		for (auto& ce : cycle->entities)
+		map<SimEntity *, float> otherNegFlowPerEnt;
+		for (auto &ce : cycle->entities)
 			otherNegFlowPerEnt[ce] = 0.;
 
-		for (auto& ce : cycle->entities)
+		for (auto &ce : cycle->entities)
 		{
 			// if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
-			for (auto& r : reactions)
+			for (auto &r : reactions)
 			{
 				// does this reaction contains current cycle entity ?
 				int stoe = r->stoechiometryOfEntity(ce);
@@ -1666,7 +1707,7 @@ void Simulation::nextStep()
 			Array<float> RACflows;
 			Array<float> RACposSpec;
 			Array<float> RACnegSpec;
-			for (auto& ent : cycle->entities)
+			for (auto &ent : cycle->entities)
 			{
 				RACflows.add(flowPerEnt[ent]);
 				float spec = 0.;
@@ -1678,12 +1719,12 @@ void Simulation::nextStep()
 					else
 						spec = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
 					// never too sure, I use dummy value to spot any unexpected behavior
-	 // if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
+					// if (otherNegFlowPerEnt[ent]!=0.) spec2 = flowPerEnt[ent] / otherNegFlowPerEnt[ent]; // obsolete definition
 					if (flowPerEnt[ent] != 0.)
 						spec2 = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
 					else
 						spec2 = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
-					// never too sure, I use dummy value to spot any unexpected behavior
+									  // never too sure, I use dummy value to spot any unexpected behavior
 				}
 				RACposSpec.add(spec);
 				RACnegSpec.add(spec2);
@@ -1737,14 +1778,13 @@ void Simulation::stop()
 {
 	finished->setValue(true);
 
-
 	if (getUserListMode())
 	{
 		updateUserListFromSim();
 	}
 	state = Idle;
 
-	//if (!express)
+	// if (!express)
 	//{
 	//	loadToManualMode();
 	//
@@ -1773,7 +1813,7 @@ void Simulation::run()
 		LOG("--------- End thread ---------");
 
 	Array<float> entityValues;
-	for (auto& ent : entities)
+	for (auto &ent : entities)
 	{
 		entityValues.add(ent->concent);
 	}
@@ -1797,16 +1837,15 @@ void Simulation::run()
 	updateConcentLists();
 
 	if (Settings::getInstance()->printHistoryToFile->boolValue())
-		{
-			LOG("Printing history to file not enabled for now, disabling it in Settings");
-			Settings::getInstance()->printHistoryToFile->setValue(false);
-			//writeHistory();
-		}
+	{
+		LOG("Printing history to file not enabled for now, disabling it in Settings");
+		Settings::getInstance()->printHistoryToFile->setValue(false);
+		// writeHistory();
+	}
 
 	// listeners.call(&SimulationListener::simulationFinished, this);
 	startTrigger->setEnabled(true);
 }
-
 
 ///////////////////////////////////////////////////////////////////:
 
@@ -1829,14 +1868,14 @@ void Simulation::writeHistory()
 			continue;
 		}
 		// for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
-		for (auto& ent : RAChistory[idPAC0]->ents)
+		for (auto &ent : RAChistory[idPAC0]->ents)
 		{
 			// historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
 			historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",";
 		}
 		historyFile << endl;
 		int i = 0;
-		for (auto& snap : RAChistory[idPAC0]->hist)
+		for (auto &snap : RAChistory[idPAC0]->hist)
 		{
 			i++;
 			if (i == 1)
@@ -1877,7 +1916,7 @@ void Simulation::writeHistory()
 		float time = fs * dt->floatValue();
 		outfile << time << ",i_run,";
 		int c = 0;
-		for (auto& ent : entities)
+		for (auto &ent : entities)
 		{
 			string comma = (c == (entities.size() - 1)) ? "" : ",";
 			outfile << ent->concentHistory[s] << comma;
@@ -1899,7 +1938,7 @@ void Simulation::PrintSimuToFile(string filename = "model.txt")
 	output << "--------------------------" << endl;
 	output << "---- Simulation Content ----" << endl;
 	output << "--------------------------\n"
-		<< endl;
+		   << endl;
 	output << "--- Some global parameters" << endl;
 	output << "Nprimaries: " << Generation::getInstance()->primEntities->stringValue() << endl;
 	output << "path to z3: " << Settings::getInstance()->pathToz3->stringValue() << endl;
@@ -1909,22 +1948,22 @@ void Simulation::PrintSimuToFile(string filename = "model.txt")
 	output << endl;
 
 	output << "--- Entities [name; composition; free energy]" << endl;
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		output << "[ " << e->name << " ; (";
-		for (auto& i : e->composition)
+		for (auto &i : e->composition)
 			output << i;
 		output << ") ; " << e->freeEnergy << " ]" << endl;
 	}
 	output << endl;
 
 	output << "--- Reactions 'reactants --> products' [k+ ; k-]" << endl;
-	for (auto& r : reactions)
+	for (auto &r : reactions)
 	{
 		output << "'";
 		int nreac = r->reactants.size();
 		int c = 0;
-		for (auto& reac : r->reactants)
+		for (auto &reac : r->reactants)
 		{
 			output << reac->name;
 			if (c < (nreac - 1))
@@ -1934,7 +1973,7 @@ void Simulation::PrintSimuToFile(string filename = "model.txt")
 		output << " --> ";
 		int nprod = r->products.size();
 		c = 0;
-		for (auto& prod : r->products)
+		for (auto &prod : r->products)
 		{
 			output << prod->name;
 			if (c < (nprod - 1))
@@ -1960,7 +1999,7 @@ void Simulation::writeJSONConcents(string filename)
 var Simulation::concent2JSON()
 {
 	var data = new DynamicObject();
-	for (auto& e : entities)
+	for (auto &e : entities)
 	{
 		var ent = new DynamicObject();
 		ent.getDynamicObject()->setProperty("Start", e->startConcent);
@@ -1970,9 +2009,9 @@ var Simulation::concent2JSON()
 	return data;
 }
 
-SimEntity* Simulation::getSimEntityForName(const String& nameToFind)
+SimEntity *Simulation::getSimEntityForName(const String &nameToFind)
 {
-	for (auto& se : entities)
+	for (auto &se : entities)
 	{
 		if (se->name == nameToFind)
 			return se;
@@ -1981,9 +2020,9 @@ SimEntity* Simulation::getSimEntityForName(const String& nameToFind)
 	return nullptr;
 }
 
-SimReaction* Simulation::getSimReactionForName(const String& nameToFind)
+SimReaction *Simulation::getSimReactionForName(const String &nameToFind)
 {
-	for (auto& sr : reactions)
+	for (auto &sr : reactions)
 	{
 		if (sr->name == nameToFind)
 			return sr;
@@ -1997,8 +2036,8 @@ void Simulation::updateConcentLists()
 	if (express)
 		return;
 
-	//TO update with refactor
-	//for (auto& ent : EntityManager::getInstance()->items)
+	// TO update with refactor
+	// for (auto& ent : EntityManager::getInstance()->items)
 	//{
 	//	auto se = ent->simEnt;
 	//	if (se != nullptr)
@@ -2009,10 +2048,10 @@ void Simulation::updateConcentLists()
 	//	{
 	//		LOGWARNING("No SimEntity for entity " << ent->niceName);
 	//	}
-	//}
+	// }
 }
 
-void Simulation::onContainerTriggerTriggered(Trigger* t)
+void Simulation::onContainerTriggerTriggered(Trigger *t)
 {
 	express = Generation::getInstance()->statistics->boolValue();
 	if (t == genTrigger)
@@ -2076,7 +2115,7 @@ void Simulation::setConcToSteadyState(int idSS)
 	}
 }
 
-void Simulation::onContainerParameterChanged(Parameter* p)
+void Simulation::onContainerParameterChanged(Parameter *p)
 {
 	ControllableContainer::onContainerParameterChanged(p);
 	if (p == dt || p == totalTime)

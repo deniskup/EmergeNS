@@ -60,22 +60,9 @@ SimEntity::SimEntity(var data)
 }
 
 
-SimEntity::SimEntity(Entity* e) :
-	entity(e)
+SimEntity::SimEntity(Entity* e)
 {
-	startConcent = entity->startConcent->floatValue();
-	concent = entity->concent->floatValue();
-	creationRate = entity->creationRate->floatValue();
-	destructionRate = entity->destructionRate->floatValue();
-	freeEnergy = entity->freeEnergy->floatValue();
-	enabled = entity->enabled->boolValue();
-	color = entity->itemColor->getColor();
-	level = entity->level;
-	composition = entity->composition;
-	draw = entity->draw->boolValue();
-	primary = entity->primary->boolValue();
-	name = entity->niceName;
-	enabled = entity->enabled->boolValue();
+	updateFromEntity(e);
 }
 
 
@@ -89,6 +76,29 @@ SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, fl
 	name("New entity"),
 	entity(nullptr)
 {
+}
+
+void SimEntity::updateFromEntity(Entity *e)
+{
+	if(e==nullptr)
+	{
+		constructionFailed = true;
+		return;
+	}
+	entity = e;
+	startConcent = e->startConcent->floatValue();
+	concent = e->concent->floatValue();
+	creationRate = e->creationRate->floatValue();
+	destructionRate = e->destructionRate->floatValue();
+	freeEnergy = e->freeEnergy->floatValue();
+	enabled = e->enabled->boolValue();
+	color = e->itemColor->getColor();
+	level = e->level;
+	composition = e->composition;
+	draw = e->draw->boolValue();
+	primary = e->primary->boolValue();
+	name = e->niceName;
+	enabled = e->enabled->boolValue();
 }
 
 var SimEntity::toJSONData()

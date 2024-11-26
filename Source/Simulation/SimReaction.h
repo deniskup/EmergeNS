@@ -24,6 +24,8 @@ public:
 	SimReaction(SimEntity* r1, SimEntity* r2, SimEntity* p, float assocRate, float dissocRate, float barrier = 0.f);
 	SimReaction(Array<SimEntity*> r, Array<SimEntity*> p, float assocRate, float dissocRate, float barrier = 0.f);
 
+	void updateFromReaction(Reaction* r);
+
 
 	SimReaction(var data); // import from JSON
 	var toJSONData();      // save to JSON
@@ -61,6 +63,7 @@ public:
 	float flow;    // flow = dProduct/dt due to the reaction
 	bool flowdir;  // direction of the flow, same convention as in PAC
 
+	
 	bool containsReactant(SimEntity* e);
 	bool containsProduct(SimEntity* e);
 	bool contains(SimEntity* e);

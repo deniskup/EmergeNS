@@ -24,6 +24,7 @@ public:
     SimEntity(Entity* e);
     SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
 
+    void updateFromEntity(Entity* e);
 
     var toJSONData();    // save to JSON
 
@@ -67,6 +68,7 @@ public:
     void increase(float incr);
     void decrease(float decr);
     void refresh();
+
     void nameFromCompo();
 
     String toString() const;

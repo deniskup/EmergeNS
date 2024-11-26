@@ -14,29 +14,57 @@
 #include "SimEntity.h"
 #include "Simulation.h"
 
-
-SimReaction::SimReaction(Reaction* r) :
-	assocRate(r->assocRate->floatValue()),
-	dissocRate(r->dissocRate->floatValue()),
-	energy(r->energy->floatValue()),
-	reaction(r)
+SimReaction::SimReaction(Reaction *r)
 {
+	updateFromReaction(r);
+}
+
+SimReaction::SimReaction(SimEntity *r1, SimEntity *r2, SimEntity *p, float aRate, float dRate, float barrier) : reaction(nullptr),
+																												assocRate(aRate),
+																												dissocRate(dRate),
+																												energy(barrier)
+{
+	reactants.add(r1);
+	reactants.add(r2);
+	products.add(p);
+	autoSetName();
+}
+
+SimReaction::SimReaction(Array<SimEntity *> mReac, Array<SimEntity *> mProd, float aRate, float dRate, float barrier) : reaction(nullptr),
+																														assocRate(aRate),
+																														dissocRate(dRate),
+																														energy(barrier)
+{
+	for (auto &r : mReac)
+		reactants.add(r);
+	for (auto &p : mProd)
+		products.add(p);
+	autoSetName();
+}
+
+void SimReaction::updateFromReaction(Reaction *r)
+{
+	reaction = r;
+	assocRate = r->assocRate->floatValue();
+	dissocRate = r->dissocRate->floatValue();
+	energy = r->energy->floatValue();
 	name = r->niceName; // name from the original reaction
+	enabled = r->enabled->boolValue();
 
 	reactants.clear();
 	products.clear();
 
 	for (auto c : r->reactants->controllables)
 	{
-		Entity* e = ((TargetParameter*)c)->getTargetContainerAs<Entity>();
-		
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+
 		if (e == nullptr)
 		{
 			LOGWARNING("Reactant entity target is null, not adding to sim reactant");
 			continue;
 		}
 
-		if (SimEntity* se = Simulation::getInstance()->getSimEntityForName(e->niceName))
+		if (SimEntity *se = Simulation::getInstance()->getSimEntityForName(e->niceName))
 		{
 			reactants.add(se);
 		}
@@ -50,7 +78,7 @@ SimReaction::SimReaction(Reaction* r) :
 
 	for (auto c : r->products->controllables)
 	{
-		Entity* e = ((TargetParameter*)c)->getTargetContainerAs<Entity>();
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
 
 		if (e == nullptr)
 		{
@@ -58,7 +86,7 @@ SimReaction::SimReaction(Reaction* r) :
 			continue;
 		}
 
-		if (SimEntity* se = Simulation::getInstance()->getSimEntityForName(e->niceName))
+		if (SimEntity *se = Simulation::getInstance()->getSimEntityForName(e->niceName))
 		{
 			products.add(se);
 		}
@@ -69,37 +97,9 @@ SimReaction::SimReaction(Reaction* r) :
 			continue;
 		}
 	}
-
 }
 
-
-SimReaction::SimReaction(SimEntity* r1, SimEntity* r2, SimEntity* p, float aRate, float dRate, float barrier) :
-	reaction(nullptr),
-	assocRate(aRate),
-	dissocRate(dRate),
-	energy(barrier)
-{
-	reactants.add(r1);
-	reactants.add(r2);
-	products.add(p);
-	autoSetName();
-}
-
-SimReaction::SimReaction(Array<SimEntity*> mReac, Array<SimEntity*> mProd, float aRate, float dRate, float barrier) :
-	reaction(nullptr),
-	assocRate(aRate),
-	dissocRate(dRate),
-	energy(barrier)
-{
-	for (auto& r : mReac)
-		reactants.add(r);
-	for (auto& p : mProd)
-		products.add(p);
-	autoSetName();
-}
-
-SimReaction::SimReaction(var data) :
-	reaction(nullptr)
+SimReaction::SimReaction(var data) : reaction(nullptr)
 {
 	if (data.isVoid())
 	{
@@ -115,8 +115,8 @@ SimReaction::SimReaction(var data) :
 
 	bool arrayMode = false;
 
-	Simulation* simul = Simulation::getInstance();
-	SimEntity* reactant1;
+	Simulation *simul = Simulation::getInstance();
+	SimEntity *reactant1;
 	// test whether the file uses old or new conventions, put in arrayMode
 	if (data.getDynamicObject()->hasProperty("reactant1"))
 	{
@@ -136,8 +136,8 @@ SimReaction::SimReaction(var data) :
 
 	if (!arrayMode)
 	{
-		SimEntity* reactant2;
-		SimEntity* product;
+		SimEntity *reactant2;
+		SimEntity *product;
 		// to change on same model
 		if (data.getDynamicObject()->hasProperty("reactant2"))
 		{
@@ -181,9 +181,9 @@ SimReaction::SimReaction(var data) :
 		if (data.getDynamicObject()->hasProperty("reactants"))
 		{
 			auto reactantsData = data["reactants"].getArray();
-			for (auto& coord : *reactantsData)
+			for (auto &coord : *reactantsData)
 			{
-				SimEntity* reactant = simul->getSimEntityForName(coord["ent"]);
+				SimEntity *reactant = simul->getSimEntityForName(coord["ent"]);
 				if (reactant == nullptr)
 				{
 					LOGWARNING("Reactants null for Simreaction");
@@ -204,9 +204,9 @@ SimReaction::SimReaction(var data) :
 		{
 
 			auto productsData = data["products"].getArray();
-			for (auto& coord : *productsData)
+			for (auto &coord : *productsData)
 			{
-				SimEntity* product = simul->getSimEntityForName(coord["ent"]);
+				SimEntity *product = simul->getSimEntityForName(coord["ent"]);
 				if (product == nullptr)
 				{
 					// LOGWARNING("No product for reaction");
@@ -275,7 +275,7 @@ SimReaction::~SimReaction()
 {
 }
 
-bool SimReaction::containsReactant(SimEntity* e)
+bool SimReaction::containsReactant(SimEntity *e)
 {
 	for (auto r : reactants)
 	{
@@ -285,7 +285,7 @@ bool SimReaction::containsReactant(SimEntity* e)
 	return false;
 }
 
-bool SimReaction::containsProduct(SimEntity* e)
+bool SimReaction::containsProduct(SimEntity *e)
 {
 
 	for (auto p : products)
@@ -296,18 +296,18 @@ bool SimReaction::containsProduct(SimEntity* e)
 	return false;
 }
 
-bool SimReaction::contains(SimEntity* e)
+bool SimReaction::contains(SimEntity *e)
 {
 	return (containsReactant(e) || containsProduct(e));
 }
 
-int SimReaction::stoechiometryOfEntity(SimEntity* e)
+int SimReaction::stoechiometryOfEntity(SimEntity *e)
 {
 	int st = 0;
-	for (auto& sre : reactants)
+	for (auto &sre : reactants)
 		if (sre == e)
 			st--;
-	for (auto& sre : products)
+	for (auto &sre : products)
 		if (sre == e)
 			st++;
 	return st;
@@ -362,27 +362,27 @@ void SimReaction::computeBarrier()
 	energy = energyStar - jmax(energyLeft, energyRight);
 }
 
-//void SimReaction::importFromManual()
+// void SimReaction::importFromManual()
 //{
-//    if (reaction == nullptr)
-//    {
-//        LOGERROR("Reaction is null here, should not happen");
-//        return;
-//    }
+//     if (reaction == nullptr)
+//     {
+//         LOGERROR("Reaction is null here, should not happen");
+//         return;
+//     }
 //
-//    assocRate = reaction->assocRate->floatValue();
-//    dissocRate = reaction->dissocRate->floatValue();
-//    energy = reaction->energy->floatValue();
-//    enabled = reaction->shouldIncludeInSimulation();
-//    name = reaction->niceName;
-//}
+//     assocRate = reaction->assocRate->floatValue();
+//     dissocRate = reaction->dissocRate->floatValue();
+//     energy = reaction->energy->floatValue();
+//     enabled = reaction->shouldIncludeInSimulation();
+//     name = reaction->niceName;
+// }
 
 void SimReaction::autoSetName()
 {
 	name = "";
 	// reactant1->name + "+" + reactant2->name + "=" + product->name;
 	bool first = true;
-	for (auto& ent : reactants)
+	for (auto &ent : reactants)
 	{
 		if (!first)
 		{
@@ -394,7 +394,7 @@ void SimReaction::autoSetName()
 	}
 	name += "=";
 	first = true;
-	for (auto& ent : products)
+	for (auto &ent : products)
 	{
 		if (!first)
 		{
