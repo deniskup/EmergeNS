@@ -2,7 +2,7 @@
 #include "SimulationUI.h"
 
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
-simul(Simulation::getInstance())
+							   simul(Simulation::getInstance())
 //    saveSimBT("Save"),
 //    loadSimBT("Load")
 // uiStep(1)
@@ -80,7 +80,7 @@ simul(Simulation::getInstance())
 	paramsLabel.setJustificationType(Justification::centred);
 	paramsLabel.setText("express mode", dontSendNotification);
 
-	//maxConcentUI->setVisible(!simul->autoScale->boolValue());
+	// maxConcentUI->setVisible(!simul->autoScale->boolValue());
 	perCentUI->customLabel = "Progress";
 
 	simBounds.setSize(500, 500);
@@ -97,16 +97,20 @@ SimulationUI::~SimulationUI()
 }
 
 //==============================================================================
-void SimulationUI::paint(juce::Graphics& g)
+void SimulationUI::paint(juce::Graphics &g)
 {
 
-	if (simul->shouldUpdate) {
+	if (simul->shouldUpdate)
+	{
 		simul->updateParams();
 		simul->shouldUpdate = false;
 	}
 
-	// the 1.01 is to left a margin for the top curve
-	float maxC = simul->autoScale->boolValue() ? simul->recordDrawn * 1.01 : simul->maxConcent->floatValue();
+	if (simul->autoScale->boolValue())
+	{
+		simul->maxConcent->setValue(simul->recordDrawn * 1.01);
+	}
+	float maxC = simul->maxConcent->floatValue();
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
 	g.fillAll(BG_COLOR);
 
@@ -116,8 +120,8 @@ void SimulationUI::paint(juce::Graphics& g)
 	// g.setFont(12);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
-	//g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
-	//g.fillRoundedRectangle(simBounds.toFloat(), 4);
+	// g.setColour(Colours::white.withAlpha(simul->isThreadRunning() ? .1f : .005f));
+	// g.fillRoundedRectangle(simBounds.toFloat(), 4);
 
 	g.setColour(Colours::white);
 	g.setFont(14);
@@ -151,12 +155,12 @@ void SimulationUI::paint(juce::Graphics& g)
 	float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
 	// float maxConcent = 5;
 	OwnedArray<Path> paths;
-	for (auto& e : entityHistory[0])
+	for (auto &e : entityHistory[0])
 	{
 		float v = 1 - e / maxC;
 		v = jmax(v, 0.f);
 
-		Path* p = new Path();
+		Path *p = new Path();
 		Point<float> ep = simBounds.getRelativePoint(0.f, v).toFloat();
 		p->startNewSubPath(ep);
 		paths.add(p); // add one path per entity
@@ -214,7 +218,7 @@ void SimulationUI::resized()
 
 	// compute button width
 	const float nButtons = 5;
-	float buttonWidth = (hr.getWidth() - 20 * (nButtons)-(50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth())) / nButtons;
+	float buttonWidth = (hr.getWidth() - 20 * (nButtons) - (50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth())) / nButtons;
 	// int width2 = genUI->getWidth() + 20 + startUI->getWidth() + 20 + restartUI->getWidth() + 20 + genstartUI->getWidth() + 20 + cancelUI->getWidth() + 50 + autoScaleUI->getWidth() + 10 + maxConcentUI->getWidth();
 	hr.reduce(10, 0);
 
@@ -266,7 +270,7 @@ void SimulationUI::timerCallback()
 	}
 }
 
-bool SimulationUI::keyPressed(const KeyPress& e)
+bool SimulationUI::keyPressed(const KeyPress &e)
 {
 	if (e.getKeyCode() == KeyPress::spaceKey)
 	{
@@ -327,7 +331,7 @@ bool SimulationUI::keyPressed(const KeyPress& e)
 // }
 //}
 
-void SimulationUI::newMessage(const Simulation::SimulationEvent& ev)
+void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 {
 	switch (ev.type)
 	{
@@ -368,20 +372,20 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent& ev)
 	case Simulation::SimulationEvent::FINISHED:
 	{
 		shouldRepaint = true;
-		//resized();
-		//repaint();
+		// resized();
+		// repaint();
 	}
 	break;
 	}
 }
 
-void SimulationUI::newMessage(const ContainerAsyncEvent& e)
+void SimulationUI::newMessage(const ContainerAsyncEvent &e)
 {
 	if (e.type == ContainerAsyncEvent::EventType::ControllableFeedbackUpdate)
 	{
 		if (e.targetControllable == simul->autoScale)
 		{
-		//	maxConcentUI->setVisible(!simul->autoScale->boolValue());
+			//	maxConcentUI->setVisible(!simul->autoScale->boolValue());
 			shouldRepaint = true;
 		}
 		else if (e.targetControllable == simul->maxConcent)
