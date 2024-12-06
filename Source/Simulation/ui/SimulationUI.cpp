@@ -80,7 +80,7 @@ simul(Simulation::getInstance())
 	paramsLabel.setJustificationType(Justification::centred);
 	paramsLabel.setText("express mode", dontSendNotification);
 
-	maxConcentUI->setVisible(!simul->autoScale->boolValue());
+	//maxConcentUI->setVisible(!simul->autoScale->boolValue());
 	perCentUI->customLabel = "Progress";
 
 	simBounds.setSize(500, 500);
@@ -381,7 +381,7 @@ void SimulationUI::newMessage(const ContainerAsyncEvent& e)
 	{
 		if (e.targetControllable == simul->autoScale)
 		{
-			maxConcentUI->setVisible(!simul->autoScale->boolValue());
+		//	maxConcentUI->setVisible(!simul->autoScale->boolValue());
 			shouldRepaint = true;
 		}
 		else if (e.targetControllable == simul->maxConcent)
