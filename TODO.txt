@@ -88,3 +88,13 @@ Les compositions faites de 10 manières n'ont pas plus de chances de sortir que 
 (save here just in case)
 checkout  the working commit for juce_organicui : in the Modules/juce_organicui do <br>
 ```git reset --hard 55c3fd79bf74d03bad7262318843ece9d608e76e```
+
+--------------- INFOS UTILES ---------------
+
+Si probleme de compilation organicui avec OSCRemoteControl:
+- rajouter des tests comme ça pour les lignes qui appellent OSCRemoteControl:
+#if ORGANICUI_USE_WEBSERVER 
+	if (parentContainer != nullptr) OSCRemoteControl::getInstance()->sendPathChangedFeedback(getControlAddress()); 
+#endif 
+- faire une pull request sur juce_organicui
+
