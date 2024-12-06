@@ -1,5 +1,11 @@
 -still problems of links Simentity <-> entity <-> PACs
 
+Modus operandi:
+*les deux sont sauvés dans les fichiers
+*au moment de recharger, les entities/reactions sont chargées avant la sim
+*au moment de charger la sim et de créer les siment/simreac, lier aux ent/reac du meme nom.
+
+
 -bug PAC listing en partant d'une taille >2
 
 -reactions irreversibles (bool isReversible)

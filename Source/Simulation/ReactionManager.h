@@ -17,4 +17,6 @@ public:
 	void autoRename();
 	void inferAllReacs();
 
+	Reaction *getReactionFromName(const String &searchName);
+
 };

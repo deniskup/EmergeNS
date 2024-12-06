@@ -99,7 +99,7 @@ void SimReaction::updateFromReaction(Reaction *r)
 	}
 }
 
-SimReaction::SimReaction(var data) : reaction(nullptr)
+SimReaction::SimReaction(var data)
 {
 	if (data.isVoid())
 	{
@@ -234,6 +234,9 @@ SimReaction::SimReaction(var data) : reaction(nullptr)
 
 	if (data.getDynamicObject()->hasProperty("idSAT"))
 		idSAT = data["idSAT"];
+
+	//if reaction with same name exists, point to it
+	reaction = ReactionManager::getInstance()->getReactionFromName(name);
 }
 
 var SimReaction::toJSONData()

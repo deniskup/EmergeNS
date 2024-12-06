@@ -57,6 +57,14 @@ SimEntity::SimEntity(var data)
 		int val = compData[i].isObject() ? (int)compData[i].getProperty("coord", 0) : (int)compData[i];
 		composition.add(val);
 	}
+
+	//if entity of same name exists, point to it
+	entity = EntityManager::getInstance()->getEntityFromName(name);
+
+	// else
+	// {
+	// 	LOGWARNING("No entity found for SimEntity " + name);
+	// }
 }
 
 

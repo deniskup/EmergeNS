@@ -12,6 +12,7 @@
 
 #include "JuceHeader.h"
 #include "SimulationHelpers.h"
+#include "ReactionManager.h"
 
 class Reaction;
 class SimEntity;

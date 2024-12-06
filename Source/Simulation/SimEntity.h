@@ -12,6 +12,7 @@
 
 #include "JuceHeader.h"
 #include "SimulationHelpers.h"
+#include "EntityManager.h"
 
 class Entity;
 using namespace juce;

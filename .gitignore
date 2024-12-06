@@ -28,3 +28,5 @@ Builds/VisualStudio2022_CI/EmergeNS_App.vcxproj
 Builds/VisualStudio2022_CI/EmergeNS_App.vcxproj.filters
 Builds/MacOSX_CI/EmergeNS.xcodeproj/project.pbxproj
 ReactionSystems/z3satmodel.txt
+z3satmodel.txt
+z3sat.smt2
