@@ -186,7 +186,7 @@ void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingT
 	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
 	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
 
-	Simulation::getInstance()->establishLinks();
+	//Simulation::getInstance()->establishLinks();
 
 }
 

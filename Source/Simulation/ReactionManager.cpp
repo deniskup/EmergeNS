@@ -28,3 +28,15 @@ void ReactionManager::inferAllReacs()
         r->inferEntities();
     }
 }
+
+Reaction *ReactionManager::getReactionFromName(const String &searchName)
+{
+ 
+	for (auto &r : items)
+	{
+		if (r->niceName == searchName)
+			return r;
+	}
+	return nullptr;
+
+}

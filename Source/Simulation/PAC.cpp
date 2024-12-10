@@ -137,6 +137,14 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("entities"))
 	{
+		//if entities is not an array, error message
+		if (!data.getDynamicObject()->getProperty("entities").isArray())
+		{
+			constructionFailed = true;
+			LOGWARNING("PAC construction failed: entities is not an array");
+			return;
+		}
+
 		Array<var>* ents = data.getDynamicObject()->getProperty("entities").getArray();
 		for (auto& ent : *ents)
 		{
@@ -153,6 +161,14 @@ PAC::PAC(var data, Simulation* simul)
 
 	if (data.getDynamicObject()->hasProperty("reacDirs"))
 	{
+		//fail if not an array
+		if (!data.getDynamicObject()->getProperty("reacDirs").isArray())
+		{
+			constructionFailed = true;
+			LOGWARNING("PAC construction failed: reacDirs is not an array");
+			return;
+		}
+
 		Array<var>* reacds = data.getDynamicObject()->getProperty("reacDirs").getArray();
 		for (auto& reacd : *reacds)
 		{
@@ -916,8 +932,9 @@ bool PAClist::computeCAC(set<int> pacIds)
 	}
 	if (firstLine != "sat")
 	{
-		LOGWARNING("Error in Z3 output");
+		LOGWARNING("Error in Z3 output: "+firstLine);
 		system("cp z3CAC.smt2 z3CACerror.smt2");
+		LOGWARNING("file copied on z3CACerror.smt2");
 		return false;
 	}
 	// parse the witness of concentrations
@@ -935,6 +952,10 @@ bool PAClist::computeCAC(set<int> pacIds)
 void PAClist::computeCACs()
 {
 	setZ3path();
+	if(z3path=="")
+	{
+		return;
+	}
 	simul->affectSATIds();
 	// compute CACs among the PACs
 	LOG("Computing CACs");
@@ -1225,8 +1246,9 @@ void PAClist::multiPACs()
 			}
 			if (firstLine != "sat")
 			{
-				LOGWARNING("Error in Z3 output");
+				LOGWARNING("Error in Z3 output: "+firstLine);
 				system("cp z3multiPAC.smt2 z3multiPACerror.smt2");
+				LOGWARNING("file copied on z3multiPACerror.smt2");
 				continue;
 			}
 			nbMulti++;
@@ -1252,7 +1274,7 @@ void PAClist::run()
 	else if (numSolver == 2)
 	{
 		PACsWithZ3();
-		if (Settings::getInstance()->multiPACs->boolValue())
+		if (Settings::getInstance()->multiPACs->boolValue() && z3path != "")
 			multiPACs();
 	}
 	else
@@ -1295,13 +1317,13 @@ map<string, bool> parseModel(const string& output)
 
 void PAClist::setZ3path()
 {
-	if (z3path != "") // already has been done
-		return;
+	//if (z3path != "") // already has been done
+	//	return;
 	vector<string> z3commands;
 	z3commands.push_back("z3");
 	z3commands.push_back(Settings::getInstance()->pathToz3->stringValue().toStdString());
 
-	for (int z3id = 0; z3id <= 1; z3id++)
+	for (int z3id = 0; z3id < z3commands.size(); z3id++)
 	{
 
 		z3path = z3commands[z3id];
@@ -1311,7 +1333,7 @@ void PAClist::setZ3path()
 		testFile << "(assert true)" << endl;
 		testFile << "(check-sat)" << endl;
 		testFile.close();
-		//const int satReturnValue = system(z3command.c_str());
+		const int satReturnValue = system(z3command.c_str());
 		ifstream sol_file("testResult.txt");
 		string testSat;
 
@@ -1331,6 +1353,7 @@ void PAClist::setZ3path()
 		else
 		{
 			LOG("z3 path failed, aborting");
+			z3path="";
 			return;
 		}
 
@@ -1356,6 +1379,10 @@ void PAClist::PACsWithZ3()
 
 	LOG("Using solver: Z3");
 	setZ3path();
+	if(z3path=="")
+	{
+		return;
+	}
 	simul->affectSATIds();
 
 	// input using a random integer
@@ -1662,10 +1689,11 @@ void PAClist::PACsWithZ3()
 			}
 			if (firstLine != "sat")
 			{
-				LOGWARNING("Error in Z3 output");
+				LOGWARNING("Error in Z3 output: "+firstLine);
 				//system("cp z3constraints.smt2 z3constrainserror.smt2");
 				string comm = string("cp ") + inputFile + string(" z3constrainserror.smt2");
 				system(comm.c_str());
+				LOGWARNING("file copied on z3constrainserror.smt2");
 				return;
 			}
 

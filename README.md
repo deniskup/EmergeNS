@@ -51,7 +51,9 @@ Possible errors and how to fix
    - package gtk+ not found -> ```sudo apt install build-essential libgtk-3-dev```
    - package webkit2gtk-4.0 not found -> ```sudo apt install libwebkit2gtk-4.0-dev```
      
-12. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
+12. On Mac, the compiled program must be launched with sudo so that it can access external programs such as z3. The compiled program is in your EmergeNS folder, then (in debug mode for instance) ``` sudo Builds/MacOSX/build/Debug/EmergeNS.app/Contents/MacOS/EmergeNS```
+
+13. In case z3 is not found, specify path (e.g. /usr/local/bin/z3) in View/Settings
 
 
 
