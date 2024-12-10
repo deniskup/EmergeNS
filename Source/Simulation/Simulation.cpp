@@ -1240,7 +1240,7 @@ void Simulation::fetchGenerate()
   //   loadToManualMode();
 }
 
-void Simulation::generateSimFromUserList() // this erases PACs
+void Simulation::generateSimFromUserList() 
 {
   state = Generating;
 
@@ -1282,14 +1282,7 @@ void Simulation::generateSimFromUserList() // this erases PACs
     LOG("Added entity " << se->name << " to simulation");
   }
 
-  // remove entities that are not in the user list
-  for (int i = entities.size() - 1; i >= 0; i--)
-  {
-    if (!entities[i]->generatedFromUserList)
-    {
-      entities.remove(i);
-    }
-  }
+
 
   // reactions
   // disable all reactions before adding them back from user list
@@ -1323,6 +1316,22 @@ void Simulation::generateSimFromUserList() // this erases PACs
     // else add it
     reactions.add(new SimReaction(r));
   }
+
+//update PACs by removing those with reactions not in the user list
+  for (int i = pacList->cycles.size() - 1; i >= 0; i--)
+  {
+    auto pac = pacList->cycles[i];
+    for(auto &rd : pac->reacDirs)
+    {
+      if (!rd.first || !rd.first->generatedFromUserList)
+      {
+        pacList->removePAC(i);
+        break;
+      }
+    }
+  }
+
+
   // remove reactions that are not in the user list
   for (int i = reactions.size() - 1; i >= 0; i--)
   {
@@ -1332,7 +1341,17 @@ void Simulation::generateSimFromUserList() // this erases PACs
     }
   }
 
+    // remove entities that are not in the user list
+  for (int i = entities.size() - 1; i >= 0; i--)
+  {
+    if (!entities[i]->generatedFromUserList)
+    {
+      entities.remove(i);
+    }
+  }
+
   LOG("Generated Simulation entities and reactions from user list");
+  state=Idle;
   updateParams();
 }
 
