@@ -14,15 +14,15 @@
 #pragma warning(disable:4244 4100 4305)
 
 #include "MainComponent.h"
-#include "Engine/EmergenceNSEngine.h"
+#include "Engine/EmergeNSEngine.h"
 
 //==============================================================================
-class EmergenceNSApplication : public OrganicApplication
+class EmergeNSApplication : public OrganicApplication
 {
 public:
 	//==============================================================================
-	EmergenceNSApplication();
-	~EmergenceNSApplication();
+	EmergeNSApplication();
+	~EmergeNSApplication();
 
 	//==============================================================================
 	void initialiseInternal(const String& /*commandLine*/) override;
@@ -34,4 +34,4 @@ public:
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
-START_JUCE_APPLICATION(EmergenceNSApplication)
+START_JUCE_APPLICATION(EmergeNSApplication)

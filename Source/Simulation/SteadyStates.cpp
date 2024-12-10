@@ -36,13 +36,23 @@ long double applyOperation(long double a, long double b, char op)
 		if (b != 0)
 			return (a / b);
 		else
-			throw juce::OSCFormatError("Division par zéro !");
+		{
+			LOGERROR("Division par zéro !");
+			jassertfalse;
+		}
 	case '^':
 		return pow(a, b);
+		break;
+
 	default:
-		throw juce::OSCFormatError("Opérateur invalide !");
+	{
+		LOGERROR("Opérateur invalide !");
+		jassertfalse;
 	}
-	return 0.;
+		break;
+	}
+
+	return 0.; //unreachable
 }
 
 // Function to evaluate formal expression
@@ -277,7 +287,7 @@ void SteadyStateslist::setZ3path()
 		testFile << "(assert true)" << endl;
 		testFile << "(check-sat)" << endl;
 		testFile.close();
-		const int satReturnValue = system(z3command.c_str());
+		//const int satReturnValue = system(z3command.c_str());
 		ifstream sol_file("testResult.txt");
 		string testSat;
 
@@ -493,13 +503,13 @@ void SteadyStateslist::computeWithZ3()
 		steadyStates.add(w);
 
 		// add Clause forbidding concentrations to be all epsilon close to the current ones
-		float epsilon = 0.001; // to go to setting later
+		float _epsilon = 0.001; // to go to setting later >> HIDES CLASS MEMBER !
 
 		modClauses << "(assert (not (and";
 		int i = 0;
 		for (auto &e : simul->entities)
 		{
-			modClauses << " (< (abs (- conc" << e->idSAT << " " << w[i] << ")) " << epsilon << ")";
+			modClauses << " (< (abs (- conc" << e->idSAT << " " << w[i] << ")) " << _epsilon << ")";
 			i++;
 		}
 
@@ -547,8 +557,8 @@ vector<string> extract_msolve_intervals(const string &chain)
 
 	while (pos != string::npos)
 	{
-		size_t start = chain.find_first_of('[', pos);
-		size_t end = chain.find_first_of(']', start);
+		int start = (int)chain.find_first_of('[', pos);
+		int end = (int)chain.find_first_of(']', start);
 		// first '[' might not be the most inner one. Loop back from closing bracket to retrieve most inner ']'
 		for (int k = end; k >= 0; k--)
 		{
@@ -584,7 +594,7 @@ vector<string> extract_msolve_intervals(const string &chain)
 long double evaluate_interval_center(string str_interval)
 {
 
-	int separator = str_interval.find(',');
+	int separator = (int)str_interval.find(',');
 	if (separator == str_interval.npos)
 	{
 		LOG("problem in root solution interval, comma missing. return 0.");
@@ -754,8 +764,8 @@ bool SteadyStateslist::computeWithMSolve()
 	// cout << msolveOutput << endl;
 
 	// check if a finite number of solutions were found
-	int mark1 = msolveOutput.find_first_of("[");
-	int mark2 = msolveOutput.find_first_of(",");
+	int mark1 = (int)msolveOutput.find_first_of("[");
+	int mark2 = (int)msolveOutput.find_first_of(",");
 	string dim = "";
 	for (int k = mark1 + 1; k < mark2; k++)
 		dim += msolveOutput.at(k);
@@ -777,7 +787,7 @@ bool SteadyStateslist::computeWithMSolve()
 	// 	cout << element << endl;
 	// }
 	// make sure number of msolve roots is a multiple of Nentities
-	int nsol = list.size() / simul->entities.size();
+	int nsol = (int)(list.size() / simul->entities.size());
 	if ((list.size() % simul->entities.size()) != 0)
 	{
 		LOG("total number of concentration solutions isn't a multiple of Nentities. Exiting");
@@ -893,10 +903,10 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 			// opposite if reaction is reversible
 			if (r->isReversible)
 			{
-				Monom mon = backwardRate;
+				Monom bmon = backwardRate;
 				// multiply reaction rate by (-stoechiometry) and add it to the rate vector
-				mon.coef *= -1. * (float)sto; // multiply rate constant by opposite stoechiometry
-				rateVector[entID].add(mon);
+				bmon.coef *= -1. * (float)sto; // multiply rate constant by opposite stoechiometry
+				rateVector[entID].add(bmon);
 			}
 		} // end loop over stoechiometry vector of reaction
 
@@ -1073,10 +1083,10 @@ void SteadyStateslist::computeJacobiMatrix()
 	// jacobiMatrix.resize(simul->entities.size(), simul->entities.size());
 
 	// calculate jacobi matrix
-	for (unsigned int i = 0; i < simul->entities.size(); i++)
+	for (int i = 0; i < simul->entities.size(); i++)
 	{
 		Array<Polynom> line;
-		for (unsigned int j = 0; j < simul->entities.size(); j++)
+		for (int j = 0; j < simul->entities.size(); j++)
 		{
 			Polynom derivate = partialDerivate(rateVector[i], j);
 			// jacobiMatrix[i][j] = derivate;
@@ -1088,9 +1098,9 @@ void SteadyStateslist::computeJacobiMatrix()
 
 	// sanity check
 	// cout << "---- Jacobi Matrix ----" << endl;
-	// for (unsigned int i=0; i<simul->entities.size(); i++)
+	// for (int i=0; i<simul->entities.size(); i++)
 	// {
-	// 	for (unsigned int j=0; j<simul->entities.size(); j++)
+	// 	for (int j=0; j<simul->entities.size(); j++)
 	// 	{
 	// 		cout << "########## element (" << i << "," << j << ") ##########" << endl;
 	// 		for (auto& monom : jacobiMatrix[i][j])
@@ -1144,7 +1154,7 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State &witness)
 		return jm;
 	}
 
-	for (unsigned int i = 0; i < witness.size(); i++)
+	for (int i = 0; i < witness.size(); i++)
 	{
 		if (jacobiMatrix[i].size() != witness.size())
 		{
@@ -1153,7 +1163,7 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State &witness)
 			LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
 			return jm;
 		}
-		for (unsigned int j = 0; j < witness.size(); j++)
+		for (int j = 0; j < witness.size(); j++)
 		{
 			jm(i, j) = evaluatePolynom(jacobiMatrix[i][j], witness);
 		}
@@ -1307,7 +1317,7 @@ bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, State &witness)
 void SteadyStateslist::evaluateSteadyStatesStability()
 {
 
-	int nss = steadyStates.size(); // keep track of how many steady states there are
+	//int nss = steadyStates.size(); // keep track of how many steady states there are
 
 	// loop over steady states
 	for (int iw = steadyStates.size() - 1; iw >= 0; iw--)

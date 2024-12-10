@@ -5,13 +5,13 @@
 #include "JuceHeader.h"
 using namespace juce;
 
-class EmergenceNSEngine :
+class EmergeNSEngine :
 	public Engine
 {
 public:
 
-	EmergenceNSEngine();
-	~EmergenceNSEngine();
+	EmergeNSEngine();
+	~EmergeNSEngine();
 
 
 	void clearInternal() override;

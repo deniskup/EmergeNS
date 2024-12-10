@@ -1,6 +1,6 @@
 
 
-#include "EmergenceNSEngine.h"
+#include "EmergeNSEngine.h"
 #include "Simulation/EntityManager.h"
 #include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
@@ -8,7 +8,7 @@
 #include "Simulation/Settings.h"
 #include "Simulation/Statistics.h"
 
-EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens")
+EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
 {
 
@@ -20,7 +20,7 @@ EmergenceNSEngine::EmergenceNSEngine() : Engine(ProjectInfo::projectName, ".ens"
 	addChildControllableContainer(Settings::getInstance());
 }
 
-EmergenceNSEngine::~EmergenceNSEngine()
+EmergeNSEngine::~EmergeNSEngine()
 {
 	isClearing = true;
 	Statistics::deleteInstance();
@@ -32,7 +32,7 @@ EmergenceNSEngine::~EmergenceNSEngine()
 
 }
 
-void EmergenceNSEngine::clearInternal()
+void EmergeNSEngine::clearInternal()
 {
 	Simulation::getInstance()->clearParams();
 	EntityManager::getInstance()->clear();
@@ -42,34 +42,34 @@ void EmergenceNSEngine::clearInternal()
 
 
 //the bool returned says whether a file has been loaded
-bool EmergenceNSEngine::parseCommandline(const String &commandLine)
+bool EmergeNSEngine::parseCommandline(const String& commandLine)
 {
 	// Call parent function
-	bool parentCall=Engine::parseCommandline(commandLine);
+	bool parentCall = Engine::parseCommandline(commandLine);
 	//this contains already several command option like
 	// -headless : run the engine without GUI
 	// -f "path/to/file.ens": load the file with absolute path
 
 	//Compile with task MakeRelease for better performance
 
-	bool fileLoaded=false;
+	bool fileLoaded = false;
 
 	// Check if the argument is "config"
 	if (commandLine.contains("config"))
 	{
 		// parameters to give the model
 		string z3path = "";
-		int maxlevel;
-		float connection;
+		//int maxlevel;
+		//float connection;
 
 		// map of config parameters and their values
 		map<string, string> configs;
 
 
 		// loop over command lines but retrieve only config command
-		for (auto & c : StringUtil::parseCommandLine(commandLine))
+		for (auto& c : StringUtil::parseCommandLine(commandLine))
 		{
-			if (c.command=="config")
+			if (c.command == "config")
 			{
 				String fileArg = c.args[0];
 				cout << "will open file : " << fileArg << endl;
@@ -77,48 +77,53 @@ bool EmergenceNSEngine::parseCommandline(const String &commandLine)
 
 				// open the config file
 				ifstream file;
- 		 		file.open(fileArg.toUTF8(), ios::in);
- 		 		//file.open(filename.c_str(), ios::in);
- 		 		if (!file.is_open())
+				file.open(fileArg.toUTF8(), ios::in);
+				//file.open(filename.c_str(), ios::in);
+				if (!file.is_open())
 				{
-  	 		 	throw juce::OSCFormatError("can't open config file");
+					LOGERROR("can't open config file : " << fileArg);
 					JUCEApplication::getInstance()->systemRequestedQuit();
 				}
-				fileLoaded=true;
+				fileLoaded = true;
 				// store content of config file
 				//vector<vector<string>> configs; // config file content stored here
-  			vector<string> row;
-  			string line, element;
+				vector<string> row;
+				string line, element;
 
- 	 			// start parsing the config file
- 		 		while (getline(file, line))
-  			{
- 	  			row.clear();
- 	  			stringstream str(line);	
- 	   			while (getline(str, element, ':'))
-						{
-							while (element.find_first_of(' ') != element.npos) element.erase(element.find_first_of(' '), 1); // ignore spaces
-							row.push_back(element);
-						}
-					if (row.size()!=2) throw juce::OSCFormatError("config file format issue");
-    			configs[row[0]] = row[1];
-  			}
+				// start parsing the config file
+				while (getline(file, line))
+				{
+					row.clear();
+					stringstream str(line);
+					while (getline(str, element, ':'))
+					{
+						while (element.find_first_of(' ') != element.npos) element.erase(element.find_first_of(' '), 1); // ignore spaces
+						row.push_back(element);
+					}
+
+					if (row.size() != 2)
+					{
+						LOGERROR("config file format issue");
+						jassertfalse;
+					}
+					configs[row[0]] = row[1];
+				}
 			} //end if is config command line
 		} // end command loop
 
-		string model2file="model.txt";
+		string model2file = "model.txt";
 
 		// Set model parameters according to config values
 		for (auto& [key, val] : configs)
 		{
 			juce::var myvar(val);
-			if (key=="z3path")	Settings::getInstance()->pathToz3->setValueInternal(myvar);
-			else if (key=="z3timeout")	Settings::getInstance()->z3timeout->setValueInternal(myvar);
-			else if (key=="maxlevel") Generation::getInstance()->numLevels->setValueInternal(myvar);
-			else if (key=="connectedness") Generation::getInstance()->propReactions->setValueInternal(myvar);
-			else if (key=="Nprimaries") Generation::getInstance()->primEntities->setValueInternal(myvar);
-			else if (key=="model2file") model2file = val;
-			else if (key=="printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
+			if (key == "z3path")	Settings::getInstance()->pathToz3->setValueInternal(myvar);
+			else if (key == "z3timeout")	Settings::getInstance()->z3timeout->setValueInternal(myvar);
+			else if (key == "maxlevel") Generation::getInstance()->numLevels->setValueInternal(myvar);
+			else if (key == "connectedness") Generation::getInstance()->propReactions->setValueInternal(myvar);
+			else if (key == "Nprimaries") Generation::getInstance()->primEntities->setValueInternal(myvar);
+			else if (key == "model2file") model2file = val;
+			else if (key == "printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
 			//else if (key=="connectedness")
 		}
 
@@ -150,16 +155,16 @@ bool EmergenceNSEngine::parseCommandline(const String &commandLine)
 
 		JUCEApplication::getInstance()->systemRequestedQuit();
 
-		
+
 	}
 
 
-return (fileLoaded||parentCall);
+	return (fileLoaded || parentCall);
 
 }
 
 
-var EmergenceNSEngine::getJSONData()
+var EmergeNSEngine::getJSONData()
 {
 	var data = Engine::getJSONData();
 	data.getDynamicObject()->setProperty(Simulation::getInstance()->shortName, Simulation::getInstance()->getJSONData());
@@ -172,7 +177,7 @@ var EmergenceNSEngine::getJSONData()
 	return data;
 }
 
-void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadingTask)
+void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingTask)
 {
 	Simulation::getInstance()->loadJSONData(data.getProperty(Simulation::getInstance()->shortName, var()));
 	EntityManager::getInstance()->loadJSONData(data.getProperty(EntityManager::getInstance()->shortName, var()));
@@ -181,11 +186,11 @@ void EmergenceNSEngine::loadJSONDataInternalEngine(var data, ProgressTask *loadi
 	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
 	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
 
-	Simulation::getInstance()->establishLinks();
+	//Simulation::getInstance()->establishLinks();
 
 }
 
-String EmergenceNSEngine::getMinimumRequiredFileVersion()
+String EmergeNSEngine::getMinimumRequiredFileVersion()
 {
 	return "1.0.0";
 }

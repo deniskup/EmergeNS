@@ -2,7 +2,11 @@
 
 #include <JuceHeader.h>
 #include <sstream>
+
+#pragma warning(push)
+#pragma warning(disable:4127) //remove warning C4127: conditional expression is constant
 #include <Eigen/Dense>
+#pragma warning(pop)
 
 using namespace juce;
 using namespace std;
@@ -15,7 +19,7 @@ class Simulation;
 class Monom{ // represent a polynomial term such as k*c_1*c_3
  public:
      float coef; // here coef = k in the example above
-     Array<pair<int, int>> variables; // variables = {1, 3} in the example above
+     Array<std::pair<int, int>> variables; // variables = {1, 3} in the example above
  };
 
 typedef Array<Monom> Polynom; // a polynom is a sum of monom
