@@ -205,7 +205,7 @@ SteadyStateslist::~SteadyStateslist()
 void SteadyStateslist::printOneSteadyState(State &s)
 {
 	ostringstream out;
-	out.precision(3);
+	out.precision(5);
 	out << fixed << "(";
 	for (auto &c : s)
 		out << c << ", ";
@@ -1205,8 +1205,8 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, State &witness)
 	// retrieve upper triangular matrix
 	Eigen::MatrixXcd triang = cs.matrixT();
 
-	cout << "--------triang. of jacobi matrix---------" << endl;
-	cout << triang << endl;
+	//cout << "--------triang. of jacobi matrix---------" << endl;
+	//cout << triang << endl;
 
 	// sparse signs of real part of diagonal elements
 	bool isCertain = true;
@@ -1294,8 +1294,8 @@ bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, State &witness)
 		}
 	}
 
-	cout << "----- Sub Jacobi Matrix-----" << endl;
-	cout << subjm << endl;
+	//cout << "----- Sub Jacobi Matrix-----" << endl;
+	//cout << subjm << endl;
 
 	// build sub witness state
 	State subWitness;
@@ -1324,10 +1324,10 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 	{
 		State witness = steadyStates.getReference(iw);
 
-		cout << "evaluating steady state : (";
-		for (int k = 0; k < witness.size(); k++)
-			cout << witness[k] << ",  ";
-		cout << ")\n";
+		//cout << "evaluating steady state : (";
+		//for (int k = 0; k < witness.size(); k++)
+		//	cout << witness[k] << ",  ";
+		//cout << ")\n";
 
 		if (witness.size() != simul->entities.size()) // just in case
 		{
