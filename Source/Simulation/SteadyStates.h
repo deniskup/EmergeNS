@@ -24,7 +24,14 @@ class Monom{ // represent a polynomial term such as k*c_1*c_3
 
 typedef Array<Monom> Polynom; // a polynom is a sum of monom
 
-typedef Array<float> State; // a witness is a vector of concentrations
+//typedef Array<float> State; // a witness is a vector of concentrations
+typedef Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
+class SteadyState
+{
+public:
+  State state;
+  bool isBorder = false;
+};
 
 class SteadyStateslist : public Thread
 {
@@ -35,9 +42,10 @@ public:
 
     Simulation *simul;
 
-    Array<State> steadyStates; // list of stable steady states
-    Array<State> stableStates; // list of stable steady states
-    Array<State> partiallyStableStates; // list of partially stable steady states
+    Array<SteadyState> arraySteadyStates; // list of steady states
+    //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
+    Array<SteadyState> stableStates; // list of stable steady states
+    Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
 
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 
@@ -47,7 +55,7 @@ public:
 
     void clear(); // clear everything
 
-    void printOneSteadyState(State&); // print one SteadyState to cout
+    void printOneSteadyState(SteadyState&); // print one SteadyState to cout
 
     void printSteadyStates(); // print list of SteadyStates to cout
 
@@ -67,7 +75,7 @@ public:
 
     void computeJacobiMatrix(); // formal calculation of jacobi matrix 
 
-    Eigen::MatrixXd evaluateJacobiMatrix(State&); // evaluate jacobi matrix at a given concentration vector
+    Eigen::MatrixXd evaluateJacobiMatrix(SteadyState&); // evaluate jacobi matrix at a given concentration vector
 
     void evaluateSteadyStatesStability(); // removes unstables steady states based on jacobi matrix eigenvalues criteria
 
@@ -89,11 +97,14 @@ public:
 
     Polynom partialDerivate(const Polynom&, int); // calculate derivate of input polynom (arg1) wrt to variable var (arg2)
 
-    float evaluatePolynom(Polynom, State); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
+    float evaluatePolynom(Polynom, SteadyState); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
 
-    bool isStable(Eigen::MatrixXd&, State&);
+    bool isStable(Eigen::MatrixXd&, SteadyState&);
     
-    bool isPartiallyStable(Eigen::MatrixXd&, State&);
+    bool isPartiallyStable(Eigen::MatrixXd&, SteadyState&);
+  
+    bool isExactMSolveZero(string);
+
 
     double epsilon = 1e-7; // arbitrary small quantity
 };

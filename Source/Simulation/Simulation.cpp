@@ -181,7 +181,7 @@ void Simulation::updateParams()
   // set steady states
   setSteadyState->clearOptions();
   setSteadyState->addOption("SteadyState", -1, true);
-  for (int i = 0; i < steadyStatesList->steadyStates.size(); i++)
+  for (int i = 0; i < steadyStatesList->arraySteadyStates.size(); i++)
   {
     int stateOpt = i + 1;
     setSteadyState->addOption(String(stateOpt), stateOpt, false);
@@ -2064,6 +2064,17 @@ SimEntity *Simulation::getSimEntityForName(const String &nameToFind)
   return nullptr;
 }
 
+SimEntity *Simulation::getSimEntityForID(const size_t idToFind)
+{
+  for (auto &se : entities)
+  {
+    if (se->idSAT == idToFind)
+      return se;
+  }
+  LOGWARNING("Failed to find SimEntity for id " << idToFind);
+  return nullptr;
+}
+
 SimReaction *Simulation::getSimReactionForName(const String &nameToFind)
 {
   for (auto &sr : reactions)
@@ -2149,11 +2160,11 @@ void Simulation::setConcToSteadyState(int idSS)
 {
   if (idSS < 1)
     return;
-  State ss = steadyStatesList->steadyStates[idSS - 1];
+  SteadyState ss = steadyStatesList->arraySteadyStates[idSS - 1];
   int ident = 0;
   for (auto ent : entities)
   {
-    float conc = ss[ident];
+    float conc = ss.state[ident].second;
     ent->concent = conc;
     ident++;
     if (ent->entity != nullptr)
