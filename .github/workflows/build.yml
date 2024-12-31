@@ -198,7 +198,7 @@ jobs:
 
       - name: Build
         run: |
-          cd $GITHUB_WORKSPACE/Builds/LinuxMakefile
+          cd $GITHUB_WORKSPACE/Builds/LinuxMakefile_CI
           gcc --version
           make -j2 CONFIG=Release
 
