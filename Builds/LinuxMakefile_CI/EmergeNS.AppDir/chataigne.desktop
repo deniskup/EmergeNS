@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=EmergeNS
+Exec=EmergeNS
+Icon=emergens
+Type=Application
+Categories=Science;
+Comment=EmergeNS
+Comment[fr]=EmergeNS
+MimeType=text/emergens;
+Name[en]=EmergeNS
+Terminal=false
+StartupNotify=true
+NoDisplay=false
+Name[en_US]=EmergeNS
