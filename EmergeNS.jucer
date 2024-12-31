@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="ahcSKJ" name="EmergeNS" projectType="guiapp" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="0" jucerFormatVersion="1"
-              headerPath="../../Source&#10;../../External/Eigen/include" defines="WMULTICHAR=0">
+              headerPath="../../Source&#10;../../External/Eigen/include" defines="WMULTICHAR=0"
+              companyWebsite="com.cnrs.emergens" version="1.0.1">
   <MAINGROUP id="wpK5db" name="EmergeNS">
     <GROUP id="{DF178DBA-ECB2-8788-FFF9-2D18FED903E1}" name="Resources">
       <FILE id="sj05sO" name="default.nslayout" compile="0" resource="1"
