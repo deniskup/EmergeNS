@@ -63,7 +63,7 @@ jobs:
         working-directory: ./Binaries/CI/App
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Mac
           path: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
@@ -138,7 +138,7 @@ jobs:
         working-directory: ./Package
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Mac
           path: ./Package/${{ steps.create_package.outputs.pkg-name }}
@@ -214,7 +214,7 @@ jobs:
         working-directory: ./Builds/LinuxMakefile
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Mac
           path: ./Builds/LinuxMakefile/${{ steps.create_package.outputs.pkg-name }}
