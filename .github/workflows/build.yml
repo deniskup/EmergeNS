@@ -138,7 +138,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EmergeNS_Mac
+          name: EmergeNS_Mac_${{ matrix.suffix }}
           path: ./Package/${{ steps.create_package.outputs.pkg-name }}
 
   linux:
