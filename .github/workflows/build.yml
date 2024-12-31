@@ -209,10 +209,10 @@ jobs:
           PKGNAME=${{ env.ProjectName }}-linux-${{ steps.set_variables.outputs.suffix }}.AppImage
           echo "pkg-name=$PKGNAME" >> $GITHUB_OUTPUT
           $GITHUB_WORKSPACE/appimagetool-x86_64.AppImage --appimage-extract-and-run ${{ env.ProjectName }}.AppDir $PKGNAME
-        working-directory: ./Builds/LinuxMakefile
+        working-directory: ./Builds/LinuxMakefile_CI
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Mac
-          path: ./Builds/LinuxMakefile/${{ steps.create_package.outputs.pkg-name }}
+          path: ./Builds/LinuxMakefile_CI/${{ steps.create_package.outputs.pkg-name }}
