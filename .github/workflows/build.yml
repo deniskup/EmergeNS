@@ -63,7 +63,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EmergeNS_Mac
+          name: EmergeNS_Windows
           path: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
 
   osx:
@@ -214,5 +214,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: EmergeNS_Mac
+          name: EmergeNS_Linux
           path: ./Builds/LinuxMakefile_CI/${{ steps.create_package.outputs.pkg-name }}
