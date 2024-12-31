@@ -1,7 +1,11 @@
 #pragma once
 
 #include <JuceHeader.h>
+
+#if !JUCE_WINDOWS
 #include <unistd.h>
+#endif
+
 using namespace juce;
 using namespace std;
 
