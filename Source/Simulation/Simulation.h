@@ -176,7 +176,8 @@ public:
 
 
 	SimEntity* getSimEntityForName(const String& name);
-	SimReaction* getSimReactionForName(const String& name);
+  SimEntity* getSimEntityForID(const size_t id);
+  SimReaction* getSimReactionForName(const String& name);
 
 	void onContainerTriggerTriggered(Trigger* t) override;
 	void onContainerParameterChanged(Parameter* p) override;

@@ -202,13 +202,13 @@ SteadyStateslist::~SteadyStateslist()
 	stopThread(500);
 }
 
-void SteadyStateslist::printOneSteadyState(State &s)
+void SteadyStateslist::printOneSteadyState(SteadyState &sst)
 {
 	ostringstream out;
-	out.precision(3);
+	out.precision(5);
 	out << fixed << "(";
-	for (auto &c : s)
-		out << c << ", ";
+	for (auto &c : sst.state)
+		out << "[" << c.first->name << "]=" << c.second << ", ";
 	out << ")";
 	LOG(out.str());
 }
@@ -217,7 +217,7 @@ void SteadyStateslist::printOneSteadyState(State &s)
 
 void SteadyStateslist::printSteadyStates()
 {
-	for (auto &s : steadyStates)
+	for (auto &s : arraySteadyStates)
 	{
 		printOneSteadyState(s);
 	}
@@ -227,7 +227,7 @@ void SteadyStateslist::printSteadyStates()
 
 void SteadyStateslist::clear()
 {
-	steadyStates.clear();
+  arraySteadyStates.clear();
 	stableStates.clear();
 	partiallyStableStates.clear();
 }
@@ -495,12 +495,12 @@ void SteadyStateslist::computeWithZ3()
 		map<string, float> model = parseModelReal(z3Output);
 
 		// add witness to the list
-		Array<float> w;
+		SteadyState w;
 		for (auto &e : simul->entities)
 		{
-			w.add(model["conc" + to_string(e->idSAT)]);
+			w.state.add(make_pair(e, model["conc" + to_string(e->idSAT)]));
 		}
-		steadyStates.add(w);
+    arraySteadyStates.add(w);
 
 		// add Clause forbidding concentrations to be all epsilon close to the current ones
 		float _epsilon = 0.001; // to go to setting later >> HIDES CLASS MEMBER !
@@ -509,7 +509,8 @@ void SteadyStateslist::computeWithZ3()
 		int i = 0;
 		for (auto &e : simul->entities)
 		{
-			modClauses << " (< (abs (- conc" << e->idSAT << " " << w[i] << ")) " << _epsilon << ")";
+      int id = e->idSAT;
+			modClauses << " (< (abs (- conc" << e->idSAT << " " << w.state[id].second << ")) " << _epsilon << ")";
 			i++;
 		}
 
@@ -528,14 +529,14 @@ void SteadyStateslist::computeWithZ3()
 			ofstream steadyFile;
 			steadyFile.open("steadyFile.txt", ofstream::out | ofstream::trunc);
 			int i = 0;
-			for (auto &w : steadyStates)
+			for (auto &w : arraySteadyStates)
 			{
 				i++;
 				steadyFile << "---Steady State " << i << " ---" << endl;
 				int eid = 0;
-				for (auto &c : w)
+				for (auto &p : w.state)
 				{
-					steadyFile << "ent " << eid << ": " << c << endl;
+					steadyFile << "[" << p.first << "]=" << p.second << endl;
 					eid++;
 				}
 			}
@@ -643,7 +644,9 @@ bool SteadyStateslist::computeWithMSolve()
 	// compute steady states
 	setMSolvepath();
 	// msolvepath = "/home/thomas/Modèles/msolve-0.6.5/msolve";
+  
 
+  
 	LOG("Computing steady states with msolve...");
 	// set idSAT for entities and reactions
 	// to be changed to simul->affectSATIds();
@@ -659,6 +662,7 @@ bool SteadyStateslist::computeWithMSolve()
 		idSAT++;
 		r->idSAT = idSAT;
 	}
+  
 
 	// test msolve with dummy command
 	system("msolve -h > dummy.txt");
@@ -670,6 +674,7 @@ bool SteadyStateslist::computeWithMSolve()
 		return false;
 	}
 
+  
 	string inputFile = "msolveSteadyConstraints.ms";
 	string outputFile = "msolveSteadyOutput.ms";
 	// string steadyFile= "SteadyStates.txt";
@@ -680,6 +685,8 @@ bool SteadyStateslist::computeWithMSolve()
 	// std::cout << outputFile << std::endl; // #erase
 
 	vector<Polynom> rateVector = computeConcentrationRateVector();
+  
+
 
 	// clauses for msolve
 	stringstream clauses;
@@ -702,6 +709,8 @@ bool SteadyStateslist::computeWithMSolve()
 	int ndigits = 4;
 	double factor = pow(10, ndigits);
 	clauses << fixed << setprecision(ndigits);
+  
+
 
 	// transpose rate vector into as many (string) polynoms for msolve
 	int count = -1;
@@ -740,6 +749,8 @@ bool SteadyStateslist::computeWithMSolve()
 		if (count < (rateVector.size() - 1))
 			clauses << ",\n";
 	}
+  
+
 
 	// write clauses into txt file
 	ofstream inputStream(inputFile);
@@ -759,6 +770,8 @@ bool SteadyStateslist::computeWithMSolve()
 
 	string msolveOutput((istreambuf_iterator<char>(outputStream)),
 						istreambuf_iterator<char>());
+  
+
 
 	// cout << "MSolve out ?" << endl;
 	// cout << msolveOutput << endl;
@@ -779,6 +792,8 @@ bool SteadyStateslist::computeWithMSolve()
 	}
 
 	// Retrieve lists of steady state intervals from msolve output
+  
+
 
 	// extract all root intervals
 	vector<string> list = extract_msolve_intervals(msolveOutput);
@@ -793,6 +808,7 @@ bool SteadyStateslist::computeWithMSolve()
 		LOG("total number of concentration solutions isn't a multiple of Nentities. Exiting");
 		return false;
 	}
+  
 
 	// convert intervals to long double
 	// and store according to the number of solutions
@@ -802,15 +818,21 @@ bool SteadyStateslist::computeWithMSolve()
 		vector<int> l(simul->entities.size(), 0);
 		iota(l.begin(), l.end(), i * simul->entities.size());
 
-		State state;
+		SteadyState sstate;
 		bool keepState = true;
+    bool isBorderState = false;
 		for (auto &index : l)
 		{
+      
+      bool iszero = isExactMSolveZero(list[index]);
+      if (iszero) isBorderState = true;
+      
 			long double centerLd = evaluate_interval_center(list[index]);
 			float center = (float)centerLd; // move to float precision
 			if (center >= 0)
 			{
-				state.add((float)centerLd);
+        int iID = index -i * simul->entities.size();
+				sstate.state.add( make_pair(simul->getSimEntityForID(iID), (float)centerLd));
 			}
 			else
 			{
@@ -820,22 +842,23 @@ bool SteadyStateslist::computeWithMSolve()
 		}
 		if (keepState)
 		{
-			if (state.size() != simul->entities.size())
+			if (sstate.state.size() != simul->entities.size())
 			{
 				LOG("steady state size different from Nentities. State not kept.");
 			}
 			else
 			{
-				steadyStates.add(state);
+        sstate.isBorder = isBorderState;
+        arraySteadyStates.add(sstate);
 			}
 		}
 	}
-
+  
 	// print result
 	string sStr = "";
-	if (steadyStates.size() > 1)
+	if (arraySteadyStates.size() > 1)
 		sStr = 's';
-	LOG(" msolve found " + to_string(steadyStates.size()) + " steady state" + sStr);
+	LOG(" msolve found " + to_string(arraySteadyStates.size()) + " steady state" + sStr);
 
 	// sanity check
 	// printSteadyStates();
@@ -1118,7 +1141,7 @@ void SteadyStateslist::computeJacobiMatrix()
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-float SteadyStateslist::evaluatePolynom(Polynom poly, State witness)
+float SteadyStateslist::evaluatePolynom(Polynom poly, SteadyState witness)
 {
 	float val = 0.;
 
@@ -1130,7 +1153,7 @@ float SteadyStateslist::evaluatePolynom(Polynom poly, State witness)
 			int ient = p.first;
 			int pow = p.second;
 			for (int k = 0; k < pow; k++)
-				f *= witness[ient];
+				f *= witness.state[ient].second;
 		}
 		val += f;
 	}
@@ -1141,29 +1164,29 @@ float SteadyStateslist::evaluatePolynom(Polynom poly, State witness)
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State &witness)
+Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(SteadyState &witness)
 {
-	Eigen::MatrixXd jm(witness.size(), witness.size());
+	Eigen::MatrixXd jm(witness.state.size(), witness.state.size());
 
 	// cout << "witness size : " << witness.size() << "\t";
 	// cout << "JM size : " << jacobiMatrix.size() << endl;
 
-	if (jacobiMatrix.size() != witness.size())
+	if (jacobiMatrix.size() != witness.state.size())
 	{
 		LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
 		return jm;
 	}
 
-	for (int i = 0; i < witness.size(); i++)
+	for (int i = 0; i < witness.state.size(); i++)
 	{
-		if (jacobiMatrix[i].size() != witness.size())
+		if (jacobiMatrix[i].size() != witness.state.size())
 		{
-			cout << "witness size : " << witness.size() << "\t";
+			cout << "witness size : " << witness.state.size() << "\t";
 			cout << "JM column size : " << jacobiMatrix[i].size() << endl;
 			LOG("Warning : formal jacobi matrix size is incorrect, can't evaluate it properly. returning incomplete evaluation.");
 			return jm;
 		}
-		for (int j = 0; j < witness.size(); j++)
+		for (int j = 0; j < witness.state.size(); j++)
 		{
 			jm(i, j) = evaluatePolynom(jacobiMatrix[i][j], witness);
 		}
@@ -1176,7 +1199,7 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(State &witness)
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, State &witness)
+bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, SteadyState &witness)
 {
 
 	// as a general info, commands to diagonalize a matrix are :
@@ -1205,8 +1228,8 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, State &witness)
 	// retrieve upper triangular matrix
 	Eigen::MatrixXcd triang = cs.matrixT();
 
-	cout << "--------triang. of jacobi matrix---------" << endl;
-	cout << triang << endl;
+	//cout << "--------triang. of jacobi matrix---------" << endl;
+	//cout << triang << endl;
 
 	// sparse signs of real part of diagonal elements
 	bool isCertain = true;
@@ -1248,27 +1271,27 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, State &witness)
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, State &witness)
+bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, SteadyState &witness)
 {
 	// retrieve index where witness elements are 0
 	Array<int> zeroindex;
-	for (int k = 0; k < witness.size(); k++)
+	for (int k = 0; k < witness.state.size(); k++)
 	{
-		if (witness.getReference(k) == 0.)
+		if (witness.state.getReference(k).second == 0.)
 			zeroindex.add(k);
 	}
 
 	// Init sub jacobi matrix
-	int subsize = witness.size() - zeroindex.size();
+	int subsize = witness.state.size() - zeroindex.size();
 	Eigen::MatrixXd subjm(subsize, subsize);
 
 	// Retrieve elements of global jacobi matrix associated to non-zero witness element
 	Array<float> eljm;
-	for (int i = 0; i < witness.size(); i++)
+	for (int i = 0; i < witness.state.size(); i++)
 	{
 		if (zeroindex.contains(i))
 			continue;
-		for (int j = 0; j < witness.size(); j++)
+		for (int j = 0; j < witness.state.size(); j++)
 		{
 			if (zeroindex.contains(j))
 				continue;
@@ -1294,15 +1317,15 @@ bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, State &witness)
 		}
 	}
 
-	cout << "----- Sub Jacobi Matrix-----" << endl;
-	cout << subjm << endl;
+	//cout << "----- Sub Jacobi Matrix-----" << endl;
+	//cout << subjm << endl;
 
 	// build sub witness state
 	State subWitness;
-	for (int k = 0; k < witness.size(); k++)
+	for (int k = 0; k < witness.state.size(); k++)
 	{
 		if (!zeroindex.contains(k))
-			subWitness.add(witness.getReference(k));
+			subWitness.add(witness.state.getReference(k));
 	}
 
 	bool stable = isStable(subjm, witness);
@@ -1317,21 +1340,21 @@ bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, State &witness)
 void SteadyStateslist::evaluateSteadyStatesStability()
 {
 
-	//int nss = steadyStates.size(); // keep track of how many steady states there are
+	//int nss = arraySteadyStates.size(); // keep track of how many steady states there are
 
 	// loop over steady states
-	for (int iw = steadyStates.size() - 1; iw >= 0; iw--)
+	for (int iw = arraySteadyStates.size() - 1; iw >= 0; iw--)
 	{
-		State witness = steadyStates.getReference(iw);
+		SteadyState witness = arraySteadyStates.getReference(iw);
 
-		cout << "evaluating steady state : (";
-		for (int k = 0; k < witness.size(); k++)
-			cout << witness[k] << ",  ";
-		cout << ")\n";
+		//cout << "evaluating steady state : (";
+		//for (int k = 0; k < witness.size(); k++)
+		//	cout << witness[k].second << ",  ";
+		//cout << ")\n";
 
-		if (witness.size() != simul->entities.size()) // just in case
+		if (witness.state.size() != simul->entities.size()) // just in case
 		{
-			steadyStates.remove(iw);
+      arraySteadyStates.remove(iw);
 			continue;
 		}
 
@@ -1340,19 +1363,24 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 
 		// cout << "---- Jacobi Matrix ----" << endl;
 		// cout << jm << endl;
+    
+    // #HERE
+    // Need some thinking about what I meant by partial stability
+    // More generally on how I want to caracterize steady state stability
 
 		// is steady state globally stable ?
 		bool stable = isStable(jm, witness);
-		if (stable)
-			stableStates.add(witness);
+		if (stable) stableStates.add(witness);
 
 		// if (stable) cout << "--> stable !" << endl;
 		// else cout << "--> unstable !" << endl;
 
-		// steady state contains 0. elements ?
-		bool shouldGoPartial = witness.contains(0.);
+		// steady state contains 0. elements ? // No longer needed, a boolean was added in SteadyState type. Can mute the 3 lines below.
+    // Array<float> concwitness; // #here
+    // for (auto & p : witness.state) concwitness.add(p.second);
+		// bool shouldGoPartial = concwitness.contains(0.);
 		// if yes, check partial stability
-		if (shouldGoPartial)
+		if (witness.isBorder)
 		{
 			bool partiallyStable = isPartiallyStable(jm, witness);
 			if (partiallyStable)
@@ -1373,6 +1401,8 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 	LOG("System has " + to_string(partiallyStableStates.size()) + " partially stable steady state" + plural + " : ");
 	for (auto &s : partiallyStableStates)
 		printOneSteadyState(s);
+  
+  
 
 } // end func evaluateSteadyStatesStability
 
@@ -1393,7 +1423,7 @@ var SteadyStateslist::toJSONData()
 
 	// save steady states
 	// var steadystateListData;
-	// for (auto &s : steadyStates)
+	// for (auto &s : arraySteadyStates)
 	// {
 	// 	var state = new DynamicObject();
 	// 	state.getDynamicObject()->setProperty("state", s);
@@ -1443,3 +1473,20 @@ void SteadyStateslist::fromJSONData(var data)
 	// 		basicCACs.add(*(cac.first.begin()));
 	// }
 }
+
+
+
+// they should be of type "0, 0"
+// First remove space to match exactly pattern "0,0"
+bool SteadyStateslist::isExactMSolveZero(string interval)
+{
+  // remove spaces from string
+  while (interval.find(" ")!=interval.npos)
+  {
+    interval.erase(interval.find(" "), 1);
+  }
+  
+  if (interval=="0,0") return true;
+  return false;
+}
+

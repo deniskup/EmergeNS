@@ -50,7 +50,7 @@ void SimReaction::updateFromReaction(Reaction *r)
 	energy = r->energy->floatValue();
 	name = r->niceName; // name from the original reaction
 	enabled = r->enabled->boolValue();
-
+	generatedFromUserList = true;
 	reactants.clear();
 	products.clear();
 

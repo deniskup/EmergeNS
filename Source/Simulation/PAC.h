@@ -84,6 +84,7 @@ public:
     float maxRAC = 0.0f;          // remember the max RAC for display
     bool includeOnlyWithEntities=false; // specify the rule for inclusion of PACs
     void addCycle(PAC *);
+    void removePAC(int); //remove a PAC, and adjust indexes in CACs and basicCACs
     void printPACs(); // print list of PACs to cout
     void printRACs();
 
@@ -112,7 +113,6 @@ public:
     String CACToString(CACType); // print CACs to string
     var CACtoJSON(CACType); // save CACs to JSON
     CACType JSONtoCAC(var); // load CACs from JSON
-
 
     void clear(); // clear everything
 

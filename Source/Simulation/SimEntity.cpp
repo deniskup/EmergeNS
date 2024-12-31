@@ -107,6 +107,7 @@ void SimEntity::updateFromEntity(Entity *e)
 	primary = e->primary->boolValue();
 	name = e->niceName;
 	enabled = e->enabled->boolValue();
+	generatedFromUserList = true;
 }
 
 var SimEntity::toJSONData()
