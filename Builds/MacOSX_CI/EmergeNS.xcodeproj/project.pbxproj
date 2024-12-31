@@ -15,6 +15,7 @@
 		1490988804F81BDA6B60B654 /* SimEntity.cpp */ = {isa = PBXBuildFile; fileRef = 403459A56259FA0C77D01E6D; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
 		19D5838B14F0ED8CB2B684DB /* SimReaction.cpp */ = {isa = PBXBuildFile; fileRef = B8252F1965CFB9A32C234CA4; };
+		207AC05F148DF52619F03134 /* Icon.icns */ = {isa = PBXBuildFile; fileRef = 4B715C307F1874A8105A7AE5; };
 		2AA058B1E54B8EF86E9EF667 /* PAC.cpp */ = {isa = PBXBuildFile; fileRef = 0A3CC5BA63C4CFB8D89F0D2A; };
 		34CE593BA3911DF741A62A82 /* Generation.cpp */ = {isa = PBXBuildFile; fileRef = E70390156D59535F88C324EE; };
 		3643C35E0566B0977790976D /* App */ = {isa = PBXBuildFile; fileRef = 4CFBA259531D5BF810C36978; };
@@ -85,6 +86,7 @@
 		469CB20A298492D8A306BC2D /* ReactionUI.cpp */ /* ReactionUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionUI.cpp; path = ../../Source/Simulation/ui/ReactionUI.cpp; sourceTree = SOURCE_ROOT; };
 		48F73767A72C8D61533FE10D /* PACUI.cpp */ /* PACUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PACUI.cpp; path = ../../Source/Simulation/ui/PACUI.cpp; sourceTree = SOURCE_ROOT; };
 		4A2B79A3FD61E51BDC5C6B7D /* Util.h */ /* Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Util.h; path = ../../Source/Simulation/Util.h; sourceTree = SOURCE_ROOT; };
+		4B715C307F1874A8105A7AE5 /* Icon.icns */ /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = file.icns; name = Icon.icns; path = Icon.icns; sourceTree = SOURCE_ROOT; };
 		4CE811A299A9B796193E2AD5 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = ../../JUCE/modules/juce_core; sourceTree = SOURCE_ROOT; };
 		4CFBA259531D5BF810C36978 /* App */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmergeNS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D107F5B6E186C13EEB8FFAA /* SimulationUI.cpp */ /* SimulationUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimulationUI.cpp; path = ../../Source/Simulation/ui/SimulationUI.cpp; sourceTree = SOURCE_ROOT; };
@@ -147,6 +149,7 @@
 		E9B10D7112644866B7E9E69E /* include_juce_opengl.mm */ /* include_juce_opengl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_opengl.mm; path = ../../JuceLibraryCode/include_juce_opengl.mm; sourceTree = SOURCE_ROOT; };
 		E9CB0DD14A5FB3D546279B62 /* Security.framework */ /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		EAECDD9F00C30A7B00179823 /* Reaction.cpp */ /* Reaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Reaction.cpp; path = ../../Source/Simulation/Reaction.cpp; sourceTree = SOURCE_ROOT; };
+		EE05DE4E1FCE88EEBB110AE7 /* icon.png */ /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../Resources/icon.png; sourceTree = SOURCE_ROOT; };
 		EE17CAEE78682725DB5BBF14 /* Settings.cpp */ /* Settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Settings.cpp; path = ../../Source/Simulation/Settings.cpp; sourceTree = SOURCE_ROOT; };
 		FB13568AE887A042A24B8615 /* include_juce_events.mm */ /* include_juce_events.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_events.mm; path = ../../JuceLibraryCode/include_juce_events.mm; sourceTree = SOURCE_ROOT; };
 		FB681EF776A25D6A16BA5E15 /* SteadyStates.cpp */ /* SteadyStates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SteadyStates.cpp; path = ../../Source/Simulation/SteadyStates.cpp; sourceTree = SOURCE_ROOT; };
@@ -331,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				2B75259F150E51EF767164FE,
+				EE05DE4E1FCE88EEBB110AE7,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -340,6 +344,7 @@
 			children = (
 				BC10A1C04E91AEE5A90A6453,
 				A7BC937A724A15B058475F3E,
+				4B715C307F1874A8105A7AE5,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -434,6 +439,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				452DA69D456BD098F0FBFB8F,
+				207AC05F148DF52619F03134,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,7 +537,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				OTHER_CODE_SIGN_FLAGS = --timestamp;
 				PRODUCT_NAME = "EmergeNS";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
@@ -581,7 +586,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CODE_SIGN_FLAGS = --timestamp;
 				PRODUCT_NAME = "EmergeNS";
 				SDKROOT = macosx;
 				WARNING_CFLAGS = "-Wreorder";
@@ -607,7 +611,7 @@
 					"NDEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x7000c",
+					"JUCE_PROJUCER_VERSION=0x70008",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",
@@ -675,7 +679,7 @@
 					"DEBUG=1",
 					"JUCE_DISPLAY_SPLASH_SCREEN=0",
 					"JUCE_USE_DARK_SPLASH_SCREEN=1",
-					"JUCE_PROJUCER_VERSION=0x7000c",
+					"JUCE_PROJUCER_VERSION=0x70008",
 					"JUCE_MODULE_AVAILABLE_juce_core=1",
 					"JUCE_MODULE_AVAILABLE_juce_cryptography=1",
 					"JUCE_MODULE_AVAILABLE_juce_data_structures=1",

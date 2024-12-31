@@ -11,8 +11,11 @@ namespace BinaryData
     extern const char*   default_nslayout;
     const int            default_nslayoutSize = 2547;
 
+    extern const char*   icon_png;
+    const int            icon_pngSize = 10872;
+
     // Number of elements in the namedResourceList and originalFileNames arrays.
-    const int namedResourceListSize = 1;
+    const int namedResourceListSize = 2;
 
     // Points to the start of a list of resource names.
     extern const char* namedResourceList[];
