@@ -16,33 +16,33 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Windows
-          path: ./artifacts/windows
+          path: ./Binaries/CI/App
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Linux
-          path: ./artifacts/linux
+          path: ./Builds/LinuxMakefile_CI
 
       - name: Download macOS Intel Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Mac_intel
-          path: ./artifacts/macos-intel
+          path: ./Package
 
       - name: Download macOS Silicon Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Mac_silicon
-          path: ./artifacts/macos-silicon
+          path: ./Package
 
       - name: Prepare Release Assets
         run: |
           mkdir -p release_assets
-          mv ./artifacts/windows/*.exe release_assets/EmergeNS_Windows.zip
-          mv ./artifacts/linux/*.AppImage release_assets/EmergeNS_Linux.zip
-          mv ./artifacts/macos-intel/*.pkg release_assets/EmergeNS_Mac_Intel.zip
-          mv ./artifacts/macos-silicon/*.pkg release_assets/EmergeNS_Mac_Silicon.zip
+          mv ./Binaries/CI/App/*.exe release_assets/EmergeNS_Windows.exe
+          mv ./Builds/LinuxMakefile_CI/*.AppImage release_assets/EmergeNS_Linux.AppImage
+          mv ./Package/*.pkg release_assets/EmergeNS_Mac_Intel.pkg
+          mv ./Package/*.pkg release_assets/EmergeNS_Mac_Silicon.pkg
 
       - name: Create GitHub Release
         id: create_release
@@ -59,30 +59,30 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/EmergeNS_Windows.zip
-          asset_name: EmergeNS_Windows.zip
-          asset_content_type: application/zip
+          asset_path: ./release_assets/EmergeNS_Windows.exe
+          asset_name: EmergeNS_Windows.exe
+          asset_content_type: application/octet-stream
 
       - name: Upload Linux Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/EmergeNS_Linux.zip
-          asset_name: EmergeNS_Linux.zip
-          asset_content_type: application/zip
+          asset_path: ./release_assets/EmergeNS_Linux.AppImage
+          asset_name: EmergeNS_Linux.AppImage
+          asset_content_type: application/octet-stream
 
       - name: Upload macOS Intel Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/EmergeNS_Mac_Intel.zip
-          asset_name: EmergeNS_Mac_Intel.zip
-          asset_content_type: application/zip
+          asset_path: ./release_assets/EmergeNS_Mac_Intel.pkg
+          asset_name: EmergeNS_Mac_Intel.pkg
+          asset_content_type: application/octet-stream
 
       - name: Upload macOS Silicon Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/EmergeNS_Mac_Silicon.zip
-          asset_name: EmergeNS_Mac_Silicon.zip
-          asset_content_type: application/zip
+          asset_path: ./release_assets/EmergeNS_Mac_Silicon.pkg
+          asset_name: EmergeNS_Mac_Silicon.pkg
+          asset_content_type: application/octet-stream
