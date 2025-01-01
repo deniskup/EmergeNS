@@ -1,16 +1,9 @@
 name: Release Artifacts
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_name:
-        description: 'Name of the release'
-        required: true
-        default: 'New Release'
-      release_tag:
-        description: 'Tag for the release'
-        required: true
-        default: 'v1.0.0'
+  push:
+    tags:
+      - '*' # Matches any tag
 
 jobs:
   release:
@@ -48,17 +41,17 @@ jobs:
       - name: Prepare Release Assets
         run: |
           mkdir -p release_assets
-          mv ./artifacts/windows/*.exe release_assets/windows.exe
-          mv ./artifacts/linux/*.AppImage release_assets/linux.AppImage
-          mv ./artifacts/macos-intel/*.pkg release_assets/macos-intel.pkg
-          mv ./artifacts/macos-silicon/*.pkg release_assets/macos-silicon.pkg
+          mv ./artifacts/windows/*.zip release_assets/EmergeNS_Windows.zip
+          mv ./artifacts/linux/*.zip release_assets/EmergeNS_Linux.zip
+          mv ./artifacts/macos-intel/*.zip release_assets/EmergeNS_Mac_Intel.zip
+          mv ./artifacts/macos-silicon/*.zip release_assets/EmergeNS_Mac_Silicon.zip
 
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.event.inputs.release_tag }}
-          release_name: ${{ github.event.inputs.release_name }}
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
           draft: false
           prerelease: false
         env:
@@ -68,30 +61,30 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/windows.exe
-          asset_name: windows.exe
-          asset_content_type: application/octet-stream
+          asset_path: ./release_assets/EmergeNS_Windows.zip
+          asset_name: EmergeNS_Windows.zip
+          asset_content_type: application/zip
 
       - name: Upload Linux Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/linux.AppImage
-          asset_name: linux.AppImage
-          asset_content_type: application/octet-stream
+          asset_path: ./release_assets/EmergeNS_Linux.zip
+          asset_name: EmergeNS_Linux.zip
+          asset_content_type: application/zip
 
       - name: Upload macOS Intel Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/macos-intel.pkg
-          asset_name: macos-intel.pkg
-          asset_content_type: application/octet-stream
+          asset_path: ./release_assets/EmergeNS_Mac_Intel.zip
+          asset_name: EmergeNS_Mac_Intel.zip
+          asset_content_type: application/zip
 
       - name: Upload macOS Silicon Artifact
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release_assets/macos-silicon.pkg
-          asset_name: macos-silicon.pkg
-          asset_content_type: application/octet-stream
+          asset_path: ./release_assets/EmergeNS_Mac_Silicon.zip
+          asset_name: EmergeNS_Mac_Silicon.zip
+          asset_content_type: application/zip
