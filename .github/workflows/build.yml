@@ -68,7 +68,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Windows
-          path: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
+          path: ./artifacts # ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
 
   osx:
     # if: false # tmp disable
@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Mac_${{ matrix.suffix }}
-          path: ./Package/${{ steps.create_package.outputs.pkg-name }}
+          path: ./artifacts #./Package/${{ steps.create_package.outputs.pkg-name }}
 
   linux:
     # if: false # tmp disable
@@ -219,4 +219,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EmergeNS_Linux
-          path: ./Builds/LinuxMakefile_CI/${{ steps.create_package.outputs.pkg-name }}
+          path: ./artifacts/ #./Builds/LinuxMakefile_CI/${{ steps.create_package.outputs.pkg-name }}
