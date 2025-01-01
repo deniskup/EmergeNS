@@ -1,9 +1,6 @@
 name: Release Artifacts
 
-on:
-  push:
-    tags:
-      - '*' # Matches any tag
+on: workflow_dispatch
 
 jobs:
   release:
