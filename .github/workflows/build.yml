@@ -1,4 +1,7 @@
-on: [push]
+on:
+  push:
+    tags:
+      - '*' # Matches any tag
 
 env:
   ProjectName: EmergeNS
