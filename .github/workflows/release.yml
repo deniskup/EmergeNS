@@ -1,6 +1,7 @@
 name: Release Artifacts
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 jobs:
   release:
@@ -38,10 +39,10 @@ jobs:
       - name: Prepare Release Assets
         run: |
           mkdir -p release_assets
-          mv ./artifacts/windows/*.zip release_assets/EmergeNS_Windows.zip
-          mv ./artifacts/linux/*.zip release_assets/EmergeNS_Linux.zip
-          mv ./artifacts/macos-intel/*.zip release_assets/EmergeNS_Mac_Intel.zip
-          mv ./artifacts/macos-silicon/*.zip release_assets/EmergeNS_Mac_Silicon.zip
+          mv ./artifacts/windows/*.exe release_assets/EmergeNS_Windows.zip
+          mv ./artifacts/linux/*.AppImage release_assets/EmergeNS_Linux.zip
+          mv ./artifacts/macos-intel/*.pkg release_assets/EmergeNS_Mac_Intel.zip
+          mv ./artifacts/macos-silicon/*.pkg release_assets/EmergeNS_Mac_Silicon.zip
 
       - name: Create GitHub Release
         id: create_release
