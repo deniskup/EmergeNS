@@ -16,25 +16,25 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Windows
-          path: ./Binaries/CI/App
+          path: ./artifacts
 
       - name: Download Linux Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Linux
-          path: ./Builds/LinuxMakefile_CI
+          path: ./artifacts
 
       - name: Download macOS Intel Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Mac_intel
-          path: ./Package
+          path: ./artifacts
 
       - name: Download macOS Silicon Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmergeNS_Mac_silicon
-          path: ./Package
+          path: ./artifacts
 
       - name: Prepare Release Assets
         run: |
