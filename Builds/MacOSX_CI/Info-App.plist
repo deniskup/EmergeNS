@@ -11,7 +11,7 @@
     <key>CFBundleExecutable</key>
     <string>${EXECUTABLE_NAME}</string>
     <key>CFBundleIconFile</key>
-    <string>Icon.icns</string>
+    <string></string>
     <key>CFBundleIdentifier</key>
     <string>com.yourcompany.EmergeNS</string>
     <key>CFBundleName</key>

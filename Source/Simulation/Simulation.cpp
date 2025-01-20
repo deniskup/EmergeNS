@@ -1435,6 +1435,12 @@ void Simulation::start(bool restart)
     pac->wasRAC = false;
   }
   pacList->maxRAC = 0.;
+  
+  // clear concentration histories of entities
+  for (auto& ent: entities)
+  {
+    ent->concentHistory.clear();
+  }
 
   RAChistory.clear();
   for (auto &pac : pacList->cycles)
@@ -1883,7 +1889,7 @@ void Simulation::run()
   {
     LOG("Printing history to file not enabled for now, disabling it in Settings");
     Settings::getInstance()->printHistoryToFile->setValue(false);
-    // writeHistory();
+    //writeHistory();
   }
 
   // listeners.call(&SimulationListener::simulationFinished, this);

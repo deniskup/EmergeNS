@@ -15,7 +15,6 @@
 		1490988804F81BDA6B60B654 /* SimEntity.cpp */ = {isa = PBXBuildFile; fileRef = 403459A56259FA0C77D01E6D; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
 		19D5838B14F0ED8CB2B684DB /* SimReaction.cpp */ = {isa = PBXBuildFile; fileRef = B8252F1965CFB9A32C234CA4; };
-		207AC05F148DF52619F03134 /* Icon.icns */ = {isa = PBXBuildFile; fileRef = 4B715C307F1874A8105A7AE5; };
 		2AA058B1E54B8EF86E9EF667 /* PAC.cpp */ = {isa = PBXBuildFile; fileRef = 0A3CC5BA63C4CFB8D89F0D2A; };
 		34CE593BA3911DF741A62A82 /* Generation.cpp */ = {isa = PBXBuildFile; fileRef = E70390156D59535F88C324EE; };
 		3643C35E0566B0977790976D /* App */ = {isa = PBXBuildFile; fileRef = 4CFBA259531D5BF810C36978; };
@@ -86,7 +85,6 @@
 		469CB20A298492D8A306BC2D /* ReactionUI.cpp */ /* ReactionUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionUI.cpp; path = ../../Source/Simulation/ui/ReactionUI.cpp; sourceTree = SOURCE_ROOT; };
 		48F73767A72C8D61533FE10D /* PACUI.cpp */ /* PACUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PACUI.cpp; path = ../../Source/Simulation/ui/PACUI.cpp; sourceTree = SOURCE_ROOT; };
 		4A2B79A3FD61E51BDC5C6B7D /* Util.h */ /* Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Util.h; path = ../../Source/Simulation/Util.h; sourceTree = SOURCE_ROOT; };
-		4B715C307F1874A8105A7AE5 /* Icon.icns */ /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = file.icns; name = Icon.icns; path = Icon.icns; sourceTree = SOURCE_ROOT; };
 		4CE811A299A9B796193E2AD5 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = ../../JUCE/modules/juce_core; sourceTree = SOURCE_ROOT; };
 		4CFBA259531D5BF810C36978 /* App */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EmergeNS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D107F5B6E186C13EEB8FFAA /* SimulationUI.cpp */ /* SimulationUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimulationUI.cpp; path = ../../Source/Simulation/ui/SimulationUI.cpp; sourceTree = SOURCE_ROOT; };
@@ -344,7 +342,6 @@
 			children = (
 				BC10A1C04E91AEE5A90A6453,
 				A7BC937A724A15B058475F3E,
-				4B715C307F1874A8105A7AE5,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -439,7 +436,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				452DA69D456BD098F0FBFB8F,
-				207AC05F148DF52619F03134,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,7 +8,7 @@
     <GROUP id="{DF178DBA-ECB2-8788-FFF9-2D18FED903E1}" name="Resources">
       <FILE id="sj05sO" name="default.nslayout" compile="0" resource="1"
             file="Resources/default.nslayout"/>
-      <FILE id="iGjYAz" name="icon.png" compile="0" resource="1" file="Resources/icon.png"/>
+      <FILE id="iGjYAz" name="icon.png" compile="0" resource="0" file="Resources/icon.png"/>
     </GROUP>
     <GROUP id="{5644C93F-D830-ABEA-7B3B-D680ED5AD24D}" name="Source">
       <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
