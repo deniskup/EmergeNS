@@ -16,7 +16,7 @@ Possible errors and how to fix
    - Compiler g++ must be installed:  ```sudo apt install g++```
    - If you get an error about package freetype2 or ft2build missing, install package libfreetype6-dev with ```sudo apt install libfreetype6-dev```
    - If you get an error about file curl.h missing, install virtual package libcurl-dev with e.g. ```sudo apt install libcurl4-openssl-dev```
-   - Xlib.h missing  ->  ```sudo apt install libx11-dev```
+   - Xlib.h or X11.h missing  ->  ```sudo apt install libx11-dev```
    - Xrandr.h missing  ->  ```sudo apt install libxrandr-dev```
    - Xinerama.h missing  ->  ```sudo apt install libxinerama-dev```
    - Xcursor.h missing  ->  ```sudo apt install libxcursor-dev```
