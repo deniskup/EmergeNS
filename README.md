@@ -11,6 +11,7 @@
    For Linux :<br>
     - install all necessary dependencies: ```sudo apt install g++ libfreetype6-dev libcurl4-openssl-dev libx11-dev libxrand-dev libxinerama-dev libxcursos-dev```<br>
     - compile with ```make -j 4```<br>
+    
    For Mac open  Projucer.xcodeproj with xcode and compile<br>
 
 
