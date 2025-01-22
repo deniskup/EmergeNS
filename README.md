@@ -36,15 +36,15 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 
 => Next steps to be done after every git pull:
 
-11. Compile with xcode '.../EmergeNS/Builds/MacOSX/EmergeNS.xcodeproj' for Mac, or with ```make -j 2``` in EmergeNS/Builds/LinuxMakefile for Linux
+11. For Linux:  ``make -j 2``` in EmergeNS/Builds/LinuxMakefile <br>
+    For Mac: Compile with xcode '.../EmergeNS/Builds/MacOSX/EmergeNS.xcodeproj' 
     
 /!\ Warning: on Mac use version 14 or less of xcode
 
-Possible errors and how to fix
+For dependencies: ```sudo apt install build-essential libgtk-4-dev ibwebkit2gtk-4.0-dev```
 
    - ft2build.h missing  ->  in Projucer, add "/usr/include/freetype2" in the Header Search Paths of "Debug" and "Release" config of Linux MakeFile
-   - package gtk+ not found -> ```sudo apt install build-essential libgtk-3-dev```
-   - package webkit2gtk-4.0 not found -> ```sudo apt install libwebkit2gtk-4.0-dev```
+   - same with other libraries installed but not found, e.g. gtk/gtk.h, add your path to gtk/gtk.h in Projucer, for instance "/usr/include/gtk-4.0"
      
 12. On Mac, the compiled program must be launched with sudo so that it can access external programs such as z3. The compiled program is in your EmergeNS folder, then (in debug mode for instance) ``` sudo Builds/MacOSX/build/Debug/EmergeNS.app/Contents/MacOS/EmergeNS```
 
