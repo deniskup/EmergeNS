@@ -7,12 +7,44 @@
 #include "SimEntity.h"
 #include "SimReaction.h"
 #include "SimulationHelpers.h"
+#include <random>
 
 using namespace juce;
 using namespace std;
 
 class Entity;
 class Reaction;
+
+
+class RandomGausGenerator
+{
+  public:
+  RandomGausGenerator(float _mu, float _sigma) // constructor
+  {
+    mu = _mu;
+    sigma = _sigma;
+    gausDist = new normal_distribution<float>;
+    normal_distribution<float> dtemp(mu, sigma);
+    gausDist->param(dtemp.param());
+    generator=new default_random_engine;
+  };
+  
+  // attributes
+  default_random_engine * generator;
+  normal_distribution<float> * gausDist;
+  float mu = 0.;
+  float sigma = 1.;
+  
+  // generate actual random number
+  float randomNumber()
+  {
+    return (*gausDist)(*generator);
+  }
+  
+};
+
+
+
 
 class Simulation : public ControllableContainer,
 	public Thread
@@ -36,7 +68,15 @@ public:
 	// to explore variants
 	BoolParameter* ignoreFreeEnergy;
 	BoolParameter* ignoreBarriers;
+  
+  // demographic noise
+  BoolParameter* stochasticity;
+  RandomGausGenerator * rgg;
+  //default_random_engine generator;
+  //normal_distribution<float> gausDist(0., 1.);
 
+  
+  
 	EnumParameter* setCAC;
 	EnumParameter* setSteadyState;
 

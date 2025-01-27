@@ -25,7 +25,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-	detectEqUI.reset(simul->detectEquilibrium->createToggle());
+  stochasticityUI.reset(simul->stochasticity->createToggle());
+  detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
 	setSteadyStateUI.reset(simul->setSteadyState->createUI());
@@ -65,7 +66,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-	addAndMakeVisible(detectEqUI.get());
+  addAndMakeVisible(stochasticityUI.get());
+  addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
 	addAndMakeVisible(setCACUI.get());
 	addAndMakeVisible(setSteadyStateUI.get());
@@ -251,10 +253,13 @@ void SimulationUI::resized()
 
 	Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
-	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(150));
-	explore.removeFromLeft(70);
-	ignoreBarriersUI->setBounds(explore.removeFromLeft(130));
-	setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
+  ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
+	explore.removeFromLeft(20);
+	ignoreBarriersUI->setBounds(explore.removeFromLeft(120));
+  explore.removeFromLeft(20);
+  stochasticityUI->setBounds(explore.removeFromLeft(110));
+
+  setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
 	explore.removeFromRight(10);
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
 

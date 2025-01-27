@@ -48,6 +48,8 @@ Settings::Settings() : ControllableContainer("Settings")
 
     csvFile = addStringParameter("CSV Reactions file", "Path to CSV file to import a list of reactions", "");
 
+    stochasticity = addFloatParameter("Noise level", "stochasticity in reaction rates (referent noise is unity)", 1.f, 0.f, 10.f);
+
 
 }
 

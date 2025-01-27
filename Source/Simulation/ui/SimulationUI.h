@@ -36,6 +36,7 @@ public:
     unique_ptr<IntParameterLabelUI> pointsDrawnUI;
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
     unique_ptr<BoolToggleUI> ignoreBarriersUI;
+    unique_ptr<BoolToggleUI> stochasticityUI;
     unique_ptr<BoolToggleUI> detectEqUI;
     unique_ptr<FloatParameterLabelUI> epsilonEqUI;
 

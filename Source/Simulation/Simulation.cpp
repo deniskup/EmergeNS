@@ -49,7 +49,9 @@ juce_ImplementSingleton(Simulation)
   setSteadyState = addEnumParameter("Set Steady State", "Set current concentrations to steady state");
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
+  stochasticity = addBoolParameter("Stochasticity", "Add stochasticity in the simulation dynamics", false);
 
+  
   dt->setAttributeInternal("stringDecimals", DT_PRECISION);
   maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
   maxSteps = jmax(1, maxSteps);
@@ -1451,6 +1453,12 @@ void Simulation::start(bool restart)
   }
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
+  if (stochasticity->boolValue())
+  {
+    rgg = new RandomGausGenerator(0., 1.);
+    //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
+  }
+  
   startThread();
 }
 
@@ -1502,9 +1510,16 @@ void Simulation::nextStep()
 
     float directCoef = reacConcent * reac->assocRate;
     float reverseCoef = prodConcent * reac->dissocRate;
-
     if (!reac->isReversible)
       reverseCoef = 0.;
+    
+    // add demographic noise
+    if (stochasticity->boolValue()) // See (S9) in papier of Rivoire & Bunin
+    {
+      float noiseAmp = Settings::getInstance()->stochasticity->floatValue();
+      directCoef += reacConcent * sqrt(reac->assocRate) * rgg->randomNumber() * noiseAmp;
+      reverseCoef += prodConcent * sqrt(reac->dissocRate) * rgg->randomNumber() * noiseAmp;
+    }
 
     float directIncr = directCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();
@@ -1537,7 +1552,6 @@ void Simulation::nextStep()
     // reac->product->decrease(reverseIncr);
 
     // update flow needed only at checkpoints
-
     if (isCheck)
     {
       reac->flow = directCoef - reverseCoef;
