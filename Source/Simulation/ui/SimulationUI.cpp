@@ -118,6 +118,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	int extraMargin = simul->leftMargin - simul->rightMargin;
 	simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(simul->rightMargin);
+  simBounds.setWidth(simBounds.getWidth()-20); // extra room on the right for bottom right tick
 
 	// g.setFont(12);
 	g.setColour(NORMAL_COLOR);
@@ -212,7 +213,7 @@ void SimulationUI::paint(juce::Graphics &g)
     // add corresponding concentration value
     int pow = 0;
     float div = 1.;
-    while(maxC/div >= 1)
+    while(maxC/div > 1)
     {
       pow++;
       div *= 10.;
@@ -241,7 +242,7 @@ void SimulationUI::paint(juce::Graphics &g)
     // add corresponding time value
     pow = 0;
     div = 1.;
-    while(simul->totalTime->floatValue()/div >= 1)
+    while(simul->totalTime->floatValue()/div > 1)
     {
       pow++;
       div *= 10.;
@@ -249,12 +250,23 @@ void SimulationUI::paint(juce::Graphics &g)
     ndigits = 1;
     if (pow>1) ndigits = 0;
     
-    Rectangle<int> tpos2(x-8, y+10, 30, 5);
+    x -= 3*pow;
+    Rectangle<int> tpos2(x, y+10, 100, 5);
     float time = simul->totalTime->floatValue() * ii/ncorr;
     stringstream sstime;
     sstime << fixed << setprecision(ndigits) << time;
     text = sstime.str();
-    if (i!=0) g.drawText(text, tpos2, Justification::left, true);
+    if (i==0) continue; // skip first tick
+    else if (i>0 && i<ncorr) g.drawText(text, tpos2, Justification::left, true);
+    else if (i==ncorr)
+    {
+      if (pow>=4)
+      {
+        tpos2.setX(tpos2.getX()-15);
+      }
+      g.drawText(text, tpos2, Justification::left, true);
+    }
+    
     
   } // end loop over ticks
   
