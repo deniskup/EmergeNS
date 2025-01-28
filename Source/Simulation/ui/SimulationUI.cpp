@@ -193,11 +193,8 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
   
-  // draw y axis
-  int nticks = 3;
+  // draw axis
   int ncorr = nticks+1;
-  int markwidth = 6;
-  int markheight = 3;
   for (int i=0; i<=ncorr; i++)
   {
     // draw Y axis
@@ -211,11 +208,22 @@ void SimulationUI::paint(juce::Graphics &g)
     // draw the tick
     Rectangle<int> m1(x-markwidth/2, y, markwidth, markheight);
     if (i!=ncorr & i!=0) g.drawRect(m1, markheight);
+    
     // add corresponding concentration value
+    int pow = 0;
+    float div = 1.;
+    while(maxC/div >= 1)
+    {
+      pow++;
+      div *= 10.;
+    }
+    int ndigits = 1;
+    if (pow>1) ndigits = 0;
+    
     Rectangle<int> tpos(simBounds.getX()-25, y, 50, 5);
     float conc = maxC * (1. - ii/ncorr);
     stringstream ssconc;
-    ssconc << fixed << setprecision(1) << conc;
+    ssconc << fixed << setprecision(ndigits) << conc;
     string text = ssconc.str();
     g.drawText(text, tpos, Justification::left, true);
     
@@ -231,17 +239,26 @@ void SimulationUI::paint(juce::Graphics &g)
     if (i!=ncorr & i!=0) g.drawRect(m2, markheight);
     
     // add corresponding time value
+    pow = 0;
+    div = 1.;
+    while(simul->totalTime->floatValue()/div >= 1)
+    {
+      pow++;
+      div *= 10.;
+    }
+    ndigits = 1;
+    if (pow>1) ndigits = 0;
+    
     Rectangle<int> tpos2(x-8, y+10, 30, 5);
     float time = simul->totalTime->floatValue() * ii/ncorr;
     stringstream sstime;
-    if (i<ncorr) sstime << fixed << setprecision(1) << time;
-    else sstime << fixed << setprecision(0) << time;
+    sstime << fixed << setprecision(ndigits) << time;
     text = sstime.str();
     if (i!=0) g.drawText(text, tpos2, Justification::left, true);
-
-  }
+    
+  } // end loop over ticks
   
-}
+} // end method paint
 
 void SimulationUI::resized()
 {

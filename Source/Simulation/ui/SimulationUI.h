@@ -49,6 +49,11 @@ public:
 
     // int uiStep;
     Rectangle<int> simBounds;
+  
+    // to draw axis of concentration VS time
+    int nticks = 3;
+    int markwidth = 6;
+    int markheight = 3;
 
     // local floatparameter
     // std::unique_ptr<FloatParameter> maxC;
