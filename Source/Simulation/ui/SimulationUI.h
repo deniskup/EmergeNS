@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../Simulation.h"
+#include <format>
 
 class SimulationUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,

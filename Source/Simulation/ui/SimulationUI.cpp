@@ -85,7 +85,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	// maxConcentUI->setVisible(!simul->autoScale->boolValue());
 	perCentUI->customLabel = "Progress";
 
-	simBounds.setSize(500, 500);
+  simBounds.setSize(500, 500);
 
 	startTimerHz(20);
 	simul->addAsyncSimulationListener(this);
@@ -192,6 +192,55 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.drawRect(simBounds.toFloat(), 1);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
+  
+  // draw y axis
+  int nticks = 3;
+  int ncorr = nticks+1;
+  int markwidth = 6;
+  int markheight = 3;
+  for (int i=0; i<=ncorr; i++)
+  {
+    // draw Y axis
+    
+    // x position of ticks = origin
+    int x = simBounds.getX();
+    // y position of ticks
+    float ii = i;
+    float step = (float) simBounds.getHeight() * ii / (float) ncorr;
+    int y = simBounds.getY() + round(step);
+    // draw the tick
+    Rectangle<int> m1(x-markwidth/2, y, markwidth, markheight);
+    if (i!=ncorr & i!=0) g.drawRect(m1, markheight);
+    // add corresponding concentration value
+    Rectangle<int> tpos(simBounds.getX()-25, y, 50, 5);
+    float conc = maxC * (1. - ii/ncorr);
+    stringstream ssconc;
+    ssconc << fixed << setprecision(1) << conc;
+    string text = ssconc.str();
+    g.drawText(text, tpos, Justification::left, true);
+    
+    // draw X axis
+    
+    // y position of ticks = x axis
+    y = simBounds.getY() + simBounds.getHeight();
+    // x position of ticks
+    step = (float) simBounds.getWidth() * ii / (float) ncorr;
+    x = simBounds.getX() + round(step);
+    // draw the tick
+    Rectangle<int> m2(x, y-markwidth/2, markheight, markwidth);
+    if (i!=ncorr & i!=0) g.drawRect(m2, markheight);
+    
+    // add corresponding time value
+    Rectangle<int> tpos2(x-8, y+10, 30, 5);
+    float time = simul->totalTime->floatValue() * ii/ncorr;
+    stringstream sstime;
+    if (i<ncorr) sstime << fixed << setprecision(1) << time;
+    else sstime << fixed << setprecision(0) << time;
+    text = sstime.str();
+    if (i!=0) g.drawText(text, tpos2, Justification::left, true);
+
+  }
+  
 }
 
 void SimulationUI::resized()
