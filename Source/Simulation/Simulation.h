@@ -115,11 +115,6 @@ public:
 	bool displayLog = false;
 	Array<SimEntity*> entitiesDrawn;
 
-
-	// for alignment of simulation and RACs //WHY IS THIS HERE ??
-	int leftMargin = 50;
-  int rightMargin = 10;
-
 	OwnedArray<SimEntity> entities;    // all entities
 	OwnedArray<SimReaction> reactions; // all reactions
 	Array<SimEntity*> primEnts;       // primary entities, useful to recover the number i

@@ -25,8 +25,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-  stochasticityUI.reset(simul->stochasticity->createToggle());
-  detectEqUI.reset(simul->detectEquilibrium->createToggle());
+	stochasticityUI.reset(simul->stochasticity->createToggle());
+	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
 	setSteadyStateUI.reset(simul->setSteadyState->createUI());
@@ -66,8 +66,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-  addAndMakeVisible(stochasticityUI.get());
-  addAndMakeVisible(detectEqUI.get());
+	addAndMakeVisible(stochasticityUI.get());
+	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
 	addAndMakeVisible(setCACUI.get());
 	addAndMakeVisible(setSteadyStateUI.get());
@@ -85,7 +85,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	// maxConcentUI->setVisible(!simul->autoScale->boolValue());
 	perCentUI->customLabel = "Progress";
 
-  simBounds.setSize(500, 500);
+	simBounds.setSize(500, 500);
 
 	startTimerHz(20);
 	simul->addAsyncSimulationListener(this);
@@ -116,9 +116,13 @@ void SimulationUI::paint(juce::Graphics &g)
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
 	g.fillAll(BG_COLOR);
 
-	int extraMargin = simul->leftMargin - simul->rightMargin;
-	simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(simul->rightMargin);
-  simBounds.setWidth(simBounds.getWidth()-20); // extra room on the right for bottom right tick
+	// for alignment of simulation and RACs
+	int leftMargin = 50;
+	int rightMargin = 40;
+
+	int extraMargin = leftMargin - rightMargin;
+	simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(rightMargin);
+	simBounds.setWidth(simBounds.getWidth() - 20); // extra room on the right for bottom right tick
 
 	// g.setFont(12);
 	g.setColour(NORMAL_COLOR);
@@ -193,83 +197,88 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.drawRect(simBounds.toFloat(), 1);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
-  
-  // draw axis
-  int ncorr = nticks+1;
-  for (int i=0; i<=ncorr; i++)
-  {
-    // draw Y axis
-    
-    // x position of ticks = origin
-    int x = simBounds.getX();
-    // y position of ticks
-    float ii = i;
-    float step = (float) simBounds.getHeight() * ii / (float) ncorr;
-    int y = simBounds.getY() + round(step);
-    // draw the tick
-    Rectangle<int> m1(x-markwidth/2, y, markwidth, markheight);
-    if (i!=ncorr & i!=0) g.drawRect(m1, markheight);
-    
-    // add corresponding concentration value
-    int pow = 0;
-    float div = 1.;
-    while(maxC/div > 1)
-    {
-      pow++;
-      div *= 10.;
-    }
-    int ndigits = 1;
-    if (pow>1) ndigits = 0;
-    
-    Rectangle<int> tpos(simBounds.getX()-25, y, 50, 5);
-    float conc = maxC * (1. - ii/ncorr);
-    stringstream ssconc;
-    ssconc << fixed << setprecision(ndigits) << conc;
-    string text = ssconc.str();
-    g.drawText(text, tpos, Justification::left, true);
-    
-    // draw X axis
-    
-    // y position of ticks = x axis
-    y = simBounds.getY() + simBounds.getHeight();
-    // x position of ticks
-    step = (float) simBounds.getWidth() * ii / (float) ncorr;
-    x = simBounds.getX() + round(step);
-    // draw the tick
-    Rectangle<int> m2(x, y-markwidth/2, markheight, markwidth);
-    if (i!=ncorr & i!=0) g.drawRect(m2, markheight);
-    
-    // add corresponding time value
-    pow = 0;
-    div = 1.;
-    while(simul->totalTime->floatValue()/div > 1)
-    {
-      pow++;
-      div *= 10.;
-    }
-    ndigits = 1;
-    if (pow>1) ndigits = 0;
-    
-    x -= 3*pow;
-    Rectangle<int> tpos2(x, y+10, 100, 5);
-    float time = simul->totalTime->floatValue() * ii/ncorr;
-    stringstream sstime;
-    sstime << fixed << setprecision(ndigits) << time;
-    text = sstime.str();
-    if (i==0) continue; // skip first tick
-    else if (i>0 && i<ncorr) g.drawText(text, tpos2, Justification::left, true);
-    else if (i==ncorr)
-    {
-      if (pow>=4)
-      {
-        tpos2.setX(tpos2.getX()-15);
-      }
-      g.drawText(text, tpos2, Justification::left, true);
-    }
-    
-    
-  } // end loop over ticks
-  
+
+	// draw axis
+	int ncorr = nticks + 1;
+	for (int i = 0; i <= ncorr; i++)
+	{
+		// draw Y axis
+
+		// x position of ticks = origin
+		int x = simBounds.getX();
+		// y position of ticks
+		float ii = i;
+		float step = (float)simBounds.getHeight() * ii / (float)ncorr;
+		int y = simBounds.getY() + round(step);
+		// draw the tick
+		Rectangle<int> m1(x - markwidth / 2, y, markwidth, markheight);
+		if (i != ncorr & i != 0)
+			g.drawRect(m1, markheight);
+
+		// add corresponding concentration value
+		int pow = 0;
+		float div = 1.;
+		while (maxC / div > 1)
+		{
+			pow++;
+			div *= 10.;
+		}
+		int ndigits = 1;
+		if (pow > 1)
+			ndigits = 0;
+
+		Rectangle<int> tpos(simBounds.getX() - 25, y, 50, 5);
+		float conc = maxC * (1. - ii / ncorr);
+		stringstream ssconc;
+		ssconc << fixed << setprecision(ndigits) << conc;
+		string text = ssconc.str();
+		g.drawText(text, tpos, Justification::left, true);
+
+		// draw X axis
+
+		// y position of ticks = x axis
+		y = simBounds.getY() + simBounds.getHeight();
+		// x position of ticks
+		step = (float)simBounds.getWidth() * ii / (float)ncorr;
+		x = simBounds.getX() + round(step);
+		// draw the tick
+		Rectangle<int> m2(x, y - markwidth / 2, markheight, markwidth);
+		if (i != ncorr & i != 0)
+			g.drawRect(m2, markheight);
+
+		// add corresponding time value
+		pow = 0;
+		div = 1.;
+		while (simul->totalTime->floatValue() / div > 1)
+		{
+			pow++;
+			div *= 10.;
+		}
+		ndigits = 1;
+		if (pow > 1)
+			ndigits = 0;
+
+		x -= 3 * pow;
+		Rectangle<int> tpos2(x, y + 10, 100, 5);
+		float time = simul->totalTime->floatValue() * ii / ncorr;
+		stringstream sstime;
+		sstime << fixed << setprecision(ndigits) << time;
+		text = sstime.str();
+		if (i == 0)
+			continue; // skip first tick
+		else if (i > 0 && i < ncorr)
+			g.drawText(text, tpos2, Justification::left, true);
+		else if (i == ncorr)
+		{
+			if (pow >= 4)
+			{
+				tpos2.setX(tpos2.getX() - 15);
+			}
+			g.drawText(text, tpos2, Justification::left, true);
+		}
+
+	} // end loop over ticks
+
 } // end method paint
 
 void SimulationUI::resized()
@@ -331,13 +340,13 @@ void SimulationUI::resized()
 
 	Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
-  ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
+	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
 	explore.removeFromLeft(20);
 	ignoreBarriersUI->setBounds(explore.removeFromLeft(120));
-  explore.removeFromLeft(20);
-  stochasticityUI->setBounds(explore.removeFromLeft(110));
+	explore.removeFromLeft(20);
+	stochasticityUI->setBounds(explore.removeFromLeft(110));
 
-  setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
+	setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
 	explore.removeFromRight(10);
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
 
