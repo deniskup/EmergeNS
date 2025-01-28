@@ -1341,16 +1341,13 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 {
 
 	//int nss = arraySteadyStates.size(); // keep track of how many steady states there are
-
+  
 	// loop over steady states
 	for (int iw = arraySteadyStates.size() - 1; iw >= 0; iw--)
 	{
 		SteadyState witness = arraySteadyStates.getReference(iw);
 
-		//cout << "evaluating steady state : (";
-		//for (int k = 0; k < witness.size(); k++)
-		//	cout << witness[k].second << ",  ";
-		//cout << ")\n";
+    //printOneSteadyState(witness);
 
 		if (witness.state.size() != simul->entities.size()) // just in case
 		{
@@ -1364,15 +1361,12 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 		// cout << "---- Jacobi Matrix ----" << endl;
 		// cout << jm << endl;
     
-    // #HERE
-    // Need some thinking about what I meant by partial stability
-    // More generally on how I want to caracterize steady state stability
-
 		// is steady state globally stable ?
 		bool stable = isStable(jm, witness);
 		if (stable) stableStates.add(witness);
+    else arraySteadyStates.remove(iw);
 
-		// if (stable) cout << "--> stable !" << endl;
+    //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;
 		// else cout << "--> unstable !" << endl;
 
 		// steady state contains 0. elements ? // No longer needed, a boolean was added in SteadyState type. Can mute the 3 lines below.
@@ -1385,6 +1379,8 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 			bool partiallyStable = isPartiallyStable(jm, witness);
 			if (partiallyStable)
 				partiallyStableStates.add(witness);
+      else
+        arraySteadyStates.remove(iw);
 			// if (partiallyStable) cout << "--> partially stable !" << endl;
 			// else cout << "--> partially unstable !" << endl;
 		}
