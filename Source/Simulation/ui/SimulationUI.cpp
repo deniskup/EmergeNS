@@ -216,23 +216,20 @@ void SimulationUI::paint(juce::Graphics &g)
 			g.drawRect(m1, markheight);
 
 		// add corresponding concentration value
-		int pow = 0;
-		float div = 1.;
-		while (maxC / div > 1)
-		{
-			pow++;
-			div *= 10.;
-		}
-		int ndigits = 1;
-		if (pow > 1)
-			ndigits = 0;
 
-		Rectangle<int> tpos(simBounds.getX() - 25, y, 50, 5);
+    // decide number of digits to print to labels
+    int ndigits = 0;
+    int pow = round(log10(maxC)); //
+    if (pow<=2) ndigits = -pow + 2;
+
+    // x position of ticks labels
+    int xx = simBounds.getX() - 50;
+		Rectangle<int> tpos(xx, y, 50, 5);
 		float conc = maxC * (1. - ii / ncorr);
 		stringstream ssconc;
 		ssconc << fixed << setprecision(ndigits) << conc;
 		string text = ssconc.str();
-		g.drawText(text, tpos, Justification::left, true);
+		g.drawText(text, tpos, Justification::centred, true);
 
 		// draw X axis ticks and texts
 
@@ -247,35 +244,22 @@ void SimulationUI::paint(juce::Graphics &g)
 			g.drawRect(m2, markheight);
 
 		// add corresponding time value
-		pow = 0;
-		div = 1.;
-		while (simul->totalTime->floatValue() / div > 1)
-		{
-			pow++;
-			div *= 10.;
-		}
-		ndigits = 1;
-		if (pow > 1)
-			ndigits = 0;
+    // here decide the number of gigits to display
+		pow = round(log10(simul->totalTime->floatValue()));
+    ndigits = 0;
+    if (pow<=2) ndigits = -pow + 2;
 
-		x -= 3 * pow;
-		Rectangle<int> tpos2(x, y + 10, 100, 5);
+		//x -= 3 * pow;
+    int boxwidth = 100;
+		Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
 		float time = simul->totalTime->floatValue() * ii / ncorr;
 		stringstream sstime;
 		sstime << fixed << setprecision(ndigits) << time;
 		text = sstime.str();
 		if (i == 0)
 			continue; // skip first tick
-		else if (i > 0 && i < ncorr)
-			g.drawText(text, tpos2, Justification::left, true);
-		else if (i == ncorr)
-		{
-			if (pow >= 4)
-			{
-				tpos2.setX(tpos2.getX() - 15);
-			}
-			g.drawText(text, tpos2, Justification::left, true);
-		}
+		else if (i > 0 && i <= ncorr)
+			g.drawText(text, tpos2, Justification::centred, true);
 	} // end loop over ticks
 
   
