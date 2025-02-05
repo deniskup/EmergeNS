@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Simulation.h"
+#include "SimulationUI.h"
 
 class PACUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,

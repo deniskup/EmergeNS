@@ -13,6 +13,7 @@ PACUI::PACUI() : ShapeShifterContentComponent("RACs"),
     simul->addAsyncSimulationListener(this);
     simul->addAsyncContainerListener(this);
     startTimerHz(20);
+  
 }
 
 PACUI::~PACUI()
@@ -27,7 +28,7 @@ void PACUI::paint(juce::Graphics &g)
     g.fillAll(Colours::black);
     g.setColour(Colours::white);
     g.setFont(14.0f);
-    float width = PACsBounds.getWidth()-simul->rightMargin;
+   float width = PACsBounds.getWidth() - rightMargin;
     float height = PACsBounds.getHeight();
 
     // create a RACsHistory with only the PAC the become RACs
@@ -121,8 +122,9 @@ void PACUI::paint(juce::Graphics &g)
     }
 
     // for indexes of RACS
-    float xLeft = simul->leftMargin;
+    float xLeft = leftMargin;
 
+  
     // steps for drawing the RACs
     float xScale = (width - xLeft) / RACsHistory.size();
     float yScale = (height - yTop) / RACsHistory[0].size();

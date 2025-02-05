@@ -117,12 +117,12 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.fillAll(BG_COLOR);
 
 	// for alignment of simulation and RACs
-	int leftMargin = 50;
-	int rightMargin = 40;
+//	int leftMargin = 50;
+//	int rightMargin = 40;
 
 	int extraMargin = leftMargin - rightMargin;
-	simBounds = getLocalBounds().withTop(100).withTrimmedBottom(150).withLeft(extraMargin).reduced(rightMargin);
-	simBounds.setWidth(simBounds.getWidth() - 20); // extra room on the right for bottom right tick
+  simBounds = getLocalBounds().withTop(80).withTrimmedBottom(120).withLeft(extraMargin).reduced(rightMargin);
+  simBounds.setWidth(simBounds.getWidth()); 
 
 	// g.setFont(12);
 	g.setColour(NORMAL_COLOR);
@@ -198,11 +198,11 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
 
-	// draw axis
+	// draw X and Y axis ticks with numerical labels
 	int ncorr = nticks + 1;
 	for (int i = 0; i <= ncorr; i++)
 	{
-		// draw Y axis
+		// draw Y axis ticks and text
 
 		// x position of ticks = origin
 		int x = simBounds.getX();
@@ -234,7 +234,7 @@ void SimulationUI::paint(juce::Graphics &g)
 		string text = ssconc.str();
 		g.drawText(text, tpos, Justification::left, true);
 
-		// draw X axis
+		// draw X axis ticks and texts
 
 		// y position of ticks = x axis
 		y = simBounds.getY() + simBounds.getHeight();
@@ -276,9 +276,10 @@ void SimulationUI::paint(juce::Graphics &g)
 			}
 			g.drawText(text, tpos2, Justification::left, true);
 		}
-
 	} // end loop over ticks
 
+  
+  
 } // end method paint
 
 void SimulationUI::resized()

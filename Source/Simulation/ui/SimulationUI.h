@@ -4,6 +4,11 @@
 #include "../Simulation.h"
 #include <format>
 
+// for alignment of simulation and RACs windows
+inline int leftMargin = 50;
+inline int rightMargin = 40; // previous 40
+
+
 class SimulationUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,
                      public Timer,
