@@ -72,6 +72,8 @@ public:
   // demographic noise
   BoolParameter* stochasticity;
   RandomGausGenerator * rgg;
+  double volAvogadro; // volume * avogadro 
+
   //default_random_engine generator;
   //normal_distribution<float> gausDist(0., 1.);
 

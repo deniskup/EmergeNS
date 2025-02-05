@@ -1455,8 +1455,12 @@ void Simulation::start(bool restart)
   checkPoint = jmax(1, checkPoint);
   if (stochasticity->boolValue())
   {
-    rgg = new RandomGausGenerator(0., 1.);
+    rgg = new RandomGausGenerator(0., 1.); // init random generator
     //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
+    double L = pow(10., Settings::getInstance()->systemSize->floatValue());
+    volAvogadro = L * L * L * 6.02e23;
+    for (auto& r: reactions) r->setVolAvogadro(volAvogadro);
+    //cout << "size = " << L << ". volAvo = " << volAvogadro << endl;
   }
   
   startThread();
@@ -1516,9 +1520,9 @@ void Simulation::nextStep()
     // add demographic noise
     if (stochasticity->boolValue()) // See (S9) in papier of Rivoire & Bunin
     {
-      float noiseAmp = Settings::getInstance()->stochasticity->floatValue();
-      directCoef += reacConcent * sqrt(reac->assocRate) * rgg->randomNumber() * noiseAmp;
-      reverseCoef += prodConcent * sqrt(reac->dissocRate) * rgg->randomNumber() * noiseAmp;
+      //float noiseAmp = Settings::getInstance()->stochasticity->floatValue();
+      //directCoef += reacConcent * sqrt(reac->assocRate) * rgg->randomNumber() * noiseAmp;
+      //reverseCoef += prodConcent * sqrt(reac->dissocRate) * rgg->randomNumber() * noiseAmp;
     }
 
     float directIncr = directCoef * dt->floatValue();

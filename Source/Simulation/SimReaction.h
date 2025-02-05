@@ -13,6 +13,7 @@
 #include "JuceHeader.h"
 #include "SimulationHelpers.h"
 #include "ReactionManager.h"
+#include <cmath>
 
 class Reaction;
 class SimEntity;
@@ -53,10 +54,16 @@ public:
 
 	float assocRate;
 	float dissocRate;
-	float energy = -1.0f; // energy of the reaction, -1 if not set
+  float micro_assocRate;
+  float micro_dissocRate;
+  float energy = -1.0f; // energy of the reaction, -1 if not set
+  
+  double volAvogadro = 1.; // volume * avogadro, quantity needed for stochastic simulations
 
 	void computeRate(bool noBarrier = false, bool noFreeEnergy = false); // #tkosc TODO should rename this function it calculates the kinetic constant rates and not the reaction rates. I suggest computeConstantRates(***)
-	void computeBarrier();
+  void computeMicroRateConstants(); // kinetic rate constants associated to mass action law expressed with number of entities instead of concentrations
+
+  void computeBarrier();
 
 	//void importFromManual(); // retrieve info from pointer to Manual settings
 
@@ -70,6 +77,8 @@ public:
 	bool contains(SimEntity* e);
 
 	int stoechiometryOfEntity(SimEntity* e);
+  
+  void setVolAvogadro(double va){volAvogadro = va;};
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
