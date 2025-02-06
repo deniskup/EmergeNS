@@ -54,8 +54,8 @@ public:
 
 	float assocRate;
 	float dissocRate;
-  float micro_assocRate;
-  float micro_dissocRate;
+  double micro_assocRate;
+  double micro_dissocRate;
   float energy = -1.0f; // energy of the reaction, -1 if not set
   
   double volAvogadro = 1.; // volume * avogadro, quantity needed for stochastic simulations
@@ -79,7 +79,12 @@ public:
 	int stoechiometryOfEntity(SimEntity* e);
   
   void setVolAvogadro(double va){volAvogadro = va;};
+  
+  //void setDirectWiener(float f){directWiener = f;};
 
+  //void setReverseWiener(float f){reverseWiener = f;};
+
+  
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };
 

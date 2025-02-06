@@ -234,10 +234,10 @@ SimReaction::SimReaction(var data)
 		dissocRate = data["dissocRate"];
   
   if (data.getDynamicObject()->hasProperty("micro_assocRate"))
-    assocRate = data["micro_assocRate"];
+    micro_assocRate = data["micro_assocRate"];
 
   if (data.getDynamicObject()->hasProperty("micro_dissocRate"))
-    dissocRate = data["micro_dissocRate"];
+    micro_dissocRate = data["micro_dissocRate"];
 
 	if (data.getDynamicObject()->hasProperty("idSAT"))
 		idSAT = data["idSAT"];
