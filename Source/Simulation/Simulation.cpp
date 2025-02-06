@@ -1491,8 +1491,8 @@ void Simulation::nextStep()
   for (auto &reac : reactions)
   {
     // for a sanity check
-    string testname = "2+2=4";
-    bool print(testname==reac->name ? true : false);
+    //string testname = "2+2=4";
+    //bool print(testname==reac->name ? true : false);
     
     if (!reac->enabled)
       continue;
@@ -1660,7 +1660,7 @@ void Simulation::nextStep()
       }
 
       
-    }
+    } // end if stochasticity
 
     
     
@@ -1686,12 +1686,32 @@ void Simulation::nextStep()
   for (auto &ent : entities)
   {
     ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
+    
+    // creation
     if (ent->primary)
     {
       ent->increase(ent->creationRate * dt->floatValue());
     }
-    ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
-  }
+    
+    //destruction
+    float rate = ent->concent * ent->destructionRate;
+    // deterministic contribution to change
+    float incr = rate * dt->floatValue();
+
+
+    // demographic noise
+    if (stochasticity->boolValue())
+    {
+      double stocIncr = sqrt(rate * volAvogadro);
+      float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
+      stocIncr *= wiener;
+      stocIncr /= volAvogadro;
+      incr -= stocIncr;
+    } // end if stochasticity
+    
+    ent->decrease(incr);
+    
+  } // end loop over entities
 
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
