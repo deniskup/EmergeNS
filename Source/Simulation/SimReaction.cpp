@@ -47,6 +47,7 @@ void SimReaction::updateFromReaction(Reaction *r)
 	reaction = r;
 	assocRate = r->assocRate->floatValue();
 	dissocRate = r->dissocRate->floatValue();
+  computeMicroRateConstants(); // update values of microscopic rate constants
 	energy = r->energy->floatValue();
 	name = r->niceName; // name from the original reaction
 	enabled = r->enabled->boolValue();
@@ -231,6 +232,12 @@ SimReaction::SimReaction(var data)
 
 	if (data.getDynamicObject()->hasProperty("dissocRate"))
 		dissocRate = data["dissocRate"];
+  
+  if (data.getDynamicObject()->hasProperty("micro_assocRate"))
+    micro_assocRate = data["micro_assocRate"];
+
+  if (data.getDynamicObject()->hasProperty("micro_dissocRate"))
+    micro_dissocRate = data["micro_dissocRate"];
 
 	if (data.getDynamicObject()->hasProperty("idSAT"))
 		idSAT = data["idSAT"];
@@ -268,6 +275,8 @@ var SimReaction::toJSONData()
 
 	data.getDynamicObject()->setProperty("assocRate", assocRate);
 	data.getDynamicObject()->setProperty("dissocRate", dissocRate);
+  data.getDynamicObject()->setProperty("micro_assocRate", micro_assocRate);
+  data.getDynamicObject()->setProperty("micro_dissocRate", micro_dissocRate);
 
 	data.getDynamicObject()->setProperty("idSAT", idSAT);
 
@@ -344,7 +353,22 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 	assocRate = exp(energyLeft - energyStar);
 	// k2=exp(GAB-G*)
 	dissocRate = exp(energyRight - energyStar);
+  
+  // compute microscopic rate constants as well
+  computeMicroRateConstants();
 }
+
+
+void SimReaction::computeMicroRateConstants()
+{
+  // power of (volume x avogadro) to which rate constants will be multiplied
+  int power = 1 - reactants.size();
+  micro_assocRate = assocRate * pow(volAvogadro, power);
+  // same for backward reaction
+  power = 1 - products.size();
+  micro_dissocRate = dissocRate * pow(volAvogadro, power);
+}
+
 
 void SimReaction::computeBarrier()
 {

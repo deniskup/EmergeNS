@@ -50,8 +50,8 @@ public:
 
     StringParameter * csvFile; // if used, input excel file name
   
-    FloatParameter * stochasticity;
-  
+    FloatParameter * systemSize;
+    
   //void onContainerParameterChanged(Parameter *p) override;
 
   //   class SettingsListener

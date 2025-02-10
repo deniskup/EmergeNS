@@ -1455,8 +1455,16 @@ void Simulation::start(bool restart)
   checkPoint = jmax(1, checkPoint);
   if (stochasticity->boolValue())
   {
-    rgg = new RandomGausGenerator(0., 1.);
+    rgg = new RandomGausGenerator(0., 1.); // init random generator
     //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
+    double L = pow(10., Settings::getInstance()->systemSize->floatValue());
+    volAvogadro = L * L * L * 6.02e23;
+    for (auto& r: reactions)
+    {
+      r->setVolAvogadro(volAvogadro);
+      //r->computeMicroRateConstants();
+    }
+    //cout << "size = " << L << "m. volAvo = " << volAvogadro << endl;
   }
   
   startThread();
@@ -1482,6 +1490,10 @@ void Simulation::nextStep()
   // loop through reactions (first to see brief RACs)
   for (auto &reac : reactions)
   {
+    // for a sanity check
+    //string testname = "2+2=4";
+    //bool print(testname==reac->name ? true : false);
+    
     if (!reac->enabled)
       continue;
     // shorter names
@@ -1513,22 +1525,25 @@ void Simulation::nextStep()
     if (!reac->isReversible)
       reverseCoef = 0.;
     
-    // add demographic noise
-    if (stochasticity->boolValue()) // See (S9) in papier of Rivoire & Bunin
-    {
-      float noiseAmp = Settings::getInstance()->stochasticity->floatValue();
-      directCoef += reacConcent * sqrt(reac->assocRate) * rgg->randomNumber() * noiseAmp;
-      reverseCoef += prodConcent * sqrt(reac->dissocRate) * rgg->randomNumber() * noiseAmp;
-    }
-
+    // deterministic increment
     float directIncr = directCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();
+    
+    //if (print)
+    //{
+     // cout << "K+ = " << reac->assocRate << endl;
+     // for (auto & ent : reac->reactants)
+     // {
+     //   cout << "[" << ent->name << "] = " << ent->concent << endl;
+     // }
+     // cout << "deterministic forward incr = " << directIncr << endl;
+    //}
 
     // adjust the increments depending on available entities
     directIncr = jmin(directIncr, minReacConcent);
     reverseIncr = jmin(reverseIncr, minProdConcent);
 
-    // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will make them
+    // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will effectively make them
 
     // increase and decrease entities
     for (auto &ent : reac->reactants)
@@ -1541,16 +1556,125 @@ void Simulation::nextStep()
       ent->increase(directIncr);
       ent->decrease(reverseIncr);
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // demographic noise
+    if (stochasticity->boolValue())
+    {
+      float stoc_directIncr = sqrt(reac->micro_assocRate);
+      float stoc_reverseIncr = sqrt(reac->micro_dissocRate);
+      
+      // for a sanity check
+      //string testname = "2+2=4";
+      //bool print(testname==reac->name ? true : false);
+      
+      // forward reaction
+      //if (print) cout << scientific << "K+ = " << reac->assocRate << "\tk+ = " << reac->micro_assocRate << endl;
+      map<SimEntity*, double> m;
+      for (auto& ent : reac->reactants)
+      {
+        if (!m.count(ent)) // if entity has not been parsed already
+        {
+          double N = ent->concent * volAvogadro;
+          stoc_directIncr *= sqrt(N);
+          m[ent] = N;
+          //if (print) cout << "forward::" << ent->name << "a *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
+        }
+        else
+        {
+          m[ent]--;
+          stoc_directIncr *= sqrt(m[ent]);
+          //if (print) cout << "forward::" << ent->name << "b *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
+        }
+      }
+      //if (print) cout << "forward sqrt(t) =  " << stoc_directIncr << endl;
 
-    // reac->reactant1->increase(reverseIncr);
-    // reac->reactant2->increase(reverseIncr);
-    // reac->product->increase(directIncr);
+      
+      // random fluctuation of forward reactios associated to current timestep
+      float sqrtdt = sqrt(dt->floatValue());
+      float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
+      //if (print) cout << "forward wiener : " << directWiener << endl;
+      stoc_directIncr *= directWiener;
+      //if (print) cout << "forward fluctuation " << stoc_directIncr << endl;
+      // convert number of entities fluctuations back to concentrations
+      stoc_directIncr /= volAvogadro;
+      //if (print) cout << "forward conc fluctuation " << stoc_directIncr << endl;
+      
+      
+      // backward reaction
+      //if (print) cout << "K- = " << reac->dissocRate << "\tk- = " << reac->micro_dissocRate << endl;
+      if (!reac->isReversible) stoc_reverseIncr = 0.;
+      else
+      {
+        map<SimEntity*, double> mm;
+        for (auto& ent : reac->products)
+        {
+          if (!mm.count(ent)) // if entity has not been parsed already
+          {
+            double N = ent->concent * volAvogadro;
+            stoc_reverseIncr *= sqrt(N);
+            mm[ent] = N;
+            //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
+          }
+          else
+          {
+            mm[ent]--;
+            stoc_reverseIncr *= sqrt(mm[ent]);
+            //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
+          }
+        }
+      }
+      
+      // random fluctuation of forward reactios associated to current timestep
+      float reverseWiener = rgg->randomNumber()*sqrtdt;
+      //if (print) cout << "backward wiener : " << reverseWiener << endl;
+      stoc_reverseIncr *= reverseWiener;
+      //if (print) cout << "backward fluctuation " << stoc_reverseIncr << endl;
+      // convert number of entities fluctuations back to concentrations
+      stoc_reverseIncr /= volAvogadro;
+      //if (print) cout << "backward conc fluctuation " << stoc_reverseIncr << endl;
+      
+      
+      // increase and decrease entities
+      for (auto &ent : reac->reactants)
+      {
+        ent->increase(stoc_reverseIncr);
+        ent->decrease(stoc_directIncr);
+      }
+      for (auto &ent : reac->products)
+      {
+        ent->increase(stoc_directIncr);
+        ent->decrease(stoc_reverseIncr);
+      }
 
-    // decrease entities
-    // reac->reactant1->decrease(directIncr);
-    // reac->reactant2->decrease(directIncr);
-    // reac->product->decrease(reverseIncr);
+      
+    } // end if stochasticity
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // update flow needed only at checkpoints
     if (isCheck)
     {
@@ -1562,12 +1686,32 @@ void Simulation::nextStep()
   for (auto &ent : entities)
   {
     ent->previousConcent = ent->concent; // save concent in previousConcent to compute var speed
+    
+    // creation
     if (ent->primary)
     {
       ent->increase(ent->creationRate * dt->floatValue());
     }
-    ent->decrease(ent->concent * ent->destructionRate * dt->floatValue());
-  }
+    
+    //destruction
+    float rate = ent->concent * ent->destructionRate;
+    // deterministic contribution to change
+    float incr = rate * dt->floatValue();
+
+
+    // demographic noise
+    if (stochasticity->boolValue())
+    {
+      double stocIncr = sqrt(rate * volAvogadro);
+      float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
+      stocIncr *= wiener;
+      stocIncr /= volAvogadro;
+      incr -= stocIncr;
+    } // end if stochasticity
+    
+    ent->decrease(incr);
+    
+  } // end loop over entities
 
   curStep++;
   perCent->setValue((int)((curStep * 100) / maxSteps));
@@ -2225,4 +2369,10 @@ void Simulation::onContainerParameterChanged(Parameter *p)
     }
   }
   */
+}
+
+
+void Simulation::initPhasePlane()
+{
+  PhasePlane * pp = new PhasePlane();
 }
