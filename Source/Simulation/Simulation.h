@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include <JuceHeader.h>
 #include "PAC.h"
@@ -7,6 +5,7 @@
 #include "SimEntity.h"
 #include "SimReaction.h"
 #include "SimulationHelpers.h"
+#include "PhasePlane.h"
 #include <random>
 
 using namespace juce;
@@ -137,6 +136,10 @@ public:
 
 	// steady states
 	unique_ptr<SteadyStateslist> steadyStatesList;
+  
+  // phase planes
+  unique_ptr<PhasePlane> phasePlane;
+
 
 	enum SimulationState
 	{
@@ -169,6 +172,9 @@ public:
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
 	void setConcToSteadyState(int idSS); // set concentrations to Steady State
+  
+  void initPhasePlane();
+  
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 

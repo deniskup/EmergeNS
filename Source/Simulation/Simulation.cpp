@@ -1570,7 +1570,7 @@ void Simulation::nextStep()
     float deterministicDirectIncr = deterministicDirectCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();
     float deterministicReverseIncr = deterministicReverseCoef * dt->floatValue();
-    
+
     //if (print)
     //{
      // cout << "K+ = " << reac->assocRate << endl;
@@ -1684,7 +1684,6 @@ void Simulation::nextStep()
     } // end if stochasticity
 
     //if (curStep<=10) cout << "forward reaction flow:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
-
     
     // update flow needed only at checkpoints
     if (isCheck)
@@ -1728,7 +1727,7 @@ void Simulation::nextStep()
     ent->deterministicDecrease(deterministicIncr);
     
     //if (curStep<=10) cout << "Destruction increment:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
-    
+
   } // end loop over entities
 
   curStep++;
@@ -2393,4 +2392,10 @@ void Simulation::onContainerParameterChanged(Parameter *p)
     }
   }
   */
+}
+
+
+void Simulation::initPhasePlane()
+{
+  PhasePlane * pp = new PhasePlane();
 }
