@@ -1,16 +1,15 @@
-
 #pragma once
 
-#include "../Generation.h"
+#include "../PhasePlane.h"
 
-class GenerationUI : public ShapeShifterContentComponent,
-            public Generation::GenerationListener
+class PhasePlaneUI : public ShapeShifterContentComponent,
+            public PhasePlane::PhasePlaneListener
 {
 public:
-    GenerationUI();
-    ~GenerationUI();
+    PhasePlaneUI();
+    ~PhasePlaneUI();
 
-    Generation *gener;
+    PhasePlane * pp;
     
     std::unique_ptr<GenericControllableContainerEditor> editorUI;
 
@@ -26,8 +25,8 @@ public:
     //void paint(juce::Graphics &) override;
     void resized() override;
 
-    static GenerationUI *create(const String &name) { return new GenerationUI(); }
+    static PhasePlaneUI *create(const String &name) { return new PhasePlaneUI(); }
 
-    void updateGenUI(Generation *) override;
+    void updatePhasePlaneUI(PhasePlane *) override;
 
 };

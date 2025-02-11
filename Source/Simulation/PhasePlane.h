@@ -21,19 +21,23 @@ public:
    
   void init();
   
-  void drawPhasePlaneTrajectories();
+  //void drawPhasePlaneTrajectories();
 
 
+  FloatParameter * test;
+  
     //void onContainerParameterChanged(Parameter *p) override;
 
-  //  class GenerationListener
- // {
- // public:
- //   virtual ~GenerationListener() {}
- //   virtual void updateGenUI(Generation *){};
- // };
+  class PhasePlaneListener
+  {
+  public:
+  virtual ~PhasePlaneListener() {}
+  virtual void updatePhasePlaneUI(PhasePlane *){};
+  };
+  
+  
+  ListenerList<PhasePlaneListener> listeners;
+  void addPhasePlaneListener(PhasePlaneListener *newListener) { listeners.add(newListener); }
+  void removePhasePlaneListener(PhasePlaneListener *listener) { listeners.remove(listener); }
 
- // ListenerList<GenerationListener> listeners;
- // void addGenerationListener(GenerationListener *newListener) { listeners.add(newListener); }
- // void removeGenerationListener(GenerationListener *listener) { listeners.remove(listener); }
 };
