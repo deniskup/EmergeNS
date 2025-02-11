@@ -1,8 +1,7 @@
+#include "PhasePlaneUI.h"
 
-#include "GenerationUI.h"
-
-GenerationUI::GenerationUI() : ShapeShifterContentComponent(Generation::getInstance()->niceName),
-                               gener(Generation::getInstance())
+PhasePlaneUI::PhasePlaneUI() : ShapeShifterContentComponent(PhasePlane::getInstance()->niceName),
+                               pp(PhasePlane::getInstance())
 {
     //option: boucle sur les controllables avec createDefaultUI();
 
@@ -16,19 +15,19 @@ GenerationUI::GenerationUI() : ShapeShifterContentComponent(Generation::getInsta
     // addAndMakeVisible(maxReactionsPerEntityUI.get());
     // addAndMakeVisible(avgNumShowUI.get());
 
-    gener->addGenerationListener(this);
+    pp->addPhasePlaneListener(this);
 
-    editorUI.reset(new GenericControllableContainerEditor(gener, true));
+    editorUI.reset(new GenericControllableContainerEditor(pp, true));
     addAndMakeVisible(editorUI.get());
 
 }
 
-GenerationUI::~GenerationUI()
+PhasePlaneUI::~PhasePlaneUI()
 {
-    gener->removeGenerationListener(this);
+    pp->removePhasePlaneListener(this);
 }
 
-void GenerationUI::resized()
+void PhasePlaneUI::resized()
 {
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
@@ -44,7 +43,7 @@ void GenerationUI::resized()
     // avgNumShowUI->setBounds(r.removeFromTop(25));
 }
 
-void GenerationUI::updateGenUI(Generation *){
+void PhasePlaneUI::updatePhasePlaneUI(PhasePlane *){
     //NLOG("GenerationUI","Repaint");
     //repaint();
     editorUI->resetAndBuild();

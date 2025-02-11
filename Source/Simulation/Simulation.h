@@ -138,7 +138,7 @@ public:
 	unique_ptr<SteadyStateslist> steadyStatesList;
   
   // phase planes
-  unique_ptr<PhasePlane> phasePlane;
+  //unique_ptr<PhasePlane> phasePlane;
 
 
 	enum SimulationState
