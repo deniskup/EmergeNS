@@ -77,6 +77,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/EntityUI_e6628173.o \
   $(JUCE_OBJDIR)/GenerationUI_294a2f68.o \
   $(JUCE_OBJDIR)/PACUI_82dd5f34.o \
+  $(JUCE_OBJDIR)/PhasePlaneUI_e846d131.o \
   $(JUCE_OBJDIR)/ReactionManagerUI_528924e6.o \
   $(JUCE_OBJDIR)/ReactionUI_cc32579.o \
   $(JUCE_OBJDIR)/SettingsUI_93a423f3.o \
@@ -89,6 +90,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Entity_a854b0ec.o \
   $(JUCE_OBJDIR)/Generation_cf1dc9a1.o \
   $(JUCE_OBJDIR)/EntityManager_7f5721ab.o \
+  $(JUCE_OBJDIR)/PhasePlane_233a49aa.o \
   $(JUCE_OBJDIR)/Settings_19ffc42c.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
   $(JUCE_OBJDIR)/SteadyStates_3910a3d.o \
@@ -151,6 +153,11 @@ $(JUCE_OBJDIR)/PACUI_82dd5f34.o: ../../Source/Simulation/ui/PACUI.cpp
 	@echo "Compiling PACUI.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/PhasePlaneUI_e846d131.o: ../../Source/Simulation/ui/PhasePlaneUI.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling PhasePlaneUI.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/ReactionManagerUI_528924e6.o: ../../Source/Simulation/ui/ReactionManagerUI.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling ReactionManagerUI.cpp"
@@ -209,6 +216,11 @@ $(JUCE_OBJDIR)/Generation_cf1dc9a1.o: ../../Source/Simulation/Generation.cpp
 $(JUCE_OBJDIR)/EntityManager_7f5721ab.o: ../../Source/Simulation/EntityManager.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling EntityManager.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/PhasePlane_233a49aa.o: ../../Source/Simulation/PhasePlane.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling PhasePlane.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Settings_19ffc42c.o: ../../Source/Simulation/Settings.cpp

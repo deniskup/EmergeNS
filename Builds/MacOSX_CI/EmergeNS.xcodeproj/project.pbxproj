@@ -26,6 +26,7 @@
 		5C61DA82D576FDF1D5239E09 /* include_juce_opengl.mm */ = {isa = PBXBuildFile; fileRef = E9B10D7112644866B7E9E69E; };
 		622C22926BDCD084D8D3DDC6 /* ReactionManagerUI.cpp */ = {isa = PBXBuildFile; fileRef = 979AB46578CDD5433CE6BAB9; };
 		62CE9A5FFE46AEFCDB7DB8D8 /* EntityManagerUI.cpp */ = {isa = PBXBuildFile; fileRef = 577810CB9FAEA9049E0ABA1E; };
+		62E8E11A62C4C950EB430351 /* PhasePlaneUI.cpp */ = {isa = PBXBuildFile; fileRef = F77C398492396D6464E64DF6; };
 		6C2F77C121AD3706CFE51CE2 /* include_juce_organicui2.cpp */ = {isa = PBXBuildFile; fileRef = B839AC5419C29F56D15AF22C; };
 		7901AB2D0CDD47E7997BA379 /* Settings.cpp */ = {isa = PBXBuildFile; fileRef = EE17CAEE78682725DB5BBF14; };
 		79864665CA44312AD50D238E /* include_juce_organicui3.cpp */ = {isa = PBXBuildFile; fileRef = B1E31D9C1C0073541A716045; };
@@ -42,6 +43,7 @@
 		B53390FB7C75A3E1DF966390 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = 2C70B295F1FD425BAF034037; };
 		B5578228D88F937CA7AC7BFE /* SimulationUI.cpp */ = {isa = PBXBuildFile; fileRef = 4D107F5B6E186C13EEB8FFAA; };
 		B83FAAD5FAAF6281C243D176 /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = FB13568AE887A042A24B8615; };
+		BA79B2FB07C46F91B5002051 /* PhasePlane.cpp */ = {isa = PBXBuildFile; fileRef = C31076E2A60099C801D02DFC; };
 		BC56B1398766CC3768FD2DB7 /* SettingsUI.cpp */ = {isa = PBXBuildFile; fileRef = 828DE22CEC4B72C6FAFA60C7; };
 		BF8EDB88322C998769A498EA /* include_juce_gui_extra.mm */ = {isa = PBXBuildFile; fileRef = 254D3044A95762CDE06EA4C4; };
 		C39C3931D634E95D605B4187 /* Cocoa.framework */ = {isa = PBXBuildFile; fileRef = 7DEB9EEC5E065FB07DB498C9; };
@@ -119,6 +121,7 @@
 		94ADA8C705B58B18B65F8620 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
 		979AB46578CDD5433CE6BAB9 /* ReactionManagerUI.cpp */ /* ReactionManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManagerUI.cpp; path = ../../Source/Simulation/ui/ReactionManagerUI.cpp; sourceTree = SOURCE_ROOT; };
 		9C777874D6DDED0AF1A9C0F9 /* Metal.framework */ /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		9D87137897220C2A6890BD5D /* PhasePlaneUI.h */ /* PhasePlaneUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PhasePlaneUI.h; path = ../../Source/Simulation/ui/PhasePlaneUI.h; sourceTree = SOURCE_ROOT; };
 		9EC0C402F7E2CEA90A038BD5 /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
 		A7BC937A724A15B058475F3E /* RecentFilesMenuTemplate.nib */ /* RecentFilesMenuTemplate.nib */ = {isa = PBXFileReference; lastKnownFileType = file.nib; name = RecentFilesMenuTemplate.nib; path = RecentFilesMenuTemplate.nib; sourceTree = SOURCE_ROOT; };
 		AAC570EA24B0912905F457EC /* include_juce_data_structures.mm */ /* include_juce_data_structures.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_data_structures.mm; path = ../../JuceLibraryCode/include_juce_data_structures.mm; sourceTree = SOURCE_ROOT; };
@@ -130,10 +133,12 @@
 		B58663DFA5F4ADBB408B1828 /* EntityManager.h */ /* EntityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManager.h; path = ../../Source/Simulation/EntityManager.h; sourceTree = SOURCE_ROOT; };
 		B8252F1965CFB9A32C234CA4 /* SimReaction.cpp */ /* SimReaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimReaction.cpp; path = ../../Source/Simulation/SimReaction.cpp; sourceTree = SOURCE_ROOT; };
 		B839AC5419C29F56D15AF22C /* include_juce_organicui2.cpp */ /* include_juce_organicui2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui2.cpp; path = ../../JuceLibraryCode/include_juce_organicui2.cpp; sourceTree = SOURCE_ROOT; };
+		B89EBA8136FFF81B0224ADA4 /* PhasePlane.h */ /* PhasePlane.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PhasePlane.h; path = ../../Source/Simulation/PhasePlane.h; sourceTree = SOURCE_ROOT; };
 		BB013463E169E25B6719AB6E /* Settings.h */ /* Settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Settings.h; path = ../../Source/Simulation/Settings.h; sourceTree = SOURCE_ROOT; };
 		BB3ACC0D2C9A265AD098E785 /* Statistics.h */ /* Statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Statistics.h; path = ../../Source/Simulation/Statistics.h; sourceTree = SOURCE_ROOT; };
 		BC10A1C04E91AEE5A90A6453 /* Info-App.plist */ /* Info-App.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-App.plist"; path = "Info-App.plist"; sourceTree = SOURCE_ROOT; };
 		C0E8E22458115E47E0AE43E3 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = ../../JUCE/modules/juce_gui_extra; sourceTree = SOURCE_ROOT; };
+		C31076E2A60099C801D02DFC /* PhasePlane.cpp */ /* PhasePlane.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PhasePlane.cpp; path = ../../Source/Simulation/PhasePlane.cpp; sourceTree = SOURCE_ROOT; };
 		C4C79DF356509EEBD9127A0E /* Reaction.h */ /* Reaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Reaction.h; path = ../../Source/Simulation/Reaction.h; sourceTree = SOURCE_ROOT; };
 		C833D6AD5C82FFD248DA850D /* EmergeNSEngine.cpp */ /* EmergeNSEngine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EmergeNSEngine.cpp; path = ../../Source/Engine/EmergeNSEngine.cpp; sourceTree = SOURCE_ROOT; };
 		C8AFC50A3327F6268A27C854 /* juce_cryptography */ /* juce_cryptography */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_cryptography; path = ../../JUCE/modules/juce_cryptography; sourceTree = SOURCE_ROOT; };
@@ -149,6 +154,7 @@
 		EAECDD9F00C30A7B00179823 /* Reaction.cpp */ /* Reaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Reaction.cpp; path = ../../Source/Simulation/Reaction.cpp; sourceTree = SOURCE_ROOT; };
 		EE05DE4E1FCE88EEBB110AE7 /* icon.png */ /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = ../../Resources/icon.png; sourceTree = SOURCE_ROOT; };
 		EE17CAEE78682725DB5BBF14 /* Settings.cpp */ /* Settings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Settings.cpp; path = ../../Source/Simulation/Settings.cpp; sourceTree = SOURCE_ROOT; };
+		F77C398492396D6464E64DF6 /* PhasePlaneUI.cpp */ /* PhasePlaneUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PhasePlaneUI.cpp; path = ../../Source/Simulation/ui/PhasePlaneUI.cpp; sourceTree = SOURCE_ROOT; };
 		FB13568AE887A042A24B8615 /* include_juce_events.mm */ /* include_juce_events.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_events.mm; path = ../../JuceLibraryCode/include_juce_events.mm; sourceTree = SOURCE_ROOT; };
 		FB681EF776A25D6A16BA5E15 /* SteadyStates.cpp */ /* SteadyStates.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SteadyStates.cpp; path = ../../Source/Simulation/SteadyStates.cpp; sourceTree = SOURCE_ROOT; };
 		FD64CFBD901EF3587D8EDD34 /* juce_data_structures */ /* juce_data_structures */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_data_structures; path = ../../JUCE/modules/juce_data_structures; sourceTree = SOURCE_ROOT; };
@@ -211,6 +217,8 @@
 				5FF4DAD25E1E6CCF2E074C83,
 				22B76F4980A22D40C97C8996,
 				B58663DFA5F4ADBB408B1828,
+				C31076E2A60099C801D02DFC,
+				B89EBA8136FFF81B0224ADA4,
 				EE17CAEE78682725DB5BBF14,
 				BB013463E169E25B6719AB6E,
 				20F925379B77181596EEDB1D,
@@ -269,6 +277,8 @@
 				34775FCE8D79E259E7C2C223,
 				48F73767A72C8D61533FE10D,
 				C9BB0C859DCA69964A007AA8,
+				F77C398492396D6464E64DF6,
+				9D87137897220C2A6890BD5D,
 				979AB46578CDD5433CE6BAB9,
 				D8E436FB2DA37799939E2EC5,
 				469CB20A298492D8A306BC2D,
@@ -451,6 +461,7 @@
 				F8513DF1E55AD29FEFB24087,
 				90BC5390DB65247E8BFCBEC1,
 				EB79FEB1008F17C067D2C223,
+				62E8E11A62C4C950EB430351,
 				622C22926BDCD084D8D3DDC6,
 				A6BDC76D23924E3E2FDE6DC5,
 				BC56B1398766CC3768FD2DB7,
@@ -463,6 +474,7 @@
 				172B54273F79561BA31CB92D,
 				34CE593BA3911DF741A62A82,
 				03FC72E5065CEF9E0C533385,
+				BA79B2FB07C46F91B5002051,
 				7901AB2D0CDD47E7997BA379,
 				FD74B3EC7E4E6FF0A5C8EA84,
 				ED7EFB546DF9D12CADD1C9B8,
