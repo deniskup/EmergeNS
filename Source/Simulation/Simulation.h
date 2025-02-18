@@ -72,11 +72,7 @@ public:
   // demographic noise
   BoolParameter* stochasticity;
   RandomGausGenerator * rgg;
-  double noiseEpsilon; // = 1 / sqrt(volume)
-
-  //default_random_engine generator;
-  //normal_distribution<float> gausDist(0., 1.);
-
+  double noiseEpsilon; // = 1. / sqrt(volume)
   
   
 	EnumParameter* setCAC;

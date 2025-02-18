@@ -1564,16 +1564,13 @@ void Simulation::nextStep()
       //bool print(testname==reac->name ? true : false);
       
       // forward reaction
-      //if (print) cout << scientific << "K+ = " << reac->assocRate << "\tk+ = " << reac->micro_assocRate << endl;
       map<SimEntity*, double> m;
       for (auto& ent : reac->reactants)
       {
         if (!m.count(ent)) // if entity has not been parsed already
         {
-//          double N = ent->concent * volAvogadro;
           stoc_directIncr *= sqrt(ent->concent);
           m[ent] = 1;
-          //if (print) cout << "forward::" << ent->name << "a *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
         }
         else
         {
@@ -1581,25 +1578,17 @@ void Simulation::nextStep()
           if (corrC > 0.) stoc_directIncr *= sqrt(corrC);
           else stoc_directIncr = 0.;
           m[ent]++;
-          //if (print) cout << "forward::" << ent->name << "b *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
         }
       }
-      //if (print) cout << "forward sqrt(t) =  " << stoc_directIncr << endl;
-
       
       // random fluctuation of forward reaction associated to current timestep
       float sqrtdt = sqrt(dt->floatValue());
       float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
       //if (print) cout << "forward wiener : " << directWiener << endl;
       stoc_directIncr *= directWiener;
-      //if (print) cout << "forward fluctuation " << stoc_directIncr << endl;
-      // convert number of entities fluctuations back to concentrations
-      //stoc_directIncr /= volAvogadro;
-      //if (print) cout << "forward conc fluctuation " << stoc_directIncr << endl;
       
       
       // backward reaction
-      //if (print) cout << "K- = " << reac->dissocRate << "\tk- = " << reac->micro_dissocRate << endl;
       if (!reac->isReversible) stoc_reverseIncr = 0.;
       else
       {
@@ -1608,10 +1597,8 @@ void Simulation::nextStep()
         {
           if (!mm.count(ent)) // if entity has not been parsed already
           {
-            //double N = ent->concent * volAvogadro;
             stoc_reverseIncr *= sqrt(ent->concent);
             mm[ent] = 1;
-            //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
           }
           else
           {
@@ -1619,7 +1606,6 @@ void Simulation::nextStep()
             if (corrC > 0.) stoc_reverseIncr *= sqrt(corrC);
             else stoc_reverseIncr = 0.;
             mm[ent]++;
-            //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
           }
         }
       }
@@ -1628,11 +1614,6 @@ void Simulation::nextStep()
       float reverseWiener = rgg->randomNumber()*sqrtdt;
       //if (print) cout << "backward wiener : " << reverseWiener << endl;
       stoc_reverseIncr *= reverseWiener;
-      //if (print) cout << "backward fluctuation " << stoc_reverseIncr << endl;
-      // convert number of entities fluctuations back to concentrations
-      //stoc_reverseIncr /= volAvogadro;
-      //if (print) cout << "backward conc fluctuation " << stoc_reverseIncr << endl;
-      
       
       // increase and decrease entities
       for (auto &ent : reac->reactants)
