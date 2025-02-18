@@ -54,14 +54,9 @@ public:
 
 	float assocRate;
 	float dissocRate;
-  double micro_assocRate;
-  double micro_dissocRate;
   float energy = -1.0f; // energy of the reaction, -1 if not set
   
-  double volAvogadro = 1.; // volume * avogadro, quantity needed for stochastic simulations
-
 	void computeRate(bool noBarrier = false, bool noFreeEnergy = false); // #tkosc TODO should rename this function it calculates the kinetic constant rates and not the reaction rates. I suggest computeConstantRates(***)
-  void computeMicroRateConstants(); // kinetic rate constants associated to mass action law expressed with number of entities instead of concentrations
 
   void computeBarrier();
 
@@ -78,12 +73,6 @@ public:
 
 	int stoechiometryOfEntity(SimEntity* e);
   
-  void setVolAvogadro(double va){volAvogadro = va;};
-  
-  //void setDirectWiener(float f){directWiener = f;};
-
-  //void setReverseWiener(float f){reverseWiener = f;};
-
   
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);
 };

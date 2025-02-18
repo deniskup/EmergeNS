@@ -50,7 +50,7 @@ public:
 
     StringParameter * csvFile; // if used, input excel file name
   
-    FloatParameter * systemSize;
+    FloatParameter * volume;
     
   //void onContainerParameterChanged(Parameter *p) override;
 

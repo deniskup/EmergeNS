@@ -1457,14 +1457,9 @@ void Simulation::start(bool restart)
   {
     rgg = new RandomGausGenerator(0., 1.); // init random generator
     //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
-    double L = pow(10., Settings::getInstance()->systemSize->floatValue());
-    volAvogadro = L * L * L * 6.02e23;
-    for (auto& r: reactions)
-    {
-      r->setVolAvogadro(volAvogadro);
-      //r->computeMicroRateConstants();
-    }
-    //cout << "size = " << L << "m. volAvo = " << volAvogadro << endl;
+    noiseEpsilon = 1. / sqrt(pow(10., Settings::getInstance()->volume->floatValue()));
+    cout << "log volume = " << Settings::getInstance()->volume->floatValue() << endl;
+    cout << "noise Epsilon = " << noiseEpsilon << endl;
   }
   
   startThread();
@@ -1558,23 +1553,11 @@ void Simulation::nextStep()
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     // demographic noise
     if (stochasticity->boolValue())
     {
-      float stoc_directIncr = sqrt(reac->micro_assocRate);
-      float stoc_reverseIncr = sqrt(reac->micro_dissocRate);
+      float stoc_directIncr = sqrt(reac->assocRate) * noiseEpsilon;
+      float stoc_reverseIncr = sqrt(reac->dissocRate) * noiseEpsilon;
       
       // for a sanity check
       //string testname = "2+2=4";
@@ -1587,29 +1570,31 @@ void Simulation::nextStep()
       {
         if (!m.count(ent)) // if entity has not been parsed already
         {
-          double N = ent->concent * volAvogadro;
-          stoc_directIncr *= sqrt(N);
-          m[ent] = N;
+//          double N = ent->concent * volAvogadro;
+          stoc_directIncr *= sqrt(ent->concent);
+          m[ent] = 1;
           //if (print) cout << "forward::" << ent->name << "a *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
         }
         else
         {
-          m[ent]--;
-          stoc_directIncr *= sqrt(m[ent]);
+          float corrC = ent->concent - noiseEpsilon * noiseEpsilon * m[ent];
+          if (corrC > 0.) stoc_directIncr *= sqrt(corrC);
+          else stoc_directIncr = 0.;
+          m[ent]++;
           //if (print) cout << "forward::" << ent->name << "b *= sqrt(" << m[ent] << "). conc = " << ent->concent << endl;
         }
       }
       //if (print) cout << "forward sqrt(t) =  " << stoc_directIncr << endl;
 
       
-      // random fluctuation of forward reactios associated to current timestep
+      // random fluctuation of forward reaction associated to current timestep
       float sqrtdt = sqrt(dt->floatValue());
       float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
       //if (print) cout << "forward wiener : " << directWiener << endl;
       stoc_directIncr *= directWiener;
       //if (print) cout << "forward fluctuation " << stoc_directIncr << endl;
       // convert number of entities fluctuations back to concentrations
-      stoc_directIncr /= volAvogadro;
+      //stoc_directIncr /= volAvogadro;
       //if (print) cout << "forward conc fluctuation " << stoc_directIncr << endl;
       
       
@@ -1623,15 +1608,17 @@ void Simulation::nextStep()
         {
           if (!mm.count(ent)) // if entity has not been parsed already
           {
-            double N = ent->concent * volAvogadro;
-            stoc_reverseIncr *= sqrt(N);
-            mm[ent] = N;
+            //double N = ent->concent * volAvogadro;
+            stoc_reverseIncr *= sqrt(ent->concent);
+            mm[ent] = 1;
             //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
           }
           else
           {
-            mm[ent]--;
-            stoc_reverseIncr *= sqrt(mm[ent]);
+            float corrC = ent->concent - noiseEpsilon * noiseEpsilon * mm[ent];
+            if (corrC > 0.) stoc_reverseIncr *= sqrt(corrC);
+            else stoc_reverseIncr = 0.;
+            mm[ent]++;
             //if (print) cout << "backward::" << ent->name << " *= sqrt(" << mm[ent] << "). conc = " << ent->concent << endl;
           }
         }
@@ -1643,7 +1630,7 @@ void Simulation::nextStep()
       stoc_reverseIncr *= reverseWiener;
       //if (print) cout << "backward fluctuation " << stoc_reverseIncr << endl;
       // convert number of entities fluctuations back to concentrations
-      stoc_reverseIncr /= volAvogadro;
+      //stoc_reverseIncr /= volAvogadro;
       //if (print) cout << "backward conc fluctuation " << stoc_reverseIncr << endl;
       
       
@@ -1662,18 +1649,6 @@ void Simulation::nextStep()
       
     } // end if stochasticity
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     // update flow needed only at checkpoints
     if (isCheck)
@@ -1698,14 +1673,12 @@ void Simulation::nextStep()
     // deterministic contribution to change
     float incr = rate * dt->floatValue();
 
-
     // demographic noise
     if (stochasticity->boolValue())
     {
-      double stocIncr = sqrt(rate * volAvogadro);
+      double stocIncr = sqrt(rate) * noiseEpsilon;
       float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
       stocIncr *= wiener;
-      stocIncr /= volAvogadro;
       incr -= stocIncr;
     } // end if stochasticity
     

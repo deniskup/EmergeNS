@@ -48,7 +48,7 @@ Settings::Settings() : ControllableContainer("Settings")
 
     csvFile = addStringParameter("CSV Reactions file", "Path to CSV file to import a list of reactions", "");
 
-    systemSize = addFloatParameter("LOG10 system size (m)", "LOG10 of the size L (expressed in meters) of the system used to calculate its volume L^3", -2.f, -10.f, 0.f);
+    volume = addFloatParameter("LOG10 volume", "LOG10 of the volume of the system", 3.f, 0.f, 10.f);
 
 
 }
