@@ -3,23 +3,29 @@
 PhasePlaneUI::PhasePlaneUI() : ShapeShifterContentComponent(PhasePlane::getInstance()->niceName),
                                pp(PhasePlane::getInstance())
 {
-    //option: boucle sur les controllables avec createDefaultUI();
-
-    // numLevelsUI.reset(gener->numLevels->createStepper());
-    // entitiesPerLevelUI.reset(gener->entitiesPerLevel->createStepper());
-    // maxReactionsPerEntityUI.reset(gener->maxReactionsPerEntity->createStepper());
-    // avgNumShowUI.reset(gener->avgNumShow->createStepper());
-
-    // addAndMakeVisible(numLevelsUI.get());
-    // addAndMakeVisible(entitiesPerLevelUI.get());
-    // addAndMakeVisible(maxReactionsPerEntityUI.get());
-    // addAndMakeVisible(avgNumShowUI.get());
 
     pp->addPhasePlaneListener(this);
 
     editorUI.reset(new GenericControllableContainerEditor(pp, true));
     addAndMakeVisible(editorUI.get());
 
+/*
+    startUI.reset(pp->start->createButtonUI());
+    drawUI.reset(pp->draw->createButtonUI());
+    startDrawUI.reset(pp->startDraw->createButtonUI());
+    nRunsUI.reset(pp->nRuns->createStepper());
+  
+    startUI->setSize(100, 20);
+    drawUI->setSize(100, 20);
+    startDrawUI->setSize(100, 20);
+    nRunsUI->setSize(100, 20);
+  
+    addAndMakeVisible(startUI.get());
+    addAndMakeVisible(drawUI.get());
+    addAndMakeVisible(startDrawUI.get());
+    addAndMakeVisible(nRunsUI.get());
+*/
+  
 }
 
 PhasePlaneUI::~PhasePlaneUI()
@@ -29,18 +35,28 @@ PhasePlaneUI::~PhasePlaneUI()
 
 void PhasePlaneUI::resized()
 {
+  
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
-    // r.removeFromTop(10);
-    // Rectangle<int> hr = r.removeFromTop(27).reduced(2);
-    // // maxStepsUI->setBounds(hr.removeFromLeft(200));
-    // numLevelsUI->setBounds(hr);
-    // r.removeFromTop(10);
-    // entitiesPerLevelUI->setBounds(r.removeFromTop(25));
-    // r.removeFromTop(10);
-    // maxReactionsPerEntityUI->setBounds(r.removeFromTop(25));
-    // r.removeFromTop(10);
-    // avgNumShowUI->setBounds(r.removeFromTop(25));
+/*
+    r.removeFromTop(8);
+    Rectangle<int> hr = r.removeFromTop(20);
+   
+
+  
+    float buttonWidth = hr.getWidth() / 3.;
+    startUI->setBounds(hr.removeFromLeft(buttonWidth));
+    hr.removeFromLeft(20);
+    drawUI->setBounds(hr.removeFromLeft(buttonWidth));
+    hr.removeFromLeft(20);
+    startDrawUI->setBounds(hr.removeFromLeft(buttonWidth));
+    hr.removeFromLeft(20);
+  
+    r.removeFromTop(8);
+    hr = r.removeFromTop(20);
+    hr.reduce(nRunsUI->getWidth(), 0);
+    nRunsUI->setBounds(hr);
+*/
 }
 
 void PhasePlaneUI::updatePhasePlaneUI(PhasePlane *){
