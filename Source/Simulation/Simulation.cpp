@@ -328,6 +328,9 @@ void Simulation::importJSONData(var data)
   Settings::getInstance()->CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
   computeBarriers();
   updateParams();
+  
+  // Phase Plane
+  PhasePlane::getInstance()->updateEntitiesInRuns();
 }
 
 // void Simulation::importFromManual()
@@ -1236,6 +1239,10 @@ void Simulation::fetchGenerate()
     for (auto &r : reactions)
       newReactions.add(new Reaction(r));
     UndoMaster::getInstance()->performAction("Generate new reaction list", ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
+    
+    // update phase plane entity list
+    PhasePlane::getInstance()->updateEntitiesInRuns();
+    
   }
 
   // if (Settings::getInstance()->autoLoadLists->boolValue() && !express)
@@ -2046,8 +2053,8 @@ void Simulation::run()
   if (Settings::getInstance()->printHistoryToFile->boolValue())
   {
     LOG("Printing history to file not enabled for now, disabling it in Settings");
-    Settings::getInstance()->printHistoryToFile->setValue(false);
-    //writeHistory();
+    //Settings::getInstance()->printHistoryToFile->setValue(false);
+    writeHistory();
   }
 
   // listeners.call(&SimulationListener::simulationFinished, this);
@@ -2122,7 +2129,8 @@ void Simulation::writeHistory()
   {
     float fs = (float)s;
     float time = fs * dt->floatValue();
-    outfile << time << ",i_run,";
+    //outfile << time << ",i_run,";
+    outfile << time << "," << kRun << ",";
     int c = 0;
     for (auto &ent : entities)
     {
@@ -2372,7 +2380,3 @@ void Simulation::onContainerParameterChanged(Parameter *p)
 }
 
 
-void Simulation::initPhasePlane()
-{
-  PhasePlane * pp = new PhasePlane();
-}

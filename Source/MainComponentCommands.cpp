@@ -19,7 +19,6 @@ namespace NSCommandIDs
 	static const int parseCsvFile = 0x60011;
 	static const int steadyStates = 0x60012;
 	static const int reacsFromNames = 0x60013;
-  static const int phasePlane = 0x60014;
 }
 
 void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo &result)
@@ -96,11 +95,6 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.setInfo("Compute Steady States", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
 		break;
-      
-  case NSCommandIDs::phasePlane:
-    result.setInfo("Phase Plane Drawing", "", "General", result.readOnlyInKeyEditor);
-    //result.addDefaultKeypress(KeyPress::createFromDescription("r").getKeyCode(), ModifierKeys::commandModifier);
-    break;
 
 	default:
 		OrganicMainContentComponent::getCommandInfo(commandID, result);
@@ -128,7 +122,6 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::reacsFromNames,
 		NSCommandIDs::parseCsvFile,
 		NSCommandIDs::steadyStates,
-    NSCommandIDs::phasePlane
   };
 
 	commands.addArray(ids, numElementsInArray(ids));
@@ -155,7 +148,6 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::reacsFromNames);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::parseCsvFile);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::steadyStates);
-    menu.addCommandItem(&getCommandManager(), NSCommandIDs::phasePlane);
 	}
 	return menu;
 }
@@ -215,12 +207,6 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 		Simulation::getInstance()->steadyStatesList->computeSteadyStates();
 	}
 	break;
-      
-    case NSCommandIDs::phasePlane:
-  {
-    Simulation::getInstance()->initPhasePlane();
-  }
-  break;
 
 	case NSCommandIDs::loadManual:
 	{

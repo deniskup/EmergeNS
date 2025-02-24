@@ -12,6 +12,14 @@ public:
     PhasePlane * pp;
     
     std::unique_ptr<GenericControllableContainerEditor> editorUI;
+  
+    unique_ptr<TriggerUI> startUI;
+    unique_ptr<TriggerUI> drawUI;
+    unique_ptr<TriggerUI> startDrawUI;
+  
+    unique_ptr<IntStepperUI> nRunsUI;
+
+
 
     // std::unique_ptr<IntStepperUI> numLevelsUI;
     // std::unique_ptr<IntStepperUI> entitiesPerLevelUI;

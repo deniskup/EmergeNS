@@ -34,8 +34,8 @@ public:
     void addReactant(Entity *e);
     void addProduct(Entity *e);
 
-	Array<Entity*> getAllReactants();
-	Array<Entity*> getAllProducts();
+    Array<Entity*> getAllReactants();
+    Array<Entity*> getAllProducts();
 
     void clearReactants();
     void clearProducts();

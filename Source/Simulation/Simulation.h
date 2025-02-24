@@ -103,6 +103,9 @@ public:
 	int maxSteps;
 	int curStep;
 	int nSteps;
+  
+  // run
+  int kRun = 0;
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
@@ -170,9 +173,7 @@ public:
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
 	void setConcToSteadyState(int idSS); // set concentrations to Steady State
-  
-  void initPhasePlane();
-  
+    
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 
