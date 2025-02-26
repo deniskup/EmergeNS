@@ -330,7 +330,7 @@ void Simulation::importJSONData(var data)
   updateParams();
   
   // Phase Plane
-  PhasePlane::getInstance()->updateEntitiesInRuns();
+   PhasePlane::getInstance()->updateEntitiesInRuns();
 }
 
 // void Simulation::importFromManual()
@@ -1242,7 +1242,16 @@ void Simulation::fetchGenerate()
     UndoMaster::getInstance()->performAction("Generate new reaction list", ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
     
     // update phase plane entity list
-    PhasePlane::getInstance()->updateEntitiesInRuns();
+    Array<Run *> newRuns;
+    //for (auto &ent : entities)
+    for (int irun=0; irun<2; irun++)
+    {
+      String name = "run " + String(to_string(irun));
+      newRuns.add(new Run(name));
+    }
+    UndoMaster::getInstance()->performAction("Generate new run list", RunManager::getInstance()->getAddItemsUndoableAction(newRuns));
+    
+    //PhasePlane::getInstance()->updateEntitiesInRuns();
     
   }
 
@@ -1373,6 +1382,8 @@ void Simulation::generateSimFromUserList()
 
 void Simulation::start(bool restart)
 {
+  
+  cout << "start::run = " << kRun << endl;
 
   stopThread(100);
 
@@ -1690,7 +1701,6 @@ void Simulation::nextStep()
       
     } // end if stochasticity
 
-    //if (curStep<=10) cout << "forward reaction flow:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
     
     // update flow needed only at checkpoints
     if (isCheck)
@@ -2034,6 +2044,65 @@ void Simulation::cancel()
   stopThread(500);
 }
 
+
+void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
+{
+  int irun = -1;
+  isMultipleRun = true;
+  for (auto & m : initConc)
+  {
+    irun++;
+    cout << "startMultipleRun::run = " << irun << endl;
+    for (auto const & [name, conc] : m)
+    {
+      getSimEntityForName(name)->startConcent = conc;
+    }
+    kRun = irun;
+    start(true);
+    //startThread();
+  }
+  
+  // concatenate all concentrations files into a single one
+  
+  // check that all history files associated to each run exist
+  Array<String> filenames;
+  string conca = "cat ";
+  for (size_t irun=0; irun<initConc.size(); irun++)
+  {
+    string filename = "c" + to_string(irun) + ".csv";
+    ifstream ifs(filename.c_str());
+    if (!ifs.good())
+    {
+      LOG("Can't find history file associated to run " + to_string(irun) + ". Exit");
+    }
+    ifs.close();
+    filenames.add(filename);
+    
+    // remove first line of runs i > 0
+    if (irun>0)
+    {
+      string sedcommand = "sed -i.bak '1d' " + filename;
+      system(sedcommand.c_str());
+    }
+    
+    // concatenate all files
+    conca += filename + " ";
+    
+  }
+  
+  conca += " > concentrationDynamics.csv";
+  system(conca.c_str());
+  
+  
+  
+  
+  
+  isMultipleRun = false;
+  
+}
+
+
+
 void Simulation::run()
 {
   curStep = 0;
@@ -2134,18 +2203,25 @@ void Simulation::writeHistory()
   LOG("RAC History written to files RACi.csv");
 
   // store concentration all entity concentrations history to csv file
+  cout << "writeHistory::run = " << kRun << endl;
   String concentFilename = "./concentrationDynamic.csv";
+  if (isMultipleRun) concentFilename = "c" + String(to_string(kRun)) + ".csv";
   ofstream outfile;
   outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
+  //if (kRun==0)  outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
+  //else outfile.open(concentFilename.toStdString(), ofstream::ate);
 
   // 1st line of the file is column name : time and entities
-  outfile << "time,runID,";
-  for (int ient = 0; ient < entities.size(); ient++)
-  {
-    string comma = (ient == (entities.size() - 1)) ? "" : ",";
-    outfile << "[" << entities[ient]->name << "]" << comma;
-  }
-  outfile << endl;
+  //if (kRun==0)
+  //{
+    outfile << "time,runID,";
+    for (int ient = 0; ient < entities.size(); ient++)
+    {
+      string comma = (ient == (entities.size() - 1)) ? "" : ",";
+      outfile << "[" << entities[ient]->name << "]" << comma;
+    }
+    outfile << endl;
+  //}
 
   // now store concentration history
   for (int s = 0; s < (nSteps - 1); s++)

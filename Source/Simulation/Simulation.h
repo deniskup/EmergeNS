@@ -8,6 +8,7 @@
 #include "PhasePlane.h"
 #include <random>
 
+
 using namespace juce;
 using namespace std;
 
@@ -108,6 +109,7 @@ public:
   
   // run
   int kRun = 0;
+  bool isMultipleRun = false;
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
@@ -216,6 +218,8 @@ public:
 	void nextStep();
 	void stop();
 	void cancel();
+  void startMultipleRuns(Array<map<String, float>> initConc);
+
 
 	// the thread function
 	void run() override;

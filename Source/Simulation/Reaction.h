@@ -25,7 +25,7 @@ public:
     FloatParameter *dissocRate; // product to reactants
     SimReaction *simReac = nullptr; //point to a simreac in the simulation
 
-    void clearItem();
+    void clearItem() override;
 
     void addParams();
 

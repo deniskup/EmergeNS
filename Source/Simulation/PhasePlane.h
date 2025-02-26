@@ -12,6 +12,8 @@ TODO list
 - add posiibility to scroll within this window
 - sync nRuns with runs actually manually removed
 - I shouldn't have  Simulation.h included in this header
+- when a run is manually deleted, I should rename all the runs
+- fix save and import data as JSON. 
 */
 
 #pragma once
@@ -27,12 +29,50 @@ using namespace juce;
 //class Simulation;
 
 
+class Run : public BaseItem
+{
+  public:
+  Run();
+  Run(String _name);
+  Run(OwnedArray<SimEntity*>, String _name);
+  virtual ~Run(){};
+  
+    String name = "";
+    Array<Point3DParameter*> p3p;
+    Point2DParameter * p2d;
+    FloatParameter * fp;
+  
+  //void addEtitiesToRun(OwnedArray<SimEntity*>);
+  void addEtitiesToRun();
+};
+
+
+class RunManager :
+  public BaseManager<Run>
+{
+public:
+  juce_DeclareSingleton(RunManager,true);
+  RunManager();
+  ~RunManager();
+
+  //void autoRename();
+  //void inferAllReacs();
+
+  Run * getRunFromName(const String &searchName);
+
+};
+
+
+
+
 class PhasePlane : public ControllableContainer
 //class PhasePlane : public BaseItem
 {
 public:
     juce_DeclareSingleton(PhasePlane, true);
     PhasePlane();
+    PhasePlane(var data); // import from JSON
+
     ~PhasePlane();
 
   Trigger * start;
@@ -43,8 +83,11 @@ public:
   TargetParameter * yAxis;
 
   IntParameter * nRuns;
-  Array<ControllableContainer*> runs;
-  
+  //Array<ControllableContainer*> runs;
+  //vector<ControllableContainer*> runs(20);
+  //ControllableContainer * arun;
+  //ControllableContainer * test;
+  Array<Run*> runs;
   
   void addEntity(Entity* e);
   void addEntitiesToRun(ControllableContainer &);
@@ -57,6 +100,11 @@ public:
   void controllableRemoved(Controllable *) override;
   
   void startRuns();
+  
+  //void importJSONData(var data);
+  
+  //void afterLoadJSONDataInternal() override;
+
 
 
   

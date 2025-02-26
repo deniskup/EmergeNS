@@ -174,8 +174,8 @@ var EmergeNSEngine::getJSONData()
 	data.getDynamicObject()->setProperty(ReactionManager::getInstance()->shortName, ReactionManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Generation::getInstance()->shortName, Generation::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Settings::getInstance()->shortName, Settings::getInstance()->getJSONData());
-  data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
   data.getDynamicObject()->setProperty(PhasePlane::getInstance()->shortName, PhasePlane::getInstance()->getJSONData());
+  data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
 
 	return data;
 }

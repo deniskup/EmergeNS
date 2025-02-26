@@ -2,6 +2,32 @@
 
 #include "../PhasePlane.h"
 
+
+class RunUI :
+    public BaseItemUI<Run>
+{
+public:
+    RunUI(Run* run);
+    ~RunUI();
+
+    void resizedInternalHeader(Rectangle<int> &r) override;
+};
+
+
+
+class RunManagerUI :
+    public BaseManagerShapeShifterUI<RunManager, Run, RunUI>
+{
+public:
+    RunManagerUI();
+    ~RunManagerUI();
+
+    static RunManagerUI* create(const String& name) { return new RunManagerUI(); }
+
+};
+
+
+
 class PhasePlaneUI : public ShapeShifterContentComponent,
             public PhasePlane::PhasePlaneListener
 {
