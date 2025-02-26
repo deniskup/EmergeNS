@@ -23,7 +23,7 @@ public:
     FloatParameter *assocRate;  // reactants to product
     FloatParameter *dissocRate; // product to reactants
 
-    void clearItem();
+    void clearItem() override;
 
     void addParams();
 

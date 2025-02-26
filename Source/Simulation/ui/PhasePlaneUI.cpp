@@ -1,5 +1,33 @@
 #include "PhasePlaneUI.h"
 
+
+RunUI::RunUI(Run* run) :
+    BaseItemUI(run)
+{
+    
+}
+
+RunUI::~RunUI()
+{
+}
+
+void RunUI::resizedInternalHeader(Rectangle<int> &r)
+{
+   
+}
+
+
+RunManagerUI::RunManagerUI() :
+  BaseManagerShapeShifterUI(RunManager::getInstance()->niceName, RunManager::getInstance())
+{
+  addExistingItems();
+}
+
+RunManagerUI::~RunManagerUI()
+{
+}
+
+
 PhasePlaneUI::PhasePlaneUI() : ShapeShifterContentComponent(PhasePlane::getInstance()->niceName),
                                pp(PhasePlane::getInstance())
 {
