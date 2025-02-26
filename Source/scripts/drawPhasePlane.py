@@ -84,8 +84,8 @@ if __name__ == "__main__":
     skiprun = np.array([]) # keep this ?
 
     # read file data as dataframe
-    #df = pd.read_csv(filename)
-    df = pd.read_csv("./concentrationDynamics_model4.csv")
+    df = pd.read_csv(filename)
+    #df = pd.read_csv("./concentrationDynamics_model4.csv")
     dfsst = pd.read_csv(steadyStateFile)
 
     # for plot

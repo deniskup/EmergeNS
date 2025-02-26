@@ -99,6 +99,9 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
   draw = addTrigger("Draw", "Draw all runs");
   startDraw = addTrigger("Start and Draw", "Start and Draw all runs");
   
+  // path to software
+  pathToEmergens = addStringParameter("absolute path to EmergeNS", "absolute path to folder EmergeNS", "/path/to/EmergeNS");
+  
   // entites defining the 2D plane in which to draw
   xAxis = addTargetParameter("x axis", "x axis", EntityManager::getInstance());
   xAxis->targetType = TargetParameter::CONTAINER;
@@ -282,6 +285,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   else if (t == draw)
   {
     cout << "will start drawing" << endl;
+    drawRuns();
   }
   
   else if (t == startDraw)
@@ -422,6 +426,129 @@ void PhasePlane::startRuns()
 } // end startRuns()
 
 
+
+void PhasePlane::drawRuns()
+{
+  
+  // test that python3 is installed
+  String testcommmand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/test.py > testpython3.txt";
+  system(testcommmand.toUTF8());
+  ifstream iftest;
+  iftest.open("testpython3.txt");
+  string testout;
+  getline(iftest, testout);
+  if (!(testout == "Hello EmergeNS"))
+  {
+    LOG("Check python3 is installed and check path to EmergeNS in Phase Plane window. Exit.");
+    LOG("Current path : '" + pathToEmergens->stringValue() + "'");
+    return;
+  }
+  system("rm testpython3.txt"); // remove test file from user's system
+  
+  // test presence of file drawTrajectories.py in EmergeNS
+  String drawfilename = pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py";
+  ifstream ifPP;
+  //ifPP.open(drawfilename.toUTF8(), ifstream::in);
+  ifPP.open("/Users/thomas_kosc/Modeles/EmergeNS/Source/scripts/drawPhasePlane.py");
+  if (!ifPP.is_open())
+  {
+    LOG("Please check that path to script drawPhasePlane.py is correct. Exit.");
+    LOG("Current path : '" + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py" + "'");
+    return;
+  }
+  else
+  {
+    ifPP.close();
+  }
+  
+  // test presence of file concentrationDynamics.py in current directory
+  String concfilename = "./concentrationDynamics.csv";
+  ifstream ifconc;
+  ifconc.open(concfilename.toUTF8());
+  if (!ifconc.is_open())
+  {
+    LOG("No file concentrationDynamics.csv in current directory. Please run simulation before . Exit.");
+    return;
+  }
+  else
+  {
+    ifconc.close();
+  }
+  
+  // Prepare command to execute python file
+  // # python3 drawPhasePlane.py --file ./concentrationDynamics_model4.csv -x '[A2]' -y '[B2]' --nruns 5 --sst ./steadyStates.csv
+  String drawCommand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py "
+  + "--file concentrationDynamics.csv";
+  
+  // set axis options
+  if (xAxis->getTargetContainerAs<Entity>()==nullptr)
+  {
+    LOG("Please chose an entity as x Axis. Exit.");
+    return;
+  }
+  if (yAxis->getTargetContainerAs<Entity>()==nullptr)
+  {
+    LOG("Please chose an entity as y Axis. Exit.");
+    return;
+  }
+  drawCommand += " -x '[" + xAxis->getTargetContainerAs<Entity>()->niceName + "]'";
+  drawCommand += " -y '[" + yAxis->getTargetContainerAs<Entity>()->niceName + "]'";
+  
+  // indicate number of runs
+  //drawCommand += " --nruns " + String(to_string(runs.size()));
+  drawCommand += " --nruns 2";
+  
+  // check that steady states have been calculated already
+  int nsst = Simulation::getInstance()->steadyStatesList->stableStates.size();
+  cout << "N stables states = " << nsst << endl;
+  if (nsst==0)
+  {
+    LOG("Please calculate steady states before drawing. Exit.");
+    return;
+  }
+  
+  // print steady states to steadyState.csv, needed by python script
+  ofstream ofSST;
+  ofSST.open("./steadyStates.csv", ofstream::out);
+  // first : only print entity names
+  int c = -1;
+  int nent = Simulation::getInstance()->entities.size();
+  for (auto & state : Simulation::getInstance()->steadyStatesList->stableStates[0].state)
+  {
+    c++;
+    string comma = ( (c==nent-1) ? "\n" : "," );
+    ofSST << "[" << state.first->name << "]" << comma;
+  }
+  // add concentrations at seatdy states
+  for (SteadyState & steadystate : Simulation::getInstance()->steadyStatesList->stableStates)
+  {
+    c = -1;
+    cout << "### sst ###" << endl;
+    for (auto & p : steadystate.state)
+    {
+      cout << "\t" << p.second << endl;
+      c++;
+      string comma = ( (c==nent-1) ? "\n" : "," );
+      ofSST << p.second << comma;
+    }
+    //ofSST << "[" << sst.state.first->name << "]";
+  }
+  ofSST.close();
+  
+  // add steady state file to shell command
+  drawCommand += " --sst ./steadyStates.csv";
+  
+  // sanity check
+  cout << drawCommand << endl;
+  
+  // execute python script
+  system(drawCommand.toUTF8());
+  
+  
+  
+} // end PhasePlane::drawRuns()
+
+
 /*
 void importJSONData(var data)
 {
@@ -507,6 +634,8 @@ void importJSONData(var data)
   
 }
    */
+
+
 
 
 /*
