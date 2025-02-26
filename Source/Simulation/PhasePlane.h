@@ -13,7 +13,8 @@ TODO list
 - sync nRuns with runs actually manually removed
 - I shouldn't have  Simulation.h included in this header
 - when a run is manually deleted, I should rename all the runs
-- fix save and import data as JSON. 
+- fix save and import data as JSON.
+- Steady States do not seem to be saved in json file.
 */
 
 #pragma once
@@ -79,6 +80,8 @@ public:
   Trigger * draw;
   Trigger * startDraw;
   
+  StringParameter * pathToEmergens;
+  
   TargetParameter * xAxis;
   TargetParameter * yAxis;
 
@@ -100,6 +103,8 @@ public:
   void controllableRemoved(Controllable *) override;
   
   void startRuns();
+  void drawRuns();
+
   
   //void importJSONData(var data);
   

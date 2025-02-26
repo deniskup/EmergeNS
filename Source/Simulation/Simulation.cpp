@@ -2203,7 +2203,7 @@ void Simulation::writeHistory()
   LOG("RAC History written to files RACi.csv");
 
   // store concentration all entity concentrations history to csv file
-  cout << "writeHistory::run = " << kRun << endl;
+  //cout << "writeHistory::run = " << kRun << endl;
   String concentFilename = "./concentrationDynamic.csv";
   if (isMultipleRun) concentFilename = "c" + String(to_string(kRun)) + ".csv";
   ofstream outfile;
