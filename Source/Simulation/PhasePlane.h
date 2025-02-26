@@ -7,12 +7,11 @@
 
 /*
 TODO list
-- synchronize manual of addition of entities with Phase Plane entity list
-- manually position the trigger buttons instead of using three lines. See PhasePlaneUI for that
-- add posiibility to scroll within this window
-- sync nRuns with runs actually manually removed
-- I shouldn't have  Simulation.h included in this header
-- when a run is manually deleted, I should rename all the runs
+- synchronize manual addition of entities with Phase Plane entity list
+- manually position the trigger buttons instead of using three lines. See PhasePlaneUI for that.
+- add posiibility to scroll within this window.
+- sync nRuns with runs actually manually removed, and rename the runs starting from 0 when one is actually removed.
+- I shouldn't have  Simulation.h included in this header. Circular inclusion pattern.
 - fix save and import data as JSON.
 - Steady States do not seem to be saved in json file.
 */
@@ -24,7 +23,7 @@ TODO list
 #include "Simulation.h"
 #include "Settings.h"
 
-// #include <unordered_map>
+//class Simulation;
 using namespace juce;
 
 //class Simulation;
