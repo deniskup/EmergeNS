@@ -28,7 +28,7 @@ void PACUI::paint(juce::Graphics &g)
     g.fillAll(Colours::black);
     g.setColour(Colours::white);
     g.setFont(14.0f);
-   float width = PACsBounds.getWidth() - rightMargin;
+    float width = PACsBounds.getWidth() - rightMargin;
     float height = PACsBounds.getHeight();
 
     // create a RACsHistory with only the PAC the become RACs

@@ -63,7 +63,8 @@ public:
 	//void importFromManual(); // retrieve info from pointer to Manual settings
 
 	int idSAT = 0; // identifier for SAT Solving
-	float flow;    // flow = dProduct/dt due to the reaction
+  float flow;    // flow = dProduct/dt due to the reaction
+	float deterministicFlow;    // same but not taking into account stochastic contribution
 	bool flowdir;  // direction of the flow, same convention as in PAC
 
 	

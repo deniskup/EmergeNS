@@ -40,6 +40,7 @@ public:
     bool primary;
     int id = -1; // unique identifier
     float concent;
+    float deterministicConcent;
     float startConcent;
     float previousConcent;
     float creationRate;
@@ -49,6 +50,7 @@ public:
     Array<float> concentHistory; // history of entity concentration 
 
     float change = 0.f; // variation of concentration in the last dt
+    float deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
 
     bool reached; //is the entity reached from primary entities ?
 
@@ -67,8 +69,10 @@ public:
 
     int idSAT = 0; // identifier for SAT Solving
 
-    void increase(float incr);
+    void increase(float incr); 
+    void deterministicIncrease(float incr);
     void decrease(float decr);
+    void deterministicDecrease(float decr);
     void refresh();
 
     void nameFromCompo();

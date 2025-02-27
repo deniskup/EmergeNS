@@ -1406,6 +1406,7 @@ void Simulation::start(bool restart)
     for (auto &e : entities)
     {
       e->concent = e->startConcent;
+      e->deterministicConcent = e->startConcent;
     }
   }
 
@@ -1494,20 +1495,31 @@ void Simulation::nextStep()
       continue;
     // shorter names
     float minReacConcent = 100.;
+    float mindReacConcent = 100.;
     float minProdConcent = 100.;
+    float mindProdConcent = 100.;
     float reacConcent = 1.;
+    float deterministicReacConcent = 1.;
     for (auto &ent : reac->reactants)
     {
       reacConcent *= ent->concent;
+      deterministicReacConcent *= ent->deterministicConcent;
+///      cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
       if (ent == reac->reactants[0] || ent->concent < minReacConcent)
         minReacConcent = ent->concent;
+      if (ent == reac->reactants[0] || ent->deterministicConcent < mindReacConcent)
+        mindReacConcent = ent->deterministicConcent;
     }
     float prodConcent = 1.;
+    float deterministicProdConcent = 1.;
     for (auto &ent : reac->products)
     {
       prodConcent *= ent->concent;
+      deterministicProdConcent *= ent->deterministicConcent;
       if (ent == reac->products[0] || ent->concent < minProdConcent)
         minProdConcent = ent->concent;
+      if (ent == reac->products[0] || ent->deterministicConcent < mindProdConcent)
+        mindProdConcent = ent->deterministicConcent;
     }
 
     // float reac1Concent = reac->reactant1->concent;
@@ -1517,9 +1529,15 @@ void Simulation::nextStep()
     // float reacConcent = reac1Concent * reac2Concent;
 
     float directCoef = reacConcent * reac->assocRate;
+    float deterministicDirectCoef = deterministicReacConcent * reac->assocRate;
     float reverseCoef = prodConcent * reac->dissocRate;
+    float deterministicReverseCoef = deterministicProdConcent * reac->dissocRate;
     if (!reac->isReversible)
+    {
       reverseCoef = 0.;
+      deterministicReverseCoef = 0.;
+    }
+///    cout << "globalreacCoef check: " << directCoef << "  :  " << deterministicDirectCoef << endl;
     
     // deterministic increment
     float directIncr = directCoef * dt->floatValue();
@@ -1545,12 +1563,16 @@ void Simulation::nextStep()
     for (auto &ent : reac->reactants)
     {
       ent->increase(reverseIncr);
+      ent->deterministicIncrease(reverseIncr);
       ent->decrease(directIncr);
+      ent->deterministicDecrease(directIncr);
     }
     for (auto &ent : reac->products)
     {
       ent->increase(directIncr);
+      ent->deterministicIncrease(directIncr);
       ent->decrease(reverseIncr);
+      ent->deterministicDecrease(reverseIncr);
     }
     
     
@@ -1611,7 +1633,7 @@ void Simulation::nextStep()
         }
       }
       
-      // random fluctuation of forward reactios associated to current timestep
+      // random fluctuation of forward reactions associated to current timestep
       float reverseWiener = rgg->randomNumber()*sqrtdt;
       //if (print) cout << "backward wiener : " << reverseWiener << endl;
       stoc_reverseIncr *= reverseWiener;
@@ -1636,6 +1658,8 @@ void Simulation::nextStep()
     if (isCheck)
     {
       reac->flow = directCoef - reverseCoef;
+      reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
+///      cout << "check : " << reac->flow << "  :  " << reac->deterministicFlow << endl;
     }
   }
 
@@ -1648,12 +1672,14 @@ void Simulation::nextStep()
     if (ent->primary)
     {
       ent->increase(ent->creationRate * dt->floatValue());
+      ent->deterministicIncrease(ent->creationRate * dt->floatValue());
     }
     
     //destruction
     float rate = ent->concent * ent->destructionRate;
     // deterministic contribution to change
-    float incr = rate * dt->floatValue();
+    float deterministicIncr = rate * dt->floatValue();
+    float incr = deterministicIncr;
 
     // demographic noise
     if (stochasticity->boolValue())
@@ -1665,6 +1691,7 @@ void Simulation::nextStep()
     } // end if stochasticity
     
     ent->decrease(incr);
+    ent->deterministicDecrease(deterministicIncr);
     
   } // end loop over entities
 
@@ -1784,13 +1811,13 @@ void Simulation::nextStep()
       // reactant/product is encoded in stoichiometry value
       for (auto &ent : reac->reactants)
       {
-        //int st = reac->stoechiometryOfEntity(ent);
-        flowPerEnt[ent] -= reac->flow;
+        //flowPerEnt[ent] -= reac->flow; // #here
+        flowPerEnt[ent] -= reac->deterministicFlow;
       }
       for (auto &ent : reac->products)
       {
-        //int st = reac->stoechiometryOfEntity(ent);
-        flowPerEnt[ent] += reac->flow;
+        //flowPerEnt[ent] += reac->flow;
+        flowPerEnt[ent] += reac->deterministicFlow;
       }
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
@@ -1816,6 +1843,8 @@ void Simulation::nextStep()
         cycle->activity += 1./(ent->concent * (float) cycle->entities.size()) * flowPerEnt[ent];
       }
     }
+    
+    //cout << "cycle flow = " << cycle->flow << "  ";
 
     // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
     map<SimEntity *, float> otherPosFlowPerEnt;

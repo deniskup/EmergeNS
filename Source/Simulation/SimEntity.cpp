@@ -141,15 +141,27 @@ void SimEntity::increase(float incr)
 	change += incr;
 }
 
+void SimEntity::deterministicIncrease(float incr)
+{
+  deterministicChange += incr;
+}
+
 void SimEntity::decrease(float decr)
 {
 	change -= decr;
 }
 
+void SimEntity::deterministicDecrease(float decr)
+{
+  deterministicChange -= decr;
+}
+
 void SimEntity::refresh()
 {
-	concent = jmax(0.f, concent + change);
+  concent = jmax(0.f, concent + change);
+  deterministicConcent = jmax(0.f, deterministicConcent + deterministicChange);
 	change = 0.f;
+  deterministicChange = 0.f;
 }
 
 void SimEntity::nameFromCompo()
