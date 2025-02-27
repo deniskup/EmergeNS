@@ -1457,9 +1457,10 @@ void Simulation::start(bool restart)
   {
     rgg = new RandomGausGenerator(0., 1.); // init random generator
     //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
-    noiseEpsilon = 1. / sqrt(pow(10., Settings::getInstance()->volume->floatValue()));
-    cout << "log volume = " << Settings::getInstance()->volume->floatValue() << endl;
-    cout << "noise Epsilon = " << noiseEpsilon << endl;
+    //noiseEpsilon = 1. / sqrt(pow(10., Settings::getInstance()->volume->floatValue()));
+    noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
+    //cout << "log volume = " << Settings::getInstance()->volume->floatValue() << endl;
+    //cout << "noise Epsilon = " << noiseEpsilon << endl;
   }
   
   startThread();
