@@ -49,6 +49,12 @@ Settings::Settings() : ControllableContainer("Settings")
     csvFile = addStringParameter("CSV Reactions file", "Path to CSV file to import a list of reactions", "");
 
     volume = addFloatParameter("LOG10 volume", "LOG10 of the volume of the system", 4.f, 0.f, 10.f);
+    
+    epsilonNoise = addFloatParameter("epsilon noise", "noise parameter of Langevin equation associated to current system's volume", 0.1f);
+    epsilonNoise->setControllableFeedbackOnly(true);
+    epsilonNoise->setAttributeInternal("stringDecimals", 7);
+  
+    updateNoiseParameter(); 
 
 
 }
@@ -56,4 +62,30 @@ Settings::Settings() : ControllableContainer("Settings")
 Settings::~Settings()
 {
 }
+
+void Settings::onContainerParameterChanged(Parameter *p)
+{
+  if (p == volume)
+  {
+    updateNoiseParameter();
+  }
+}
+
+void Settings::updateNoiseParameter()
+{
+  // calculate new value
+  float logvol = volume->floatValue();
+  float epsi = 1. / sqrt(pow(10., logvol));
+  var vepsi(epsi);
+  epsilonNoise->setValue(epsi);
+  
+  epsilonNoise->setControllableFeedbackOnly(true);
+  epsilonNoise->setAttributeInternal("stringDecimals", 7);
+}
+
+void Settings::afterLoadJSONDataInternal()
+{
+  updateNoiseParameter();
+}
+
 

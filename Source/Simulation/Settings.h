@@ -51,8 +51,15 @@ public:
     StringParameter * csvFile; // if used, input excel file name
   
     FloatParameter * volume;
+    FloatParameter * epsilonNoise;
+
     
-  //void onContainerParameterChanged(Parameter *p) override;
+    void onContainerParameterChanged(Parameter *p) override;
+  
+    void updateNoiseParameter(); // recalculate epsilon noise parameter from volume of the system
+  
+    void afterLoadJSONDataInternal() override;
+
 
   //   class SettingsListener
   // {
