@@ -189,7 +189,7 @@ public:
 		vector<std::pair<SimEntity*, int>> products;
 	};
 
-	void importCsvData(String); //tkosc.
+	void importCsvData(String); 
 	void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
 
 	bool getUserListMode(); // to know if we are in user list mode

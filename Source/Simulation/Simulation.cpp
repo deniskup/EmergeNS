@@ -330,7 +330,7 @@ void Simulation::importJSONData(var data)
   updateParams();
   
   // Phase Plane
-   PhasePlane::getInstance()->updateEntitiesInRuns();
+   //PhasePlane::getInstance()->updateEntitiesFromSimu();
 }
 
 // void Simulation::importFromManual()
@@ -1241,6 +1241,7 @@ void Simulation::fetchGenerate()
     UndoMaster::getInstance()->performAction("Generate new reaction list", ReactionManager::getInstance()->getAddItemsUndoableAction(newReactions));
     
     // update phase plane entity list
+    /*
     Array<Run *> newRuns;
     //for (auto &ent : entities)
     for (int irun=0; irun<2; irun++)
@@ -1248,7 +1249,8 @@ void Simulation::fetchGenerate()
       String name = "run " + String(to_string(irun));
       newRuns.add(new Run(name));
     }
-    UndoMaster::getInstance()->performAction("Generate new run list", RunManager::getInstance()->getAddItemsUndoableAction(newRuns));
+    */
+    //UndoMaster::getInstance()->performAction("Generate new run list", RunManager::getInstance()->getAddItemsUndoableAction(newRuns));
     
     //PhasePlane::getInstance()->updateEntitiesInRuns();
     

@@ -16,7 +16,7 @@ void RunUI::resizedInternalHeader(Rectangle<int> &r)
    
 }
 
-
+/*
 RunManagerUI::RunManagerUI() :
   BaseManagerShapeShifterUI(RunManager::getInstance()->niceName, RunManager::getInstance())
 {
@@ -26,6 +26,7 @@ RunManagerUI::RunManagerUI() :
 RunManagerUI::~RunManagerUI()
 {
 }
+*/
 
 
 PhasePlaneUI::PhasePlaneUI() : ShapeShifterContentComponent(PhasePlane::getInstance()->niceName),

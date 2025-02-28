@@ -16,7 +16,7 @@ public:
 };
 
 
-
+/*
 class RunManagerUI :
     public BaseManagerShapeShifterUI<RunManager, Run, RunUI>
 {
@@ -27,7 +27,7 @@ public:
     static RunManagerUI* create(const String& name) { return new RunManagerUI(); }
 
 };
-
+*/
 
 
 class PhasePlaneUI : public ShapeShifterContentComponent,

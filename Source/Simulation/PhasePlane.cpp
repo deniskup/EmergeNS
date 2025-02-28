@@ -11,27 +11,88 @@ juce_ImplementSingleton(PhasePlane);
 
 Run::Run()
 {
+  userCanAddControllables = false;
+  isRemovableByUser = true;
+  updateEntitiesFromSimu();
+}
+
+Run::Run(String _name) : BaseItem(_name)
+{
+  //userCanRemove = true;
+  //userCanAddControllables = false;
+  //askConfirmationBeforeRemove = false;
+  //isSavable = true;
+  userCanAddControllables = false;
+  isRemovableByUser = true;
+  updateEntitiesFromSimu();
+}
+
+
+Run::Run(var data) : BaseItem()
+{
+  
+  userCanAddControllables = false;
+  isRemovableByUser = true;
+  updateEntitiesFromSimu();
+    
+  // retrieve run name
+  if (data.getDynamicObject()->hasProperty("niceName"))
+    niceName = data.getDynamicObject()->getProperty("niceName");
+    
+  auto parameters = data.getProperty("parameters", juce::var());
+  
+  // loop over remaining parameters
+  for (auto & p : *parameters.getArray())
+  {
+    String s = "";
+    //cout << "has property name ? --> " << p.getDynamicObject()->hasProperty("name") << endl;
+    if (p.getDynamicObject()->hasProperty("name"))
+    {
+      s = p.getDynamicObject()->getProperty("name").operator String();
+      //cout << "it is ? --> " << s << endl;
+    }
+    
+    auto value = p.getDynamicObject()->getProperty("value");
+    if (value.isArray())
+    {
+      Array<var> arr = *value.getArray();
+      if (arr.size()==3)
+      {
+        Point3DParameter * newp3d = addPoint3DParameter(s, "");
+        float x = arr[0].operator float();
+        float y = arr[1].operator float();
+        float z = arr[2].operator float();
+        //cout << x << " ; " << y << " ; " << z << endl;
+        newp3d->setVector(x, y, z);
+        p3d.add(newp3d);
+      }
+      else if (arr.size()==2)
+      {
+        p2d = addPoint2DParameter(s, "");
+        p2d->setPoint(arr[0], arr[1]);
+      }
+    }
+    else if (value.isDouble())
+    {
+      fp = addFloatParameter(s, "", value.operator double());
+    }
+    else
+    {
+      LOGWARNING(" Unknown type in run parameters");
+    }
+  } // end parameters loop
   
 }
 
-Run::Run(String _name)
+
+
+
+
+
+void Run::updateEntitiesFromSimu() // should rename importSimuEntitiesToRuns
 {
-  name = _name;
-  addEtitiesToRun();
-}
 
-
-//Run::Run(OwnedArray<SimEntity*> entities, String _name)
-//{
-//  name = _name;
-//  addEtitiesToRun(entities);
-//}
-
-
-
-//void Run::addEtitiesToRun(OwnedArray<SimEntity*> entities)
-void Run::addEtitiesToRun()
-{
+  p3d.clear();
   int nent = Simulation::getInstance()->entities.size();
   int n3p = nent/3;
   int rest = nent%3;
@@ -44,8 +105,13 @@ void Run::addEtitiesToRun()
     int e3 = 3*i3p + 2;
     String name = Simulation::getInstance()->entities[e1]->name + " | " + Simulation::getInstance()->entities[e2]->name
       + " | " + Simulation::getInstance()->entities[e3]->name;
+    float c1 = Simulation::getInstance()->entities[e1]->startConcent;
+    float c2 = Simulation::getInstance()->entities[e2]->startConcent;
+    float c3 = Simulation::getInstance()->entities[e3]->startConcent;
     //p3p.addPoint3DParameter(name, "Initial concentrations");
-    addPoint3DParameter(name, "Initial concentrations");
+    Point3DParameter * localp3d = addPoint3DParameter(name, "Initial concentrations");
+    localp3d->setVector(c1, c2, c3);
+    p3d.add(localp3d);
   }
   // continue with 2D points or float parameter
   if (rest == 2)
@@ -70,18 +136,150 @@ void Run::addEtitiesToRun()
   
 }
 
+
+void Run::controllableRemoved(Controllable* c)
+{
+  cout << "Run:: delete a controllable ! " << endl;
+  //renameRuns();
+}
+
+
+void Run::clearItem()
+{
+  cout << "RUN::clearing item" << endl;
+  BaseItem::clearItem();
+}
+/*
+void Run::itemRemoved(Run*)
+{
+  cout << "this one ?" << endl;
+}
+*/
+
+
+
+var Run::getJSONData()
+{
+  //return ControllableContainer::getJSONData();
+  // add saved material specific to daughter class
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("niceName", niceName);
+  
+  
+  // points 3D
+  var vparameters;
+  for (auto & p : p3d)
+  {
+    var v = new DynamicObject();
+    v.getDynamicObject()->setProperty("name", p->niceName);
+    v.getDynamicObject()->setProperty("value", p->getValue());
+    vparameters.append(v);
+  }
+  // points 2D
+  if (p2d != nullptr)
+  {
+    var vp2d = new DynamicObject();
+    vp2d.getDynamicObject()->setProperty("name", p2d->niceName);
+    vp2d.getDynamicObject()->setProperty("value", p2d->getValue());
+    vparameters.append(vp2d);
+  }
+  // point
+  if (fp != nullptr)
+  {
+    var vfp = new DynamicObject();
+    vfp.getDynamicObject()->setProperty("name", fp->niceName);
+    vfp.getDynamicObject()->setProperty("value", fp->getValue());
+    vparameters.append(vfp);
+  }
+  // gather into parent parameter var
+  data.getDynamicObject()->setProperty("parameters", vparameters);
+  
+  return data;
+}
+
+
+
+void Run::loadJSONData(var data, bool createIfNotThere)
+{
+  cout << "HEEEEEEEEEEERRRRRRRE" << endl;
+  
+  // retrieve run name
+  if (data.getDynamicObject()->hasProperty("niceName"))
+    niceName = data.getDynamicObject()->getProperty("niceName");
+    
+  auto parameters = data.getProperty("parameters", juce::var());
+  
+  // loop over remaining parameters
+  for (auto & p : *parameters.getArray())
+  {
+    String s = "";
+    cout << "has property name ? --> " << p.getDynamicObject()->hasProperty("name") << endl;
+    if (p.getDynamicObject()->hasProperty("name"))
+    {
+      s = p.getDynamicObject()->getProperty("name").operator String();
+      cout << "it is ? --> " << s << endl;
+    }
+    
+    auto value = p.getDynamicObject()->getProperty("value");
+    if (value.isArray())
+    {
+      Array<var> arr = *value.getArray();
+      if (arr.size()==3)
+      {
+        Point3DParameter * newp3d = addPoint3DParameter(s, "");
+        float x = arr[0].operator float();
+        float y = arr[1].operator float();
+        float z = arr[2].operator float();
+        cout << x << " ; " << y << " ; " << z << endl;
+        newp3d->setVector(x, y, z);
+        p3d.add(newp3d);
+      }
+      else if (arr.size()==2)
+      {
+        p2d = addPoint2DParameter(s, "");
+        p2d->setPoint(arr[0], arr[1]);
+      }
+    }
+    else if (value.isDouble())
+    {
+      fp = addFloatParameter(s, "", value.operator double());
+    }
+    else
+    {
+      LOGWARNING(" Unknown type in run parameters");
+    }
+  } // end parameters loop
+}
+
+
+void Run::afterLoadJSONDataInternal()
+{
+  cout << "Run::afterLoadJSONDataInternal()" << endl;
+}
+
+
+// ******************************************************* //
+/*
+
+
 juce_ImplementSingleton(RunManager);
 
 
 RunManager::RunManager() : BaseManager("Runs")
 {
-  //generateTrigger = addTrigger("Generate", "To generate entities");
 }
 
 RunManager::~RunManager()
 {
-  //generateTrigger = addTrigger("Generate", "To generate entities");
 }
+
+void RunManager::addItemInternal(Run * r, var params)
+{
+  cout << "RunManager::addItemInternal" << endl;
+}
+*/
+
+// ******************************************************* //
 
 
 //////////// default constructor //////////////////////
@@ -113,15 +311,13 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
   
 
   // number of runs
-  nRuns = addIntParameter("Number of runs", "Number of runs", 1, 0, 20);
+  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 20);
   
-  //arun = new ControllableContainer("run 0");
-  //arun->saveAndLoadRecursiveData = true;
-  //arun->includeInRecursiveSave = true;
-  //runs.add(arun);
-    
+ 
+   
+  /*
   //for (unsigned int i=0; i<nRuns->intValue(); i++)
-  for (unsigned int i=0; i<1; i++)
+  for (unsigned int i=0; i<0; i++)
   {
     String name = "run " + String(to_string(i));
     
@@ -142,18 +338,15 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
     //runs.add(thisrun);
     
     Run * thisrun = new Run(name);
+    thisrun->addEntitiesToRun();
+    addChildControllableContainer(thisrun);
     //thisrun->fp = addFloatParameter("fp", "", 1.5);
     //addChildControllableContainer(thisrun->get());
     runs.add(thisrun);
 
     
   }
-  
-  //test = new ControllableContainer("TEST");
-  //test->addPoint3DParameter("test 3P", "");
-  //test->saveAndLoadRecursiveData = true;
-  //test->includeInRecursiveSave = true;
-  //addChildControllableContainer(test);
+  */
   
 }
 
@@ -167,7 +360,7 @@ PhasePlane::~PhasePlane()
 
 
 
-
+/*
 void PhasePlane::addEntity(Entity* e)
 {
   //FloatParameter* fp = runs->addFloatParameter("Entity " + String(runs->controllables.size() + 1), "Entity " + String(runs->controllables.size() + 1), 0., 0., 100.);
@@ -175,53 +368,18 @@ void PhasePlane::addEntity(Entity* e)
   //fp->saveValueOnly = false;
   //fp->isRemovableByUser = true;
 }
+*/
 
-void PhasePlane::addEntitiesToRun(ControllableContainer & cc)
-//void PhasePlane::addEntitiesToRun(int krun)
+void PhasePlane::updateEntitiesFromSimu()
 {
-  //cc.saveAndLoadRecursiveData = true;
-  //saveAndLoadRecursiveData = true;
-  //cc.includeInRecursiveSave = true;
-  includeInRecursiveSave = true;
-  
-  int nent = Simulation::getInstance()->entities.size();
-  int n3p = nent/3;
-  int rest = nent%3;
-  
-  // gather entities into 3D points
-  for (int i3p=0; i3p<n3p; i3p++)
+  for (auto & r : runs)
   {
-    int e1 = 3*i3p;
-    int e2 = 3*i3p + 1;
-    int e3 = 3*i3p + 2;
-    String name = Simulation::getInstance()->entities[e1]->name + " | " + Simulation::getInstance()->entities[e2]->name
-    + " | " + Simulation::getInstance()->entities[e3]->name;
-    cc.addPoint3DParameter(name, "Initial concentrations");
+    r->updateEntitiesFromSimu();
   }
-  // continue with 2D points or float parameter
-  if (rest == 2)
-  {
-    int e1 = nent-2;
-    int e2 = nent-1;
-    String name = Simulation::getInstance()->entities[e1]->name + " | " + Simulation::getInstance()->entities[e2]->name;
-    cc.addPoint2DParameter(name, "Initial concentrations");
-  }
-  else if (rest == 1)
-  {
-    String name = Simulation::getInstance()->entities.getLast()->name;
-    cc.addFloatParameter(name, "Initial concentrations", 0.f, 0.f, 10.f);
-  }
-  else if (rest == 0)
-  {
-    
-  }
-  else cout << "Warning, problem in run initial concentration setting" << endl;
-  
-  
-} // end method addEntitiesToRun
+} // end method updateEntitiesFromSimu
 
 
-
+/*
 void PhasePlane::updateEntitiesInRuns()
 {
   for (int i=0; i<runs.size();  i++)
@@ -231,7 +389,7 @@ void PhasePlane::updateEntitiesInRuns()
     addEntitiesToRun(*runs[i]);
   }
 }
-
+*/
 
 void PhasePlane::onContainerParameterChanged(Parameter *p)
 {
@@ -243,19 +401,11 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
     {
       for (int k=runs.size(); k<nRuns->intValue(); k++)
       {
-        cout << "adding a run" << endl;
+        // with new version
         String name = "run " + String(to_string(k));
-        ControllableContainer * thisrun = new ControllableContainer(name);
-        thisrun->userCanAddControllables = false;
-        thisrun->isRemovableByUser = true;
-        thisrun->saveAndLoadRecursiveData = true;
-        thisrun->includeInRecursiveSave = true;
+        Run * thisrun = new Run(name);
         addChildControllableContainer(thisrun);
-        addEntitiesToRun(*thisrun);
-
-        
-        //FloatParameter* fp = thisrun->addFloatParameter("test " + String(thisrun->controllables.size() + 1), "test " + String(thisrun->controllables.size() + 1), 0., 0., 100.);
-        //runs.add(thisrun);
+        runs.add(thisrun);
       }
     }
     else if (nRuns->intValue()<runs.size())
@@ -549,98 +699,95 @@ void PhasePlane::drawRuns()
 } // end PhasePlane::drawRuns()
 
 
-/*
-void importJSONData(var data)
+
+
+
+void PhasePlane::loadJSONData(var data, bool createIfNotThere)
 {
-  
-  //clearParams();
-  if (data.isVoid())
-    return;
-  if (data.getDynamicObject() == nullptr)
-    return;
-
-  
-  if (data.getDynamicObject()->hasProperty("recordConcent"))
-    recordConcent = data.getDynamicObject()->getProperty("recordConcent");
-  if (data.getDynamicObject()->hasProperty("recordEntity"))
-    recordEntity = data.getDynamicObject()->getProperty("recordEntity");
-  if (data.getDynamicObject()->hasProperty("recordDrawn"))
-    recordDrawn = data.getDynamicObject()->getProperty("recordDrawn");
-  if (data.getDynamicObject()->hasProperty("numLevels"))
-    numLevels = data.getDynamicObject()->getProperty("numLevels");
-  // To move to PACList later
-  if (data.getDynamicObject()->hasProperty("PACsGenerated"))
-    PACsGenerated = data.getDynamicObject()->getProperty("PACsGenerated");
-
-  // entities
-  if (data.getDynamicObject()->hasProperty("entities"))
+  /*
+  // ugly solution to get rid of ghost runs initiated
+  while (runs.size()>0)
   {
-    if (!data.getDynamicObject()->getProperty("entities").isArray())
-    {
-      LOGWARNING("Incomplete .ens file, entities of active sim cannot be loaded");
-      return;
-    }
-    auto ents = data.getDynamicObject()->getProperty("entities").getArray();
-    for (auto &evar : *ents)
-    {
-      SimEntity *e = new SimEntity(evar);
-      if (e->constructionFailed)
-      {
-        LOGWARNING("SimEntity construction failed, not added to list");
-        delete e;
-        continue;
-      }
-      entities.add(e);
-    }
-    maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
-    maxSteps = jmax(1, maxSteps);
+    int krm = runs.size()-1;
+    removeChildControllableContainer(runs[krm]);
+    runs.removeLast(1);
   }
-
-  // reactions
-  reactions.clear();
-  if (data.getDynamicObject()->hasProperty("reactions"))
-  {
-    if (!data.getDynamicObject()->getProperty("reactions").isArray())
-    {
-      LOGWARNING("Incomplete .ens file, reactions of active sim cannot be loaded");
-      return;
-    }
-    auto reacs = data.getDynamicObject()->getProperty("reactions").getArray();
-    for (auto &rvar : *reacs)
-    {
-      SimReaction *r = new SimReaction(rvar);
-      if (r->constructionFailed)
-      {
-        LOGWARNING("SimReaction construction failed, not added to list");
-        delete r;
-        continue;
-      }
-      reactions.add(r);
-    }
-  }
-
-  // PACList
-  if (data.getDynamicObject()->hasProperty("pacList"))
-  {
-    pacList->fromJSONData(data.getDynamicObject()->getProperty("pacList"));
-  }
-
-  // precision
-  dt->setAttributeInternal("stringDecimals", DT_PRECISION);
-  Settings::getInstance()->CACRobustness->setAttributeInternal("stringDecimals", CACROB_PRECISION);
-  computeBarriers();
-  updateParams();
-  
-  
-}
-   */
-
-
-
-
-/*
-void afterLoadJSONDataInternal()
-{
-  
-}
 */
+  
+
+    // load runs
+  if (!data.getDynamicObject()->hasProperty("runs"))
+  {
+    LOGWARNING("couldn't retrieve any run from json file");
+    return;
+  }
+  
+  auto arrayruns = data.getProperty("runs", juce::var());
+  // retrieve runs
+ // cout << "is array ? --> " << data.getProperty("runs", juce::var()).isArray() << endl;
+  
+  if (!data.getProperty("runs", juce::var()).isArray())
+  {
+    LOGWARNING(" Runs not stored as array in json file, will not init them");
+    return;
+  }
+  
+  
+  // loop over stored runs
+  for (auto & arun : *arrayruns.getArray())
+  {
+    if (!arun.getDynamicObject()->hasProperty("parameters"))
+    {
+      LOGWARNING(" No parameters in run.");
+      return;
+    }
+    
+    Run * newrun = new Run(arun);
+    addChildControllableContainer(newrun);
+    //cout << "adding child container with name " << newrun->niceName << endl;
+    runs.add(newrun);
+    
+  }
+  
+  if (data.getDynamicObject()->hasProperty("nRuns"))
+    nRuns->setValue(data.getDynamicObject()->getProperty("nRuns"));
+  
+  if (data.getDynamicObject()->hasProperty("pathToEmergens"))
+    pathToEmergens->setValue(data.getDynamicObject()->getProperty("pathToEmergens"));
+  
+  if (data.getDynamicObject()->hasProperty("xAxis"))
+    xAxis->setValue(data.getDynamicObject()->getProperty("xAxis"));
+  
+  if (data.getDynamicObject()->hasProperty("yAxis"))
+    yAxis->setValue(data.getDynamicObject()->getProperty("yAxis"));
+  
+  
+}
+
+
+
+
+
+var PhasePlane::getJSONData()
+{
+  // add saved material specific to daughter class
+  var data = new DynamicObject();
+  data.getDynamicObject()->setProperty("pathToEmergens", pathToEmergens->stringValue());
+  data.getDynamicObject()->setProperty("xAxis", xAxis->getValue());
+  data.getDynamicObject()->setProperty("yAxis", yAxis->getValue());
+  data.getDynamicObject()->setProperty("nRuns", nRuns->intValue());
+
+  var vruns;
+  for (auto& r : runs)
+  {
+    var v = r->getJSONData();
+    vruns.append(v);
+  }
+  data.getDynamicObject()->setProperty("runs", vruns);
+
+  
+  return data;
+  
+}
+
+
