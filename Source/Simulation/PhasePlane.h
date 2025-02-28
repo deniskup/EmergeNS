@@ -9,7 +9,7 @@
 TODO list
 - synchronize manual addition of entities with Phase Plane entity list
 - manually position the trigger buttons instead of using three lines. See PhasePlaneUI for that.
-- add posiibility to scroll within this window.
+- add possibility to scroll within this window.
 - sync nRuns with runs actually manually removed, and rename the runs starting from 0 when one is actually removed.
 - I shouldn't have  Simulation.h included in this header. Circular inclusion pattern.
 - fix save and import data as JSON.
@@ -34,19 +34,40 @@ class Run : public BaseItem
   public:
   Run();
   Run(String _name);
+  Run(var data);
   Run(OwnedArray<SimEntity*>, String _name);
   virtual ~Run(){};
   
     String name = "";
-    Array<Point3DParameter*> p3p;
-    Point2DParameter * p2d;
-    FloatParameter * fp;
+    Array<Point3DParameter*> p3d;
+    Point2DParameter * p2d = nullptr;
+    FloatParameter * fp = nullptr;
   
-  //void addEtitiesToRun(OwnedArray<SimEntity*>);
-  void addEtitiesToRun();
+  //void controllableAdded(Controllable *) override; // à coder
+
+  void controllableRemoved(Controllable *) override; // à coder
+    
+  //void addEntitiesToRun(OwnedArray<SimEntity*>);
+  void updateEntitiesFromSimu();
+  
+  //void controllableRemoved(Controllable* c) override;
+  void clearItem() override;
+
+  
+  var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
+  //var toJSONData(); // à coder, voir  var toJSONData() de Simulation.h
+  
+  void loadJSONData(var data, bool createIfNotThere = false) override; //
+  
+  void afterLoadJSONDataInternal() override;
+  
+  //void itemRemoved(typename T*) override; 
+
+
+
 };
 
-
+/*
 class RunManager :
   public BaseManager<Run>
 {
@@ -57,11 +78,13 @@ public:
 
   //void autoRename();
   //void inferAllReacs();
+  
+  void addItemInternal(Run * r, var params) override;
 
-  Run * getRunFromName(const String &searchName);
+  //Run * getRunFromName(const String &searchName);
 
 };
-
+*/
 
 
 
@@ -91,9 +114,9 @@ public:
   //ControllableContainer * test;
   Array<Run*> runs;
   
-  void addEntity(Entity* e);
-  void addEntitiesToRun(ControllableContainer &);
-  void updateEntitiesInRuns();
+  //void addEntity(Entity* e);
+  //void addEntitiesToRun(ControllableContainer &);
+  void updateEntitiesFromSimu();
   
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
@@ -108,6 +131,15 @@ public:
   //void importJSONData(var data);
   
   //void afterLoadJSONDataInternal() override;
+  
+  void loadJSONData(var data, bool createIfNotThere = false) override; // à coder, voir void importJSONData(var data) de Simulation.h
+  
+  var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
+  
+ 
+  
+
+
 
 
 
