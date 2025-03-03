@@ -1539,9 +1539,11 @@ void Simulation::nextStep()
     }
 ///    cout << "globalreacCoef check: " << directCoef << "  :  " << deterministicDirectCoef << endl;
     
-    // deterministic increment
+    // init increments
     float directIncr = directCoef * dt->floatValue();
+    float deterministicDirectIncr = deterministicDirectCoef * dt->floatValue();
     float reverseIncr = reverseCoef * dt->floatValue();
+    float deterministicReverseIncr = deterministicReverseCoef * dt->floatValue();
     
     //if (print)
     //{
@@ -1563,16 +1565,16 @@ void Simulation::nextStep()
     for (auto &ent : reac->reactants)
     {
       ent->increase(reverseIncr);
-      ent->deterministicIncrease(reverseIncr);
+      ent->deterministicIncrease(deterministicReverseIncr);
       ent->decrease(directIncr);
-      ent->deterministicDecrease(directIncr);
+      ent->deterministicDecrease(deterministicDirectIncr);
     }
     for (auto &ent : reac->products)
     {
       ent->increase(directIncr);
-      ent->deterministicIncrease(directIncr);
+      ent->deterministicIncrease(deterministicDirectIncr);
       ent->decrease(reverseIncr);
-      ent->deterministicDecrease(reverseIncr);
+      ent->deterministicDecrease(deterministicReverseIncr);
     }
     
     
@@ -1653,13 +1655,16 @@ void Simulation::nextStep()
       
     } // end if stochasticity
 
+    //if (curStep<=10) cout << "forward reaction flow:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
+
     
     // update flow needed only at checkpoints
     if (isCheck)
     {
       reac->flow = directCoef - reverseCoef;
       reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
-///      cout << "check : " << reac->flow << "  :  " << reac->deterministicFlow << endl;
+      //cout << "check : " << directCoef << "  :  " << reverseCoef << endl;
+      //cout << curStep <<  " -> " << reac->flow << "  ;  " << reac->deterministicFlow << endl;
     }
   }
 
@@ -1693,6 +1698,8 @@ void Simulation::nextStep()
     ent->decrease(incr);
     ent->deterministicDecrease(deterministicIncr);
     
+    //if (curStep<=10) cout << "Destruction increment:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
+    
   } // end loop over entities
 
   curStep++;
@@ -1710,6 +1717,8 @@ void Simulation::nextStep()
 
     // update concentration
     ent->refresh();
+    
+    //if (curStep<=10) cout << "Concen:: " << curStep << " conc = " << ent->deterministicConcent << "  " << ent->concent << endl;
 
     if (isinf(ent->concent))
     {
@@ -1800,8 +1809,11 @@ void Simulation::nextStep()
 
     // new way by computing the total cycle flow for each entity of the PAC
     map<SimEntity *, float> flowPerEnt;
+    map<SimEntity *, float> checkFlowPerEnt;
     for (auto &ent : entities)
       flowPerEnt[ent] = 0.;
+    for (auto &ent : entities)
+      checkFlowPerEnt[ent] = 0.;
 
     for (auto &reacDir : cycle->reacDirs)
     {
@@ -1811,13 +1823,15 @@ void Simulation::nextStep()
       // reactant/product is encoded in stoichiometry value
       for (auto &ent : reac->reactants)
       {
-        //flowPerEnt[ent] -= reac->flow; // #here
+        //flowPerEnt[ent] -= reac->flow; //
         flowPerEnt[ent] -= reac->deterministicFlow;
+        checkFlowPerEnt[ent] -= reac->flow;
       }
       for (auto &ent : reac->products)
       {
         //flowPerEnt[ent] += reac->flow;
         flowPerEnt[ent] += reac->deterministicFlow;
+        checkFlowPerEnt[ent] += reac->flow;
       }
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
@@ -1825,10 +1839,12 @@ void Simulation::nextStep()
       
     }
     
+    
     // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
     cycle->flow = flowPerEnt[cycle->entities[0]]; // initialisation to a potential value, either <=0 or bigger than real value
     for (auto &ent : cycle->entities)
     {
+      //cout << flowPerEnt[ent] << "  ";
       if (flowPerEnt[ent] < 0)
       {
         cycle->flow = 0.;
@@ -1844,7 +1860,7 @@ void Simulation::nextStep()
       }
     }
     
-    //cout << "cycle flow = " << cycle->flow << "  ";
+   // cout << curStep << " -> cycle flow = " << cycle->flow << endl;;
 
     // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
     map<SimEntity *, float> otherPosFlowPerEnt;
@@ -1926,10 +1942,10 @@ void Simulation::nextStep()
     }
 
     PACsValues.add(cycle->flow);
+    //cout << "curstep = " << curStep<<endl;
+    //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
     if (cycle->flow > 0)
     {
-      // cout << "curstep=" << curStep<<endl;
-      // cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
       cycle->wasRAC = true;
       // if (newRAC)
       // LOG("RAC " << idPAC << " from min reac " << minreac->name);
