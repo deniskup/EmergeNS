@@ -1,9 +1,14 @@
 #include "PhasePlaneUI.h"
 
 
-RunUI::RunUI(Run* run) :
-    BaseItemUI(run)
+//RunUI::RunUI(Run* run) :
+//    BaseItemUI(run)
+//RunUI::RunUI(String &name) : ShapeShifterContentComponent(name)
+                          //settings(Run::getInstance())
+RunUI::RunUI() : ShapeShifterContentComponent("")
 {
+  editorUI.reset(new GenericControllableContainerEditor(run, true));
+  addAndMakeVisible(editorUI.get());
     
 }
 
@@ -11,10 +16,18 @@ RunUI::~RunUI()
 {
 }
 
+void RunUI::resized()
+{
+  Rectangle<int> r = getLocalBounds();
+  editorUI->setBounds(r.reduced(10));
+}
+
+/*
 void RunUI::resizedInternalHeader(Rectangle<int> &r)
 {
    
 }
+*/
 
 /*
 RunManagerUI::RunManagerUI() :

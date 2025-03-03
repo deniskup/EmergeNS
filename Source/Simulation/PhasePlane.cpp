@@ -9,14 +9,17 @@
 
 juce_ImplementSingleton(PhasePlane);
 
-Run::Run()
+/*
+Run::Run() : ControllableContainer()
 {
   userCanAddControllables = false;
   isRemovableByUser = true;
   updateEntitiesFromSimu();
 }
+*/
 
-Run::Run(String _name) : BaseItem(_name)
+//Run::Run(String _name) : BaseItem(_name)
+Run::Run(String _name) : ControllableContainer(_name)
 {
   //userCanRemove = true;
   //userCanAddControllables = false;
@@ -28,7 +31,8 @@ Run::Run(String _name) : BaseItem(_name)
 }
 
 
-Run::Run(var data) : BaseItem()
+//Run::Run(var data) : BaseItem()
+Run::Run(var data) : ControllableContainer("")
 {
   
   userCanAddControllables = false;
@@ -137,18 +141,16 @@ void Run::updateEntitiesFromSimu() // should rename importSimuEntitiesToRuns
 }
 
 
-void Run::controllableRemoved(Controllable* c)
-{
-  cout << "Run:: delete a controllable ! " << endl;
-  //renameRuns();
-}
 
 
+/*
 void Run::clearItem()
 {
   cout << "RUN::clearing item" << endl;
   BaseItem::clearItem();
 }
+*/
+
 /*
 void Run::itemRemoved(Run*)
 {
@@ -259,9 +261,9 @@ void Run::afterLoadJSONDataInternal()
 
 
 // ******************************************************* //
+
+
 /*
-
-
 juce_ImplementSingleton(RunManager);
 
 
@@ -286,7 +288,11 @@ void RunManager::addItemInternal(Run * r, var params)
 
 PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
 {
+  
+  //rm = new RunManager();
+  //ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RunManager", &RunManagerUI::create));
 
+  
   showWarningInUI = true;
   saveAndLoadRecursiveData = true;
   includeInRecursiveSave = true;
@@ -379,17 +385,16 @@ void PhasePlane::updateEntitiesFromSimu()
 } // end method updateEntitiesFromSimu
 
 
-/*
-void PhasePlane::updateEntitiesInRuns()
+
+void PhasePlane::updateRunsNames()
 {
-  for (int i=0; i<runs.size();  i++)
+  for (int i=0; i<runs.size(); i++)
   {
-    //r.getControllableContainer()
-    runs[i]->clear();
-    addEntitiesToRun(*runs[i]);
+    String newname = "run " + String(to_string(i));
+    runs[i]->setNiceName(newname);
   }
 }
-*/
+
 
 void PhasePlane::onContainerParameterChanged(Parameter *p)
 {
@@ -446,17 +451,35 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
 
 
 
+
 void PhasePlane::controllableAdded(Controllable* c)
 {
 //  int newnRuns = runs.size();
 }
 
-void PhasePlane::controllableRemoved(Controllable* c)
-{
- // int newnRuns = runs.size();
-  cout << "deleted a controllable ! " << endl;
-}
 
+
+
+void PhasePlane::onRemoveChildControllableContainer()
+{
+  // remove from runs array the child container that was removed
+  for (int i=runs.size()-1; i>=0; i--)
+  {
+    if (runs[i]->parentContainer == nullptr)
+    {
+      runs.remove(i);
+    }
+  }
+  // update runs names
+  if (runs.size() != nRuns->intValue())
+  {
+    updateRunsNames();
+  }
+  // update nRuns value to make it match the new array size
+  var newnRuns(runs.size());
+  nRuns->setValue(newnRuns);
+  
+}
 
 
 
@@ -744,8 +767,10 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
     
     Run * newrun = new Run(arun);
     addChildControllableContainer(newrun);
+    //addControllableContainer(newrun);
     //cout << "adding child container with name " << newrun->niceName << endl;
     runs.add(newrun);
+    //rm->addItemInternal(newrun, arun);
     
   }
   
