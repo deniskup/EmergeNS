@@ -54,8 +54,11 @@ Settings::Settings() : ControllableContainer("Settings")
     epsilonNoise->setControllableFeedbackOnly(true);
     epsilonNoise->setAttributeInternal("stringDecimals", 7);
   
-    updateNoiseParameter(); 
-
+    updateNoiseParameter();
+  
+    fixedSeed = addBoolParameter("Fix seed of random generator", "Fix seed of random generator", false);
+   
+    randomSeed = addStringParameter("Seed of random generator", "Seed of random generator", "1234");
 
 }
 

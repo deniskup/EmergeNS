@@ -52,6 +52,8 @@ public:
   
     FloatParameter * volume;
     FloatParameter * epsilonNoise;
+    BoolParameter * fixedSeed;
+    StringParameter * randomSeed;
 
     
     void onContainerParameterChanged(Parameter *p) override;

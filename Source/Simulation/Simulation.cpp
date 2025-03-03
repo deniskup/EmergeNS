@@ -1457,11 +1457,30 @@ void Simulation::start(bool restart)
   if (stochasticity->boolValue())
   {
     rgg = new RandomGausGenerator(0., 1.); // init random generator
-    //rgg = new RandomGausGenerator(0., Settings::getInstance()->stochasticity->floatValue());
-    //noiseEpsilon = 1. / sqrt(pow(10., Settings::getInstance()->volume->floatValue()));
     noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
-    //cout << "log volume = " << Settings::getInstance()->volume->floatValue() << endl;
-    //cout << "noise Epsilon = " << noiseEpsilon << endl;
+    if (Settings::getInstance()->fixedSeed->boolValue()==true)
+    {
+      // check that the seed string has correct format, i.e. only digits
+      string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
+      bool correctFormat = true;
+      for (int k=0; k<strSeed.size(); k++)
+      {
+        if (!isdigit(strSeed[k]))
+        {
+          correctFormat = false;
+          break;
+        }
+      }
+      if (!correctFormat)
+      {
+        LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
+      }
+      else
+      {
+        unsigned int seed = atoi(strSeed.c_str());
+        rgg->setFixedSeed(seed);
+      }
+    }
   }
   
   startThread();
@@ -2045,9 +2064,9 @@ void Simulation::run()
 
   if (Settings::getInstance()->printHistoryToFile->boolValue())
   {
-    LOG("Printing history to file not enabled for now, disabling it in Settings");
-    Settings::getInstance()->printHistoryToFile->setValue(false);
-    //writeHistory();
+    //LOG("Printing history to file not enabled for now, disabling it in Settings");
+    //Settings::getInstance()->printHistoryToFile->setValue(false);
+    writeHistory();
   }
 
   // listeners.call(&SimulationListener::simulationFinished, this);

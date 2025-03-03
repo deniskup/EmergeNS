@@ -34,11 +34,17 @@ class RandomGausGenerator
   normal_distribution<float> * gausDist;
   float mu = 0.;
   float sigma = 1.;
+  //unsined long seed;
   
   // generate actual random number
   float randomNumber()
   {
     return (*gausDist)(*generator);
+  }
+  
+  void setFixedSeed(unsigned int _seed)
+  {
+    generator->seed(_seed);
   }
   
 };
