@@ -6,13 +6,23 @@ using namespace std;
 
 
 class RunUI :
-    public BaseItemUI<Run>
+    //public BaseItemUI<Run>
+    public ShapeShifterContentComponent
 {
 public:
-    RunUI(Run* run);
+    //RunUI(String & name);
+    RunUI();
     ~RunUI();
 
-    void resizedInternalHeader(Rectangle<int> &r) override;
+    //void resizedInternalHeader(Rectangle<int> &r) override;
+  
+  Run *run;
+  
+  std::unique_ptr<GenericControllableContainerEditor> editorUI;
+
+  void resized() override;
+
+  static RunUI *create(const String &name) { return new RunUI(); }
 };
 
 

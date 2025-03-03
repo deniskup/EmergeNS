@@ -30,6 +30,7 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RACs", &PACUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Settings", &SettingsUI::create));
   ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PhasePlane", &PhasePlaneUI::create));
+  //ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RunManager", &RunManagerUI::create));
 
 
 	ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_nslayout);

@@ -29,7 +29,8 @@ using namespace juce;
 //class Simulation;
 
 
-class Run : public BaseItem
+//class Run : public BaseItem
+class Run : public ControllableContainer
 {
   public:
   Run();
@@ -44,14 +45,13 @@ class Run : public BaseItem
     FloatParameter * fp = nullptr;
   
   //void controllableAdded(Controllable *) override; // à coder
-
-  void controllableRemoved(Controllable *) override; // à coder
     
   //void addEntitiesToRun(OwnedArray<SimEntity*>);
   void updateEntitiesFromSimu();
   
   //void controllableRemoved(Controllable* c) override;
-  void clearItem() override;
+  //void clearItem() override;
+
 
   
   var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
@@ -62,8 +62,6 @@ class Run : public BaseItem
   void afterLoadJSONDataInternal() override;
   
   //void itemRemoved(typename T*) override; 
-
-
 
 };
 
@@ -97,6 +95,8 @@ public:
     PhasePlane(var data); // import from JSON
 
     ~PhasePlane();
+  
+  //RunManager * rm;
 
   Trigger * start;
   Trigger * draw;
@@ -117,12 +117,17 @@ public:
   //void addEntity(Entity* e);
   //void addEntitiesToRun(ControllableContainer &);
   void updateEntitiesFromSimu();
+  void updateRunsNames();
   
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
-  
   void controllableAdded(Controllable *) override;
-  void controllableRemoved(Controllable *) override;
+  //void notifyStructureChanged() override;
+  //void removeChildControllableContainer(ControllableContainer* container) override;
+  //void setParentContainer(ControllableContainer* container) override;
+  void onRemoveChildControllableContainer() override;
+
+
   
   void startRuns();
   void drawRuns();
