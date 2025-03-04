@@ -1,7 +1,7 @@
 {
   "metaData": {
-    "version": "1.0.0",
-    "versionNumber": 65536
+    "version": "1.0.1",
+    "versionNumber": 65537
   },
   "projectSettings": {
     "containers": {
@@ -35,26 +35,26 @@
   "layout": {
     "mainLayout": {
       "type": 1,
-      "width": 1920,
-      "height": 1108,
+      "width": 1558,
+      "height": 942,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
-          "width": 1920,
-          "height": 1108,
+          "width": 1558,
+          "height": 942,
           "direction": 1,
           "shifters": [
             {
               "type": 1,
-              "width": 605,
-              "height": 1108,
+              "width": 425,
+              "height": 942,
               "direction": 2,
               "shifters": [
                 {
                   "type": 0,
-                  "width": 605,
-                  "height": 467,
+                  "width": 425,
+                  "height": 384,
                   "currentContent": "Entities",
                   "tabs": [
                     {
@@ -67,8 +67,8 @@
                 },
                 {
                   "type": 0,
-                  "width": 605,
-                  "height": 635,
+                  "width": 425,
+                  "height": 552,
                   "currentContent": "Reactions",
                   "tabs": [
                     {
@@ -80,20 +80,20 @@
             },
             {
               "type": 1,
-              "width": 1308,
-              "height": 1108,
+              "width": 1127,
+              "height": 942,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
-                  "width": 875,
-                  "height": 1108,
+                  "width": 785,
+                  "height": 942,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
-                      "width": 875,
-                      "height": 656,
+                      "width": 785,
+                      "height": 573,
                       "currentContent": "Simulation",
                       "tabs": [
                         {
@@ -103,8 +103,8 @@
                     },
                     {
                       "type": 0,
-                      "width": 875,
-                      "height": 446,
+                      "width": 785,
+                      "height": 363,
                       "currentContent": "RACs",
                       "tabs": [
                         {
@@ -116,9 +116,9 @@
                 },
                 {
                   "type": 0,
-                  "width": 427,
-                  "height": 1108,
-                  "currentContent": "Logger",
+                  "width": 336,
+                  "height": 942,
+                  "currentContent": "Settings",
                   "tabs": [
                     {
                       "name": "Logger"
@@ -159,12 +159,8 @@
         "controlAddress": "/checkpoints"
       },
       {
-        "value": 16.60000991821289,
+        "value": 17.84978813171387,
         "controlAddress": "/maxConcent"
-      },
-      {
-        "value": true,
-        "controlAddress": "/detectEquil"
       },
       {
         "value": 0.0001,
@@ -177,6 +173,10 @@
       {
         "value": "SteadyState",
         "controlAddress": "/setSteadyState"
+      },
+      {
+        "value": false,
+        "controlAddress": "/stochasticity"
       }
     ]
   },
@@ -195,10 +195,6 @@
           {
             "value": 7.082486152648926,
             "controlAddress": "/startConcent"
-          },
-          {
-            "value": 11.32342529296875,
-            "controlAddress": "/concent"
           },
           {
             "value": [
@@ -230,10 +226,6 @@
           {
             "value": 27.49999809265137,
             "controlAddress": "/startConcent"
-          },
-          {
-            "value": 0.4841067790985107,
-            "controlAddress": "/concent"
           },
           {
             "value": -0.1466317176818848,
@@ -271,10 +263,6 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 1.906745433807373,
-            "controlAddress": "/concent"
-          },
-          {
             "value": -0.3566223382949829,
             "controlAddress": "/freeEnergy"
           },
@@ -308,10 +296,6 @@
           {
             "value": 7.699999809265137,
             "controlAddress": "/startConcent"
-          },
-          {
-            "value": 0.5016930103302002,
-            "controlAddress": "/concent"
           },
           {
             "value": 0.4948822855949402,
@@ -349,10 +333,6 @@
             "controlAddress": "/startConcent"
           },
           {
-            "value": 2.340217113494873,
-            "controlAddress": "/concent"
-          },
-          {
             "value": -0.1613579392433167,
             "controlAddress": "/freeEnergy"
           },
@@ -381,107 +361,75 @@
       {
         "parameters": [
           {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/2",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/3",
-            "controlAddress": "/product"
-          },
-          {
             "value": 1.18330991268158,
             "controlAddress": "/energyBarrier"
           }
         ],
         "niceName": "1+2=3",
+        "containers": {
+          "reactants": {
+          },
+          "products": {
+          }
+        },
         "type": "Reaction"
       },
       {
         "parameters": [
-          {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/3",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/4",
-            "controlAddress": "/product"
-          },
           {
             "value": 1.797483205795288,
             "controlAddress": "/energyBarrier"
           }
         ],
         "niceName": "1+3=4",
+        "containers": {
+          "reactants": {
+          },
+          "products": {
+          }
+        },
         "type": "Reaction"
       },
       {
         "parameters": [
-          {
-            "value": "/2",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/2",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/4",
-            "controlAddress": "/product"
-          },
           {
             "value": 0.1816724538803101,
             "controlAddress": "/energyBarrier"
           }
         ],
         "niceName": "2+2=4",
+        "containers": {
+          "reactants": {
+          },
+          "products": {
+          }
+        },
         "type": "Reaction"
       },
       {
         "parameters": [
-          {
-            "value": "/1",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/4",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/5",
-            "controlAddress": "/product"
-          },
           {
             "value": 1.476644277572632,
             "controlAddress": "/energyBarrier"
           }
         ],
         "niceName": "1+4=5",
+        "containers": {
+          "reactants": {
+          },
+          "products": {
+          }
+        },
         "type": "Reaction"
       },
       {
-        "parameters": [
-          {
-            "value": "/2",
-            "controlAddress": "/reactant1"
-          },
-          {
-            "value": "/3",
-            "controlAddress": "/reactant2"
-          },
-          {
-            "value": "/5",
-            "controlAddress": "/product"
-          }
-        ],
         "niceName": "2+3=5",
+        "containers": {
+          "reactants": {
+          },
+          "products": {
+          }
+        },
         "type": "Reaction"
       }
     ],
@@ -586,10 +534,6 @@
         "controlAddress": "/cacRobustness"
       },
       {
-        "value": true,
-        "controlAddress": "/cacAcceleration"
-      },
-      {
         "value": 0.1,
         "controlAddress": "/cacAccelThresh"
       },
@@ -598,12 +542,8 @@
         "controlAddress": "/printPACsToFile"
       },
       {
-        "value": true,
-        "controlAddress": "/printHistoryToFile"
-      },
-      {
-        "value": false,
-        "controlAddress": "/nonMinimalPACs"
+        "value": "/opt/homebrew/bin/z3 ",
+        "controlAddress": "/pathToZ3"
       },
       {
         "value": 12000,
@@ -611,17 +551,16 @@
         "controlAddress": "/z3Timeout"
       },
       {
-        "value": false,
-        "controlAddress": "/autoLoadLists"
+        "value": "12345",
+        "controlAddress": "/seedOfRandomGenerator"
       }
     ]
   },
   "currentSimul": {
-    "ready": true,
-    "recordConcent": 15.67770385742188,
-    "recordEntity": "5",
-    "recordDrawn": 15.67770385742188,
-    "recordDrawnEntity": "5",
+    "recordConcent": 17.67305755615234,
+    "recordEntity": "1",
+    "recordDrawn": 17.67305755615234,
+    "recordDrawnEntity": "",
     "numLevels": -1,
     "PACsGenerated": true,
     "entities": [
@@ -635,7 +574,7 @@
         },
         "primary": true,
         "id": -1,
-        "concent": 11.32342529296875,
+        "concent": 17.67305755615234,
         "startConcent": 7.082486152648926,
         "creationRate": 10.69792652130127,
         "destructionRate": 0.5,
@@ -654,7 +593,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.4841067790985107,
+        "concent": 0.04803621768951416,
         "startConcent": 27.49999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -673,7 +612,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 1.906745433807373,
+        "concent": 0.2254510074853897,
         "startConcent": 6.599999904632568,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -692,7 +631,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 0.5016930103302002,
+        "concent": 0.06093615293502808,
         "startConcent": 7.699999809265137,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -711,7 +650,7 @@
         },
         "primary": false,
         "id": -1,
-        "concent": 2.340217113494873,
+        "concent": 0.3149560987949371,
         "startConcent": 0.0,
         "creationRate": 0.0,
         "destructionRate": 0.5,
@@ -986,7 +925,7 @@
         {
           "pacids": [
             {
-              "id": 1
+              "id": 0
             }
           ],
           "witness": [
@@ -1000,7 +939,36 @@
             },
             {
               "entity": "3",
-              "value": 10.0
+              "value": 1.1875
+            },
+            {
+              "entity": "4",
+              "value": 0.462891012430191
+            },
+            {
+              "entity": "5",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 1
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 0.0625
+            },
+            {
+              "entity": "2",
+              "value": 1.0
+            },
+            {
+              "entity": "3",
+              "value": 8.0
             },
             {
               "entity": "4",
@@ -1008,7 +976,65 @@
             },
             {
               "entity": "5",
-              "value": 5.78125
+              "value": 4.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 2
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 2.4375
+            },
+            {
+              "entity": "2",
+              "value": 1.0
+            },
+            {
+              "entity": "3",
+              "value": 1.0
+            },
+            {
+              "entity": "4",
+              "value": 0.4093770086765289
+            },
+            {
+              "entity": "5",
+              "value": 1.0
+            }
+          ]
+        },
+        {
+          "pacids": [
+            {
+              "id": 3
+            }
+          ],
+          "witness": [
+            {
+              "entity": "1",
+              "value": 1.0
+            },
+            {
+              "entity": "2",
+              "value": 0.828125
+            },
+            {
+              "entity": "3",
+              "value": 1.0
+            },
+            {
+              "entity": "4",
+              "value": 0.359375
+            },
+            {
+              "entity": "5",
+              "value": 0.609375
             }
           ]
         },
@@ -1025,7 +1051,7 @@
             },
             {
               "entity": "2",
-              "value": 5.0
+              "value": 4.375
             },
             {
               "entity": "3",
@@ -1037,7 +1063,7 @@
             },
             {
               "entity": "5",
-              "value": 15.6855001449585
+              "value": 14.0
             }
           ]
         }
