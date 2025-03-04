@@ -1,5 +1,10 @@
 -still problems of links Simentity <-> entity <-> PACs
 
+-option of chemostat:
+	*add boolean "chemostat" on entities
+	*creation rate grayed if chemostat active
+	*chemostat concentration grayed if chemostat non active
+
 Modus operandi:
 *les deux sont sauvés dans les fichiers
 *au moment de recharger, les entities/reactions sont chargées avant la sim
