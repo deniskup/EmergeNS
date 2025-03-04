@@ -1576,7 +1576,9 @@ void Simulation::nextStep()
 
     // adjust the increments depending on available entities
     directIncr = jmin(directIncr, minReacConcent);
+    deterministicDirectIncr = jmin(deterministicDirectIncr, mindReacConcent);
     reverseIncr = jmin(reverseIncr, minProdConcent);
+    deterministicReverseIncr = jmin(deterministicReverseIncr, mindProdConcent);
 
     // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will effectively make them
 
@@ -1701,9 +1703,10 @@ void Simulation::nextStep()
     
     //destruction
     float rate = ent->concent * ent->destructionRate;
-    // deterministic contribution to change
-    float deterministicIncr = rate * dt->floatValue();
-    float incr = deterministicIncr;
+    float deterministicRate = ent->deterministicConcent * ent->destructionRate;
+    // decrease rate = - kd * [entity] * dt + noise
+    float deterministicIncr = deterministicRate * dt->floatValue();
+    float incr = rate * dt->floatValue();
 
     // demographic noise
     if (stochasticity->boolValue())
