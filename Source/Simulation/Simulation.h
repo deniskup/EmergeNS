@@ -214,7 +214,7 @@ public:
 	
 	void generateSimFromUserList();
 	void updateUserListFromSim();
-	void start(bool restart = true);
+	void start(bool restart = true, int run=0);
 	void nextStep();
 	void stop();
 	void cancel();
@@ -247,17 +247,19 @@ public:
 
 		SimulationEvent(Type t,
 			Simulation* sim,
+      int _run = 0,
 			int curStep = 0,
 			Array<float> entityValues = Array<float>(),
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
-			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList), run(_run)
 		{
 		}
 
 		Type type;
 		Simulation* sim;
+    int run;
 		int curStep;
 		Array<float> entityValues;
 		Array<Colour> entityColors;
