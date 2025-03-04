@@ -27,7 +27,7 @@ Run::Run(String _name) : ControllableContainer(_name)
   //isSavable = true;
   userCanAddControllables = false;
   isRemovableByUser = true;
-  updateEntitiesFromSimu();
+  importConcentrationsFromSimu();
 }
 
 
@@ -37,7 +37,7 @@ Run::Run(var data) : ControllableContainer("")
   
   userCanAddControllables = false;
   isRemovableByUser = true;
-  updateEntitiesFromSimu();
+  importConcentrationsFromSimu();
     
   // retrieve run name
   if (data.getDynamicObject()->hasProperty("niceName"))
@@ -89,15 +89,22 @@ Run::Run(var data) : ControllableContainer("")
 }
 
 
-
-
-
-
-void Run::updateEntitiesFromSimu() // should rename importSimuEntitiesToRuns
+Run::Run(String name, Array<String> entityNames, Array<float> concentrations) : ControllableContainer(name)
 {
+  addEntitiesToRun(entityNames, concentrations);
+}
 
+
+void Run::addEntitiesToRun(Array<String> names, Array<float> conc)
+{
+  if (names.size() != conc.size())
+  {
+    LOG("cannot init run with names array and concentration array of different sizes");
+    return;
+  }
+  
   p3d.clear();
-  int nent = Simulation::getInstance()->entities.size();
+  int nent = names.size();
   int n3p = nent/3;
   int rest = nent%3;
   
@@ -107,12 +114,10 @@ void Run::updateEntitiesFromSimu() // should rename importSimuEntitiesToRuns
     int e1 = 3*i3p;
     int e2 = 3*i3p + 1;
     int e3 = 3*i3p + 2;
-    String name = Simulation::getInstance()->entities[e1]->name + " | " + Simulation::getInstance()->entities[e2]->name
-      + " | " + Simulation::getInstance()->entities[e3]->name;
-    float c1 = Simulation::getInstance()->entities[e1]->startConcent;
-    float c2 = Simulation::getInstance()->entities[e2]->startConcent;
-    float c3 = Simulation::getInstance()->entities[e3]->startConcent;
-    //p3p.addPoint3DParameter(name, "Initial concentrations");
+    String name = names[e1] + " | " + names[e2] + " | " + names[e3];
+    float c1 = conc[e1];
+    float c2 = conc[e2];
+    float c3 = conc[e3];
     Point3DParameter * localp3d = addPoint3DParameter(name, "Initial concentrations");
     localp3d->setVector(c1, c2, c3);
     p3d.add(localp3d);
@@ -122,41 +127,61 @@ void Run::updateEntitiesFromSimu() // should rename importSimuEntitiesToRuns
   {
     int e1 = nent-2;
     int e2 = nent-1;
-    String name = Simulation::getInstance()->entities[e1]->name + " | " + Simulation::getInstance()->entities[e2]->name;
-    //cc.addPoint2DParameter(name, "Initial concentrations");
+    String name = names[e1] + " | " + names[e2];
+    float c1 = conc[e1];
+    float c2 = conc[e2];
     p2d = addPoint2DParameter(name, "Initial concentrations");
+    p2d->setPoint(c1, c2);
   }
   else if (rest == 1)
   {
-    String name = Simulation::getInstance()->entities.getLast()->name;
-    //cc.addFloatParameter(name, "Initial concentrations", 0.f, 0.f, 10.f);
-    fp = addFloatParameter(name, "Initial concentrations", 0.f, 0.f, 10.f);
+    String name = names.getLast();
+    fp = addFloatParameter(name, "Initial concentrations", conc.getLast(), 0.f, 10.f);
   }
   else if (rest == 0)
   {
     
   }
-  else cout << "Warning, problem in run initial concentration setting" << endl;
+  else LOGWARNING("Warning, problem in run initial concentration setting");
+  
   
 }
 
 
 
 
-/*
-void Run::clearItem()
-{
-  cout << "RUN::clearing item" << endl;
-  BaseItem::clearItem();
-}
-*/
 
-/*
-void Run::itemRemoved(Run*)
+void Run::importConcentrationsFromSimu() 
 {
-  cout << "this one ?" << endl;
+  
+  Array<String> names;
+  Array<float> concentrations;
+  
+  for (auto & ent : Simulation::getInstance()->entities)
+  {
+    names.add(ent->name);
+    concentrations.add(ent->startConcent);
+  }
+  
+  addEntitiesToRun(names, concentrations);
+  
 }
-*/
+
+
+
+void Run::controllableRemoved(Controllable* c)
+{/*
+  String prefix = c->parentContainer == reactants.get() ? "Reactant " : "Product ";
+  int index = 1;
+  for (auto& controllable : c->parentContainer->controllables)
+  {
+    TargetParameter* tp = (TargetParameter*)controllable;
+    tp->setNiceName(prefix + String(index++));
+  }
+
+  updateWarnAndRates();
+  */
+}
 
 
 
@@ -203,8 +228,6 @@ var Run::getJSONData()
 
 void Run::loadJSONData(var data, bool createIfNotThere)
 {
-  cout << "HEEEEEEEEEEERRRRRRRE" << endl;
-  
   // retrieve run name
   if (data.getDynamicObject()->hasProperty("niceName"))
     niceName = data.getDynamicObject()->getProperty("niceName");
@@ -315,44 +338,13 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
   yAxis = addTargetParameter("y axis", "y axis", EntityManager::getInstance());
   yAxis->targetType = TargetParameter::CONTAINER;
   
+  importCSV = addTrigger("Set runs from csv file", "Init runs from reading of a csv file using comma separations");
+  pathToCSV = addStringParameter("Path to CSV file", "Path to csv file", "");
+  
 
   // number of runs
   nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 20);
   
- 
-   
-  /*
-  //for (unsigned int i=0; i<nRuns->intValue(); i++)
-  for (unsigned int i=0; i<0; i++)
-  {
-    String name = "run " + String(to_string(i));
-    
-    //runs[i] = new ControllableContainer(name);
-    //runs[i]->userCanAddControllables = false;
-    //runs[i]->isRemovableByUser = true;
-    //runs[i]->saveAndLoadRecursiveData = true;
-    //addChildControllableContainer(runs[i]);
-    //runs[i] = add(arun);
-
-    
-    // previous version, showing problems at saving as .ens
-    //ControllableContainer * thisrun = new ControllableContainer(name);
-    //thisrun->userCanAddControllables = false;
-    //thisrun->isRemovableByUser = true;
-    //thisrun->saveAndLoadRecursiveData = true;
-    //addChildControllableContainer(thisrun);
-    //runs.add(thisrun);
-    
-    Run * thisrun = new Run(name);
-    thisrun->addEntitiesToRun();
-    addChildControllableContainer(thisrun);
-    //thisrun->fp = addFloatParameter("fp", "", 1.5);
-    //addChildControllableContainer(thisrun->get());
-    runs.add(thisrun);
-
-    
-  }
-  */
   
 }
 
@@ -380,7 +372,7 @@ void PhasePlane::updateEntitiesFromSimu()
 {
   for (auto & r : runs)
   {
-    r->updateEntitiesFromSimu();
+    r->importConcentrationsFromSimu();
   }
 } // end method updateEntitiesFromSimu
 
@@ -409,8 +401,9 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
         // with new version
         String name = "run " + String(to_string(k));
         Run * thisrun = new Run(name);
-        addChildControllableContainer(thisrun);
-        runs.add(thisrun);
+        addRun(thisrun);
+        //addChildControllableContainer(thisrun);
+        //runs.add(thisrun);
       }
     }
     else if (nRuns->intValue()<runs.size())
@@ -447,6 +440,11 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   {
     cout << "will start runs and draw them" << endl;
   }
+  else if (t == importCSV)
+  {
+    cout << "importing runs from csv file" << endl;
+    importRunsFromCSVFile();
+  }
 }
 
 
@@ -482,6 +480,108 @@ void PhasePlane::onRemoveChildControllableContainer()
 }
 
 
+void PhasePlane::clearAllRuns()
+{
+  for (int k=runs.size()-1; k>=0; k--)
+  {
+    removeChildControllableContainer(runs[k]);
+    runs.removeLast(1);
+  }
+}
+
+
+
+void PhasePlane::addRun(Run * newrun)
+{
+  addChildControllableContainer(newrun);
+  runs.add(newrun);
+}
+
+
+
+
+void PhasePlane::importRunsFromCSVFile()
+{
+  // open csv file and returns if file does not exist.
+  ifstream ifcsv;
+  ifcsv.open(pathToCSV->stringValue().toUTF8());
+  if (ifcsv.is_open())
+  {
+    LOGWARNING("Cannot open csv file at " + pathToCSV->stringValue() + ". Exit.");
+    return;
+  }
+  
+  // store content of csv file
+  string line;
+  Array<String> names;
+  Array<Array<float>> concentrations;
+  int iline = -1;
+  while (getline(ifcsv, line))
+  {
+    iline++;
+    string element;
+    stringstream ssline(line);
+    if (iline==0) // first line are entity names
+    {
+      while (getline(ssline, element, ','))
+      {
+        names.add(String(element));
+      }
+      // sanity check on the first line
+      if (names.size() != Simulation::getInstance()->entities.size())
+      {
+        LOG("entities from simu and csv file differ. Exit.");
+        return;
+      }
+      for (auto & name : names)
+      {
+        if (EntityManager::getInstance()->getEntityFromName(name) == nullptr)
+        {
+          LOG("No matching to entity " + name << " in current simulation. Exit.");
+          return;
+        }
+      }
+    }
+    
+    else // lines > 0 contain initial concentrations
+    {
+      Array<float> concent;
+      while (getline(ssline, element, ','))
+      {
+        // check that element is a correct float
+        for (int k=0; k<element.size(); k++)
+        {
+          if (!isdigit(element[k]))
+          {
+            LOG("Wrong concentration format in csv file, not a float --> " + element + ". Exit");
+            return;
+          }
+        }
+        concent.add(stof(element));
+      }
+      if (concent.size() != Simulation::getInstance()->entities.size())
+      {
+        LOG("Entities from simu and concentration vector in csv file have different sizes. Exit.");
+        return;
+      }
+      concentrations.add(concent);
+    }
+  } // end while
+  
+  // clear all existing runs
+  clearAllRuns();
+    
+  // add runs
+  for (int i=0; i<concentrations.size(); i++)
+  {
+    String runname = "run " + String(to_string(i));
+    Run * newrun = new Run(runname, names, concentrations[i]);
+    addRun(newrun);
+    //addChildControllableContainer(newrun);
+    //runs.add(newrun);
+  }
+  
+}
 
 
 
@@ -495,7 +595,7 @@ void PhasePlane::startRuns()
   for (auto & run : runs)
   {
     count++;
-    //cout << "in run #" << count << endl;
+    cout << "PhasePlane::startRuns():: in run #" << count << endl;
    // set entity concentrations to their value in Phase Plane window
     //ControllableContainer * cc = run->getControllableContainerByName("run" + String(to_string(count)));
     juce::Array<juce::WeakReference<Parameter>> allp = run->getAllParameters();
@@ -589,7 +689,8 @@ void PhasePlane::startRuns()
     //Simulation::getInstance()->start(true);
     //Simulation::getInstance()->run();
     
-    // NB : above that does not works. 
+    // NB : above that does not works.
+    cout << "PhasePlane::startRuns() will call Simulation Instance" << endl;
 
     Simulation::getInstance()->startMultipleRuns(initConc);
 
@@ -727,24 +828,16 @@ void PhasePlane::drawRuns()
 
 void PhasePlane::loadJSONData(var data, bool createIfNotThere)
 {
-  /*
-  // ugly solution to get rid of ghost runs initiated
-  while (runs.size()>0)
-  {
-    int krm = runs.size()-1;
-    removeChildControllableContainer(runs[krm]);
-    runs.removeLast(1);
-  }
-*/
+  if (data.isVoid())
+    return;
   
-
-    // load runs
   if (!data.getDynamicObject()->hasProperty("runs"))
   {
     LOGWARNING("couldn't retrieve any run from json file");
     return;
   }
   
+  // load runs
   auto arrayruns = data.getProperty("runs", juce::var());
   // retrieve runs
  // cout << "is array ? --> " << data.getProperty("runs", juce::var()).isArray() << endl;
@@ -766,14 +859,13 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
     }
     
     Run * newrun = new Run(arun);
-    addChildControllableContainer(newrun);
-    //addControllableContainer(newrun);
-    //cout << "adding child container with name " << newrun->niceName << endl;
-    runs.add(newrun);
-    //rm->addItemInternal(newrun, arun);
+    addRun(newrun);
+    //addChildControllableContainer(newrun);
+    //runs.add(newrun);
     
   }
-  
+  cout << "flag D" << endl;
+
   if (data.getDynamicObject()->hasProperty("nRuns"))
     nRuns->setValue(data.getDynamicObject()->getProperty("nRuns"));
   
@@ -786,6 +878,8 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
   if (data.getDynamicObject()->hasProperty("yAxis"))
     yAxis->setValue(data.getDynamicObject()->getProperty("yAxis"));
   
+  if (data.getDynamicObject()->hasProperty("pathToCSV"))
+    pathToCSV->setValue(data.getDynamicObject()->getProperty("pathToCSV"));
   
 }
 
@@ -800,6 +894,7 @@ var PhasePlane::getJSONData()
   data.getDynamicObject()->setProperty("pathToEmergens", pathToEmergens->stringValue());
   data.getDynamicObject()->setProperty("xAxis", xAxis->getValue());
   data.getDynamicObject()->setProperty("yAxis", yAxis->getValue());
+  data.getDynamicObject()->setProperty("pathToCSV", pathToCSV->stringValue());
   data.getDynamicObject()->setProperty("nRuns", nRuns->intValue());
 
   var vruns;

@@ -36,20 +36,22 @@ class Run : public ControllableContainer
   Run();
   Run(String _name);
   Run(var data);
+  Run(String, Array<String>, Array<float>); // entity names, entity concentrations
   Run(OwnedArray<SimEntity*>, String _name);
   virtual ~Run(){};
   
-    String name = "";
-    Array<Point3DParameter*> p3d;
-    Point2DParameter * p2d = nullptr;
-    FloatParameter * fp = nullptr;
+  String name = "";
+  Array<Point3DParameter*> p3d;
+  Point2DParameter * p2d = nullptr;
+  FloatParameter * fp = nullptr;
   
   //void controllableAdded(Controllable *) override; // à coder
     
-  //void addEntitiesToRun(OwnedArray<SimEntity*>);
-  void updateEntitiesFromSimu();
+  void addEntitiesToRun(Array<String>, Array<float>);
   
-  //void controllableRemoved(Controllable* c) override;
+  void importConcentrationsFromSimu();
+  
+  void controllableRemoved(Controllable* c) override;
   //void clearItem() override;
 
 
@@ -96,8 +98,6 @@ public:
 
     ~PhasePlane();
   
-  //RunManager * rm;
-
   Trigger * start;
   Trigger * draw;
   Trigger * startDraw;
@@ -106,12 +106,13 @@ public:
   
   TargetParameter * xAxis;
   TargetParameter * yAxis;
+  
+  Trigger * importCSV;
+  StringParameter * pathToCSV;
+
+
 
   IntParameter * nRuns;
-  //Array<ControllableContainer*> runs;
-  //vector<ControllableContainer*> runs(20);
-  //ControllableContainer * arun;
-  //ControllableContainer * test;
   Array<Run*> runs;
   
   //void addEntity(Entity* e);
@@ -122,23 +123,19 @@ public:
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
   void controllableAdded(Controllable *) override;
-  //void notifyStructureChanged() override;
-  //void removeChildControllableContainer(ControllableContainer* container) override;
-  //void setParentContainer(ControllableContainer* container) override;
   void onRemoveChildControllableContainer() override;
 
-
+  void clearAllRuns();
+  void addRun(Run *);
+  
+  void importRunsFromCSVFile();
   
   void startRuns();
   void drawRuns();
 
   
-  //void importJSONData(var data);
-  
-  //void afterLoadJSONDataInternal() override;
   
   void loadJSONData(var data, bool createIfNotThere = false) override; // à coder, voir void importJSONData(var data) de Simulation.h
-  
   var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
   
  
