@@ -9,6 +9,21 @@
 
 juce_ImplementSingleton(PhasePlane);
 
+
+bool canConvertStringToFloat(const std::string& str)
+{
+    try {
+        std::size_t pos;
+        std::stof(str, &pos); // Try to convert
+
+        // Ensure the whole string was used in conversion
+        return pos == str.length();
+    }
+    catch (const std::exception&) {
+        return false; // Conversion failed
+    }
+}
+
 /*
 Run::Run() : ControllableContainer()
 {
@@ -91,6 +106,8 @@ Run::Run(var data) : ControllableContainer("")
 
 Run::Run(String name, Array<String> entityNames, Array<float> concentrations) : ControllableContainer(name)
 {
+  userCanAddControllables = false;
+  isRemovableByUser = true;
   addEntitiesToRun(entityNames, concentrations);
 }
 
@@ -412,7 +429,6 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
       {
         int krm = runs.size()-1;
         removeChildControllableContainer(runs[krm]);
-        runs.removeLast(1);
       }
     }
   //cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
@@ -485,7 +501,7 @@ void PhasePlane::clearAllRuns()
   for (int k=runs.size()-1; k>=0; k--)
   {
     removeChildControllableContainer(runs[k]);
-    runs.removeLast(1);
+    //runs.removeLast(1);
   }
 }
 
@@ -505,7 +521,7 @@ void PhasePlane::importRunsFromCSVFile()
   // open csv file and returns if file does not exist.
   ifstream ifcsv;
   ifcsv.open(pathToCSV->stringValue().toUTF8());
-  if (ifcsv.is_open())
+  if (!ifcsv.is_open())
   {
     LOGWARNING("Cannot open csv file at " + pathToCSV->stringValue() + ". Exit.");
     return;
@@ -548,16 +564,12 @@ void PhasePlane::importRunsFromCSVFile()
       Array<float> concent;
       while (getline(ssline, element, ','))
       {
-        // check that element is a correct float
-        for (int k=0; k<element.size(); k++)
+        if (canConvertStringToFloat(element)) concent.add(stof(element));
+        else
         {
-          if (!isdigit(element[k]))
-          {
-            LOG("Wrong concentration format in csv file, not a float --> " + element + ". Exit");
-            return;
-          }
+          LOG("Wrong concentration format in csv file, not a float --> " + element + ". Exit");
+          return;
         }
-        concent.add(stof(element));
       }
       if (concent.size() != Simulation::getInstance()->entities.size())
       {
@@ -568,6 +580,19 @@ void PhasePlane::importRunsFromCSVFile()
     }
   } // end while
   
+  /*
+  for (auto & name : names)
+  {
+    cout << name << "\t";
+  }
+  cout << endl;
+  for (auto & concentration : concentrations)
+  {
+    for (auto & c : concentration) cout << c << "\t";
+    cout << endl;
+  }
+  */
+  
   // clear all existing runs
   clearAllRuns();
     
@@ -577,8 +602,6 @@ void PhasePlane::importRunsFromCSVFile()
     String runname = "run " + String(to_string(i));
     Run * newrun = new Run(runname, names, concentrations[i]);
     addRun(newrun);
-    //addChildControllableContainer(newrun);
-    //runs.add(newrun);
   }
   
 }
