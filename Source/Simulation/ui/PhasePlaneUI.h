@@ -57,6 +57,7 @@ public:
   
     unique_ptr<IntStepperUI> nRunsUI;
 
+    juce::Viewport vp;
 
 
     // std::unique_ptr<IntStepperUI> numLevelsUI;
