@@ -107,9 +107,12 @@ public:
 	int curStep;
 	int nSteps;
   
-  // run
-  int kRun = 0;
+  // multiple runs
+  int currentRun = 0;
+  int nRuns = 1;
   bool isMultipleRun = false;
+  Array<map<String, float>> initialConcentrations;
+  bool shouldStartNewRun = false;
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
@@ -214,7 +217,7 @@ public:
 	
 	void generateSimFromUserList();
 	void updateUserListFromSim();
-	void start(bool restart = true, int run=0);
+	void start(bool restart = true);
 	void nextStep();
 	void stop();
 	void cancel();

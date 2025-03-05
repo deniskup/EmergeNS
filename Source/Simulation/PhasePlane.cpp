@@ -618,7 +618,7 @@ void PhasePlane::startRuns()
   for (auto & run : runs)
   {
     count++;
-    cout << "PhasePlane::startRuns():: in run #" << count << endl;
+   // cout << "PhasePlane::startRuns():: in run #" << count << endl;
    // set entity concentrations to their value in Phase Plane window
     //ControllableContainer * cc = run->getControllableContainerByName("run" + String(to_string(count)));
     juce::Array<juce::WeakReference<Parameter>> allp = run->getAllParameters();
@@ -644,7 +644,7 @@ void PhasePlane::startRuns()
         String name2 = pname.substring(f1+3, f2);
         String name3 = pname.substring(f2+3, (int) pname.toStdString().size());
         
-        Array<var> * arr = p->value.getArray();
+        Array<var> arr = *p->value.getArray();
         var x = arr[0];
         var y = arr[1];
         var z = arr[2];
@@ -672,7 +672,7 @@ void PhasePlane::startRuns()
         String name1 = pname.substring(0, f1);
         String name2 = pname.substring(f1+3, (int) pname.toStdString().size());
         
-        Array<var> * arr = p->value.getArray();
+        Array<var> arr = *p->value.getArray();
         var x = arr[0];
         var y = arr[1];
 
@@ -713,12 +713,11 @@ void PhasePlane::startRuns()
     //Simulation::getInstance()->run();
     
     // NB : above that does not works.
-    cout << "PhasePlane::startRuns() will call Simulation Instance" << endl;
+    //cout << "PhasePlane::startRuns() will call Simulation Instance" << endl;
 
-    Simulation::getInstance()->startMultipleRuns(initConc);
-
-    
   } // end loop over runs
+  
+  Simulation::getInstance()->startMultipleRuns(initConc);
   
 } // end startRuns()
 
@@ -887,7 +886,6 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
     //runs.add(newrun);
     
   }
-  cout << "flag D" << endl;
 
   if (data.getDynamicObject()->hasProperty("nRuns"))
     nRuns->setValue(data.getDynamicObject()->getProperty("nRuns"));

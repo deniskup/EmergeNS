@@ -9,10 +9,7 @@
 TODO list
 - synchronize manual addition of entities with Phase Plane entity list
 - manually position the trigger buttons instead of using three lines. See PhasePlaneUI for that.
-- add possibility to scroll within this window.
-- sync nRuns with runs actually manually removed, and rename the runs starting from 0 when one is actually removed.
 - I shouldn't have  Simulation.h included in this header. Circular inclusion pattern.
-- fix save and import data as JSON.
 - Steady States do not seem to be saved in json file.
 */
 

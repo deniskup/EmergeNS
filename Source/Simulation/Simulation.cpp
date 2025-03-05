@@ -1382,12 +1382,10 @@ void Simulation::generateSimFromUserList()
   updateParams();
 }
 
-void Simulation::start(bool restart, int run)
+void Simulation::start(bool restart)
 {
   
-  cout << "start::run = " << run << endl;
-
-  if (run==0) stopThread(100);
+  stopThread(100);
 
   // if (!ready)
   //{
@@ -1446,7 +1444,7 @@ void Simulation::start(bool restart, int run)
 
   Array<float> entityValues;
   Array<Colour> entityColors;
-
+  
   for (auto &ent : entitiesDrawn)
   {
     entityValues.add(ent->concent);
@@ -1458,6 +1456,14 @@ void Simulation::start(bool restart, int run)
   // listeners.call(&SimulationListener::simulationStarted, this);
   recordConcent = 0.;
   recordDrawn = 0.;
+  for (auto & ent : entities)
+    if (ent->concent > recordConcent)
+    {
+      recordConcent = ent->concent;
+      if (ent->draw) recordDrawn = ent->concent;
+    }
+  
+  nRuns = 1;
 
   // remove RACs
   for (auto &pac : pacList->cycles)
@@ -1510,13 +1516,59 @@ void Simulation::start(bool restart, int run)
     }
   }
   
-  if (run==0) startThread();
+  startThread();
 }
 
 void Simulation::nextStep()
 {
 
   nSteps++;
+  
+  if (isMultipleRun)
+  {
+   // cout << "Simulation::nextStep() at run " << currentRun << " and step " << nSteps << endl;
+   // cout << "------- State of the system -------" << endl;
+   // for (auto & ent : entities) cout << ent->name << "\t";
+   // cout << endl;
+   // for (auto & ent : entities) cout << ent->concent << "\t";
+   // cout << endl;
+
+    if (nSteps>maxSteps) // current run is over
+    {
+      if (currentRun<(nRuns-1)) // should start new run
+      {
+        currentRun++;
+      //  cout << "!!!!!!!!!!!! Moving to run " << currentRun << endl;
+      //  cout << "New initial conditions are" << endl;
+        nSteps = 0; // re-initialize step counter
+        //perCent->setValue(0); // re-initialize bar progression
+        // reset concentrations to next run initial conditions
+        for (auto & [name, startconc] : initialConcentrations[currentRun])
+        {
+        //  cout << "[" << name << "] = " << startconc << endl;
+          getSimEntityForName(name)->concent = startconc;
+        }
+       // for (auto & ent : entities)
+       // {
+        //  cout << "[" << ent->name << "] = " << ent->concent << endl;
+        //}
+      }
+      else // stop simulation
+      {
+        stop();
+      }
+      return;
+    }
+  }
+  else
+  {
+    if (curStep >= maxSteps && !express) // in express mode we wait for the equilibrium
+    {
+      stop();
+      return;
+    }
+  }
+  
 
   bool isCheck = (curStep % checkPoint == 0);
   if (displayLog && isCheck)
@@ -1524,18 +1576,16 @@ void Simulation::nextStep()
     LOG("New Step : " << curStep);
     wait(1);
   }
-  if (curStep >= maxSteps && !express) // in express mode we wait for the equilibrium
-  {
-    stop();
-    return;
-  }
+  
 
+
+  
   // loop through reactions (first to see brief RACs)
   for (auto &reac : reactions)
   {
     // for a sanity check
-    //string testname = "2+2=4";
-    //bool print(testname==reac->name ? true : false);
+    //cout << "##### " << reac->name << " :" << endl;
+    //cout << "\tassoc/dissoc k : " << reac->assocRate << " ; " << reac->dissocRate << endl;
     
     if (!reac->enabled)
       continue;
@@ -1750,7 +1800,10 @@ void Simulation::nextStep()
   } // end loop over entities
 
   curStep++;
-  perCent->setValue((int)((curStep * 100) / maxSteps));
+  //perCent->setValue((int)((curStep * 100) / maxSteps));
+  if (nRuns>0)
+    perCent->setValue((int)((curStep * 100) / (maxSteps*nRuns)));
+  
 
   float maxVar = 0.;
 
@@ -1759,7 +1812,8 @@ void Simulation::nextStep()
 
     if (Settings::getInstance()->printHistoryToFile->boolValue())
     {
-      ent->concentHistory.add(ent->concent);
+      //ent->concentHistory.add(ent->concent);
+      ent->concentHistory.add(make_pair(currentRun, ent->concent));
     }
 
     // update concentration
@@ -1773,7 +1827,8 @@ void Simulation::nextStep()
       finished->setValue(true);
       return;
     }
-    if (ent->concent > recordConcent)
+    //if (ent->concent > recordConcent)
+    if ( (ent->concent > recordConcent) && currentRun==(nRuns-1))
     {
       recordConcent = ent->concent;
       recordEntity = ent->name;
@@ -1782,16 +1837,12 @@ void Simulation::nextStep()
     float variation = abs(ent->concent - ent->previousConcent);
     maxVar = jmax(maxVar, variation);
 
-    if (ent->draw && ent->concent > recordDrawn)
+    //if (ent->draw && ent->concent > recordDrawn)
+    if (ent->draw && ent->concent > recordDrawn && currentRun==(nRuns-1))
     {
       recordDrawn = ent->concent;
       recordDrawnEntity = ent->name;
     }
-
-    // if (Settings::getInstance()->printHistoryToFile->boolValue())
-    // {
-    //   ent->concentHistory.add(ent->concent);
-    // }
   }
   maxVarSpeed = maxVar / dt->floatValue();
 
@@ -1804,7 +1855,7 @@ void Simulation::nextStep()
     }
   }
   bool stopAtEquilibrium = detectEquilibrium->boolValue() || express;
-  if (stopAtEquilibrium && maxVarSpeed < epsilonEq->floatValue())
+  if (stopAtEquilibrium && maxVarSpeed < epsilonEq->floatValue() && !isMultipleRun)
   {
     if (!express)
       LOG("Equilibrium reached after time " << curStep * dt->floatValue() << " s with max speed " << maxVarSpeed);
@@ -2019,9 +2070,23 @@ void Simulation::nextStep()
   //   }
   //   history.add(new Snapshot(curStep, concents, flows, racs));
   // }
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, curStep, entityValues, {}, PACsValues, RACList));
+  if (isMultipleRun)
+  {
+    if (currentRun == (nRuns-1))
+    {
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, nSteps, entityValues, {}, PACsValues, RACList));
+      //cout << "adding c vector at step = " << nSteps << endl;
+      //for (auto & val : entityValues) cout << "\t" << val;
+      //cout << endl;
+    }
+  }
+  else
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, curStep, entityValues, {}, PACsValues, RACList));
   // listeners.call(&SimulationListener::newStep, this);
 }
+
+
+
 
 void Simulation::stop()
 {
@@ -2032,6 +2097,7 @@ void Simulation::stop()
     updateUserListFromSim();
   }
   state = Idle;
+  isMultipleRun = false;
 
   // if (!express)
   //{
@@ -2050,46 +2116,98 @@ void Simulation::cancel()
 void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 {
   
-  stopThread(100);
-  state = Simulating;
-  // warn here
- // if (getUserListMode())
- // {
- //   for (auto &r : ReactionManager::getInstance()->items)
- //   {
- //     r->updateWarnAndRates();
- //   }
- // }
-  startTrigger->setEnabled(false);
-
+  cout << "Simulation::startMultipleRuns()" << endl;
   
-  int irun = -1;
   isMultipleRun = true;
+  nRuns = (int) initConc.size();
+  currentRun = 0;
+  stopThread(100);
   if (!Settings::getInstance()->printHistoryToFile->boolValue())
     Settings::getInstance()->printHistoryToFile->setValue(true);
-  // loop over initial concentrations of various runs
+  
+  cout << "Simulation::startMultipleRuns() : Will start " << nRuns << " runs" << endl;
+  
+  // Set initial concentrations of all runs
+  int irun = -1;
+  initialConcentrations.clear();
+  initialConcentrations = initConc;
+  // clear concentration histories of entities
+  for (auto& ent: entities)
+  {
+    ent->concentHistory.clear();
+  }
+  
+  // other stuff that need to be initialized. Copied from start(bool restart)
+  // should be merged into single function instead of doubling content here
+  startTrigger->setEnabled(false);
+  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
+  checkPoint = jmax(1, checkPoint);
+  if (stochasticity->boolValue()) rgg = new RandomGausGenerator(0., 1.); // init random generator
+  RAChistory.clear();
+  for (auto &pac : pacList->cycles) RAChistory.add(new RACHist(pac->entities, pac->score));
+  state = Simulating;
+  if (!express)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  Array<float> entityValues;
+  Array<Colour> entityColors;
+  for (auto &ent : entitiesDrawn)
+  {
+    entityValues.add(initConc[initConc.size()-1][ent->name]);
+    entityColors.add(ent->color);
+  }
+  if (!express)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, 0, entityValues, entityColors));
+  recordConcent = 0.;
+  recordDrawn = 0.;
+  map<String, float> lastrun = initConc[initConc.size()-1];
+  for (auto & [name, conc] : lastrun) // init with last run
+  {
+    if (conc > recordConcent)
+    {
+      recordConcent = conc;
+      if (getSimEntityForName(name)->draw) recordDrawn = conc;
+    }
+  }
+  
+  // init concentrations of sim entities to the one of the first run
+  if (initConc.size()==0) return;
+  for (auto & [entname, startconc] : initialConcentrations[0])
+  {
+    getSimEntityForName(entname)->concent = startconc;
+  }
+  
+  cout << "Simulation::startMultipleRuns(): Starting thread" << endl;
+
+  
+  startThread();
+  return;
+  
+  
+  /// STOP
+  
+  
   for (auto & m : initConc)
   {
     irun++;
     cout << "startMultipleRun::run = " << irun << endl;
     if (!express)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, irun));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, 0));
     
     //if (irun==0)
     //{
-      Array<float> entityValues;
-      Array<Colour> entityColors;
+      //Array<float> entityValues;
+      //Array<Colour> entityColors;
       
-      for (auto &ent : entitiesDrawn)
-      {
-        entityValues.add(ent->concent);
-        entityColors.add(ent->color);
-      }
+      //for (auto &ent : entitiesDrawn)
+      //{
+      //  entityValues.add(ent->concent);
+      //  entityColors.add(ent->color);
+      //}
     recordConcent = 0.;
     recordDrawn = 0.;
     
-      if (!express)
-        simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, irun, 0, entityValues, entityColors));
+      //if (!express)
+      //  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, irun, 0, entityValues, entityColors));
     //}
     // set concentrations to initial values
     for (auto const & [name, conc] : m)
@@ -2103,10 +2221,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
       ent->concentHistory.clear();
     }
     
-    //kRun = irun;
-    //start(true, irun);
-    //run();
-    //startThread();
+    
   }
   
   // ########################################################################
@@ -2191,16 +2306,41 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 
 void Simulation::run()
 {
+  cout << "Simulation::run()" << endl;
   curStep = 0;
   nSteps = 0;
   if (!express)
     LOG("--------- Start thread ---------");
   finished->setValue(false);
-  while (!finished->boolValue() && !threadShouldExit())
+  if (!isMultipleRun)
   {
-    nextStep();
+    while (!finished->boolValue() && !threadShouldExit())
+    {
+      nextStep();
+    }
   }
-
+  else
+  {
+    //while (currentRun<=initialConcentrations.size())
+   //{
+     //cout << "Simulation::run() run #" << currentRun << endl;
+      while (!finished->boolValue() && !threadShouldExit() /*&& stop<15*/ /*&& !shouldStartNewRun*/)
+      {
+        nextStep();
+      }
+    /*
+      if (shouldStartNewRun) // reset concentrations and increment current run index
+      {
+        currentRun++;
+        for (auto & [name, startconc] : initialConcentrations[currentRun])
+        {
+          getSimEntityForName(name)->concent = startconc;
+        }
+        shouldStartNewRun = false;
+      }
+    */
+    //}
+  }
   if (!express)
     LOG("--------- End thread ---------");
 
@@ -2243,6 +2383,8 @@ void Simulation::run()
 
 void Simulation::writeHistory()
 {
+  
+  cout << "Simulation::writeHistory() recorded " << entities[0]->concentHistory.size() << " steps" << endl;
 
   for (int idPAC0 = 0; idPAC0 < RAChistory.size(); idPAC0++)
   {
@@ -2288,19 +2430,12 @@ void Simulation::writeHistory()
   }
   LOG("RAC History written to files RACi.csv");
 
-  // store concentration all entity concentrations history to csv file
-  cout << "writeHistory::run = " << kRun << endl;
-  cout << "how many steps ? => " << nSteps << endl;
-  String concentFilename = "./concentrationDynamic.csv";
-  if (isMultipleRun) concentFilename = "c" + String(to_string(kRun)) + ".csv";
+  // store concentration of all entity concentrations history to csv file
+  String concentFilename = "./concentrationDynamics.csv";
   ofstream outfile;
   outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
-  //if (kRun==0)  outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
-  //else outfile.open(concentFilename.toStdString(), ofstream::ate);
 
   // 1st line of the file is column name : time and entities
-  //if (kRun==0)
-  //{
     outfile << "time,runID,";
     for (int ient = 0; ient < entities.size(); ient++)
     {
@@ -2308,20 +2443,23 @@ void Simulation::writeHistory()
       outfile << "[" << entities[ient]->name << "]" << comma;
     }
     outfile << endl;
-  //}
 
   // now store concentration history
-  for (int s = 0; s < (nSteps - 1); s++)
+  int npoints = entities[0]->concentHistory.size();
+  //for (int s = 0; s < (nSteps - 1)*nRuns; s++)
+  for (int s = 0; s < npoints; s++)
   {
+    float thisrun = (float) entities[0]->concentHistory[s].first;
     float fs = (float)s;
-    float time = fs * dt->floatValue();
-    //outfile << time << ",i_run,";
-    outfile << time << "," << kRun << ",";
+    float time = (fs - thisrun * (float) maxSteps) * dt->floatValue();
+    //outfile << time << "," << kRun << ",";
+    outfile << time << "," << entities[0]->concentHistory[s].first << ",";
     int c = 0;
     for (auto &ent : entities)
     {
       string comma = (c == (entities.size() - 1)) ? "" : ",";
-      outfile << ent->concentHistory[s] << comma;
+      //outfile << ent->concentHistory[s] << comma;
+      outfile << ent->concentHistory[s].second << comma;
       c++;
     }
     outfile << endl;

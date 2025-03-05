@@ -57,3 +57,11 @@ public:
 	Array<SimEntity*> ents;
 	float pacScore = 0.;
 };
+
+
+class SimRun
+{
+  SimRun(){};
+
+  Array<Array<float>> concentHistory;
+};
