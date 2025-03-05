@@ -50,6 +50,15 @@ PhasePlaneUI::PhasePlaneUI() : ShapeShifterContentComponent(PhasePlane::getInsta
 
     editorUI.reset(new GenericControllableContainerEditor(pp, true));
     addAndMakeVisible(editorUI.get());
+  
+    // set view component 
+    addAndMakeVisible(vp);
+    vp.setScrollBarsShown(true, true);
+    vp.setScrollBarThickness(10);
+    vp.setBounds(getLocalBounds());
+    vp.setViewedComponent(editorUI.get(), false);
+
+
 
 /*
     startUI.reset(pp->start->createButtonUI());
@@ -80,6 +89,7 @@ void PhasePlaneUI::resized()
   
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
+    vp.setBounds(r);
 /*
     r.removeFromTop(8);
     Rectangle<int> hr = r.removeFromTop(20);
