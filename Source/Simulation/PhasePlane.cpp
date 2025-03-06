@@ -462,19 +462,18 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   
   if (t == start)
   {
-    cout << "will start runs" << endl;
     startRuns();
   }
   
   else if (t == draw)
   {
-    cout << "will start drawing" << endl;
     drawRuns();
   }
   
   else if (t == startDraw)
   {
-    cout << "will start runs and draw them" << endl;
+    startRuns();
+    drawRuns();
   }
   else if (t == importCSV)
   {
