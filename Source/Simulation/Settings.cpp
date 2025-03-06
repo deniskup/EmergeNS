@@ -59,6 +59,7 @@ Settings::Settings() : ControllableContainer("Settings")
     fixedSeed = addBoolParameter("Fix seed of random generator", "Fix seed of random generator", false);
    
     randomSeed = addStringParameter("Seed of random generator", "Seed of random generator", "1234");
+    randomSeed->setControllableFeedbackOnly(!fixedSeed->boolValue());
 
 }
 
@@ -71,6 +72,10 @@ void Settings::onContainerParameterChanged(Parameter *p)
   if (p == volume)
   {
     updateNoiseParameter();
+  }
+  else if (p == fixedSeed)
+  {
+    randomSeed->setControllableFeedbackOnly(!fixedSeed->boolValue());
   }
 }
 

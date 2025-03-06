@@ -2,7 +2,6 @@
 #pragma once
 
 #include "../Simulation.h"
-#include <format>
 
 // for alignment of simulation and RACs windows
 inline int leftMargin = 50;
