@@ -18,7 +18,7 @@ public:
 
 	bool parseCommandline(const String &) override;
 
-	var getJSONData() override;
+	var getJSONData();// override;
 	void loadJSONDataInternalEngine(var data, ProgressTask* loadingTask) override;
 
 	String getMinimumRequiredFileVersion() override;

@@ -11,6 +11,7 @@
 -a voir avec Benjamin:
 	*hideInEditor=true does not refresh the inspector
 	*modif de Thomas pour onRemoveChildControllableContainer() (changer le nom pour Removed à la fin)
+	*Package webkit2gtk-4.0 was not found (version recente linux avec 4.1 a la place, 4.0 pas installable)
 
 Modus operandi:
 *les deux sont sauvés dans les fichiers
