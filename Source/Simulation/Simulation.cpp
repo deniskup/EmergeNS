@@ -1831,11 +1831,8 @@ void Simulation::nextStep()
 
     // new way by computing the total cycle flow for each entity of the PAC
     map<SimEntity *, float> flowPerEnt;
-    map<SimEntity *, float> checkFlowPerEnt;
     for (auto &ent : entities)
       flowPerEnt[ent] = 0.;
-    for (auto &ent : entities)
-      checkFlowPerEnt[ent] = 0.;
 
     for (auto &reacDir : cycle->reacDirs)
     {
@@ -1847,13 +1844,11 @@ void Simulation::nextStep()
       {
         //flowPerEnt[ent] -= reac->flow; //
         flowPerEnt[ent] -= reac->deterministicFlow;
-        checkFlowPerEnt[ent] -= reac->flow;
       }
       for (auto &ent : reac->products)
       {
         //flowPerEnt[ent] += reac->flow;
         flowPerEnt[ent] += reac->deterministicFlow;
-        checkFlowPerEnt[ent] += reac->flow;
       }
       // flowPerEnt[reac->reactant1] -= reac->flow;
       // flowPerEnt[reac->reactant2] -= reac->flow;
