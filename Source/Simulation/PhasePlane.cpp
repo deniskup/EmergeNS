@@ -166,9 +166,25 @@ void Run::addEntitiesToRun(Array<String> names, Array<float> conc)
 
 
 
+void Run::clearEntities()
+{
+  for (auto & p : p3d)
+    removeControllable(p);
+  if (p2d != nullptr)
+  {
+    removeControllable(p2d);
+    p2d = nullptr;
+  }
+  if (fp != nullptr)
+  {
+    removeControllable(fp);
+    fp = nullptr;
+  }
+}
 
 
-void Run::importConcentrationsFromSimu() 
+
+void Run::importConcentrationsFromSimu()
 {
   
   Array<String> names;
@@ -179,6 +195,8 @@ void Run::importConcentrationsFromSimu()
     names.add(ent->name);
     concentrations.add(ent->startConcent);
   }
+  
+  clearEntities();
   
   addEntitiesToRun(names, concentrations);
   
@@ -358,7 +376,9 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
   importCSV = addTrigger("Set runs from csv file", "Init runs from reading of a csv file using comma separations");
   pathToCSV = addStringParameter("Path to CSV file", "Path to csv file", "");
   
+  syncWithSimu = addTrigger("Synchronize with simu", "Sync. entities and initial concentration with the one in the simulation instance");
 
+  
   // number of runs
   nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 20);
   
@@ -460,6 +480,10 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   {
     cout << "importing runs from csv file" << endl;
     importRunsFromCSVFile();
+  }
+  else if (t == syncWithSimu)
+  {
+    updateEntitiesFromSimu();
   }
 }
 

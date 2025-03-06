@@ -46,6 +46,8 @@ class Run : public ControllableContainer
     
   void addEntitiesToRun(Array<String>, Array<float>);
   
+  void clearEntities();
+  
   void importConcentrationsFromSimu();
   
   void controllableRemoved(Controllable* c) override;
@@ -107,6 +109,7 @@ public:
   Trigger * importCSV;
   StringParameter * pathToCSV;
 
+  Trigger * syncWithSimu;
 
 
   IntParameter * nRuns;
