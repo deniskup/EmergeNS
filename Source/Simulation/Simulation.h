@@ -215,11 +215,12 @@ public:
 	
 	void generateSimFromUserList();
 	void updateUserListFromSim();
+  void resetBeforeRunning();
 	void start(bool restart = true);
+  void startMultipleRuns(Array<map<String, float>> initConc);
 	void nextStep();
 	void stop();
 	void cancel();
-  void startMultipleRuns(Array<map<String, float>> initConc);
 
 
 	// the thread function
