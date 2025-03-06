@@ -197,6 +197,15 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.drawRect(simBounds.toFloat(), 1);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
+  
+  // add title = run ID
+  String title = "Run " + String(to_string(runID));
+  int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
+  int titleY = simBounds.getY() - 20;
+  Rectangle<int> titlepos(titleX, titleY, 50, 20);
+  g.drawText(title, titlepos, Justification::centred, true);
+
+  
 
 	// draw X and Y axis ticks with numerical labels
 	int ncorr = nticks + 1;
@@ -421,6 +430,8 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
 		entityColors.clear();
+    runID = ev.run;
+    cout << "setting run value to " << ev.run << endl;
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
 		repaint();

@@ -22,6 +22,7 @@ public:
     bool shouldRepaint;
     Array<Array<float>> entityHistory;
     Array<Colour> entityColors;
+    int runID;
 
     // TextButton saveSimBT;
     // TextButton loadSimBT;
