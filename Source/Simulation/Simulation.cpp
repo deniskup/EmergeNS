@@ -1518,17 +1518,34 @@ void Simulation::nextStep()
       //  cout << "!!!!!!!!!!!! Moving to run " << currentRun << endl;
       //  cout << "New initial conditions are" << endl;
         nSteps = 0; // re-initialize step counter
-        //perCent->setValue(0); // re-initialize bar progression
         // reset concentrations to next run initial conditions
         for (auto & [name, startconc] : initialConcentrations[currentRun])
         {
         //  cout << "[" << name << "] = " << startconc << endl;
           getSimEntityForName(name)->concent = startconc;
         }
-       // for (auto & ent : entities)
-       // {
-        //  cout << "[" << ent->name << "] = " << ent->concent << endl;
-        //}
+        if (!express)
+          simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, currentRun));
+        Array<float> entityValues;
+        Array<Colour> entityColors;
+        for (auto &ent : entitiesDrawn)
+        {
+          entityValues.add(initialConcentrations[initialConcentrations.size()-1][ent->name]);
+          entityColors.add(ent->color);
+        }
+        if (!express)
+          simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, 0, entityValues, entityColors));
+        recordConcent = 0.;
+        recordDrawn = 0.;
+        map<String, float> lastrun = initialConcentrations[initialConcentrations.size()-1];
+        for (auto & [name, conc] : lastrun) // init with last run
+        {
+          if (conc > recordConcent)
+          {
+            recordConcent = conc;
+            if (getSimEntityForName(name)->draw) recordDrawn = conc;
+          }
+        }
       }
       else // stop simulation
       {
