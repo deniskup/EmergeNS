@@ -38,6 +38,7 @@ public:
 
     Colour color;
     bool primary;
+    bool chemostat=false;
     int id = -1; // unique identifier
     float concent;
     float deterministicConcent;

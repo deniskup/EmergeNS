@@ -42,6 +42,7 @@ SimEntity::SimEntity(var data)
 		color = SimulationHelpers::JSON2Color(data.getDynamicObject()->getProperty("color"));
 
 	primary = data.getProperty("primary", primary);
+	chemostat = data.getProperty("chemostat", chemostat);
 	id = data.getProperty("id", id);
 	concent = data.getProperty("concent", concent);
 	startConcent = data.getProperty("startConcent", startConcent);
@@ -105,6 +106,7 @@ void SimEntity::updateFromEntity(Entity *e)
 	composition = e->composition;
 	draw = e->draw->boolValue();
 	primary = e->primary->boolValue();
+	chemostat = e->chemostat->boolValue();
 	name = e->niceName;
 	enabled = e->enabled->boolValue();
 	generatedFromUserList = true;
@@ -116,6 +118,7 @@ var SimEntity::toJSONData()
 	data.getDynamicObject()->setProperty("name", name);
 	data.getDynamicObject()->setProperty("color", SimulationHelpers::color2JSON(color));
 	data.getDynamicObject()->setProperty("primary", primary);
+	data.getDynamicObject()->setProperty("chemostat", chemostat);
 	data.getDynamicObject()->setProperty("id", id);
 	data.getDynamicObject()->setProperty("concent", concent);
 	data.getDynamicObject()->setProperty("startConcent", startConcent);
@@ -158,7 +161,7 @@ void SimEntity::deterministicDecrease(float decr)
 
 void SimEntity::refresh()
 {
-  concent = jmax(0.f, concent + change);
+  if (!chemostat) concent = jmax(0.f, concent + change);
   deterministicConcent = jmax(0.f, deterministicConcent + deterministicChange);
 	change = 0.f;
   deterministicChange = 0.f;

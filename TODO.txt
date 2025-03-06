@@ -1,9 +1,16 @@
 -still problems of links Simentity <-> entity <-> PACs
 
 -option of chemostat:
-	*add boolean "chemostat" on entities
+	*add boolean "chemostat" on entities, using start concentration
 	*creation rate grayed if chemostat active
-	*chemostat concentration grayed if chemostat non active
+
+-remove "primary" if not useful anywhere
+
+-Thomas: take chemostat into account in steady state computation
+
+-a voir avec Benjamin:
+	*hideInEditor=true does not refresh the inspector
+	*modif de Thomas pour onRemoveChildControllableContainer() (changer le nom pour Removed à la fin)
 
 Modus operandi:
 *les deux sont sauvés dans les fichiers

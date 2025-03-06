@@ -17,6 +17,7 @@ public:
 	~Entity();
 
 	BoolParameter* primary;
+	BoolParameter* chemostat;
 	FloatParameter* startConcent;
 	FloatParameter* concent;
 	FloatParameter* creationRate;    // absolute
@@ -31,6 +32,10 @@ public:
 	bool colorIsSet = false;
 
 	bool reached = true; // can this entity be built from primary entities ?
+
+
+	void updateInterface();
+	void onContainerParameterChanged(Parameter *) override;
 
 	DECLARE_TYPE("Entity");
 };

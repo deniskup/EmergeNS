@@ -2,21 +2,32 @@
 #include "Entity.h"
 #include "Simulation.h"
 
-Entity::Entity(var params) :
-	BaseItem(getTypeString() + " 1")
+Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 {
 	primary = addBoolParameter("Primary", "Is the entity primary ?", true);
-	creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 100.f);          // absolute
+	chemostat = addBoolParameter("Chemostat", "Is the entity in chemostat ?", false);
+	creationRate = addFloatParameter("Creation rate", "Creation rate of the entity", .1f, .0f, 100.f);			// absolute
 	destructionRate = addFloatParameter("Destruction rate", "Destruction rate of the entity", .1f, .0f, 100.f); // proportional to concentration
 	startConcent = addFloatParameter("Start Concent.", "Start Concentration of the entity", .5f, .0f, 100.f);
 	concent = addFloatParameter("Concentration", "Concentration of the entity", .5f, .0f);
 	freeEnergy = addFloatParameter("Free energy", "Free energy of the entity", 0.f, -20.f, 20.f);
 	draw = addBoolParameter("Draw", "Draw the entity", true);
 	setHasCustomColor(true);
+	updateInterface();
+	primary->hideInEditor = true;
 }
 
-Entity::Entity(SimEntity* e) :
-	Entity(var())
+void Entity::updateInterface()
+{
+	creationRate->setControllableFeedbackOnly(chemostat->boolValue());
+	creationRate->hideInEditor = chemostat->boolValue();
+	destructionRate->setControllableFeedbackOnly(chemostat->boolValue());
+	destructionRate->hideInEditor = chemostat->boolValue();
+	concent->setControllableFeedbackOnly(chemostat->boolValue());
+	concent->hideInEditor = chemostat->boolValue();
+}
+
+Entity::Entity(SimEntity *e) : Entity(var())
 {
 	setNiceName(e->name);
 	primary->setValue(e->primary);
@@ -33,6 +44,13 @@ Entity::Entity(SimEntity* e) :
 	draw->setValue(e->draw);
 }
 
+void Entity::onContainerParameterChanged(Parameter *p)
+{
+	if (p == chemostat)
+	{
+		updateInterface();
+	}
+}
 
 Entity::~Entity()
 {
