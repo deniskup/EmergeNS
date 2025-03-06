@@ -25,6 +25,8 @@ public:
 	FloatParameter* freeEnergy;
 	BoolParameter* draw;
 
+	SimEntity* simEnt = nullptr; // corresponding simEntity
+
 	int id = -1; //will be used as index for primary entities
 	int level = -1;
 	Array<int> composition; // number of each primary entities

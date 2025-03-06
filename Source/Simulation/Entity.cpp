@@ -50,6 +50,8 @@ void Entity::onContainerParameterChanged(Parameter *p)
 	{
 		updateInterface();
 	}
+	if(simEnt)
+		simEnt->updateFromEntity(this);
 }
 
 Entity::~Entity()

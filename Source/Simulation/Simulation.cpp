@@ -908,6 +908,7 @@ void Simulation::updateUserListFromSim()
   {
     if (Entity *e = EntityManager::getInstance()->getItemWithName(se->name, true))
     {
+      e->simEnt = se;
       e->concent->setValue(se->concent);
     }
     else
@@ -1261,9 +1262,15 @@ void Simulation::generateSimFromUserList()
   // entities
   for (auto &e : em->items)
   {
+    if(e->simEnt) //if a simEntity is already registered, we update it
+    {
+      e->simEnt->updateFromEntity(e);
+      continue;
+    }
     // if there is a simEntity with same name, we update it
     if (SimEntity *se = getSimEntityForName(e->niceName))
     {
+      //register the link
       if (se->entity != e)
       {
         if (se->entity)

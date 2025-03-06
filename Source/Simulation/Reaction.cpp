@@ -39,6 +39,8 @@ Reaction::Reaction(SimReaction* r) :
 	energy->setValue(r->energy);
 	assocRate->setValue(r->assocRate);
 	dissocRate->setValue(r->dissocRate);
+
+	simReac = r;
 }
 
 
@@ -403,4 +405,6 @@ bool Reaction::shouldIncludeInSimulation()
 void Reaction::onContainerParameterChanged(Parameter* p)
 {
 	if (p == energy) updateWarnAndRates();
+	if(simReac)
+		simReac->updateFromReaction(this);
 }

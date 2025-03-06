@@ -15,6 +15,7 @@ public:
 
     ~Reaction();
 
+
     std::unique_ptr<ControllableContainer> reactants;
     std::unique_ptr<ControllableContainer> products;
 
@@ -22,6 +23,7 @@ public:
 
     FloatParameter *assocRate;  // reactants to product
     FloatParameter *dissocRate; // product to reactants
+    SimReaction *simReac = nullptr; //point to a simreac in the simulation
 
     void clearItem();
 

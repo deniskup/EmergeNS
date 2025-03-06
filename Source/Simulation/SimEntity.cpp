@@ -95,6 +95,7 @@ void SimEntity::updateFromEntity(Entity *e)
 		return;
 	}
 	entity = e;
+	e->simEnt=this;
 	startConcent = e->startConcent->floatValue();
 	concent = e->concent->floatValue();
 	creationRate = e->creationRate->floatValue();
