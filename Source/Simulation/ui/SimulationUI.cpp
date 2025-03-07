@@ -431,7 +431,6 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		entityHistory.clear();
 		entityColors.clear();
     runID = ev.run;
-    cout << "setting run value to " << ev.run << endl;
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
 		repaint();

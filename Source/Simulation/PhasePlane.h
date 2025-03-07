@@ -11,6 +11,9 @@ TODO list
 - manually position the trigger buttons instead of using three lines. See PhasePlaneUI for that.
 - I shouldn't have  Simulation.h included in this header. Circular inclusion pattern.
 - Steady States do not seem to be saved in json file.
+- Envoyer fichier juce_organicUI à denis
+- nouveau thread pour script python
+ 
 */
 
 #pragma once
