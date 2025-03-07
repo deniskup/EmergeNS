@@ -93,7 +93,7 @@ Run::Run(var data) : ControllableContainer("")
     }
     else if (value.isDouble())
     {
-      fp = addFloatParameter(s, "", value.operator double());
+      fp = addFloatParameter(s, "", value.operator double(), 0.);
     }
     else
     {
@@ -153,7 +153,7 @@ void Run::addEntitiesToRun(Array<String> names, Array<float> conc)
   else if (rest == 1)
   {
     String name = names.getLast();
-    fp = addFloatParameter(name, "Initial concentrations", conc.getLast(), 0.f, 10.f);
+    fp = addFloatParameter(name, "Initial concentrations", conc.getLast(), 0.f);
   }
   else if (rest == 0)
   {
@@ -373,14 +373,14 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
   yAxis = addTargetParameter("y axis", "y axis", EntityManager::getInstance());
   yAxis->targetType = TargetParameter::CONTAINER;
   
-  importCSV = addTrigger("Set runs from csv file", "Init runs from reading of a csv file using comma separations");
+  importCSV = addTrigger("Import runs from csv", "Init runs from reading of a csv file using comma separations");
   pathToCSV = addStringParameter("Path to CSV file", "Path to csv file", "");
   
   syncWithSimu = addTrigger("Synchronize with simu", "Sync. entities and initial concentration with the one in the simulation instance");
 
   
   // number of runs
-  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 20);
+  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 100);
   
   
 }
@@ -462,23 +462,30 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   
   if (t == start)
   {
+    LOG("Starting " + String(to_string(nRuns->intValue())) " runs");
     startRuns();
+    LOG("Finished multiple runs");
   }
   
   else if (t == draw)
   {
+    LOG("Will raw multiple runs");
     drawRuns();
+    LOG("End drawing");
   }
   
   else if (t == startDraw)
   {
+    LOG("Starting " + String(to_string(nRuns->intValue())) " runs and drawing them");
     startRuns();
     drawRuns();
+    LOG("End multiple runs and drawing");
   }
   else if (t == importCSV)
   {
-    cout << "importing runs from csv file" << endl;
+    LOG("Importing runs from csv file");
     importRunsFromCSVFile();
+    LOG("Finished importing runs");
   }
   else if (t == syncWithSimu)
   {
@@ -626,6 +633,10 @@ void PhasePlane::importRunsFromCSVFile()
     Run * newrun = new Run(runname, names, concentrations[i]);
     addRun(newrun);
   }
+  
+  // update nRuns
+  nRuns->setValue(runs.size());
+  nRuns->setValue(runs.size());
   
 }
 
