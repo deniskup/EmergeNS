@@ -25,6 +25,7 @@ void Entity::updateInterface()
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
 	concent->hideInEditor = chemostat->boolValue();
+	queuedNotifier.addMessage(new ContainerAsyncEvent(ContainerAsyncEvent::ControllableContainerNeedsRebuild, this));
 }
 
 Entity::Entity(SimEntity *e) : Entity(var())

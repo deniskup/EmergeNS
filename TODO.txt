@@ -9,9 +9,10 @@
 -Thomas: take chemostat into account in steady state computation
 
 -a voir avec Benjamin:
-	*hideInEditor=true does not refresh the inspector
 	*modif de Thomas pour onRemoveChildControllableContainer() (changer le nom pour Removed à la fin)
-	*Package webkit2gtk-4.0 was not found (version recente linux avec 4.1 a la place, 4.0 pas installable)
+	->OK pour pull request mais l'appeler onChildContainerRemoved (et aussi pour Added) et copier la manière dont onControllableAdded et onControllableRemoved sont faites, les mettre juste après.
+	et appeler cette fonction avant controllableContainerListeners.call(&ControllableContainerListener::controllableContainerAdded, container); dans void ControllableContainer::addChildControllableContainer
+
 
 Modus operandi:
 *les deux sont sauvés dans les fichiers
