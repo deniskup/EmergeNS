@@ -45,6 +45,7 @@ For dependencies: ```sudo apt install build-essential libgtk-4-dev ibwebkit2gtk-
 
    - ft2build.h missing  ->  in Projucer, add "/usr/include/freetype2" in the Header Search Paths of "Debug" and "Release" config of Linux MakeFile
    - same with other libraries installed but not found, e.g. gtk/gtk.h, add your path to gtk/gtk.h in Projucer, for instance "/usr/include/gtk-4.0"
+   - if you are on a too recent linux version and mibwebkit2gtk-4.0-dev is not available, download the 4.1and add a symbolic link to mimic the 4.0 version with ```cd /usr/lib/x86_64-linux-gnu/pkgconfig; sudo ln -s webkit2gtk-4.1.pc webkit2gtk-4.0.pc```
      
 12. On Mac, the compiled program must be launched with sudo so that it can access external programs such as z3. The compiled program is in your EmergeNS folder, then (in debug mode for instance) ``` sudo Builds/MacOSX/build/Debug/EmergeNS.app/Contents/MacOS/EmergeNS```
 
