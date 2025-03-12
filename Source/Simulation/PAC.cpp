@@ -4,6 +4,7 @@
 #include <regex>
 #include <stack>
 #include <cctype>
+#include "Util.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4267) // on d�sactive les erreur de loss of data (du aux conversion size_t > int) -> mais ca serait compl�tement �vit� en utilisant les types de Juce plut�t que les types c++ natifs (ostringstream >> String)
@@ -356,6 +357,44 @@ void PAC::calculateRealisableScore()
 	score /= (float)reacFlows.size();
 	// cout << "Total score : " << score << endl;
 }
+
+void PAC::calculateStoechiometryMatrix()
+{
+	int nEspeces = entities.size();
+	int nReactions = reacFlows.size();
+
+	Eigen::MatrixXd stm(nReactions, nEspeces); 
+	int sign = 1; //-1 when reaction is backwards, +1 if not
+
+	for (int i = 0; i < nReactions; i++)
+	{
+		if (reacDirs[i].second) //if forwards
+		{
+			sign = 1;
+		}
+		else
+		{
+			sign = -1;
+		}
+
+		for (int j = 0; j < nEspeces; j++)
+		{
+			if (!reacFlows[i].first->contains(entities[j]))
+			{
+				stm(i,j) = 0;
+			}
+			else
+			{
+				stm(i,j) = sign*reacFlows[i].first->stoechiometryOfEntity(entities[j]);
+			}
+		}
+	}
+
+	stoechiometryMatrix = -stm.transpose();
+	cout << stoechiometryMatrix << endl;
+}
+
+
 
 map<string, float> parseModelReal(const string &output)
 {
@@ -1775,6 +1814,7 @@ void PAClist::PACsWithZ3()
 
 			// cout << "PAC #" << pacsFound << endl;
 			pac->calculateRealisableScore();
+			pac->calculateStoechiometryMatrix();
 
 			// cout << pac->toString() << endl;
 			// cout << "WITNESS : ";

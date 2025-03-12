@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+#include <Eigen/Dense>
 #if !JUCE_WINDOWS
 #include <unistd.h>
 #endif
@@ -63,6 +63,21 @@ public:
     bool containsReaction(SimReaction *);
 
 	void calculateRealisableScore();
+
+    Eigen::MatrixXd stoechiometryMatrix;
+
+    void calculateStoechiometryMatrix();
+
+    Eigen::MatrixXd jacobianAtZero;
+
+    void calculateJacobianAtZero();
+
+    float freeLeadingEigenValue; // largest eigenvalue when the cycle is free (no destruction or creaction)
+
+    float environmentLeadingEigenvalue; // largest eigenvalue when considering destruction
+    // not used because how do you update things again ?
+    
+    void calculateEigenvalues();
 
     //for CACs
 
