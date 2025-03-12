@@ -2,6 +2,16 @@
 
 -------------Emergence of Natural Selection-------------
 
+-----to run the executable-----
+
+Download [the latest release](https://github.com/deniskup/EmergeNS/releases/latest) and simply run it.
+
+Needs fuse3 on Linux.
+
+You can also use the predefined reaction systems from ReactionSystems.zip as examples.
+
+-----to compile yourself-----
+
 1. ```git clone --recurse-submodule https://github.com/deniskup/EmergeNS.git``` (or after clone, do "git init submodule " and "git submodule update --init --recursive")
 
 2. Install the required Juce version somewhere (like a "Software" folder) with <br>
