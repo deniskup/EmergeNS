@@ -1,4 +1,5 @@
 -still problems of links Simentity <-> entity <-> PACs
+stuff is sometimes not imported automatically, e.g. "draw", and list->simuls still necessary, to solve.
 
 -option of chemostat:
 	*add boolean "chemostat" on entities, using start concentration
