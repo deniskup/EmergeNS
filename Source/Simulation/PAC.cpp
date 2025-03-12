@@ -1494,7 +1494,8 @@ void PAClist::PACsWithZ3()
 		clauses << ")))\n";
 	}
 
-	// each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
+	//if minimal PACs only, each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
+	if(!Settings::getInstance()->nonMinimalPACs->boolValue()){
 	for (auto &e : simul->entities)
 	{
 		if (e->isolated)
@@ -1562,6 +1563,7 @@ void PAClist::PACsWithZ3()
 			}
 			clauses << ")))\n";
 		}
+	}
 	}
 
 	// if PACmustContain is a valid entity, then it must be in the PAC
