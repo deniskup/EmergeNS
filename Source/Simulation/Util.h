@@ -12,4 +12,4 @@ float randFloat(float a, float b);
 
 float randFloat(float a);
 
-void LogMatrix(const Eigen::MatrixXf& m);
+void printMatrixToLog(const Eigen::MatrixXf& m);
