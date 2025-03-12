@@ -64,11 +64,11 @@ public:
 
 	void calculateRealisableScore();
 
-    Eigen::MatrixXd stoechiometryMatrix;
+    Eigen::MatrixXi stoechiometryMatrix;
 
     void calculateStoechiometryMatrix();
 
-    Eigen::MatrixXd jacobianAtZero;
+    Eigen::MatrixXi jacobianAtZero;
 
     void calculateJacobianAtZero();
 
