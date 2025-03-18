@@ -64,20 +64,20 @@ public:
 
 	void calculateRealisableScore();
 
-    Eigen::MatrixXd stoechiometryMatrix;
+    Eigen::MatrixXi stoechiometryMatrix;
 
-    void calculateStoechiometryMatrix();
+    void ccomputeStoechiometryMatrix();
 
     Eigen::MatrixXd jacobianAtZero;
 
-    void calculateJacobianAtZero();
+    void computeJacobianAtZero();
 
     float freeLeadingEigenValue; // largest eigenvalue when the cycle is free (no destruction or creaction)
 
     float environmentLeadingEigenvalue; // largest eigenvalue when considering destruction
     // not used because how do you update things again ?
     
-    void calculateEigenvalues();
+    void computeEigenvalues();
 
     //for CACs
 

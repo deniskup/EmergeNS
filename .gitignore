@@ -30,3 +30,8 @@ Builds/MacOSX_CI/EmergeNS.xcodeproj/project.pbxproj
 ReactionSystems/z3satmodel.txt
 z3satmodel.txt
 z3sat.smt2
+Builds/LinuxMakefile_CI/Makefile
+Builds/MacOSX_CI/EmergeNS.xcodeproj/project.pbxproj
+Builds/VisualStudio2022_CI/EmergeNS_App.vcxproj
+Builds/VisualStudio2022_CI/icon.ico
+Builds/LinuxMakefile_CI/Makefile

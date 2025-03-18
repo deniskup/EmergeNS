@@ -358,17 +358,17 @@ void PAC::calculateRealisableScore()
 	// cout << "Total score : " << score << endl;
 }
 
-void PAC::calculateStoechiometryMatrix()
+void PAC::computeStoechiometryMatrix()
 {
 	int nEspeces = entities.size();
 	int nReactions = reacFlows.size();
 
-	Eigen::MatrixXd stm(nReactions, nEspeces); 
+	Eigen::MatrixXi stm(nReactions, nEspeces); 
 	int sign = 1; //-1 when reaction is backwards, +1 if not
 
 	for (int i = 0; i < nReactions; i++)
 	{
-		if (reacDirs[i].second) //if forwards
+		if (!reacDirs[i].second) //if forwards
 		{
 			sign = 1;
 		}
@@ -390,8 +390,42 @@ void PAC::calculateStoechiometryMatrix()
 		}
 	}
 
-	stoechiometryMatrix = -stm.transpose();
+	stoechiometryMatrix = stm.transpose();
 	cout << stoechiometryMatrix << endl;
+}
+
+void PAC::computeJacobianAtZero()
+{
+	Eigen::VectorXd directReactionSpeeds;
+	Eigen::VectorXd inverseReactionSpeeds;
+
+	int deleteDirectReaction = 0;
+	int deleteInverseReaction = 0;
+
+	int nReactions = stoechiometryMatrix.cols();
+
+	for (int i=0 ; i< nReactions ; i++)
+	{
+		deleteDirectReaction = 0;
+		deleteInverseReaction = 0;
+
+		directReactionSpeeds.add(reacFlows[i].first->assocRate)
+		inverseReactionSpeeds.add(reacFlows[i].first->dissocRate)
+
+		for (auto &spec : reacFlows[i].first->reactants)
+		{
+			if (deleteDirectReaction)
+			{
+				
+			}
+		}
+	}
+
+	// Plan : pour chaque reaction du PAC, on regarde toutes les especes dedans
+	// Si il y a plusieurs reactants/produits au sein du cycle, on met un zéro
+	// sinon on prend la constante cinétique, et les concentrations des autres espèces
+	// et on fait le produit pour obtenir la vitesse effective
+
 }
 
 
