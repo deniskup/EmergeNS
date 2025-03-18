@@ -368,24 +368,24 @@ void PAC::computeStoechiometryMatrix()
 
 	for (int i = 0; i < nReactions; i++)
 	{
-		if (!reacDirs[i].second) //if forwards
+		if (reacDirs[i].second) // if backwards
 		{
-			sign = 1;
+			sign = -1;
 		}
 		else
 		{
-			sign = -1;
+			sign = 1;
 		}
 
 		for (int j = 0; j < nEspeces; j++)
 		{
 			if (!reacFlows[i].first->contains(entities[j]))
 			{
-				stm(i,j) = 0;
+				stm(i, j) = 0;
 			}
 			else
 			{
-				stm(i,j) = sign*reacFlows[i].first->stoechiometryOfEntity(entities[j]);
+				stm(i, j) = sign * reacFlows[i].first->stoechiometryOfEntity(entities[j]);
 			}
 		}
 	}
@@ -803,11 +803,11 @@ void PAClist::removePAC(int i)
 	// adjust indexes of basicCACs
 	for (int j = basicCACs.size() - 1; j >= 0; j--)
 	{
-		int k= basicCACs[j];
+		int k = basicCACs[j];
 		if (k == i)
 			basicCACs.remove(j);
 		else if (k > i)
-			basicCACs.set(j, k-1);
+			basicCACs.set(j, k - 1);
 	}
 	// adjust indexes of CACs
 
@@ -1567,76 +1567,77 @@ void PAClist::PACsWithZ3()
 		clauses << ")))\n";
 	}
 
-	//if minimal PACs only, each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
-	if(!Settings::getInstance()->nonMinimalPACs->boolValue()){
-	for (auto &e : simul->entities)
+	// if minimal PACs only, each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
+	if (!Settings::getInstance()->nonMinimalPACs->boolValue())
 	{
-		if (e->isolated)
+		for (auto &e : simul->entities)
 		{
-			continue;
-		}
-		clauses << "(assert (=> ent" << e->idSAT << " (or";
-		for (auto &r : simul->reactions)
-		{
-			if (r->reactants.contains(e))
+			if (e->isolated)
 			{
-				// dir false and reac
-				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				continue;
 			}
-			if (r->products.contains(e))
+			clauses << "(assert (=> ent" << e->idSAT << " (or";
+			for (auto &r : simul->reactions)
 			{
-				// dir true and reac
-				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
-			}
-		}
-		clauses << ")))\n";
-		// now same but at most 1
-		clauses << "(assert (=> ent" << e->idSAT << " ((_ at-most 1)";
-		for (auto &r : simul->reactions)
-		{
-			if (r->reactants.contains(e))
-			{
-				// dir false and reac
-				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
-			}
-			if (r->products.contains(e))
-			{
-				// dir true and reac
-				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
-			}
-		}
-		clauses << ")))\n";
-	}
-
-	// checking that foods are primary if this option is activated
-	if (Settings::getInstance()->primFood->boolValue())
-	{
-		for (auto &r : simul->reactions)
-		{
-			// if dir false, all non-food reactants must be true
-
-			clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
-			for (auto &e : r->reactants)
-			{
-				if (!e->primary)
+				if (r->reactants.contains(e))
 				{
-					clauses << " ent" << e->idSAT;
+					// dir false and reac
+					clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				}
+				if (r->products.contains(e))
+				{
+					// dir true and reac
+					clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
 				}
 			}
 			clauses << ")))\n";
-
-			// same if dir is true with products
-			clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
-			for (auto &e : r->products)
+			// now same but at most 1
+			clauses << "(assert (=> ent" << e->idSAT << " ((_ at-most 1)";
+			for (auto &r : simul->reactions)
 			{
-				if (!e->primary)
+				if (r->reactants.contains(e))
 				{
-					clauses << " ent" << e->idSAT;
+					// dir false and reac
+					clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				}
+				if (r->products.contains(e))
+				{
+					// dir true and reac
+					clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
 				}
 			}
 			clauses << ")))\n";
 		}
-	}
+
+		// checking that foods are primary if this option is activated
+		if (Settings::getInstance()->primFood->boolValue())
+		{
+			for (auto &r : simul->reactions)
+			{
+				// if dir false, all non-food reactants must be true
+
+				clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
+				for (auto &e : r->reactants)
+				{
+					if (!e->primary)
+					{
+						clauses << " ent" << e->idSAT;
+					}
+				}
+				clauses << ")))\n";
+
+				// same if dir is true with products
+				clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
+				for (auto &e : r->products)
+				{
+					if (!e->primary)
+					{
+						clauses << " ent" << e->idSAT;
+					}
+				}
+				clauses << ")))\n";
+			}
+		}
 	}
 
 	// if PACmustContain is a valid entity, then it must be in the PAC

@@ -68,7 +68,7 @@ public:
 
     void ccomputeStoechiometryMatrix();
 
-    Eigen::MatrixXd jacobianAtZero;
+    Eigen::MatrixXi jacobianAtZero;
 
     void computeJacobianAtZero();
 
