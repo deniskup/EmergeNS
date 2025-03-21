@@ -57,8 +57,7 @@ public:
   float energy = -1.0f; // energy of the reaction, -1 if not set
   
 	void computeRate(bool noBarrier = false, bool noFreeEnergy = false); // #tkosc TODO should rename this function it calculates the kinetic constant rates and not the reaction rates. I suggest computeConstantRates(***)
-
-
+  
   void computeBarrier();
 
 	//void importFromManual(); // retrieve info from pointer to Manual settings
@@ -74,6 +73,10 @@ public:
 	bool contains(SimEntity* e);
 
 	int stoechiometryOfEntity(SimEntity* e);
+  
+  void setVolAvogadro(double va){volAvogadro = va;};
+  
+  //void setDirectWiener(float f){directWiener = f;};
 
   
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimReaction);

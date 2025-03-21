@@ -1807,7 +1807,6 @@ void Simulation::nextStep()
     {
       float stoc_directIncr = sqrt(reac->assocRate) * noiseEpsilon;
       float stoc_reverseIncr = sqrt(reac->dissocRate) * noiseEpsilon;
-      
       // for a sanity check
       //string testname = "2+2=4";
       //bool print(testname==reac->name ? true : false);
@@ -1879,7 +1878,7 @@ void Simulation::nextStep()
       
     } // end if stochasticity
 
-    
+          
     // update flow needed only at checkpoints
     if (isCheck)
     {
