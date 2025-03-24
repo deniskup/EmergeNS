@@ -449,7 +449,7 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
       {
         int krm = runs.size()-1;
         removeChildControllableContainer(runs[krm]);
-        cout << "new status : " << nRuns->intValue() << " -- " << runs.size() << endl;
+      }
     }
   //cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   }
