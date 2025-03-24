@@ -125,27 +125,50 @@ if __name__ == "__main__":
       # plot the 2D trajectory
       c1 += 1
       if c1==0:
-        ax.plot(x, y, color='b', label='Trajectory')
+        ax.plot(x, y, color='black', label='Trajectory')
       else:
-        ax.plot(x, y, color='b')
+        ax.plot(x, y, color='black')
 
       # plot the starting point
       c2 += 1
       if (c2==0):
-        ax.scatter(x[0], y[0], color='b', marker='o', label='Start')
+        ax.scatter(x[0], y[0], color='black', marker='o', label='Start')
       else:
-        ax.scatter(x[0], y[0], color='b', marker='o')
+        ax.scatter(x[0], y[0], color='black', marker='o')
 
 # plot steady state points
-x_sst = np.array([dfsst[xAxis]])
-y_sst = np.array([dfsst[yAxis]])
-for stx, sty in zip(x_sst, y_sst):
-  ax.scatter(stx, sty, marker='*', color='r', label='Steady State', s=300)
+x_sst = np.array([dfsst[xAxis]])[0]
+y_sst = np.array([dfsst[yAxis]])[0]
+#print('dfsst = ', dfsst)
+#print('x_sst = ', x_sst)
+#print('y_sst = ', y_sst)
 
+c=-1
+for stx, sty in zip(x_sst, y_sst):
+  c+=1
+  if c==0:
+    ax.scatter(stx, sty, marker='*', color='black', label='Steady State', s=300)
+    ax.scatter(stx, sty, marker='*', color='white', s=100)
+  else:
+    ax.scatter(stx, sty, marker='*', color='black', s=300)
+
+   #extra margin if steady state is at xmax or ymax
+  #if np.abs(np.max(stx)-xmax)<0.01:
+  #  xmax += 2.*xmax/10.
+  #if np.abs(np.max(sty)-ymax)<0.01:
+  #  ymax += 2.*ymax/10.
+
+# add extra margin
+xmax += xmax/10.
+ymax += ymax/10.
 
 # add lines at x = 0 and y = 0
 ax.plot( [0., 0.], [0., ymax], linestyle="dashed", color='gray' )
 ax.plot( [0., xmax], [0., 0.], linestyle="dashed", color='gray' )
+
+# add line at x = y
+lim = min(xmax, ymax)
+ax.plot( [0., lim], [0., lim], linestyle="dashed", color='gray' )
 
 ax.set_xlabel(xAxis)
 ax.set_ylabel(yAxis)

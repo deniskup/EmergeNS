@@ -47,7 +47,6 @@ void SimReaction::updateFromReaction(Reaction *r)
 	reaction = r;
 	assocRate = r->assocRate->floatValue();
 	dissocRate = r->dissocRate->floatValue();
-  computeMicroRateConstants(); // update values of microscopic rate constants
 	energy = r->energy->floatValue();
 	name = r->niceName; // name from the original reaction
 	enabled = r->enabled->boolValue();
@@ -345,8 +344,6 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 	// k2=exp(GAB-G*)
 	dissocRate = exp(energyRight - energyStar);
   
-  // compute microscopic rate constants as well
-  computeMicroRateConstants();
 }
 
 

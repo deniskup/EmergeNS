@@ -706,7 +706,7 @@ bool SteadyStateslist::computeWithMSolve()
 	clauses << "0\n";
 
 	// set digit precision for polynoms writing
-	int ndigits = 4;
+	int ndigits = 6;
 	double factor = pow(10, ndigits);
 	clauses << fixed << setprecision(ndigits);
   

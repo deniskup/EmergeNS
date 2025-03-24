@@ -462,7 +462,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   
   if (t == start)
   {
-    LOG("Starting " + String(to_string(nRuns->intValue())) " runs");
+    LOG("Starting " + String(to_string(nRuns->intValue())) + " runs");
     startRuns();
     LOG("Finished multiple runs");
   }
@@ -476,7 +476,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   
   else if (t == startDraw)
   {
-    LOG("Starting " + String(to_string(nRuns->intValue())) " runs and drawing them");
+    LOG("Starting " + String(to_string(nRuns->intValue())) + " runs and drawing them");
     startRuns();
     drawRuns();
     LOG("End multiple runs and drawing");
@@ -825,8 +825,8 @@ void PhasePlane::drawRuns()
   drawCommand += " -y '[" + yAxis->getTargetContainerAs<Entity>()->niceName + "]'";
   
   // indicate number of runs
-  //drawCommand += " --nruns " + String(to_string(runs.size()));
-  drawCommand += " --nruns 2";
+  drawCommand += " --nruns " + String(to_string(runs.size()));
+  //drawCommand += " --nruns 2";
   
   // check that steady states have been calculated already
   int nsst = Simulation::getInstance()->steadyStatesList->stableStates.size();

@@ -73,9 +73,7 @@ public:
 	bool contains(SimEntity* e);
 
 	int stoechiometryOfEntity(SimEntity* e);
-  
-  void setVolAvogadro(double va){volAvogadro = va;};
-  
+    
   //void setDirectWiener(float f){directWiener = f;};
 
   
