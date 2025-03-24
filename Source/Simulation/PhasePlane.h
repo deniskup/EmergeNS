@@ -7,11 +7,9 @@
 
 /*
 TODO list
-- synchronize manual addition of entities with Phase Plane entity list
 - I shouldn't have  Simulation.h included in this header. Circular inclusion pattern.
 - Steady States do not seem to be saved in json file.
 - nouveau thread pour script python
- 
 */
 
 #pragma once
@@ -88,8 +86,7 @@ public:
 
 
 
-class PhasePlane : public ControllableContainer
-//class PhasePlane : public BaseItem
+class PhasePlane : public ControllableContainer, public Thread
 {
 public:
     juce_DeclareSingleton(PhasePlane, true);
@@ -133,6 +130,7 @@ public:
   
   void startRuns();
   void drawRuns();
+  void run(); // thread function
 
   
   

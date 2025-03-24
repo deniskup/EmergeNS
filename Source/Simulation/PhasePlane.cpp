@@ -344,7 +344,7 @@ void RunManager::addItemInternal(Run * r, var params)
 
 //////////// default constructor //////////////////////
 
-PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
+PhasePlane::PhasePlane() : ControllableContainer("PhasePlane"), Thread("PhasePlane")
 {
   
   //rm = new RunManager();
@@ -761,6 +761,7 @@ void PhasePlane::startRuns()
 
 void PhasePlane::drawRuns()
 {
+  stopThread(100);
   
   // test that python3 is installed
   String testcommmand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/test.py > testpython3.txt";
@@ -807,10 +808,12 @@ void PhasePlane::drawRuns()
     ifconc.close();
   }
   
+  /*
   // Prepare command to execute python file
   // # python3 drawPhasePlane.py --file ./concentrationDynamics_model4.csv -x '[A2]' -y '[B2]' --nruns 5 --sst ./steadyStates.csv
   String drawCommand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py "
   + "--file concentrationDynamics.csv";
+  */
   
   // set axis options
   if (xAxis->getTargetContainerAs<Entity>()==nullptr)
@@ -823,16 +826,16 @@ void PhasePlane::drawRuns()
     LOG("Please chose an entity as y Axis. Exit.");
     return;
   }
+/*
   drawCommand += " -x '[" + xAxis->getTargetContainerAs<Entity>()->niceName + "]'";
   drawCommand += " -y '[" + yAxis->getTargetContainerAs<Entity>()->niceName + "]'";
-  
+
   // indicate number of runs
   drawCommand += " --nruns " + String(to_string(runs.size()));
   //drawCommand += " --nruns 2";
-  
+*/
   // check that steady states have been calculated already
   int nsst = Simulation::getInstance()->steadyStatesList->stableStates.size();
-  cout << "N stables states = " << nsst << endl;
   if (nsst==0)
   {
     LOG("Please calculate steady states before drawing. Exit.");
@@ -866,6 +869,36 @@ void PhasePlane::drawRuns()
     //ofSST << "[" << sst.state.first->name << "]";
   }
   ofSST.close();
+
+/*
+  // add steady state file to shell command
+  drawCommand += " --sst ./steadyStates.csv";
+*/
+  // sanity check
+  //cout << drawCommand << endl;
+/*
+  // execute python script
+  system(drawCommand.toUTF8());
+*/
+  startThread();
+
+  
+} // end PhasePlane::drawRuns()
+
+
+
+void PhasePlane::run()
+{
+  // Prepare command to execute python file
+  String drawCommand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py "
+  + "--file concentrationDynamics.csv";
+  
+  // set axis options
+  drawCommand += " -x '[" + xAxis->getTargetContainerAs<Entity>()->niceName + "]'";
+  drawCommand += " -y '[" + yAxis->getTargetContainerAs<Entity>()->niceName + "]'";
+  
+  // indicate number of runs
+  drawCommand += " --nruns " + String(to_string(runs.size()));
   
   // add steady state file to shell command
   drawCommand += " --sst ./steadyStates.csv";
@@ -876,10 +909,7 @@ void PhasePlane::drawRuns()
   // execute python script
   system(drawCommand.toUTF8());
   
-  
-  
-} // end PhasePlane::drawRuns()
-
+}
 
 
 

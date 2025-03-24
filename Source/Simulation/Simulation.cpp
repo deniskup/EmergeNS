@@ -1534,36 +1534,7 @@ void Simulation::start(bool restart)
 ///  }
 ///  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
 ///  checkPoint = jmax(1, checkPoint);
- /*
-  if (stochasticity->boolValue())
-  {
-    rgg = new RandomGausGenerator(0., 1.); // init random generator
-    noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
-    if (Settings::getInstance()->fixedSeed->boolValue()==true)
-    {
-      // check that the seed string has correct format, i.e. only digits
-      string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
-      bool correctFormat = true;
-      for (int k=0; k<strSeed.size(); k++)
-      {
-        if (!isdigit(strSeed[k]))
-        {
-          correctFormat = false;
-          break;
-        }
-      }
-      if (!correctFormat)
-      {
-        LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
-      }
-      else
-      {
-        unsigned int seed = atoi(strSeed.c_str());
-        rgg->setFixedSeed(seed);
-      }
-    }
-  }
-  */
+ 
   startThread();
 }
 
@@ -2269,7 +2240,6 @@ void Simulation::cancel()
 
 void Simulation::run()
 {
-  cout << "Simulation::run()" << endl;
   curStep = 0;
   nSteps = 0;
   if (!express)
