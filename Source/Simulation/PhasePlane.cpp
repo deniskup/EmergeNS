@@ -359,7 +359,7 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane"), Thread("PhasePla
   // trigger buttons
   start = addTrigger("Start", "Start all runs");
   draw = addTrigger("Draw", "Draw all runs");
-  startDraw = addTrigger("Start and Draw", "Start and Draw all runs");
+  //startDraw = addTrigger("Start and Draw", "Start and Draw all runs");
   
   // path to software
   pathToEmergens = addStringParameter("absolute path to EmergeNS", "absolute path to folder EmergeNS", "/path/to/EmergeNS");
@@ -473,7 +473,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
     drawRuns();
     LOG("End drawing");
   }
-  
+  /*
   else if (t == startDraw)
   {
     LOG("Starting " + String(to_string(nRuns->intValue())) + " runs and drawing them");
@@ -481,6 +481,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
     drawRuns();
     LOG("End multiple runs and drawing");
   }
+  */
   else if (t == importCSV)
   {
     LOG("Importing runs from csv file");
@@ -858,10 +859,10 @@ void PhasePlane::drawRuns()
   for (SteadyState & steadystate : Simulation::getInstance()->steadyStatesList->stableStates)
   {
     c = -1;
-    cout << "### sst ###" << endl;
+    //cout << "### sst ###" << endl;
     for (auto & p : steadystate.state)
     {
-      cout << "\t" << p.second << endl;
+      //cout << "\t" << p.second << endl;
       c++;
       string comma = ( (c==nent-1) ? "\n" : "," );
       ofSST << p.second << comma;

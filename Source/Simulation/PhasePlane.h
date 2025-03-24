@@ -97,7 +97,7 @@ public:
   
   Trigger * start;
   Trigger * draw;
-  Trigger * startDraw;
+  //Trigger * startDraw;
   
   StringParameter * pathToEmergens;
   
