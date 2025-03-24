@@ -380,7 +380,7 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane")
 
   
   // number of runs
-  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0, 100);
+  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 1);
   
   
 }
@@ -427,10 +427,10 @@ void PhasePlane::updateRunsNames()
 
 void PhasePlane::onContainerParameterChanged(Parameter *p)
 {
-  //ControllableContainer::onContainerParameterChanged(p);
-  
   if (p == nRuns)
   {
+    cout << "nRuns has new value : " << nRuns->intValue() << endl;
+    int newval = nRuns->intValue();
     if (nRuns->intValue()>runs.size()) // must add containers
     {
       for (int k=runs.size(); k<nRuns->intValue(); k++)
@@ -443,12 +443,16 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
         //runs.add(thisrun);
       }
     }
-    else if (nRuns->intValue()<runs.size())
+    else if (nRuns->intValue()<runs.size()) // must remove containers
     {
-      while (runs.size()>nRuns->intValue())
+      cout << "else case : " << nRuns->intValue() << " < " << runs.size() << endl;
+      int newNrun = nRuns->intValue();
+      while (runs.size()>newNrun)
       {
         int krm = runs.size()-1;
+        cout << "removing run " << krm << endl;
         removeChildControllableContainer(runs[krm]);
+        cout << "new status : " << nRuns->intValue() << " -- " << runs.size() << endl;
       }
     }
   //cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
@@ -522,6 +526,8 @@ void PhasePlane::onRemoveChildControllableContainer()
   // update nRuns value to make it match the new array size
   var newnRuns(runs.size());
   nRuns->setValue(newnRuns);
+  
+  cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   
 }
 
