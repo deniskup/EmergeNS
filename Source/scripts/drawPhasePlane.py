@@ -34,7 +34,7 @@ def get_clever_arrow_pos(xarr, yarr, narr):
   yprev = yarr[0]
   c1 = -1
   c2 = 0
-  arraypos = np.zeros(5, dtype=int)
+  arraypos = np.zeros(narr, dtype=int)
   # start loop
   for (x, y) in zip(xarr, yarr):
     c1 += 1
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     steadyStateFile = args.sst
 
     # additionnal stuff
-    narrows = 5
+    narrows = 3
     skiprun = np.array([]) # keep this ?
 
     # read file data as dataframe
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     c2=-1
     xmax = 0.
     ymax = 0.
+    print('df shape : ', df.shape[0])
     for irun in range(nruns):
 
       #should skip run ?
@@ -105,9 +106,15 @@ if __name__ == "__main__":
       # only keep points associated to current run
       df_run = df[df.runID==irun]
 
+      # check that run is non-empty
+      if (df_run.shape[0]==0):
+        print('run #', irun, ' is empty', '. Will not be drawn.')
+        continue
+
       # get x and y concentrations vectors
       x = np.array(df_run[xAxis])
       y = np.array(df_run[yAxis])
+      print('x and y sizes : ', x.size, '  ', y.size)
       # calculate arrow positions to draw along the 2D trajectory
       arrowpos = get_clever_arrow_pos(x, y, narrows)
 
@@ -125,9 +132,9 @@ if __name__ == "__main__":
       # plot the 2D trajectory
       c1 += 1
       if c1==0:
-        ax.plot(x, y, color='black', label='Trajectory')
+        ax.plot(x, y, color='gray', label='Trajectory')
       else:
-        ax.plot(x, y, color='black')
+        ax.plot(x, y, color='gray')
 
       # plot the starting point
       c2 += 1
@@ -148,7 +155,7 @@ for stx, sty in zip(x_sst, y_sst):
   c+=1
   if c==0:
     ax.scatter(stx, sty, marker='*', color='black', label='Steady State', s=300)
-    ax.scatter(stx, sty, marker='*', color='white', s=100)
+    #ax.scatter(stx, sty, marker='*', color='white', s=100)
   else:
     ax.scatter(stx, sty, marker='*', color='black', s=300)
 
@@ -167,8 +174,8 @@ ax.plot( [0., 0.], [0., ymax], linestyle="dashed", color='gray' )
 ax.plot( [0., xmax], [0., 0.], linestyle="dashed", color='gray' )
 
 # add line at x = y
-lim = min(xmax, ymax)
-ax.plot( [0., lim], [0., lim], linestyle="dashed", color='gray' )
+#lim = min(xmax, ymax)
+#ax.plot( [0., lim], [0., lim], linestyle="dashed", color='gray' )
 
 ax.set_xlabel(xAxis)
 ax.set_ylabel(yAxis)

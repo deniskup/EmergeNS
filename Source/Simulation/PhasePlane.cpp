@@ -469,7 +469,7 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
   
   else if (t == draw)
   {
-    LOG("Will raw multiple runs");
+    LOG("Will draw multiple runs");
     drawRuns();
     LOG("End drawing");
   }
