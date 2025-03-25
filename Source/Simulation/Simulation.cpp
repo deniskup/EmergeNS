@@ -142,6 +142,9 @@ void Simulation::clearParams()
   entities.clear();
   PACsGenerated = false;
   numLevels = -1;
+  steadyStatesList->arraySteadyStates.clear();
+  steadyStatesList->stableStates.clear();
+  steadyStatesList->partiallyStableStates.clear();
 }
 
 void Simulation::updateParams()
@@ -246,6 +249,13 @@ var Simulation::toJSONData()
   // todo: JSON for paclist
   var pacListData = pacList->toJSONData();
   data.getDynamicObject()->setProperty("pacList", pacListData);
+  
+  // steady states
+  //data.getDynamicObject()->setProperty("setSteadyStateTEST", setSteadyState->getValue());
+  var vsst = steadyStatesList->toJSONData();
+  data.getDynamicObject()->setProperty("SteadyStatesList", vsst);
+
+  
   return data;
 }
 
@@ -322,6 +332,12 @@ void Simulation::importJSONData(var data)
   {
     pacList->fromJSONData(data.getDynamicObject()->getProperty("pacList"));
   }
+  
+  // Steady States
+  if (data.getDynamicObject()->hasProperty("SteadyStatesList"))
+  {
+    steadyStatesList->fromJSONData(data.getDynamicObject()->getProperty("SteadyStatesList"));
+  }
 
   // precision
   dt->setAttributeInternal("stringDecimals", DT_PRECISION);
@@ -329,8 +345,6 @@ void Simulation::importJSONData(var data)
   computeBarriers();
   updateParams();
   
-  // Phase Plane
-   //PhasePlane::getInstance()->updateEntitiesFromSimu();
 }
 
 // void Simulation::importFromManual()

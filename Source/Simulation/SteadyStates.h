@@ -26,26 +26,37 @@ typedef Array<Monom> Polynom; // a polynom is a sum of monom
 
 //typedef Array<float> State; // a witness is a vector of concentrations
 typedef Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
+
 class SteadyState
 {
 public:
+  SteadyState(){};
+  SteadyState(var vsst);
+  ~SteadyState(){};
+  
   State state;
   bool isBorder = false;
+  
+  var toJSONData();
 };
 
-class SteadyStateslist : public Thread
+class SteadyStateslist : public ControllableContainer, public Thread
 {
 public:
-    SteadyStateslist() : Thread("SteadyStates"){};
-    SteadyStateslist(Simulation *simul) : Thread("SteadyStates"), simul(simul){};
+    juce_DeclareSingleton(SteadyStateslist, true);
+
+    SteadyStateslist() : ControllableContainer("SteadyStates"), Thread("SteadyStates"){};
+    SteadyStateslist(Simulation *simul) : ControllableContainer("SteadyStates"), Thread("SteadyStates"), simul(simul){};
     ~SteadyStateslist();
 
     Simulation *simul;
 
     Array<SteadyState> arraySteadyStates; // list of steady states
+    int nGlobStable = 0;
+    int nPartStable = 0;
     //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
-    Array<SteadyState> stableStates; // list of stable steady states
-    Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
+    //Array<SteadyState> stableStates; // list of stable steady states
+    //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
 
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 

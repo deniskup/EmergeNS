@@ -836,7 +836,7 @@ void PhasePlane::drawRuns()
   //drawCommand += " --nruns 2";
 */
   // check that steady states have been calculated already
-  int nsst = Simulation::getInstance()->steadyStatesList->stableStates.size();
+  int nsst = Simulation::getInstance()->steadyStatesList->arraySteadyStates.size();
   if (nsst==0)
   {
     LOG("Please calculate steady states before drawing. Exit.");
@@ -849,14 +849,14 @@ void PhasePlane::drawRuns()
   // first : only print entity names
   int c = -1;
   int nent = Simulation::getInstance()->entities.size();
-  for (auto & state : Simulation::getInstance()->steadyStatesList->stableStates[0].state)
+  for (auto & state : Simulation::getInstance()->steadyStatesList->arraySteadyStates[0].state)
   {
     c++;
     string comma = ( (c==nent-1) ? "\n" : "," );
     ofSST << "[" << state.first->name << "]" << comma;
   }
   // add concentrations at seatdy states
-  for (SteadyState & steadystate : Simulation::getInstance()->steadyStatesList->stableStates)
+  for (SteadyState & steadystate : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
   {
     c = -1;
     //cout << "### sst ###" << endl;

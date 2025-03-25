@@ -193,9 +193,90 @@ long double evaluate_expression(const string &expr)
 	}
 } // end func
 
+
+///////////////////////////////////////////////////////////
+///////////////// SteadyState METHODS /////////////////
+///////////////////////////////////////////////////////////
+
+
+SteadyState::SteadyState(var data)
+{
+  if (data.isVoid())
+    return;
+  
+  if (data.getDynamicObject() == nullptr)
+    return;
+  
+  state.clear();
+  
+  if (data.getDynamicObject()->hasProperty("isBorder"))
+  {
+    if (data.getDynamicObject()->getProperty("isBorder").isBool())
+      isBorder = data.getDynamicObject()->getProperty("isBorder").operator bool();
+    else
+    {
+      LOGWARNING("Wrong Steady State format (boolean isBorder) in JSON file.");
+      return;
+    }
+  }
+    
+  if (data.getDynamicObject()->hasProperty("State"))
+  {
+    if (!data.getDynamicObject()->getProperty("State").isArray())
+    {
+      LOGWARNING("Wrong Steady State format in JSON file.");
+      return;
+    }
+    
+    Array<var> * arrv = data.getDynamicObject()->getProperty("State").getArray();
+    
+    for (auto & v : *arrv)
+    {
+      String name = v["entity"];
+      SimEntity * e = Simulation::getInstance()->getSimEntityForName(name);
+      if (e == nullptr)
+      {
+        LOGWARNING("Entity in JSON file has no correspondance in simul");
+        return;
+      }
+      float conc = v["conc"];
+      state.add(make_pair(e, conc));
+    }
+  }
+
+  
+}
+
+
+
+
+var SteadyState::toJSONData()
+{
+  var data = new DynamicObject();
+  
+  data.getDynamicObject()->setProperty("isBorder", isBorder);
+  
+  var vst;
+  for (auto st : state)
+  {
+    //cout << "\t" << st.first->name << " --> " << st.second << endl;
+    var v = new DynamicObject();
+    v.getDynamicObject()->setProperty("entity", st.first->name);
+    v.getDynamicObject()->setProperty("conc", st.second);
+    vst.append(v);
+  }
+  
+  data.getDynamicObject()->setProperty("State", vst);
+  return data;
+}
+
+
 ///////////////////////////////////////////////////////////
 ///////////////// SteadyStatelist METHODS /////////////////
 ///////////////////////////////////////////////////////////
+
+juce_ImplementSingleton(SteadyStateslist)
+
 
 SteadyStateslist::~SteadyStateslist()
 {
@@ -228,8 +309,10 @@ void SteadyStateslist::printSteadyStates()
 void SteadyStateslist::clear()
 {
   arraySteadyStates.clear();
-	stableStates.clear();
-	partiallyStableStates.clear();
+  nGlobStable = 0;
+  nPartStable = 0;
+	//stableStates.clear();
+	//partiallyStableStates.clear();
 }
 
 void SteadyStateslist::computeSteadyStates()
@@ -322,8 +405,9 @@ void SteadyStateslist::computeWithZ3()
 	setZ3path();
 	LOG("Computing steady states with Z3...");
 	// set idSAT for entities and reactions
-	// to be changed to simul->affectSATIds();
-	int idSAT = 0;
+	simul->affectSATIds();
+	/*
+  int idSAT = 0;
 	for (auto &e : simul->entities)
 	{
 		idSAT++;
@@ -335,6 +419,7 @@ void SteadyStateslist::computeWithZ3()
 		idSAT++;
 		r->idSAT = idSAT;
 	}
+  */
 
 	string inputFile = "steadyConstraints.smt2";
 	string outputFile = "steadyOutput.txt";
@@ -640,7 +725,7 @@ bool SteadyStateslist::computeWithMSolve()
 {
 	clear();
 
-	cout << "setting msolve path" << endl;
+	//cout << "setting msolve path" << endl;
 	// compute steady states
 	setMSolvepath();
 	// msolvepath = "/home/thomas/Modèles/msolve-0.6.5/msolve";
@@ -649,8 +734,9 @@ bool SteadyStateslist::computeWithMSolve()
   
 	LOG("Computing steady states with msolve...");
 	// set idSAT for entities and reactions
-	// to be changed to simul->affectSATIds();
-	int idSAT = 0;
+	simul->affectSATIds();
+	/*
+  int idSAT = 0;
 	for (auto &e : simul->entities)
 	{
 		idSAT++;
@@ -662,7 +748,7 @@ bool SteadyStateslist::computeWithMSolve()
 		idSAT++;
 		r->idSAT = idSAT;
 	}
-  
+  */
 
 	// test msolve with dummy command
 	system("msolve -h > dummy.txt");
@@ -670,7 +756,7 @@ bool SteadyStateslist::computeWithMSolve()
 	// Check if the command was executed successfully, ie if file exists
 	if (!dummy || dummy.tellg() == 0)
 	{
-		LOGWARNING("msolve not found, aborting");
+		LOGWARNING("msolve not found, aborting.");
 		return false;
 	}
 
@@ -679,7 +765,7 @@ bool SteadyStateslist::computeWithMSolve()
 	string outputFile = "msolveSteadyOutput.ms";
 	// string steadyFile= "SteadyStates.txt";
 
-	string msolveCommand = msolvepath + " -p 32 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+	string msolveCommand = msolvepath + " -p 64 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
 
 	// std::cout << inputFile << std::endl;  // #erase
 	// std::cout << outputFile << std::endl; // #erase
@@ -707,7 +793,8 @@ bool SteadyStateslist::computeWithMSolve()
 
 	// set digit precision for polynoms writing
 	int ndigits = 6;
-	double factor = pow(10, ndigits);
+  double factor = pow(10, ndigits);
+  double epsilon = 1./factor;
 	clauses << fixed << setprecision(ndigits);
   
 
@@ -810,8 +897,7 @@ bool SteadyStateslist::computeWithMSolve()
 	}
   
 
-	// convert intervals to long double
-	// and store according to the number of solutions
+	// store according to the number of solutions
 	for (int i = 0; i < nsol; i++)
 	{
 		// vector of increasing index
@@ -827,17 +913,18 @@ bool SteadyStateslist::computeWithMSolve()
       bool iszero = isExactMSolveZero(list[index]);
       if (iszero) isBorderState = true;
       
+      // convert intervals to long double
 			long double centerLd = evaluate_interval_center(list[index]);
 			float center = (float)centerLd; // move to float precision
-			if (center >= 0)
+			if (centerLd < -epsilon)
 			{
-        int iID = index -i * simul->entities.size();
-				sstate.state.add( make_pair(simul->getSimEntityForID(iID), (float)centerLd));
+        keepState = false;
+        break;
 			}
 			else
 			{
-				keepState = false;
-				break;
+        int iID = index -i * simul->entities.size();
+        sstate.state.add( make_pair(simul->getSimEntityForID(iID), (float)centerLd));
 			}
 		}
 		if (keepState)
@@ -1363,40 +1450,64 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     
 		// is steady state globally stable ?
 		bool stable = isStable(jm, witness);
-		if (stable) stableStates.add(witness);
-    else arraySteadyStates.remove(iw);
-
+		if (stable)
+    {
+      //stableStates.add(witness);
+      nGlobStable++;
+    }
+    else
+    {
+      if (!witness.isBorder)
+        arraySteadyStates.remove(iw);
+    }
     //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;
 		// else cout << "--> unstable !" << endl;
 
-		// steady state contains 0. elements ? // No longer needed, a boolean was added in SteadyState type. Can mute the 3 lines below.
-    // Array<float> concwitness; // #here
-    // for (auto & p : witness.state) concwitness.add(p.second);
-		// bool shouldGoPartial = concwitness.contains(0.);
-		// if yes, check partial stability
+		// if yes, check partial stability, i.e. not taking into account variables that are exactly 0
 		if (witness.isBorder)
 		{
 			bool partiallyStable = isPartiallyStable(jm, witness);
 			if (partiallyStable)
-				partiallyStableStates.add(witness);
-      else
+      {
+        nPartStable++;
+        //partiallyStableStates.add(witness);
+      }
+      // remove steady states that are neither stable nor partially stable
+      if (!stable && !partiallyStable)
         arraySteadyStates.remove(iw);
-			// if (partiallyStable) cout << "--> partially stable !" << endl;
-			// else cout << "--> partially unstable !" << endl;
 		}
 	}
+  
+  // Regularize almost zero roots, which sometimes are slightly negative
+  for (auto & sst : arraySteadyStates)
+  {
+    for (auto & p : sst.state)
+    {
+      if (abs(p.second)<epsilon)
+        p.second = abs(p.second);
+    }
+  }
+  
+
+  // print number of steady states
+  string plural = (arraySteadyStates.size() > 1) ? "s" : "";
+  LOG("Network has " + to_string(arraySteadyStates.size()) + " stable steady state" + plural + " : ");
 
 	// print stable steady states
-	string plural = (stableStates.size() > 1) ? "s" : "";
-	LOG("System has " + to_string(stableStates.size()) + " stable steady state" + plural + " : ");
-	for (auto &s : stableStates)
-		printOneSteadyState(s);
+  //plural = (stableStates.size() > 1) ? "s" : "";
+  plural = (nGlobStable > 1) ? "s" : "";
+	LOG("Network has " + to_string(nGlobStable) + " globally stable steady state" + plural + " : ");
+  for (auto &s : arraySteadyStates)
+    if (!s.isBorder)
+      printOneSteadyState(s);
 
 	// print partially stable steady states
-	plural = (partiallyStableStates.size() > 1) ? "s" : "";
-	LOG("System has " + to_string(partiallyStableStates.size()) + " partially stable steady state" + plural + " : ");
-	for (auto &s : partiallyStableStates)
-		printOneSteadyState(s);
+  //plural = (partiallyStableStates.size() > 1) ? "s" : "";
+  plural = (nPartStable > 1) ? "s" : "";
+	LOG("Network has " + to_string(nPartStable) + " partially stable steady state" + plural + " : ");
+	for (auto &s : arraySteadyStates)
+    if (s.isBorder)
+      printOneSteadyState(s);
   
   
 
@@ -1408,66 +1519,49 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 
 var SteadyStateslist::toJSONData()
 {
-	var data = new DynamicObject();
-	// // save cycles
-	// var cyclesData;
-	// for (auto &c : cycles)
-	// {
-	// 	cyclesData.append(c->toJSONData());
-	// }
-	// data.getDynamicObject()->setProperty("cycles", cyclesData);
+	var data = new DynamicObject();  
 
-	// save steady states
-	// var steadystateListData;
-	// for (auto &s : arraySteadyStates)
-	// {
-	// 	var state = new DynamicObject();
-	// 	state.getDynamicObject()->setProperty("state", s);
+  var vsst;
+  for (auto & sst : arraySteadyStates)
+  {
+    var v = sst.toJSONData();
+    vsst.append(v);
+  }
+  data.getDynamicObject()->setProperty("SteadyStates", vsst);
 
-	// 	steadystateListData.append(state);
-	// }
-	// data.getDynamicObject()->setProperty("steadyStates!!", steadystateListData);
-
-	// // save CACs
-	// var CACsData;
-	// for (auto &c : CACs)
-	// {
-	// 	CACsData.append(CACtoJSON(c));
-	// }
-	// data.getDynamicObject()->setProperty("CACs", CACsData);
 	return data;
 }
 
 void SteadyStateslist::fromJSONData(var data)
 {
-	// clear();
-	// // load cycles
-	// if (!data.getDynamicObject()->hasProperty("cycles") || !data["cycles"].isArray())
-	// {
-	// 	LOGWARNING("wrong PAC format in SteadyStateslist JSON data");
-	// 	return;
-	// }
-	// Array<var> *cyclesData = data["cycles"].getArray();
-	// for (auto &c : *cyclesData)
-	// {
-	// 	PAC *pac = new PAC(c, simul);
-	// 	cycles.add(pac);
-	// }
-	// simul->PACsGenerated = true;
-	// // load CACs
-	// if (!data.getDynamicObject()->hasProperty("CACs") || !data["CACs"].isArray())
-	// {
-	// 	LOGWARNING("Wrong CAC format in SteadyStateslist JSON data");
-	// 	return;
-	// }
-	// Array<var> *CACsData = data["CACs"].getArray();
-	// for (auto &c : *CACsData)
-	// {
-	// 	CACType cac = JSONtoCAC(c);
-	// 	CACs.add(cac);
-	// 	if (cac.first.size() == 1)
-	// 		basicCACs.add(*(cac.first.begin()));
-	// }
+  clear();
+	// load steady states
+	if (!data.getDynamicObject()->hasProperty("SteadyStates") || !data["SteadyStates"].isArray())
+  {
+	 	LOGWARNING("wrong Steady State format in SteadyStatesList JSON data");
+    return;
+	}
+  
+	Array<var> * sstData = data["SteadyStates"].getArray();
+	for (auto & varsst : *sstData)
+	{
+    SteadyState sst(varsst);
+    arraySteadyStates.add(sst);
+    if (sst.isBorder)
+      nPartStable++;
+    else
+      nGlobStable++;
+	}
+  
+  // some printing
+  string plural = (arraySteadyStates.size()>1) ? "s" : "";
+  LOG("Imported " + to_string(arraySteadyStates.size()) + " steady state" + plural + " including:");
+  plural = (nGlobStable>1) ? "s" : "";
+  LOG("\t" + to_string(nGlobStable) + " globally stable state" + plural);
+  plural = (nPartStable>1) ? "s" : "";
+  LOG("\t" + to_string(nPartStable) + " globally stable state" + plural);
+  if ((nPartStable+nGlobStable) != arraySteadyStates.size())
+    LOG("Number of globally stable states + partially stable states may differ. Expected behavior.");
 }
 
 
