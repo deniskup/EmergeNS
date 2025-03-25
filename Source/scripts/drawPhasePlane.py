@@ -87,6 +87,9 @@ if __name__ == "__main__":
     df = pd.read_csv(filename)
     #df = pd.read_csv("./concentrationDynamics_model4.csv")
     dfsst = pd.read_csv(steadyStateFile)
+    # separate gloablly and partially stable states
+    dfsst_glob = dfsst[dfsst.isBorder==0]
+    dfsst_part = dfsst[dfsst.isBorder==1]
 
     # for plot
     fig, ax = plt.subplots()
@@ -96,7 +99,6 @@ if __name__ == "__main__":
     c2=-1
     xmax = 0.
     ymax = 0.
-    print('df shape : ', df.shape[0])
     for irun in range(nruns):
 
       #should skip run ?
@@ -114,7 +116,6 @@ if __name__ == "__main__":
       # get x and y concentrations vectors
       x = np.array(df_run[xAxis])
       y = np.array(df_run[yAxis])
-      print('x and y sizes : ', x.size, '  ', y.size)
       # calculate arrow positions to draw along the 2D trajectory
       arrowpos = get_clever_arrow_pos(x, y, narrows)
 
@@ -144,26 +145,32 @@ if __name__ == "__main__":
         ax.scatter(x[0], y[0], color='black', marker='o')
 
 # plot steady state points
-x_sst = np.array([dfsst[xAxis]])[0]
-y_sst = np.array([dfsst[yAxis]])[0]
-#print('dfsst = ', dfsst)
-#print('x_sst = ', x_sst)
-#print('y_sst = ', y_sst)
+xsst_glob = np.array([dfsst_glob[xAxis]])[0]
+ysst_glob = np.array([dfsst_glob[yAxis]])[0]
+xsst_part = np.array([dfsst_part[xAxis]])[0]
+ysst_part = np.array([dfsst_part[yAxis]])[0]
 
+# plot globally stable states
 c=-1
-for stx, sty in zip(x_sst, y_sst):
+for stx, sty in zip(xsst_glob, ysst_glob):
   c+=1
   if c==0:
-    ax.scatter(stx, sty, marker='*', color='black', label='Steady State', s=300)
-    #ax.scatter(stx, sty, marker='*', color='white', s=100)
+    ax.scatter(stx, sty, marker='*', color='black', label='Global Steady State', s=300)
   else:
     ax.scatter(stx, sty, marker='*', color='black', s=300)
 
-   #extra margin if steady state is at xmax or ymax
-  #if np.abs(np.max(stx)-xmax)<0.01:
-  #  xmax += 2.*xmax/10.
-  #if np.abs(np.max(sty)-ymax)<0.01:
-  #  ymax += 2.*ymax/10.
+# plot partially stable states 
+c=-1
+for stx, sty in zip(xsst_part, ysst_part):
+  c+=1
+  if c==0:
+    ax.scatter(stx, sty, marker='*', color='white', edgecolor='black', \
+     linewidth=1, label='Border Steady State', s=300)
+  else:
+    ax.scatter(stx, sty, marker='*', color='white', edgecolor='black', \
+     linewidth=1, s=300)
+
+  
 
 # add extra margin
 xmax += xmax/10.

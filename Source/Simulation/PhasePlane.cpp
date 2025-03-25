@@ -849,6 +849,7 @@ void PhasePlane::drawRuns()
   // first : only print entity names
   int c = -1;
   int nent = Simulation::getInstance()->entities.size();
+  ofSST << "isBorder,";
   for (auto & state : Simulation::getInstance()->steadyStatesList->arraySteadyStates[0].state)
   {
     c++;
@@ -860,6 +861,7 @@ void PhasePlane::drawRuns()
   {
     c = -1;
     //cout << "### sst ###" << endl;
+    ofSST << steadystate.isBorder << ",";
     for (auto & p : steadystate.state)
     {
       //cout << "\t" << p.second << endl;

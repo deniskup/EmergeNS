@@ -143,8 +143,10 @@ void Simulation::clearParams()
   PACsGenerated = false;
   numLevels = -1;
   steadyStatesList->arraySteadyStates.clear();
-  steadyStatesList->stableStates.clear();
-  steadyStatesList->partiallyStableStates.clear();
+  steadyStatesList->nGlobStable = 0;
+  steadyStatesList->nPartStable = 0;
+  //steadyStatesList->stableStates.clear();
+  //steadyStatesList->partiallyStableStates.clear();
 }
 
 void Simulation::updateParams()
