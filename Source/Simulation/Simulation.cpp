@@ -47,6 +47,7 @@ juce_ImplementSingleton(Simulation)
   // ready = addBoolParameter("Ready","Can the simulation be launched ?", false);
   setCAC = addEnumParameter("Set CAC", "Set current concentrations according to CAC witness");
   setSteadyState = addEnumParameter("Set Steady State", "Set current concentrations to steady state");
+  setRun = addEnumParameter("Set Run", "Draw concentration dynamics associated to chosen run");
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
   stochasticity = addBoolParameter("Stochasticity", "Add stochasticity in the simulation dynamics", false);
@@ -193,6 +194,17 @@ void Simulation::updateParams()
     int stateOpt = i + 1;
     setSteadyState->addOption(String(stateOpt), stateOpt, false);
   }
+  
+  // set runs
+  setRun->clearOptions();
+  setRun->addOption("Run", -1, true);
+  for (int i = 0; i < PhasePlane::getInstance()->nRuns->intValue(); i++)
+  {
+    int stateOpt = i;
+    setRun->addOption(String(stateOpt), stateOpt, false);
+  }
+  
+  
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
@@ -208,6 +220,7 @@ var Simulation::toJSONData()
   data.getDynamicObject()->setProperty("recordDrawnEntity", recordDrawnEntity);
   data.getDynamicObject()->setProperty("numLevels", numLevels);
   data.getDynamicObject()->setProperty("PACsGenerated", PACsGenerated);
+  data.getDynamicObject()->setProperty("nRuns", nRuns);
 
   // entities
   var ents;
@@ -280,7 +293,9 @@ void Simulation::importJSONData(var data)
   // To move to PACList later
   if (data.getDynamicObject()->hasProperty("PACsGenerated"))
     PACsGenerated = data.getDynamicObject()->getProperty("PACsGenerated");
-
+  //if (data.getDynamicObject()->hasProperty("nRuns"))
+  //  nRuns = data.getDynamicObject()->getProperty("nRuns");
+  
   // entities
   entities.clear();
   if (data.getDynamicObject()->hasProperty("entities"))
@@ -1417,9 +1432,12 @@ void Simulation::resetBeforeRunning()
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
   
+  setRun->setValue(0);
+  
   if (stochasticity->boolValue())
   {
     rgg = new RandomGausGenerator(0., 1.); // init random generator
+    rgg->generator->seed(std::chrono::system_clock::now().time_since_epoch().count());
     noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
     if (Settings::getInstance()->fixedSeed->boolValue()==true)
     {
@@ -1446,11 +1464,20 @@ void Simulation::resetBeforeRunning()
     }
   }
   
-
-  
-  for (auto &pac : pacList->cycles)
-    RAChistory.add(new RACHist(pac->entities, pac->score));
-  
+  //cout << "in reset nruns = " << PhasePlane::getInstance()->nRuns->intValue() << endl;
+  //RAChistory.resize(nRuns);
+  for (int irun=0; irun<PhasePlane::getInstance()->nRuns->intValue(); irun++)
+  {
+    auto* row = new juce::OwnedArray<RACHist>();
+    for (auto &pac : pacList->cycles)
+    {
+      //RAChistory[irun]->add(new RACHist(pac->entities, pac->score));
+      row->add(new RACHist(pac->entities, pac->score));
+    }
+    //unique_ptr<OwnedArray<RACHist>> urh = rh;
+    RAChistory.add(row);
+  }
+  //cout << "in reset RAChist size on run axis : " << RAChistory.size() << endl;
   
 }
 
@@ -1563,10 +1590,11 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   initialConcentrations = initConc;
   isMultipleRun = true;
   nRuns = (int) initConc.size();
+  setRun->setValue(nRuns-1);
   
   // will print dynamics to file
-  if (!Settings::getInstance()->printHistoryToFile->boolValue())
-    Settings::getInstance()->printHistoryToFile->setValue(true);
+  //if (!Settings::getInstance()->printHistoryToFile->boolValue())
+  //  Settings::getInstance()->printHistoryToFile->setValue(true);
   
   // 1st call of simulation event
   if (!express)
@@ -1598,6 +1626,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   for (auto & [entname, startconc] : initialConcentrations[0])
   {
     getSimEntityForName(entname)->concent = startconc;
+    getSimEntityForName(entname)->deterministicConcent = startconc;
   }
   
   cout << "Simulation::startMultipleRuns(): Starting thread" << endl;
@@ -1653,6 +1682,93 @@ void Simulation::nextStep()
 
   nSteps++;
   
+  
+  bool isCheck = (curStep % checkPoint == 0);
+  bool isCheckForRedraw = ((nSteps-1) % checkPoint == 0);
+  
+  
+  //cout << "curStep % checkPoint = " << curStep << " % " << checkPoint << " = " << curStep % checkPoint << endl;
+  
+  if (redraw && isCheckForRedraw)
+  //if (redraw)
+  {
+    int idrun = setRun->intValue();
+    int istep = (nSteps-1) + idrun*maxSteps;
+    int firststep = idrun*maxSteps;
+    int laststep = maxSteps+maxSteps*idrun-1;
+    
+    
+    if (istep>=laststep)
+    {
+      //simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+      stop();
+      return;
+    }
+    
+    Array<float> snapshot;
+    Array<Colour> entityColours;
+    int ident=-1;
+    
+      
+    // recover drawn entity concentrations and colors
+    for (auto & ent : entities)
+    {
+      ident++;
+      if (!ent->draw)
+        continue;
+      entityColours.add(ent->color);
+      float entconc = ent->concentHistory[istep].second;
+      snapshot.add(entconc);
+      if (entconc>recordDrawn)
+        recordDrawn = entconc;
+      //cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
+    }
+    
+    
+    // recover RACs snapshot of current step
+    Array<float> racsnap;
+    Array<bool> raclist;
+    for (int ipac=0; ipac<RAChistory[currentRun]->size(); ipac++)
+    {
+      //cout << "\tipac = " << ipac << endl;
+      //cout << "\t" << currentRun << " < " << RAChistory.size() << endl;
+      //cout << "\t" << ipac << " < " << RAChistory[currentRun]->size() << endl;
+      //cout << "\t" << nSteps-1 << " < " << RAChistory[currentRun]->getUnchecked(ipac)->hist.size() << endl;
+      float rac = RAChistory[currentRun]->getUnchecked(ipac)->hist.getUnchecked(nSteps-1)->rac;
+      //cout << "\t\tflagC" << endl;
+      float wasrac = RAChistory[currentRun]->getUnchecked(ipac)->wasRAC;
+      //cout << "\t\tflagD" << endl;
+      racsnap.add(rac);
+      raclist.add(wasrac);
+    }
+    
+    // simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, nSteps, entityValues, {}, PACsValues, RACList));
+
+
+    
+    if (istep==firststep)
+    {
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+    }
+    //else if (istep>=(laststep-1))
+    //{
+    //  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+     // stop();
+    //}
+    else
+    {
+      //cout << "Calling new SimNotifier in redraw" << endl;
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+    }
+  }
+  
+  if (redraw)
+    return;
+  
+  
+  
+  // if not in redraw mode but in multiple runs mode
   if (isMultipleRun)
   {
     if (nSteps>maxSteps) // current run is over
@@ -1666,6 +1782,7 @@ void Simulation::nextStep()
         {
         //  cout << "[" << name << "] = " << startconc << endl;
           getSimEntityForName(name)->concent = startconc;
+          getSimEntityForName(name)->deterministicConcent = startconc;
         }
         
         if (!express)
@@ -1711,7 +1828,6 @@ void Simulation::nextStep()
   }
   
 
-  bool isCheck = (curStep % checkPoint == 0);
   if (displayLog && isCheck)
   {
     LOG("New Step : " << curStep);
@@ -1727,7 +1843,6 @@ void Simulation::nextStep()
     // for a sanity check
     //cout << "##### " << reac->name << " :" << endl;
     //cout << "\tassoc/dissoc k : " << reac->assocRate << " ; " << reac->dissocRate << endl;
-    
     if (!reac->enabled)
       continue;
     // shorter names
@@ -1741,7 +1856,7 @@ void Simulation::nextStep()
     {
       reacConcent *= ent->concent;
       deterministicReacConcent *= ent->deterministicConcent;
-///      cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
+      //cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
       if (ent == reac->reactants[0] || ent->concent < minReacConcent)
         minReacConcent = ent->concent;
       if (ent == reac->reactants[0] || ent->deterministicConcent < mindReacConcent)
@@ -1789,7 +1904,7 @@ void Simulation::nextStep()
      // {
      //   cout << "[" << ent->name << "] = " << ent->concent << endl;
      // }
-     // cout << "deterministic forward incr = " << directIncr << endl;
+      //cout << "forward incr = " << directIncr << " det. forward incr = " << deterministicDirectIncr  << endl;
     //}
 
     // adjust the increments depending on available entities
@@ -1895,11 +2010,12 @@ void Simulation::nextStep()
 
           
     // update flow needed only at checkpoints
-    if (isCheck)
+    if (isCheck || isMultipleRun)
     {
       reac->flow = directCoef - reverseCoef;
       reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
-      //cout << "check : " << directCoef << "  :  " << reverseCoef << endl;
+     // cout << "check : " << directCoef << "  :  " << reverseCoef << endl;
+      //cout << "checkbis : " << deterministicDirectCoef << "  :  " << deterministicReverseCoef << endl;
       //cout << curStep <<  " -> " << reac->flow << "  ;  " << reac->deterministicFlow << endl;
     }
   }
@@ -1950,11 +2066,9 @@ void Simulation::nextStep()
   for (auto &ent : entities)
   {
 
-    if (Settings::getInstance()->printHistoryToFile->boolValue())
-    {
-      //ent->concentHistory.add(ent->concent);
+ //   if (Settings::getInstance()->printHistoryToFile->boolValue())
+    if (isMultipleRun || Settings::getInstance()->printHistoryToFile->boolValue())
       ent->concentHistory.add(make_pair(currentRun, ent->concent));
-    }
 
     // update concentration
     ent->refresh();
@@ -2002,7 +2116,7 @@ void Simulation::nextStep()
     stop();
   }
   // rest only to call only pointsDrawn time
-  if (!isCheck)
+  if (!isCheck && !isMultipleRun)
     return;
 
   // for now we don't care about RACs in express mode
@@ -2072,6 +2186,9 @@ void Simulation::nextStep()
       
     }
     
+    //for (auto & [key, val] : flowPerEnt)
+      //cout << "has a flow per ent of " << val << endl;
+    
     
     // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
     cycle->flow = flowPerEnt[cycle->entities[0]]; // initialisation to a potential value, either <=0 or bigger than real value
@@ -2093,7 +2210,7 @@ void Simulation::nextStep()
       }
     }
     
-   // cout << curStep << " -> cycle flow = " << cycle->flow << endl;;
+    //cout << "cycle " << cycle->toString() << " flow " << cycle->flow << endl;
 
     // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
     map<SimEntity *, float> otherPosFlowPerEnt;
@@ -2136,7 +2253,8 @@ void Simulation::nextStep()
       }
     }
 
-    if (Settings::getInstance()->printHistoryToFile->boolValue())
+    //if (Settings::getInstance()->printHistoryToFile->boolValue())
+    if (Settings::getInstance()->printHistoryToFile->boolValue() || isMultipleRun)
     {
       // update history with flowPerEnt
       Array<float> RACflows;
@@ -2170,24 +2288,26 @@ void Simulation::nextStep()
         RACspec.add(spec);
       }
       // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
-      RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
-      // cout<<"RAC "<<idPAC<<" history size "<<RAChistory[idPAC-1].size()<<endl;
+      //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
+      RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
+      if (cycle->flow > 0.)
+        RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
+      //cout << "run " << currentRun << ". PAC " << idPAC-1 << ". step " << nSteps-1 << " vs size : " << RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.size() << endl;
     }
 
     PACsValues.add(cycle->flow);
-    //cout << "curstep = " << curStep<<endl;
+    //cout << "curstep = " << curStep << endl;
     //cout << "RAC Flow " << cycle->flow << "  " << cycle->toString() << endl;
     if (cycle->flow > 0)
     {
       cycle->wasRAC = true;
-      // if (newRAC)
-      // LOG("RAC " << idPAC << " from min reac " << minreac->name);
+     // if (nSteps == maxSteps)
+      //  cout << "RAC " << idPAC << " wasRAC = " << cycle->wasRAC << endl;
       if (cycle->flow > pacList->maxRAC)
         pacList->maxRAC = cycle->flow;
     }
     RACList.add(cycle->wasRAC);
   }
-  // cout << "-" << endl;
 
   // if (Settings::getInstance()->printHistoryToFile->boolValue())
   // {
@@ -2210,19 +2330,18 @@ void Simulation::nextStep()
   //   }
   //   history.add(new Snapshot(curStep, concents, flows, racs));
   // }
-  if (isMultipleRun)
+  if (isCheck)
   {
-    if (currentRun == (nRuns-1))
+    if (isMultipleRun)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, nSteps, entityValues, {}, PACsValues, RACList));
-      //cout << "adding c vector at step = " << nSteps << endl;
-      //for (auto & val : entityValues) cout << "\t" << val;
-      //cout << endl;
+      if (currentRun == (nRuns-1))
+        simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, curStep, entityValues, {}, PACsValues, RACList));
+    }
+    else
+    {
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, curStep, entityValues, {}, PACsValues, RACList));
     }
   }
-  else
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, curStep, entityValues, {}, PACsValues, RACList));
-  // listeners.call(&SimulationListener::newStep, this);
 }
 
 
@@ -2238,6 +2357,7 @@ void Simulation::stop()
   }
   state = Idle;
   isMultipleRun = false;
+  //redraw = false;
 
   // if (!express)
   //{
@@ -2261,46 +2381,34 @@ void Simulation::run()
   if (!express)
     LOG("--------- Start thread ---------");
   finished->setValue(false);
-  if (!isMultipleRun)
-  {
     while (!finished->boolValue() && !threadShouldExit())
     {
       nextStep();
     }
-  }
-  else
-  {
-    //while (currentRun<=initialConcentrations.size())
-   //{
-     //cout << "Simulation::run() run #" << currentRun << endl;
-      while (!finished->boolValue() && !threadShouldExit() /*&& stop<15*/ /*&& !shouldStartNewRun*/)
-      {
-        nextStep();
-      }
-    /*
-      if (shouldStartNewRun) // reset concentrations and increment current run index
-      {
-        currentRun++;
-        for (auto & [name, startconc] : initialConcentrations[currentRun])
-        {
-          getSimEntityForName(name)->concent = startconc;
-        }
-        shouldStartNewRun = false;
-      }
-    */
-    //}
-  }
+  
+  
   if (!express)
     LOG("--------- End thread ---------");
 
   Array<float> entityValues;
   for (auto &ent : entities)
   {
-    entityValues.add(ent->concent);
+    if (!redraw)
+      entityValues.add(ent->concent);
+    else
+    {
+      int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
+      entityValues.add(ent->concentHistory[lastrunstep].second);
+    }
   }
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, 0, curStep, entityValues, {}, {}, {}));
-
+  
+  if (redraw)
+  {
+    redraw = false;
+    return;
+  }
   if (express)
   {
     // writeJSONConcents();
@@ -2332,53 +2440,74 @@ void Simulation::run()
 
 void Simulation::writeHistory()
 {
+  int nruns = RAChistory.size();
+  if (nruns==0)
+    return;
   
-  cout << "Simulation::writeHistory() recorded " << entities[0]->concentHistory.size() << " steps" << endl;
-
-  for (int idPAC0 = 0; idPAC0 < RAChistory.size(); idPAC0++)
+  //Array<RACHist> run0RAChistory = RAChistory[0];
+  
+  
+  for (int idPAC0 = 0; idPAC0<RAChistory[0]->size(); idPAC0++)
+  //for (int idPAC0 = 0; idPAC0<run0RH->size(); idPAC0++)
+  //int idPAC0 = -1;
+  //for (auto * runRH : RAChistory)
   {
+    // output file
+    idPAC0++;
     int idPAC = idPAC0 + 1;
     String filename = "RAC" + String(idPAC) + ".csv";
     ofstream historyFile;
     historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    
     // prepare csv to be readable by R
-    historyFile << "Score,Step,RAC,";
-    // test if no entities
-    if (RAChistory[idPAC0]->hist.size() == 0)
-    {
-      LOG("RAC " + String(idPAC) + " history empty");
-      historyFile.close();
-      continue;
-    }
-    // for (int e = 0; e < RAChistory[idPAC0]->hist[0]->flows.size(); e++)
-    for (auto &ent : RAChistory[idPAC0]->ents)
+    historyFile << "Score,Run,Step,RAC,";
+        
+    for (auto &ent :  RAChistory[0]->getUnchecked(idPAC0)->ents)
+    //for (auto &ent : *runRH[idPAC0].ents)
     {
       // historyFile << "ent" << e + 1 << ",prop" << e + 1 << ",";
       historyFile << ent->name << ",spec+_" << ent->name << ",spec-_" << ent->name << ",spec_" << ent->name;
     }
     historyFile << endl;
-    int i = 0;
-    for (auto &snap : RAChistory[idPAC0]->hist)
+    
+    // loop over runs
+    for (int irun=0; irun<nruns; irun++)
     {
-      i++;
-      if (i == 1)
-        historyFile << RAChistory[idPAC0]->pacScore << ",";
-      else
-        historyFile << ",";
-      historyFile << i << "," << snap->rac << ",";
-      for (int e = 0; e < snap->flows.size(); e++)
+      //Array<RACHist> runRACHistory = RAChistory[irun];
+      
+      // test if no history
+      if (RAChistory[irun]->getUnchecked(idPAC0)->hist.size() == 0)
       {
-        historyFile << snap->flows[e] << ",";
-        historyFile << snap->posSpecificities[e] << ",";
-        historyFile << snap->negSpecificities[e] << ",";
-        historyFile << snap->specificity[e];
+        LOG("RAC " + String(idPAC) + " history empty");
+        historyFile.close();
+        continue;
       }
-      historyFile << endl;
-    }
-    historyFile.close();
+      
+      
+      int i = 0;
+      for (auto &snap : RAChistory[irun]->getUnchecked(idPAC0)->hist)
+      {
+        i++;
+        if (i == 1)
+          historyFile << RAChistory[irun]->getUnchecked(idPAC0)->pacScore << ",";
+        else
+          historyFile << ",";
+        historyFile << irun << "," << i << "," << snap->rac << ",";
+        for (int e = 0; e < snap->flows.size(); e++)
+        {
+          historyFile << snap->flows[e] << ",";
+          historyFile << snap->posSpecificities[e] << ",";
+          historyFile << snap->negSpecificities[e] << ",";
+          historyFile << snap->specificity[e];
+        }
+        historyFile << endl;
+      } // end snap loop
+    } // end run loop
+  historyFile.close();
   }
   LOG("RAC History written to files RACi.csv");
 
+  
   // store concentration of all entity concentrations history to csv file
   String concentFilename = "./concentrationDynamics.csv";
   ofstream outfile;
@@ -2617,6 +2746,60 @@ void Simulation::setConcToSteadyState(int idSS)
   }
 }
 
+
+void Simulation::drawConcOfRun(int idrun)
+{
+  /*
+  cout << "--- sanity check ---" << endl;
+  cout << "Will draw run#" << idrun << endl;
+  cout << "Should have " << round(totalTime->floatValue() / dt->floatValue()) << " steps" << endl;
+  cout << "Number of runs in RAChistory : " << RAChistory.size() << endl;
+  cout << "Number of PACs/steps in each RAChistory : " << RAChistory.size() << endl;
+  for (int irun=0; irun<RAChistory.size(); irun++)
+  {
+    cout << "run #" << irun << " has " << RAChistory[irun]->size() << " RAC(s)" << endl;
+    for (int ipac=0; ipac<RAChistory[irun]->size(); ipac++)
+    {
+      cout << "\tRAC #" << ipac << " has " << RAChistory[irun]->getUnchecked(ipac)->hist.size() << " steps recorded" << endl;
+      for (int ir=0; ir<RAChistory[irun]->getUnchecked(ipac)->hist.size(); ir++)
+        cout << RAChistory[irun]->getUnchecked(ipac)->hist[ir]->rac << "  ";
+      cout << endl;
+    }
+  }
+  */
+  // check if some simulation exists before redrawing
+  bool isOK = true;
+  for (auto & ent : entities)
+  {
+    if (ent->concentHistory.size()==0)
+    {
+      isOK = false;
+      break;
+    }
+  }
+  if (!isOK)
+  {
+    LOG("You must start some simulation before choosing which run to draw");
+    return;
+  }
+
+  // checks if number of checkpoints changed since last start, otherwise that would mess with RAC display
+  if (pointsDrawn->intValue() != maxSteps/checkPoint)
+  {
+    LOG("Checkpoint parameter changed since last simulation. Please run simulation again.");
+    return;
+  }
+  
+  stopThread(100);
+  redraw = true;
+  recordDrawn = 0.;
+  currentRun = setRun->intValue();
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  startThread();
+  
+}
+
+
 void Simulation::onContainerParameterChanged(Parameter *p)
 {
   ControllableContainer::onContainerParameterChanged(p);
@@ -2640,6 +2823,13 @@ void Simulation::onContainerParameterChanged(Parameter *p)
     if (setSteadyState->intValue() < 1)
       return;
     setConcToSteadyState(setSteadyState->intValue());
+  }
+  if (p == setRun)
+  {
+    if (setRun->intValue() < 0)
+      return;
+    if (state!=Simulating && !Engine::mainEngine->isLoadingFile) 
+      drawConcOfRun(setRun->intValue());
   }
 
   /*if (liveUpdate->boolValue())

@@ -24,6 +24,12 @@ PACUI::~PACUI()
 
 void PACUI::paint(juce::Graphics &g)
 {
+  /*
+  cout << "PACUI::paint" << endl;
+  cout << "RACs have " << PACsHistory.size() << " steps" << endl;
+  if (PACsHistory.size()>0)
+    cout << "nRACs : " << PACsHistory[0].size() << endl;
+  */
     PACsBounds = getLocalBounds();
     g.fillAll(Colours::black);
     g.setColour(Colours::white);
@@ -135,7 +141,8 @@ void PACUI::paint(juce::Graphics &g)
     g.setFont(14.0f);
     for (int j = 0; j < RACsHistory[0].size(); ++j)
     {
-        g.drawText(to_string(RACid[j] + 1), 0.f, yTop + j * yScale, xLeft, yScale, Justification::centred, true);
+      g.drawText(to_string(RACid[j] + 1), 0.f, yTop + j * yScale, xLeft, yScale, Justification::centred, true);
+      //g.drawText(simul->pacList->cycles[j]->toString() , 0.f, yTop + j * yScale, xLeft, yScale, Justification::centred, true);
     }
 
     // draw vertical line after indexes
@@ -235,9 +242,10 @@ void PACUI::newMessage(const Simulation::SimulationEvent &ev)
     }
     case Simulation::SimulationEvent::WILL_START:
     {
-
         PACsHistory.clear();
+        RACList.clear();
         repaint();
+      //cout << "clearing RAC window" << endl;
     }
     break;
 

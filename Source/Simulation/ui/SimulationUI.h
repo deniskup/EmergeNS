@@ -48,6 +48,7 @@ public:
 
     unique_ptr<EnumParameterUI> setCACUI;
     unique_ptr<EnumParameterUI> setSteadyStateUI;
+    unique_ptr<EnumParameterUI> setRunUI;
 
     //for diplaying paramaters
     Label paramsLabel;

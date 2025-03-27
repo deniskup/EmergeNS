@@ -82,7 +82,8 @@ public:
   
   
 	EnumParameter* setCAC;
-	EnumParameter* setSteadyState;
+  EnumParameter* setSteadyState;
+	EnumParameter* setRun;
 
 	Trigger* genTrigger;
 	Trigger* startTrigger;
@@ -99,8 +100,10 @@ public:
 
 	//REARRANGER POUR QUE CE SOIT LISIBLE ET LOGIQUE
 
-	OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
+  //OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
+	OwnedArray<OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
 	bool express = false; // express mode : no graphics, just find equilibrium
+  bool redraw = false; // redraw mode : just graphics, no simulation
 
 	// for drawing
 	int maxSteps;
@@ -180,7 +183,7 @@ public:
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
 	void setConcToSteadyState(int idSS); // set concentrations to Steady State
-    
+  void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 
@@ -246,7 +249,8 @@ public:
 			WILL_START,
 			STARTED,
 			NEWSTEP,
-			FINISHED
+			FINISHED,
+      DRAWRUN
 		};
 
 		SimulationEvent(Type t,
