@@ -121,7 +121,7 @@ public:
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
   void controllableAdded(Controllable *) override;
-  void onRemoveChildControllableContainer() override;
+  void onChildContainerRemoved() override;
 
   void clearAllRuns();
   void addRun(Run *);

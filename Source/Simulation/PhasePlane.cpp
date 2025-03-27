@@ -506,7 +506,7 @@ void PhasePlane::controllableAdded(Controllable* c)
 
 
 
-void PhasePlane::onRemoveChildControllableContainer()
+void PhasePlane::onChildContainerRemoved()
 {
   // remove from runs array the child container that was removed
   for (int i=runs.size()-1; i>=0; i--)
