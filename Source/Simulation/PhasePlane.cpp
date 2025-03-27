@@ -451,6 +451,7 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
         removeChildControllableContainer(runs[krm]);
       }
     }
+    
   //cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   }
    
@@ -524,7 +525,6 @@ void PhasePlane::onRemoveChildControllableContainer()
   var newnRuns(runs.size());
   nRuns->setValue(newnRuns);
   
-  cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   
 }
 

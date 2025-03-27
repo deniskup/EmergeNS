@@ -2782,6 +2782,13 @@ void Simulation::drawConcOfRun(int idrun)
     LOG("You must start some simulation before choosing which run to draw");
     return;
   }
+  
+  // check if number of runs chosen in setRuns and number of runs stored in current simul match
+  if (setRun->intValue() >= RAChistory.size())
+  {
+    LOG("Index of chosen run to draw exceeds numbers of runs currently stored in simul. Can't draw run #" + to_string(setRun->intValue()));
+    return;
+  }
 
   // checks if number of checkpoints changed since last start, otherwise that would mess with RAC display
   if (pointsDrawn->intValue() != maxSteps/checkPoint)
