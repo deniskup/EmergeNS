@@ -2028,8 +2028,20 @@ void Simulation::nextStep()
     // creation
     if (ent->primary)
     {
-      ent->increase(ent->creationRate * dt->floatValue());
-      ent->deterministicIncrease(ent->creationRate * dt->floatValue());
+      float incr = ent->creationRate * dt->floatValue();
+      float deterministicIncr = ent->creationRate * dt->floatValue();
+      
+      // demographic noise
+      if (stochasticity->boolValue())
+      {
+        float stocIncr = sqrt(ent->creationRate) * noiseEpsilon;
+        float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
+        stocIncr *= wiener;
+        incr -= stocIncr;
+      } // end if stochasticity
+      
+      ent->increase(incr);
+      ent->deterministicIncrease(deterministicIncr);
     }
     
     //destruction
