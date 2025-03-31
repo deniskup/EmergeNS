@@ -40,13 +40,13 @@ public:
   var toJSONData();
 };
 
-class SteadyStateslist : public ControllableContainer, public Thread
+class SteadyStateslist : public Thread
 {
 public:
     juce_DeclareSingleton(SteadyStateslist, true);
 
-    SteadyStateslist() : ControllableContainer("SteadyStates"), Thread("SteadyStates"){};
-    SteadyStateslist(Simulation *simul) : ControllableContainer("SteadyStates"), Thread("SteadyStates"), simul(simul){};
+    SteadyStateslist() : Thread("SteadyStates"){};
+    SteadyStateslist(Simulation *simul) : Thread("SteadyStates"), simul(simul){};
     ~SteadyStateslist();
 
     Simulation *simul;
