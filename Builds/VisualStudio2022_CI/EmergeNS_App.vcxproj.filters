@@ -3348,7 +3348,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_core\zip\juce_ZipFile.h">
       <Filter>JUCE Modules\juce_core\zip</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_core\juce_core.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_core\juce_core.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_core\juce_core.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.h">
@@ -3369,7 +3377,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_Whirlpool.h">
       <Filter>JUCE Modules\juce_cryptography\hashing</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_cryptography\juce_cryptography.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_cryptography\juce_cryptography.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_cryptography</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h">
@@ -3399,7 +3415,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTreeSynchroniser.h">
       <Filter>JUCE Modules\juce_data_structures\values</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_data_structures\juce_data_structures.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_data_structures\juce_data_structures.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_data_structures</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionBroadcaster.h">
@@ -3492,7 +3516,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_Timer.h">
       <Filter>JUCE Modules\juce_events\timers</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_events\juce_events.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_events\juce_events.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_events\juce_events.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_events</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colour.h">
@@ -3672,7 +3704,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\placement\juce_RectanglePlacement.h">
       <Filter>JUCE Modules\juce_graphics\placement</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_graphics\juce_graphics.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_graphics\juce_graphics.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_graphics\juce_graphics.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityActions.h">
@@ -4284,7 +4324,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_WindowUtils.h">
       <Filter>JUCE Modules\juce_gui_basics\windows</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_gui_basics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h">
@@ -4368,7 +4416,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\native\juce_NSViewFrameWatcher_mac.h">
       <Filter>JUCE Modules\juce_gui_extra\native</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Draggable3DOrientation.h">
@@ -4443,7 +4499,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\utils\juce_OpenGLAppComponent.h">
       <Filter>JUCE Modules\juce_opengl\utils</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_opengl\juce_opengl.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_opengl\juce_opengl.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_opengl\juce_opengl.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_opengl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Modules\juce_organicui\app\CrashHandler.h">
@@ -5085,7 +5149,15 @@
     <ClInclude Include="..\..\JUCE\modules\juce_osc\osc\juce_OSCTypes.h">
       <Filter>JUCE Modules\juce_osc\osc</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_osc\juce_osc.h">
+=======
+<<<<<<< HEAD
+    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_osc\juce_osc.h">
+=======
+    <ClInclude Include="..\..\..\..\JUCE\modules\juce_osc\juce_osc.h">
+>>>>>>> 762e1b2 (..)
+>>>>>>> 4b5c257 (..)
       <Filter>JUCE Modules\juce_osc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">
