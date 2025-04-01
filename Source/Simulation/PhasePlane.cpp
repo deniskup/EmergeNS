@@ -362,7 +362,7 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane"), Thread("PhasePla
   //startDraw = addTrigger("Start and Draw", "Start and Draw all runs");
   
   // path to software
-  pathToEmergens = addStringParameter("absolute path to EmergeNS", "absolute path to folder EmergeNS", "/path/to/EmergeNS");
+  //pathToEmergens = addStringParameter("absolute path to EmergeNS", "absolute path to folder EmergeNS", "/path/to/EmergeNS");
   
   // entites defining the 2D plane in which to draw
   xAxis = addTargetParameter("x axis", "x axis", EntityManager::getInstance());
@@ -381,6 +381,15 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane"), Thread("PhasePla
   
   // number of runs
   nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0);
+  
+  
+  // retrieve path where emergens is installed
+  auto start = juce::File::getSpecialLocation(juce::File::currentExecutableFile);
+  while (start.exists() && !start.isRoot() && start.getFileName() != "Builds")
+      start = start.getParentDirectory();
+  if (start.getFileName() == "Builds")
+    start = start.getParentDirectory();
+  pathToEmergens = start.getFullPathName();
   
   
 }
@@ -752,9 +761,15 @@ void PhasePlane::drawRuns()
 {
   stopThread(100);
   
+  
+  
+  // check that pathToEmergens worked properly
+  cout << "path to emergens:\n" << pathToEmergens << endl;
+   
   // test that python3 is installed
-  String testcommmand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/test.py > testpython3.txt";
-  system(testcommmand.toUTF8());
+  String testcommand = "python3 " + pathToEmergens + "/Source/scripts/test.py > testpython3.txt";
+  cout << "python command :\n" << testcommand << endl;
+  system(testcommand.toUTF8());
   ifstream iftest;
   iftest.open("testpython3.txt");
   string testout;
@@ -762,20 +777,20 @@ void PhasePlane::drawRuns()
   if (!(testout == "Hello EmergeNS"))
   {
     LOG("Check python3 is installed and check path to EmergeNS in Phase Plane window. Exit.");
-    LOG("Current path : '" + pathToEmergens->stringValue() + "'");
+    LOG("Current path : '" + pathToEmergens + "'");
     return;
   }
   system("rm testpython3.txt"); // remove test file from user's system
   
   // test presence of file drawTrajectories.py in EmergeNS
-  String drawfilename = pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py";
+  String drawfilename = pathToEmergens + "/Source/scripts/drawPhasePlane.py";
   ifstream ifPP;
   //ifPP.open(drawfilename.toUTF8(), ifstream::in);
   ifPP.open("/Users/thomas_kosc/Modeles/EmergeNS/Source/scripts/drawPhasePlane.py");
   if (!ifPP.is_open())
   {
     LOG("Please check that path to script drawPhasePlane.py is correct. Exit.");
-    LOG("Current path : '" + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py" + "'");
+    LOG("Current path : '" + pathToEmergens + "/Source/scripts/drawPhasePlane.py" + "'");
     return;
   }
   else
@@ -881,8 +896,10 @@ void PhasePlane::drawRuns()
 void PhasePlane::run()
 {
   // Prepare command to execute python file
-  String drawCommand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py "
+  String drawCommand = "python3 " + pathToEmergens + "/Source/scripts/drawPhasePlane.py "
   + "--file concentrationDynamics.csv";
+  
+  cout << "draw command is\n" << drawCommand << endl;
   
   // set axis options
   drawCommand += " -x '[" + xAxis->getTargetContainerAs<Entity>()->niceName + "]'";
@@ -895,7 +912,7 @@ void PhasePlane::run()
   drawCommand += " --sst ./steadyStates.csv";
   
   // sanity check
-  cout << drawCommand << endl;
+  //cout << drawCommand << endl;
   
   // execute python script
   system(drawCommand.toUTF8());
@@ -947,8 +964,8 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
   if (data.getDynamicObject()->hasProperty("nRuns"))
     nRuns->setValue(data.getDynamicObject()->getProperty("nRuns"));
   
-  if (data.getDynamicObject()->hasProperty("pathToEmergens"))
-    pathToEmergens->setValue(data.getDynamicObject()->getProperty("pathToEmergens"));
+  //if (data.getDynamicObject()->hasProperty("pathToEmergens"))
+  //  pathToEmergens->setValue(data.getDynamicObject()->getProperty("pathToEmergens"));
   
   if (data.getDynamicObject()->hasProperty("xAxis"))
     xAxis->setValue(data.getDynamicObject()->getProperty("xAxis"));
@@ -969,7 +986,7 @@ var PhasePlane::getJSONData(bool includeNonOverriden)
 {
   // add saved material specific to daughter class
   var data = new DynamicObject();
-  data.getDynamicObject()->setProperty("pathToEmergens", pathToEmergens->stringValue());
+  //data.getDynamicObject()->setProperty("pathToEmergens", pathToEmergens->stringValue());
   data.getDynamicObject()->setProperty("xAxis", xAxis->getValue());
   data.getDynamicObject()->setProperty("yAxis", yAxis->getValue());
   data.getDynamicObject()->setProperty("pathToCSV", pathToCSV->stringValue());

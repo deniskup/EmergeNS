@@ -98,7 +98,7 @@ public:
   Trigger * draw;
   //Trigger * startDraw;
   
-  StringParameter * pathToEmergens;
+  String pathToEmergens;
   
   TargetParameter * xAxis;
   TargetParameter * yAxis;
