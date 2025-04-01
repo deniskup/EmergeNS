@@ -1433,6 +1433,8 @@ void Simulation::resetBeforeRunning()
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
   
+  cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
+  
   setRun->setValue(0);
   
   if (stochasticity->boolValue())
@@ -1586,7 +1588,7 @@ void Simulation::start(bool restart)
 
 void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 {
-    
+  updateParams();
   resetBeforeRunning();
   initialConcentrations = initConc;
   isMultipleRun = true;
@@ -1630,68 +1632,23 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     getSimEntityForName(entname)->deterministicConcent = startconc;
   }
   
-  cout << "Simulation::startMultipleRuns(): Starting thread" << endl;
-
   
   startThread();
   return;
   
-  
-  /*
-  // concatenate all concentrations files into a single one
-  
-  // check that all history files associated to each run exist
-  Array<String> filenames;
-  string conca = "cat ";
-  for (size_t irun=0; irun<initConc.size(); irun++)
-  {
-    string filename = "c" + to_string(irun) + ".csv";
-    ifstream ifs(filename.c_str());
-    if (!ifs.good())
-    {
-      LOG("Can't find history file associated to run " + to_string(irun) + ". Exit");
-    }
-    ifs.close();
-    filenames.add(filename);
-    
-    // remove first line of runs i > 0
-    if (irun>0)
-    {
-      string sedcommand = "sed -i.bak '1d' " + filename;
-      system(sedcommand.c_str());
-    }
-    
-    // concatenate all files
-    conca += filename + " ";
-    
-  }
-  
-  conca += " > concentrationDynamics.csv";
-  system(conca.c_str());
-  
-  */
-  
 }
 
 
-
-
-
-
-void Simulation::nextStep()
+void Simulation::nextRedrawStep()
 {
-
   nSteps++;
   
-  
-  bool isCheck = (curStep % checkPoint == 0);
   bool isCheckForRedraw = ((nSteps-1) % checkPoint == 0);
   
   
   //cout << "curStep % checkPoint = " << curStep << " % " << checkPoint << " = " << curStep % checkPoint << endl;
   
-  if (redraw && isCheckForRedraw)
-  //if (redraw)
+  if (isCheckForRedraw)
   {
     int idrun = setRun->intValue();
     int istep = (nSteps-1) + idrun*maxSteps;
@@ -1743,20 +1700,12 @@ void Simulation::nextStep()
       raclist.add(wasrac);
     }
     
-    // simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, 0, nSteps, entityValues, {}, PACsValues, RACList));
-
-
     
     if (istep==firststep)
     {
       simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
       simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
     }
-    //else if (istep>=(laststep-1))
-    //{
-    //  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
-     // stop();
-    //}
     else
     {
       //cout << "Calling new SimNotifier in redraw" << endl;
@@ -1764,9 +1713,17 @@ void Simulation::nextStep()
     }
   }
   
-  if (redraw)
-    return;
+  curStep++;
   
+}
+
+
+
+
+void Simulation::nextStep()
+{
+
+  nSteps++;
   
   
   // if not in redraw mode but in multiple runs mode
@@ -1828,6 +1785,8 @@ void Simulation::nextStep()
     }
   }
   
+  
+  bool isCheck = (curStep % checkPoint == 0);
 
   if (displayLog && isCheck)
   {
@@ -2394,10 +2353,17 @@ void Simulation::run()
   if (!express)
     LOG("--------- Start thread ---------");
   finished->setValue(false);
+  if (redraw)
+  {
+    cout << "Here at step " << curStep << endl;
     while (!finished->boolValue() && !threadShouldExit())
-    {
+      nextRedrawStep();
+  }
+  else
+  {
+    while (!finished->boolValue() && !threadShouldExit())
       nextStep();
-    }
+  }
   
   
   if (!express)
@@ -2804,8 +2770,10 @@ void Simulation::drawConcOfRun(int idrun)
   }
 
   // checks if number of checkpoints changed since last start, otherwise that would mess with RAC display
-  if (pointsDrawn->intValue() != maxSteps/checkPoint)
+  if (checkPoint != maxSteps/pointsDrawn->intValue())
   {
+    cout << "current checkpoint value = " << pointsDrawn->intValue() << endl;
+    cout << "previous checkpoint value = maxSteps / checkpoint = " << maxSteps << " / " << checkPoint << " = " << maxSteps/checkPoint << endl;
     LOG("Checkpoint parameter changed since last simulation. Please run simulation again.");
     return;
   }

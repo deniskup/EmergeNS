@@ -223,6 +223,7 @@ public:
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
+  void nextRedrawStep();
 	void nextStep();
 	void stop();
 	void cancel();
