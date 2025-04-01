@@ -677,14 +677,17 @@ vector<string> extract_msolve_intervals(const string &chain)
 
 // input string interval has the form "A, B"
 // where A and B can contain arithmetic operations
-long double evaluate_interval_center(string str_interval)
+//long double evaluate_interval_center(string str_interval)
+Interval evaluate_interval_center(string str_interval)
 {
+  
+  Interval null(0., 0., 0.);
 
 	int separator = (int)str_interval.find(',');
 	if (separator == str_interval.npos)
 	{
 		LOG("problem in root solution interval, comma missing. return 0.");
-		return 0.;
+		return null;
 	}
 	string sinf = "";
 	string ssup = "";
@@ -701,8 +704,11 @@ long double evaluate_interval_center(string str_interval)
 
 	// cout << sinf << "\t" << ssup << endl;
 	// cout << "center = " << center << endl;
+  
+  Interval output(center, inf, sup);
 
-	return center;
+  //return center;
+	return output;
 }
 
 /////////////////////////////////////////////////////////////////////////:
@@ -914,7 +920,15 @@ bool SteadyStateslist::computeWithMSolve()
       if (iszero) isBorderState = true;
       
       // convert intervals to long double
-			long double centerLd = evaluate_interval_center(list[index]);
+      //long double centerLd = evaluate_interval_center(list[index]);
+      Interval interval = evaluate_interval_center(list[index]);
+      long double centerLd = interval.center;
+      
+      if (!sstate.warning && interval.infbound*interval.supbound<0.)
+      {
+        sstate.warning = true;
+      }
+        
 			float center = (float)centerLd; // move to float precision
 			if (centerLd < -epsilon)
 			{
@@ -1498,7 +1512,7 @@ void SteadyStateslist::evaluateSteadyStatesStability()
   plural = (nGlobStable > 1) ? "s" : "";
 	LOG("Network has " + to_string(nGlobStable) + " globally stable steady state" + plural + " : ");
   for (auto &s : arraySteadyStates)
-    if (!s.isBorder)
+    if (!s.isBorder && !s.warning)
       printOneSteadyState(s);
 
 	// print partially stable steady states
@@ -1506,9 +1520,21 @@ void SteadyStateslist::evaluateSteadyStatesStability()
   plural = (nPartStable > 1) ? "s" : "";
 	LOG("Network has " + to_string(nPartStable) + " partially stable steady state" + plural + " : ");
 	for (auto &s : arraySteadyStates)
-    if (s.isBorder)
+    if (s.isBorder && s.warning)
       printOneSteadyState(s);
   
+  // steady states that should be read cautiously
+  int nwarnings = 0;
+  for (auto & sst: arraySteadyStates)
+  {
+    if (sst.warning)
+      nwarnings++;
+  }
+  plural = (nwarnings > 1) ? "s" : "";
+  LOGWARNING("Network has " + to_string(nwarnings) + " steady state" + plural + " that should be taken with caution : ");
+  for (auto &s : arraySteadyStates)
+    if (s.warning)
+      printOneSteadyState(s);
   
 
 } // end func evaluateSteadyStatesStability

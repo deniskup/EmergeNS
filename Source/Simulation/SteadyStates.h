@@ -15,6 +15,14 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
+class Interval{
+  public:
+  Interval(long double c, long double inf, long double sup){center=c; infbound=inf; supbound=sup;};
+  ~Interval(){};
+  long double center;
+  long double infbound;
+  long double supbound;
+};
 
 class Monom{ // represent a polynomial term such as k*c_1*c_3
  public:
@@ -36,6 +44,7 @@ public:
   
   State state;
   bool isBorder = false;
+  bool warning = false;
   
   var toJSONData();
 };
