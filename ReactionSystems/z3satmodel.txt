@@ -1,6 +1,0 @@
-reac0 0  AC+A2=A3C
-reac1 0  A3C+A=A4+C
-reac2 0  A4=A2+A2
-ent4  A2
-ent6  A3C
-ent8  A4
