@@ -10,6 +10,7 @@ z3test.smt2
 z3CAC*
 msolvesteadylog.txt
 *.ms
+*.csv
 steady*
 PAC_list.txt
 concentrationDynamic.csv
