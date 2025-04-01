@@ -428,13 +428,10 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
 {
   if (p == nRuns)
   {
-    cout << "setting nRuns to a new value = " << nRuns->intValue();
-    cout << ". runs array size = " << runs.size() << endl;
     if (nRuns->intValue()>runs.size()) // must add containers
     {
       for (int k=runs.size(); k<nRuns->intValue(); k++)
       {
-        cout << "will add run #" << k << endl;
         // with new version
         String name = "run " + String(to_string(k));
         Run * thisrun = new Run(name);
@@ -450,12 +447,10 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
       {
         int krm = runs.size()-1;
         removeChildControllableContainer(runs[krm]);
-        cout << "removed run " << krm << ". new runs size = " << runs.size() << endl;
       }
       isRemoving = false;
     }
     nRuns->setValue(runs.size());
-  cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   }
    
 }
@@ -636,7 +631,6 @@ void PhasePlane::importRunsFromCSVFile()
   
   // update nRuns
   nRuns->setValue(runs.size());
-  //nRuns->setValue(runs.size());
   
 }
 
@@ -759,16 +753,17 @@ void PhasePlane::startRuns()
 
 void PhasePlane::drawRuns()
 {
+
+  if (this->isThreadRunning())
+  {
+    LOG("PhasePlane thread is already running, please end current drawing thread to start a new one.");
+    return;
+  }
+  
   stopThread(100);
-  
-  
-  
-  // check that pathToEmergens worked properly
-  cout << "path to emergens:\n" << pathToEmergens << endl;
-   
+     
   // test that python3 is installed
   String testcommand = "python3 " + pathToEmergens + "/Source/scripts/test.py > testpython3.txt";
-  cout << "python command :\n" << testcommand << endl;
   system(testcommand.toUTF8());
   ifstream iftest;
   iftest.open("testpython3.txt");
@@ -812,13 +807,6 @@ void PhasePlane::drawRuns()
     ifconc.close();
   }
   
-  /*
-  // Prepare command to execute python file
-  // # python3 drawPhasePlane.py --file ./concentrationDynamics_model4.csv -x '[A2]' -y '[B2]' --nruns 5 --sst ./steadyStates.csv
-  String drawCommand = "python3 " + pathToEmergens->stringValue() + "/Source/scripts/drawPhasePlane.py "
-  + "--file concentrationDynamics.csv";
-  */
-  
   // set axis options
   if (xAxis->getTargetContainerAs<Entity>()==nullptr)
   {
@@ -830,14 +818,7 @@ void PhasePlane::drawRuns()
     LOG("Please chose an entity as y Axis. Exit.");
     return;
   }
-/*
-  drawCommand += " -x '[" + xAxis->getTargetContainerAs<Entity>()->niceName + "]'";
-  drawCommand += " -y '[" + yAxis->getTargetContainerAs<Entity>()->niceName + "]'";
 
-  // indicate number of runs
-  drawCommand += " --nruns " + String(to_string(runs.size()));
-  //drawCommand += " --nruns 2";
-*/
   // check that steady states have been calculated already
   int nsst = Simulation::getInstance()->steadyStatesList->arraySteadyStates.size();
   if (nsst==0)
@@ -876,16 +857,7 @@ void PhasePlane::drawRuns()
   }
   ofSST.close();
 
-/*
-  // add steady state file to shell command
-  drawCommand += " --sst ./steadyStates.csv";
-*/
-  // sanity check
-  //cout << drawCommand << endl;
-/*
-  // execute python script
-  system(drawCommand.toUTF8());
-*/
+
   startThread();
 
   
