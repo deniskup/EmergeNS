@@ -36,12 +36,11 @@ class Run : public ControllableContainer
   Run(OwnedArray<SimEntity*>, String _name);
   virtual ~Run(){};
   
-  String name = "";
+  //String name = "";
   Array<Point3DParameter*> p3d;
   Point2DParameter * p2d = nullptr;
   FloatParameter * fp = nullptr;
   
-  //void controllableAdded(Controllable *) override; // à coder
     
   void addEntitiesToRun(Array<String>, Array<float>);
   
@@ -54,7 +53,7 @@ class Run : public ControllableContainer
 
 
   
-  var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
+  var getJSONData(bool includeNonOverriden = false) override; // à coder, voir  var toJSONData() de Simulation.h
   //var toJSONData(); // à coder, voir  var toJSONData() de Simulation.h
   
   void loadJSONData(var data, bool createIfNotThere = false) override; //
@@ -113,6 +112,8 @@ public:
   IntParameter * nRuns;
   Array<Run*> runs;
   
+  bool isRemoving = false;
+  
   //void addEntity(Entity* e);
   //void addEntitiesToRun(ControllableContainer &);
   void updateEntitiesFromSimu();
@@ -120,8 +121,7 @@ public:
   
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
-  void controllableAdded(Controllable *) override;
-  void onChildContainerRemoved() override;
+  void onChildContainerRemoved(ControllableContainer*) override;
 
   void clearAllRuns();
   void addRun(Run *);
@@ -134,8 +134,8 @@ public:
 
   
   
-  void loadJSONData(var data, bool createIfNotThere = false) override; // à coder, voir void importJSONData(var data) de Simulation.h
-  var getJSONData() override; // à coder, voir  var toJSONData() de Simulation.h
+  void loadJSONData(var data, bool createIfNotThere = false) override;
+  var getJSONData(bool includeNonOverriden = true) override;
   
  
   

@@ -213,6 +213,7 @@ void Simulation::updateParams()
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()
 {
+  cout << "in Simulation::toJSONData" << endl;
   var data = new DynamicObject();
   data.getDynamicObject()->setProperty("recordConcent", recordConcent);
   data.getDynamicObject()->setProperty("recordEntity", recordEntity);

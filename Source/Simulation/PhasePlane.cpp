@@ -220,7 +220,7 @@ void Run::controllableRemoved(Controllable* c)
 
 
 
-var Run::getJSONData()
+var Run::getJSONData(bool includeNonOverriden)
 {
   //return ControllableContainer::getJSONData();
   // add saved material specific to daughter class
@@ -380,7 +380,7 @@ PhasePlane::PhasePlane() : ControllableContainer("PhasePlane"), Thread("PhasePla
 
   
   // number of runs
-  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 1);
+  nRuns = addIntParameter("Number of runs", "Number of runs", 0, 0);
   
   
 }
@@ -394,16 +394,6 @@ PhasePlane::~PhasePlane()
 }
 
 
-
-/*
-void PhasePlane::addEntity(Entity* e)
-{
-  //FloatParameter* fp = runs->addFloatParameter("Entity " + String(runs->controllables.size() + 1), "Entity " + String(runs->controllables.size() + 1), 0., 0., 100.);
-  //if (e != nullptr) fp->setValueFromTarget(e, false);
-  //fp->saveValueOnly = false;
-  //fp->isRemovableByUser = true;
-}
-*/
 
 void PhasePlane::updateEntitiesFromSimu()
 {
@@ -429,11 +419,13 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
 {
   if (p == nRuns)
   {
-    int newval = nRuns->intValue();
+    cout << "setting nRuns to a new value = " << nRuns->intValue();
+    cout << ". runs array size = " << runs.size() << endl;
     if (nRuns->intValue()>runs.size()) // must add containers
     {
       for (int k=runs.size(); k<nRuns->intValue(); k++)
       {
+        cout << "will add run #" << k << endl;
         // with new version
         String name = "run " + String(to_string(k));
         Run * thisrun = new Run(name);
@@ -444,15 +436,17 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
     }
     else if (nRuns->intValue()<runs.size()) // must remove containers
     {
-      int newNrun = nRuns->intValue();
-      while (runs.size()>newNrun)
+      isRemoving = true;
+      while (runs.size()> nRuns->intValue())
       {
         int krm = runs.size()-1;
         removeChildControllableContainer(runs[krm]);
+        cout << "removed run " << krm << ". new runs size = " << runs.size() << endl;
       }
+      isRemoving = false;
     }
-    
-  //cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
+    nRuns->setValue(runs.size());
+  cout << "nRuns changed ! new value = " << nRuns->intValue() << ". array size : " << runs.size() << endl;
   }
    
 }
@@ -497,21 +491,13 @@ void PhasePlane::onContainerTriggerTriggered(Trigger* t)
 
 
 
-
-void PhasePlane::controllableAdded(Controllable* c)
-{
-//  int newnRuns = runs.size();
-}
-
-
-
-
-void PhasePlane::onChildContainerRemoved()
+void PhasePlane::onChildContainerRemoved(ControllableContainer* cc)
 {
   // remove from runs array the child container that was removed
   for (int i=runs.size()-1; i>=0; i--)
   {
-    if (runs[i]->parentContainer == nullptr)
+    //if (runs[i]->parentContainer == nullptr)
+    if (runs[i]->niceName == cc->niceName)
     {
       runs.remove(i);
     }
@@ -522,9 +508,11 @@ void PhasePlane::onChildContainerRemoved()
     updateRunsNames();
   }
   // update nRuns value to make it match the new array size
-  var newnRuns(runs.size());
-  nRuns->setValue(newnRuns);
-  
+  if (!isRemoving)
+  {
+    var newnRuns(runs.size());
+    nRuns->setValue(newnRuns);
+  }
   
 }
 
@@ -639,7 +627,7 @@ void PhasePlane::importRunsFromCSVFile()
   
   // update nRuns
   nRuns->setValue(runs.size());
-  nRuns->setValue(runs.size());
+  //nRuns->setValue(runs.size());
   
 }
 
@@ -977,7 +965,7 @@ void PhasePlane::loadJSONData(var data, bool createIfNotThere)
 
 
 
-var PhasePlane::getJSONData()
+var PhasePlane::getJSONData(bool includeNonOverriden)
 {
   // add saved material specific to daughter class
   var data = new DynamicObject();
