@@ -12,7 +12,6 @@
 EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
 {
-
   Engine::mainEngine = this;
   addChildControllableContainer(Simulation::getInstance());
   addChildControllableContainer(EntityManager::getInstance());
