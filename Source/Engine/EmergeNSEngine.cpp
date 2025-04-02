@@ -34,7 +34,6 @@ EmergeNSEngine::~EmergeNSEngine()
   Settings::deleteInstance();
   PhasePlane::deleteInstance();
   Space::deleteInstance();
-
 }
 
 void EmergeNSEngine::clearInternal()

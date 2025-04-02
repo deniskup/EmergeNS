@@ -3,7 +3,6 @@
 
 #include "JuceHeader.h"
 #define CACROB_PRECISION 5
-
 #include "EntityManager.h"
 #include "SimulationHelpers.h"
 

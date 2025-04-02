@@ -148,7 +148,6 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
 
 void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, float width)
 {
-  
   g.setColour(NORMAL_COLOR);
   Path * hex = new Path();
   //hex->startNewSubPath(startX, startY);
@@ -421,6 +420,7 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
  
  Retrieve position of closest hexagon center on a click
  Does nothing if the click occurs outside of space grid, maybe relying on color background ?
+
  */
 
 void SpaceUI::mouseDown(const juce::MouseEvent& event)
@@ -567,5 +567,4 @@ void SpaceUI::newMessage(const ContainerAsyncEvent &e)
         }
     }
 }
-
 

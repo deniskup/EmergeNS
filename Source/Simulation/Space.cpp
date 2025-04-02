@@ -29,6 +29,7 @@ Space::Space(Simulation * _simul) : ControllableContainer("Space"), simul(_simul
   Space();
 }
 */
+
 Space::~Space()
 {
 }
@@ -139,8 +140,6 @@ void Space::onContainerParameterChanged(Parameter *p)
 
   }
 
-  
-  
 }
 
 
@@ -264,6 +263,7 @@ void Space::run()
   LOG("--------- End thread ---------");
   
 }
+
 
 
 
