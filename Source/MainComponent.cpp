@@ -5,6 +5,7 @@
 #include "Simulation/ui/GenerationUI.h"
 #include "Simulation/ui/PACUI.h"
 #include "Simulation/ui/SettingsUI.h"
+#include "Simulation/ui/SpaceUI.h"
 
 String getAppVersion();
 
@@ -27,7 +28,8 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Reactions", &ReactionManagerUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Generation", &GenerationUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RACs", &PACUI::create));
-	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Settings", &SettingsUI::create));
+  ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Settings", &SettingsUI::create));
+	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Space", &SpaceUI::create));
 
 
 	ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_nslayout);
