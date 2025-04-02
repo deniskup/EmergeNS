@@ -18,7 +18,7 @@ EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 	addChildControllableContainer(EntityManager::getInstance());
 	addChildControllableContainer(ReactionManager::getInstance());
 	addChildControllableContainer(Generation::getInstance());
-  	addChildControllableContainer(Settings::getInstance());
+  addChildControllableContainer(Settings::getInstance());
 	addChildControllableContainer(PhasePlane::getInstance());
 	addChildControllableContainer(Space::getInstance());
 }
@@ -31,7 +31,7 @@ EmergeNSEngine::~EmergeNSEngine()
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
-  	Settings::deleteInstance();
+  Settings::deleteInstance();
 	PhasePlane::deleteInstance();
 	Space::deleteInstance();
 
