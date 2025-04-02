@@ -7,6 +7,7 @@
 #include "Simulation/Generation.h"
 #include "Simulation/Settings.h"
 #include "Simulation/Statistics.h"
+#include "Simulation/Space.h"
 
 EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
@@ -17,8 +18,9 @@ EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 	addChildControllableContainer(EntityManager::getInstance());
 	addChildControllableContainer(ReactionManager::getInstance());
 	addChildControllableContainer(Generation::getInstance());
-  addChildControllableContainer(Settings::getInstance());
+  	addChildControllableContainer(Settings::getInstance());
 	addChildControllableContainer(PhasePlane::getInstance());
+	addChildControllableContainer(Space::getInstance());
 }
 
 EmergeNSEngine::~EmergeNSEngine()
@@ -29,8 +31,9 @@ EmergeNSEngine::~EmergeNSEngine()
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
-  Settings::deleteInstance();
+  	Settings::deleteInstance();
 	PhasePlane::deleteInstance();
+	Space::deleteInstance();
 
 }
 
