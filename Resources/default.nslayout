@@ -1,0 +1,101 @@
+{
+  "mainLayout": {
+    "type": 1,
+    "width": 1366,
+    "height": 697,
+    "direction": 2,
+    "shifters": [
+      {
+        "type": 1,
+        "width": 1366,
+        "height": 697,
+        "direction": 1,
+        "shifters": [
+          {
+            "type": 1,
+            "width": 394,
+            "height": 697,
+            "direction": 2,
+            "shifters": [
+              {
+                "type": 0,
+                "width": 394,
+                "height": 346,
+                "currentContent": "Entities",
+                "tabs": [
+                  {
+                    "name": "Entities"
+                  }
+                ]
+              },
+              {
+                "type": 0,
+                "width": 394,
+                "height": 345,
+                "currentContent": "Reactions",
+                "tabs": [
+                  {
+                    "name": "Reactions"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": 1,
+            "width": 966,
+            "height": 697,
+            "direction": 1,
+            "shifters": [
+              {
+                "type": 0,
+                "width": 597,
+                "height": 697,
+                "currentContent": "Simulation",
+                "tabs": [
+                  {
+                    "name": "Simulation"
+                  }
+                ]
+              },
+              {
+                "type": 1,
+                "width": 362,
+                "height": 697,
+                "direction": 2,
+                "shifters": [
+                  {
+                    "type": 0,
+                    "width": 362,
+                    "height": 430,
+                    "currentContent": "Inspector",
+                    "tabs": [
+                      {
+                        "name": "Inspector"
+                      }
+                    ]
+                  },
+                  {
+                    "type": 0,
+                    "width": 362,
+                    "height": 261,
+                    "currentContent": "Logger",
+                    "tabs": [
+                      {
+                        "name": "Logger"
+                      },
+                      {
+                        "name": "Warnings"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "windows": null
+}

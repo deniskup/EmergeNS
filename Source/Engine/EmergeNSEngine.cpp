@@ -166,7 +166,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 }
 
 
-var EmergeNSEngine::getJSONData()
+var EmergeNSEngine::getJSONData(bool includeNonOverriden)
 {
 	var data = Engine::getJSONData();
 	data.getDynamicObject()->setProperty(Simulation::getInstance()->shortName, Simulation::getInstance()->getJSONData());
