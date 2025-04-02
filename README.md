@@ -4,10 +4,10 @@
 
 -----to run the executable-----
 
-Download [the latest release](https://github.com/deniskup/EmergeNS/releases/latest) and run it.
+Download [the latest release](https://github.com/deniskup/EmergeNS/releases/latest) and run it.<br>
 
-On Linux: you will need fuse3: ```sudo apt install fuse3```
-On Mac: you need to grant access: after trying to launch, go to settings->security, and authorize the application.
+On Linux: you will need fuse3: ```sudo apt install fuse3```<br>
+On Mac: you need to grant access: after trying to launch, go to settings->security, and authorize the application.<br>
 
 You can also use the predefined reaction systems from ReactionSystems.zip as examples.
 
