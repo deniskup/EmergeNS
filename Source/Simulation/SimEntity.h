@@ -48,7 +48,8 @@ public:
     float destructionRate;
     float freeEnergy;
 
-    Array<float> concentHistory; // history of entity concentration 
+    //Array<float> concentHistory; // history of entity concentration
+    Array<std::pair<int, float>> concentHistory; // history of entity [run ;concentration].
 
     float change = 0.f; // variation of concentration in the last dt
     float deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)

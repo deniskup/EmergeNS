@@ -17,7 +17,8 @@ EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 	addChildControllableContainer(EntityManager::getInstance());
 	addChildControllableContainer(ReactionManager::getInstance());
 	addChildControllableContainer(Generation::getInstance());
-	addChildControllableContainer(Settings::getInstance());
+  addChildControllableContainer(Settings::getInstance());
+	addChildControllableContainer(PhasePlane::getInstance());
 }
 
 EmergeNSEngine::~EmergeNSEngine()
@@ -28,7 +29,8 @@ EmergeNSEngine::~EmergeNSEngine()
 	EntityManager::deleteInstance();
 	ReactionManager::deleteInstance();
 	Generation::deleteInstance();
-	Settings::deleteInstance();
+  Settings::deleteInstance();
+	PhasePlane::deleteInstance();
 
 }
 
@@ -172,7 +174,8 @@ var EmergeNSEngine::getJSONData()
 	data.getDynamicObject()->setProperty(ReactionManager::getInstance()->shortName, ReactionManager::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Generation::getInstance()->shortName, Generation::getInstance()->getJSONData());
 	data.getDynamicObject()->setProperty(Settings::getInstance()->shortName, Settings::getInstance()->getJSONData());
-	data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
+  data.getDynamicObject()->setProperty(PhasePlane::getInstance()->shortName, PhasePlane::getInstance()->getJSONData());
+  data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
 
 	return data;
 }
@@ -183,7 +186,8 @@ void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingT
 	EntityManager::getInstance()->loadJSONData(data.getProperty(EntityManager::getInstance()->shortName, var()));
 	ReactionManager::getInstance()->loadJSONData(data.getProperty(ReactionManager::getInstance()->shortName, var()));
 	Generation::getInstance()->loadJSONData(data.getProperty(Generation::getInstance()->shortName, var()));
-	Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
+  Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
+  PhasePlane::getInstance()->loadJSONData(data.getProperty(PhasePlane::getInstance()->shortName, var()));
 	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
 
 	//Simulation::getInstance()->establishLinks();

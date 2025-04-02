@@ -39,7 +39,8 @@ class RACSnapshot
 {
 public:
 	  public:
-  RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp) {}
+  RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp)
+    {}
   float rac;
   Array<float> flows;
   Array<float> posSpecificities;
@@ -56,4 +57,13 @@ public:
 	OwnedArray<RACSnapshot> hist;
 	Array<SimEntity*> ents;
 	float pacScore = 0.;
+  bool wasRAC = false;
+};
+
+
+class SimRun
+{
+  SimRun(){};
+
+  Array<Array<float>> concentHistory;
 };

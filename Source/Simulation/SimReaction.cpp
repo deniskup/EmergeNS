@@ -343,10 +343,8 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 	assocRate = exp(energyLeft - energyStar);
 	// k2=exp(GAB-G*)
 	dissocRate = exp(energyRight - energyStar);
+  
 }
-
-
-
 
 
 void SimReaction::computeBarrier()

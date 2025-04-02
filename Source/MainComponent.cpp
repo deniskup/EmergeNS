@@ -4,6 +4,7 @@
 #include "Simulation/ui/SimulationUI.h"
 #include "Simulation/ui/GenerationUI.h"
 #include "Simulation/ui/PACUI.h"
+#include "Simulation/ui/PhasePlaneUI.h"
 #include "Simulation/ui/SettingsUI.h"
 
 String getAppVersion();
@@ -28,6 +29,8 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Generation", &GenerationUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RACs", &PACUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Settings", &SettingsUI::create));
+  ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PhasePlane", &PhasePlaneUI::create));
+  //ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RunManager", &RunManagerUI::create));
 
 
 	ShapeShifterManager::getInstance()->setDefaultFileData(BinaryData::default_nslayout);
