@@ -521,6 +521,13 @@ void PhasePlane::onChildContainerRemoved(ControllableContainer* cc)
 }
 
 
+void PhasePlane::itemRemoved(ControllableContainer* cc)
+{
+  cout << "PhasePlane::itemRemoved : niceName of what's being removed : " << cc->niceName << endl;
+}
+
+
+
 void PhasePlane::clearAllRuns()
 {
   for (int k=runs.size()-1; k>=0; k--)

@@ -1468,8 +1468,8 @@ void Simulation::resetBeforeRunning()
   }
   
   //cout << "in reset nruns = " << PhasePlane::getInstance()->nRuns->intValue() << endl;
-  //RAChistory.resize(nRuns);
-  for (int irun=0; irun<PhasePlane::getInstance()->nRuns->intValue(); irun++)
+  //for (int irun=0; irun<PhasePlane::getInstance()->nRuns->intValue(); irun++)
+  for (int irun=0; irun<nRuns; irun++)
   {
     auto* row = new juce::OwnedArray<RACHist>();
     for (auto &pac : pacList->cycles)
@@ -1489,9 +1489,8 @@ void Simulation::resetBeforeRunning()
 
 void Simulation::start(bool restart)
 {
-  
-  resetBeforeRunning();
   nRuns = 1;
+  resetBeforeRunning();
   
   // if (!ready)
   //{
@@ -1588,11 +1587,11 @@ void Simulation::start(bool restart)
 
 void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 {
+  nRuns = PhasePlane::getInstance()->nRuns->intValue();
   updateParams();
   resetBeforeRunning();
   initialConcentrations = initConc;
   isMultipleRun = true;
-  nRuns = (int) initConc.size();
   setRun->setValue(nRuns-1);
   
   // will print dynamics to file
@@ -1693,9 +1692,7 @@ void Simulation::nextRedrawStep()
       //cout << "\t" << ipac << " < " << RAChistory[currentRun]->size() << endl;
       //cout << "\t" << nSteps-1 << " < " << RAChistory[currentRun]->getUnchecked(ipac)->hist.size() << endl;
       float rac = RAChistory[currentRun]->getUnchecked(ipac)->hist.getUnchecked(nSteps-1)->rac;
-      //cout << "\t\tflagC" << endl;
       float wasrac = RAChistory[currentRun]->getUnchecked(ipac)->wasRAC;
-      //cout << "\t\tflagD" << endl;
       racsnap.add(rac);
       raclist.add(wasrac);
     }
@@ -2261,6 +2258,7 @@ void Simulation::nextStep()
       }
       // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
       //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
+      cout << currentRun << " " << RAChistory.size() << endl;
       RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
       if (cycle->flow > 0.)
         RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
@@ -2355,14 +2353,16 @@ void Simulation::run()
   finished->setValue(false);
   if (redraw)
   {
-    cout << "Here at step " << curStep << endl;
     while (!finished->boolValue() && !threadShouldExit())
       nextRedrawStep();
   }
   else
   {
     while (!finished->boolValue() && !threadShouldExit())
+    {
+      cout << "Here at step " << curStep << endl;
       nextStep();
+    }
   }
   
   

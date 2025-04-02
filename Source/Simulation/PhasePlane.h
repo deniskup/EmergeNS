@@ -122,6 +122,8 @@ public:
   void onContainerParameterChanged(Parameter* p) override;
   void onContainerTriggerTriggered(Trigger* t) override;
   void onChildContainerRemoved(ControllableContainer*) override;
+  
+  void itemRemoved(ControllableContainer*);
 
   void clearAllRuns();
   void addRun(Run *);
@@ -130,7 +132,7 @@ public:
   
   void startRuns();
   void drawRuns();
-  void run(); // thread function
+  void run() override; // thread function
 
   
   
