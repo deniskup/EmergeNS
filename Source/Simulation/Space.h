@@ -93,7 +93,6 @@ public:
     void onContainerTriggerTriggered(Trigger *t) override;
   
     void run() override;
-    
   
     Array<Patch> spaceGrid;
 
