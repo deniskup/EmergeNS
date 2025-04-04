@@ -5,6 +5,7 @@
 #define CACROB_PRECISION 5
 
 using namespace juce;
+using namespace std;
 
 class Space : public ControllableContainer
 {
@@ -15,6 +16,8 @@ public:
 
    
     IntParameter * tilingSize; //
+  
+    int previousTiling;
     
   
     void onContainerParameterChanged(Parameter *p) override;

@@ -52,7 +52,7 @@ void SpaceUI::paint(juce::Graphics &g)
     previousTil = til;
   }
   
-  std::cout << "Will paint space window with tiling value : " << til << std::endl;
+  //std::cout << "Will paint space window with tiling value : " << til << std::endl;
   
   // start is at upper left corner
   float width = 0.5*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / (float) til;
