@@ -1809,26 +1809,30 @@ void Simulation::nextStep()
     float mindProdConcent = 100.;
     float reacConcent = 1.;
     float deterministicReacConcent = 1.;
+    bool firstEnt = true;
     for (auto &ent : reac->reactants)
     {
       reacConcent *= ent->concent;
       deterministicReacConcent *= ent->deterministicConcent;
       //cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
-      if (ent == reac->reactants[0] || ent->concent < minReacConcent)
+      if (firstEnt || ent->concent < minReacConcent)
         minReacConcent = ent->concent;
-      if (ent == reac->reactants[0] || ent->deterministicConcent < mindReacConcent)
+      if (firstEnt || ent->deterministicConcent < mindReacConcent)
         mindReacConcent = ent->deterministicConcent;
+      firstEnt = false;
     }
     float prodConcent = 1.;
     float deterministicProdConcent = 1.;
+    firstEnt = true;
     for (auto &ent : reac->products)
     {
       prodConcent *= ent->concent;
       deterministicProdConcent *= ent->deterministicConcent;
-      if (ent == reac->products[0] || ent->concent < minProdConcent)
+      if (firstEnt || ent->concent < minProdConcent)
         minProdConcent = ent->concent;
-      if (ent == reac->products[0] || ent->deterministicConcent < mindProdConcent)
+      if (firstEnt || ent->deterministicConcent < mindProdConcent)
         mindProdConcent = ent->deterministicConcent;
+      firstEnt = false;
     }
 
     // float reac1Concent = reac->reactant1->concent;
