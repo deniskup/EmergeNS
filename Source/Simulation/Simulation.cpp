@@ -213,7 +213,6 @@ void Simulation::updateParams()
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()
 {
-  cout << "in Simulation::toJSONData" << endl;
   var data = new DynamicObject();
   data.getDynamicObject()->setProperty("recordConcent", recordConcent);
   data.getDynamicObject()->setProperty("recordEntity", recordEntity);
@@ -1433,7 +1432,7 @@ void Simulation::resetBeforeRunning()
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
   
-  cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
+  //cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
   
   setRun->setValue(0);
   
@@ -2262,7 +2261,7 @@ void Simulation::nextStep()
       }
       // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
       //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
-      cout << currentRun << " " << RAChistory.size() << endl;
+      //cout << currentRun << " " << RAChistory.size() << endl;
       RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
       if (cycle->flow > 0.)
         RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
@@ -2364,7 +2363,6 @@ void Simulation::run()
   {
     while (!finished->boolValue() && !threadShouldExit())
     {
-      cout << "Here at step " << curStep << endl;
       nextStep();
     }
   }
