@@ -25,7 +25,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-	stochasticityUI.reset(simul->stochasticity->createToggle());
+  stochasticityUI.reset(simul->stochasticity->createToggle());
+	spaceUI.reset(simul->isSpace->createToggle());
 	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
@@ -68,7 +69,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-	addAndMakeVisible(stochasticityUI.get());
+  addAndMakeVisible(stochasticityUI.get());
+	addAndMakeVisible(spaceUI.get());
 	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
   addAndMakeVisible(setRunUI.get());
@@ -113,7 +115,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->autoScale->boolValue())
 	{
-		simul->maxConcent->setValue(simul->recordDrawn * 1.01);
+		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01); // #TODO find a way to specify which patch is being drawn
 	}
 	float maxC = simul->maxConcent->floatValue();
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -203,11 +205,14 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
   
-  // add title = run ID
-  String title = "Run " + String(to_string(runID));
+  // add title = patchID ; run ID
+  //int runID = simul->currentRun;
+  int patchID = simul->patchToDraw;
+  int runID = simul->runToDraw;
+  String title = "Patch " + String(to_string(patchID)) +  " ; Run " + String(to_string(runID));
   int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
   int titleY = simBounds.getY() - 20;
-  Rectangle<int> titlepos(titleX, titleY, 50, 20);
+  Rectangle<int> titlepos(titleX, titleY, 100, 20);
   g.drawText(title, titlepos, Justification::centred, true);
 
   
@@ -336,8 +341,11 @@ void SimulationUI::resized()
 	// Rectangle<int> butr = br.removeFromRight(100);
 	// saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
 	// loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
+  
 
-	Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  //Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+
 
 	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
 	explore.removeFromLeft(20);
@@ -351,6 +359,9 @@ void SimulationUI::resized()
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
   explore.removeFromRight(10);
   setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
+  
+  Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
+  spaceUI->setBounds(explore2.removeFromLeft(145));
 
 	paramsLabel.setBounds(br.reduced(10));
 }
@@ -438,7 +449,6 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
 		entityColors.clear();
-    runID = ev.run;
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
 		repaint();
@@ -447,6 +457,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 
 	case Simulation::SimulationEvent::STARTED:
 	{
+    cout << "CALLING STARTED" << endl;
 		entityColors = ev.entityColors;
 		entityHistory.add(ev.entityValues);
 	}

@@ -13,7 +13,8 @@ class Entity : public BaseItem
 {
 public:
 	Entity(var params = var());
-	Entity(SimEntity* e);
+  //Entity(SimEntity* e);
+	Entity(SimEntity* e, int patchid);
 	~Entity();
 
 	BoolParameter* primary;
@@ -34,7 +35,10 @@ public:
 	bool colorIsSet = false;
 
 	bool reached = true; // can this entity be built from primary entities ?
+  
+  int patchid = 0; // patchID of entity represented
 
+  bool updateSimEntityOnValueChanged = true;
 
 	void updateInterface();
 	void onContainerParameterChanged(Parameter *) override;

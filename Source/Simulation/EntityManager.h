@@ -27,5 +27,7 @@ public:
 	//void normEnergies();
 
 	Entity *getEntityFromName(String name);
+  
+  void setEntityToPatchID(int);
 
 };

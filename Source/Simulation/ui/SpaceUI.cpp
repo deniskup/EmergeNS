@@ -43,7 +43,8 @@ void SpaceUI::paint(juce::Graphics &g)
   g.fillAll(BG_COLOR);
   
   //spaceBounds = getLocalBounds();
-  spaceBounds = getLocalBounds().withTop(50).withTrimmedBottom(10).withLeft(20).reduced(50);
+  //spaceBounds = getLocalBounds().withTop(50).withTrimmedBottom(10).withLeft(20).reduced(20);
+  spaceBounds = getLocalBounds().withTop(50).withLeft(20).reduced(30);
   
   int til = space->tilingSize->intValue();
   if (til != previousTil)
@@ -55,22 +56,38 @@ void SpaceUI::paint(juce::Graphics &g)
   //std::cout << "Will paint space window with tiling value : " << til << std::endl;
   
   // start is at upper left corner
-  float width = 0.5*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / (float) til;
-  float centerX = spaceBounds.getX() + width;
-  float centerY = spaceBounds.getY() + width;
+  //centers.clear();
+  float ftil = (float) til;
+  Space::getInstance()->spaceGrid.clear();
+  width = 0.5*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / ftil;
+  //float centerX = spaceBounds.getX() + width;
+  //float centerY = spaceBounds.getY() + width;
+  
+  float centerX = spaceBounds.getCentreX() - 0.5*spaceBounds.getWidth()*(1. - pow(0.5, ftil-1.))*0.8;
+  float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.5;
 
-  // loop over number of columns to draw
-  for (int c=0; c<til; c++)
+  // loop over number of rows to draw
+  for (int r=0; r<til; r++)
   //for (int c=0; c<2; c++)
   {
-    // loop over rows
-    for (int r=0; r<til; r++)
+    float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
+    // loop over columns
+    for (int c=0; c<til; c++)
     //for (int r=0; r<1; r++)
     {
-      float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
       float cX = centerX + std::sqrt(3)*width*c + shiftX;
       float cY = centerY + 1.5*width*r;
       paintOneHexagon(g, cX, cY, width);
+      
+      // update grid in Space instance
+      Patch patch;
+      patch.id = r*til + c;
+      patch.rowIndex = r;
+      patch.colIndex = c;
+      patch.setNeighbours(til);
+      Point p(cX, cY);
+      patch.center = p;
+      Space::getInstance()->spaceGrid.add(patch);
     }
   }
 
@@ -129,5 +146,31 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
 
 void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
-  std::cout << "Mouse click at: " << event.position.toString() << std::endl;
+  //std::cout << "Mouse click at: " << event.position.toString() << std::endl;
+  float dmin = max(spaceBounds.getWidth(), spaceBounds.getHeight());
+  int locatepatch = 0;
+  
+  // find patch where mouse click occured
+  for (auto & patch : Space::getInstance()->spaceGrid)
+  {
+    float d = sqrt( (event.x-patch.center.x)*(event.x-patch.center.x) + (event.y-patch.center.y)*(event.y-patch.center.y) );
+    if (d<dmin)
+    {
+      dmin=d;
+      locatepatch = patch.id;
+    }
+  }
+  
+  if (dmin<width)
+  {
+    //cout << "click occured in patch #" << locatepatch << " with coord (r, c) = (";
+    //cout << Space::getInstance()->spaceGrid.getUnchecked(locatepatch).rowIndex;
+    //cout << " , " << Space::getInstance()->spaceGrid.getUnchecked(locatepatch).colIndex << ")" << endl;
+    EntityManager::getInstance()->setEntityToPatchID(locatepatch);
+    Simulation::getInstance()->drawConcOfPatch(locatepatch);
+  }
+  
+  
+  
+  
 }

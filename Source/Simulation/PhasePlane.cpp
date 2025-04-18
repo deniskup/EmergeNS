@@ -193,7 +193,8 @@ void Run::importConcentrationsFromSimu()
   for (auto & ent : Simulation::getInstance()->entities)
   {
     names.add(ent->name);
-    concentrations.add(ent->startConcent);
+    //concentrations.add(ent->startConcent);
+    concentrations.add(ent->startConcent[0]);
   }
   
   clearEntities();

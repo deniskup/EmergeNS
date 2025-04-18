@@ -30,7 +30,7 @@ void MainContentComponent::init()
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Generation", &GenerationUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RACs", &PACUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Settings", &SettingsUI::create));
-  	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PhasePlane", &PhasePlaneUI::create));
+  ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("PhasePlane", &PhasePlaneUI::create));
 	ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("Space", &SpaceUI::create));
 
 

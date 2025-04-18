@@ -18,6 +18,7 @@ public:
     Array<Array<float>> PACsHistory;
 
     Array<bool> RACList;
+    //map<PAC*, bool> RACList;
 
 
     Rectangle<int> PACsBounds;

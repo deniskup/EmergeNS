@@ -6,6 +6,7 @@
 #include "SimReaction.h"
 #include "SimulationHelpers.h"
 #include "PhasePlane.h"
+#include "Space.h"
 #include <random>
 
 
@@ -80,6 +81,9 @@ public:
   RandomGausGenerator * rgg;
   float noiseEpsilon; // = 1. / sqrt(volume)
   
+  // simulation in space
+  BoolParameter * isSpace;
+  
   
 	EnumParameter* setCAC;
   EnumParameter* setSteadyState;
@@ -101,14 +105,21 @@ public:
 	//REARRANGER POUR QUE CE SOIT LISIBLE ET LOGIQUE
 
   //OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
-	OwnedArray<OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
+  OwnedArray<OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
+  //unique_ptr<DynamicsHistory> dynHistory; // to store simulation dynamics
+	DynamicsHistory * dynHistory; // to store simulation dynamics
 	bool express = false; // express mode : no graphics, just find equilibrium
-  bool redraw = false; // redraw mode : just graphics, no simulation
+  bool redrawRun = false; // redraw mode : just graphics, no simulation
+  bool redrawPatch = false; // redraw mode : just graphics, no simulation
 
-	// for drawing
-	int maxSteps;
-	int curStep;
-	int nSteps;
+	// step counters
+	int maxSteps; // totaltime / dt
+	int curStep; // step counter, start from 0, not re-init for new runs
+	int nSteps; // step counter, start from 1, reset to 0 for each run
+  
+  // for drawing
+  int runToDraw = 0;
+  int patchToDraw = 0;
   
   // multiple runs
   int currentRun = 0;
@@ -119,11 +130,16 @@ public:
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
-	float recordConcent;   // record the higher concentration reached
-	String recordEntity;
-	float recordDrawn; // same but only for drawn entities for autoscale
-	String recordDrawnEntity;
-	float maxVarSpeed; // maximal variation speed in the last dt among entities
+  //float recordConcent;   // record the higher concentration reached #TODO --> should become an Array float of size nPatch
+	Array<float> recordConcent;   // record the higher concentration reached #TODO --> should become an Array float of size nPatch
+  //String recordEntity;
+	Array<String> recordEntity;
+  //float recordDrawn; // same but only for drawn entities for autoscale
+	Array<float> recordDrawn; // same but only for drawn entities for autoscale
+  //String recordDrawnEntity;
+	Array<String> recordDrawnEntity;
+  //float maxVarSpeed; // maximal variation speed in the last dt among entities
+	Array<float> maxVarSpeed; // maximal variation speed in the last dt among entities
 
 	int checkPoint; // every checkPoint steps, wait and log
 	bool displayLog = false;
@@ -147,6 +163,7 @@ public:
 
 	// steady states
 	unique_ptr<SteadyStateslist> steadyStatesList;
+  
   
   // phase planes
   //unique_ptr<PhasePlane> phasePlane;
@@ -184,6 +201,7 @@ public:
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
 	void setConcToSteadyState(int idSS); // set concentrations to Steady State
   void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
+  void drawConcOfPatch(int idpatch); // draw concentration dynamics associated to idpatch
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 
@@ -219,12 +237,18 @@ public:
 	void fetchGenerate();
 	
 	void generateSimFromUserList();
-	void updateUserListFromSim();
+  //void updateUserListFromSim();
+	void updateUserListFromSim(int);
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
-  void nextRedrawStep();
-	void nextStep();
+  //void nextRedrawStep();
+  void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
+  void nextStep();
+  void updateSinglePatchRates(Patch&, bool);
+  void SteppingReactionRates(Patch&, bool);
+  void SteppingInflowOutflowRates(Patch&);
+	void SteppingDiffusionRates(Patch&);
 	void stop();
 	void cancel();
 
@@ -256,24 +280,40 @@ public:
 
 		SimulationEvent(Type t,
 			Simulation* sim,
-      int _run = 0,
+      //int _run = 0,
+      //int _patch = 0,
 			int curStep = 0,
 			Array<float> entityValues = Array<float>(),
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
-			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList), run(_run)
+			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
 		{
 		}
 
+    /*
+    SimulationEvent(Type t,
+      Simulation* sim,
+      int _run = 0,
+      int curStep = 0,
+      Array<float> entityValues = Array<float>(),
+      Array<Colour> entityColors = Array<Colour>(),
+      Array<float> PACsValues = Array<float>(),
+      map<PAC*, bool> RACList = map<PAC*, bool>())
+      : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList), run(_run)
+    {
+    }
+    */
 		Type type;
 		Simulation* sim;
-    int run;
+    //int run;
+    //int patch;
 		int curStep;
 		Array<float> entityValues;
 		Array<Colour> entityColors;
 		Array<float> PACsValues;
-		Array<bool> RACList;
+    Array<bool> RACList;
+    //map<PAC*, bool> RACList;
 	};
 
 	QueuedNotifier<SimulationEvent> simNotifier;

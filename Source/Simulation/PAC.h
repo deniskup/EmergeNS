@@ -50,9 +50,11 @@ public:
     Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
     Array<pair<SimReaction *, int>> reacFlows;
 
-    float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+    //float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+    Array<float> flow; // min of reactions flows, 0 if one flow is in the wrong direction
   
-    float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
+    //float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
+    Array<float> activity; // sum_{entities}( 1/[e] * d[e]/dt )
 
     float score; // score of realasability = sum{ pacwitness_i * (k+ - k-) / k- }
 
