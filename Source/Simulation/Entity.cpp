@@ -59,10 +59,8 @@ void Entity::onContainerParameterChanged(Parameter *p)
 	{
 		updateInterface();
 	}
-  else if (p == concent || p == startConcent) 
+  else if (p == concent || p == startConcent) // simentity is updated only o certain conditions
   {
-    if (p==concent)
-      cout << "Changed concentration. Val = " << concent->floatValue() << endl;
     if (!Engine::mainEngine->isLoadingFile && updateSimEntityOnValueChanged)
     {
       //simEnt = Simulation::getInstance()->getSimEntityForName(niceName);

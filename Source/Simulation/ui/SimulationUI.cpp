@@ -115,7 +115,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->autoScale->boolValue())
 	{
-		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01); 
+		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01);
 	}
 	float maxC = simul->maxConcent->floatValue();
 	// (Our component is opaque, so we must completely fill the background with a solid colour)

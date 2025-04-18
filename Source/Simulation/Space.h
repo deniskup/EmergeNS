@@ -6,6 +6,8 @@
 #include "EntityManager.h"
 #include "SimulationHelpers.h"
 
+#include "EntityManager.h"
+
 using namespace juce;
 using namespace std;
 
@@ -114,6 +116,7 @@ public:
       NEWSTEP,
       FINISHED,
     };
+
 
     SpaceEvent(Type t,
       Space* space,

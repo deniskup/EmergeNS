@@ -1864,6 +1864,13 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   }
 
   
+  if (isMultipleRun && isSpace->boolValue())
+  {
+    LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
+    return;
+  }
+
+  
   // will print dynamics to file
   //if (!Settings::getInstance()->printHistoryToFile->boolValue())
   //  Settings::getInstance()->printHistoryToFile->setValue(true);
@@ -1992,7 +1999,6 @@ void Simulation::resetForNextRun()
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
 {
-  
   nSteps++;
   bool isCheckForRedraw = ( (nSteps-1) % checkPoint == 0);
   
@@ -2172,7 +2178,6 @@ void Simulation::nextStep()
         return;
       }
     }
-    
     
     
     // keep this here, but loop over patches
@@ -2503,9 +2508,37 @@ void Simulation::computeRACsActivity(bool isCheck)
       
     } // end PAC loop
   } // end space grid loop
-  
 }
 
+
+void Simulation::SteppingDiffusionRates(Patch& patch)
+{
+  
+  // loop over neighbour patches of current patch
+  for (auto& neighbour : patch.neighbours)
+  {
+    // loop over entities
+    for (auto& ent : entities)
+    {
+      float grad = ent->concent[patch.id] - ent->concent[neighbour];
+      float detgrad = ent->deterministicConcent[patch.id] - ent->deterministicConcent[neighbour];
+      
+      float incr = -grad * Space::getInstance()->diffConstant->floatValue();
+      float detIncr = -detgrad * Space::getInstance()->diffConstant->floatValue();
+      // atually it is -grad * kd / L where L is the distance between two patches. Included in kd definition
+      
+      if (stochasticity->boolValue())
+      {
+        // *** TODO
+      }
+      
+      // increase concentrations of entities
+      ent->increase(patch.id, incr);
+      ent->deterministicIncrease(patch.id, incr);
+    }
+  }
+  
+}
 
 
 
@@ -2598,7 +2631,7 @@ void Simulation::run()
         cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
         cout << "--- ------ ------ ---" << endl;
         */
-        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate 
+        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate
         ConcentrationSnapshot thisStepConc = dynHistory->getConcentrationSnapshotForRunAndStep(runToDraw, corrStep, kestimate);
         nextRedrawStep(thisStepConc, thisStepRACs);
         k++;
@@ -3034,6 +3067,7 @@ void Simulation::drawConcOfPatch(int idpatch)
   startThread();
   
 }
+
 
 
 

@@ -188,7 +188,6 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     }
     spaceNotifier.addMessage( new SpaceEvent(SpaceEvent::UPDATE_GRID, this, 0, {}, colours) );
   }
-  
 }
 
 
@@ -263,9 +262,6 @@ void Space::run()
   LOG("--------- End thread ---------");
   
 }
-
-
-
 
 
 
