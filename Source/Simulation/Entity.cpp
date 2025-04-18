@@ -14,7 +14,10 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 	draw = addBoolParameter("Draw", "Draw the entity", true);
 	setHasCustomColor(true);
 	updateInterface();
-	//primary->hideInEditor = true;
+	primary->hideInEditor = true;
+  
+  startConcent->isSavable = false;
+  concent->isSavable = false;
 }
 
 void Entity::updateInterface()
@@ -28,14 +31,17 @@ void Entity::updateInterface()
 	queuedNotifier.addMessage(new ContainerAsyncEvent(ContainerAsyncEvent::ControllableContainerNeedsRebuild, this));
 }
 
-Entity::Entity(SimEntity *e) : Entity(var())
+//Entity::Entity(SimEntity *e) : Entity(var())
+Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 {
 	setNiceName(e->name);
 	primary->setValue(e->primary);
 	creationRate->setValue(e->creationRate);
 	destructionRate->setValue(e->destructionRate);
-	startConcent->setValue(e->startConcent);
-	concent->setValue(e->concent);
+  
+	startConcent->setValue(e->startConcent[patchid]);
+	concent->setValue(e->concent[patchid]);
+  
 	freeEnergy->setValue(e->freeEnergy);
 	itemColor->setColor(e->color);
 	colorIsSet = true;
@@ -47,17 +53,27 @@ Entity::Entity(SimEntity *e) : Entity(var())
 
 void Entity::onContainerParameterChanged(Parameter *p)
 {
+  //cout << "Listener being called !" << endl;
 	if (p == chemostat)
 	{
 		updateInterface();
 	}
-  else if (p == primary)
+  else if (p == concent || p == startConcent) // simentity is updated only o certain conditions
   {
-    updateInterface();
+    if (!Engine::mainEngine->isLoadingFile && updateSimEntityOnValueChanged)
+    {
+      //simEnt = Simulation::getInstance()->getSimEntityForName(niceName);
+      if (simEnt)
+        simEnt->updateFromEntity(this);
+    }
   }
-
-	if(simEnt)
-		simEnt->updateFromEntity(this);
+  else
+  {
+    if(simEnt)
+    {
+      simEnt->updateFromEntity(this);
+    }
+  }
 }
 
 Entity::~Entity()

@@ -63,9 +63,12 @@ public:
 	//void importFromManual(); // retrieve info from pointer to Manual settings
 
 	int idSAT = 0; // identifier for SAT Solving
-  float flow;    // flow = dProduct/dt due to the reaction
-	float deterministicFlow;    // same but not taking into account stochastic contribution
-	bool flowdir;  // direction of the flow, same convention as in PAC
+  //float flow;    // flow = dProduct/dt due to the reaction
+  Array<float> flow;    // flow = dProduct/dt due to the reaction
+  //float deterministicFlow;    // same but not taking into account stochastic contribution
+	Array<float> deterministicFlow;    // same but not taking into account stochastic contribution
+  //bool flowdir;  // direction of the flow, same convention as in PAC
+	Array<bool> flowdir;  // direction of the flow, same convention as in PAC
 
 	
 	bool containsReactant(SimEntity* e);
