@@ -1431,6 +1431,7 @@ void Simulation::resetBeforeRunning()
   recordDrawn = 0.;
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
+  curStep = 0.;
   
   //cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
   
@@ -1480,6 +1481,8 @@ void Simulation::resetBeforeRunning()
     RAChistory.add(row);
   }
   //cout << "in reset RAChist size on run axis : " << RAChistory.size() << endl;
+  
+ 
   
 }
 
@@ -1725,6 +1728,8 @@ void Simulation::nextStep()
   // if not in redraw mode but in multiple runs mode
   if (isMultipleRun)
   {
+    if (nSteps==1)
+      cout << "Starting run #" << currentRun << endl;
     if (nSteps>maxSteps) // current run is over
     {
       if (currentRun<(nRuns-1)) // should start new run
@@ -1763,6 +1768,10 @@ void Simulation::nextStep()
             if (getSimEntityForName(name)->draw) recordDrawn = conc;
           }
         }
+        
+        leftBasin = false;
+        exitScore = 0.;
+        lastStudyTime = 0.;
         
       }
       else // stop simulation
@@ -1970,7 +1979,7 @@ void Simulation::nextStep()
 
           
     // update flow needed only at checkpoints
-    if (isCheck || isMultipleRun)
+    if (isCheck || isMultipleRun || exitTimeStudy)
     {
       reac->flow = directCoef - reverseCoef;
       reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
@@ -2030,7 +2039,8 @@ void Simulation::nextStep()
   curStep++;
   //perCent->setValue((int)((curStep * 100) / maxSteps));
   if (nRuns>0)
-    perCent->setValue((int)((curStep * 100) / (maxSteps*nRuns)));
+    perCent->setValue((int)(( (nSteps + currentRun*maxSteps) * 100) / (maxSteps*nRuns)));
+    //perCent->setValue((int)((curStep * 100) / (maxSteps*nRuns)));
   
 
   float maxVar = 0.;
@@ -2071,6 +2081,63 @@ void Simulation::nextStep()
     }
   }
   maxVarSpeed = maxVar / dt->floatValue();
+  
+  
+  
+  if (exitTimeStudy || transitTimeStudy /*&& !leftBasin*/)
+  {
+    float time = dt->floatValue() * (float) nSteps;
+    
+    if ( (time-lastStudyTime) >= exitTimePrecision)
+    {
+      //cout << "exit time study at time T = " << time << endl;
+      lastStudyTime = time;
+      bool isInInitialBasin = isInInitialAttractionBasin();
+
+      if (transitTimeStudy)
+      {
+        
+        if ( (isInInitialBasin && curSST==0) || (!isInInitialBasin && curSST==1)) // system did not escape current basin
+        {
+          transitTime += exitTimePrecision;
+        }
+        else if (!isInInitialBasin && curSST==0) // system escaped from 0 to 1
+        {
+          transitInStartBasin.add(transitTime);
+          transitFlags.add(time);
+          transitTime = 0.;
+          curSST = 1;
+        }
+        else if (isInInitialBasin && curSST==1) // system escaped from 1 to 0
+        {
+          transitInotherBasin.add(transitTime);
+          transitFlags.add(time);
+          transitTime = 0.;
+          curSST = 0;
+        }
+      }
+      else if (exitTimeStudy)
+      {
+        if (!isInInitialBasin)
+        {
+          leftBasin = true;
+          exitTimes.add(time);
+          LOG("ESCAPED !! Run " + String(to_string(currentRun)) + " System left the initial basin at time T = " + String(to_string(time)));
+          nSteps = maxSteps + 1; // very ugly, I should code and call a function that moves to next run. This will do the job for now
+        }
+        if ( (time + dt->floatValue()) > totalTime->floatValue() && !leftBasin)
+        {
+          exitTimes.add(-999.);
+          LOG("Run " + String(to_string(currentRun)) + " : NO ESCAPE DETECTION" );
+        }
+        return;
+      }
+    }
+  }
+  
+  
+  
+  
 
   if (displayLog)
   {
@@ -2405,6 +2472,24 @@ void Simulation::run()
   pacList->printRACs();
 
   updateConcentLists();
+  /*
+  if (transitTimeStudy)
+  {
+    cout << "--- Transits in steady states --- " << endl;
+    cout << "time when transition occured: ";
+    for (auto & t : transitFlags)
+      cout << t << "  ";
+    cout << endl;
+    cout << "Initial steady state: ";
+    for (auto & t : transitInStartBasin)
+      cout << t << "  ";
+    cout << endl;
+    cout << "Other steady state: ";
+    for (auto & t : transitInotherBasin)
+      cout << t << "  ";
+    cout << endl;
+  }
+  */
 
   if (Settings::getInstance()->printHistoryToFile->boolValue())
   {
@@ -2424,6 +2509,17 @@ void Simulation::writeHistory()
   int nruns = RAChistory.size();
   if (nruns==0)
     return;
+  
+  if (exitTimeStudy)
+  {
+    String filename = "exitTimes.csv";
+    ofstream historyFile;
+    historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    for (auto & t : exitTimes)
+      historyFile << t << ",";
+    historyFile << endl;
+    return;
+  }
   
   //Array<RACHist> run0RAChistory = RAChistory[0];
   
@@ -2711,7 +2807,7 @@ void Simulation::setConcToCAC(int idCAC)
   }
 }
 
-void Simulation::setConcToSteadyState(int idSS)
+void Simulation::setConcToSteadyState(int idSS, bool isStartConc)
 {
   if (idSS < 1)
     return;
@@ -2720,10 +2816,20 @@ void Simulation::setConcToSteadyState(int idSS)
   for (auto ent : entities)
   {
     float conc = ss.state[ident].second;
-    ent->concent = conc;
+    if (!ss.isBorder && conc==0.)
+      conc = 0.01;
+    if (isStartConc)
+      ent->startConcent = conc;
+    else
+      ent->concent = conc;
     ident++;
     if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
+    {
+      if (isStartConc)
+        ent->entity->startConcent->setValue(conc);
+      else
+        ent->entity->concent->setValue(conc);
+    }
   }
 }
 
@@ -2812,7 +2918,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     if (setSteadyState->intValue() < 1)
       return;
-    setConcToSteadyState(setSteadyState->intValue());
+    setConcToSteadyState(setSteadyState->intValue(), false);
   }
   if (p == setRun)
   {
@@ -2833,3 +2939,311 @@ void Simulation::onContainerParameterChanged(Parameter *p)
 }
 
 
+
+
+
+bool Simulation::isInInitialAttractionBasin()
+//int Simulation::inWhichAttractionBasin()
+{
+  
+  //bool hasLeft = scalarProductMethod();
+  bool b = deterministicTrajectoryMethod();
+  //int whichSST = deterministicTrajectoryMethod();
+
+  return b;
+    
+}
+
+
+
+bool Simulation::deterministicTrajectoryMethod()
+//int Simulation::deterministicTrajectoryMethod()
+{
+  
+  map<SimEntity*, float> conc;
+  map<SimEntity*, float> incr;
+  
+  // init concentration map to current concentration state of simulation
+  for (auto & ent : entities)
+    conc[ent] = ent->concent;
+  for (auto & e : entities)
+    incr[e] = 0.;
+  
+  int step = -1;
+  bool reachedSST = false;
+  float distanceFromStart = 0.;
+  float distanceFromOther = 0.;
+  
+  int whichSST = -1;
+  
+  //for (int k=0; k<nlocstep; k++)
+  while (!reachedSST && step<maxsteps_study)
+  {
+    step++;
+    
+    // calculate reaction rates
+    for (auto & r : reactions)
+    {
+      if (!r->enabled)
+        continue;
+      
+      // forward rate
+      float minReac = 100.;
+      float forwardRate = r->assocRate;
+      bool firstEnt = true;
+      for (auto &ent : r->reactants)
+      {
+        forwardRate *= conc[ent];
+        if (firstEnt || conc[ent] < minReac)
+          minReac = conc[ent];
+        firstEnt = false;
+      }
+      
+      // backward rate
+      float minProd = 100.;
+      float backwardRate = r->dissocRate;
+      firstEnt = true;
+      for (auto &ent : r->products)
+      {
+        backwardRate *= conc[ent];
+        if (firstEnt || conc[ent] < minProd)
+          minProd = conc[ent];
+        firstEnt = false;
+      }
+      if (!r->isReversible)
+        backwardRate = 0.;
+      
+      // increments
+      float forwardIncr = forwardRate * dtbis;
+      float backwardIncr = backwardRate * dtbis;
+      
+      // adjust the increments depending on available entities
+      forwardIncr = jmin(forwardIncr, minReac);
+      backwardIncr = jmin(backwardIncr, minProd);
+      
+      // store increments to entities
+      for (auto & reac : r->reactants)
+      {
+        incr[reac] -= forwardIncr;
+        incr[reac] += backwardIncr;
+      }
+      for (auto & prod : r->products)
+      {
+        incr[prod] += forwardIncr;
+        incr[prod] -= backwardIncr;
+      }
+    } // end loop over reactions
+    
+    
+    // creation/dilution
+    for (auto &ent : entities)
+    {
+      // creation
+      if (ent->primary)
+      {
+        float creat = ent->creationRate * dtbis;
+        incr[ent] += creat;
+      }
+      // dilution
+      float dest = ent->destructionRate * dtbis * conc[ent];
+      incr[ent] -= dest;
+    }
+    
+    float maxvar = 0.;
+    // update concentration to next step value
+    for (auto & ent : entities)
+    {
+      if (!ent->chemostat)
+        conc[ent] = juce::jmax(conc[ent] + incr[ent], 0.f);
+      // reset increment
+      if (incr[ent]>maxvar)
+        maxvar = incr[ent];
+      incr[ent] = 0.;
+    }
+    
+    // if the steady is reached, store, so that current step will be the last
+    if (maxvar<epsilon)
+      reachedSST = true;
+    
+    
+    //} // end loop
+    
+    
+    // determine in which steady state the system would be
+    int csst=-1;
+    int considered = 0;
+    for (auto & sst : steadyStatesList->arraySteadyStates)
+    {
+      csst++;
+      if (sst.isBorder)
+        continue;
+      
+      // check that this steady state looks fine
+      bool isFine = true;
+      for (auto & st : sst.state)
+      {
+        if (st.second>100.)
+        {
+          isFine = false;
+          break;
+        }
+      }
+      if (!isFine)
+        continue; // skip to next steady state
+      
+      if (csst == startSST)
+      {
+        distanceFromStart = 0.;
+        for (auto & p : sst.state)
+        {
+          distanceFromStart += (conc[p.first] - p.second) * (conc[p.first] - p.second);
+        }
+      }
+      else
+      {
+        distanceFromOther = 0.;
+        for (auto & p : sst.state)
+        {
+          distanceFromOther += (conc[p.first] - p.second) * (conc[p.first] - p.second);
+        }
+      }
+      
+      considered++;
+      
+    } // end steady state loop
+    
+    if (considered != 2)
+    {
+      LOGWARNING("Should have considered only 2 steady states in present analysis, instead considered " + String(to_string(considered)));
+      return false;
+    }
+    
+    if (distanceFromStart<0. || distanceFromOther<0.)
+    {
+      LOGWARNING("distance to steady state miscalculated.");
+      return false;
+    }
+    
+    //cout << "\tstep #" << step << ". dfromStart = " << distanceFromStart << ". d from other = " << distanceFromOther << ". reached sst ? -> " << reachedSST << endl;
+    
+  } // end while
+  
+  //cout << "dfromStart = " << distanceFromStart << ". d from other = " << distanceFromOther << ". Used " << step << " steps." << endl;
+  
+  return (distanceFromOther > distanceFromStart);
+  
+}
+
+
+
+float scalarProduct(std::map<SimEntity*, float> m1, std::map<SimEntity*, float> m2)
+{
+  float sp = 0.;
+  for (auto & [key, val] : m1)
+  {
+    if (m2.find(key) == m2.end())
+    {
+      LOGWARNING("Problem in scalar product calculation, will return 0.");
+    }
+    sp += val * m2[key];
+  }
+  
+  return sp;
+}
+
+
+
+bool Simulation::scalarProductMethod()
+{
+  
+  // calculate scalar product
+  map<SimEntity*, float> position;
+  map<SimEntity*, float> grad;
+  
+  for (auto & ent : entities)
+  {
+    position[ent] = ent->deterministicConcent;
+    grad[ent] = (ent->deterministicConcent - ent->previousConcent) / dt->floatValue();
+    //position.add(ent->deterministicConcent);
+    //position.add((ent->deterministicConcent - ent->previousConcent) / dt->floatValue());
+  }
+  
+  map<SimEntity*, float> tossti;
+  map<SimEntity*, float> tosstf;
+  
+  // calculate scalar product of vec (x-sst_other) and grad
+  int csst=-1;
+  float spi, spf = -999.;
+  for (auto & sst : steadyStatesList->arraySteadyStates)
+  {
+    csst++;
+    if (sst.isBorder)
+      continue;
+    
+    // check that this steady state looks fine
+    bool isFine = true;
+    for (auto & st : sst.state)
+    {
+      if (st.second>100.)
+      {
+        isFine = false;
+        break;
+      }
+    }
+    if (!isFine)
+      continue; // skip to next steady state
+    
+    if (csst == startSST)
+    {
+      for (auto & st : sst.state)
+      {
+        SimEntity * se = st.first;
+        tossti[se] = st.second - position[se];
+      }
+      spi = scalarProduct(tossti, grad);
+    }
+    else
+    {
+      for (auto & st : sst.state)
+      {
+        SimEntity * se = st.first;
+        tosstf[se] = st.second - position[se];
+      }
+      spf = scalarProduct(tosstf, grad);
+    }
+  }
+  
+  // sanity check
+  if (spi == -999 || spf == -999)
+  {
+    LOGWARNING("Problem in steady state calculation, stop.");
+    return false;
+  }
+  
+  float time = (float) curStep * dt->floatValue();
+  //if (curStep%50==0)
+  if (curStep)
+  {
+    cout << "XSSTi = (";
+    for (auto & f : tossti)
+      cout << f.second << " , ";
+    cout << endl;
+    cout << "XSSTf = (";
+    for (auto & f : tosstf)
+      cout << f.second << " , ";
+    cout << endl;
+    cout << "grad = (";
+    for (auto & f : grad)
+      cout << f.second << " , ";
+    cout << endl;
+    cout << "t = " << time << ". Remain score = " << spi << ". Escape score = " << spf << endl;
+  }
+  // decide whether the system is (deterministically) heading toward other steady state or not
+  if (spf>spi && spf>0.)
+  {
+    return true;
+  }
+  
+  return false;
+  
+}

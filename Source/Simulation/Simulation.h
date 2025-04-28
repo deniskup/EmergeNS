@@ -182,7 +182,7 @@ public:
 	void computeBarriers(); // compute barriers from rates and energy of entities
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
-	void setConcToSteadyState(int idSS); // set concentrations to Steady State
+	void setConcToSteadyState(int idSS, bool isStartConc); // set concentrations to Steady State
   void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
@@ -239,6 +239,32 @@ public:
 
 	void onContainerTriggerTriggered(Trigger* t) override;
 	void onContainerParameterChanged(Parameter* p) override;
+  
+  
+  // exit time study
+  bool exitTimeStudy = false;
+  bool transitTimeStudy = false;
+  int exitScore = 0;
+  int startSST;
+  int curSST = 0; // 0 = start, 1 = other, it is not the index corresponding to arraySteadyStates
+  bool leftBasin = false;
+  float dtbis;
+  int maxsteps_study;
+  float exitTimePrecision;
+  float lastStudyTime = 0.;
+  float epsilon = 0.1;
+  
+  Array<float> exitTimes;
+  float transitTime = 0.;
+  Array<float> transitInStartBasin;
+  Array<float> transitInotherBasin;
+  Array<float> transitFlags;
+  
+  bool isInInitialAttractionBasin();
+  //int inWhichAttractionBasin();
+  bool scalarProductMethod();
+  bool deterministicTrajectoryMethod();
+  //int deterministicTrajectoryMethod();
 
 	// ASYNC
 	class SimulationEvent

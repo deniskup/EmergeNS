@@ -8,6 +8,15 @@
 #include "Simulation/Settings.h"
 #include "Simulation/Statistics.h"
 
+bool to_bool(std::string& x) {
+  // removed space from x
+  while (x.find(" ") != x.npos)
+    x.erase(x.find(" "), 1);
+  cout << "x = " << x << endl;
+  assert(x == "0" || x == "1");
+  return x == "1";
+}
+
 EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
 {
@@ -55,6 +64,8 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 	//Compile with task MakeRelease for better performance
 
 	bool fileLoaded = false;
+  
+  
 
 	// Check if the argument is "config"
 	if (commandLine.contains("config"))
@@ -74,8 +85,6 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 			if (c.command == "config")
 			{
 				String fileArg = c.args[0];
-				cout << "will open file : " << fileArg << endl;
-
 
 				// open the config file
 				ifstream file;
@@ -118,6 +127,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 		// Set model parameters according to config values
 		for (auto& [key, val] : configs)
 		{
+      //cout << "key, val : " << key << " " << val << endl;
 			juce::var myvar(val);
 			if (key == "z3path")	Settings::getInstance()->pathToz3->setValueInternal(myvar);
 			else if (key == "z3timeout")	Settings::getInstance()->z3timeout->setValueInternal(myvar);
@@ -125,22 +135,72 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 			else if (key == "connectedness") Generation::getInstance()->propReactions->setValueInternal(myvar);
 			else if (key == "Nprimaries") Generation::getInstance()->primEntities->setValueInternal(myvar);
 			else if (key == "model2file") model2file = val;
-			else if (key == "printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
-			//else if (key=="connectedness")
+      else if (key == "printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
+      else if (key == "study") study = String(val);
+      else if (key == "totalTime") totalTime = atof(val.c_str());
+      else if (key == "dt") dt = atof(val.c_str());
+      else if (key == "epsilonNoise") epsilonNoise = atof(val.c_str());
+      else if (key == "nRuns") nRuns = atoi(val.c_str());
+      else if (key == "network") filename = String(val);
+      else if (key == "fixedSeed") fixedSeed = to_bool(val);
+      else if (key == "seed") seed = atoi(val.c_str());
+      else if (key == "dtbis") dtbis = atof(val.c_str());
+      else if (key == "nstepbis") nstepbis = atoi(val.c_str());
+      else if (key == "exitTimePrecision") exitTimePrecision = atof(val.c_str());
+      else if (key == "epsilon") epsilon = atof(val.c_str());
+      else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
 		}
+    
+    
+    if (study == "firstExit")
+    {
+      juce::File file(filename);
+      GlobalSettings::getInstance()->logAutosave->setValue(false);
+      loadDocumentNoCheck(file);
+      
+      // desactivate autosave
+      GlobalSettings::getInstance()->enableAutoSave->setValue(false);
+      //GlobalSettings::getInstance()->logAutosave->setValue(false);
+      
+      // tp print history to file
+      Settings::getInstance()->printHistoryToFile->setValue(true);
+      
+      // set simulation instance parameters according to those of
+      Simulation::getInstance()->exitTimeStudy = true;
+      Simulation::getInstance()->transitTimeStudy = false;
+      Simulation::getInstance()->totalTime->setValue(totalTime);
+      Simulation::getInstance()->dt->setValue(dt);
+      Settings::getInstance()->volume->setValue(-2.*log10(epsilonNoise));
+      Settings::getInstance()->fixedSeed->setValue(fixedSeed);
+      Settings::getInstance()->randomSeed->setValue(seed);
+      Simulation::getInstance()->dtbis = dtbis;
+      Simulation::getInstance()->maxsteps_study = maxsteps_study;
+      Simulation::getInstance()->exitTimePrecision = exitTimePrecision;
+      Simulation::getInstance()->epsilon = epsilon;
+      
+      // additionnal configurations
+      Simulation::getInstance()->autoScale->setValue(true);
+      Simulation::getInstance()->stochasticity->setValue(true);
+      
+      firstExitTimeStudy();
+    }
+    else if (study == "paccac")
+    {
+      // Generate a reaction network
+      //Simulation::Simulation * simu = new Simulation::Simulation();
+      Simulation::getInstance()->fetchGenerate();
 
-		// Generate a reaction network
-		//Simulation::Simulation * simu = new Simulation::Simulation();
-		Simulation::getInstance()->fetchGenerate();
+      DBG("num per level : " + Generation::getInstance()->entPerLevNum->stringValue());
 
-		DBG("num per level : " + Generation::getInstance()->entPerLevNum->stringValue());
+      // write model to txt file
+      //Simulation::getInstance()->PrintSimuToFile(model2file.c_str());
 
-		// write model to txt file
-		//Simulation::getInstance()->PrintSimuToFile(model2file.c_str());
+      // Compute the PACs with z3
+      // doesn't work for the moment
+      Simulation::getInstance()->pacList->compute(2);
+    }
 
-		// Compute the PACs with z3
-		// doesn't work for the moment
-		Simulation::getInstance()->pacList->compute(2);
+		
 
 		// Run the simulation
 		//Simulation::getInstance()->run();
@@ -155,10 +215,10 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
 
 
-		JUCEApplication::getInstance()->systemRequestedQuit();
+		//JUCEApplication::getInstance()->systemRequestedQuit();
 
 
-	}
+	} // end if config
 
 
 	return (fileLoaded || parentCall);
@@ -197,4 +257,80 @@ void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingT
 String EmergeNSEngine::getMinimumRequiredFileVersion()
 {
 	return "1.0.0";
+}
+
+
+// FOLLOWING is some code to measure statistically the robustness of a steady state
+
+
+void EmergeNSEngine::firstExitTimeStudy()
+{
+  
+  if (Simulation::getInstance()->steadyStatesList->arraySteadyStates.size() == 0)
+  {
+    LOG("should calculate steady states and save the file, for now I just leave the function.");
+    return;
+  }
+  
+  // set concentration of entities to the one of steady state
+  SteadyState startSST;
+  int indexStartSST = -1;
+  
+  int c=-1;
+  for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
+  {
+    c++;
+    //SteadyStateslist::getInstance()->printOneSteadyState(sst);
+    if (sst.isBorder)
+      continue;
+    
+    // choose the steady state A dominated
+    float totA = 0.;
+    for (auto & [ent, c] : sst.state)
+    {
+      if (c>100)
+        break;
+      if (ent->name.contains("A"))
+        totA += c;
+    }
+    //cout << "total A species = " << totA << ". index sst = " << c << endl;
+    if (totA>0.1)
+    {
+      startSST = sst;
+      indexStartSST = c;
+      break;
+    }
+  }
+  
+  //cout << "picked sst index " << indexStartSST << endl;
+  
+  
+  // set startConc to this steady state
+  if (indexStartSST>=0)
+  {
+    //SteadyStateslist::getInstance()->printOneSteadyState(startSST);
+    Simulation::getInstance()->setConcToSteadyState(indexStartSST+1, true);
+    Simulation::getInstance()->startSST = indexStartSST;
+    //Simulation::getInstance()->curSST = indexStartSST;
+  }
+  else
+  {
+    LOG("Cannot find matching steady state, stop.");
+    return;
+  }
+  // just in case
+  Simulation::getInstance()->generateSimFromUserList();
+  
+  
+  
+  // init runs
+  PhasePlane::getInstance()->clearAllRuns();
+  PhasePlane::getInstance()->nRuns->setValue(nRuns);
+  PhasePlane::getInstance()->updateEntitiesFromSimu();
+  
+  // start simulation
+  PhasePlane::getInstance()->startRuns();
+  
+  
+  
 }
