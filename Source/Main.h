@@ -17,7 +17,7 @@
 #include "Engine/EmergeNSEngine.h"
 
 //==============================================================================
-class EmergeNSApplication : public OrganicApplication
+class EmergeNSApplication : public OrganicApplication, private Simulation::Listener, private juce::AsyncUpdater
 {
 public:
 	//==============================================================================
@@ -28,6 +28,24 @@ public:
 	void initialiseInternal(const String& /*commandLine*/) override;
 
 	bool moreThanOneInstanceAllowed() override;
+  
+  void shutdown() override
+  {
+    Simulation::getInstance()->signalThreadShouldExit();
+    Simulation::getInstance()->waitForThreadToExit(5000); // Respect du grand cycle
+    //Simulation::getInstance()->reset();
+  }
+
+  void simulationFinished() override
+  {
+    triggerAsyncUpdate(); // Faire monter un signal asynchrone
+  }
+
+  void handleAsyncUpdate() override
+  {
+    quit(); // Extinction de la grande flamme
+  }
+  
 };
 
 

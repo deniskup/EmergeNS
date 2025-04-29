@@ -2500,6 +2500,10 @@ void Simulation::run()
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
+  
+  
+  if (listener != nullptr)
+    listener->simulationFinished();
 }
 
 ///////////////////////////////////////////////////////////////////:

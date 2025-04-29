@@ -1,12 +1,12 @@
 
 
 #include "EmergeNSEngine.h"
-#include "Simulation/EntityManager.h"
-#include "Simulation/ReactionManager.h"
-#include "Simulation/Simulation.h"
-#include "Simulation/Generation.h"
-#include "Simulation/Settings.h"
-#include "Simulation/Statistics.h"
+//#include "Simulation/EntityManager.h"
+//#include "Simulation/ReactionManager.h"
+//#include "Simulation/Simulation.h"
+//#include "Simulation/Generation.h"
+//#include "Simulation/Settings.h"
+//#include "Simulation/Statistics.h"
 
 bool to_bool(std::string& x) {
   // removed space from x
@@ -28,6 +28,7 @@ EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 	addChildControllableContainer(Generation::getInstance());
   addChildControllableContainer(Settings::getInstance());
 	addChildControllableContainer(PhasePlane::getInstance());
+  //Simulation::getInstance()->setListener(this);
 }
 
 EmergeNSEngine::~EmergeNSEngine()
@@ -214,8 +215,18 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 		//quit application
 
 
+/*
+    //JUCEApplication::getInstance()->systemRequestedQuit();
+    while (Simulation::getInstance()->isThreadRunning())
+    {
+          //Simulation::getInstance()->signalThreadShouldExit();
+      Simulation::getInstance()->waitForThreadToExit(10000); // 10s de patience cosmique
+    }
+    */
 
-		//JUCEApplication::getInstance()->systemRequestedQuit();
+    //cout << "is running ? -> " << Simulation::getInstance()->state << endl;
+    //Simulation::getInstance()->~Simulation();
+		//JUCEApplication::getInstance()->quit();
 
 
 	} // end if config

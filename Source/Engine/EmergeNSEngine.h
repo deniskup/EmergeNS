@@ -3,10 +3,17 @@
 #pragma once
 
 #include "JuceHeader.h"
+#include "Simulation/EntityManager.h"
+#include "Simulation/ReactionManager.h"
+#include "Simulation/Simulation.h"
+#include "Simulation/Generation.h"
+#include "Simulation/Settings.h"
+#include "Simulation/Statistics.h"
+
 using namespace juce;
 
 class EmergeNSEngine :
-	public Engine
+public Engine//, private Simulation::Listener 
 {
 public:
 

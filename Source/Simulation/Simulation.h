@@ -265,6 +265,23 @@ public:
   bool scalarProductMethod();
   bool deterministicTrajectoryMethod();
   //int deterministicTrajectoryMethod();
+  
+  class Listener
+  {
+    public:
+      virtual ~Listener() = default;
+      virtual void simulationFinished() = 0; // ✨ Le signal d'extinction
+  };
+  
+  void setListener (Listener* l)
+  {
+    listener = l;
+  }
+  
+  private:
+      Listener* listener = nullptr;
+  
+  public:
 
 	// ASYNC
 	class SimulationEvent

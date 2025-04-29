@@ -28,6 +28,7 @@ void EmergeNSApplication::initialiseInternal(const String&)
   if (useWindow) mainComponent.reset(new MainContentComponent());
 
   //GlobalSettings::getInstance()->addChildControllableContainer(FusionSettings::getInstance(), false, 4);
+  Simulation::getInstance()->setListener(this);
 
 }
 
