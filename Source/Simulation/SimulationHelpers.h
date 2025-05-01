@@ -101,6 +101,17 @@ public:
     return concentHistory.getUnchecked(concentHistory.size()-1);
   }
   
+  Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
+  {
+    Array<ConcentrationSnapshot> output;
+    for (auto & cs : concentHistory)
+    {
+      if (cs.runID == _stepid)
+        output.add(cs);
+    }
+    return output;
+  }
+  
   Array<ConcentrationSnapshot> getConcentrationDynamicsForRun(int _runid)
   {
     Array<ConcentrationSnapshot> output;

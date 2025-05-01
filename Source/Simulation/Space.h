@@ -56,7 +56,7 @@ class Patch
 
 
 
-class Space : public ControllableContainer
+class Space : public ControllableContainer, Thread
 {
 public:
     juce_DeclareSingleton(Space, true);
@@ -69,17 +69,29 @@ public:
     IntParameter * tilingSize; 
   
     FloatParameter * diffConstant;
+ 
+    FloatParameter * timeOfReplay;
+  
+    Trigger * replay;
   
     int previousTiling;
   
     int nPatch;
       
     void onContainerParameterChanged(Parameter *p) override;
+  
+    void onContainerTriggerTriggered(Trigger *t) override;
+  
+    void run() override;
     
-    void afterLoadJSONDataInternal() override;
   
     Array<Patch> spaceGrid;
 
+  private:
+  
+  Array<int> steps;
+  
+  float timestep;
 
   //   class SettingsListener
   // {

@@ -137,20 +137,31 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
 }
 
 /*
- In class juce::mouseEvent()
-  Point< int > getPosition ()
- 
- Retrieve position of closest hexagon center on a click
- Should do nothing if the click occurs outside of space grid, maybe relying on color background ?
+ returns the patch ID where a mouse click event occured.
+ if the click occured outside of the space grid, returns -1
  */
-
-void SpaceUI::mouseDown(const juce::MouseEvent& event)
+int SpaceUI::getPatchIDAtPosition(const juce::MouseEvent& event)
 {
-  //std::cout << "Mouse click at: " << event.position.toString() << std::endl;
+  // check that click occured in the space grid and not elsewhere
+  juce::Component* clickedComponent = getComponentAt(event.getPosition());
+  if (clickedComponent != nullptr)
+  {
+    // Si tu veux un snapshot pour récupérer la couleur à cet endroit :
+    juce::Image snapshot = clickedComponent->createComponentSnapshot(clickedComponent->getLocalBounds());
+    juce::Point<int> pointInClickedComponent = clickedComponent->getLocalPoint(this, event.getPosition());
+
+    if (snapshot.isValid() && snapshot.getBounds().contains(pointInClickedComponent))
+    {
+      juce::Colour colour = snapshot.getPixelAt(pointInClickedComponent.getX(), pointInClickedComponent.getY());
+      //cout << "Couleur cliquée : " << colour.toDisplayString(true) << endl;
+      if (colour==BG_COLOR)
+        return -1;
+    }
+  }
+  
+  // find the patch where the click occured
   float dmin = max(spaceBounds.getWidth(), spaceBounds.getHeight());
   int locatepatch = 0;
-  
-  // find patch where mouse click occured
   for (auto & patch : Space::getInstance()->spaceGrid)
   {
     float d = sqrt( (event.x-patch.center.x)*(event.x-patch.center.x) + (event.y-patch.center.y)*(event.y-patch.center.y) );
@@ -160,17 +171,28 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
       locatepatch = patch.id;
     }
   }
+  return locatepatch;
+}
+
+
+
+
+/*
+ In class juce::mouseEvent()
+  Point< int > getPosition ()
+ 
+ Retrieve position of closest hexagon center on a click
+ Should do nothing if the click occurs outside of space grid, maybe relying on color background ?
+ */
+
+void SpaceUI::mouseDown(const juce::MouseEvent& event)
+{
   
-  if (dmin<width)
+  int locatepatch = getPatchIDAtPosition(event);
+  if (locatepatch>0)
   {
-    //cout << "click occured in patch #" << locatepatch << " with coord (r, c) = (";
-    //cout << Space::getInstance()->spaceGrid.getUnchecked(locatepatch).rowIndex;
-    //cout << " , " << Space::getInstance()->spaceGrid.getUnchecked(locatepatch).colIndex << ")" << endl;
     EntityManager::getInstance()->setEntityToPatchID(locatepatch);
     Simulation::getInstance()->drawConcOfPatch(locatepatch);
   }
-  
-  
-  
   
 }

@@ -24,6 +24,8 @@ public:
 
     static SpaceUI *create(const String &name) { return new SpaceUI(); }
   
+    int getPatchIDAtPosition(const juce::MouseEvent&);
+  
     void mouseDown(const juce::MouseEvent& event) override;
   
     //void updateSettingsUI(Settings *) override;
