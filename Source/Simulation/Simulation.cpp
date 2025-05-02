@@ -2502,9 +2502,11 @@ void Simulation::run()
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
   
-  
-  if (listener != nullptr)
-    listener->simulationFinished();
+  if (exitTimeStudy || transitTimeStudy)
+  {
+    if (listener != nullptr)
+      listener->simulationFinished();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////:
@@ -2556,11 +2558,12 @@ void Simulation::writeHistory()
   //for (auto * runRH : RAChistory)
   {
     // output file
-    idPAC0++;
+    //idPAC0++;
     int idPAC = idPAC0 + 1;
     String filename = "RAC" + String(idPAC) + ".csv";
     ofstream historyFile;
     historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    
     
     // prepare csv to be readable by R
     historyFile << "Score,Run,Step,RAC,";
