@@ -38,6 +38,7 @@ public:
   String study = "";
   String filename = "";
   int nRuns = 0;
+  int superRun = 0;
   float totalTime;
   float dt;
   float epsilonNoise;
@@ -48,4 +49,5 @@ public:
   float exitTimePrecision = 10.;
   float epsilon = 10.;
   int maxsteps_study = 50;
+  String outputfilename = "";
 };

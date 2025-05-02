@@ -253,6 +253,8 @@ public:
   float exitTimePrecision;
   float lastStudyTime = 0.;
   float epsilon = 0.1;
+  String outputfilename = "";
+  int superRun = 0;
   
   Array<float> exitTimes;
   float transitTime = 0.;

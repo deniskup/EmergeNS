@@ -1643,6 +1643,8 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 void Simulation::nextRedrawStep()
 {
   nSteps++;
+
+  
   
   bool isCheckForRedraw = ((nSteps-1) % checkPoint == 0);
   
@@ -1723,7 +1725,6 @@ void Simulation::nextStep()
 {
 
   nSteps++;
-  
   
   // if not in redraw mode but in multiple runs mode
   if (isMultipleRun)
@@ -1931,7 +1932,7 @@ void Simulation::nextStep()
       // random fluctuation of forward reaction associated to current timestep
       float sqrtdt = sqrt(dt->floatValue());
       float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
-      //if (print) cout << "forward wiener : " << directWiener << endl;
+      //if (nSteps<=10) cout << "forward wiener : " << directWiener << endl;
       stoc_directIncr *= directWiener;
       
       
@@ -2516,11 +2517,32 @@ void Simulation::writeHistory()
   
   if (exitTimeStudy)
   {
-    String filename = "exitTimes.csv";
+    //String filename = "exitTimes.csv";
     ofstream historyFile;
-    historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    //historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+    string streps = "_noise" + to_string(noiseEpsilon * 100);
+    int flag = streps.find(".");
+    if (flag != streps.npos && flag<streps.size())
+    {
+      for (int k=streps.size()-1; k>=0; k--)
+      {
+        if (k>=(flag+3))
+          streps.erase(k, 1);
+      }
+    }
+    if (flag==streps.size()-1)
+      streps.erase(flag, 1);
+    streps += "pcent";
+
+    String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv"; 
+    historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+    int c=0;
     for (auto & t : exitTimes)
-      historyFile << t << ",";
+    {
+      string comma = ((c == (exitTimes.size()-1) ) ? "" : ",");
+      historyFile << t << comma;
+      c++;
+    }
     historyFile << endl;
     return;
   }

@@ -12,7 +12,7 @@ bool to_bool(std::string& x) {
   // removed space from x
   while (x.find(" ") != x.npos)
     x.erase(x.find(" "), 1);
-  cout << "x = " << x << endl;
+  //cout << "x = " << x << endl;
   assert(x == "0" || x == "1");
   return x == "1";
 }
@@ -66,8 +66,6 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
 	bool fileLoaded = false;
   
-  
-
 	// Check if the argument is "config"
 	if (commandLine.contains("config"))
 	{
@@ -121,6 +119,12 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 					configs[row[0]] = row[1];
 				}
 			} //end if is config command line
+
+      else if (c.command == "srun")
+      {
+        String str = c.args[0];
+        superRun = atoi(str.toUTF8());
+      }
 		} // end command loop
 
 		string model2file = "model.txt";
@@ -150,9 +154,11 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       else if (key == "exitTimePrecision") exitTimePrecision = atof(val.c_str());
       else if (key == "epsilon") epsilon = atof(val.c_str());
       else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
+      else if (key == "outputfilename") outputfilename = val.c_str();
+      //else if (key == "superRun") superRun = atoi(val.c_str());
 		}
     
-    
+
     if (study == "firstExit")
     {
       juce::File file(filename);
@@ -178,6 +184,8 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       Simulation::getInstance()->maxsteps_study = maxsteps_study;
       Simulation::getInstance()->exitTimePrecision = exitTimePrecision;
       Simulation::getInstance()->epsilon = epsilon;
+      Simulation::getInstance()->outputfilename = outputfilename;
+      Simulation::getInstance()->superRun = superRun;
       
       // additionnal configurations
       Simulation::getInstance()->autoScale->setValue(true);
