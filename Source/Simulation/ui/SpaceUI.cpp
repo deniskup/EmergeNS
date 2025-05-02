@@ -65,6 +65,12 @@ void SpaceUI::paint(juce::Graphics &g)
   
   float centerX = spaceBounds.getCentreX() - 0.5*spaceBounds.getWidth()*(1. - pow(0.5, ftil-1.))*0.8;
   float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.5;
+  
+  pixOriginX = centerX;
+  pixOriginY = centerY;
+  
+  //cout << "origin : " << pixOriginX << " , " << pixOriginY << endl;
+  //cout << "hex. width = " << width << endl;
 
   // loop over number of rows to draw
   for (int r=0; r<til; r++)
@@ -75,10 +81,12 @@ void SpaceUI::paint(juce::Graphics &g)
     for (int c=0; c<til; c++)
     //for (int r=0; r<1; r++)
     {
+      //cout << "row, col = " << r << ", " << c << endl;
       float cX = centerX + std::sqrt(3)*width*c + shiftX;
+      //float cX = centerX + std::sqrt(3)*width* (c + (float)r/2);
       float cY = centerY + 1.5*width*r;
       paintOneHexagon(g, cX, cY, width);
-      
+     // cout << "row, col = (" << r << ", " << c << ") --> [" << cX << " , " << cY << "]" << endl;
       // update grid in Space instance
       Patch patch;
       patch.id = r*til + c;
@@ -90,12 +98,10 @@ void SpaceUI::paint(juce::Graphics &g)
       Space::getInstance()->spaceGrid.add(patch);
     }
   }
+  gridIsAlreadyDrawn = true;
 
   
-  // draw one hexagone
-  //float startX = spaceBounds.getCentreX();
-  //float startY = spaceBounds.getCentreY();
-  //float width = 0.5*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / (float) tilt;
+
   
   
 
@@ -123,12 +129,66 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
               hex->lineTo(x, y);
       }
   
+  
   hex->closeSubPath(); // Close the hexagon shape
   
-  //hex->addMouseListener(this, true);
   
-  g.setColour(juce::Colours::lightgreen);
-  g.fillPath(*hex);
+  // if the grid is being drawn for the first time, fill hexagons with normal color
+  //if (Space::getInstance()->spaceGrid.size()==0)
+  if (!gridIsAlreadyDrawn)
+  {
+    g.setColour(juce::Colours::lightgreen);
+    g.fillPath(*hex);
+    g.setColour(NORMAL_COLOR);
+    g.strokePath(*hex, juce::PathStrokeType(2.0f, juce::PathStrokeType::mitered));
+    return;
+  }
+    
+  // retrieve patch ID corresponding to current position
+  juce::Point<int> p(centerX, centerY);
+  int pid = getPatchIDAtPosition(p);
+  
+  
+  if (pid>0)
+  {
+    if (entityHistory.size() > 0)
+    {
+      ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
+      Array<float> conc; // concentration in current patch only
+      for (auto & [key, val] : last)
+      {
+        if (key.first==pid)
+          conc.add(val);
+      }
+      // normalize vector of concentrations
+      float tot = 0.;
+      for (auto & c : conc)
+        tot += c;
+      if (tot>0.)
+      {
+        for (int k=0; k<conc.size(); k++)
+          conc.setUnchecked(k, conc[k]/tot);
+      }
+      // calculate weighted red, green and blue
+      uint8_t red = 0;
+      uint8_t green = 0;
+      uint8_t blue = 0;
+      jassert(conc.size() == entityColors.size());
+      for (int k=0; k<conc.size(); k++)
+      {
+        red += conc[k] * entityColors[k].getRed();
+        green += conc[k] * entityColors[k].getGreen();
+        blue += conc[k] * entityColors[k].getBlue();
+      }
+      juce::Colour patchcol(red, green, blue);
+      //g.setColour(juce::Colours::lightgreen);
+      g.setColour(patchcol);
+      g.fillPath(*hex);
+    }
+  }
+  
+  
+  
   g.setColour(NORMAL_COLOR);
   g.strokePath(*hex, juce::PathStrokeType(2.0f, juce::PathStrokeType::mitered));
 
@@ -140,38 +200,60 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
  returns the patch ID where a mouse click event occured.
  if the click occured outside of the space grid, returns -1
  */
-int SpaceUI::getPatchIDAtPosition(const juce::MouseEvent& event)
+int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
 {
-  // check that click occured in the space grid and not elsewhere
-  juce::Component* clickedComponent = getComponentAt(event.getPosition());
-  if (clickedComponent != nullptr)
+  // convert click position to hexagonal coordinates (pointy top orientation)
+  float fcol = (pos.getY()-pixOriginY) * 2. / (3.*width);
+  //int temp = round(frow);
+  //float omega = (temp%2==0 ? 0. : 0.5);
+  //float fcol = (pos.getX()-pixOriginX) / (sqrt(3)*width) - omega;
+  float frow = ( (pos.getX()-pixOriginX)/sqrt(3) - (pos.getY()-pixOriginY)/3. ) / width;
+  
+  // transform to cubic coordinates (x, y, z)
+  float x = fcol;
+  float z = frow;
+  float y = -x -z;
+  
+  // round them
+  int rx = round(x);
+  int ry = round(y);
+  int rz = round(z);
+  
+  // Correction pour guarantee x + y + z = 0
+  float dx = std::abs(rx - x);
+  float dy = std::abs(ry - y);
+  float dz = std::abs(rz - z);
+  
+  // apply corrections
+  if (dx > dy && dx > dz)
+      rx = -ry - rz;
+  else if (dy > dz)
+      ry = -rx - rz;
+  else
+      rz = -rx - ry;
+ 
+  // go back to row and col coordinates
+  int row = rx;
+  int col = rz;
+  
+  
+  // correction to fit to real coordinates
+  col += (int) row/2;
+  
+  
+  //cout << "click at : " << pos.getX() << ", " << pos.getY() << " with width " << width << endl;
+  //cout << "frow, fcol : " << frow << " ; " << fcol << endl;
+  
+  if (row<0 || col<0)
   {
-    // Si tu veux un snapshot pour récupérer la couleur à cet endroit :
-    juce::Image snapshot = clickedComponent->createComponentSnapshot(clickedComponent->getLocalBounds());
-    juce::Point<int> pointInClickedComponent = clickedComponent->getLocalPoint(this, event.getPosition());
-
-    if (snapshot.isValid() && snapshot.getBounds().contains(pointInClickedComponent))
-    {
-      juce::Colour colour = snapshot.getPixelAt(pointInClickedComponent.getX(), pointInClickedComponent.getY());
-      //cout << "Couleur cliquée : " << colour.toDisplayString(true) << endl;
-      if (colour==BG_COLOR)
-        return -1;
-    }
+    return -1;
+  }
+  if (row >= Space::getInstance()->tilingSize->intValue() || col >= Space::getInstance()->tilingSize->intValue())
+  {
+    return -1;
   }
   
-  // find the patch where the click occured
-  float dmin = max(spaceBounds.getWidth(), spaceBounds.getHeight());
-  int locatepatch = 0;
-  for (auto & patch : Space::getInstance()->spaceGrid)
-  {
-    float d = sqrt( (event.x-patch.center.x)*(event.x-patch.center.x) + (event.y-patch.center.y)*(event.y-patch.center.y) );
-    if (d<dmin)
-    {
-      dmin=d;
-      locatepatch = patch.id;
-    }
-  }
-  return locatepatch;
+  return (Space::getInstance()->tilingSize->intValue()*row + col);
 }
 
 
@@ -182,17 +264,67 @@ int SpaceUI::getPatchIDAtPosition(const juce::MouseEvent& event)
   Point< int > getPosition ()
  
  Retrieve position of closest hexagon center on a click
- Should do nothing if the click occurs outside of space grid, maybe relying on color background ?
+ Does nothing if the click occurs outside of space grid, maybe relying on color background ?
  */
 
 void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
   
-  int locatepatch = getPatchIDAtPosition(event);
-  if (locatepatch>0)
+  int locatepatch = getPatchIDAtPosition(event.getPosition());
+  if (locatepatch>=0)
   {
     EntityManager::getInstance()->setEntityToPatchID(locatepatch);
     Simulation::getInstance()->drawConcOfPatch(locatepatch);
   }
   
 }
+
+
+void SpaceUI::timerCallback()
+{
+    if (shouldRepaint)
+    {
+        repaint();
+        shouldRepaint = false;
+    }
+}
+
+
+void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
+{
+    switch (ev.type)
+    {
+    case Simulation::SimulationEvent::UPDATEPARAMS:
+    {
+      shouldRepaint = true;
+    }
+    case Simulation::SimulationEvent::WILL_START:
+    {
+      entityHistory.clear();
+      entityColors.clear();
+      repaint();
+    }
+    break;
+
+    case Simulation::SimulationEvent::STARTED:
+    {
+      entityColors = ev.entityColors;
+      entityHistory.add(ev.entityValues);
+    }
+    break;
+
+    case Simulation::SimulationEvent::NEWSTEP:
+    {
+      entityHistory.add(ev.entityValues);
+    }
+    break;
+
+    case Simulation::SimulationEvent::FINISHED:
+    {
+        resized();
+        repaint();
+    }
+    break;
+    }
+}
+

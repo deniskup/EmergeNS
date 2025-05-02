@@ -20,7 +20,8 @@ public:
 
     Simulation *simul;
     bool shouldRepaint;
-    Array<Array<float>> entityHistory;
+    //Array<Array<float>> entityHistory;
+    Array<ConcentrationGrid> entityHistory;
     Array<Colour> entityColors;
   
     

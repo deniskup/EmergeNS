@@ -98,12 +98,19 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
     {
     case Simulation::SimulationEvent::FINISHED:
     {
+      Array<float> conc;
+      for (auto & [key, val] : ev.entityValues)
+      {
+        if (key.first==0)
+          conc.add(val);
+      }
         // process result
         // check if already in steadyStates
         bool found = false;
         for (int i = 0; i < steadyStates.size(); i++)
         {
-            if (isClose(steadyStates[i], ev.entityValues, epsilon))
+            //if (isClose(steadyStates[i], ev.entityValues, epsilon))
+            if (isClose(steadyStates[i], conc, epsilon))
             {
                 found = true;
                 break;
@@ -111,7 +118,8 @@ void Statistics::newMessage(const Simulation::SimulationEvent &ev)
         }
         if (!found)
         {
-            steadyStates.add(ev.entityValues);
+            //steadyStates.add(ev.entityValues);
+            steadyStates.add(conc);
         }
         // launch next simulation
         launchSim();

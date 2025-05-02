@@ -15,6 +15,20 @@ using namespace std;
 
 class Entity;
 class Reaction;
+/*
+class ConcentrationGrid // represents concentrations of entities over all the space grid
+{
+  public:
+    Array<float> concent;
+    int patchID;
+}
+*/
+struct PairHash {
+    std::size_t operator()(const std::pair<int, SimEntity*>& p) const noexcept {
+        return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second->idSAT) << 1);
+    }
+};
+typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid; // represents concentrations of entities over all the space grid
 
 
 class RandomGausGenerator
@@ -275,7 +289,6 @@ public:
 			STARTED,
 			NEWSTEP,
 			FINISHED,
-      DRAWRUN
 		};
 
 		SimulationEvent(Type t,
@@ -283,7 +296,8 @@ public:
       //int _run = 0,
       //int _patch = 0,
 			int curStep = 0,
-			Array<float> entityValues = Array<float>(),
+      //Array<float> entityValues = Array<float>(),
+      ConcentrationGrid entityValues = {},
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
@@ -309,7 +323,8 @@ public:
     //int run;
     //int patch;
 		int curStep;
-		Array<float> entityValues;
+    //Array<float> entityValues;
+		ConcentrationGrid entityValues;
 		Array<Colour> entityColors;
 		Array<float> PACsValues;
     Array<bool> RACList;

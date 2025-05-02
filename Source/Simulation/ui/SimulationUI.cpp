@@ -167,7 +167,16 @@ void SimulationUI::paint(juce::Graphics &g)
 	float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
 	// float maxConcent = 5;
 	OwnedArray<Path> paths;
-	for (auto &e : entityHistory[0])
+  
+  Array<float> firstConc;
+  for (auto & [key, val] : entityHistory[0]) // first time step
+  {
+    if (key.first == simul->patchToDraw)
+      firstConc.add(val);
+  }
+  
+  //for (auto &e : entityHistory[0])
+	for (auto &e : firstConc)
 	{
 		float v = 1 - e / maxC;
 		v = jmax(v, 0.f);
@@ -180,8 +189,14 @@ void SimulationUI::paint(juce::Graphics &g)
   //cout << "UI ent history : " << entityHistory.size() << endl;
 	for (int i = 0; i < entityHistory.size(); i++)
 	{
-		Array<float> values = entityHistory[i];
-    //cout << "values.size = " << values.size() << endl;
+		//Array<float> values = entityHistory[i];
+    Array<float> values;
+    for (auto & [key, val] : entityHistory[i]) //  time step i
+    {
+      if (key.first == simul->patchToDraw)
+        values.add(val);
+    }
+    
 		for (int j = 0; j < values.size(); j++)
 		{
 			float v = 1 - values[j] / maxC;
@@ -457,7 +472,6 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 
 	case Simulation::SimulationEvent::STARTED:
 	{
-    cout << "CALLING STARTED" << endl;
 		entityColors = ev.entityColors;
 		entityHistory.add(ev.entityValues);
 	}
@@ -482,14 +496,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// repaint();
 	}
       
-  case Simulation::SimulationEvent::DRAWRUN:
-  {
-    shouldRepaint = true;
-    // resized();
-    // repaint();
-  }
-	break;
-	}
+	} // end switch
 }
 
 void SimulationUI::newMessage(const ContainerAsyncEvent &e)
