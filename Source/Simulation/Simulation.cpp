@@ -2430,11 +2430,9 @@ void Simulation::writeHistory()
   
   for (int idPAC0 = 0; idPAC0<RAChistory[0]->size(); idPAC0++)
   //for (int idPAC0 = 0; idPAC0<run0RH->size(); idPAC0++)
-  //int idPAC0 = -1;
   //for (auto * runRH : RAChistory)
   {
     // output file
-    idPAC0++;
     int idPAC = idPAC0 + 1;
     String filename = "RAC" + String(idPAC) + ".csv";
     ofstream historyFile;
