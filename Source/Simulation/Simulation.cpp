@@ -1715,14 +1715,21 @@ void Simulation::start(bool restart)
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // init simulation event
-  Array<float> entityValues;
+  //Array<float> entityValues;
+  ConcentrationGrid entityValues;
   Array<Colour> entityColors;
-  for (auto &ent : entitiesDrawn)
+  for (auto & p : Space::getInstance()->spaceGrid)
   {
-    //entityValues.add(ent->concent);
-    entityValues.add(ent->concent[0]);
-    entityColors.add(ent->color);
+    for (auto &ent : entitiesDrawn)
+    {
+      //entityValues.add(ent->concent);
+      //entityValues.add(ent->concent[0]);
+      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      entityValues[pr] = ent->concent[p.id];
+    }
   }
+  for (auto & ent : entitiesDrawn)
+    entityColors.add(ent->color);
   
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
@@ -1821,12 +1828,18 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // Init simulation event with initial conditions of the last run
-  Array<float> entityValues;
+  //Array<float> entityValues;
+  ConcentrationGrid entityValues;
   Array<Colour> entityColors;
   for (auto &ent : entitiesDrawn)
-  {
-    entityValues.add(initConc[initConc.size()-1][ent->name]);
     entityColors.add(ent->color);
+  for (auto & p : Space::getInstance()->spaceGrid)
+  {
+    for (auto & ent : entitiesDrawn)
+    {
+      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      entityValues[pr] = ent->concent[p.id];
+    }
   }
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
@@ -1895,20 +1908,21 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
       return;
     }
     
-    Array<float> concarray;
+    //Array<float> concarray;
+    ConcentrationGrid concarray;
     Array<Colour> entityColours;
     int ident=-1;
-    
+  
     // recover drawn entity concentrations and colors
-    for (auto & ent : entities)
+    for (auto & ent : entitiesDrawn)
     {
       ident++;
-      if (!ent->draw)
-        continue;
       entityColours.add(ent->color);
       //float entconc = ent->concentHistory[istep].second;
       float c = concSnap.conc[ent];
-      concarray.add(c);
+      //concarray.add(c);
+      pair<int, SimEntity*> pr = make_pair(patchToDraw, ent);
+      concarray[pr] = c;
       if (c > recordDrawn[patchToDraw])
         recordDrawn.set(patchToDraw, c);
       //cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
@@ -1981,7 +1995,7 @@ void Simulation::nextStep()
         }
         
         if (!express)
-          simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, currentRun));
+          simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, currentRun)); // wrong, run is no longer in simu event
         Array<float> entityValues;
         Array<Colour> entityColors;
         for (auto &ent : entitiesDrawn)
@@ -2163,10 +2177,16 @@ void Simulation::nextStep()
     return; 
     
   // storing current concentrations (patch 0) for drawing
-  Array<float> entityValues;
-  for (auto &ent : entitiesDrawn)
+  //Array<float> entityValues;
+  ConcentrationGrid entityValues;
+  for (auto & p : Space::getInstance()->spaceGrid)
   {
-    entityValues.add(ent->concent[0]);
+    for (auto &ent : entitiesDrawn)
+    {
+      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      entityValues[pr] = ent->concent[p.id];
+      //entityValues.add(ent->concent[0]);
+    }
   }
 
 
@@ -2751,15 +2771,24 @@ void Simulation::run()
   if (!express)
     LOG("--------- End thread ---------");
 
-  Array<float> entityValues;
-  for (auto &ent : entities)
+  //Array<float> entityValues;
+  ConcentrationGrid entityValues;
+  for (auto & p : Space::getInstance()->spaceGrid)
   {
-    if (!redrawRun)
-      entityValues.add(ent->concent[0]);
-    else
+    for (auto &ent : entitiesDrawn)
     {
-      int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
-      entityValues.add(ent->concentHistory[lastrunstep].second);
+      if (!redrawRun)
+      {
+        //entityValues.add(ent->concent[0]);
+        pair<int, SimEntity*> pr = make_pair(p.id, ent);
+        entityValues[pr] = ent->concent[p.id];
+      }
+      else
+      {
+        LOGWARNING("Probably this part is messing up, need some work.");
+        //int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
+        //entityValues.add(ent->concentHistory[lastrunstep].second);
+      }
     }
   }
 
