@@ -2538,12 +2538,14 @@ void Simulation::writeHistory()
 
     String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv"; 
     historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
-    int c=0;
+    historyFile << "exitTime" << endl;
+    //int c=0;
     for (auto & t : exitTimes)
     {
-      string comma = ((c == (exitTimes.size()-1) ) ? "" : ",");
-      historyFile << t << comma;
-      c++;
+      //string comma = ((c == (exitTimes.size()-1) ) ? "" : ",");
+      //historyFile << t << comma;
+      historyFile << t << endl;
+      //c++;
     }
     historyFile << endl;
     return;
