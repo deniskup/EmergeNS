@@ -1761,7 +1761,6 @@ void Simulation::start(bool restart)
     {
       //entityValues.add(ent->concent);
       //entityValues.add(ent->concent[0]);
-      //pair<int, SimEntity*> pr = make_pair(p.id, ent);
       pair<int, int> pr = make_pair(p.id, ent->idSAT);
       entityValues[pr] = ent->concent[p.id];
     }
