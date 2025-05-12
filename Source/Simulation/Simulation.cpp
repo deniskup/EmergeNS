@@ -2568,11 +2568,13 @@ void Simulation::writeHistory()
       streps.erase(flag, 1);
     streps += "pcent";
 
-    String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv"; 
-    historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+    
     
     if (exitTimeStudy)
     {
+      String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv";
+      historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+      
       int c=-1;
       for (auto & t : exitTimes)
       {
@@ -2584,6 +2586,9 @@ void Simulation::writeHistory()
     }
     else if (transitStudy)
     {
+      String out = outputfilename + String(streps) + "_start" + startAC + "cycle_srun" + String(to_string(superRun)) + ".csv";
+      historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+      
       historyFile << "time,runID,";
       int c=-1;
       for (auto & ent : entities)

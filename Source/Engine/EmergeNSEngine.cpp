@@ -156,6 +156,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
       else if (key == "outputfilename") outputfilename = val.c_str();
       else if (key == "dtsave") dtsave = atof(val.c_str());
+      else if (key == "startSteadyState") startSteadyState = String(val);
       //else if (key == "superRun") superRun = atoi(val.c_str());
 		}
     
@@ -222,6 +223,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       Simulation::getInstance()->epsilon = epsilon;
       Simulation::getInstance()->outputfilename = outputfilename;
       Simulation::getInstance()->superRun = superRun;
+      Simulation::getInstance()->startAC = startSteadyState;
       
       // additionnal configurations
       Simulation::getInstance()->stochasticity->setValue(true);

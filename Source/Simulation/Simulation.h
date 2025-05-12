@@ -259,6 +259,7 @@ public:
   Array<Array<float>> concentDuringLastInterval;
   Array<float> concentAtExit;
   bool noVisu = false; // no call to simulation event to fasten simu
+  String startAC;
   
   Array<float> exitTimes;
   Array<float> transitInStartBasin;
