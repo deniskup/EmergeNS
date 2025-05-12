@@ -255,6 +255,9 @@ public:
   float epsilon = 0.1;
   String outputfilename = "";
   int superRun = 0;
+  Array<Array<float>> concentDuringLastInterval;
+  Array<float> concentAtExit;
+  bool noVisu = false; // no call to simulation event to fasten simu
   
   Array<float> exitTimes;
   float transitTime = 0.;
@@ -266,6 +269,7 @@ public:
   //int inWhichAttractionBasin();
   bool scalarProductMethod();
   bool deterministicTrajectoryMethod();
+  float refineEscapeTime();
   //int deterministicTrajectoryMethod();
   
   class Listener

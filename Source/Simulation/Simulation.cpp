@@ -207,7 +207,8 @@ void Simulation::updateParams()
   
   //}
   // update the parameters of the simulation in the UI
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  if (!noVisu)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
 // to save additional data, different from getJSONdata()
@@ -1543,7 +1544,7 @@ void Simulation::start(bool restart)
   // computeRates(); // compute reactions rates to take into account the ignored energies
 
   // 1st call of simulation event
-  if (!express)
+  if (!express && !noVisu)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // init simulation event
   Array<float> entityValues;
@@ -1553,7 +1554,7 @@ void Simulation::start(bool restart)
     entityValues.add(ent->concent);
     entityColors.add(ent->color);
   }
-  if (!express)
+  if (!express && !noVisu)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
 
@@ -1601,7 +1602,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   //  Settings::getInstance()->printHistoryToFile->setValue(true);
   
   // 1st call of simulation event
-  if (!express)
+  if (!express && !noVisu)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   // Init simulation event with initial conditions
   Array<float> entityValues;
@@ -1611,7 +1612,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     entityValues.add(initConc[initConc.size()-1][ent->name]);
     entityColors.add(ent->color);
   }
-  if (!express)
+  if (!express && !noVisu)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, 0, entityValues, entityColors));
   
   // init max concentrations with initial conditions of last run
@@ -1659,7 +1660,7 @@ void Simulation::nextRedrawStep()
     int laststep = maxSteps+maxSteps*idrun-1;
     
     
-    if (istep>=laststep)
+    if (istep>=laststep && !noVisu)
     {
       //simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
       stop();
@@ -1701,16 +1702,18 @@ void Simulation::nextRedrawStep()
       raclist.add(wasrac);
     }
     
-    
-    if (istep==firststep)
+    if (!noVisu)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
-    }
-    else
-    {
-      //cout << "Calling new SimNotifier in redraw" << endl;
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+      if (istep==firststep)
+      {
+        simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+        simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+      }
+      else
+      {
+        //cout << "Calling new SimNotifier in redraw" << endl;
+        simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, idrun, 0, snapshot, entityColours, racsnap, raclist));
+      }
     }
   }
   
@@ -1745,7 +1748,7 @@ void Simulation::nextStep()
           getSimEntityForName(name)->deterministicConcent = startconc;
         }
         
-        if (!express)
+        if (!express && !noVisu)
           simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, currentRun));
         Array<float> entityValues;
         Array<Colour> entityColors;
@@ -1755,7 +1758,7 @@ void Simulation::nextStep()
           entityColors.add(ent->color);
         }
         
-        if (!express && currentRun == (nRuns-1))
+        if (!express && currentRun == (nRuns-1) && !noVisu)
           simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, 0, entityValues, entityColors));
         recordConcent = 0.;
         recordDrawn = 0.;
@@ -2050,9 +2053,10 @@ void Simulation::nextStep()
   {
 
  //   if (Settings::getInstance()->printHistoryToFile->boolValue())
-    if (isMultipleRun || Settings::getInstance()->printHistoryToFile->boolValue())
+    if ( (isMultipleRun || Settings::getInstance()->printHistoryToFile->boolValue()) && !exitTimeStudy && !transitTimeStudy)
+    {
       ent->concentHistory.add(make_pair(currentRun, ent->concent));
-
+    }
     // update concentration
     ent->refresh();
     
@@ -2088,8 +2092,12 @@ void Simulation::nextStep()
   if (exitTimeStudy || transitTimeStudy /*&& !leftBasin*/)
   {
     float time = dt->floatValue() * (float) nSteps;
+    for (auto & ent : entities)
+    {
+      concentDuringLastInterval.add(ent->concent);
+    }
     
-    if ( (time-lastStudyTime) >= exitTimePrecision)
+    if ( (time-lastStudyTime) >= exitTimePrecision) // detect if system escaped initial basin
     {
       //cout << "exit time study at time T = " << time << endl;
       lastStudyTime = time;
@@ -2122,6 +2130,9 @@ void Simulation::nextStep()
         if (!isInInitialBasin)
         {
           leftBasin = true;
+
+          //float ttime = refineEscapeTime();
+
           exitTimes.add(time);
           LOG("ESCAPED !! Run " + String(to_string(currentRun)) + " System left the initial basin at time T = " + String(to_string(time)));
           nSteps = maxSteps + 1; // very ugly, I should code and call a function that moves to next run. This will do the job for now
@@ -2133,6 +2144,7 @@ void Simulation::nextStep()
         }
         return;
       }
+      concentDuringLastInterval.clear();
     }
   }
   
@@ -2330,11 +2342,17 @@ void Simulation::nextStep()
       // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows));
       //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
       //cout << currentRun << " " << RAChistory.size() << endl;
-      RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
-      if (cycle->flow > 0.)
-        RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
-      //cout << "run " << currentRun << ". PAC " << idPAC-1 << ". step " << nSteps-1 << " vs size : " << RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.size() << endl;
+
+      if (!exitTimeStudy && !transitTimeStudy)
+      {
+        RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
+        if (cycle->flow > 0.)
+          RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
+        //cout << "run " << currentRun << ". PAC " << idPAC-1 << ". step " << nSteps-1 << " vs size : " << RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.size() << endl;
+      }
     }
+
+
 
     PACsValues.add(cycle->flow);
     //cout << "curstep = " << curStep << endl;
@@ -2371,7 +2389,7 @@ void Simulation::nextStep()
   //   }
   //   history.add(new Snapshot(curStep, concents, flows, racs));
   // }
-  if (isCheck)
+  if (isCheck && !noVisu)
   {
     if (isMultipleRun)
     {
@@ -2439,20 +2457,22 @@ void Simulation::run()
   if (!express)
     LOG("--------- End thread ---------");
 
-  Array<float> entityValues;
-  for (auto &ent : entities)
+  if (!noVisu)
   {
-    if (!redraw)
-      entityValues.add(ent->concent);
-    else
+    Array<float> entityValues;
+    for (auto &ent : entities)
     {
-      int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
-      entityValues.add(ent->concentHistory[lastrunstep].second);
+      if (!redraw)
+        entityValues.add(ent->concent);
+      else
+      {
+        int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
+        entityValues.add(ent->concentHistory[lastrunstep].second);
+      }
     }
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, 0, curStep, entityValues, {}, {}, {}));
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, 0, curStep, entityValues, {}, {}, {}));
-  
   if (redraw)
   {
     redraw = false;
@@ -2539,13 +2559,12 @@ void Simulation::writeHistory()
     String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv"; 
     historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
     historyFile << "exitTime" << endl;
-    //int c=0;
+    int c=-1;
     for (auto & t : exitTimes)
     {
-      //string comma = ((c == (exitTimes.size()-1) ) ? "" : ",");
-      //historyFile << t << comma;
-      historyFile << t << endl;
-      //c++;
+      c++;
+      string newline = ((c == (exitTimes.size()-1) ) ? "" : "\n");
+      historyFile << t << newline;
     }
     historyFile << endl;
     return;
@@ -2921,7 +2940,8 @@ void Simulation::drawConcOfRun(int idrun)
   redraw = true;
   recordDrawn = 0.;
   currentRun = setRun->intValue();
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  if (!noVisu)
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
   startThread();
   
 }
@@ -2984,6 +3004,29 @@ bool Simulation::isInInitialAttractionBasin()
   return b;
     
 }
+
+
+float Simulation::refineEscapeTime()
+{
+  int k = concentDuringLastInterval.size()/2;
+  bool stop = false;
+  while (!stop)
+  {
+    bool b = isInInitialAttractionBasin();
+    int kprev = k;
+    if (b)
+      k += (concentDuringLastInterval.size()-kprev) / 2;
+    else
+      k = kprev/2;
+    if (kprev == k)
+      stop = true;
+  }
+  // convert k to time
+  float time = lastStudyTime + (float) k * dt->floatValue();
+  return time;
+  
+}
+
 
 
 

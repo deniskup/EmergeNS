@@ -190,6 +190,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       // additionnal configurations
       Simulation::getInstance()->autoScale->setValue(true);
       Simulation::getInstance()->stochasticity->setValue(true);
+      Simulation::getInstance()->noVisu = true;
       
       firstExitTimeStudy();
     }
