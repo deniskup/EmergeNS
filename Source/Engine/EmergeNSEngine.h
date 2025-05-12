@@ -34,6 +34,7 @@ public:
   // for robustness study
   
   void firstExitTimeStudy();
+  void transitStudy();
   
   String study = "";
   String filename = "";
@@ -45,9 +46,11 @@ public:
   bool fixedSeed;
   int seed;
   float dtbis = 0.1;
+  float dtsave = 1.;
   int nstepbis = 1;
   float exitTimePrecision = 10.;
   float epsilon = 10.;
   int maxsteps_study = 50;
   String outputfilename = "";
+  String startSteadyState = "";
 };

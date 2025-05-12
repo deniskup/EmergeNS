@@ -243,12 +243,13 @@ public:
   
   // exit time study
   bool exitTimeStudy = false;
-  bool transitTimeStudy = false;
+  bool transitStudy = false;
   int exitScore = 0;
   int startSST;
   int curSST = 0; // 0 = start, 1 = other, it is not the index corresponding to arraySteadyStates
   bool leftBasin = false;
   float dtbis;
+  float dtsave;
   int maxsteps_study;
   float exitTimePrecision;
   float lastStudyTime = 0.;
@@ -260,7 +261,6 @@ public:
   bool noVisu = false; // no call to simulation event to fasten simu
   
   Array<float> exitTimes;
-  float transitTime = 0.;
   Array<float> transitInStartBasin;
   Array<float> transitInotherBasin;
   Array<float> transitFlags;

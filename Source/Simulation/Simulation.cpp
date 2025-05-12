@@ -2053,7 +2053,7 @@ void Simulation::nextStep()
   {
 
  //   if (Settings::getInstance()->printHistoryToFile->boolValue())
-    if ( (isMultipleRun || Settings::getInstance()->printHistoryToFile->boolValue()) && !exitTimeStudy && !transitTimeStudy)
+    if ( (isMultipleRun || Settings::getInstance()->printHistoryToFile->boolValue()) && !exitTimeStudy && !transitStudy)
     {
       ent->concentHistory.add(make_pair(currentRun, ent->concent));
     }
@@ -2089,7 +2089,7 @@ void Simulation::nextStep()
   
   
   
-  if (exitTimeStudy || transitTimeStudy /*&& !leftBasin*/)
+  if (exitTimeStudy)
   {
     float time = dt->floatValue() * (float) nSteps;
     for (auto & ent : entities)
@@ -2102,8 +2102,8 @@ void Simulation::nextStep()
       //cout << "exit time study at time T = " << time << endl;
       lastStudyTime = time;
       bool isInInitialBasin = isInInitialAttractionBasin();
-
-      if (transitTimeStudy)
+/*
+      if (transitStudy)
       {
         
         if ( (isInInitialBasin && curSST==0) || (!isInInitialBasin && curSST==1)) // system did not escape current basin
@@ -2125,8 +2125,8 @@ void Simulation::nextStep()
           curSST = 0;
         }
       }
-      else if (exitTimeStudy)
-      {
+      */
+      
         if (!isInInitialBasin)
         {
           leftBasin = true;
@@ -2143,8 +2143,20 @@ void Simulation::nextStep()
           LOG("Run " + String(to_string(currentRun)) + " : NO ESCAPE DETECTION" );
         }
         return;
-      }
+      
       concentDuringLastInterval.clear();
+    }
+  }
+  else if (transitStudy)
+  {
+    float time = dt->floatValue() * (float) nSteps;
+    if ( (time-lastStudyTime) >= dtsave)
+    {
+      lastStudyTime = time;
+      for (auto & ent : entities)
+      {
+        ent->concentHistory.add(make_pair(currentRun, ent->concent));
+      }
     }
   }
   
@@ -2343,7 +2355,7 @@ void Simulation::nextStep()
       //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
       //cout << currentRun << " " << RAChistory.size() << endl;
 
-      if (!exitTimeStudy && !transitTimeStudy)
+      if (!exitTimeStudy && !transitStudy)
       {
         RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACflows, RACposSpec, RACnegSpec, RACspec));
         if (cycle->flow > 0.)
@@ -2494,7 +2506,7 @@ void Simulation::run()
 
   updateConcentLists();
   /*
-  if (transitTimeStudy)
+  if (transitStudy)
   {
     cout << "--- Transits in steady states --- " << endl;
     cout << "time when transition occured: ";
@@ -2522,7 +2534,7 @@ void Simulation::run()
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
   
-  if (exitTimeStudy || transitTimeStudy)
+  if (exitTimeStudy || transitStudy)
   {
     if (listener != nullptr)
       listener->simulationFinished();
@@ -2537,7 +2549,7 @@ void Simulation::writeHistory()
   if (nruns==0)
     return;
   
-  if (exitTimeStudy)
+  if (exitTimeStudy || transitStudy)
   {
     //String filename = "exitTimes.csv";
     ofstream historyFile;
@@ -2558,17 +2570,51 @@ void Simulation::writeHistory()
 
     String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv"; 
     historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
-    historyFile << "exitTime" << endl;
-    int c=-1;
-    for (auto & t : exitTimes)
+    
+    if (exitTimeStudy)
     {
-      c++;
-      string newline = ((c == (exitTimes.size()-1) ) ? "" : "\n");
-      historyFile << t << newline;
+      int c=-1;
+      for (auto & t : exitTimes)
+      {
+        c++;
+        string newline = ((c == (exitTimes.size()-1) ) ? "" : "\n");
+        historyFile << t << newline;
+      }
+      historyFile << endl;
     }
-    historyFile << endl;
+    else if (transitStudy)
+    {
+      historyFile << "time,runID,";
+      int c=-1;
+      for (auto & ent : entities)
+      {
+        c++;
+        string comma = ( c == (entities.size()-1) ? "" : "," );
+        historyFile << ent->name << comma;
+      }
+      historyFile << endl;
+      if (entities.size()>0)
+      {
+        int N = entities[0]->concentHistory.size();
+        for (int k=0; k<N; k++)
+        {
+          int istep = k / entities.size();
+          float time = (float) istep * dtsave;
+          historyFile << time << "," << entities[0]->concentHistory.getUnchecked(k).first << ",";
+          int c=-1;
+          for (auto & ent : entities)
+          {
+            c++;
+            string comma = ( c == (entities.size()-1) ? "" : "," );
+            historyFile << "[" << ent->concentHistory.getUnchecked(k).second << "]" << comma;
+          }
+          historyFile << endl;
+        }
+      }
+    }
     return;
   }
+  
   
   //Array<RACHist> run0RAChistory = RAChistory[0];
   

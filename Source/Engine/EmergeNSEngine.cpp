@@ -132,7 +132,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 		// Set model parameters according to config values
 		for (auto& [key, val] : configs)
 		{
-      //cout << "key, val : " << key << " " << val << endl;
+      cout << "key, val : " << key << " " << val << endl;
 			juce::var myvar(val);
 			if (key == "z3path")	Settings::getInstance()->pathToz3->setValueInternal(myvar);
 			else if (key == "z3timeout")	Settings::getInstance()->z3timeout->setValueInternal(myvar);
@@ -155,10 +155,11 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       else if (key == "epsilon") epsilon = atof(val.c_str());
       else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
       else if (key == "outputfilename") outputfilename = val.c_str();
+      else if (key == "dtsave") dtsave = atof(val.c_str());
       //else if (key == "superRun") superRun = atoi(val.c_str());
 		}
     
-
+    
     if (study == "firstExit")
     {
       juce::File file(filename);
@@ -174,7 +175,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       
       // set simulation instance parameters according to those of
       Simulation::getInstance()->exitTimeStudy = true;
-      Simulation::getInstance()->transitTimeStudy = false;
+      Simulation::getInstance()->transitStudy = false;
       Simulation::getInstance()->totalTime->setValue(totalTime);
       Simulation::getInstance()->dt->setValue(dt);
       Settings::getInstance()->volume->setValue(-2.*log10(epsilonNoise));
@@ -194,6 +195,44 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       
       firstExitTimeStudy();
     }
+    else if (study == "transit")
+    {
+      juce::File file(filename);
+      GlobalSettings::getInstance()->logAutosave->setValue(false);
+      loadDocumentNoCheck(file);
+      
+      // desactivate autosave
+      GlobalSettings::getInstance()->enableAutoSave->setValue(false);
+      //GlobalSettings::getInstance()->logAutosave->setValue(false);
+      // tp print history to file
+      Settings::getInstance()->printHistoryToFile->setValue(true);
+      
+      // set simulation instance parameters according to those of
+      Simulation::getInstance()->exitTimeStudy = false;
+      Simulation::getInstance()->transitStudy = true;
+      Simulation::getInstance()->totalTime->setValue(totalTime);
+      Simulation::getInstance()->dt->setValue(dt);
+      Settings::getInstance()->volume->setValue(-2.*log10(epsilonNoise));
+      Settings::getInstance()->fixedSeed->setValue(fixedSeed);
+      Settings::getInstance()->randomSeed->setValue(seed);
+      Simulation::getInstance()->dtbis = dtbis;
+      Simulation::getInstance()->dtsave = dtsave;
+      Simulation::getInstance()->maxsteps_study = maxsteps_study;
+      Simulation::getInstance()->exitTimePrecision = exitTimePrecision;
+      Simulation::getInstance()->epsilon = epsilon;
+      Simulation::getInstance()->outputfilename = outputfilename;
+      Simulation::getInstance()->superRun = superRun;
+      
+      // additionnal configurations
+      Simulation::getInstance()->stochasticity->setValue(true);
+      Simulation::getInstance()->noVisu = true;
+      
+      
+      transitStudy();
+      
+    }
+    
+    
     else if (study == "paccac")
     {
       // Generate a reaction network
@@ -354,3 +393,78 @@ void EmergeNSEngine::firstExitTimeStudy()
   
   
 }
+
+
+
+
+
+void EmergeNSEngine::transitStudy()
+{
+  
+  if (Simulation::getInstance()->steadyStatesList->arraySteadyStates.size() == 0)
+  {
+    LOG("should calculate steady states and save the file, for now I just leave the function.");
+    return;
+  }
+  
+  // set concentration of entities to the one of steady state
+  SteadyState startSST;
+  int indexStartSST = -1;
+  
+  int c=-1;
+  for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
+  {
+    c++;
+    //SteadyStateslist::getInstance()->printOneSteadyState(sst);
+    if (sst.isBorder)
+      continue;
+    
+    // choose the steady state A or B dominated
+    float totA = 0.;
+    for (auto & [ent, c] : sst.state)
+    {
+      if (c>100)
+        break;
+      if (ent->name.contains(startSteadyState))
+        totA += c;
+    }
+    //cout << "total A species = " << totA << ". index sst = " << c << endl;
+    if (totA>0.1)
+    {
+      startSST = sst;
+      indexStartSST = c;
+      break;
+    }
+  }
+    
+  
+  // set startConc to this steady state
+  if (indexStartSST>=0)
+  {
+    //SteadyStateslist::getInstance()->printOneSteadyState(startSST);
+    Simulation::getInstance()->setConcToSteadyState(indexStartSST+1, true);
+    Simulation::getInstance()->startSST = indexStartSST;
+    //Simulation::getInstance()->curSST = indexStartSST;
+  }
+  else
+  {
+    LOG("Cannot find matching steady state, stop.");
+    return;
+  }
+  // just in case
+  Simulation::getInstance()->generateSimFromUserList();
+  
+  
+  
+  // init runs
+  PhasePlane::getInstance()->clearAllRuns();
+  PhasePlane::getInstance()->nRuns->setValue(nRuns);
+  PhasePlane::getInstance()->updateEntitiesFromSimu();
+  
+  // start simulation
+  PhasePlane::getInstance()->startRuns();
+  
+  
+  
+}
+
