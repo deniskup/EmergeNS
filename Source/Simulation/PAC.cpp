@@ -416,7 +416,7 @@ void PAC::computeJacobianAtZero()
 		{
 			if (deleteDirectReaction)
 			{
-				
+				directReactionSpeeds.add(0);
 			}
 		}
 	}
