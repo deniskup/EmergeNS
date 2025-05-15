@@ -14,13 +14,13 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 	draw = addBoolParameter("Draw", "Draw the entity", true);
 	setHasCustomColor(true);
 	updateInterface();
-	primary->hideInEditor = true;
+	//primary->hideInEditor = true;
 }
 
 void Entity::updateInterface()
 {
-	creationRate->setControllableFeedbackOnly(chemostat->boolValue());
-	creationRate->hideInEditor = chemostat->boolValue();
+	creationRate->setControllableFeedbackOnly(chemostat->boolValue() || !primary->boolValue());
+	creationRate->hideInEditor = chemostat->boolValue() || !primary->boolValue();
 	destructionRate->setControllableFeedbackOnly(chemostat->boolValue());
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
@@ -51,6 +51,11 @@ void Entity::onContainerParameterChanged(Parameter *p)
 	{
 		updateInterface();
 	}
+  else if (p == primary)
+  {
+    updateInterface();
+  }
+
 	if(simEnt)
 		simEnt->updateFromEntity(this);
 }

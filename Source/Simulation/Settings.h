@@ -62,7 +62,6 @@ public:
   
     void afterLoadJSONDataInternal() override;
 
-
   //   class SettingsListener
   // {
   // public:

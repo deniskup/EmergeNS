@@ -32,6 +32,9 @@
           <FILE id="cvKJaz" name="GenerationUI.h" compile="0" resource="0" file="Source/Simulation/ui/GenerationUI.h"/>
           <FILE id="eAvybm" name="PACUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/PACUI.cpp"/>
           <FILE id="fTsujl" name="PACUI.h" compile="0" resource="0" file="Source/Simulation/ui/PACUI.h"/>
+          <FILE id="XcZ757" name="PhasePlaneUI.cpp" compile="1" resource="0"
+                file="Source/Simulation/ui/PhasePlaneUI.cpp"/>
+          <FILE id="QQvYg4" name="PhasePlaneUI.h" compile="0" resource="0" file="Source/Simulation/ui/PhasePlaneUI.h"/>
           <FILE id="bEc5aT" name="ReactionManagerUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/ReactionManagerUI.cpp"/>
           <FILE id="CfFFYB" name="ReactionManagerUI.h" compile="0" resource="0"
@@ -63,6 +66,8 @@
         <FILE id="sUe1O3" name="EntityManager.cpp" compile="1" resource="0"
               file="Source/Simulation/EntityManager.cpp"/>
         <FILE id="L9QJVJ" name="EntityManager.h" compile="0" resource="0" file="Source/Simulation/EntityManager.h"/>
+        <FILE id="qtpPAf" name="PhasePlane.cpp" compile="1" resource="0" file="Source/Simulation/PhasePlane.cpp"/>
+        <FILE id="V9T5Sn" name="PhasePlane.h" compile="0" resource="0" file="Source/Simulation/PhasePlane.h"/>
         <FILE id="gyW2CZ" name="Settings.cpp" compile="1" resource="0" file="Source/Simulation/Settings.cpp"/>
         <FILE id="Qw1YRj" name="Settings.h" compile="0" resource="0" file="Source/Simulation/Settings.h"/>
         <FILE id="H8bR8k" name="Simulation.h" compile="0" resource="0" file="Source/Simulation/Simulation.h"/>

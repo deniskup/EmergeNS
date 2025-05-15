@@ -22,6 +22,7 @@ public:
     bool shouldRepaint;
     Array<Array<float>> entityHistory;
     Array<Colour> entityColors;
+    int runID;
 
     // TextButton saveSimBT;
     // TextButton loadSimBT;
@@ -47,6 +48,7 @@ public:
 
     unique_ptr<EnumParameterUI> setCACUI;
     unique_ptr<EnumParameterUI> setSteadyStateUI;
+    unique_ptr<EnumParameterUI> setRunUI;
 
     //for diplaying paramaters
     Label paramsLabel;

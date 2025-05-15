@@ -15,6 +15,14 @@ class SimEntity;
 class SimReaction;
 class Simulation;
 
+class Interval{
+  public:
+  Interval(long double c, long double inf, long double sup){center=c; infbound=inf; supbound=sup;};
+  ~Interval(){};
+  long double center;
+  long double infbound;
+  long double supbound;
+};
 
 class Monom{ // represent a polynomial term such as k*c_1*c_3
  public:
@@ -26,16 +34,26 @@ typedef Array<Monom> Polynom; // a polynom is a sum of monom
 
 //typedef Array<float> State; // a witness is a vector of concentrations
 typedef Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
+
 class SteadyState
 {
 public:
+  SteadyState(){};
+  SteadyState(var vsst);
+  ~SteadyState(){};
+  
   State state;
   bool isBorder = false;
+  bool warning = false;
+  
+  var toJSONData();
 };
 
 class SteadyStateslist : public Thread
 {
 public:
+    juce_DeclareSingleton(SteadyStateslist, true);
+
     SteadyStateslist() : Thread("SteadyStates"){};
     SteadyStateslist(Simulation *simul) : Thread("SteadyStates"), simul(simul){};
     ~SteadyStateslist();
@@ -43,9 +61,11 @@ public:
     Simulation *simul;
 
     Array<SteadyState> arraySteadyStates; // list of steady states
+    int nGlobStable = 0;
+    int nPartStable = 0;
     //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
-    Array<SteadyState> stableStates; // list of stable steady states
-    Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
+    //Array<SteadyState> stableStates; // list of stable steady states
+    //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
 
     Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 

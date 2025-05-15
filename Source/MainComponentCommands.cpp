@@ -121,8 +121,8 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		NSCommandIDs::renameReacs,
 		NSCommandIDs::reacsFromNames,
 		NSCommandIDs::parseCsvFile,
-		NSCommandIDs::steadyStates
-		};
+		NSCommandIDs::steadyStates,
+  };
 
 	commands.addArray(ids, numElementsInArray(ids));
 	// for (int i = 0; i < Guider::getInstance()->factory.defs.size(); ++i) commands.add(NSCommandIDs::guideStart + i);

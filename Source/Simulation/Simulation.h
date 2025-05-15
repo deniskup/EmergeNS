@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include <JuceHeader.h>
 #include "PAC.h"
@@ -7,7 +5,9 @@
 #include "SimEntity.h"
 #include "SimReaction.h"
 #include "SimulationHelpers.h"
+#include "PhasePlane.h"
 #include <random>
+
 
 using namespace juce;
 using namespace std;
@@ -82,7 +82,8 @@ public:
   
   
 	EnumParameter* setCAC;
-	EnumParameter* setSteadyState;
+  EnumParameter* setSteadyState;
+	EnumParameter* setRun;
 
 	Trigger* genTrigger;
 	Trigger* startTrigger;
@@ -99,13 +100,22 @@ public:
 
 	//REARRANGER POUR QUE CE SOIT LISIBLE ET LOGIQUE
 
-	OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
+  //OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
+	OwnedArray<OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
 	bool express = false; // express mode : no graphics, just find equilibrium
+  bool redraw = false; // redraw mode : just graphics, no simulation
 
 	// for drawing
 	int maxSteps;
 	int curStep;
 	int nSteps;
+  
+  // multiple runs
+  int currentRun = 0;
+  int nRuns = 1;
+  bool isMultipleRun = false;
+  Array<map<String, float>> initialConcentrations;
+  bool shouldStartNewRun = false;
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
@@ -137,6 +147,10 @@ public:
 
 	// steady states
 	unique_ptr<SteadyStateslist> steadyStatesList;
+  
+  // phase planes
+  //unique_ptr<PhasePlane> phasePlane;
+
 
 	enum SimulationState
 	{
@@ -169,6 +183,7 @@ public:
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
 	void setConcToSteadyState(int idSS); // set concentrations to Steady State
+  void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 
@@ -182,7 +197,7 @@ public:
 		vector<std::pair<SimEntity*, int>> products;
 	};
 
-	void importCsvData(String); //tkosc.
+	void importCsvData(String); 
 	void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
 
 	bool getUserListMode(); // to know if we are in user list mode
@@ -205,10 +220,14 @@ public:
 	
 	void generateSimFromUserList();
 	void updateUserListFromSim();
+  void resetBeforeRunning();
 	void start(bool restart = true);
+  void startMultipleRuns(Array<map<String, float>> initConc);
+  void nextRedrawStep();
 	void nextStep();
 	void stop();
 	void cancel();
+
 
 	// the thread function
 	void run() override;
@@ -231,22 +250,25 @@ public:
 			WILL_START,
 			STARTED,
 			NEWSTEP,
-			FINISHED
+			FINISHED,
+      DRAWRUN
 		};
 
 		SimulationEvent(Type t,
 			Simulation* sim,
+      int _run = 0,
 			int curStep = 0,
 			Array<float> entityValues = Array<float>(),
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
-			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList), run(_run)
 		{
 		}
 
 		Type type;
 		Simulation* sim;
+    int run;
 		int curStep;
 		Array<float> entityValues;
 		Array<Colour> entityColors;

@@ -25,7 +25,7 @@ public:
     FloatParameter *dissocRate; // product to reactants
     SimReaction *simReac = nullptr; //point to a simreac in the simulation
 
-    void clearItem();
+    void clearItem() override;
 
     void addParams();
 
@@ -36,8 +36,8 @@ public:
     void addReactant(Entity *e);
     void addProduct(Entity *e);
 
-	Array<Entity*> getAllReactants();
-	Array<Entity*> getAllProducts();
+    Array<Entity*> getAllReactants();
+    Array<Entity*> getAllProducts();
 
     void clearReactants();
     void clearProducts();

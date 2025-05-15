@@ -2,7 +2,6 @@ Builds/*
 !Builds/MacOSX_CI
 !Builds/VisualStudio2022_CI
 !Builds/LinuxMakefile_CI
-Resources/**
 z3constraints.smt2
 z3log.txt
 z3model.txt

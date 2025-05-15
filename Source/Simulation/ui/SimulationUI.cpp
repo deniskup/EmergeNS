@@ -29,7 +29,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
-	setSteadyStateUI.reset(simul->setSteadyState->createUI());
+  setSteadyStateUI.reset(simul->setSteadyState->createUI());
+	setRunUI.reset(simul->setRun->createUI());
 
 	// local parameter, won't be saved in the file.
 	// maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
@@ -49,7 +50,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	pointsDrawnUI->setSize(150, 20);
 	detectEqUI->setSize(120, 20);
 	epsilonEqUI->setSize(100, 20);
-	setCACUI->setSize(100, 20);
+  setRunUI->setSize(70, 20);
+	setCACUI->setSize(70, 20);
 	setSteadyStateUI->setSize(100, 20);
 
 	addAndMakeVisible(dtUI.get());
@@ -69,6 +71,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(stochasticityUI.get());
 	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
+  addAndMakeVisible(setRunUI.get());
 	addAndMakeVisible(setCACUI.get());
 	addAndMakeVisible(setSteadyStateUI.get());
 
@@ -172,10 +175,11 @@ void SimulationUI::paint(juce::Graphics &g)
 		p->startNewSubPath(ep);
 		paths.add(p); // add one path per entity
 	}
-
-	for (int i = 1; i < entityHistory.size(); i++)
+  //cout << "UI ent history : " << entityHistory.size() << endl;
+	for (int i = 0; i < entityHistory.size(); i++)
 	{
 		Array<float> values = entityHistory[i];
+    //cout << "values.size = " << values.size() << endl;
 		for (int j = 0; j < values.size(); j++)
 		{
 			float v = 1 - values[j] / maxC;
@@ -186,6 +190,7 @@ void SimulationUI::paint(juce::Graphics &g)
 			paths[j]->lineTo(ep);
 		}
 	}
+  //cout << entityColors.size() << " | " << entityHistory.size() <<  " VS " << paths.size() << endl;
 	jassert(entityColors.size() >= paths.size());
 	for (int i = 0; i < paths.size(); i++)
 	{
@@ -197,6 +202,15 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.drawRect(simBounds.toFloat(), 1);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
+  
+  // add title = run ID
+  String title = "Run " + String(to_string(runID));
+  int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
+  int titleY = simBounds.getY() - 20;
+  Rectangle<int> titlepos(titleX, titleY, 50, 20);
+  g.drawText(title, titlepos, Justification::centred, true);
+
+  
 
 	// draw X and Y axis ticks with numerical labels
 	int ncorr = nticks + 1;
@@ -331,9 +345,12 @@ void SimulationUI::resized()
 	explore.removeFromLeft(20);
 	stochasticityUI->setBounds(explore.removeFromLeft(110));
 
+  
 	setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
 	explore.removeFromRight(10);
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
+  explore.removeFromRight(10);
+  setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
 
 	paramsLabel.setBounds(br.reduced(10));
 }
@@ -421,6 +438,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
 		entityColors.clear();
+    runID = ev.run;
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
 		repaint();
@@ -452,6 +470,13 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// resized();
 		// repaint();
 	}
+      
+  case Simulation::SimulationEvent::DRAWRUN:
+  {
+    shouldRepaint = true;
+    // resized();
+    // repaint();
+  }
 	break;
 	}
 }
