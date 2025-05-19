@@ -132,7 +132,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 		// Set model parameters according to config values
 		for (auto& [key, val] : configs)
 		{
-      cout << "key, val : " << key << " " << val << endl;
+      //cout << "key, val : " << key << " " << val << endl;
 			juce::var myvar(val);
 			if (key == "z3path")	Settings::getInstance()->pathToz3->setValueInternal(myvar);
 			else if (key == "z3timeout")	Settings::getInstance()->z3timeout->setValueInternal(myvar);
@@ -229,7 +229,6 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       Simulation::getInstance()->stochasticity->setValue(true);
       Simulation::getInstance()->noVisu = true;
       
-      
       transitStudy();
       
     }
@@ -249,6 +248,12 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       // Compute the PACs with z3
       // doesn't work for the moment
       Simulation::getInstance()->pacList->compute(2);
+    }
+
+
+    else if (study == "sstCompo")
+    {
+      steadyStateCompositionStudy();
     }
 
 		
@@ -345,16 +350,18 @@ void EmergeNSEngine::firstExitTimeStudy()
     if (sst.isBorder)
       continue;
     
-    // choose the steady state A dominated
+    // choose the steady state A or B dominated
     float totA = 0.;
     for (auto & [ent, c] : sst.state)
     {
       if (c>100)
         break;
-      if (ent->name.contains("A"))
+      if (ent->name.contains(startSteadyState))
         totA += c;
     }
     //cout << "total A species = " << totA << ". index sst = " << c << endl;
+    if (totA > 100) // avoid pathological steady states found
+      continue;
     if (totA>0.1)
     {
       startSST = sst;
@@ -431,6 +438,8 @@ void EmergeNSEngine::transitStudy()
         totA += c;
     }
     //cout << "total A species = " << totA << ". index sst = " << c << endl;
+    if (totA > 100) // avoid pathological steady states found
+      continue;
     if (totA>0.1)
     {
       startSST = sst;
@@ -468,5 +477,65 @@ void EmergeNSEngine::transitStudy()
   
   
   
+}
+
+
+
+
+void EmergeNSEngine::steadyStateCompositionStudy()
+{
+  vector<float> barrB = {1., 1.05, 1.1, 1.15, 1.2};
+  vector<float> feB = {0., 0.05, 0.1, 0.15, 0.2};
+
+  string out = "B barrier,B free energy,sstType,massA,massB\n";
+
+  for (float & b : barrB)
+  {
+    // set barriers of reactions of cycle B
+    for (auto & r : Simulation::getInstance()->reactions)
+    {
+      if (r->name.contains("Fb"))
+        r->energy = b;
+    }
+    for (float & fe : feB)
+    {
+      for (auto & e : Simulation::getInstance()->entities)
+      {
+        if (e->name == "Fb")
+          e->freeEnergy = fe;
+      }
+    }
+
+    // calculate steady state compo with msolve
+    Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+
+    for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
+    {
+      if (sst.isBorder) // remove border steady states
+        continue;
+
+      float masstot = 0.;
+      float massA = 0.;
+      float massB = 0.;
+      for (auto & p : sst.state)
+      {
+        masstot += p.second;
+        if (p.first->name == "A1" || p.first->name == "A2" || p.first->name == "Wa")
+          massA += p.second;
+        if (p.first->name == "=B1" || p.first->name == "B2" || p.first->name == "Wb")
+          massB += p.second;
+      }
+      if (masstot>100.) // remove steady states which are too high, happens sometimes
+        continue;
+
+      // "B barrier,B free energy,sstType,massA,massB\n";
+      out += to_string(b) + "," + to_string(fe) + ",";
+      if (massA > massB)
+        out += "A," + to_string(massA) + to_string(massB);
+      else
+        out += "B," + to_string(massA) + to_string(massB);
+      out += "\n";
+    }
+  }
 }
 

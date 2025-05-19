@@ -2092,59 +2092,38 @@ void Simulation::nextStep()
   if (exitTimeStudy)
   {
     float time = dt->floatValue() * (float) nSteps;
+    Array<float> conc;
     for (auto & ent : entities)
     {
-      concentDuringLastInterval.add(ent->concent);
+      conc.add(ent->concent);
     }
+    concentDuringLastInterval.add(conc);
     
     if ( (time-lastStudyTime) >= exitTimePrecision) // detect if system escaped initial basin
     {
       //cout << "exit time study at time T = " << time << endl;
       lastStudyTime = time;
       bool isInInitialBasin = isInInitialAttractionBasin();
-/*
-      if (transitStudy)
+      
+      if (!isInInitialBasin)
       {
-        
-        if ( (isInInitialBasin && curSST==0) || (!isInInitialBasin && curSST==1)) // system did not escape current basin
-        {
-          transitTime += exitTimePrecision;
-        }
-        else if (!isInInitialBasin && curSST==0) // system escaped from 0 to 1
-        {
-          transitInStartBasin.add(transitTime);
-          transitFlags.add(time);
-          transitTime = 0.;
-          curSST = 1;
-        }
-        else if (isInInitialBasin && curSST==1) // system escaped from 1 to 0
-        {
-          transitInotherBasin.add(transitTime);
-          transitFlags.add(time);
-          transitTime = 0.;
-          curSST = 0;
-        }
+        leftBasin = true;
+        float ttime = refineEscapeTime();
+
+        exitTimes.add(ttime);
+        LOG("ESCAPED !! Run " + String(to_string(currentRun)) + " System left the initial basin at time T = " + String(to_string(time)));
+        LOG("ESCAPED !! Refined time :  " + String(to_string(ttime)));
+        nSteps = maxSteps + 1; // very ugly, I should code and call a function that moves to next run. This will do the job for now
       }
-      */
-      
-        if (!isInInitialBasin)
-        {
-          leftBasin = true;
+      if ( (time + dt->floatValue()) > totalTime->floatValue() && !leftBasin)
+      {
+        exitTimes.add(-999.);
+        LOG("Run " + String(to_string(currentRun)) + " : NO ESCAPE DETECTION" );
+      }
 
-          //float ttime = refineEscapeTime();
-
-          exitTimes.add(time);
-          LOG("ESCAPED !! Run " + String(to_string(currentRun)) + " System left the initial basin at time T = " + String(to_string(time)));
-          nSteps = maxSteps + 1; // very ugly, I should code and call a function that moves to next run. This will do the job for now
-        }
-        if ( (time + dt->floatValue()) > totalTime->floatValue() && !leftBasin)
-        {
-          exitTimes.add(-999.);
-          LOG("Run " + String(to_string(currentRun)) + " : NO ESCAPE DETECTION" );
-        }
-        return;
-      
       concentDuringLastInterval.clear();
+      return;
+      
     }
   }
   else if (transitStudy)
@@ -2160,7 +2139,8 @@ void Simulation::nextStep()
     }
   }
   
-  
+  if (transitStudy || exitTimeStudy)
+    return;
   
   
 
@@ -2574,6 +2554,8 @@ void Simulation::writeHistory()
     {
       String out = outputfilename + String(streps) + "_srun" + String(to_string(superRun)) + ".csv";
       historyFile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+
+      cout << "writing to file " << out << endl;
       
       int c=-1;
       for (auto & t : exitTimes)
@@ -3059,21 +3041,48 @@ bool Simulation::isInInitialAttractionBasin()
 
 float Simulation::refineEscapeTime()
 {
-  int k = concentDuringLastInterval.size()/2;
-  bool stop = false;
-  while (!stop)
+  
+  int kmin=0;
+  int kmax = concentDuringLastInterval.size()-1;
+  int result = -1;
+  
+  int security=0; 
+
+  while (kmin <= kmax)
   {
+    security++;
+    if (security>500)
+    {
+      result = concentDuringLastInterval.size()-1;
+      break;
+    }
+    int mid = kmin + (kmax-kmin) /2;
+
+    // set entity concentration to what they were in the past
+    int c=-1;
+    for (auto & ent : entities)
+    {
+      c++;
+      ent->concent = concentDuringLastInterval.getUnchecked(mid)[c];
+    }
+
     bool b = isInInitialAttractionBasin();
-    int kprev = k;
+
     if (b)
-      k += (concentDuringLastInterval.size()-kprev) / 2;
+    {
+      kmin = mid+1;
+    }
     else
-      k = kprev/2;
-    if (kprev == k)
-      stop = true;
-  }
+    {
+      result = mid;
+      kmax = mid-1;
+    }
+
+  } // end while
+
   // convert k to time
-  float time = lastStudyTime + (float) k * dt->floatValue();
+  //cout << "ended method, final k value : " << result << endl;
+  float time = lastStudyTime - ( concentDuringLastInterval.size() - 1 - result ) * dt->floatValue();
   return time;
   
 }
@@ -3089,8 +3098,13 @@ bool Simulation::deterministicTrajectoryMethod()
   map<SimEntity*, float> incr;
   
   // init concentration map to current concentration state of simulation
+  //cout << "deterministicTrajectoryMethod() : ";
   for (auto & ent : entities)
+  {
     conc[ent] = ent->concent;
+    //cout << ent->concent << " ";
+  }
+  //cout << endl;
   for (auto & e : entities)
     incr[e] = 0.;
   
