@@ -35,6 +35,7 @@ public:
   
   void firstExitTimeStudy();
   void transitStudy();
+  void steadyStateCompositionStudy();
   
   String study = "";
   String filename = "";

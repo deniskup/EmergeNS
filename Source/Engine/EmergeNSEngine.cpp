@@ -253,6 +253,11 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
     else if (study == "sstCompo")
     {
+      // load ens file
+      juce::File file(filename);
+      GlobalSettings::getInstance()->logAutosave->setValue(false);
+      loadDocumentNoCheck(file);
+      
       steadyStateCompositionStudy();
     }
 
@@ -484,10 +489,12 @@ void EmergeNSEngine::transitStudy()
 
 void EmergeNSEngine::steadyStateCompositionStudy()
 {
-  vector<float> barrB = {1., 1.05, 1.1, 1.15, 1.2};
-  vector<float> feB = {0., 0.05, 0.1, 0.15, 0.2};
+  //vector<float> barrB = {1., 1.5};
+  vector<float> barrB = {1., 1.05, 1.1, 1.15, 1.2, 1.25, 1.3, 1.35, 1.4, 1.45, 1.5};
+  //vector<float> feB = {0., 0.5};
+  vector<float> feB = {0., 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5};
 
-  string out = "B barrier,B free energy,sstType,massA,massB\n";
+  string out = "barrier,freeEnergy,bistable,sstType,massA,massB\n";
 
   for (float & b : barrB)
   {
@@ -504,38 +511,81 @@ void EmergeNSEngine::steadyStateCompositionStudy()
         if (e->name == "Fb")
           e->freeEnergy = fe;
       }
-    }
+    
+    // update reaction rates
+    for (auto & r : Simulation::getInstance()->reactions)
+      r->computeRate();
+      
 
-    // calculate steady state compo with msolve
-    Simulation::getInstance()->steadyStatesList->computeSteadyStates();
-
-    for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
-    {
-      if (sst.isBorder) // remove border steady states
-        continue;
-
-      float masstot = 0.;
-      float massA = 0.;
-      float massB = 0.;
-      for (auto & p : sst.state)
+      // calculate steady state compo with msolve
+      Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+      while (Simulation::getInstance()->steadyStatesList->isThreadRunning())
       {
-        masstot += p.second;
-        if (p.first->name == "A1" || p.first->name == "A2" || p.first->name == "Wa")
-          massA += p.second;
-        if (p.first->name == "=B1" || p.first->name == "B2" || p.first->name == "Wb")
-          massB += p.second;
+        cout << "sleeping for 2s..." << endl;
+        sleep(2);
       }
-      if (masstot>100.) // remove steady states which are too high, happens sometimes
-        continue;
-
-      // "B barrier,B free energy,sstType,massA,massB\n";
-      out += to_string(b) + "," + to_string(fe) + ",";
-      if (massA > massB)
-        out += "A," + to_string(massA) + to_string(massB);
+      
+      // is the reactio  network bistable ?
+      string bistable = "";
+      int nsst = 0;
+      for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
+      {
+        if (sst.isBorder) // remove border steady states
+          continue;
+        float masstot = 0.;
+        for (auto & p : sst.state)
+        {
+          masstot += p.second;
+        }
+        if (masstot>100.) // remove steady states which are too high, happens sometimes
+          continue;
+        nsst++;
+      }
+      
+      if (nsst>1)
+        bistable = "1";
       else
-        out += "B," + to_string(massA) + to_string(massB);
-      out += "\n";
-    }
-  }
+        bistable = "0";
+      
+      
+      for (auto & sst : Simulation::getInstance()->steadyStatesList->arraySteadyStates)
+      {
+        if (sst.isBorder) // remove border steady states
+          continue;
+
+        float masstot = 0.;
+        float massA = 0.;
+        float massB = 0.;
+        for (auto & p : sst.state)
+        {
+          masstot += p.second;
+          if (p.first->name == "A1" || p.first->name == "A2" || p.first->name == "Wa")
+            massA += p.second;
+          if (p.first->name == "B1" || p.first->name == "B2" || p.first->name == "Wb")
+            massB += p.second;
+        }
+        if (masstot>100.) // remove steady states which are too high, happens sometimes
+          continue;
+        
+        nsst++;
+
+        // "B barrier,B free energy,sstType,massA,massB\n";
+        out += to_string(b) + "," + to_string(fe) + "," + bistable + ",";
+        if (massA > massB)
+          out += "A," + to_string(massA) + "," + to_string(massB);
+        else
+          out += "B," + to_string(massA) + "," + to_string(massB);
+        out += "\n";
+      } // end steady state loop
+    } // end free eenrgy loop
+  } // end barrier loop
+  
+  cout << "----- FINAL RESULT TO PRINT TO FILE -----" << endl;
+  cout << out << endl;
+  
+  ofstream outfile;
+  outfile.open("steadyStateCompo/steadyStateCompo.csv", ofstream::out | ofstream::trunc);
+  outfile << out;
+  
 }
 

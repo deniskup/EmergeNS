@@ -982,6 +982,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 	// loop over reactions
 	for (auto &r : simul->reactions)
 	{
+    cout << r->name << " : " << r->energy << endl;
 
 		if (!r->enabled)
 			continue;
