@@ -472,6 +472,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::WILL_START:
 	{
 		// int maxPoints = simBounds.getWidth();
+    cout << "CLEARING" << endl;
 		entityHistory.clear();
 		entityColors.clear();
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));

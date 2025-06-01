@@ -104,26 +104,16 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
     width = 0.45*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / ftil;
   
   float centerX = spaceBounds.getCentreX() - 0.5*spaceBounds.getWidth()*(1. - pow(0.5, ftil-1.))*0.8;
-<<<<<<< HEAD
   float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.3;
   
   if (til==1)
     centerY += 30;
-=======
-  float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.5;
->>>>>>> 98692d2 (better handling of patch identification at mouse event)
   
   pixOriginX = centerX;
   pixOriginY = centerY;
   
-<<<<<<< HEAD
   //cout << "drawing a space grid with tiling size : " << til << endl;
  // cout << "spacegid in space instance has size : " << space->spaceGrid.size() << endl;
-=======
-  //cout << "origin : " << pixOriginX << " , " << pixOriginY << endl;
-  //cout << "hex. width = " << width << endl;
-
->>>>>>> 98692d2 (better handling of patch identification at mouse event)
   // loop over number of rows to draw
   for (int r=0; r<til; r++)
   //for (int c=0; c<2; c++)
@@ -152,21 +142,12 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
     }
   }
   gridIsAlreadyDrawn = true;
-<<<<<<< HEAD
-  
-=======
-
-  
-
-  
-  
-
->>>>>>> 98692d2 (better handling of patch identification at mouse event)
 }
 
 
 void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, float width)
 {
+  
   g.setColour(NORMAL_COLOR);
   Path * hex = new Path();
   //hex->startNewSubPath(startX, startY);
@@ -187,7 +168,6 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   
   hex->closeSubPath(); // Close the hexagon shape
   
-<<<<<<< HEAD
   // retrieve patch ID corresponding to current position
   juce::Point<int> p(centerX, centerY);
   int pid = getPatchIDAtPosition(p);
@@ -364,65 +344,6 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   
   
   // draw a line around the hexagon
-=======
-  
-  // if the grid is being drawn for the first time, fill hexagons with normal color
-  //if (Space::getInstance()->spaceGrid.size()==0)
-  if (!gridIsAlreadyDrawn)
-  {
-    g.setColour(juce::Colours::lightgreen);
-    g.fillPath(*hex);
-    g.setColour(NORMAL_COLOR);
-    g.strokePath(*hex, juce::PathStrokeType(2.0f, juce::PathStrokeType::mitered));
-    return;
-  }
-    
-  // retrieve patch ID corresponding to current position
-  juce::Point<int> p(centerX, centerY);
-  int pid = getPatchIDAtPosition(p);
-  
-  
-  if (pid>0)
-  {
-    if (entityHistory.size() > 0)
-    {
-      ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
-      Array<float> conc; // concentration in current patch only
-      for (auto & [key, val] : last)
-      {
-        if (key.first==pid)
-          conc.add(val);
-      }
-      // normalize vector of concentrations
-      float tot = 0.;
-      for (auto & c : conc)
-        tot += c;
-      if (tot>0.)
-      {
-        for (int k=0; k<conc.size(); k++)
-          conc.setUnchecked(k, conc[k]/tot);
-      }
-      // calculate weighted red, green and blue
-      uint8_t red = 0;
-      uint8_t green = 0;
-      uint8_t blue = 0;
-      jassert(conc.size() == entityColors.size());
-      for (int k=0; k<conc.size(); k++)
-      {
-        red += conc[k] * entityColors[k].getRed();
-        green += conc[k] * entityColors[k].getGreen();
-        blue += conc[k] * entityColors[k].getBlue();
-      }
-      juce::Colour patchcol(red, green, blue);
-      //g.setColour(juce::Colours::lightgreen);
-      g.setColour(patchcol);
-      g.fillPath(*hex);
-    }
-  }
-  
-  
-  
->>>>>>> 98692d2 (better handling of patch identification at mouse event)
   g.setColour(NORMAL_COLOR);
   g.strokePath(*hex, juce::PathStrokeType(2.0f, juce::PathStrokeType::mitered));
   
@@ -500,10 +421,6 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
  
  Retrieve position of closest hexagon center on a click
  Does nothing if the click occurs outside of space grid, maybe relying on color background ?
-<<<<<<< HEAD
-=======
- */
->>>>>>> 98692d2 (better handling of patch identification at mouse event)
 
  */
 int SpaceUI::getPatchIDAtPosition(const juce::MouseEvent& event)

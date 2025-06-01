@@ -1932,6 +1932,51 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
 }
 
+/*
+ - return values :
+ --> -1 : all runs are done, simulation is over
+ --> 0  : current run is not over
+ --> 1  : current run is over, but not simulation. Proceed to next run
+ */
+int Simulation::checkRunStatus()
+{
+  int status = 0;
+  
+  if (nSteps>maxSteps) // current run is over
+  {
+    status = -1;
+    if (currentRun < (nRuns-1)) // should start a new run
+    {
+      status = 1;
+    }
+  }
+    
+  return status;
+}
+  
+  
+void Simulation::resetForNextRun()
+{
+  currentRun++;
+  nSteps = 0; // re-initialize step counter
+  // reset concentrations to next run initial conditions
+  for (auto & [name, startconc] : initialConcentrations[currentRun])
+  {
+    getSimEntityForName(name)->concent = startconc;
+    getSimEntityForName(name)->deterministicConcent = startconc;
+  }
+  
+ // if (!express)
+ //   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  
+  // reset records
+  for (int k=0; k<Space::getInstance()->nPatch; k++)
+  {
+    recordConcent.set(k, 0.);
+    recordDrawn.set(k, 0.);
+  }
+}
+
 
 
 void Simulation::requestProceedingToNextRun(const int _run)
