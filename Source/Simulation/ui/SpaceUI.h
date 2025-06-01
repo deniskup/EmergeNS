@@ -7,14 +7,16 @@
 
 class SpaceUI : public ShapeShifterContentComponent,
                 public Simulation::AsyncSimListener,
-                public Timer
-            //public Settings::SettingsListener
+                public Timer,
+                public ContainerAsyncListener
 {
 public:
     SpaceUI();
     ~SpaceUI();
 
     Space * space;
+  
+    Simulation * simul;
     
     std::unique_ptr<GenericControllableContainerEditor> editorUI;
 
@@ -34,6 +36,9 @@ public:
     void timerCallback() override;
   
     void newMessage(const Simulation::SimulationEvent &ev) override;
+  
+    void newMessage(const ContainerAsyncEvent &e) override;
+
 
   
     Rectangle<int> spaceBounds;

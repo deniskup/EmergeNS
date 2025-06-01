@@ -28,6 +28,7 @@ struct PairHash {
         return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second->idSAT) << 1);
     }
 };
+// unordered_map[ pair< patch id , sim entity > , concentration ]
 typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid; // represents concentrations of entities over all the space grid
 
 
@@ -256,7 +257,8 @@ public:
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
-  //void nextRedrawStep();
+  int checkRunStatus();
+  void resetForNextRun();
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
   void nextStep();
   void updateSinglePatchRates(Patch&, bool);

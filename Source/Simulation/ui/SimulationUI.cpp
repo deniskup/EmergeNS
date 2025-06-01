@@ -398,6 +398,7 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 			simul->cancelTrigger->trigger();
 		else
 		{
+      cout << "HERE ?" << endl;
 			entityHistory.clear();
 			entityColors.clear();
 			simul->startTrigger->trigger();
@@ -462,6 +463,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::WILL_START:
 	{
 		// int maxPoints = simBounds.getWidth();
+    cout << "CLEARING" << endl;
 		entityHistory.clear();
 		entityColors.clear();
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
