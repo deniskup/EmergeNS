@@ -2,16 +2,22 @@
 #include "SpaceUI.h"
 
 SpaceUI::SpaceUI() : ShapeShifterContentComponent(Space::getInstance()->niceName),
-                           space(Space::getInstance())
+                           space(Space::getInstance()), simul(Simulation::getInstance())
 {
     // option: boucle sur les controllables avec createDefaultUI();
     editorUI.reset(new GenericControllableContainerEditor(space, true));
     addAndMakeVisible(editorUI.get());
+  
+    simul->addAsyncSimulationListener(this);
+    simul->addAsyncContainerListener(this);
+    startTimerHz(20);
 }
 
 SpaceUI::~SpaceUI()
 {
     // settings->removeSettingsListener(this);
+  simul->removeAsyncSimulationListener(this);
+  simul->removeAsyncContainerListener(this);
 }
 
 void SpaceUI::resized()
@@ -100,11 +106,6 @@ void SpaceUI::paint(juce::Graphics &g)
   }
   gridIsAlreadyDrawn = true;
 
-  
-
-  
-  
-
 }
 
 
@@ -112,6 +113,7 @@ void SpaceUI::paint(juce::Graphics &g)
 
 void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, float width)
 {
+  
   g.setColour(NORMAL_COLOR);
   Path * hex = new Path();
   //hex->startNewSubPath(startX, startY);
@@ -137,6 +139,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   //if (Space::getInstance()->spaceGrid.size()==0)
   if (!gridIsAlreadyDrawn)
   {
+    cout << "grid is not drawn" << endl;
     g.setColour(juce::Colours::lightgreen);
     g.fillPath(*hex);
     g.setColour(NORMAL_COLOR);
@@ -149,10 +152,11 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   int pid = getPatchIDAtPosition(p);
   
   
-  if (pid>0)
+  if (pid>=0)
   {
     if (entityHistory.size() > 0)
     {
+      
       ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
       Array<float> conc; // concentration in current patch only
       for (auto & [key, val] : last)
@@ -160,6 +164,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         if (key.first==pid)
           conc.add(val);
       }
+      
       // normalize vector of concentrations
       float tot = 0.;
       for (auto & c : conc)
@@ -300,22 +305,29 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     }
     case Simulation::SimulationEvent::WILL_START:
     {
-      entityHistory.clear();
-      entityColors.clear();
-      repaint();
+      if (!simul->redrawPatch)
+      {
+        entityHistory.clear();
+        entityColors.clear();
+        repaint();
+      }
     }
     break;
 
     case Simulation::SimulationEvent::STARTED:
     {
-      entityColors = ev.entityColors;
-      entityHistory.add(ev.entityValues);
+      if (!simul->redrawPatch)
+      {
+        entityColors = ev.entityColors;
+        entityHistory.add(ev.entityValues);
+      }
     }
     break;
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
-      entityHistory.add(ev.entityValues);
+      if (!simul->redrawPatch)
+        entityHistory.add(ev.entityValues);
     }
     break;
 
@@ -327,4 +339,16 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     break;
     }
 }
+
+void SpaceUI::newMessage(const ContainerAsyncEvent &e)
+{
+    if (e.type == ContainerAsyncEvent::EventType::ControllableFeedbackUpdate)
+    {
+        if (e.targetControllable == simul->oneColor)
+        {
+            repaint();
+        }
+    }
+}
+
 

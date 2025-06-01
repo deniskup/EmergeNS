@@ -1564,9 +1564,11 @@ void Simulation::resetBeforeRunning()
   isMultipleRun = false;
   
   initialConcentrations.clear();
-  for (auto& ent: entities)
-    ent->concentHistory.clear();
-  RAChistory.clear();
+  //for (auto& ent: entities)
+  //  ent->concentHistory.clear();
+  //RAChistory.clear();
+  dynHistory->concentHistory.clear();
+  dynHistory->racHistory.clear();
 
   currentRun = 0;
   recordConcent.resize(Space::getInstance()->nPatch);
@@ -1577,10 +1579,7 @@ void Simulation::resetBeforeRunning()
     recordDrawn.set(k, 0.);
   }
   
-  if (isMultipleRun)
-    runToDraw = nRuns-1;
-  else
-    runToDraw = 0;
+  runToDraw = 0;
   patchToDraw = 0;
   //recordDrawn = 0.;
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
@@ -1812,6 +1811,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   initialConcentrations = initConc;
   isMultipleRun = true;
   setRun->setValue(nRuns-1);
+  runToDraw = nRuns - 1;
   
   if (isMultipleRun && isSpace->boolValue())
   {
@@ -1841,17 +1841,18 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
       entityValues[pr] = ent->concent[p.id];
     }
   }
+  cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
   
-  // init max concentrations with initial conditions of last run
+  // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
   LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
   for (auto & [name, conc] : lastrun) // init with last run
   {
     if (conc > recordConcent[0])
     {
-      recordConcent.set(0, conc);
+      recordConcent.set(0, conc); // here 0 refers to "patch 0". Not clear what it would become when multiple runs can work with heterogeneous space
       if (getSimEntityForName(name)->draw)
         recordDrawn.set(0, conc);
     }
@@ -1877,6 +1878,51 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   startThread();
   return;
   
+}
+
+/*
+ - return values :
+ --> -1 : all runs are done, simulation is over
+ --> 0  : current run is not over
+ --> 1  : current run is over, but not simulation. Proceed to next run
+ */
+int Simulation::checkRunStatus()
+{
+  int status = 0;
+  
+  if (nSteps>maxSteps) // current run is over
+  {
+    status = -1;
+    if (currentRun < (nRuns-1)) // should start a new run
+    {
+      status = 1;
+    }
+  }
+    
+  return status;
+}
+  
+  
+void Simulation::resetForNextRun()
+{
+  currentRun++;
+  nSteps = 0; // re-initialize step counter
+  // reset concentrations to next run initial conditions
+  for (auto & [name, startconc] : initialConcentrations[currentRun])
+  {
+    getSimEntityForName(name)->concent = startconc;
+    getSimEntityForName(name)->deterministicConcent = startconc;
+  }
+  
+ // if (!express)
+ //   simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  
+  // reset records
+  for (int k=0; k<Space::getInstance()->nPatch; k++)
+  {
+    recordConcent.set(k, 0.);
+    recordDrawn.set(k, 0.);
+  }
 }
 
 
@@ -1976,77 +2022,28 @@ void Simulation::nextStep()
 
   nSteps++;
   
-  // if multiple runs mode, decide whether to start a new run
-  // I should put all of that in a function #TODO
-  if (isMultipleRun)
+  
+  // check run status : over or not ?
+  int status = checkRunStatus();
+  
+  if (status == -1) // all runs are over
   {
-    if (nSteps>maxSteps) // current run is over
-    {
-      if (currentRun<(nRuns-1)) // should start new run
-      {
-        currentRun++;
-        nSteps = 0; // re-initialize step counter
-        // reset concentrations to next run initial conditions
-        for (auto & [name, startconc] : initialConcentrations[currentRun])
-        {
-        //  cout << "[" << name << "] = " << startconc << endl;
-          getSimEntityForName(name)->concent = startconc;
-          getSimEntityForName(name)->deterministicConcent = startconc;
-        }
-        
-        if (!express)
-          simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, currentRun)); // wrong, run is no longer in simu event
-        Array<float> entityValues;
-        Array<Colour> entityColors;
-        for (auto &ent : entitiesDrawn)
-        {
-          entityValues.add(initialConcentrations[initialConcentrations.size()-1][ent->name]);
-          entityColors.add(ent->color);
-        }
-        
-        //if (!express && currentRun == (nRuns-1))
-        //  simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
-        
-        // reset records
-        for (int k=0; k<Space::getInstance()->nPatch; k++)
-        {
-          recordConcent.set(k, 0.);
-          recordDrawn.set(k, 0.);
-        }
-        
-        map<String, float> lastrun = initialConcentrations[initialConcentrations.size()-1];
-        for (auto & patch : Space::getInstance()->spaceGrid)
-        {
-          for (auto & [name, conc] : lastrun) // init with last run
-          {
-            if (conc > recordConcent[patch.id])
-            {
-              recordConcent.set(patch.id, conc);
-              if (getSimEntityForName(name)->draw)
-                recordDrawn.set(patch.id, conc);
-            }
-          }
-        }
-      }
-      else // stop simulation
-      {
-        stop();
-      }
-      return;
-    }
+    stop();
+    return;
   }
-  else
+  else if (status == 1) // current run is over, but not simu. Move to next run
   {
-    if (curStep >= maxSteps && !express) // in express mode we wait for the equilibrium
-    {
-      stop();
-      return;
-    }
+    resetForNextRun();
+    return;
+  }
+  else // last case is status == 0 : just continue current run.
+  {
+    
   }
   
   
+  // is this step a checkpoint step ?
   bool isCheck = (curStep % checkPoint == 0);
-
   if (displayLog && isCheck)
   {
     LOG("New Step : " << curStep);
@@ -2363,7 +2360,10 @@ void Simulation::nextStep()
     }
     
     //cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+    if (isMultipleRun && currentRun==nRuns-1)
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+    if (!isMultipleRun)
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
   }
 
   
@@ -2383,7 +2383,8 @@ void Simulation::updateSinglePatchRates(Patch& patch, bool isCheck)
   SteppingInflowOutflowRates(patch);
 
   // calculate diffusion rates w.r.t closest patch neighbours
-  SteppingDiffusionRates(patch);
+  if (isSpace->boolValue())
+    SteppingDiffusionRates(patch);
   
   
 }
@@ -3238,18 +3239,8 @@ void Simulation::drawConcOfRun(int idrun)
   }
   */
   // check if some simulation exists before redrawing
-  bool isOK = true;
-  for (auto & ent : entities)
+  if (dynHistory->concentHistory.size()==0)
   {
-    if (ent->concentHistory.size()==0)
-    {
-      isOK = false;
-      break;
-    }
-  }
-  if (!isOK)
-  {
-    LOG("You must start some simulation before choosing which run to draw");
     return;
   }
   
