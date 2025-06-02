@@ -58,6 +58,9 @@ void SpaceUI::resized()
 
 void SpaceUI::paint(juce::Graphics &g)
 {
+  // should not be called while running simu, because simu needs the space grid which is overriden in this function
+  if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
+    return;
   
   // should not be called while redrawing a patch or a run
   if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
