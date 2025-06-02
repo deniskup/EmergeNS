@@ -2166,7 +2166,7 @@ void Simulation::nextStep()
   }
   
   // rest only to call only pointsDrawn time
-  if (!isCheck && !isMultipleRun && Space::getInstance()->nPatch==1)
+  if (!isCheck && !isMultipleRun && Space::getInstance()->nPatch==1 && !Settings::getInstance()->printHistoryToFile->boolValue())
     return;
     
   // for now we don't care about RACs in express mode
