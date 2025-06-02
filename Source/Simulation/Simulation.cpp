@@ -2095,7 +2095,7 @@ void Simulation::nextStep()
   {
   
     ConcentrationSnapshot concsnap;
-    concsnap.step = curStep;
+    concsnap.step = nSteps;
     concsnap.runID = currentRun;
     concsnap.patchID = patch.id;
     
@@ -2895,7 +2895,7 @@ void Simulation::writeHistory()
     if (dynHistory->concentHistory.getUnchecked(k).step != dynHistory->racHistory.getUnchecked(k).step)
     {
       LOGWARNING("Step id Conflict when printing to file, stop.");
-      //cout << dynHistory->concentHistory.getUnchecked(k).step << " " << dynHistory->racHistory.getUnchecked(k).step << endl;
+      cout << dynHistory->concentHistory.getUnchecked(k).step << " " << dynHistory->racHistory.getUnchecked(k).step << endl;
       historyFile.flush();
       return;
     }
