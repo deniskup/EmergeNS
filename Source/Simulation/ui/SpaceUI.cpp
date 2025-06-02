@@ -45,6 +45,9 @@ void SpaceUI::resized()
 
 void SpaceUI::paint(juce::Graphics &g)
 {
+  // should not be called while running simu, because simu needs the space grid which is overriden in this function
+  if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
+    return;
   
   g.fillAll(BG_COLOR);
   
