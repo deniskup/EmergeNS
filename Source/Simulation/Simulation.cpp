@@ -1933,9 +1933,9 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
   bool isCheckForRedraw = ( (nSteps-1) % checkPoint == 0);
   
   
-  //cout << "nsteps = " << nSteps << endl;
+  cout << "nsteps = " << nSteps << endl;
   //cout << pointsDrawn->intValue() << endl;
-  //cout << "ischeck for redraw : " << isCheckForRedraw << endl;
+  cout << "ischeck for redraw : " << isCheckForRedraw << endl;
   
   if (!isCheckForRedraw)
     return;
@@ -2186,160 +2186,9 @@ void Simulation::nextStep()
     }
   }
 
-
-  // compute RACs. #TODO REFACTO --> move to new function
-  for (auto & patch : Space::getInstance()->spaceGrid)
-  {
-    int idPAC = 0;
-    for (auto &cycle : pacList->cycles)
-    {
-      idPAC++;
-      // compute the total cycle flow for each entity of the PAC
-      map<SimEntity *, float> flowPerEnt;
-      for (auto &ent : entities)
-        flowPerEnt[ent] = 0.;
-      for (auto &reacDir : cycle->reacDirs)
-      {
-        SimReaction *reac = reacDir.first;
-        
-        // no need for dir, it is encoded in the sign of the flow
-        // reactant/product is encoded in stoichiometry value
-        for (auto &ent : reac->reactants)
-        {
-          flowPerEnt[ent] -= reac->deterministicFlow[patch.id]; // using deterministic trajectories to avoid "noisy" RAC plots
-        }
-        for (auto &ent : reac->products)
-        {
-          flowPerEnt[ent] += reac->deterministicFlow[patch.id];
-        }
-      }
-      
-      // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
-      cycle->flow.set(patch.id, flowPerEnt[cycle->entities[0]]); // initialisation to a potential value, either <=0 or bigger than real value
-      cycle->activity.set(patch.id, 0.);
-      for (auto &ent : cycle->entities)
-      {
-        //cout << flowPerEnt[ent] << "  ";
-        if (flowPerEnt[ent] < 0)
-        {
-          cycle->flow.set(patch.id, 0.);
-          break;
-        }
-        if (flowPerEnt[ent] < cycle->flow[patch.id])
-        {
-          cycle->flow.set(patch.id, flowPerEnt[ent]);
-        }
-        if (ent->concent[patch.id] != 0.)
-        {
-          float act = 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
-          cycle->activity.set( patch.id, cycle->activity[patch.id] + act );
-          //cycle->activity[patch.id] += 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
-        }
-      }
-      
-      /*
-      
-       Following contain attempts to define RAC activities based on specificities.
-       Not conclusive and mute it for now.
-       
-      // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
-      map<SimEntity *, float> otherPosFlowPerEnt;
-      for (auto &ce : cycle->entities)
-        otherPosFlowPerEnt[ce] = 0.;
-
-      // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
-      map<SimEntity *, float> otherNegFlowPerEnt;
-      for (auto &ce : cycle->entities)
-        otherNegFlowPerEnt[ce] = 0.;
-      
-      // RAC entity change (absolute value) because of the RAC environment
-      map<SimEntity *, float> nonRACFlowPerEnt;
-      for (auto &ce : cycle->entities)
-        nonRACFlowPerEnt[ce] = 0.;
-
-      for (auto &ce : cycle->entities)
-      {
-        // if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
-        for (auto &r : reactions)
-        {
-          // does this reaction contains current cycle entity ?
-          int stoe = r->stoechiometryOfEntity(ce);
-          if (stoe == 0)
-            continue;
-
-          if (cycle->containsReaction(r)) // if reaction is in the RAC, count
-          {
-            otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
-            // otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
-          }
-          else // if reaction is not in the RAC, distinguish positive and negative contributions
-          {
-            if ((stoe < 0 && r->flow < 0) || (stoe > 0 && r->flow > 0))
-              otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
-            if ((stoe < 0 && r->flow > 0) || (stoe > 0 && r->flow < 0))
-              otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
-            nonRACFlowPerEnt[ce] += abs((float) stoe * r->flow);
-          }
-        }
-      }
-      */
-      
-      
-      // store RAC activity to dynamics history
-      if (isCheck || Settings::getInstance()->printHistoryToFile->boolValue() || isMultipleRun || isSpace->boolValue())
-      {
-        // update history with flowPerEnt
-        Array<float> RACentflows;
-        //Array<float> RACposSpec;
-        //Array<float> RACnegSpec;
-        //Array<float> RACspec;
-        for (auto &ent : cycle->entities)
-        {
-          RACentflows.add(flowPerEnt[ent]);
-          //RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
-          if (cycle->flow[patch.id] > 0.)
-            dynHistory->wasRAC[cycle] = true;
-          
-          //float specpos = 0.;
-          //float specneg = 0.;
-          //float spec = 0.;
-          // positive specificity
-          //if (cycle->flow != 0.) // if cycle is off, +/- specificities are set to 0
-          //{
-          //  if (otherPosFlowPerEnt[ent] != 0.)
-          //    specpos = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
-          //  else
-          //    specpos = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
-                           // never too sure, I use dummy value to spot any unexpected behavior
-            // negative specificity
-          //  if (flowPerEnt[ent] != 0.)
-          //    specneg = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
-          //  else
-          //    specneg = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
-            // never too sure, I use dummy value to spot any unexpected behavior
-          //}
-          //spec = flowPerEnt[ent] / ( abs(flowPerEnt[ent]) + nonRACFlowPerEnt[ent]);
-          //RACposSpec.add(specpos);
-          //RACnegSpec.add(specneg);
-          //RACspec.add(spec);
-        }
-        // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows));
-        //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
-        //RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
-        RACSnapshot snap(cycle->flow[patch.id], RACentflows);
-        //snap.step = curStep;
-        snap.step = nSteps;
-        snap.patchID = patch.id;
-        snap.runID = currentRun;
-        snap.racID = idPAC-1;
-        dynHistory->racHistory.add(snap);
-        //if (patch.id == 1)
-        //  cout << "in Dyn rac val : " << snap.rac << endl;
-        //PACsValuesForDrawing.add(cycle->flow(patch.id));
-      }
-      
-    } // end PAC loop
-  } // end space grid loop
+  
+  // compute RACs
+  computeRACsActivity(isCheck);
   
   
   // if current step is a checkpoint, call new simulation events for drawing
@@ -2660,8 +2509,169 @@ void Simulation::SteppingDiffusionRates(Patch& patch)
       ent->deterministicIncrease(patch.id, incr);
     }
   }
+}
+
+
+void Simulation::computeRACsActivity(bool isCheck)
+{
+  
+  for (auto & patch : Space::getInstance()->spaceGrid)
+  {
+    
+    int idPAC = 0;
+    for (auto &cycle : pacList->cycles) // loop over PACs
+    {
+      idPAC++;
+      // compute the total cycle flow for each entity of the PAC
+      map<SimEntity *, float> flowPerEnt;
+      for (auto &ent : entities)
+        flowPerEnt[ent] = 0.;
+      for (auto &reacDir : cycle->reacDirs)
+      {
+        SimReaction *reac = reacDir.first;
+        
+        // no need for dir, it is encoded in the sign of the flow
+        // reactant/product is encoded in stoichiometry value
+        for (auto &ent : reac->reactants)
+        {
+          flowPerEnt[ent] -= reac->deterministicFlow[patch.id]; // using deterministic trajectories to avoid "noisy" RAC plots
+        }
+        for (auto &ent : reac->products)
+        {
+          flowPerEnt[ent] += reac->deterministicFlow[patch.id];
+        }
+      }
+      
+      // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
+      cycle->flow.set(patch.id, flowPerEnt[cycle->entities[0]]); // initialisation to a potential value, either <=0 or bigger than real value
+      cycle->activity.set(patch.id, 0.);
+      for (auto &ent : cycle->entities)
+      {
+        //cout << flowPerEnt[ent] << "  ";
+        if (flowPerEnt[ent] < 0)
+        {
+          cycle->flow.set(patch.id, 0.);
+          break;
+        }
+        if (flowPerEnt[ent] < cycle->flow[patch.id])
+        {
+          cycle->flow.set(patch.id, flowPerEnt[ent]);
+        }
+        if (ent->concent[patch.id] != 0.)
+        {
+          float act = 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
+          cycle->activity.set( patch.id, cycle->activity[patch.id] + act );
+          //cycle->activity[patch.id] += 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
+        }
+      }
+      
+      /*
+       
+       Following contain attempts to define RAC activities based on specificities.
+       Not conclusive and mute it for now.
+       
+       // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
+       map<SimEntity *, float> otherPosFlowPerEnt;
+       for (auto &ce : cycle->entities)
+       otherPosFlowPerEnt[ce] = 0.;
+       
+       // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
+       map<SimEntity *, float> otherNegFlowPerEnt;
+       for (auto &ce : cycle->entities)
+       otherNegFlowPerEnt[ce] = 0.;
+       
+       // RAC entity change (absolute value) because of the RAC environment
+       map<SimEntity *, float> nonRACFlowPerEnt;
+       for (auto &ce : cycle->entities)
+       nonRACFlowPerEnt[ce] = 0.;
+       
+       for (auto &ce : cycle->entities)
+       {
+       // if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
+       for (auto &r : reactions)
+       {
+       // does this reaction contains current cycle entity ?
+       int stoe = r->stoechiometryOfEntity(ce);
+       if (stoe == 0)
+       continue;
+       
+       if (cycle->containsReaction(r)) // if reaction is in the RAC, count
+       {
+       otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
+       // otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
+       }
+       else // if reaction is not in the RAC, distinguish positive and negative contributions
+       {
+       if ((stoe < 0 && r->flow < 0) || (stoe > 0 && r->flow > 0))
+       otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
+       if ((stoe < 0 && r->flow > 0) || (stoe > 0 && r->flow < 0))
+       otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
+       nonRACFlowPerEnt[ce] += abs((float) stoe * r->flow);
+       }
+       }
+       }
+       */
+      
+      
+      // store RAC activity to dynamics history
+      if (isCheck || Settings::getInstance()->printHistoryToFile->boolValue() || isMultipleRun || isSpace->boolValue())
+      {
+        // update history with flowPerEnt
+        Array<float> RACentflows;
+        //Array<float> RACposSpec;
+        //Array<float> RACnegSpec;
+        //Array<float> RACspec;
+        for (auto &ent : cycle->entities)
+        {
+          RACentflows.add(flowPerEnt[ent]);
+          //RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
+          if (cycle->flow[patch.id] > 0.)
+            dynHistory->wasRAC[cycle] = true;
+          /*
+           //float specpos = 0.;
+           //float specneg = 0.;
+           //float spec = 0.;
+           // positive specificity
+           //if (cycle->flow != 0.) // if cycle is off, +/- specificities are set to 0
+           //{
+           //  if (otherPosFlowPerEnt[ent] != 0.)
+           //    specpos = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
+           //  else
+           //    specpos = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
+           // never too sure, I use dummy value to spot any unexpected behavior
+           // negative specificity
+           //  if (flowPerEnt[ent] != 0.)
+           //    specneg = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
+           //  else
+           //    specneg = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
+           // never too sure, I use dummy value to spot any unexpected behavior
+           //}
+           //spec = flowPerEnt[ent] / ( abs(flowPerEnt[ent]) + nonRACFlowPerEnt[ent]);
+           //RACposSpec.add(specpos);
+           //RACnegSpec.add(specneg);
+           //RACspec.add(spec);
+           */
+        }
+        // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows));
+        //RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
+        //RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
+        RACSnapshot snap(cycle->flow[patch.id], RACentflows);
+        //snap.step = curStep;
+        snap.step = nSteps;
+        snap.patchID = patch.id;
+        snap.runID = currentRun;
+        snap.racID = idPAC-1;
+        dynHistory->racHistory.add(snap);
+        //if (patch.id == 1)
+        //  cout << "in Dyn rac val : " << snap.rac << endl;
+        //PACsValuesForDrawing.add(cycle->flow(patch.id));
+      }
+      
+    } // end PAC loop
+  } // end space grid loop
   
 }
+
 
 
 
@@ -3291,6 +3301,13 @@ void Simulation::drawConcOfPatch(int idpatch)
     return;
   }
 */
+  
+  // check if some simulation exists before redrawing
+  if (dynHistory->concentHistory.size()==0)
+  {
+    return;
+  }
+  
   
   stopThread(100);
   redrawPatch = true;
