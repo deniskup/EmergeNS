@@ -265,6 +265,7 @@ public:
   void SteppingReactionRates(Patch&, bool);
   void SteppingInflowOutflowRates(Patch&);
 	void SteppingDiffusionRates(Patch&);
+  void computeRACsActivity(bool);
 	void stop();
 	void cancel();
 

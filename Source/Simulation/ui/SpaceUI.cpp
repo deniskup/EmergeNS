@@ -161,6 +161,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     {
       
       ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
+      cout << "last size : " << last.size() << endl;
       Array<float> conc; // concentration in current patch only
       for (auto & [key, val] : last)
       {
@@ -181,6 +182,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       uint8_t red = 0;
       uint8_t green = 0;
       uint8_t blue = 0;
+      cout << conc.size() << " vs " << entityColors.size() << endl;
       jassert(conc.size() == entityColors.size());
       for (int k=0; k<conc.size(); k++)
       {
