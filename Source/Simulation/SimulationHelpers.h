@@ -213,8 +213,11 @@ public:
     return output;
   }
   */
+<<<<<<< HEAD
   
   
+=======
+>>>>>>> e26f75a (1st attempt for movie replay dynamics in space + some refacto)
   
   // getter of RAC snapshots
   

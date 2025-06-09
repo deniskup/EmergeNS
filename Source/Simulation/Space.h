@@ -7,6 +7,7 @@
 #include "SimulationHelpers.h"
 
 #include "EntityManager.h"
+#include "SimulationHelpers.h"
 
 using namespace juce;
 using namespace std;

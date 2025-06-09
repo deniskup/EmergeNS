@@ -109,6 +109,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->shouldUpdate)
 	{
+    cout << "simul should update" << endl;
 		simul->updateParams();
 		simul->shouldUpdate = false;
 	}

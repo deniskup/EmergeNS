@@ -1750,7 +1750,6 @@ void Simulation::start(bool restart)
   // 1st call of simulation event
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-    
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1977,6 +1976,8 @@ void Simulation::resetForNextRun()
   }
 }
 
+// #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
+// Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 
 void Simulation::requestProceedingToNextRun(const int _run)
@@ -2042,6 +2043,7 @@ void Simulation::resetForNextRun()
 // Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
+//void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
 {
   nSteps++;
   bool isCheckForRedraw = ( (nSteps-1) % checkPoint == 0);
@@ -2049,7 +2051,7 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
   
   //cout << "nsteps = " << nSteps << ". rac snap size : " << racSnaps.size() << endl;
   //cout << pointsDrawn->intValue() << endl;
-  cout << "ischeck for redraw : " << isCheckForRedraw << endl;
+  //cout << "ischeck for redraw : " << isCheckForRedraw << endl;
   
   if (!isCheckForRedraw)
     return;
@@ -2788,7 +2790,7 @@ void Simulation::run()
     //cout << "retrieving rac snaps for run #" << runToDraw << " and patch #" << patchToDraw << endl;
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
-    cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
+    //cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
     
     
     /*
