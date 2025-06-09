@@ -109,6 +109,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->shouldUpdate)
 	{
+    cout << "simul should update" << endl;
 		simul->updateParams();
 		simul->shouldUpdate = false;
 	}
@@ -157,7 +158,8 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	paramsLabel.setText(paramsToDisplay, dontSendNotification);
 
-	if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
+  //if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
+	if (!simul->finished->boolValue() && !simul->realTime->boolValue()) // si pas option realTime
 		return;
 	if (entityHistory.isEmpty())
 		return;
@@ -187,15 +189,23 @@ void SimulationUI::paint(juce::Graphics &g)
 		paths.add(p); // add one path per entity
 	}
   //cout << "UI ent history : " << entityHistory.size() << endl;
-	for (int i = 0; i < entityHistory.size(); i++)
+  for (int i = 0; i < entityHistory.size(); i++)
 	{
 		//Array<float> values = entityHistory[i];
-    Array<float> values;
+    Array<pair<int, float>> pvalues;
+    //Array<float> values(entityHistory[i].size());
     for (auto & [key, val] : entityHistory[i]) //  time step i
     {
       if (key.first == simul->patchToDraw)
-        values.add(val);
+        pvalues.add(make_pair(key.second, val));
+        //values.add(val);
     }
+    
+    pvalues.sort();
+    Array<float> values;
+    for (auto & p : pvalues)
+      values.add(p.second);
+    
     
 		for (int j = 0; j < values.size(); j++)
 		{
@@ -493,8 +503,8 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::FINISHED:
 	{
 		shouldRepaint = true;
-		// resized();
-		// repaint();
+    resized();
+		repaint();
 	}
       
 	} // end switch

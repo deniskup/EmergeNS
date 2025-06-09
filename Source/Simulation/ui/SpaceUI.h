@@ -7,6 +7,7 @@
 
 class SpaceUI : public ShapeShifterContentComponent,
                 public Simulation::AsyncSimListener,
+                public Space::AsyncSpaceListener,
                 public Timer,
                 public ContainerAsyncListener
 {
@@ -23,6 +24,8 @@ public:
     void resized() override;
   
     void paint(juce::Graphics &) override;
+    
+    void drawSpaceGrid(juce::Graphics &);
   
     void paintOneHexagon(juce::Graphics &, float startX, float startY, float width);
 
@@ -37,9 +40,14 @@ public:
   
     void newMessage(const Simulation::SimulationEvent &ev) override;
   
+    void newMessage(const Space::SpaceEvent &ev) override;
+  
     void newMessage(const ContainerAsyncEvent &e) override;
 
 
+private:
+  
+    unordered_map<int, Path> hexagons; // map drawn hexagons (paths) to their patch id
   
     Rectangle<int> spaceBounds;
   
@@ -50,6 +58,8 @@ public:
     bool shouldRepaint = false;
   
     bool gridIsAlreadyDrawn = false;
+  
+    bool useStartConcentrationValues = true;
   
     float pixOriginX;
     float pixOriginY;

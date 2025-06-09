@@ -4,13 +4,14 @@
 
 juce_ImplementSingleton(Space);
 
-Space::Space() : ControllableContainer("Space"), Thread("Space")
+Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(1000)
 {
   //cout << "simul(1)->isSpace : " << simul->isSpace->boolValue() << endl;
   tilingSize = addIntParameter("Tiling size", "Tiling size", 1, 1);
   previousTiling = tilingSize->intValue();
   diffConstant = addFloatParameter("Diffusion constant", "Diffusion Constant", 0.01, 0.f);
-  timeOfReplay = addFloatParameter("Time for dynamics replay", "Time for dynamics replay", 5., 1.f, 100.f);
+  timeOfReplay = addFloatParameter("Replay Time", "Replay Time", 5., 1.f, 100.f);
+  initGridAtStartValues = addTrigger("Init. grid at start values", "Init. grid at start values", 0.01, 0.f);
   replay = addTrigger("Replay", "Replay", 0.01, 0.f);
   nPatch = 1;
 }
@@ -62,7 +63,25 @@ void Space::onContainerParameterChanged(Parameter *p)
     }
     nPatch = p->intValue() * p->intValue();
     
+    // clear the already existing grid
     spaceGrid.clear();
+    
+    // call simulation instance to update all arrays in simu
+    Simulation::getInstance()->updateSpaceGridSizeInSimu();
+    
+    // call space event to redraw an empty grid
+    //ConcentrationGrid entityConc;
+    Array<Colour> entityColors;
+    for (auto & ent : Simulation::getInstance()->entities)
+    {
+      if (!ent->draw)
+        continue;
+      entityColors.add(ent->color);
+    }
+    spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::UPDATE_GRID, this, 0, {}, entityColors));
+
+    
+    // assign index coordinates
     int pid = -1;
     for (auto & patch : spaceGrid)
     {
@@ -90,74 +109,105 @@ void Space::onContainerTriggerTriggered(Trigger *t)
 {
   if (t == replay)
   {
-    int checkPoint = Simulation::getInstance()->maxSteps / Simulation::getInstance()->pointsDrawn->intValue();
+    concMovie.clear();
+    stopThread(1);
+    
+    //cout << "will replay dynamics" << endl;
+    
+    // I define the checkpoints by imposing that the time between two frames equals timeframe, chosen to be below the
+    // human eye retina persistence (0.1s).
+    float timeframe = 0.05;
+    int checkPoint = timeframe * (float) Simulation::getInstance()->dynHistory->concentHistory.size() / timeOfReplay->floatValue();
     checkPoint = jmax(1, checkPoint);
-    steps.clear();
-    timestep = timeOfReplay->floatValue() / (float) Simulation::getInstance()->pointsDrawn->intValue();
+    
+    //cout << "Npoints total = " << Simulation::getInstance()->dynHistory->concentHistory.size() << endl;
+    //cout << "checkpoint = " << checkPoint << endl;
+
+    // calculate the effective time between two successive frames
+    //float timestep = timeOfReplay->floatValue() / (float) Simulation::getInstance()->pointsDrawn->intValue();
+    
+    // only keep concentration snapshots consistent with checkpoints calculated
     for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.size(); k++)
     {
-      if (k % checkPoint == 0)
-        steps.add(k);
+      if (k % checkPoint != 0)
+        continue;
+      concMovie.add(Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).conc);
     }
-    stopThread(100);
+    
+    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    
+    // launch the replay
     startThread();
   }
+  
+  else if (t == initGridAtStartValues)
+  {
+    // retrieve entity colours
+    Array<Colour> colours;
+    for (auto & ent : Simulation::getInstance()->entities)
+    {
+      if (!ent->draw)
+        continue;
+      colours.add(ent->color);
+    }
+    spaceNotifier.addMessage( new SpaceEvent(SpaceEvent::UPDATE_GRID, this, 0, {}, colours) );
+  }
+  
 }
 
 
 
 void Space::run()
 {
+  LOG("--------- Start thread ---------");
+  
   auto startTime = std::chrono::steady_clock::now();
+  auto previousTime = startTime;
+  
+  // calculate time duration (ms) of a single snapshot
+  float timesnap = 1000.*timeOfReplay->floatValue() / (float) concMovie.size();
+  
+  // Call space event for the 1st time
+  spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::WILL_START, this));
+  
+  // Retrieve entity colours
+  Array<Colour> entityColours;
+  for (auto & ent : Simulation::getInstance()->entitiesDrawn)
+  {
+    entityColours.add(ent->color);
+  }
+  
+  //cout << "conc movie size = " << concMovie.size() << endl;
   
   // loop over concentration dynamics
-  for (int k=0; k<steps.size(); k++)
+  int sn=-1;
+  //for (int sn=0; sn<concMovie.size(); sn++)
+  while (sn<(concMovie.size()-1) && !threadShouldExit())
   {
-    int st = steps[k];
+    sn++;
     
+    // get current time
     auto currentTime = std::chrono::steady_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - startTime).count();
     
-    // if timestep - elapsed > 0, call wait(timestep - elapsed)
-    // beware of types and units
+    // compare current time to previous time in loop
+    const std::chrono::duration<double, std::milli> elapsed = currentTime - previousTime;
+    if (elapsed.count() < timesnap)
+    {
+      float time2wait = timesnap - elapsed.count();
+      wait(time2wait);
+    }
+    // update previous time for next loop iteration
+    previousTime = currentTime;
     
-    // Think about the following :
-   // SpaceUI should have a comparable functions as SImulationUI and PACUI to update patches colors when a simulation event is called
-    // same for this specific thread, though I should leave unchanged PACUI and SimulationUI.
-    // Maybe best way is to implement a SpaceEvent and call it independently of SimulationEvent ?
-
-    // Once this is done, Need some thinking about the colour of a patch at each event. See refs in rivoire and bunin to see how to do.
-    
-    // see how to handle change colours in SpaceUI paint(). Maybe worth it to consider not redrawing the spacegrid for each space event ?
-    
-    /*
-     d'après chatGPT
-     using namespace std::chrono;
-
-     // On capture le temps de départ
-         auto startTime = steady_clock::now();
-
-         for (int i = 0; i < numIterations; ++i)
-         {
-             // Simuler un travail (tu peux l’enlever si t’as ton propre taf à faire ici)
-             std::this_thread::sleep_for(milliseconds(100 + i * 10)); // ça groove doucement
-
-             // Temps actuel
-             auto currentTime = steady_clock::now();
-
-             // Durée écoulée depuis le début
-             auto elapsed = duration_cast<milliseconds>(currentTime - startTime).count();
-
-             std::cout << "Itération " << i << " - Temps écoulé depuis le début : " << elapsed << " ms" << std::endl;
-         }
-
-     */
+    // now I must call space event
+    spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::NEWSTEP, this, sn, concMovie.getUnchecked(sn), entityColours));
     
   }
   
-  steps.clear();
-  stopThread(100);
- 
+  
+  concMovie.clear();
+
+  LOG("--------- End thread ---------");
   
 }
 
