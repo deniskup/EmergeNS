@@ -2,8 +2,8 @@
 #include <JuceHeader.h>
 #include "PAC.h"
 #include "SteadyStates.h"
-#include "SimEntity.h"
 #include "SimReaction.h"
+#include "SimEntity.h"
 #include "SimulationHelpers.h"
 #include "PhasePlane.h"
 #include "Space.h"
@@ -23,13 +23,18 @@ class ConcentrationGrid // represents concentrations of entities over all the sp
     int patchID;
 }
 */
+/*
 struct PairHash {
     std::size_t operator()(const std::pair<int, SimEntity*>& p) const noexcept {
         return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second->idSAT) << 1);
     }
 };
 // unordered_map[ pair< patch id , sim entity > , concentration ]
-typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid; // represents concentrations of entities over all the space grid
+// represents concentrations of entities over all the space grid at a given time
+typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid;
+ 
+ */
+
 
 
 class RandomGausGenerator
@@ -249,6 +254,8 @@ public:
 
 	void clearParams();
 	void updateParams(); // for display
+  void updateSpaceGridSizeInSimu();
+
 	void fetchGenerate();
 	
 	void generateSimFromUserList();

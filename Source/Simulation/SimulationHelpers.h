@@ -37,16 +37,28 @@ public:
 };
 
 
-class ConcentrationSnapshot // concentration snapshot recorded in a single patch and for a single run. Should rename class name
+
+
+
+/*
+ This type represents concentrations of entities over all the space grid at a given time
+ The map is defined as follow :
+ map< pair<patchID, entID>, concentration >
+ By default this map will be sorted first by ascending patchID, secondaly by ascending entID.
+*/
+typedef map<pair<int, int>, float> ConcentrationGrid;
+
+
+
+class ConcentrationSnapshot // concentration snapshot recorded for a single run.
 {
 public:
   ConcentrationSnapshot() {};
-  std::map<SimEntity*, float> conc;
+  //std::map<SimEntity*, float> conc;
+  ConcentrationGrid conc;
   int runID = 0;
-  int patchID = 0;
+//  int patchID = 0;
   int step;
-  
-  
 };
 
 
@@ -92,6 +104,7 @@ public:
   ~DynamicsHistory(){};
 
   Array<ConcentrationSnapshot> concentHistory; // concentration history
+  //Array<ConcentrationGrid> concentHistory; // concentration history
   Array<RACSnapshot> racHistory; // RAC history
   std::map<PAC*, bool> wasRAC; // true if the PAC is on at some point "on" in the simulation (for drawing)
   
@@ -100,17 +113,22 @@ public:
   {
     return concentHistory.getUnchecked(concentHistory.size()-1);
   }
-  
+  /*
   Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
   {
     Array<ConcentrationSnapshot> output;
     for (auto & cs : concentHistory)
     {
+      for (auto & [patchent, c] : cs->conc)
+      {
+        if (patchent.first
+      }
       if (cs.runID == _stepid)
         output.add(cs);
     }
     return output;
   }
+  */
   
   Array<ConcentrationSnapshot> getConcentrationDynamicsForRun(int _runid)
   {
@@ -122,28 +140,39 @@ public:
     }
     return output;
   }
-  
+  /*
   Array<ConcentrationSnapshot> getConcentrationDynamicsForPatch(int _pid)
   {
     Array<ConcentrationSnapshot> output;
     for (auto & cs : concentHistory)
     {
+      for (auto & [patchent, c] : cs->conc)
+      {
+        if (patchent.first == _pid)
+        {
+          ConcentrationSnapshot
+          output.
+        }
+      }
       if (cs.patchID == _pid)
         output.add(cs);
     }
     return output;
   }
-  
+  */
+  /*
   Array<ConcentrationSnapshot> getConcentrationDynamicsForRunAndPatch(int _runid, int _pid)
   {
     Array<ConcentrationSnapshot> output;
     for (auto & cs : concentHistory)
     {
+      //if (cs.runID == _runid && cs.patchID == _pid)
       if (cs.runID == _runid && cs.patchID == _pid)
         output.add(cs);
     }
     return output;
   }
+  */
   
   // getter of RAC snapshots
   
@@ -178,6 +207,19 @@ public:
     for (auto & rs : racHistory)
     {
       if (rs.patchID == _pid)
+        output.add(rs);
+    }
+    return output;
+  }
+  
+  Array<RACSnapshot> getRACDynamicsForPatchAndStep(int _pid, int _step, int startindex)
+  {
+    Array<RACSnapshot> output;
+    //for (auto & rs : racHistory)
+    for (int k = startindex; k<racHistory.size(); k++)
+    {
+      RACSnapshot rs = racHistory.getUnchecked(k);
+      if (rs.patchID == _pid && rs.step == _step)
         output.add(rs);
     }
     return output;

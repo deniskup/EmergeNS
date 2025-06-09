@@ -214,6 +214,33 @@ void Simulation::updateParams()
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
 }
 
+
+void Simulation::updateSpaceGridSizeInSimu()
+{
+  for (auto& ent : entities)
+  {
+    float start0 = ent->startConcent.getUnchecked(0);
+    
+    ent->startConcent.resize(Space::getInstance()->nPatch);
+    ent->concent.resize(Space::getInstance()->nPatch);
+    ent->deterministicConcent.resize(Space::getInstance()->nPatch);
+    ent->previousConcent.resize(Space::getInstance()->nPatch);
+    
+    // for start concentrations, I duplicate the values of the first patch
+    // for others, I init with null values
+    for (int k=0; k<ent->startConcent.size(); k++)
+    {
+      ent->startConcent.set(k, start0);
+      ent->concent.set(k, 0.);
+      ent->deterministicConcent.set(k, 0.);
+      ent->previousConcent.set(k, 0.);
+    }
+  }
+}
+
+
+
+
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()
 {
@@ -1562,6 +1589,7 @@ void Simulation::resetBeforeRunning()
   startTrigger->setEnabled(false);
   state = Simulating;
   isMultipleRun = false;
+  affectSATIds();
   
   initialConcentrations.clear();
   //for (auto& ent: entities)
@@ -1713,6 +1741,7 @@ void Simulation::start(bool restart)
   // 1st call of simulation event
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1723,7 +1752,8 @@ void Simulation::start(bool restart)
     {
       //entityValues.add(ent->concent);
       //entityValues.add(ent->concent[0]);
-      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      //pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      pair<int, int> pr = make_pair(p.id, ent->idSAT);
       entityValues[pr] = ent->concent[p.id];
     }
   }
@@ -1731,24 +1761,24 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));  
   // listeners.call(&SimulationListener::simulationStarted, this);
   
     
   // We keep track of dynamics in multipleRun and space mode to be able to redraw the dynamics for a given patch/run
   if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
   {
+    ConcentrationSnapshot concsnap;
+    concsnap.step = 0;
+    concsnap.runID = 0;
     for (auto & patch : Space::getInstance()->spaceGrid)
     {
-      ConcentrationSnapshot concsnap;
-      concsnap.step = 0;
-      concsnap.runID = 0;
-      concsnap.patchID = patch.id;
       for (auto & ent : entities)
       {
-        concsnap.conc[ent] = ent->concent[patch.id];
+        pair<int, int> p = make_pair(patch.id, ent->idSAT);
+        concsnap.conc[p] = ent->concent[patch.id];
       }
-      dynHistory->concentHistory.add(concsnap);
+      
       // add null rac snapshots for each PAC
       for (int k=0; k<pacList->cycles.size(); k++)
       {
@@ -1763,6 +1793,7 @@ void Simulation::start(bool restart)
         dynHistory->racHistory.add(rs);
       }
     }
+    dynHistory->concentHistory.add(concsnap);
   }
 
   
@@ -1837,7 +1868,8 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   {
     for (auto & ent : entitiesDrawn)
     {
-      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      //pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      pair<int, int> pr = make_pair(p.id, ent->idSAT);
       entityValues[pr] = ent->concent[p.id];
     }
   }
@@ -1925,17 +1957,20 @@ void Simulation::resetForNextRun()
   }
 }
 
+// #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
+// Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
+//void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
 {
   
   nSteps++;
   bool isCheckForRedraw = ( (nSteps-1) % checkPoint == 0);
   
   
-  cout << "nsteps = " << nSteps << endl;
+  //cout << "nsteps = " << nSteps << ". rac snap size : " << racSnaps.size() << endl;
   //cout << pointsDrawn->intValue() << endl;
-  cout << "ischeck for redraw : " << isCheckForRedraw << endl;
+  //cout << "ischeck for redraw : " << isCheckForRedraw << endl;
   
   if (!isCheckForRedraw)
     return;
@@ -1955,7 +1990,7 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     }
     
     //Array<float> concarray;
-    ConcentrationGrid concarray;
+    ConcentrationGrid drawnConcGrid;;
     Array<Colour> entityColours;
     int ident=-1;
   
@@ -1965,19 +2000,20 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
       ident++;
       entityColours.add(ent->color);
       //float entconc = ent->concentHistory[istep].second;
-      float c = concSnap.conc[ent];
-      //concarray.add(c);
-      pair<int, SimEntity*> pr = make_pair(patchToDraw, ent);
-      concarray[pr] = c;
+      //float c = concSnap.conc[ent];
+      pair<int, int> patchent = make_pair(patchToDraw, ent->idSAT);
+      float c = concSnap.conc[patchent];
+      drawnConcGrid[patchent] = c;
       if (c > recordDrawn[patchToDraw])
         recordDrawn.set(patchToDraw, c);
       //cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
     }
+  
     
     if (racSnaps.size() != pacList->cycles.size())
     {
-     // cout << "racsnap size : " << racSnaps.size() << " VS pac cycle size : " << pacList->cycles.size() << endl;
-      LOG("array size issue when redrawin RACs, stop.");
+      cout << "racsnap size : " << racSnaps.size() << " VS pac cycle size : " << pacList->cycles.size() << endl;
+      LOG("array size issue when redrawing RACs, stop.");
       stop();
       return;
     }
@@ -2000,13 +2036,13 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     
     if (curStep==0)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, curStep, concarray, entityColours, racarray, raclist));
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, concarray, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, curStep, drawnConcGrid, entityColours, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
     }
     else
     {
       //cout << "Calling new SimNotifier in redraw" << endl;
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, concarray, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
     }
   
   
@@ -2091,14 +2127,12 @@ void Simulation::nextStep()
   
 
   // save a snapshot of concentrations in patches
+  ConcentrationSnapshot concsnap;
+  concsnap.step = nSteps;
+  concsnap.runID = currentRun;
+  
   for (auto & patch : Space::getInstance()->spaceGrid)
   {
-  
-    ConcentrationSnapshot concsnap;
-    concsnap.step = nSteps;
-    concsnap.runID = currentRun;
-    concsnap.patchID = patch.id;
-    
     for (auto &ent : entities)
     {
       if ( (ent->concent[patch.id] > recordConcent[patch.id]) && currentRun==(nRuns-1)) // should be only in the isCheck case
@@ -2128,17 +2162,19 @@ void Simulation::nextStep()
       // We keep track of dynamics in multipleRun and space mode to be able to redraw the dynamics for a given patch/run
       if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
       {
-        concsnap.conc[ent] = ent->concent[patch.id];
+        //concsnap.conc[ent] = ent->concent[patch.id];
+        pair<int, int> patchent = make_pair(patch.id, ent->idSAT);
+        concsnap.conc[patchent] = ent->concent[patch.id];
       }
-  
-    }
-    if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
-    {
-      dynHistory->concentHistory.add(concsnap);
-    }
-      
-    
+    } // end entities loop
   } // end space grid loop
+  
+  
+  if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+  {
+    dynHistory->concentHistory.add(concsnap);
+  }
+  
   
     
   // stop the simulation when steady state is reached in express mode or if detectEquilibrium is true
@@ -2180,7 +2216,8 @@ void Simulation::nextStep()
   {
     for (auto &ent : entitiesDrawn)
     {
-      pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      //pair<int, SimEntity*> pr = make_pair(p.id, ent);
+      pair<int, int> pr = make_pair(p.id, ent->idSAT);
       entityValues[pr] = ent->concent[p.id];
       //entityValues.add(ent->concent[0]);
     }
@@ -2712,10 +2749,10 @@ void Simulation::run()
   if (redrawRun || redrawPatch)
   {
     // recover dynamics of concentrations and RAC corresponding to run or patch to redraw
-    Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
+    //Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
-    cout << "Retrieved " <<  concDyn.size() << " conc snapshots and " << racDyn.size() << " rac snapshots" << endl;
+    //cout << "Retrieved " << racDyn.size() << " rac snapshots" << endl;
     
     
     /*
@@ -2763,7 +2800,8 @@ void Simulation::run()
         */
         
         //nextRedrawStep(concDyn.getUnchecked(k), racDyn.getUnchecked(k));
-        nextRedrawStep(concDyn.getUnchecked(k), thisStepRACs);
+        //nextRedrawStep(concDyn.getUnchecked(k), thisStepRACs);
+        nextRedrawStep(dynHistory->concentHistory.getUnchecked(k), thisStepRACs);
         k++;
       }
       else
@@ -2791,7 +2829,8 @@ void Simulation::run()
       if (!redrawRun)
       {
         //entityValues.add(ent->concent[0]);
-        pair<int, SimEntity*> pr = make_pair(p.id, ent);
+        //pair<int, SimEntity*> pr = make_pair(p.id, ent);
+        pair<int, int> pr = make_pair(p.id, ent->idSAT);
         entityValues[pr] = ent->concent[p.id];
       }
       else
@@ -2840,24 +2879,13 @@ void Simulation::run()
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
+  
 }
 
 ///////////////////////////////////////////////////////////////////:
 
 void Simulation::writeHistory()
 {
- // int nruns = RAChistory.size();
- // if (nruns==0)
- //   return;
-  
-  
-  
-  if (dynHistory->concentHistory.size() != dynHistory->racHistory.size())
-  {
-    LOGWARNING("RAC history and concentration history array have different size, will not print them to file.");
-    cout << "concent history size : " << dynHistory->concentHistory.size() << " VS RAC history size : " << dynHistory->racHistory.size() << endl;
-    return;
-  }
   
   // output file
   String filename = "dynamicsHistory.csv";
@@ -2875,149 +2903,50 @@ void Simulation::writeHistory()
       comma = "";
     historyFile << "[" << ent->name << "]" << comma;
   }
-  c=-1;
-  for (auto & cycle : pacList->cycles)
+  //for (auto & cycle : pacList->cycles)
+  for (int c=0; c<pacList->cycles.size(); c++)
   {
-    c++;
     string comma = (c == (pacList->cycles.size() - 1)) ? "" : ",";
     historyFile << "RAC_" << c  << comma;
   }
   historyFile << endl;
   
   // print dynamics to file
-  for (int k=0; k<dynHistory->concentHistory.size(); k++)
+  //for (int k=0; k<dynHistory->concentHistory.size(); k++)
+  for (int step=0; step<dynHistory->concentHistory.size(); step++)
   {
-    
-    if (dynHistory->concentHistory.getUnchecked(k).runID != dynHistory->racHistory.getUnchecked(k).runID)
+    for (auto & patch : Space::getInstance()->spaceGrid)
     {
-      LOGWARNING("Run id Conflict when printing to file, stop.");
-      historyFile.flush();
-      return;
-    }
-    
-    if (dynHistory->concentHistory.getUnchecked(k).patchID != dynHistory->racHistory.getUnchecked(k).patchID)
-    {
-      LOGWARNING("Patch id Conflict when printing to file, stop.");
-      historyFile.flush();
-      return;
-    }
-    
-    if (dynHistory->concentHistory.getUnchecked(k).step != dynHistory->racHistory.getUnchecked(k).step)
-    {
-      LOGWARNING("Step id Conflict when printing to file, stop.");
-      cout << dynHistory->concentHistory.getUnchecked(k).step << " " << dynHistory->racHistory.getUnchecked(k).step << endl;
-      historyFile.flush();
-      return;
-    }
-    
-    historyFile << dynHistory->concentHistory.getUnchecked(k).runID << ",";
-    historyFile << dynHistory->concentHistory.getUnchecked(k).patchID << ",";
-    historyFile << dynHistory->concentHistory.getUnchecked(k).step << ",";
-    
-    // print concentration snapshots
-    c=-1;
-    for (auto &ent : entities)
-    {
-      c++;
-      string comma = ",";
-      if ( c == (entities.size() - 1) && pacList->cycles.size()==0)
-        comma = "";
-      historyFile << dynHistory->concentHistory.getUnchecked(k).conc[ent] << comma;
-    }
-    
-    // print rac snapshots
-    c=-1;
-    //for (auto & cycle : pacList->cycles)
-    for (int kc=0; kc<pacList->cycles.size(); kc++)
-    {
-      c++;
-      string comma = (c == (pacList->cycles.size() - 1)) ? "" : ",";
-      historyFile << dynHistory->racHistory.getUnchecked(k).flows[kc] << comma;
-    }
-  historyFile << endl;
-  }
-  
-    
-    
-    /*
-    // loop over runs
-    for (int irun=0; irun<nruns; irun++)
-    {
-      //Array<RACHist> runRACHistory = RAChistory[irun];
+      historyFile << dynHistory->concentHistory.getUnchecked(step).runID << ",";
+      //historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
+      historyFile << patch.id << ",";
+      historyFile << step << ",";
       
-      // test if no history
-      if (RAChistory[irun]->getUnchecked(idPAC0)->hist.size() == 0)
+      // retrieve entity concent in current patch
+      int countent = -1;
+      for (auto & [patchent, c] : dynHistory->concentHistory.getUnchecked(step).conc)
       {
-        LOG("RAC " + String(idPAC) + " history empty");
-        historyFile.close();
-        continue;
+        if (patchent.first != patch.id)
+          continue;
+        countent++;
+        string comma = ( (countent==entities.size()-1 && pacList->cycles.size()==0) ? "" : ",");
+        historyFile << c << comma;
       }
       
-      
-      int i = 0;
-      for (auto &snap : RAChistory[irun]->getUnchecked(idPAC0)->hist)
+      // retrieve RACs in current patch
+      int firstindex = step * pacList->cycles.size() * Space::getInstance()->nPatch;
+      Array<RACSnapshot> racs = dynHistory->getRACDynamicsForPatchAndStep(patch.id, step, 0);
+      int countrac = -1;
+      for (auto & rs : racs)
       {
-        i++;
-        if (i == 1)
-          historyFile << RAChistory[irun]->getUnchecked(idPAC0)->pacScore << ",";
-        else
-          historyFile << ",";
-        historyFile << irun << "," << i << "," << snap->rac << ",";
-        for (int e = 0; e < snap->flows.size(); e++)
-        {
-          historyFile << snap->flows[e] << ",";
-          historyFile << snap->posSpecificities[e] << ",";
-          historyFile << snap->negSpecificities[e] << ",";
-          historyFile << snap->specificity[e];
-        }
-        historyFile << endl;
-      } // end snap loop
-    } // end run loop
-  historyFile.close();
-  }
-  LOG("RAC History written to files RACi.csv");
-
-  
-  // store concentration of all entity concentrations history to csv file
-  String concentFilename = "./concentrationDynamics.csv";
-  ofstream outfile;
-  outfile.open(concentFilename.toStdString(), ofstream::out | ofstream::trunc);
-
-  // 1st line of the file is column name : time and entities
-    outfile << "time,runID,";
-    for (int ient = 0; ient < entities.size(); ient++)
-    {
-      string comma = (ient == (entities.size() - 1)) ? "" : ",";
-      outfile << "[" << entities[ient]->name << "]" << comma;
+        countrac++;
+        string comma = (countrac == pacList->cycles.size()-1 ? "" : ",");
+        historyFile << rs.rac << comma;
+      }
+      historyFile << endl;
     }
-    outfile << endl;
-
-  // now store concentration history
-  int npoints = entities[0]->concentHistory.size();
-  //for (int s = 0; s < (nSteps - 1)*nRuns; s++)
-  for (int s = 0; s < npoints; s++)
-  {
-    float thisrun = (float) entities[0]->concentHistory[s].first;
-    float fs = (float)s;
-    float time = (fs - thisrun * (float) maxSteps) * dt->floatValue();
-    //outfile << time << "," << kRun << ",";
-    outfile << time << "," << entities[0]->concentHistory[s].first << ",";
-    int c = 0;
-    for (auto &ent : entities)
-    {
-      string comma = (c == (entities.size() - 1)) ? "" : ",";
-      //outfile << ent->concentHistory[s] << comma;
-      outfile << ent->concentHistory[s].second << comma;
-      c++;
-    }
-    outfile << endl;
   }
-  
-  
-  
-  // close concentration file output
-  outfile.close();
-  */
+    
   
 }
 

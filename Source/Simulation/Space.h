@@ -5,6 +5,7 @@
 #define CACROB_PRECISION 5
 
 #include "EntityManager.h"
+#include "SimulationHelpers.h"
 
 using namespace juce;
 using namespace std;
@@ -72,6 +73,8 @@ public:
  
     FloatParameter * timeOfReplay;
   
+    Trigger * initGridAtStartValues;
+  
     Trigger * replay;
   
     int previousTiling;
@@ -88,21 +91,47 @@ public:
     Array<Patch> spaceGrid;
 
   private:
+    
+  Array<ConcentrationGrid> concMovie;
   
-  Array<int> steps;
   
-  float timestep;
+  public:
+  
+  // ASYNC
+  class SpaceEvent
+  {
+  public:
+    enum Type
+    {
+      UPDATE_GRID,
+      WILL_START,
+      NEWSTEP,
+      FINISHED,
+    };
 
-  //   class SettingsListener
-  // {
-  // public:
-  //   virtual ~SettingsListener() {
-  //   virtual void updateSettingsUI(Settings *){};
-  // };
+    SpaceEvent(Type t,
+      Space* space,
+      int curStep = 0,
+      ConcentrationGrid entityValues = {},
+      Array<Colour> entityColors = Array<Colour>())
+      : type(t), space(space), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
+    {
+    }
 
-  // ListenerList<SettingsListener> listeners;
-  // void addSettingsListener(SettingsListener *newListener) { listeners.add(newListener); }
-  // void removeSettingsListener(SettingsListener *listener) { listeners.remove(listener); }
+    Type type;
+    Space* space;
+    int curStep;
+    ConcentrationGrid entityValues;
+    Array<Colour> entityColors;
+  };
+
+  QueuedNotifier<SpaceEvent> spaceNotifier;
+  typedef QueuedNotifier<SpaceEvent>::Listener AsyncSpaceListener;
+
+  void addAsyncSpaceListener(AsyncSpaceListener* newListener) { spaceNotifier.addListener(newListener); }
+  void addAsyncCoalescedSpaceListener(AsyncSpaceListener* newListener) { spaceNotifier.addAsyncCoalescedListener(newListener); }
+  void removeAsyncSpaceListener(AsyncSpaceListener* listener) { spaceNotifier.removeListener(listener); }
+
 };
 
 
