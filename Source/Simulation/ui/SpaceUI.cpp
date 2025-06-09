@@ -95,10 +95,17 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
   // start is at upper left corner
   int til = space->tilingSize->intValue();
   float ftil = (float) til;
-  width = 0.5*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / ftil;
+  
+  if (til==1)
+    width = 0.35*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / ftil;
+  else
+    width = 0.45*std::min(spaceBounds.getWidth(), spaceBounds.getHeight()) / ftil;
   
   float centerX = spaceBounds.getCentreX() - 0.5*spaceBounds.getWidth()*(1. - pow(0.5, ftil-1.))*0.8;
-  float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.5;
+  float centerY = spaceBounds.getCentreY() - 0.5*spaceBounds.getHeight()*(1. - pow(0.5, ftil-1.))*0.3;
+  
+  if (til==1)
+    centerY += 30;
   
   pixOriginX = centerX;
   pixOriginY = centerY;
