@@ -2631,9 +2631,10 @@ void Simulation::computeRACsActivity(bool isCheck)
         {
           cycle->flow.set(patch.id, flowPerEnt[ent]);
         }
-        if (ent->concent[patch.id] != 0.)
+        //if (ent->concent[patch.id] != 0.)
+        if (ent->deterministicConcent[patch.id] != 0.)
         {
-          float act = 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
+          float act = 1./(ent->deterministicConcent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
           cycle->activity.set( patch.id, cycle->activity[patch.id] + act );
           //cycle->activity[patch.id] += 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
         }

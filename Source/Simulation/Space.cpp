@@ -170,7 +170,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    cout << "number of snapshots for replay : " << concMovie.size() << endl;
     
     // launch the replay
     startThread();
