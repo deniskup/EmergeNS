@@ -2591,9 +2591,10 @@ void Simulation::computeRACsActivity(bool isCheck)
         {
           cycle->flow.set(patch.id, flowPerEnt[ent]);
         }
-        if (ent->concent[patch.id] != 0.)
+        //if (ent->concent[patch.id] != 0.)
+        if (ent->deterministicConcent[patch.id] != 0.)
         {
-          float act = 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
+          float act = 1./(ent->deterministicConcent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
           cycle->activity.set( patch.id, cycle->activity[patch.id] + act );
           //cycle->activity[patch.id] += 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
         }
@@ -2749,7 +2750,7 @@ void Simulation::run()
     //Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
-    //cout << "Retrieved " << racDyn.size() << " rac snapshots" << endl;
+    cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
     
     
     /*
@@ -2774,7 +2775,7 @@ void Simulation::run()
         Array<RACSnapshot> thisStepRACs;
         for (int k2=flag; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == curStep)
+          if (racDyn.getUnchecked(k2).step == nSteps)
           {
             thisStepRACs.add(racDyn.getUnchecked(k2));
           }
@@ -2787,9 +2788,9 @@ void Simulation::run()
         /*
         cout << "--- SANITY CHECK ---" << endl;
         int count=0;
-        for (int k2=flag; k2<racDyn.size(); k2++)
+        for (int k2=0; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == curStep)
+          if (racDyn.getUnchecked(k2).step == nSteps)
             count++;
         }
         cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
@@ -3234,6 +3235,7 @@ void Simulation::drawConcOfPatch(int idpatch)
     return;
   }
   
+ //dynHistory->concentHistory.size() cout << "-DrawConcOfPatch(). Conc size : " << dynHistory->concentHistory.size() << endl;
   
   stopThread(100);
   redrawPatch = true;

@@ -81,7 +81,7 @@ void SpaceUI::paint(juce::Graphics &g)
   drawSpaceGrid(g);
   
   // reset bool to true by default
-  if (!useStartConcentrationValues)
+  if (!useStartConcentrationValues && !space->isThreadRunning())
     useStartConcentrationValues = true;
 
 }
@@ -171,8 +171,10 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   if (pid>=0)
   {
     Array<float> conc; // concentration in current patch only
-    if (useStartConcentrationValues)
+    if (useStartConcentrationValues /*&& !space->isThreadRunning()*/)
     {
+      if (space->isThreadRunning())
+        cout << "PASSING HERE" << endl;
      for (auto & ent : simul->entities)
      {
        if (!ent->draw)
@@ -187,10 +189,13 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       if (entityHistory.size() > 0)
       {
         ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
-        for (auto & [key, val] : last)
+        for (auto & [patchent, val] : last)
         {
-          if (key.first==pid)
-            conc.add(val);
+          if (patchent.first!=pid)
+            continue;
+          if (!simul->getSimEntityForID(patchent.second)->draw)
+            continue;
+          conc.add(val);
         }
       }
     }
@@ -217,6 +222,11 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     uint8_t green = 0;
     uint8_t blue = 0;
     //cout << conc.size() << " vs " << entityColors.size() << endl;
+    if (conc.size() != entityColors.size())
+    {
+      cout << "issue at step " << entityHistory.size()-1 << " and patch id " << pid << endl;
+      cout << "conc vector has wrong size : " << conc.size() << endl;
+    }
     jassert(conc.size() == entityColors.size());
     for (int k=0; k<conc.size(); k++)
     {
@@ -424,9 +434,9 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
 
     case Space::SpaceEvent::FINISHED:
     {
-      useStartConcentrationValues = false;
-      resized();
-      repaint();
+      useStartConcentrationValues = true;
+      //resized();
+      //repaint();
     }
     break;
     }
