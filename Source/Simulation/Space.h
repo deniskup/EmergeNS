@@ -57,7 +57,7 @@ class Patch
 
 
 
-class Space : public ControllableContainer, Thread
+class Space : public ControllableContainer, public Thread
 {
 public:
     juce_DeclareSingleton(Space, true);

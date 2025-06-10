@@ -112,7 +112,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     concMovie.clear();
     stopThread(1);
     
-    //cout << "will replay dynamics" << endl;
+    cout << "will replay dynamics" << endl;
     
     // I define the checkpoints by imposing that the time between two frames equals timeframe, chosen to be below the
     // human eye retina persistence (0.1s).
@@ -120,11 +120,8 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     int checkPoint = timeframe * (float) Simulation::getInstance()->dynHistory->concentHistory.size() / timeOfReplay->floatValue();
     checkPoint = jmax(1, checkPoint);
     
-    //cout << "Npoints total = " << Simulation::getInstance()->dynHistory->concentHistory.size() << endl;
-    //cout << "checkpoint = " << checkPoint << endl;
-
-    // calculate the effective time between two successive frames
-    //float timestep = timeOfReplay->floatValue() / (float) Simulation::getInstance()->pointsDrawn->intValue();
+    cout << "Npoints total = " << Simulation::getInstance()->dynHistory->concentHistory.size() << endl;
+    cout << "checkpoint = " << checkPoint << endl;
     
     // only keep concentration snapshots consistent with checkpoints calculated
     for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.size(); k++)
@@ -132,9 +129,10 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       if (k % checkPoint != 0)
         continue;
       concMovie.add(Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).conc);
+      //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    cout << "number of snapshots for replay : " << concMovie.size() << endl;
     
     // launch the replay
     startThread();
@@ -199,11 +197,26 @@ void Space::run()
     // update previous time for next loop iteration
     previousTime = currentTime;
     
+    /*
+    if (concMovie.getUnchecked(sn).size() != entityColours.size())
+    {
+      cout << "SHOULD NOT HAPPEN. In step " << sn << endl;
+      ConcentrationGrid cg = concMovie.getUnchecked(sn);
+      for (auto & [key, val] : cg)
+      {
+        cout << "patch " << key.first << " ; idSAT " << key.second << " ; conc " << val << endl;
+      }
+      stopThread(10);
+    }
+    */
+    
     // now I must call space event
+    //cout << "space event for step " << sn << ". conc grid size : " << concMovie.getUnchecked(sn).size() << endl;
     spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::NEWSTEP, this, sn, concMovie.getUnchecked(sn), entityColours));
     
   }
   
+  spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::FINISHED, this, sn, {}, {}));
   
   concMovie.clear();
 
