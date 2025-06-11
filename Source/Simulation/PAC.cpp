@@ -409,14 +409,14 @@ void PAC::computeJacobianAtZero()
 		deleteDirectReaction = 0;
 		deleteInverseReaction = 0;
 
-		directReactionSpeeds.add(reacFlows[i].first->assocRate)
-		inverseReactionSpeeds.add(reacFlows[i].first->dissocRate)
+    //directReactionSpeeds.add(reacFlows[i].first->assocRate); @invasion
+    //inverseReactionSpeeds.add(reacFlows[i].first->dissocRate); @invasion
 
 		for (auto &spec : reacFlows[i].first->reactants)
 		{
 			if (deleteDirectReaction)
 			{
-				directReactionSpeeds.add(0);
+				//directReactionSpeeds.add(0); @invasion
 			}
 		}
 	}
@@ -1849,7 +1849,7 @@ void PAClist::PACsWithZ3()
 
 			// cout << "PAC #" << pacsFound << endl;
 			pac->calculateRealisableScore();
-			pac->calculateStoechiometryMatrix();
+			//pac->calculateStoechiometryMatrix(); @invasion. Maybe you meant computeStoechiometryMatrix() ?
 
 			// cout << pac->toString() << endl;
 			// cout << "WITNESS : ";

@@ -31,6 +31,8 @@ Settings::Settings() : ControllableContainer("Settings")
     //maxDoubleReacPACs = addIntParameter("(SAT) Max doubleReac", "Maximal number of double reactions in PAC searching", 2, 0);
 
     printPACsToFile = addBoolParameter("Print PACs to file", "Print PACs to file PAC_list.txt", false);
+  
+    printSteadyStatesToFile = addBoolParameter("Print steady states to file", "Print steady states to file SteadyStates.txt", false);
 
     printHistoryToFile = addBoolParameter("Print History to file", "Print concentrations and RACS to history.csv", false);
 

@@ -304,6 +304,30 @@ void SteadyStateslist::printSteadyStates()
 	}
 }
 
+void SteadyStateslist::printSteadyStatesToFile()
+{
+  ofstream out;
+  out.open("steadyStates.txt", ofstream::out | ofstream::trunc);
+  out << "----- Steady States list -----\n\n";
+  int c = 0;
+  for (auto & sst : arraySteadyStates)
+  {
+    out << "Steady state #" << c << endl;
+    out << "\tis stable ? --> " << sst.isStable << endl;
+    out << "\tis border ? --> " << sst.isBorder << endl;
+    out << "\tis partially stable ? --> " << sst.isPartiallyStable << endl;
+    out << "\tNumber of unstable eigenVec : " << sst.postiveEigenVal << endl;
+    out << "\tComposition :" << endl;
+    out.precision(10);
+    for (auto &c : sst.state)
+    {
+      out << "\t\t[" << c.first->name << "] = " << c.second << endl;
+    }
+    out << endl;
+    c++;
+  }
+}
+
 ////////////////////////////////////////////////////:
 
 void SteadyStateslist::clear()
@@ -313,6 +337,28 @@ void SteadyStateslist::clear()
   nPartStable = 0;
 	//stableStates.clear();
 	//partiallyStableStates.clear();
+}
+
+
+void SteadyStateslist::cleanLocalFolder()
+{
+  Array<string> filenames;
+  filenames.add("dummy.txt");
+  filenames.add("msolveSteadyConstraints.ms");
+  filenames.add("msolveSteadyOutput.ms");
+  filenames.add("msolvesteadylog.txt");
+  
+  string command = "rm ";
+  for (auto & file : filenames)
+  {
+    ifstream iffile(file.c_str());
+    if (iffile.good())
+    {
+      command += " " + file;
+    }
+  }
+  system(command.c_str());
+  
 }
 
 void SteadyStateslist::computeSteadyStates()
@@ -763,6 +809,7 @@ bool SteadyStateslist::computeWithMSolve()
 	if (!dummy || dummy.tellg() == 0)
 	{
 		LOGWARNING("msolve not found, aborting.");
+    cleanLocalFolder();
 		return false;
 	}
 
@@ -911,7 +958,7 @@ bool SteadyStateslist::computeWithMSolve()
 		iota(l.begin(), l.end(), i * simul->entities.size());
 
 		SteadyState sstate;
-		bool keepState = true;
+		bool keepState = true; // only keep positive roots
     bool isBorderState = false;
 		for (auto &index : l)
 		{
@@ -951,6 +998,8 @@ bool SteadyStateslist::computeWithMSolve()
 			{
         sstate.isBorder = isBorderState;
         arraySteadyStates.add(sstate);
+        //cout << "--- FOLLOWING STATE IS BORDER : " << isBorderState << "----" << endl;
+        //printOneSteadyState(sstate);
 			}
 		}
 	}
@@ -963,6 +1012,10 @@ bool SteadyStateslist::computeWithMSolve()
 
 	// sanity check
 	// printSteadyStates();
+  
+  // clean folder
+  cleanLocalFolder();
+  
 	return true;
 }
 
@@ -1300,7 +1353,8 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(SteadyState &witness)
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, SteadyState &witness)
+//bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, SteadyState &witness)
+void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globally)
 {
 
 	// as a general info, commands to diagonalize a matrix are :
@@ -1318,62 +1372,70 @@ bool SteadyStateslist::isStable(Eigen::MatrixXd &jm, SteadyState &witness)
 	// so I directly reach this option without bothering on diagonalization
 	Eigen::ComplexSchur<Eigen::MatrixXd> cs;
 	cs.compute(jm);
+  
+  SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
 
 	// just in case it failed, print a warning
 	if (cs.info() != Eigen::Success)
 	{
-		LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, returning true by default");
-		return true;
+		LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, setting true by default for the following steady state :");
+    printOneSteadyState(witness);
+    witness.isStable = true;
+    witness.postiveEigenVal = 0;
+    arraySteadyStates.setUnchecked(sst_index, witness);
+		return;
 	}
 
 	// retrieve upper triangular matrix
 	Eigen::MatrixXcd triang = cs.matrixT();
+  
+  //cout << "SteadyState::IsStable --- looking at steady state" << endl;
+  //printOneSteadyState(witness);
 
 	//cout << "--------triang. of jacobi matrix---------" << endl;
 	//cout << triang << endl;
 
 	// sparse signs of real part of diagonal elements
-	bool isCertain = true;
+	//bool isCertain = true;
+  int nPositiveEig = 0; // numer of eigenvalues with positive real parts
 	for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
 	{
-		if (triang(i, i).real() > epsilon)
-			return false; // one positive eigenvalue implies non stability
-		if (abs(triang(i, i).real()) <= epsilon)
-			isCertain = false; // if 0 < eigenvalue < epsilon : tricky case
+    //cout << "\t" << triang(i, i).real() << endl;
+    if (triang(i, i).real() > 0.) // maybe use epsilon instead of 0 to be more safe ?
+      nPositiveEig++;
 	}
-	if (isCertain) // no diagonal element too close from 0 and all negative
-	{
-		return true;
-	}
-	else
-	{
-		if (jm.rows() < jacobiMatrix.size())
-		{
-			LOG("WARNING, can't decide partial stability of stationnary point (assumed true) :");
-		}
-		else
-		{
-			LOG("WARNING, can't decide global stability of stationnary point (assumed true) :");
-		}
-		printOneSteadyState(witness);
-		// ostringstream out;
-		// out.precision(3);
-		// out << fixed << "(";
-		// for (auto& c : witness) out << c << ", ";
-		// out << ")";
-		// LOG(out.str());
-		return true;
-	}
-
-	return true; // try to habe a bit cleaner function to avoid such return default value
+  //cout << "Npositive eigenvalues = " << nPositiveEig << endl;
+  witness.postiveEigenVal = nPositiveEig;
+  if (nPositiveEig == 0)
+  {
+    if (globally)
+      witness.isStable = true;
+    else
+      witness.isPartiallyStable = true;
+  }
+  else
+  {
+    if (globally)
+      witness.isStable = false;
+    else
+      witness.isPartiallyStable = false;
+  }
+  //cout << "witness is tagged stable ? -> " << witness.isStable << endl;
+  
+  // set modifications to array steady state
+  arraySteadyStates.setUnchecked(sst_index, witness);
+    
 }
 
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 /////////////////////////////////////////////////////////////////////////:
 
-bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, SteadyState &witness)
+//bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, SteadyState &witness)
+void SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, int sst_index)
 {
+  SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
+  
 	// retrieve index where witness elements are 0
 	Array<int> zeroindex;
 	for (int k = 0; k < witness.state.size(); k++)
@@ -1429,9 +1491,8 @@ bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, SteadyState &witne
 			subWitness.add(witness.state.getReference(k));
 	}
 
-	bool stable = isStable(subjm, witness);
+	isStable(subjm, sst_index, false);
 
-	return stable;
 }
 
 /////////////////////////////////////////////////////////////////////////:
@@ -1463,34 +1524,48 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 		// cout << jm << endl;
     
 		// is steady state globally stable ?
-		bool stable = isStable(jm, witness);
-		if (stable)
-    {
-      //stableStates.add(witness);
-      nGlobStable++;
-    }
-    else
-    {
-      if (!witness.isBorder)
-        arraySteadyStates.remove(iw);
-    }
+    //bool stable = isStable(jm, witness);
+		isStable(jm, iw, true);
+    
+    
     //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;
 		// else cout << "--> unstable !" << endl;
 
-		// if yes, check partial stability, i.e. not taking into account variables that are exactly 0
-		if (witness.isBorder)
+		// for border steady states, check partial stability, i.e. not taking into account variables that are exactly 0
+		if (arraySteadyStates.getReference(iw).isBorder)
 		{
-			bool partiallyStable = isPartiallyStable(jm, witness);
-			if (partiallyStable)
-      {
-        nPartStable++;
-        //partiallyStableStates.add(witness);
-      }
-      // remove steady states that are neither stable nor partially stable
-      if (!stable && !partiallyStable)
-        arraySteadyStates.remove(iw);
+      //bool partiallyStable = isPartiallyStable(jm, witness);
+			isPartiallyStable(jm, iw);
 		}
-	}
+    
+    // keep counts for non-border steady states
+    if (!arraySteadyStates.getReference(iw).isBorder)
+    {
+      if (arraySteadyStates.getReference(iw).isStable)
+        nGlobStable++;
+      else if (arraySteadyStates.getReference(iw).postiveEigenVal == 1)
+        nSaddle++;
+    }
+    else // also keep counts for border steady states
+    {
+      if (arraySteadyStates.getReference(iw).isPartiallyStable)
+        nPartStable++;
+    }
+    
+    
+	} // end loop over steady states
+  
+  /*
+  int count = -1;
+  for (int iw = arraySteadyStates.size() - 1; iw >= 0; iw--)
+  {
+    count++;
+    SteadyState witness = arraySteadyStates.getReference(iw);
+    cout << "sst #" << count << " border " << witness.isBorder << ". warning  " << witness.warning << ".  Npositive = " << witness.postiveEigenVal << ". is stable ? -> " << witness.isStable << ". is partially stable = " << witness.isPartiallyStable << endl;
+  }
+  */
+  
+
   
   // Regularize almost zero roots, which sometimes are slightly negative
   for (auto & sst : arraySteadyStates)
@@ -1504,23 +1579,17 @@ void SteadyStateslist::evaluateSteadyStatesStability()
   
 
   // print number of steady states
-  string plural = (arraySteadyStates.size() > 1) ? "s" : "";
-  LOG("Network has " + to_string(arraySteadyStates.size()) + " stable steady state" + plural + " : ");
-
-	// print stable steady states
-  //plural = (stableStates.size() > 1) ? "s" : "";
-  plural = (nGlobStable > 1) ? "s" : "";
-	LOG("Network has " + to_string(nGlobStable) + " globally stable steady state" + plural + " : ");
+  string plural = (nGlobStable > 1) ? "s" : "";
+  LOG("Found " + to_string(nGlobStable) + " stable steady state" + plural + " for the network.");
   for (auto &s : arraySteadyStates)
-    if (!s.isBorder && !s.warning)
+    if (!s.isBorder && s.isStable)
       printOneSteadyState(s);
 
 	// print partially stable steady states
-  //plural = (partiallyStableStates.size() > 1) ? "s" : "";
   plural = (nPartStable > 1) ? "s" : "";
-	LOG("Network has " + to_string(nPartStable) + " partially stable steady state" + plural + " : ");
+	LOG("Found " + to_string(nPartStable) + " partially stable steady state" + plural + " for the network.");
 	for (auto &s : arraySteadyStates)
-    if (s.isBorder && s.warning)
+    if (s.isBorder && s.isPartiallyStable)
       printOneSteadyState(s);
   
   // steady states that should be read cautiously
@@ -1531,10 +1600,17 @@ void SteadyStateslist::evaluateSteadyStatesStability()
       nwarnings++;
   }
   plural = (nwarnings > 1) ? "s" : "";
-  LOGWARNING("Network has " + to_string(nwarnings) + " steady state" + plural + " that should be taken with caution : ");
+  LOGWARNING("Found " + to_string(nwarnings) + " steady state" + plural + " that should be taken with caution.");
   for (auto &s : arraySteadyStates)
     if (s.warning)
       printOneSteadyState(s);
+  
+  
+  // print steady states to file ?
+  if (Settings::getInstance()->printSteadyStatesToFile)
+  {
+    printSteadyStatesToFile();
+  }
   
 
 } // end func evaluateSteadyStatesStability

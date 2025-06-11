@@ -42,6 +42,8 @@ public:
 
     BoolParameter *printPACsToFile; //print PACs to file
 
+    BoolParameter *printSteadyStatesToFile; //print SteadyStates to file
+
     BoolParameter *printHistoryToFile; //print RACs to file
 
     BoolParameter * userListMode;
