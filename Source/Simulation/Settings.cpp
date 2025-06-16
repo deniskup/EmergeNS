@@ -97,5 +97,3 @@ void Settings::afterLoadJSONDataInternal()
 {
   updateNoiseParameter();
 }
-
-
