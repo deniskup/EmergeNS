@@ -511,6 +511,9 @@
     <ClCompile Include="..\..\Source\Simulation\ui\GenerationUI.cpp">
       <Filter>EmergeNS\Source\Simulation\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\ui\NEPUI.cpp">
+      <Filter>EmergeNS\Source\Simulation\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\ui\PACUI.cpp">
       <Filter>EmergeNS\Source\Simulation\ui</Filter>
     </ClCompile>
@@ -565,6 +568,9 @@
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\Space.cpp">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\SteadyStates.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
@@ -575,6 +581,9 @@
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\Util.cpp">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\NEP.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
@@ -2805,6 +2814,9 @@
     <ClInclude Include="..\..\Source\Simulation\ui\GenerationUI.h">
       <Filter>EmergeNS\Source\Simulation\ui</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\ui\NEPUI.h">
+      <Filter>EmergeNS\Source\Simulation\ui</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\ui\PACUI.h">
       <Filter>EmergeNS\Source\Simulation\ui</Filter>
     </ClInclude>
@@ -2859,6 +2871,9 @@
     <ClInclude Include="..\..\Source\Simulation\Simulation.h">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\Space.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\SteadyStates.h">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
@@ -2869,6 +2884,9 @@
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Util.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\NEP.h">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Main.h">
@@ -3350,6 +3368,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_core\juce_core.h">
 =======
 <<<<<<< HEAD
@@ -3361,6 +3380,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_core\juce_core.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_core\juce_core.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.h">
@@ -3383,6 +3405,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_cryptography\juce_cryptography.h">
 =======
 <<<<<<< HEAD
@@ -3394,6 +3417,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_cryptography</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h">
@@ -3425,6 +3451,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_data_structures\juce_data_structures.h">
 =======
 <<<<<<< HEAD
@@ -3436,6 +3463,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_data_structures</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionBroadcaster.h">
@@ -3530,6 +3560,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_events\juce_events.h">
 =======
 <<<<<<< HEAD
@@ -3541,6 +3572,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_events\juce_events.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_events\juce_events.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_events</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colour.h">
@@ -3722,6 +3756,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_graphics\juce_graphics.h">
 =======
 <<<<<<< HEAD
@@ -3733,6 +3768,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_graphics\juce_graphics.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_graphics\juce_graphics.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityActions.h">
@@ -4346,6 +4384,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
 =======
 <<<<<<< HEAD
@@ -4357,6 +4396,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_gui_basics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h">
@@ -4442,6 +4484,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
 =======
 <<<<<<< HEAD
@@ -4453,6 +4496,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_gui_extra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Draggable3DOrientation.h">
@@ -4529,6 +4575,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_opengl\juce_opengl.h">
 =======
 <<<<<<< HEAD
@@ -4540,6 +4587,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_opengl\juce_opengl.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_opengl\juce_opengl.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_opengl</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Modules\juce_organicui\app\CrashHandler.h">
@@ -5183,6 +5233,7 @@
     </ClInclude>
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_osc\juce_osc.h">
 =======
 <<<<<<< HEAD
@@ -5194,6 +5245,9 @@
 =======
     <ClInclude Include="..\..\..\..\JUCE\modules\juce_osc\juce_osc.h">
 >>>>>>> ef2a5bc (..)
+=======
+    <ClInclude Include="..\..\..\JUCE\modules\juce_osc\juce_osc.h">
+>>>>>>> c0c80a3 (Progress on NEP implementation)
       <Filter>JUCE Modules\juce_osc</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h">

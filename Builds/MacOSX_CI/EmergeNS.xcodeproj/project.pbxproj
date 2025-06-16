@@ -12,6 +12,7 @@
 		04BEEEBD7B492EBEEC19CF12 /* Util.cpp */ = {isa = PBXBuildFile; fileRef = 086E2A709DB2A17B51F3FF2F; };
 		05AD1EC55D2C6302ED178B97 /* ReactionManager.cpp */ = {isa = PBXBuildFile; fileRef = 74B0702C8DF6E5343D945394; };
 		060027DC34860C9C800706F6 /* include_juce_osc.cpp */ = {isa = PBXBuildFile; fileRef = AB46FF28AD2C6E63E27323E9; };
+		0689267A956A5AE4966DC222 /* NEP.cpp */ = {isa = PBXBuildFile; fileRef = 6D27F6CEEB3DA7EEA88B8551; };
 		1490988804F81BDA6B60B654 /* SimEntity.cpp */ = {isa = PBXBuildFile; fileRef = 403459A56259FA0C77D01E6D; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
 		17DC8E199AA7E3D7C45D537D /* KineticLaw.cpp */ = {isa = PBXBuildFile; fileRef = 89515CB4FD83FB1F197DB132; };
@@ -41,6 +42,7 @@
 		8EAC159D59629BBA0E4E8827 /* Statistics.cpp */ = {isa = PBXBuildFile; fileRef = 4DBF9F1D0A2E3555D7B43C2B; };
 		8F5ACC62B28396A759091735 /* BinaryData.cpp */ = {isa = PBXBuildFile; fileRef = 50682746CF60D34B2CF06E5B; };
 		90BC5390DB65247E8BFCBEC1 /* GenerationUI.cpp */ = {isa = PBXBuildFile; fileRef = 85738E6567AAAF5831E08056; };
+		9BB1CE8605352E4A18958965 /* NEPUI.cpp */ = {isa = PBXBuildFile; fileRef = 5D291F1E1539EC1B3DE44F9C; };
 		A0FEEF4C684BC19BAD78EEC8 /* Security.framework */ = {isa = PBXBuildFile; fileRef = E9CB0DD14A5FB3D546279B62; };
 		A6BDC76D23924E3E2FDE6DC5 /* ReactionUI.cpp */ = {isa = PBXBuildFile; fileRef = 469CB20A298492D8A306BC2D; };
 		AD95F5770373DCE1BA608398 /* Space.cpp */ = {isa = PBXBuildFile; fileRef = 08546C480AA55B55148DA0C9; };
@@ -72,6 +74,7 @@
 		086E2A709DB2A17B51F3FF2F /* Util.cpp */ /* Util.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Util.cpp; path = ../../Source/Simulation/Util.cpp; sourceTree = SOURCE_ROOT; };
 		0A3CC5BA63C4CFB8D89F0D2A /* PAC.cpp */ /* PAC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PAC.cpp; path = ../../Source/Simulation/PAC.cpp; sourceTree = SOURCE_ROOT; };
 		0A7A50722F6E3517F56701A7 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JUCE/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
+		14CB4D50CF64A0BFE1567DD3 /* NEP.h */ /* NEP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NEP.h; path = ../../Source/Simulation/NEP.h; sourceTree = SOURCE_ROOT; };
 		1F5B27D8DE5DC63B14C5CE59 /* SimulationUI.h */ /* SimulationUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationUI.h; path = ../../Source/Simulation/ui/SimulationUI.h; sourceTree = SOURCE_ROOT; };
 		20F925379B77181596EEDB1D /* Simulation.h */ /* Simulation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Simulation.h; path = ../../Source/Simulation/Simulation.h; sourceTree = SOURCE_ROOT; };
 		225D31E751DDE0809F5D7E07 /* BinaryData.h */ /* BinaryData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = BinaryData.h; path = ../../JuceLibraryCode/BinaryData.h; sourceTree = SOURCE_ROOT; };
@@ -92,6 +95,7 @@
 		3EDAAD93A12A43D70A06086E /* juce_osc */ /* juce_osc */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_osc; path = ../../JUCE/modules/juce_osc; sourceTree = SOURCE_ROOT; };
 		403459A56259FA0C77D01E6D /* SimEntity.cpp */ /* SimEntity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimEntity.cpp; path = ../../Source/Simulation/SimEntity.cpp; sourceTree = SOURCE_ROOT; };
 		469CB20A298492D8A306BC2D /* ReactionUI.cpp */ /* ReactionUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionUI.cpp; path = ../../Source/Simulation/ui/ReactionUI.cpp; sourceTree = SOURCE_ROOT; };
+		482A1049EF86DA6C8C34345F /* NEPUI.h */ /* NEPUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NEPUI.h; path = ../../Source/Simulation/ui/NEPUI.h; sourceTree = SOURCE_ROOT; };
 		48F73767A72C8D61533FE10D /* PACUI.cpp */ /* PACUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PACUI.cpp; path = ../../Source/Simulation/ui/PACUI.cpp; sourceTree = SOURCE_ROOT; };
 		4A2B79A3FD61E51BDC5C6B7D /* Util.h */ /* Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Util.h; path = ../../Source/Simulation/Util.h; sourceTree = SOURCE_ROOT; };
 		4CE811A299A9B796193E2AD5 /* juce_core */ /* juce_core */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_core; path = ../../JUCE/modules/juce_core; sourceTree = SOURCE_ROOT; };
@@ -110,10 +114,15 @@
 		57D49C4CAC730F256DDB59C0 /* SpaceUI.h */ /* SpaceUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpaceUI.h; path = ../../Source/Simulation/ui/SpaceUI.h; sourceTree = SOURCE_ROOT; };
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
 		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
+<<<<<<< HEAD
+=======
+		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
+>>>>>>> c0c80a3 (Progress on NEP implementation)
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
 		6B28E7757C58181F28CE8C98 /* MainComponentCommands.cpp */ /* MainComponentCommands.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponentCommands.cpp; path = ../../Source/MainComponentCommands.cpp; sourceTree = SOURCE_ROOT; };
+		6D27F6CEEB3DA7EEA88B8551 /* NEP.cpp */ /* NEP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEP.cpp; path = ../../Source/Simulation/NEP.cpp; sourceTree = SOURCE_ROOT; };
 		6F860C2BF4E1A836444D5B8E /* PAC.h */ /* PAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PAC.h; path = ../../Source/Simulation/PAC.h; sourceTree = SOURCE_ROOT; };
 		72D7AE46F64E78FD9B283689 /* KineticLaw.h */ /* KineticLaw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KineticLaw.h; path = ../../Source/Simulation/KineticLaw.h; sourceTree = SOURCE_ROOT; };
 		74B0702C8DF6E5343D945394 /* ReactionManager.cpp */ /* ReactionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManager.cpp; path = ../../Source/Simulation/ReactionManager.cpp; sourceTree = SOURCE_ROOT; };
@@ -240,6 +249,8 @@
 				BB013463E169E25B6719AB6E,
 				20F925379B77181596EEDB1D,
 				2EEFFE67A4CBED22C54E8AFB,
+				08546C480AA55B55148DA0C9,
+				5A4323D250C42070E4FCCF73,
 				FB681EF776A25D6A16BA5E15,
 				3D5690C29AFD8D43233EE051,
 				4DBF9F1D0A2E3555D7B43C2B,
@@ -248,6 +259,8 @@
 				5A4323D250C42070E4FCCF73,
 				086E2A709DB2A17B51F3FF2F,
 				4A2B79A3FD61E51BDC5C6B7D,
+				6D27F6CEEB3DA7EEA88B8551,
+				14CB4D50CF64A0BFE1567DD3,
 			);
 			name = Simulation;
 			sourceTree = "<group>";
@@ -294,6 +307,8 @@
 				8998AEBF8653D39BEF549D88,
 				85738E6567AAAF5831E08056,
 				34775FCE8D79E259E7C2C223,
+				5D291F1E1539EC1B3DE44F9C,
+				482A1049EF86DA6C8C34345F,
 				48F73767A72C8D61533FE10D,
 				C9BB0C859DCA69964A007AA8,
 				F77C398492396D6464E64DF6,
@@ -496,6 +511,7 @@
 				62CE9A5FFE46AEFCDB7DB8D8,
 				F8513DF1E55AD29FEFB24087,
 				90BC5390DB65247E8BFCBEC1,
+				9BB1CE8605352E4A18958965,
 				EB79FEB1008F17C067D2C223,
 				62E8E11A62C4C950EB430351,
 				622C22926BDCD084D8D3DDC6,
@@ -514,10 +530,12 @@
 				BA79B2FB07C46F91B5002051,
 				7901AB2D0CDD47E7997BA379,
 				FD74B3EC7E4E6FF0A5C8EA84,
+				AD95F5770373DCE1BA608398,
 				ED7EFB546DF9D12CADD1C9B8,
 				8EAC159D59629BBA0E4E8827,
 				AD95F5770373DCE1BA608398,
 				04BEEEBD7B492EBEEC19CF12,
+				0689267A956A5AE4966DC222,
 				F34AE2E6390E2FBC86D0636E,
 				C96344D043028DB34B18094D,
 				8C03AC320571C486402374B8,

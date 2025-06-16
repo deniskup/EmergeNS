@@ -79,6 +79,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/EntityManagerUI_b4e33bac.o \
   $(JUCE_OBJDIR)/EntityUI_e6628173.o \
   $(JUCE_OBJDIR)/GenerationUI_294a2f68.o \
+  $(JUCE_OBJDIR)/NEPUI_a98a36fb.o \
   $(JUCE_OBJDIR)/PACUI_82dd5f34.o \
   $(JUCE_OBJDIR)/PhasePlaneUI_e846d131.o \
   $(JUCE_OBJDIR)/ReactionManagerUI_528924e6.o \
@@ -97,10 +98,12 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/PhasePlane_233a49aa.o \
   $(JUCE_OBJDIR)/Settings_19ffc42c.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
+  $(JUCE_OBJDIR)/Space_958d9267.o \
   $(JUCE_OBJDIR)/SteadyStates_3910a3d.o \
   $(JUCE_OBJDIR)/Statistics_7698d42c.o \
   $(JUCE_OBJDIR)/Space_958d9267.o \
   $(JUCE_OBJDIR)/Util_9d757a8b.o \
+  $(JUCE_OBJDIR)/NEP_c53a407a.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/MainComponentCommands_b1179f4d.o \
@@ -166,6 +169,11 @@ $(JUCE_OBJDIR)/EntityUI_e6628173.o: ../../Source/Simulation/ui/EntityUI.cpp
 $(JUCE_OBJDIR)/GenerationUI_294a2f68.o: ../../Source/Simulation/ui/GenerationUI.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling GenerationUI.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/NEPUI_a98a36fb.o: ../../Source/Simulation/ui/NEPUI.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling NEPUI.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/PACUI_82dd5f34.o: ../../Source/Simulation/ui/PACUI.cpp
@@ -258,6 +266,11 @@ $(JUCE_OBJDIR)/Simulation_ac703710.o: ../../Source/Simulation/Simulation.cpp
 	@echo "Compiling Simulation.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/Space_958d9267.o: ../../Source/Simulation/Space.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Space.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/SteadyStates_3910a3d.o: ../../Source/Simulation/SteadyStates.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling SteadyStates.cpp"
@@ -276,6 +289,11 @@ $(JUCE_OBJDIR)/Space_958d9267.o: ../../Source/Simulation/Space.cpp
 $(JUCE_OBJDIR)/Util_9d757a8b.o: ../../Source/Simulation/Util.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Util.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/NEP_c53a407a.o: ../../Source/Simulation/NEP.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling NEP.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp

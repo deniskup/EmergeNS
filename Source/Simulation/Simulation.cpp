@@ -1692,6 +1692,10 @@ void Simulation::start(bool restart)
   resetBeforeRunning();
   updateParams();
   
+  // check that the space grid is non non-0. If non 0, set it to size 1
+  if (Space::getInstance()->spaceGrid.size() == 0)
+    Space::getInstance()->tilingSize->setValue(1);
+  
   
   if (isMultipleRun && isSpace->boolValue())
   {
