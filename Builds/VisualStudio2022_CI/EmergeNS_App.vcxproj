@@ -147,12 +147,14 @@
     <ClCompile Include="..\..\Source\Simulation\ui\EntityManagerUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\GenerationUI.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\ui\NEPUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\PACUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\PhasePlaneUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\ReactionManagerUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\ReactionUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\SettingsUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\SimulationUI.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\ui\SpaceUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\SimReaction.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\SimEntity.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\PAC.cpp"/>
@@ -164,9 +166,11 @@
     <ClCompile Include="..\..\Source\Simulation\PhasePlane.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Settings.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\Space.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\SteadyStates.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Statistics.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Util.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\NEP.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponentCommands.cpp"/>
@@ -2191,12 +2195,14 @@
     <ClInclude Include="..\..\Source\Simulation\ui\EntityManagerUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\EntityUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\GenerationUI.h"/>
+    <ClInclude Include="..\..\Source\Simulation\ui\NEPUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\PACUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\PhasePlaneUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\ReactionManagerUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\ReactionUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\SettingsUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\SimulationUI.h"/>
+    <ClInclude Include="..\..\Source\Simulation\ui\SpaceUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\SimReaction.h"/>
     <ClInclude Include="..\..\Source\Simulation\SimEntity.h"/>
     <ClInclude Include="..\..\Source\Simulation\PAC.h"/>
@@ -2208,9 +2214,11 @@
     <ClInclude Include="..\..\Source\Simulation\PhasePlane.h"/>
     <ClInclude Include="..\..\Source\Simulation\Settings.h"/>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h"/>
+    <ClInclude Include="..\..\Source\Simulation\Space.h"/>
     <ClInclude Include="..\..\Source\Simulation\SteadyStates.h"/>
     <ClInclude Include="..\..\Source\Simulation\Statistics.h"/>
     <ClInclude Include="..\..\Source\Simulation\Util.h"/>
+    <ClInclude Include="..\..\Source\Simulation\NEP.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_AbstractFifo.h"/>
@@ -2370,30 +2378,14 @@
     <ClInclude Include="..\..\JUCE\modules\juce_core\zip\juce_GZIPCompressorOutputStream.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\zip\juce_GZIPDecompressorInputStream.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\zip\juce_ZipFile.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_core\juce_core.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_core\juce_core.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_core\juce_core.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_core\juce_core.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_Primes.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_RSAKey.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_MD5.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_SHA256.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_Whirlpool.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_PropertiesFile.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\undomanager\juce_UndoableAction.h"/>
@@ -2403,15 +2395,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTree.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTreePropertyWithDefault.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTreeSynchroniser.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionBroadcaster.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionListener.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_AsyncUpdater.h"/>
@@ -2442,15 +2426,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_MultiTimer.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_TimedCallback.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\timers\juce_Timer.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_events\juce_events.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_events\juce_events.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_events\juce_events.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_events\juce_events.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colour.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_ColourGradient.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colours.h"/>
@@ -2510,15 +2486,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\native\juce_RenderingHelpers.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\placement\juce_Justification.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\placement\juce_RectanglePlacement.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_graphics\juce_graphics.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_graphics\juce_graphics.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_graphics\juce_graphics.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_graphics\juce_graphics.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityActions.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityEvent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityRole.h"/>
@@ -2722,15 +2690,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_TopLevelWindow.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_VBlankAttachment.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\windows\juce_WindowUtils.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeEditorComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeTokeniser.h"/>
@@ -2758,15 +2718,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\misc\juce_SystemTrayIconComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\misc\juce_WebBrowserComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\native\juce_NSViewFrameWatcher_mac.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Draggable3DOrientation.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Matrix3D.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Quaternion.h"/>
@@ -2791,15 +2743,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\opengl\juce_OpenGLTexture.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\opengl\juce_wgl.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\utils\juce_OpenGLAppComponent.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_opengl\juce_opengl.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_opengl\juce_opengl.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_opengl\juce_opengl.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_opengl\juce_opengl.h"/>
     <ClInclude Include="..\..\Modules\juce_organicui\app\CrashHandler.h"/>
     <ClInclude Include="..\..\Modules\juce_organicui\app\OrganicApplication.h"/>
     <ClInclude Include="..\..\Modules\juce_organicui\app\OrganicMainComponent.h"/>
@@ -3013,15 +2957,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_osc\osc\juce_OSCSender.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_osc\osc\juce_OSCTimeTag.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_osc\osc\juce_OSCTypes.h"/>
-<<<<<<< HEAD
-<<<<<<< HEAD
-    <ClInclude Include="..\..\..\..\..\Prog\JUCE\modules\juce_osc\juce_osc.h"/>
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_osc\juce_osc.h"/>
->>>>>>> 762e1b2 (..)
-=======
-    <ClInclude Include="..\..\..\..\JUCE\modules\juce_osc\juce_osc.h"/>
->>>>>>> 8cfd01834731c82bf5f0a6eb70391b736a3b75e5
+    <ClInclude Include="..\..\..\JUCE\modules\juce_osc\juce_osc.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
