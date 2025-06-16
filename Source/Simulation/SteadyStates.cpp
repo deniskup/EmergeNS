@@ -1034,41 +1034,69 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 
 	// loop over reactions
 	for (auto &r : simul->reactions)
-	{
-
-		if (!r->enabled)
-			continue;
-
-		// retrieve stoechiometry vector of current reaction
-		// cout << "In reaction " << r->idSAT << endl;
-		map<int, int> stoec;
-		for (auto &reactant : r->reactants)
-		{
-			stoec[reactant->idSAT]--;
-		}
-		for (auto &product : r->products)
-		{
-			stoec[product->idSAT]++;
-		}
-
-		// build forward and backward monom of current reaction
-		Monom forwardRate, backwardRate;
-		forwardRate.coef = r->assocRate;
-		backwardRate.coef = r->dissocRate;
-		// for (auto& reac : r->reactants)
-		for (auto &[id, st] : stoec)
-		{
-			// forwardRate.variables.add(reac->idSAT);
-			if (st < 0) // entity 'c_id' is a product, add "c_id^st" to monom
-			{
-				forwardRate.variables.add(make_pair(id, abs(st)));
-			}
-			if (st > 0 /*&& r->isReversible*/) // can possibly avoid useless effort if reaction is irreversible. I keep it for symmetric reasons
-			{
-				backwardRate.variables.add(make_pair(id, st));
-			}
-		}
-
+  {
+    
+    if (!r->enabled)
+      continue;
+    
+    
+    // retrieve stoechiometry vector of current reaction
+    // cout << "In reaction " << r->idSAT << endl;
+    map<int, int> stoec_forward;
+    map<int, int> stoec_backward;
+    map<int, int> stoec;
+    for (auto &reactant : r->reactants)
+    {
+      stoec_forward[reactant->idSAT]++;
+      stoec[reactant->idSAT]--;
+    }
+    for (auto &product : r->products)
+    {
+      stoec_backward[product->idSAT]++;
+      stoec[product->idSAT]++;
+    }
+    
+    // build forward and backward monom of current reaction
+    Monom forwardRate, backwardRate;
+    forwardRate.coef = r->assocRate;
+    backwardRate.coef = r->dissocRate;
+    // for (auto& reac : r->reactants)
+    for (auto &[id, st] : stoec_forward)
+    {
+      forwardRate.variables.add(make_pair(id, abs(st)));
+    }
+    for (auto &[id, st] : stoec_backward)
+    {
+      backwardRate.variables.add(make_pair(id, abs(st)));
+    }
+    
+    
+    /*
+    // add forward monoms for each entity involved in the reaction
+    for (auto &[entID, sto] : stoec_forward)
+    {
+      Monom mon = forwardRate;
+      // multiply reaction rate by stoechiometry and add it to the rate vector
+      //mon.coef *= -1.*(float)sto; // multiply rate constant by stoechiometry
+      mon.coef *= (float) stoec[entID]; // multiply rate constant by stoechiometry
+      rateVector[entID].add(mon);
+    }
+    
+    // add backward monoms for each entity involved in the reaction
+    if (r->isReversible)
+    {
+      for (auto &[entID, sto] : stoec_backward)
+      {
+        Monom mon = backwardRate;
+        // multiply reaction rate by stoechiometry and add it to the rate vector
+        //mon.coef *= (float)sto; // multiply rate constant by stoechiometry
+        mon.coef *= -1. * (float) stoec[entID];
+        rateVector[entID].add(mon);
+      }
+    }
+     */
+     
+    
 		// add forward/backward monoms for each entity involved in the reaction
 		for (auto &[entID, sto] : stoec) // entity is either consumed or produced by reaction. Information carried by sign of stoechiometry
 		{
@@ -1086,6 +1114,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 				rateVector[entID].add(bmon);
 			}
 		} // end loop over stoechiometry vector of reaction
+    
 
 	} // end reaction loop
 
@@ -1112,21 +1141,23 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 		}
 	}
 
-	// // sanity check
-	// int ic=-1;
-	// for (auto& polynomrate : rateVector)
-	// {
-	// 	ic++;
-	// 	cout << "entity #" << ic << endl;
-	// 	for (auto& monom : polynomrate)
-	// 		{
-	// 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
-	// 			cout << "\tvars =";
-	// 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
-	// 			cout << endl;
-	// 		}
-	// 		cout << "------------" << endl;
-	// } // end sanity check
+  /*
+	 // sanity check
+	 int ic=-1;
+	 for (auto& polynomrate : rateVector)
+	 {
+	 	ic++;
+	 	cout << "entity #" << ic << endl;
+	 	for (auto& monom : polynomrate)
+	 		{
+	 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
+	 			cout << "\tvars =";
+	 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
+	 			cout << endl;
+	 		}
+	 		cout << "------------" << endl;
+	 } // end sanity check
+  */
 
 	// factorize monoms with same variables together
 	vector<Polynom> factRateVector(simul->entities.size());
