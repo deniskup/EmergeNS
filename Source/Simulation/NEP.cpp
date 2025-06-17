@@ -12,11 +12,139 @@ juce_ImplementSingleton(NEP);
 struct EncapsVarForNLOpt {
   const Array<double>* qcenter; // current concentration point
   const Array<double>* deltaq; // current concentration point
-  const Array<double>* p; // p variable to pass to t optimisation
+  Array<double>* p; // p variable to pass to t optimisation
   NEP * nep; // nep class for hamiltonian class
   double t_opt; // t variable that optimizes the lagrangian
   //Array<double> p_opt; // t variable that optimizes the lagrangian
 };
+
+
+//double legendreTransform(const Array<double>& q_vec, const Array<double>& p_vec, double t)
+double legendreTransform(const EncapsVarForNLOpt * ev, double t)
+{
+  double lt = 0.;
+  jassert(ev->deltaq->size() == ev->p->size());
+  
+  double sp =0.;
+  for (int k=0; k<ev->deltaq->size(); k++)
+    sp += ev->deltaq->getUnchecked(k) * ev->p->getUnchecked(k);
+  lt += sp;
+  
+  double H = ev->nep->evalHamiltonian(*ev->qcenter, *ev->p) * t;
+  lt -= H;
+ /*
+  cout << "\n--- Legendre transform ---" << endl;
+  cout << "deltaT = " << t << endl;
+  cout << "deltaQ = ";
+  for (auto & qi : *ev->deltaq)
+    cout << qi << " ";
+  cout << endl;
+  cout << "p = ";
+  for (auto & pi : *ev->p)
+    cout << pi << " ";
+  cout << endl;
+  cout << "scalar product = " << sp << endl;
+  cout << "H = " << H << endl;
+  cout << "LT = " << lt << endl;
+  */
+  
+  return lt;
+}
+
+
+
+//double objective_max_p(const Array<double>& p_vec, Array<double>& grad, void* f_data)
+double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* f_data)
+{
+  
+  
+  // retrieve encapsulated  variables
+  EncapsVarForNLOpt * ev = static_cast<EncapsVarForNLOpt*>(f_data);
+  
+  // set momentum to its current value in optimization
+  std::vector<double> p(p_vec, p_vec + n);
+  // convert it to an Array<double> for legendre tranform calculation
+  Array<double> pjuce;
+  for (auto & val : p)
+    pjuce.add(val);
+  *ev->p = pjuce;
+  
+  /*
+  cout << "[max_p] Called with p = ";
+  for (unsigned i = 0; i < n; ++i)
+  {
+    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
+  }
+  cout << std::endl;
+  */
+  
+  
+  double deltaT = 1.; // fix delta t for optimization its amplitude will be fixed later
+  double lt = legendreTransform(ev, deltaT);
+  return lt;
+  
+  /*
+  cout << "check p "<< endl;
+  for (auto & pi : *ev->p)
+    cout << pi << " ";
+  cout << endl;
+  */
+  
+  // ----- Step 1 : minimize hamiltonian w.r.t to t at fixed p -----
+  //nlopt::opt opt_t(nlopt::LD_LBFGS, 1);  // t is scalar variable
+  //nlopt::opt opt_t(nlopt::LN_COBYLA, 1);  // method without gradient
+  
+
+  // lower and upper bounds
+  //vector<double> lowerbound_t(1, 0.0);
+  //vector<double> upperbound_t(1, 100.0);
+  //opt_t.set_lower_bounds(lowerbound_t);
+  //opt_t.set_upper_bounds(upperbound_t);
+  
+
+  // define function to minimize
+  //opt_t.set_min_objective(objective_min_t, f_data);
+  //opt_t.set_xtol_rel(1e-6);
+
+  //std::vector<double> t(1, 0.0);
+  //double minf;
+
+  //nlopt::result result = opt_t.optimize(t, minf);
+  
+  // stock optimize t value
+  //ev->t_opt = t[0];
+  
+  // convert grad to vector
+  //vector<double> gradvec(grad, grad + n);
+
+  // if we want the gradient w.r.t p :
+  //if (!gradvec.empty())
+
+  /*
+  if (grad != nullptr)
+  {
+
+    StateVec gradH = ev->nep->evalHamiltonianGradientWithP(*ev->qcenter, *ev->p);
+    //Array<double> actualgrad;
+    //jassert(gradH.size() == ev->deltaq->size());
+    cout << "gradientP : ";
+    for (int k=0; k<gradH.size(); k++)
+    {
+      grad[k] = gradH.getUnchecked(k);
+      cout << grad[k] << " ";
+      //actualgrad.add( ev->deltaq->getUnchecked(k) - gradH.getUnchecked(k)*t[0] );
+    }
+    cout << endl;
+    //for (unsigned i = 0; i < gradH.size(); ++i)
+     //   grad[i] = actualgrad[i];
+  }
+  */
+
+    
+  // return  opposite of min found -----
+  //return -minf; // car on veut max_p => -min_t
+ }
+ 
 
 
 
@@ -127,9 +255,12 @@ void NEP::onChildContainerRemoved(ControllableContainer* cc)
 
 double NEP::evalHamiltonian(const StateVec q, const StateVec p)
 {
+  //cout << "--- hamiltonian calculation --- " << endl;
   double H = 0.;
+  Array<double> vecH;
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
+    //cout << reaction->name << endl;
     // forward reaction
     double forward = reaction->assocRate;
     double sp1 = 0.;
@@ -144,7 +275,10 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
     forward *= (exp(sp1) -1.) * pow1;
     H += forward;
     
-     
+    //cout << "spforward = " << sp1 << endl;
+    //cout << "q^nu forward = " << pow1 << endl;
+    //cout << "Hforward = " << forward << endl;
+      
     // backward contribution
     double backward = reaction->dissocRate;
     double sp2 = 0.;
@@ -158,7 +292,24 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
     }
     backward *= (exp(sp2) - 1.) * pow2;
     H += backward;
+    
+    //cout << "spbackward = " << sp2 << endl;
+    //cout << "q^nu backward = " << pow2 << endl;
+    //cout << "Hbackward = " << backward << endl;
+    
+    //cout << "current H = " << H << endl;
+    
+    vecH.add(H);
+    
   } // end loop over reactions
+  /*
+  cout << "--- hamiltonian check --- " << endl;
+  for (int k=0; k<vecH.size(); k++)
+  {
+    cout << "H" << k << " = " << vecH.getUnchecked(k) << endl;
+  }
+  cout << "Htot = " << H << endl;
+  */
   
   return H;
 }
@@ -215,7 +366,7 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
     // update output array with forward reaction
     for (int k=0; k<gradpH.size(); k++)
     {
-      gradpH.setUnchecked(k, gradpH.getUnchecked(k) + prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward );
+      gradpH.setUnchecked(k, prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward );
     }
   } // end loop over reactions
   
@@ -304,7 +455,12 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
 // start thread
 void NEP::run()
 {
-    
+  simul->affectSATIds();
+  
+  
+  Array<double> qcenter = { 0.5*(1.00115+1.57702) , 0.5*(1.00115+1.04734) };
+  Array<double> deltaq = { (-1.00115+1.57702) , (-1.00115+1.04734) };
+  
   cout << "init concentration curve" << endl;
   // init concentration trajectory
   initConcentrationCurve();
@@ -317,25 +473,32 @@ void NEP::run()
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables pcurve and times
     cout << "lifting trajectory" << endl;
-    LiftTrajectoryOptResults * liftoptres = liftCurveToTrajectory();
+    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectory();
+    
+    // keep track of trajectory update in (q ; p) space
+    Trajectory newtraj;
+    for (int point=0; point<nPoints; point++)
+    {
+      PhaseSpaceVec psv;
+      for (auto & qm : qcurve.getUnchecked(point))
+        psv.add(qm);
+      for (auto & pm : pcurve.getUnchecked(point))
+        psv.add(pm);
+      newtraj.add(psv);
+    }
+    //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
+    trajDescent.add(newtraj);
     
     cout << "updating action" << endl;
     calculateNewActionValue();
-    if (action < action_threshold)
-      break;
+    cout << "action = " << action << endl;
+    //if (action < action_threshold)
+    //  break;
     
     cout << "updating concentration curve" << endl;
     // now update the concentration trajectory with functionnal gradient descent
     // this function update global variable qcurve
-    updateOptimalConcentrationCurve(liftoptres->opt_momentum, liftoptres->opt_deltaT);
-    
-    // keep track of trajectory update in (q ; p) space
-    Trajectory newtraj;
-    for (auto & q : qcurve)
-      newtraj.add(q);
-    for (auto & p : pcurve)
-      newtraj.add(p);
-    trajDescent.add(newtraj);
+    updateOptimalConcentrationCurve(liftoptres.opt_momentum, liftoptres.opt_deltaT);
     
     // I could call at this stage a NEPEvent to display real time algorithm progress in the NEPUI window
     // that would be really badass, but not a priority
@@ -343,185 +506,34 @@ void NEP::run()
     
   } // end while
   
+  cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
+  
   // save descent algorithm results into a file
   cout << "writing to file" << endl;
   writeDescentToFile();
   
   
-}
-
-
-
-//double legendreTransform(const Array<double>& q_vec, const Array<double>& p_vec, double t)
-double legendreTransform(const EncapsVarForNLOpt * ev, double t)
-{
-  double lt = 0.;
-  jassert(ev->deltaq->size() == ev->p->size());
-  
-  for (int k=0; k<ev->deltaq->size(); k++)
-    lt += ev->deltaq->getUnchecked(k) * ev->p->getUnchecked(k);
-  
-  lt -= ev->nep->evalHamiltonian(*ev->qcenter, *ev->p) * t;
-  
-  return lt;
-}
-
-
-
-// define function to minimize w.r.t t (vec p is fixed)
-//double objective_min_t(const Array<double>& t_vec, Array<double>& grad, void* f_data)
-double objective_min_t(unsigned int n, const double* t_vec, double * grad, void* f_data)
-{
-  // retrieve concentation vector
-  EncapsVarForNLOpt * ev = static_cast<EncapsVarForNLOpt*>(f_data);
-  //const Array<double>& p_vec = *(vars->p);
-  //const Array<double>& q_vec = *(vars->q);
-
-  // t variable
-  double t = t_vec[0];
-    
-  double lt = legendreTransform(ev, t);
-  
-  vector<double> gradvec(grad, grad + n);
-
-  if (!gradvec.empty())
-  {
-    double h = (-1.) * ev->nep->evalHamiltonian(*ev->qcenter, *ev->p);
-    Array<double> hvec(h);
-    grad = hvec.getRawDataPointer();
-  }
-    
-  return lt;
-  }
- 
-
-
-//double objective_max_p(const Array<double>& p_vec, Array<double>& grad, void* f_data)
-double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* f_data)
-{
-  // retrieve concentration vector
-  //Array<double>& q_vec = *(Array<double>*)f_data;
-  // retrieve NEP class
-  //NEP * nep = static_cast<NEP*>(f_data);
-  EncapsVarForNLOpt * ev = static_cast<EncapsVarForNLOpt*>(f_data);
-  
-  // ----- Step 1 : minimize hamiltonian w.r.t to t at fixed p -----
-  nlopt::opt opt_t(nlopt::LD_LBFGS, 1);  // t is scalar variable
-
-  // lower and upper bounds
-  vector<double> lowerbound_t(1, -10.0);
-  vector<double> upperbound_t(1, 10.0);
-  opt_t.set_lower_bounds(lowerbound_t);
-  opt_t.set_upper_bounds(upperbound_t);
-  
-
-  // define function to minimize
-  opt_t.set_min_objective(objective_min_t, f_data);
-  opt_t.set_xtol_rel(1e-6);
-
-  std::vector<double> t(1, 0.0);
-  double minf;
-  nlopt::result result = opt_t.optimize(t, minf);
-  
-  // stock optimize t value
-  ev->t_opt = t[0];
-  
-  // convert grad to vector
-  vector<double> gradvec(grad, grad + n);
-
-  // if we want the gradient w.r.t p :
-  if (!gradvec.empty())
-  {
-    StateVec gradH = ev->nep->evalHamiltonianGradientWithP(*ev->qcenter, *ev->p);
-    Array<double> actualgrad;
-    jassert(gradH.size() == ev->deltaq->size());
-    for (int k=0; k<gradH.size(); k++)
-    {
-      actualgrad.add( ev->deltaq->getUnchecked(k) - gradH.getUnchecked(k)*t[0] );
-    }
-    grad = actualgrad.getRawDataPointer();
-  }
-    
-  // return  opposite of min found -----
-  return -minf; // car on veut max_p => -min_t
- }
- 
-
-
-void NEP::initConcentrationCurve()
-{
-  // read init and final curve points from enum parameters
-  int sstI = sst_stable->intValue();
-  int sstF = sst_saddle->intValue();
-  
-  StateVec qI(simul->entities.size(), 0.);
-  StateVec qF(simul->entities.size(), 0.);
-  for (auto & pairI : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).state)
-    qI.set(pairI.first->idSAT, pairI.second);
-  for (auto & pairF : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).state)
-    qF.set(pairF.first->idSAT, pairF.second);
-  
-  jassert(qI.size() == simul->entities.size());
-  jassert(qF.size() == simul->entities.size());
-  
-  // init with straight line between qI and qF
-  qcurve.clear();
-  for (int k=0; k<qI.size(); k++)
-  {
-    double kk = (double) k;
-    double NN = (double) nPoints;
-    double qk = qF.getUnchecked(k) + (1. - kk/NN) * (qI.getUnchecked(k) - qF.getUnchecked(k));
-    qcurve.setUnchecked(k, qk);
-  }
-  
-}
-
-
-void NEP::writeDescentToFile()
-{
-  // open output file
-  String filename = "action-functionnal-descent.csv";
-  ofstream historyFile;
-  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
-  
-  historyFile << "iteration,action,point";
-  for (auto & ent : simul->entities)
-    historyFile << ",q_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",p_" << ent->name;
-  historyFile << endl;
-  jassert(actionDescent.size() == trajDescent.size());
-  
-  for (int iter=0; iter<actionDescent.size(); iter++)
-  {
-    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++)
-    {
-      historyFile << iter << "," << actionDescent.getUnchecked(iter) << "," << point;
-      PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
-      for (int m=0; m<trajpq.size()/2; m++)
-        historyFile << "," << trajpq.getUnchecked(m);
-      for (int m=trajpq.size()/2; m<trajpq.size(); m++)
-        historyFile << "," << trajpq.getUnchecked(m);
-    } // end loop over points in current iteration
-    historyFile << endl;
-  } // end loop over iterations
   
 }
 
 
 
-LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
+
+LiftTrajectoryOptResults NEP::liftCurveToTrajectory()
 {
   int nent = Simulation::getInstance()->entities.size();
-  nlopt::opt opt(nlopt::LD_LBFGS, nent);  // momentum is nentities dimensionnal
+  //nlopt::opt opt(nlopt::LD_LBFGS, nent);  // momentum is nentities dimensionnal
+  //nlopt::opt opt(nlopt::LN_COBYLA, nent);  // momentum is nentities dimensionnal
+  nlopt::opt opt(nlopt::GN_DIRECT_L, nent);  // no gradient
   
   //int nPoints = qcurve.size(); //
 
   // lower and upper bound for optimization
-  vector<double> lowerbound_p(1, -5.0);
-  vector<double> upperboundb_p(1, 5.0);
+  vector<double> lowerbound_p(nent, -50.0); // #para
+  vector<double> upperboundb_p(nent, 50.0);
   opt.set_lower_bounds(lowerbound_p);
   opt.set_upper_bounds(upperboundb_p);
+  opt.set_maxeval(1000);    // nombre d’itérations max
   
   
   Array<double> opt_deltaT; // vector of optimal time assigned between each q(i) and q(i+1)
@@ -530,7 +542,12 @@ LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
   
   // assign first points along curve
   //opt_deltaT.add(0.);
-  Array<double> nullP(Simulation::getInstance()->entities.size(), 0.);
+  Array<double> nullP, dummyP;
+  for (int i=0; i<Simulation::getInstance()->entities.size(); i++)
+  {
+    nullP.add(0.);
+    dummyP.add(0.);
+  }
   //opt_momentum.add(nullP);
   
   // loop over points in concentration space
@@ -539,6 +556,7 @@ LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
   //for (int k=0; k<qcurve.size()-1; k++) // n - 1 iterations
   for (int k=0; k<nPoints-1; k++) // n - 1 iterations
   {
+    //cout << "optimizing point #" << k << endl;
     StateVec q = qcurve.getUnchecked(k);
     StateVec qnext = qcurve.getUnchecked(k+1);
     jassert(q.size() == qnext.size());
@@ -547,30 +565,68 @@ LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
     for (int i=0; i<q.size(); i++)
     {
       deltaq.add(qnext.getUnchecked(i) - q.getUnchecked(i));
-      qcenter.add( 0.5* (q.getUnchecked(i) + qnext.getUnchecked(i+1)));
+      qcenter.add( 0.5* (q.getUnchecked(i) + qnext.getUnchecked(i)));
     }
     
     // set maximization objective with respect to p variable
-    //EncapsVarForNLOpt ev = {&deltaq, {}, this};
-    EncapsVarForNLOpt ev = {&qcenter, &deltaq,  {}, this};
+    EncapsVarForNLOpt * ev = new EncapsVarForNLOpt{&qcenter, &deltaq,  &dummyP, this};
     
     //opt.set_max_objective(objective_max_p, (void*)& deltaq);
-    opt.set_max_objective(objective_max_p, (void*)& ev);
-    opt.set_xtol_rel(1e-6);
+    opt.set_max_objective(objective_max_p, (void*) ev);
+    opt.set_xtol_rel(1e-5);
     
     std::vector<double> p_opt(q.size(), 0.0); // init popt with null vector
     double maxH;
     
+    //cout << "will start optimization" << endl;
+    
     // start optimization
-    nlopt::result result = opt.optimize(p_opt, maxH);
+    //nlopt::result result = opt.optimize(p_opt, maxH);
+    try
+    {
+      //nlopt::result result = opt.optimize(p_opt, maxH);
+      opt.optimize(p_opt, maxH);
+      //std::cout << "Optimization success, result = " << result << std::endl;
+    } catch (std::exception &e)
+    {
+      LOGWARNING("NLopt crashed with error message : " <<  e.what());
+    }
     
-    // add optimizing time
-    opt_deltaT.add(ev.t_opt);
     
-    // add optimizing momentum vector
+    // assign time interval deduced from optimisation in p
     StateVec parr_opt;
     for (auto & pi : p_opt)
       parr_opt.add(pi);
+    StateVec gradpH = evalHamiltonianGradientWithP(qcenter, parr_opt);
+    double norm2 = 0.;
+    double deltaT = 0.;
+    for (int i=0; i<gradpH.size(); i++)
+    {
+      norm2 += gradpH.getUnchecked(i) * gradpH.getUnchecked(i);
+      deltaT += gradpH.getUnchecked(i) * deltaq.getUnchecked(i);
+    }
+    if (norm2>0.)
+      deltaT /= norm2;
+    else
+    {
+      LOGWARNING("gradient of hamiltonian in p has null norm, take results with caution.");
+    }
+    
+    /*
+    cout << "--- optima found ---" << endl;
+    cout << "deltaT = " << deltaT << endl;
+    cout << "p = ";
+    for (auto & pi : p_opt)
+      cout << pi << " ";
+    cout << endl;
+    cout << "--- ---" << endl;
+    */
+    
+    // add optimizing time
+    //opt_deltaT.add(ev->t_opt);
+    opt_deltaT.add(deltaT);
+    
+    // add optimizing momentum vector
     opt_momentum.add(parr_opt);
     
     //cout << "Optimal t = " << ev.t_opt << endl;
@@ -578,6 +634,7 @@ LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
     //std::cout << "Optimal F(p, t*) = " << -maxf << std::endl;
   } // end loop over current trajectory
   
+  //cout << "finished optimizing" << endl;
   
   jassert(opt_deltaT.size() == opt_momentum.size());
   jassert(opt_deltaT.size() == nPoints-1);
@@ -615,19 +672,127 @@ LiftTrajectoryOptResults * NEP::liftCurveToTrajectory()
       pcurve.add(meanP);
     }
   }
-
+  /*
+  cout << "--- pcurve ---" << endl;
+  for (auto & ppoint : pcurve)
+  {
+    for (auto & pm : ppoint)
+      cout << pm << " ";
+    cout << endl;
+  }
+*/
   jassert(pcurve.size() == qcurve.size());
   jassert(times.size() == qcurve.size());
   
   
   // Return optimization results
-  LiftTrajectoryOptResults * output;
-  output->opt_deltaT = opt_deltaT;
-  output->opt_momentum = opt_momentum;
+  LiftTrajectoryOptResults output;
+  output.opt_deltaT = opt_deltaT;
+  output.opt_momentum = opt_momentum;
   
   return output;
   
 }
+
+
+
+
+void NEP::initConcentrationCurve()
+{
+  // read init and final curve points from enum parameters
+  int sstI = sst_stable->intValue();
+  int sstF = sst_saddle->intValue();
+  
+  StateVec qI(simul->entities.size(), 0.);
+  StateVec qF(simul->entities.size(), 0.);
+  for (auto & pairI : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).state)
+  {
+    qI.set(pairI.first->idSAT, pairI.second);
+  }
+  for (auto & pairF : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).state)
+  {
+    qF.set(pairF.first->idSAT, pairF.second);
+  }
+  cout << "qI : ";
+  for (auto & qi : qI)
+    cout << qi <<" ";
+  cout << endl;
+  for (auto & qf : qF)
+    cout << qf << " ";
+  cout << endl;
+  
+  jassert(qI.size() == simul->entities.size());
+  jassert(qF.size() == simul->entities.size());
+  
+  // init with straight line between qI and qF
+  qcurve.clear();
+  double NN = (double) nPoints;
+  jassert(nPoints>0);
+  for (int point=0; point<nPoints; point++)
+  {
+    StateVec vec;
+    double fpoint = (double) point;
+    for (int k=0; k<qI.size(); k++)
+    {
+      double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
+      vec.add(qk);
+    }
+    qcurve.add(vec);
+  }
+  /*
+  // debugging
+  cout << "curve size after init : " << qcurve.size() << ". nPoints = " << nPoints << endl;
+  cout << "points are : " << endl;
+  int c=-1;
+  for (auto & q : qcurve)
+  {
+    c++;
+    cout << "point #" << c << "   : ";
+    for (auto & qi : q)
+      cout << qi << " ";
+    cout << endl;
+  }
+  */
+  
+}
+
+
+void NEP::writeDescentToFile()
+{
+  // open output file
+  String filename = "action-functionnal-descent.csv";
+  ofstream historyFile;
+  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+  
+  historyFile << "iteration,action,point";
+  for (auto & ent : simul->entities)
+    historyFile << ",q_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",p_" << ent->name;
+  historyFile << endl;
+  cout << "action descent size :" << actionDescent.size() << endl;
+  cout << "trajDescent descent size :" << trajDescent.size() << endl;
+  jassert(actionDescent.size() == trajDescent.size()); // HERE
+  
+  for (int iter=0; iter<actionDescent.size(); iter++)
+  {
+    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++)
+    {
+      historyFile << iter << "," << actionDescent.getUnchecked(iter) << "," << point;
+      PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
+      //cout << "trajectory size : " << trajpq.size() << endl;
+      for (int m=0; m<trajpq.size()/2; m++)
+        historyFile << "," << trajpq.getUnchecked(m);
+      for (int m=trajpq.size()/2; m<trajpq.size(); m++)
+        historyFile << "," << trajpq.getUnchecked(m);
+      historyFile << endl;
+    } // end loop over points in current iteration
+    //historyFile << endl;
+  } // end loop over iterations
+  
+}
+
+
 
 
 
