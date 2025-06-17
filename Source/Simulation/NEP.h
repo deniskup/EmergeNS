@@ -83,6 +83,7 @@ public:
   
   // thread function
   void run() override; // thread function
+  void stop();
   
   double evalHamiltonian(const StateVec q, const StateVec p);
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
@@ -118,7 +119,7 @@ private:
   
   void writeDescentToFile();
 
-  LiftTrajectoryOptResults * liftCurveToTrajectory();
+  LiftTrajectoryOptResults liftCurveToTrajectory();
   
   void updateOptimalConcentrationCurve(const Array<StateVec> popt, const Array<double> deltaTopt);
 
@@ -133,9 +134,9 @@ private:
   double action;
   
   // some descent controling parameters
-  int nPoints = 100; // #para
+  int nPoints = 400; // #para
   double action_threshold = 0.01; // #para
-  int maxIter = 5; // #para
+  int maxIter = 10; // #para
 
   
   // for printing history to file
