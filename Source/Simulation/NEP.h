@@ -15,8 +15,9 @@
 - filtering of pcurve
 - step size picking
 - reparametrization of qcurve
-- initialize qcurve with straight line
 - calculate distance from hamilton equation of motion
+- recover 2-schlogl results of gagrani and smith
+- smooth start when there exists some vortex arounf fixed points
 */
 
 #pragma once
@@ -123,9 +124,13 @@ private:
   
   void updateOptimalConcentrationCurve(const Array<StateVec> popt, const Array<double> deltaTopt);
 
-  void calculateNewActionValue();
+  double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
+  double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
+
   void extractHamiltonian(); // not needed ?
+  
+  pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
   
   // global variable describing the state of the descent
   Curve qcurve;
@@ -134,9 +139,9 @@ private:
   double action;
   
   // some descent controling parameters
-  int nPoints = 400; // #para
+  int nPoints = 50; // #para
   double action_threshold = 0.01; // #para
-  int maxIter = 10; // #para
+  int maxIter = 15; // #para
 
   
   // for printing history to file
