@@ -302,6 +302,19 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
     vecH.add(H);
     
   } // end loop over reactions
+  
+  // loop over creation/destruction reactions,
+  // formally treated as 0 <--> entity
+  for (auto & ent : simul->entities)
+  {
+    double creat = ent->creationRate * ( exp(p.getUnchecked(ent->idSAT)) - 1. );
+    H += creat;
+    
+    double dest = ent->destructionRate * ( exp(-1.*p.getUnchecked(ent->idSAT)) - 1. ) * q.getUnchecked(ent->idSAT);
+    H += dest;
+  }
+  
+  
   /*
   cout << "--- hamiltonian check --- " << endl;
   for (int k=0; k<vecH.size(); k++)
@@ -319,18 +332,22 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
 
 StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
 {
-  // init output
-  StateVec gradpH(0., q.size());
+  //cout << "--- evalHamiltonianGradientWithP() ---" << endl;
   
+  // init output and intermediate vectors
+  StateVec gradpH;
+  gradpH.insertMultiple(0, 0., q.size());
   
   // loop over reactions
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
+    //cout << reaction->name << endl;
     // forward reaction
     double forward = reaction->assocRate;
     double sp1 = 0.;
     double pow1 = 1.;
-    StateVec prevec1(0., gradpH.size());
+    StateVec prevec1;
+    prevec1.insertMultiple(0, 0., q.size());
     for (auto & ent : reaction->reactants)
     {
       sp1 -= p.getUnchecked(ent->idSAT);
@@ -343,13 +360,19 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
       prevec1.setUnchecked(ent->idSAT, prevec1.getUnchecked(ent->idSAT) + 1.);
     }
     forward *= exp(sp1) * pow1;
-    
-    
+    /*
+    cout << "forward term = " << forward << endl;
+    cout << "(ybeta - yalpha) forward = ";
+    for (auto p : prevec1)
+      cout << p << " ";
+    cout << endl;
+    */
     // backward contribution
     double backward = reaction->dissocRate;
     double sp2 = 0.;
     double pow2 = 1.;
-    StateVec prevec2(0., gradpH.size());
+    StateVec prevec2;
+    prevec2.insertMultiple(0, 0., q.size());
     for (auto & ent : reaction->reactants)
     {
       sp2 += p.getUnchecked(ent->idSAT);
@@ -362,13 +385,38 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
       prevec2.setUnchecked(ent->idSAT, prevec2.getUnchecked(ent->idSAT) - 1.);
     }
     backward *= exp(sp2) * pow2;
-    
+    /*
+    cout << "backward term = " << backward << endl;
+    cout << "(ybeta - yalpha) backward = ";
+    for (auto p : prevec2)
+      cout << p << " ";
+    cout << endl;
+    */
     // update output array with forward reaction
+    Array<double> thisgrad;
     for (int k=0; k<gradpH.size(); k++)
     {
+      thisgrad.add(prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward);
       gradpH.setUnchecked(k, prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward );
     }
+/*
+    cout << "grad to this reac : ";
+    for (auto & ele : thisgrad)
+      cout << ele << " ";
+    cout << endl;
+*/
   } // end loop over reactions
+  
+  
+  // creation / destruction reactions, formally treated as 0 <--> entity
+  for (auto & ent : simul->entities)
+  {
+    double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
+    gradpH.setUnchecked(ent->idSAT, gradpH.getUnchecked(ent->idSAT) + creatfact);
+    
+    double destfact = ent->destructionRate * exp(-1.*p.getUnchecked(ent->idSAT));
+    gradpH.setUnchecked(ent->idSAT, gradpH.getUnchecked(ent->idSAT) + destfact);
+  }
   
   return gradpH;
 }
@@ -378,24 +426,31 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
 
 StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
 {
+  
+  //cout << "--- evalHamiltonianGradientWithQ() ---" << endl;
   jassert(q.size() == p.size());
-  jassert(q.size() == Simulation::getInstance()->entities.size());
+  jassert(q.size() == simul->entities.size());
   
   // output gradient vector
-  StateVec gradqH(q.size(), 0.);
+  //StateVec gradqH(q.size(), 0.);
+  StateVec gradqH;
+  gradqH.insertMultiple(0, 0., q.size());
   
   // loop over reactions
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
-    // set stoechiometric vector of reactants and product sides
-    StateVec yreactants(q.size(), 0.);
-    StateVec yproducts(q.size(), 0.);
+   // cout << reaction->name << endl;
+    
+    // set stoechiometric vector of reactants and product
+    StateVec yreactants, yproducts;
+    yreactants.insertMultiple(0, 0., q.size());
+    yproducts.insertMultiple(0, 0., q.size());
     // keep track of polynom involved in MAK
     map<int, int> polyforward; // <int, int> --> <idSAT, power>
     map<int, int> polybackward; //
     for (auto & r: reaction->reactants)
     {
-      yreactants.setUnchecked(r->idSAT, yreactants.getUnchecked(r->idSAT) - 1 );
+      yreactants.setUnchecked(r->idSAT, yreactants.getUnchecked(r->idSAT) + 1 );
       polyforward[r->idSAT]++;
     }
     for (auto & p: reaction->products)
@@ -403,46 +458,101 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
       yproducts.setUnchecked(p->idSAT, yproducts.getUnchecked(p->idSAT) + 1 );
       polybackward[p->idSAT]++;
     }
+    /*
+    cout << "forward polynom : ";
+    for (auto & [key, val] : polyforward)
+      cout << " q_" << key << "^" << val;
+    cout << endl;
+    */
     
     // forward reaction
     double forward_prefactor = reaction->assocRate;
     double spfor = 0.;
     for (int m=0; m<p.size(); m++)
       spfor += (yproducts.getUnchecked(m)-yreactants.getUnchecked(m)) * p.getUnchecked(m);
+    //cout << "forward s.p = " << spfor << endl;
     forward_prefactor *= (exp(spfor) - 1.);
+    Array<double> gradfor;
     // now derivative of polynom in concentration
     for (auto & [id, exponent] : polyforward)
     {
+      //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
       double monom = exponent * pow(q.getUnchecked(id), exponent-1.);
       for (auto & [id2, exponent2] : polyforward)
       {
         if (id2==id)
           continue;
+        //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
         monom *= pow(q.getUnchecked(id2), exponent2);
       }
+      //cout << endl;
       gradqH.setUnchecked(id, gradqH.getUnchecked(id) + forward_prefactor*monom);
+      gradfor.add(forward_prefactor*monom);
     }
+    /*
+    cout << "forward prefac = " << forward_prefactor << endl;
+    cout << "forward grad = ";
+    for (auto & g : gradfor)
+      cout << g << "  ";
+    cout << endl;
     
+    cout << "backward polynom : ";
+    for (auto & [key, val] : polybackward)
+      cout << " q_" << key << "^" << val;
+    cout << endl;
+    */
     // backward reaction
     double backward_prefactor = reaction->dissocRate;
     double spback = 0.;
     for (int m=0; m<p.size(); m++)
       spback += (yreactants.getUnchecked(m)-yproducts.getUnchecked(m)) * p.getUnchecked(m);
     backward_prefactor *= (exp(spback) - 1.);
+    Array<double> gradback;
     // now derivative of polynom in concentration
     for (auto & [id, exponent] : polybackward)
     {
+      //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
       double monom = exponent * pow(q.getUnchecked(id), exponent-1.);
       for (auto & [id2, exponent2] : polybackward)
       {
         if (id2==id)
           continue;
+        //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
         monom *= pow(q.getUnchecked(id2), exponent2);
       }
+      //cout << endl;
       gradqH.setUnchecked(id, gradqH.getUnchecked(id) + backward_prefactor*monom);
+      gradback.add(backward_prefactor*monom);
     }
+    /*
+    cout << "backward prefac = " << backward_prefactor << endl;
+    cout << "backward grad = ";
+    for (auto & g : gradback)
+      cout << g << "  ";
+    cout << endl;
+    */
     
   } // end reaction loop
+  
+  
+  // creation / destruction reactions, formally treated as 0 <--> entity
+  for (auto & ent : simul->entities)
+  {
+    double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT) - 1.);
+    gradqH.setUnchecked(ent->idSAT, gradqH.getUnchecked(ent->idSAT) + creatfact);
+    
+    double destfact = ent->destructionRate * exp(-1.*p.getUnchecked(ent->idSAT) - 1.);
+    gradqH.setUnchecked(ent->idSAT, gradqH.getUnchecked(ent->idSAT) + destfact);
+  }
+  
+  /*
+  cout << "total gradient = " ;
+  for (auto & g : gradqH)
+    cout << g << " " ;
+  cout << endl;
+  */
+  
+  
 
   return gradqH;
   
@@ -457,10 +567,67 @@ void NEP::run()
 {
   simul->affectSATIds();
   
+  // quick study to test heteroclinic network realization
   
+
+  // init concentration curve
+  initConcentrationCurve();
+  liftCurveToTrajectory();
+  
+  pair<Trajectory, Trajectory> trajs = integrateHamiltonEquations(qcurve.getUnchecked(nPoints-2), pcurve.getUnchecked(nPoints-2));
+  
+  // open output file
+  String filename = "escape-paths.csv";
+  ofstream historyFile;
+  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+  
+  // first line
+  historyFile << "point,forward";
+  for (auto & ent : simul->entities)
+    historyFile << ",q_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",p_" << ent->name;
+  historyFile << endl;
+  
+  Trajectory trajfor = trajs.first;
+  Trajectory trajback = trajs.second;
+  for (int k=0; k<trajfor.size(); k++)
+  {
+    // print forward phase state vec ok iteration k
+    historyFile << k << ",";
+    historyFile << "1,";
+    for (int m=0; m<trajfor.getUnchecked(k).size(); m++)
+      historyFile << trajfor.getUnchecked(k).getUnchecked(m) << ",";
+    historyFile << endl;
+    
+    // print backward phase state vec ok iteration k
+    historyFile << k << ",";
+    historyFile << "0,";
+    for (int m=0; m<trajback.getUnchecked(k).size(); m++)
+      historyFile << trajback.getUnchecked(k).getUnchecked(m) << ",";
+    historyFile << endl;
+  }
+
+  
+  
+  /*
   Array<double> qcenter = { 0.5*(1.00115+1.57702) , 0.5*(1.00115+1.04734) };
   Array<double> deltaq = { (-1.00115+1.57702) , (-1.00115+1.04734) };
+  Array<double> ptest = {0.1, 0.2};
   
+  cout << "qcenter : ";
+  for (auto & qm : qcenter)
+    cout << qm << " ";
+  cout << endl;
+  cout << "ptest : ";
+  for (auto & pm : ptest)
+    cout << pm << " ";
+  cout << endl;
+  
+  StateVec grapH = evalHamiltonianGradientWithQ(qcenter, ptest);
+  */
+  
+  /*
   cout << "init concentration curve" << endl;
   // init concentration trajectory
   initConcentrationCurve();
@@ -489,9 +656,14 @@ void NEP::run()
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
     trajDescent.add(newtraj);
     
+    // update action value
     cout << "updating action" << endl;
-    calculateNewActionValue();
+    double newaction = calculateAction(qcurve, pcurve, times);
+    action = newaction;
+    // keep track of action history
+    actionDescent.add(newaction);
     cout << "action = " << action << endl;
+    
     //if (action < action_threshold)
     //  break;
     
@@ -511,7 +683,7 @@ void NEP::run()
   // save descent algorithm results into a file
   cout << "writing to file" << endl;
   writeDescentToFile();
-  
+  */
   
   
 }
@@ -612,15 +784,19 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectory()
       LOGWARNING("gradient of hamiltonian in p has null norm, take results with caution.");
     }
     
-    /*
+    
     cout << "--- optima found ---" << endl;
+    cout << "qcenter = ";
+    for (auto & qc : qcenter)
+      cout << qc << " ";
+    cout << endl;
     cout << "deltaT = " << deltaT << endl;
     cout << "p = ";
     for (auto & pi : p_opt)
       cout << pi << " ";
     cout << endl;
     cout << "--- ---" << endl;
-    */
+    
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
@@ -703,8 +879,9 @@ void NEP::initConcentrationCurve()
   int sstI = sst_stable->intValue();
   int sstF = sst_saddle->intValue();
   
-  StateVec qI(simul->entities.size(), 0.);
-  StateVec qF(simul->entities.size(), 0.);
+  StateVec qI, qF;
+  qI.insertMultiple(0, 0., simul->entities.size());
+  qF.insertMultiple(0, 0., simul->entities.size());
   for (auto & pairI : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).state)
   {
     qI.set(pairI.first->idSAT, pairI.second);
@@ -802,22 +979,24 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
   jassert(deltaTopt.size() == nPoints-1);
   //jassert(purve.size() == nPoints);
   
-  // hardcode step descent for now
-  float step = 0.01; // #para
   
   // for each trajectory point, assign a gradient vector in the q space
   Array<Array<double>> deltaq;
   
   // first and last points of the trajectory remain unchanged, so init null vector
-  Array<double> nullVec(Simulation::getInstance()->entities.size(), 0.);
+  Array<double> nullVec;
+  nullVec.insertMultiple(0, 0., simul->entities.size());
+    
   
-  //
   for (int k=0; k<nPoints; k++) // descend point k of optimized trajectory
   {
-    if (k==0 || k==nPoints-1) // first and last points remain unchanged
+    // first and last points remain unchanged
+    if (k==0 || k==nPoints-1)
+    {
+      deltaq.add(nullVec);
       continue;
-      //deltaq.add(nullVec);
-    
+    }
+    //deltaq.add(nullVec);
     //
     StateVec deltaqk(nullVec);
     StateVec gradqH = evalHamiltonianGradientWithQ(qcurve.getUnchecked(k), pcurve.getUnchecked(k));
@@ -830,56 +1009,229 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
       deltaqk.setUnchecked(m, dqm);
     }
     
+    deltaq.add(deltaqk);
+  }
+  // hardcode step descent for now
+  float step = 0.1; // #para
+  //double step = backTrackingMethodForStepSize(qcurve, deltaq);
+  cout << "step for descent = " << step << endl;
+    
+  for (int k=0; k<nPoints; k++)
+  {
     // update curve point k component wise
     StateVec newqk;
     for (int m=0; m<qcurve.getUnchecked(k).size(); m++)
     {
-      newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - step * deltaqk.getUnchecked(m) );
+      newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - step * deltaq.getUnchecked(k).getUnchecked(m) );
     }
     qcurve.setUnchecked(k, newqk);
   }
-  
   jassert(qcurve.size() == nPoints);
   
 }
 
 
-void NEP::calculateNewActionValue()
+//void NEP::calculateNewActionValue()
+double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
 {
   // check that pcurve, qcurve and tcurve have the same size
-  jassert(qcurve.size() == pcurve.size());
-  jassert(qcurve.size() == times.size());
+  jassert(qc.size() == pc.size());
+  jassert(qc.size() == times.size());
+  
+  //cout << "--- calculate action along following curves ---" << endl;
+  
+  /*
+  for (int point=0; point<nPoints; point++)
+  {
+    cout << "\npoint #" << point << endl;
+    cout << "t = " << t.getUnchecked(point) << endl;
+    cout << "q = ";
+    for (auto & q : qc.getUnchecked(point))
+      cout << q << " ";
+    cout << endl;
+    cout << "p = ";
+    for (auto p  : pc.getUnchecked(point))
+      cout << p << " ";
+    cout << endl;
+  }
+  */
     
   Array<double> hamilt;
-  for (int i=0; i<qcurve.size(); i++)
+  for (int i=0; i<qc.size(); i++)
   {
-    hamilt.add(evalHamiltonian(qcurve.getUnchecked(i), pcurve.getUnchecked(i)));
+    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)));
+    //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
   }
   
   // use trapezoidal rule to calculate action = integral(0, T, p dq/dt - H)
   double newaction = 0.;
-  for (int i=0; i<qcurve.size()-1; i++)
+  for (int i=0; i<qc.size()-1; i++)
   {
-    double deltaTi = times.getUnchecked(i+1) - times.getUnchecked(i);
-    
+    //cout << "at step " << i << endl;
+    double deltaTi = t.getUnchecked(i+1) - t.getUnchecked(i);
+    //cout << "delta Ti = " << deltaTi << endl;
     // integrad at i
-    double integrand = -0.5 * (hamilt.getUnchecked(i) + hamilt.getUnchecked(i+1));
-    jassert(pcurve.getUnchecked(i).size() == pcurve.getUnchecked(i+1).size()); // safety check
-    jassert(qcurve.getUnchecked(i).size() == qcurve.getUnchecked(i+1).size());
-    for (int m=0; m<qcurve.getUnchecked(i).size(); m++)
+    double integrand = -0.5 * (hamilt.getUnchecked(i) + hamilt.getUnchecked(i+1)) * deltaTi;
+    //cout << "-mean H x deltaT_"<< i << " = " << integrand << endl;
+    jassert(pc.getUnchecked(i).size() == pc.getUnchecked(i+1).size()); // safety check
+    jassert(qc.getUnchecked(i).size() == qc.getUnchecked(i+1).size());
+    for (int m=0; m<qc.getUnchecked(i).size(); m++)
     {
-      integrand += 0.5 * (pcurve.getUnchecked(i).getUnchecked(m) + pcurve.getUnchecked(i+1).getUnchecked(m)) * (qcurve.getUnchecked(i+1).getUnchecked(m)-qcurve.getUnchecked(i).getUnchecked(m));
+      double sp = 0.5 * (pc.getUnchecked(i).getUnchecked(m) + pc.getUnchecked(i+1).getUnchecked(m)) * (qc.getUnchecked(i+1).getUnchecked(m)-qc.getUnchecked(i).getUnchecked(m));
+      integrand += sp;
+      //cout << "(sp)_" << m << " = 1/2 * (" << pc.getUnchecked(i+1).getUnchecked(m) << "+" << pc.getUnchecked(i).getUnchecked(m);
+      //cout << " * (" << qc.getUnchecked(i+1).getUnchecked(m) << "-" << qc.getUnchecked(i).getUnchecked(m) << ")" << " = " << sp << endl;
     }
-    newaction += integrand * deltaTi;
+    newaction += integrand;
+    //cout << "adding " << integrand << endl << endl;
   }
   
+  //cout << "action = " << newaction << endl;
   // update action value
-  action = newaction;
+  //action = newaction;
   // keep track of action history
-  actionDescent.add(newaction);
+  //actionDescent.add(newaction);
+  
+  return newaction;
+  
+}
+
+
+double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& deltaqc)
+{
+  // init step with large value #para ?
+  double step = 1.;
+  int timeout = 2;
+  
+  double currentaction = calculateAction(qc, pcurve, times);
+  //cout << "current action = " << currentaction << endl;
+  
+  StateVec nullvec;
+  nullvec.insertMultiple(0, 0., simul->entities.size());
+ 
+  for (int iter=0; iter<timeout; iter++)
+  {
+    if (step<1e-7)
+      break;
+    
+    Curve newcurve;
+    for (int point=0; point<nPoints; point++)
+    {
+      if (point==0 || point == nPoints-1)
+      {
+        newcurve.add(nullvec);
+        continue;
+      }
+      StateVec newqk;
+      jassert(qc.getUnchecked(point).size()==deltaqc.getUnchecked(point).size());
+      
+      //double norm=0.;
+      //for (auto d : deltaqc.getUnchecked(point))
+      //  norm += d*d;
+      //cout << "deltaqc norm : "  << norm << endl;
+      
+      for (int m=0; m<qc.getUnchecked(point).size(); m++)
+      {
+        double newval = qc.getUnchecked(point).getUnchecked(m) - step*deltaqc.getUnchecked(point).getUnchecked(m);
+        newqk.add(newval);
+      }
+      newcurve.add(newqk);
+    }
+    
+    // sanity check
+    for (int point=0; point<nPoints; point++)
+    {
+      StateVec q = qc.getUnchecked(point);
+      StateVec dq = deltaqc.getUnchecked(point);
+      StateVec diff = newcurve.getUnchecked(point);
+      cout << "step = " << step << endl;
+      for (int m=0; m<q.size(); m++)
+      {
+        cout << q.getUnchecked(m) << " - " << dq.getUnchecked(m) << " = " << diff.getUnchecked(m) << endl;
+      }
+      
+    }
+    
+    // calculate new action according to new concentration curve
+    double newact = calculateAction(newcurve, pcurve, times);
+    cout << "iter = " << iter << " new action = " << newact << endl;
+    if (newact>=currentaction)
+      step *= 2/3; // hardcoded (2/3)^20 = 5e-6, should be enough
+    else
+      break;
+  }
+  cout << "will return step = " << step << endl;
+  
+  //LOGWARNING("backtracking algorithm did not converge to pick a descent step size. Returning 1e-6 as default value. Caution.");
+  return step;
+}
+
+
+
+pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, StateVec pi)
+{
+ // dq/dt = dH/dp
+ // dp/dt = -dH/dq
+  double dt = 15.;
+  
+  Trajectory traj_forward;
+  Trajectory traj_backward;
+  StateVec qcurrent_forward(qi);
+  StateVec pcurrent_forward(pi);
+  StateVec qcurrent_backward(qi);
+  StateVec pcurrent_backward(pi);
+  
+  jassert(qi.size() == pi.size());
+  
+  // number of integrating steps
+  for (int st=0; st<100000; st++)
+  {
+    StateVec gradqH_forward = evalHamiltonianGradientWithQ(qcurrent_forward, pcurrent_forward);
+    StateVec gradpH_forward = evalHamiltonianGradientWithP(qcurrent_forward, pcurrent_forward);
+    
+    StateVec gradqH_backward = evalHamiltonianGradientWithQ(qcurrent_backward, pcurrent_backward);
+    StateVec gradpH_backward = evalHamiltonianGradientWithP(qcurrent_backward, pcurrent_backward);
+    
+    StateVec newq_forward;
+    StateVec newp_forward;
+    StateVec newq_backward;
+    StateVec newp_backward;
+    
+    for (int m=0; m<qcurrent_forward.size(); m++)
+    {
+      newq_forward.add(qcurrent_forward.getUnchecked(m) + dt*gradpH_forward.getUnchecked(m));
+      newp_forward.add(pcurrent_forward.getUnchecked(m) - dt*gradqH_forward.getUnchecked(m));
+      newq_backward.add(qcurrent_backward.getUnchecked(m) + (-1.)*dt*gradpH_backward.getUnchecked(m));
+      newp_backward.add(pcurrent_backward.getUnchecked(m) - (-1.)*dt*gradqH_backward.getUnchecked(m));
+    }
+    
+    qcurrent_forward = newq_forward;
+    pcurrent_forward = newp_forward;
+    qcurrent_backward = newq_backward;
+    pcurrent_backward = newp_backward;
+    
+    PhaseSpaceVec psv_forward, psv_backward;
+    for (int m=0; m<newq_forward.size(); m++)
+    {
+      psv_forward.add(qcurrent_forward.getUnchecked(m));
+      psv_backward.add(qcurrent_backward.getUnchecked(m));
+    }
+    for (int m=0; m<newp_forward.size(); m++)
+    {
+      psv_forward.add(pcurrent_forward.getUnchecked(m));
+      psv_backward.add(pcurrent_backward.getUnchecked(m));
+    }
+    traj_forward.add(psv_forward);
+    traj_backward.add(psv_backward);
+    
+  }
+  
+  pair<Trajectory, Trajectory> traj = make_pair(traj_forward, traj_backward); // one backward, one forward
+  return traj;
   
   
 }
+
 
 
 

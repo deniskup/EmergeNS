@@ -2911,7 +2911,7 @@ void Simulation::run()
   LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
 
-  pacList->printRACs();
+  //pacList->printRACs();
 
   updateConcentLists();
 
