@@ -4,6 +4,8 @@
 //
 //  Created by Thomas Kosc on 13/06/2025.
 //  kosc.thomas@gmail.com
+// adapted from https://github.com/praful12/Descender-for-CRN-escapes/tree/main
+//
 //  nlopt library (used for optimizations) need to be installed
 // Must modify the .jucer file to add :
 // path to header files of nlopt
@@ -43,6 +45,87 @@ typedef Array<StateVec> pCurve;
 typedef Array<PhaseSpaceVec> Trajectory;
 
 
+// class for filtering
+class MultiButterworthLowPass
+{
+public:
+  void prepare(double sampleRate, int numEntities)
+  {
+    filters.clear();
+
+    for (int i = 0; i < numEntities; ++i)
+    {
+      auto* f = new juce::dsp::IIR::Filter<double>();
+      //juce::dsp::IIR::Filter<double> f;
+      //cout << "sample rate = " << sampleRate << endl;
+      //cout << "cutoff freq = " << cutoffHz << endl;
+      //cout << cutoffHz << " < " << sampleRate/2.  << " ?" << endl;
+      auto coeffs = juce::dsp::IIR::Coefficients<double>::makeLowPass(sampleRate, cutoffHz);
+      f->coefficients = coeffs;
+      filters.add(std::move(f));
+    }
+  }
+
+  void process(juce::Array<juce::Array<double>>& data) // first dim = nPoints, inner dim = nentities
+  {
+    if (data.size()==0)
+      return;
+    
+    // should add protection if nqyist condition not satisfied,
+    // i.e. cutoffFreq < sampleRate / 2
+    
+    // retrieve number of entities
+    const int nPoints = static_cast<int>(data.size());
+    const int numEntities = static_cast<int>(data[0].size());
+    
+    vector<vector<double>> filtdata(nPoints, vector<double>(numEntities, 0.));
+    
+    //cout << "npoints = " << nPoints << endl;
+    //cout << "numEnt = " << numEntities << endl;
+    
+    // I'm Here, check that this is not bullshit
+    for (int ient=0; ient<numEntities; ient++)
+    {
+      // retrieve signal along current entity index
+      vector<double> signal(nPoints, 0.);
+      for (int p=0; p<nPoints; p++)
+      {
+        signal[p] = data.getUnchecked(p).getUnchecked(ient);
+        //signal.setUnchecked(p, data.getUnchecked(p).getUnchecked(ient));
+      }
+      
+      // filtering
+      for (int p=0; p<signal.size(); p++)
+      {
+        signal[p] = filters[ient]->processSample(signal[p]);
+      }
+      
+      // Réinjection
+      for (int p=0; p<nPoints; p++)
+        filtdata[p][ient] = signal[p];
+      
+      // Modify input
+      for (int p=0; p<nPoints; p++)
+      {
+        data.getReference(p).setUnchecked(ient, filtdata[p][ient]);
+      }
+    } // end entity loop
+    
+    
+  }
+
+  void setCutoffFrequency(double newCutoffHz)
+  {
+    cutoffHz = newCutoffHz;
+  }
+
+private:
+    double cutoffHz = 1.;
+    juce::OwnedArray<juce::dsp::IIR::Filter<double>> filters;
+};
+
+
+
 class LiftTrajectoryOptResults
 {
   public:
@@ -69,8 +152,22 @@ public:
   
   Trigger * startDescent;
   
+  Trigger * start_heteroclinic_study;
+  bool heteroclinic_study = false;
+  
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
+  
+  IntParameter * Niterations;
+  
+  IntParameter * nPoints;
+  
+  FloatParameter * cutoffFreq;
+  
+  FloatParameter * action_threshold ;
+  
+  FloatParameter * timescale_factor;
+
 
   // update steady state list when updateParams is calle din SImulation
   void updateSteadyStateList();
@@ -82,8 +179,9 @@ public:
   void onChildContainerRemoved(ControllableContainer*) override;
   
   
-  // thread function
+  void reset();
   void run() override; // thread function
+  
   void stop();
   
   double evalHamiltonian(const StateVec q, const StateVec p);
@@ -111,7 +209,10 @@ public:
   
   void newMessage(const ContainerAsyncEvent &e) override;
   
-  
+  void checkGradH();
+  void checkGradH2();
+
+
   
 private:
   
@@ -127,23 +228,26 @@ private:
   double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
   double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
-
-  void extractHamiltonian(); // not needed ?
+  
+  void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
+  
+  void heteroclinicStudy();
   
   // global variable describing the state of the descent
   Curve qcurve;
   pCurve pcurve;
+  double length_qcurve = 0.;
   Array<double> times;
   double action;
   
-  // some descent controling parameters
-  int nPoints = 50; // #para
-  double action_threshold = 0.01; // #para
-  int maxIter = 15; // #para
-
+  // sample rate, calculated from current qcurve
+  double sampleRate;
   
+  // for filtering
+  MultiButterworthLowPass filter;
+
   // for printing history to file
   Array<double> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
