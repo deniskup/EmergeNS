@@ -182,10 +182,19 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
   //return -minf; // car on veut max_p => -min_t
  }
  
+/*
+NEP::NEP() : ControllableContainer("NEP"),
+             Thread("NEP"),
+            nepNotifier(1000)
+{
+  
+}
+*/
 
-
-
-NEP::NEP() : ControllableContainer("NEP"), Thread("NEP"), simul(Simulation::getInstance())
+NEP::NEP() : ControllableContainer("NEP"),
+            Thread("NEP"),
+            simul(Simulation::getInstance()),
+            nepNotifier(1000)
 {
   
   //rm = new RunManager();
@@ -240,8 +249,6 @@ NEP::NEP() : ControllableContainer("NEP"), Thread("NEP"), simul(Simulation::getI
 
   
 }
-
-
 
 
 
@@ -1000,6 +1007,7 @@ void NEP::run()
   initConcentrationCurve();
   
   int count = -1;
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, count, 0.));
   while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
@@ -1042,6 +1050,8 @@ void NEP::run()
     // I could call at this stage a NEPEvent to display real time algorithm progress in the NEPUI window
     // that would be really badass, but not a priority
     
+    // message to async
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::STARTED, this, count, action));
     
   } // end while
   

@@ -14,8 +14,6 @@
 
 /*
 - update read me for compilation with nlopt
-- filtering of pcurve
-- step size picking
 - reparametrization of qcurve
 - calculate distance from hamilton equation of motion
 - recover 2-schlogl results of gagrani and smith
@@ -143,29 +141,24 @@ class NEP : public ControllableContainer, public Thread, public Simulation::Asyn
 public:
   juce_DeclareSingleton(NEP, true);
   NEP();
-  NEP(Simulation *simul) : ControllableContainer("NEP"), Thread("NEP"), simul(simul){};
+  //NEP(Simulation *simul) : ControllableContainer("NEP"), Thread("NEP"), simul(simul),  nepNotifier(1000) {};
+  //NEP(Simulation *simul);
 
   NEP(var data); // import from JSON
   ~NEP();
   
   Simulation * simul;
   
+  // adjustable parameters
   Trigger * startDescent;
-  
   Trigger * start_heteroclinic_study;
   bool heteroclinic_study = false;
-  
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
-  
   IntParameter * Niterations;
-  
   IntParameter * nPoints;
-  
   FloatParameter * cutoffFreq;
-  
   FloatParameter * action_threshold ;
-  
   FloatParameter * timescale_factor;
 
 
@@ -193,6 +186,7 @@ public:
   void loadJSONData(var data, bool createIfNotThere = false) override;
   var getJSONData(bool includeNonOverriden = true) override;
   
+  
    class NEPListener
    {
    public:
@@ -209,10 +203,98 @@ public:
   
   void newMessage(const ContainerAsyncEvent &e) override;
   
+  
   void checkGradH();
   void checkGradH2();
+  
+  // ASYNC
+  class NEPEvent
+  {
+  public:
+    enum Type
+    {
+      UPDATEPARAMS,
+      WILL_START,
+      STARTED,
+      NEWSTEP,
+      FINISHED,
+    };
 
+    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0.)
+      : type(_t), nep(_nep), curStep(_curStep), action(_action)
+    {
+    }
 
+    Type type;
+    NEP* nep;
+    int curStep;
+    double action;
+  };
+  
+  QueuedNotifier<NEPEvent> nepNotifier;
+  typedef QueuedNotifier<NEPEvent>::Listener AsyncNEPListener;
+
+  void addAsyncNEPListener(AsyncNEPListener* newListener) { nepNotifier.addListener(newListener); }
+  void addAsyncCoalescedNEPListener(AsyncNEPListener* newListener) { nepNotifier.addAsyncCoalescedListener(newListener); }
+  void removeAsyncNEPListener(AsyncNEPListener* listener) { nepNotifier.removeListener(listener); }
+  
+/*
+  QueuedNotifier<SimulationEvent> simNotifier;
+  typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
+
+  void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
+  void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
+  void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
+  */
+/*
+  // ASYNC
+  class SimulationEvent
+  {
+  public:
+    enum Type
+    {
+      UPDATEPARAMS,
+      WILL_START,
+      STARTED,
+      NEWSTEP,
+      FINISHED,
+    };
+
+    SimulationEvent(Type t,
+      Simulation* sim,
+      //int _run = 0,
+      //int _patch = 0,
+      int curStep = 0,
+      //Array<float> entityValues = Array<float>(),
+      ConcentrationGrid entityValues = {},
+      Array<Colour> entityColors = Array<Colour>(),
+      Array<float> PACsValues = Array<float>(),
+      Array<bool> RACList = Array<bool>())
+      : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+    {
+    }
+
+    Type type;
+    Simulation* sim;
+    //int run;
+    //int patch;
+    int curStep;
+    //Array<float> entityValues;
+    ConcentrationGrid entityValues;
+    Array<Colour> entityColors;
+    Array<float> PACsValues;
+    Array<bool> RACList;
+    //map<PAC*, bool> RACList;
+  };
+
+  QueuedNotifier<SimulationEvent> simNotifier;
+  typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
+
+  void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
+  void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
+  void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
+  */
+  
   
 private:
   
@@ -251,6 +333,9 @@ private:
   // for printing history to file
   Array<double> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  
+  
+  
   
   
 
