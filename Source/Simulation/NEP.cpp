@@ -1051,7 +1051,7 @@ void NEP::run()
     // that would be really badass, but not a priority
     
     // message to async
-    nepNotifier.addMessage(new NEPEvent(NEPEvent::STARTED, this, count, action));
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count+1, action));
     
   } // end while
   

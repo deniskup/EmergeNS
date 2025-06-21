@@ -37,6 +37,8 @@ public:
     Array<int> iterations;
     Array<double> actions;
   
+    void paintAxis(juce::Graphics &g, Rectangle<int> bounds, String type, int nticks, float max);
+  
     void paintOneMonitoredQuantity(juce::Graphics &, Rectangle<int>, String, Array<double>);
 
     void paint(juce::Graphics &) override;
