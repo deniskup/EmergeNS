@@ -62,6 +62,81 @@ NEPUI::~NEPUI()
   nep->removeAsyncNEPListener(this);
 }
 
+// #HERE
+// tick marks as well as labels do not display correctly in UI
+void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int nticks, float max)
+{
+  g.setColour(NORMAL_COLOR);
+  g.setFont(10.);
+  
+  int markwidth = 4;
+  int markheight = 2;
+  int ndigits = (type =="Y" ? 2 : 0);
+  int textboxwidth = 20;
+  int textboxheight = 5;
+  int shiftXaxisLabels = 10;
+  int shiftYaxisLabels = 25;
+
+//  cout << "bounds : " << r.getX() << " " << r.getY() << " " << r.getWidth() << " " << r.getHeight() << endl;
+//  cout << "type = " << type << ". ndigits = " << ndigits << endl;
+  
+  for (int i=0; i<=nticks; i++)
+  //for (int i=0; i<=0; i++)
+  {
+    // Draw the tick marks
+    int markX, markY;
+    if (i>0 && i<nticks)
+    {
+      if (type == "X")
+      {
+        markX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks);
+        markY = r.getY() + r.getHeight();
+        //cout << "tick #" << i << ". xpos : " << markX << ". ypos : " << markY << endl;
+        Rectangle<int> m(markX, markY - markwidth / 2, markheight, markwidth);
+        g.drawRect(m, markheight);
+      }
+      else
+      {
+        markX = r.getX();
+        markY = r.getY() + round((float)r.getHeight() * (float) i / (float)nticks);
+        Rectangle<int> m(markX - markwidth / 2, markY, markwidth, markheight);
+        g.drawRect(m, markheight);
+      }
+    }
+    
+  
+    // ticks labels
+    if (type == "X")
+    {
+      String label = "";
+      if (i==0)
+        label = String(iterations.getFirst());;
+      if (i==nticks)
+        label = String(iterations.getLast());
+      int labelX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks) - textboxwidth/2;
+      int labelY = r.getY() + r.getHeight() + shiftXaxisLabels;
+      Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
+      if (i==0 || i==nticks) // only display first and last values for x axis
+        g.drawText(label, labelpos, Justification::centred, true);
+    }
+    else
+    {
+      // x position of ticks labels
+      int labelX = r.getX() - shiftYaxisLabels;
+      int labelY = r.getY() + round( (float) r.getHeight() * (1. - (float) i / (float) nticks) );
+      Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
+      //float val = max * (1. - (float) i / (float) nticks);
+      float val = max * ( (float) i / (float) nticks);
+      stringstream ssval;
+      ssval << fixed << setprecision(ndigits) << val;
+      string label = ssval.str();
+      g.drawText(label, labelpos, Justification::centred, true);
+    }
+  } // end loop over ticks
+  
+  
+}
+
 
 void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, String title, Array<double> data)
 {
@@ -122,76 +197,12 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   g.strokePath(*path, PathStrokeType(1.2));
   
   // draw axis
-  g.setColour(NORMAL_COLOR);
-  g.setFont(10.);
-  int nticks = 4;
-  int markwidth = 4;
-  int markheight = 2;
-  for (int i=0; i<=nticks; i++)
-  {
-    // Draw Y axis
-    
-    // x position of ticks = origin
-    int x = r.getX();
-    
-    // y position of ticks
-    float ii = i;
-    float step = (float)r.getHeight() * ii / (float)nticks;
-    int y = r.getY() + round(step);
-    // draw the tick
-    Rectangle<int> m1(x - markwidth / 2, y, markwidth, markheight);
-    if (i != nticks & i != 0)
-      g.drawRect(m1, markheight);
-
-    // add corresponding concentration value
-
-    // decide number of digits to print to labels
-    int ndigits = 2;
-    //int pow = round(log10(max)); //
-    //if (pow<=2) ndigits = -pow + 2;
-
-    // x position of ticks labels
-    int xx = r.getX() - 40;
-    Rectangle<int> tpos(xx, y, 50, 5);
-    float conc = max * (1. - ii / nticks);
-    stringstream ssconc;
-    ssconc << fixed << setprecision(ndigits) << conc;
-    string text = ssconc.str();
-    g.drawText(text, tpos, Justification::centred, true);
-
-    // draw X axis ticks and texts
-
-    // y position of ticks = x axis
-    y = r.getY() + r.getHeight();
-    // x position of ticks
-    step = (float)r.getWidth() * ii / (float)nticks;
-    x = r.getX() + round(step);
-    // draw the tick
-    Rectangle<int> m2(x, y - markwidth / 2, markheight, markwidth);
-    if (i != nticks & i != 0)
-      g.drawRect(m2, markheight);
-
-    // add corresponding time value
-    // here decide the number of gigits to display
-    //pow = round(log10(simul->totalTime->floatValue()));
-    ndigits = 0;
-    //if (pow<=2) ndigits = -pow + 2;
-
-    //x -= 3 * pow;
-    int boxwidth = 100;
-    Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
-    float tot = iterations.getLast() * ii / nticks;
-    stringstream sstime;
-    sstime << fixed << setprecision(ndigits) << tot;
-    text = sstime.str();
-    if (i == 0)
-      continue; // skip first tick
-    else if (i > 0 && i <= nticks)
-      g.drawText(text, tpos2, Justification::centred, true);
-    
-  } // end loop over ticks
+  int nticksX = 4;
+  int nticksY = 4;
+  paintAxis(g, r, "X", nticksX, iterations.getLast());
+  paintAxis(g, r, "Y", nticksY, max);
   
-  // add title
+  // add plot title
   g.setFont(15.);
   int titleX = r.getX() + r.getWidth()/2 - 50;
   int titleY = r.getY() - 20;
