@@ -117,7 +117,7 @@ public:
 
 	// these ones are for display
 	FloatParameter* maxConcent;
-	BoolParameter* realTime; // do we print intermediary steps ?
+  BoolParameter* realTime; // do we print intermediary steps ?
 
 	BoolParameter* liveUpdate;
 

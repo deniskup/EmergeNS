@@ -82,6 +82,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/ReactionUI_cc32579.o \
   $(JUCE_OBJDIR)/SettingsUI_93a423f3.o \
   $(JUCE_OBJDIR)/SimulationUI_fbb6fd17.o \
+  $(JUCE_OBJDIR)/SpaceUI_f1b0aa68.o \
   $(JUCE_OBJDIR)/SimReaction_27eac781.o \
   $(JUCE_OBJDIR)/SimEntity_1d29d0fb.o \
   $(JUCE_OBJDIR)/PAC_277c22f3.o \
@@ -95,6 +96,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
   $(JUCE_OBJDIR)/SteadyStates_3910a3d.o \
   $(JUCE_OBJDIR)/Statistics_7698d42c.o \
+  $(JUCE_OBJDIR)/Space_958d9267.o \
   $(JUCE_OBJDIR)/Util_9d757a8b.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
@@ -178,6 +180,11 @@ $(JUCE_OBJDIR)/SimulationUI_fbb6fd17.o: ../../Source/Simulation/ui/SimulationUI.
 	@echo "Compiling SimulationUI.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/SpaceUI_f1b0aa68.o: ../../Source/Simulation/ui/SpaceUI.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling SpaceUI.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/SimReaction_27eac781.o: ../../Source/Simulation/SimReaction.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling SimReaction.cpp"
@@ -241,6 +248,11 @@ $(JUCE_OBJDIR)/SteadyStates_3910a3d.o: ../../Source/Simulation/SteadyStates.cpp
 $(JUCE_OBJDIR)/Statistics_7698d42c.o: ../../Source/Simulation/Statistics.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Statistics.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Space_958d9267.o: ../../Source/Simulation/Space.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Space.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Util_9d757a8b.o: ../../Source/Simulation/Util.cpp

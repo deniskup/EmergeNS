@@ -46,6 +46,8 @@
           <FILE id="HQjadc" name="SimulationUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/SimulationUI.cpp"/>
           <FILE id="o6wALL" name="SimulationUI.h" compile="0" resource="0" file="Source/Simulation/ui/SimulationUI.h"/>
+          <FILE id="iz2NwA" name="SpaceUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/SpaceUI.cpp"/>
+          <FILE id="hd2Fe4" name="SpaceUI.h" compile="0" resource="0" file="Source/Simulation/ui/SpaceUI.h"/>
         </GROUP>
         <FILE id="i8eM9d" name="SimReaction.cpp" compile="1" resource="0" file="Source/Simulation/SimReaction.cpp"/>
         <FILE id="H0jhab" name="SimReaction.h" compile="0" resource="0" file="Source/Simulation/SimReaction.h"/>
@@ -77,6 +79,8 @@
         <FILE id="HxDELV" name="SteadyStates.h" compile="0" resource="0" file="Source/Simulation/SteadyStates.h"/>
         <FILE id="z28CFG" name="Statistics.cpp" compile="1" resource="0" file="Source/Simulation/Statistics.cpp"/>
         <FILE id="BUtSiN" name="Statistics.h" compile="0" resource="0" file="Source/Simulation/Statistics.h"/>
+        <FILE id="RG1OMy" name="Space.cpp" compile="1" resource="0" file="Source/Simulation/Space.cpp"/>
+        <FILE id="RtEylC" name="Space.h" compile="0" resource="0" file="Source/Simulation/Space.h"/>
         <FILE id="bj1PHy" name="Util.cpp" compile="1" resource="0" file="Source/Simulation/Util.cpp"/>
         <FILE id="jLnPVN" name="Util.h" compile="0" resource="0" file="Source/Simulation/Util.h"/>
       </GROUP>
