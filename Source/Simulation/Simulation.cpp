@@ -168,9 +168,11 @@ void Simulation::updateParams()
       primEnts.add(ent);
     numLevels = jmax(numLevels, ent->level);
   }
+  
 
   // compute isolated entities
   computeIsolated();
+  
 
   setCAC->clearOptions();
   // if (isComputing)
@@ -189,6 +191,7 @@ void Simulation::updateParams()
     // setCAC->addOption("Cac"+to_string(opt), opt,false);
     opt++;
   }
+  
 
   // set steady states
   setSteadyState->clearOptions();
@@ -209,6 +212,10 @@ void Simulation::updateParams()
   }
   
   
+  // set space
+  updateSpaceGridSizeInSimu();
+  
+  
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
@@ -217,9 +224,14 @@ void Simulation::updateParams()
 
 void Simulation::updateSpaceGridSizeInSimu()
 {
+  //cout << "Current simul  has " << entities.size() << " entities." << endl;
+  //if (entities.size() == 0)
+  //  return;
+  //cout << "updateSpaceGridSizeInSimu()" << endl;
+    //cout << "spacegrid size in SimEntities = " << entities.getUnchecked(0)->startConcent.size() << endl;
   for (auto& ent : entities)
   {
-    float start0 = ent->startConcent.getUnchecked(0);
+    //float start0 = ent->startConcent.getUnchecked(0);
     
     ent->startConcent.resize(Space::getInstance()->nPatch);
     ent->concent.resize(Space::getInstance()->nPatch);
@@ -227,14 +239,15 @@ void Simulation::updateSpaceGridSizeInSimu()
     ent->previousConcent.resize(Space::getInstance()->nPatch);
     
     // for start concentrations, I duplicate the values of the first patch
-    // for others, I init with null values
-    for (int k=0; k<ent->startConcent.size(); k++)
+    // for others, I init with null values // #BUG
+   /* for (int k=0; k<ent->startConcent.size(); k++)
     {
       ent->startConcent.set(k, start0);
       ent->concent.set(k, 0.);
       ent->deterministicConcent.set(k, 0.);
       ent->previousConcent.set(k, 0.);
     }
+    */
   }
 }
 
@@ -1585,11 +1598,14 @@ void Simulation::generateSimFromUserList()
 
 void Simulation::resetBeforeRunning()
 {
-  stopThread(100);
+  stopThread(1000);
   startTrigger->setEnabled(false);
   state = Simulating;
   isMultipleRun = false;
   affectSATIds();
+  
+  dynHistory = new DynamicsHistory();
+  
   
   initialConcentrations.clear();
   //for (auto& ent: entities)
@@ -1597,6 +1613,7 @@ void Simulation::resetBeforeRunning()
   //RAChistory.clear();
   dynHistory->concentHistory.clear();
   dynHistory->racHistory.clear();
+
 
   currentRun = 0;
   recordConcent.resize(Space::getInstance()->nPatch);
@@ -1607,6 +1624,7 @@ void Simulation::resetBeforeRunning()
     recordDrawn.set(k, 0.);
   }
   
+  
   runToDraw = 0;
   patchToDraw = 0;
   //recordDrawn = 0.;
@@ -1616,6 +1634,11 @@ void Simulation::resetBeforeRunning()
   //cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
   
   setRun->setValue(0);
+  
+  // check that some space grid exists
+  // if not, set it to one, its default value
+  //if (Space::getInstance()->spaceGrid.size() == 0)
+  //  Space::getInstance()->tilingSize->setValue(1);
   
   if (stochasticity->boolValue())
   {
@@ -1671,6 +1694,7 @@ void Simulation::resetBeforeRunning()
     RAChistory.add(row);
   }
   //cout << "in reset RAChist size on run axis : " << RAChistory.size() << endl;
+  
   
 }
 
@@ -1741,7 +1765,7 @@ void Simulation::start(bool restart)
   // 1st call of simulation event
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-  
+    
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1827,6 +1851,7 @@ void Simulation::start(bool restart)
 ///  }
 ///  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
 ///  checkPoint = jmax(1, checkPoint);
+  
  
   startThread();
 }
@@ -1961,7 +1986,6 @@ void Simulation::resetForNextRun()
 // Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
-//void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
 {
   
   nSteps++;
@@ -2845,6 +2869,7 @@ void Simulation::run()
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
   
+  
   if (redrawRun || redrawPatch)
   {
     redrawRun = false;
@@ -2873,13 +2898,13 @@ void Simulation::run()
 
   if (Settings::getInstance()->printHistoryToFile->boolValue())
   {
-    //LOG("Printing history to file not enabled for now, disabling it in Settings");
-    //Settings::getInstance()->printHistoryToFile->setValue(false);
     writeHistory();
   }
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
+  
+  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
   
 }
 
@@ -2918,6 +2943,8 @@ void Simulation::writeHistory()
   {
     for (auto & patch : Space::getInstance()->spaceGrid)
     {
+      if (threadShouldExit())
+        break;
       historyFile << dynHistory->concentHistory.getUnchecked(step).runID << ",";
       //historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
       historyFile << patch.id << ",";

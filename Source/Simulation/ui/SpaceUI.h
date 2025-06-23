@@ -64,6 +64,8 @@ private:
     float pixOriginX;
     float pixOriginY;
   
+    unique_ptr<IntSliderUI> replayProgressUI;
+  
   
     //Array<Array<float>> entityHistory;
     Array<ConcentrationGrid> entityHistory;

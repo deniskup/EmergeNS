@@ -4,9 +4,15 @@
 SpaceUI::SpaceUI() : ShapeShifterContentComponent(Space::getInstance()->niceName),
                            space(Space::getInstance()), simul(Simulation::getInstance())
 {
-    // option: boucle sur les controllables avec createDefaultUI();
+    space->replayProgress->hideInEditor = true; 
     editorUI.reset(new GenericControllableContainerEditor(space, true));
     addAndMakeVisible(editorUI.get());
+  
+    replayProgressUI.reset(space->replayProgress->createSlider());
+    replayProgressUI->suffix = "%";
+    replayProgressUI->setSize(100, 20);
+    addAndMakeVisible(replayProgressUI.get());
+    replayProgressUI->customLabel = "Replay progress";
   
     simul->addAsyncSimulationListener(this);
     simul->addAsyncContainerListener(this);
@@ -30,6 +36,7 @@ void SpaceUI::resized()
 {
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
+    replayProgressUI->setBounds(r.removeFromBottom(40).reduced(10));
     // r.removeFromTop(10);
     // Rectangle<int> hr = r.removeFromTop(27).reduced(2);
     // // maxStepsUI->setBounds(hr.removeFromLeft(200));
@@ -51,10 +58,6 @@ void SpaceUI::resized()
 
 void SpaceUI::paint(juce::Graphics &g)
 {
-  // should not be called while running simu, because simu needs the space grid which is overriden in this function
-  if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
-    return;
-
   
   // should not be called while redrawing a patch or a run
   if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
@@ -83,15 +86,14 @@ void SpaceUI::paint(juce::Graphics &g)
   // reset bool to true by default
   if (!useStartConcentrationValues && !space->isThreadRunning())
     useStartConcentrationValues = true;
+  //if (useStartConcentrationValues)
+   // useStartConcentrationValues = false;
 
 }
 
 
 void SpaceUI::drawSpaceGrid(juce::Graphics & g)
 {
-  // clear the already existing grid
-  Space::getInstance()->spaceGrid.clear();
-  
   // start is at upper left corner
   int til = space->tilingSize->intValue();
   float ftil = (float) til;
@@ -110,7 +112,8 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
   pixOriginX = centerX;
   pixOriginY = centerY;
   
-  
+  //cout << "drawing a space grid with tiling size : " << til << endl;
+ // cout << "spacegid in space instance has size : " << space->spaceGrid.size() << endl;
   // loop over number of rows to draw
   for (int r=0; r<til; r++)
   //for (int c=0; c<2; c++)
@@ -127,14 +130,15 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
       paintOneHexagon(g, cX, cY, width);
      // cout << "row, col = (" << r << ", " << c << ") --> [" << cX << " , " << cY << "]" << endl;
       // update grid in Space instance
-      Patch patch;
-      patch.id = r*til + c;
-      patch.rowIndex = r;
-      patch.colIndex = c;
-      patch.setNeighbours(til);
+      //Patch patch;
+      //patch.id = r*til + c;
+      //patch.rowIndex = r;
+      //patch.colIndex = c;
+      //patch.setNeighbours(til);
       Point p(cX, cY);
+      Patch patch = space->getPatchForRowCol(r, c);
       patch.center = p;
-      Space::getInstance()->spaceGrid.add(patch);
+      Space::getInstance()->spaceGrid.setUnchecked(patch.id, patch);
     }
   }
   gridIsAlreadyDrawn = true;
@@ -171,17 +175,25 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   if (pid>=0)
   {
     Array<float> conc; // concentration in current patch only
+    Array<float> maxConcInGrid;
+    maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
     if (useStartConcentrationValues /*&& !space->isThreadRunning()*/)
     {
-      if (space->isThreadRunning())
-        cout << "PASSING HERE" << endl;
+      int ie = -1;
      for (auto & ent : simul->entities)
      {
+       ie++;
        if (!ent->draw)
        {
          continue;
        }
-       conc.add(ent->startConcent.getUnchecked(pid));
+       float c = ent->startConcent.getUnchecked(pid);
+       conc.add(c);
+       for (auto & cp : ent->startConcent)
+       {
+         if (cp>maxConcInGrid.getUnchecked(ie))
+           maxConcInGrid.setUnchecked(ie, cp);
+       }
      }
     }
     else
@@ -191,6 +203,8 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
         for (auto & [patchent, val] : last)
         {
+          if (val>maxConcInGrid.getUnchecked(patchent.second))
+            maxConcInGrid.setUnchecked(patchent.second, val);
           if (patchent.first!=pid)
             continue;
           if (!simul->getSimEntityForID(patchent.second)->draw)
@@ -199,8 +213,48 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         }
       }
     }
+    /*
+    // normalize each concentration w.r.t to max concent found in all patches
+    Array<float> maxConcInGrid;
+    maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
+    int ie=-1;
+    for (auto & ent : simul->entities)
+    {
+      ie++;
+      for (auto & patch : space->spaceGrid)
+      {
+        if (ent->concent.getUnchecked(patch.id) > maxConcInGrid.getUnchecked(ie))
+          maxConcInGrid.setUnchecked(ie, ent->concent)
+      }
+    }
+    */
+    /*
+    cout << "In patch #" << pid << endl;
     
-    // normalize vector of concentrations
+    cout << "-- vector of conc -- " << endl;
+    for (auto & c : conc)
+      cout << c << " ";
+    cout << endl;
+    */
+    
+    // normalize vector of concentrations of current patch w.r.t to max of all patches
+    // this method does not take into account maxima that would be found later in simulation or that have been found previously.
+    // for instance, in a single patch simulation, if X1 = 0.1 and X2 = 0.2 but later W1 = 1 and X2 = 2, they would be shown with the same colour
+    for (int k=0; k<conc.size(); k++)
+    {
+      float max = maxConcInGrid.getUnchecked(k);
+      //cout << "max for ent #" << k << " = " << max << endl;
+      jassert(max>0.);
+      conc.setUnchecked(k, conc.getUnchecked(k)/max);
+    }
+    /*
+    cout << "-- vector of conc norm. to max in space grid -- " << endl;
+    for (auto & c : conc)
+      cout << c << " ";
+    cout << endl;
+    */
+    
+    // normalize vector of concentrations w.r.t its own norm
     float tot = 0.;
     for (auto & c : conc)
       tot += c;
@@ -210,13 +264,49 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         conc.setUnchecked(k, conc[k]/tot);
     }
     
+    /*
+    cout << "-- conc noramilzed to unity, using tot = " << tot << endl;
+    for (auto & c : conc)
+      cout << c << " ";
+    cout << endl;
+    */
+    
     // if entity colors is empty, retrieve entity colors here
     if (entityColors.size()==0)
     {
       for (auto & ent : Simulation::getInstance()->entitiesDrawn)
         entityColors.add(ent->color);
     }
+    jassert(conc.size() == entityColors.size());
     
+    float red = 0.;
+    float green = 0.;
+    float blue = 0.;
+    //float totWeight = 0.;
+    for (int k=0; k<conc.size(); k++)
+    {
+      red += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatRed();
+      green += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatGreen();
+      blue += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatBlue();
+      //totWeight += conc.getUnchecked(k);
+    }
+    /*
+    if (totWeight>0.f)
+    {
+        red /= totWeight;
+        green /= totWeight;
+        blue /= totWeight;
+    }
+    */
+    Colour patchcol = Colour::fromFloatRGBA(red, green, blue, 1.);
+    //if (totWeight==0.)
+    if (tot==0.)
+      patchcol = BG_COLOR;
+    g.setColour(patchcol);
+    g.fillPath(*hex);
+      
+    
+ /*
     // calculate weighted red, green and blue
     uint8_t red = 0;
     uint8_t green = 0;
@@ -235,11 +325,23 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       blue += conc[k] * entityColors[k].getBlue();
     }
     juce::Colour patchcol(red, green, blue);
+    
+    
     //g.setColour(juce::Colours::lightgreen);
+    float tot = 0.;
+    for (auto & c : conc)
+      tot += c;
+    
     if (tot==0.)
+    {
+      cout << "found tot = 0" << endl;
       patchcol = BG_COLOR;
+    }
+     
     g.setColour(patchcol);
     g.fillPath(*hex);
+  */
+  
   } // end if pid>=0
   
   
@@ -384,6 +486,8 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
       {
         useStartConcentrationValues = false;
         entityHistory.add(ev.entityValues);
+        if (space->realTime->boolValue())
+          shouldRepaint = true;
       }
        
     }
@@ -392,7 +496,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::FINISHED:
     {
       useStartConcentrationValues = false;
-      resized();
+      //resized();
       repaint();
     }
     break;

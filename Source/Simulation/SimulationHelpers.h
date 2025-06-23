@@ -174,6 +174,8 @@ public:
   }
   */
   
+  
+  
   // getter of RAC snapshots
   
   RACSnapshot getLastRACSnapshot()

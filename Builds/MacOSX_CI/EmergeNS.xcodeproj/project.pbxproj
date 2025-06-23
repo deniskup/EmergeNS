@@ -40,6 +40,7 @@
 		90BC5390DB65247E8BFCBEC1 /* GenerationUI.cpp */ = {isa = PBXBuildFile; fileRef = 85738E6567AAAF5831E08056; };
 		A0FEEF4C684BC19BAD78EEC8 /* Security.framework */ = {isa = PBXBuildFile; fileRef = E9CB0DD14A5FB3D546279B62; };
 		A6BDC76D23924E3E2FDE6DC5 /* ReactionUI.cpp */ = {isa = PBXBuildFile; fileRef = 469CB20A298492D8A306BC2D; };
+		AD95F5770373DCE1BA608398 /* Space.cpp */ = {isa = PBXBuildFile; fileRef = 08546C480AA55B55148DA0C9; };
 		B53390FB7C75A3E1DF966390 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = 2C70B295F1FD425BAF034037; };
 		B5578228D88F937CA7AC7BFE /* SimulationUI.cpp */ = {isa = PBXBuildFile; fileRef = 4D107F5B6E186C13EEB8FFAA; };
 		B83FAAD5FAAF6281C243D176 /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = FB13568AE887A042A24B8615; };
@@ -53,6 +54,7 @@
 		CF4DB48E03A71FA022706B76 /* QuartzCore.framework */ = {isa = PBXBuildFile; fileRef = 551A1F2644A00B3694FFEF03; };
 		D4E8B5AB578CB4E6DB7F792D /* Reaction.cpp */ = {isa = PBXBuildFile; fileRef = EAECDD9F00C30A7B00179823; };
 		D5AD34FD2951048E47C75452 /* IOKit.framework */ = {isa = PBXBuildFile; fileRef = 5310EA5CBC9D152C73B414D8; };
+		D69C0FC58395E0C7AC953EFC /* SpaceUI.cpp */ = {isa = PBXBuildFile; fileRef = 54E6994C54A8EC8ABBBC1F30; };
 		EAE544A3F8ADEDE5960C264D /* include_juce_core.mm */ = {isa = PBXBuildFile; fileRef = 2F15FC5A32107F5E083CD650; };
 		EB79FEB1008F17C067D2C223 /* PACUI.cpp */ = {isa = PBXBuildFile; fileRef = 48F73767A72C8D61533FE10D; };
 		ED7EFB546DF9D12CADD1C9B8 /* SteadyStates.cpp */ = {isa = PBXBuildFile; fileRef = FB681EF776A25D6A16BA5E15; };
@@ -63,6 +65,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		08546C480AA55B55148DA0C9 /* Space.cpp */ /* Space.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Space.cpp; path = ../../Source/Simulation/Space.cpp; sourceTree = SOURCE_ROOT; };
 		086E2A709DB2A17B51F3FF2F /* Util.cpp */ /* Util.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Util.cpp; path = ../../Source/Simulation/Util.cpp; sourceTree = SOURCE_ROOT; };
 		0A3CC5BA63C4CFB8D89F0D2A /* PAC.cpp */ /* PAC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PAC.cpp; path = ../../Source/Simulation/PAC.cpp; sourceTree = SOURCE_ROOT; };
 		0A7A50722F6E3517F56701A7 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JUCE/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
@@ -97,9 +100,12 @@
 		513783C722ABE4247EF332C1 /* include_juce_organicui4.cpp */ /* include_juce_organicui4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui4.cpp; path = ../../JuceLibraryCode/include_juce_organicui4.cpp; sourceTree = SOURCE_ROOT; };
 		52E56048813A7330184D7706 /* ReactionManager.h */ /* ReactionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ReactionManager.h; path = ../../Source/Simulation/ReactionManager.h; sourceTree = SOURCE_ROOT; };
 		5310EA5CBC9D152C73B414D8 /* IOKit.framework */ /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
+		54E6994C54A8EC8ABBBC1F30 /* SpaceUI.cpp */ /* SpaceUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SpaceUI.cpp; path = ../../Source/Simulation/ui/SpaceUI.cpp; sourceTree = SOURCE_ROOT; };
 		551A1F2644A00B3694FFEF03 /* QuartzCore.framework */ /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		577810CB9FAEA9049E0ABA1E /* EntityManagerUI.cpp */ /* EntityManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EntityManagerUI.cpp; path = ../../Source/Simulation/ui/EntityManagerUI.cpp; sourceTree = SOURCE_ROOT; };
+		57D49C4CAC730F256DDB59C0 /* SpaceUI.h */ /* SpaceUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpaceUI.h; path = ../../Source/Simulation/ui/SpaceUI.h; sourceTree = SOURCE_ROOT; };
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
+		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
@@ -227,6 +233,8 @@
 				3D5690C29AFD8D43233EE051,
 				4DBF9F1D0A2E3555D7B43C2B,
 				BB3ACC0D2C9A265AD098E785,
+				08546C480AA55B55148DA0C9,
+				5A4323D250C42070E4FCCF73,
 				086E2A709DB2A17B51F3FF2F,
 				4A2B79A3FD61E51BDC5C6B7D,
 			);
@@ -287,6 +295,8 @@
 				337EDC1D47699E7B0471A30B,
 				4D107F5B6E186C13EEB8FFAA,
 				1F5B27D8DE5DC63B14C5CE59,
+				54E6994C54A8EC8ABBBC1F30,
+				57D49C4CAC730F256DDB59C0,
 			);
 			name = ui;
 			sourceTree = "<group>";
@@ -466,6 +476,7 @@
 				A6BDC76D23924E3E2FDE6DC5,
 				BC56B1398766CC3768FD2DB7,
 				B5578228D88F937CA7AC7BFE,
+				D69C0FC58395E0C7AC953EFC,
 				19D5838B14F0ED8CB2B684DB,
 				1490988804F81BDA6B60B654,
 				2AA058B1E54B8EF86E9EF667,
@@ -479,6 +490,7 @@
 				FD74B3EC7E4E6FF0A5C8EA84,
 				ED7EFB546DF9D12CADD1C9B8,
 				8EAC159D59629BBA0E4E8827,
+				AD95F5770373DCE1BA608398,
 				04BEEEBD7B492EBEEC19CF12,
 				F34AE2E6390E2FBC86D0636E,
 				C96344D043028DB34B18094D,
