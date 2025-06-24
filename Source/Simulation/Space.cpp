@@ -152,7 +152,6 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     concMovie.clear();
     stopThread(1);
     
-    cout << "will replay dynamics" << endl;
     
     // I define the checkpoints by imposing that the time between two frames equals timeframe, chosen to be below the
     // human eye retina persistence (0.1s).
@@ -172,7 +171,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
     
     // launch the replay
     startThread();
