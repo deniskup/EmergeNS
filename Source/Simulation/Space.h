@@ -73,13 +73,23 @@ public:
  
     FloatParameter * timeOfReplay;
   
+
+    BoolParameter * realTime;
+
     Trigger * initGridAtStartValues;
   
     Trigger * replay;
   
+
+    IntParameter* replayProgress;
+  
     int previousTiling;
   
     int nPatch;
+  
+    Patch getPatchForRowCol(int row, int col);
+  
+    void initNewSpaceGrid();
       
     void onContainerParameterChanged(Parameter *p) override;
   

@@ -10,10 +10,14 @@ Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(
   tilingSize = addIntParameter("Tiling size", "Tiling size", 1, 1);
   previousTiling = tilingSize->intValue();
   diffConstant = addFloatParameter("Diffusion constant", "Diffusion Constant", 0.01, 0.f);
+  realTime = addBoolParameter("Real time", "Show time dynamics in real time", false);
   timeOfReplay = addFloatParameter("Replay Time", "Replay Time", 5., 1.f, 100.f);
   initGridAtStartValues = addTrigger("Init. grid at start values", "Init. grid at start values", 0.01, 0.f);
   replay = addTrigger("Replay", "Replay", 0.01, 0.f);
+  replayProgress = addIntParameter("Replay progress", "Replay progress", 0, 0, 100);
+  replayProgress->setControllableFeedbackOnly(true);
   nPatch = 1;
+  initNewSpaceGrid();
 }
 
 /*
@@ -28,6 +32,40 @@ Space::Space(Simulation * _simul) : ControllableContainer("Space"), simul(_simul
 Space::~Space()
 {
 }
+
+
+Patch Space::getPatchForRowCol(int row, int col)
+{
+  int globalindex = row * tilingSize->intValue() + col;
+  jassert(globalindex < spaceGrid.size());
+  return spaceGrid.getUnchecked(globalindex);
+}
+
+
+
+void Space::initNewSpaceGrid()
+{
+  // loop over number of rows to draw
+  for (int r=0; r<tilingSize->intValue(); r++)
+  {
+    //float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
+    // loop over columns
+    for (int c=0; c<tilingSize->intValue(); c++)
+    //for (int r=0; r<1; r++)
+    {
+      // update grid in Space instance
+      Patch patch;
+      patch.id = r*tilingSize->intValue() + c;
+      patch.rowIndex = r;
+      patch.colIndex = c;
+      patch.setNeighbours(tilingSize->intValue());
+      //Point p(cX, cY);
+      //patch.center = p;
+      spaceGrid.add(patch);
+    }
+  }
+}
+
 
 void Space::onContainerParameterChanged(Parameter *p)
 {
@@ -65,8 +103,12 @@ void Space::onContainerParameterChanged(Parameter *p)
     
     // clear the already existing grid
     spaceGrid.clear();
+
+    // init a new one
+    initNewSpaceGrid();
     
     // call simulation instance to update all arrays in simu
+    //cout << "calling updateSpaceGridSizeInSimu()" << endl;
     Simulation::getInstance()->updateSpaceGridSizeInSimu();
     
     // call space event to redraw an empty grid
@@ -112,7 +154,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     concMovie.clear();
     stopThread(1);
     
-    cout << "will replay dynamics" << endl;
+
     
     // I define the checkpoints by imposing that the time between two frames equals timeframe, chosen to be below the
     // human eye retina persistence (0.1s).
@@ -132,7 +174,9 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    cout << "number of snapshots for replay : " << concMovie.size() << endl;
+
+    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
+
     
     // launch the replay
     startThread();
@@ -184,6 +228,9 @@ void Space::run()
   {
     sn++;
     
+
+    replayProgress->setValue((int)(((sn+1) * 100) / (concMovie.size())));
+
     // get current time
     auto currentTime = std::chrono::steady_clock::now();
     
@@ -210,7 +257,9 @@ void Space::run()
     }
     */
     
-    // now I must call space event
+
+    // call space event
+
     //cout << "space event for step " << sn << ". conc grid size : " << concMovie.getUnchecked(sn).size() << endl;
     spaceNotifier.addMessage(new SpaceEvent(SpaceEvent::NEWSTEP, this, sn, concMovie.getUnchecked(sn), entityColours));
     

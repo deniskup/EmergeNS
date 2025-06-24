@@ -170,6 +170,10 @@ void SimEntity::updateFromEntity(Entity *e)
 	name = e->niceName;
 	enabled = e->enabled->boolValue();
 	generatedFromUserList = true;
+  // synchronize space grid with entity change
+  // in an ugly way by manually calling the trigger button of space instance
+  // better way would be use listeners instead ?
+  Space::getInstance()->initGridAtStartValues->trigger();
 }
 
 var SimEntity::toJSONData()

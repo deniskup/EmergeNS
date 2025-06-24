@@ -66,7 +66,7 @@ public:
     Array<SteadyState> arraySteadyStates; // list of steady states
     int nGlobStable = 0;
     int nPartStable = 0;
-    int nSaddle = 0; //
+    int nSaddle = 0; // 
     //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
     //Array<SteadyState> stableStates; // list of stable steady states
     //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0

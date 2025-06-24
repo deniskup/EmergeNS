@@ -168,9 +168,11 @@ void Simulation::updateParams()
       primEnts.add(ent);
     numLevels = jmax(numLevels, ent->level);
   }
+  
 
   // compute isolated entities
   computeIsolated();
+  
 
   setCAC->clearOptions();
   // if (isComputing)
@@ -189,6 +191,7 @@ void Simulation::updateParams()
     // setCAC->addOption("Cac"+to_string(opt), opt,false);
     opt++;
   }
+  
 
   // set steady states
   setSteadyState->clearOptions();
@@ -209,6 +212,10 @@ void Simulation::updateParams()
   }
   
   
+  // set space
+  updateSpaceGridSizeInSimu();
+  
+  
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
@@ -217,9 +224,14 @@ void Simulation::updateParams()
 
 void Simulation::updateSpaceGridSizeInSimu()
 {
+  //cout << "Current simul  has " << entities.size() << " entities." << endl;
+  //if (entities.size() == 0)
+  //  return;
+  //cout << "updateSpaceGridSizeInSimu()" << endl;
+    //cout << "spacegrid size in SimEntities = " << entities.getUnchecked(0)->startConcent.size() << endl;
   for (auto& ent : entities)
   {
-    float start0 = ent->startConcent.getUnchecked(0);
+    //float start0 = ent->startConcent.getUnchecked(0);
     
     ent->startConcent.resize(Space::getInstance()->nPatch);
     ent->concent.resize(Space::getInstance()->nPatch);
@@ -227,14 +239,17 @@ void Simulation::updateSpaceGridSizeInSimu()
     ent->previousConcent.resize(Space::getInstance()->nPatch);
     
     // for start concentrations, I duplicate the values of the first patch
-    // for others, I init with null values
-    for (int k=0; k<ent->startConcent.size(); k++)
+
+    // for others, I init with null values // #BUG
+   /* for (int k=0; k<ent->startConcent.size(); k++)
     {
       ent->startConcent.set(k, start0);
       ent->concent.set(k, 0.);
       ent->deterministicConcent.set(k, 0.);
       ent->previousConcent.set(k, 0.);
     }
+    */
+
   }
 }
 
@@ -1585,11 +1600,16 @@ void Simulation::generateSimFromUserList()
 
 void Simulation::resetBeforeRunning()
 {
-  stopThread(100);
+  stopThread(1000);
   startTrigger->setEnabled(false);
   state = Simulating;
   isMultipleRun = false;
   affectSATIds();
+
+  
+  //dynHistory = new DynamicsHistory();
+  
+
   
   initialConcentrations.clear();
   //for (auto& ent: entities)
@@ -1597,6 +1617,7 @@ void Simulation::resetBeforeRunning()
   //RAChistory.clear();
   dynHistory->concentHistory.clear();
   dynHistory->racHistory.clear();
+
 
   currentRun = 0;
   recordConcent.resize(Space::getInstance()->nPatch);
@@ -1607,6 +1628,7 @@ void Simulation::resetBeforeRunning()
     recordDrawn.set(k, 0.);
   }
   
+
   runToDraw = 0;
   patchToDraw = 0;
   //recordDrawn = 0.;
@@ -1616,6 +1638,11 @@ void Simulation::resetBeforeRunning()
   //cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
   
   setRun->setValue(0);
+  
+  // check that some space grid exists
+  // if not, set it to one, its default value
+  //if (Space::getInstance()->spaceGrid.size() == 0)
+  //  Space::getInstance()->tilingSize->setValue(1);
   
   if (stochasticity->boolValue())
   {
@@ -1672,6 +1699,7 @@ void Simulation::resetBeforeRunning()
   }
   //cout << "in reset RAChist size on run axis : " << RAChistory.size() << endl;
   
+  
 }
 
 
@@ -1682,10 +1710,6 @@ void Simulation::start(bool restart)
   nRuns = 1;
   resetBeforeRunning();
   updateParams();
-  
-  // check that the space grid is non non-0. If non 0, set it to size 1
-  if (Space::getInstance()->spaceGrid.size() == 0)
-    Space::getInstance()->tilingSize->setValue(1);
   
   
   if (isMultipleRun && isSpace->boolValue())
@@ -1745,7 +1769,7 @@ void Simulation::start(bool restart)
   // 1st call of simulation event
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-  
+
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1831,6 +1855,7 @@ void Simulation::start(bool restart)
 ///  }
 ///  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
 ///  checkPoint = jmax(1, checkPoint);
+  
  
   startThread();
 }
@@ -1848,11 +1873,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   setRun->setValue(nRuns-1);
   runToDraw = nRuns - 1;
   
-  if (isMultipleRun && isSpace->boolValue())
-  {
-    LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
-    return;
-  }
+
 
   
   // will print dynamics to file
@@ -1883,7 +1904,8 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
-  LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
+  //LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
+  // work to do around here
   for (auto & [name, conc] : lastrun) // init with last run
   {
     if (conc > recordConcent[0])
@@ -1965,7 +1987,7 @@ void Simulation::resetForNextRun()
 // Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
-//void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
+
 {
   
   nSteps++;
@@ -2021,7 +2043,7 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
       stop();
       return;
     }
-    
+
     // recover RACs values
     Array<float> racarray(racSnaps.size());
     for (int k=0; k<racSnaps.size(); k++)
@@ -2299,6 +2321,7 @@ void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
     float mindProdConcent = 100.;
     float reacConcent = 1.;
     float deterministicReacConcent = 1.;
+    bool firstEnt = true;
     for (auto &ent : reac->reactants)
     {
       reacConcent *= ent->concent[patch.id];
@@ -2311,6 +2334,7 @@ void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
     }
     float prodConcent = 1.;
     float deterministicProdConcent = 1.;
+    firstEnt = true;
     for (auto &ent : reac->products)
     {
       prodConcent *= ent->concent[patch.id];
@@ -2519,6 +2543,7 @@ void Simulation::SteppingInflowOutflowRates(Patch& patch)
   
   
 }
+
 
 
 void Simulation::SteppingDiffusionRates(Patch& patch)
@@ -2752,6 +2777,7 @@ void Simulation::run()
   {
     // recover dynamics of concentrations and RAC corresponding to run or patch to redraw
     //Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
+
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
     cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
@@ -2773,13 +2799,14 @@ void Simulation::run()
     int flag = 0;
     while (!finished->boolValue() && !threadShouldExit())
     {
+      int corrStep = nSteps+1; // step in racDyn is made equal to nSteps, but at this stage nSteps has not been updated yet, hence using nSteps+1
       if (k<maxSteps)
       {
         // retrieve all racs values for this step
         Array<RACSnapshot> thisStepRACs;
         for (int k2=flag; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == nSteps)
+          if (racDyn.getUnchecked(k2).step == corrStep)
           {
             thisStepRACs.add(racDyn.getUnchecked(k2));
           }
@@ -2794,16 +2821,16 @@ void Simulation::run()
         int count=0;
         for (int k2=0; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == nSteps)
+          //cout << "nSteps = " << nSteps << ". k2 = " << k2 << ". step rac = " << racDyn.getUnchecked(k2).step << endl;
+          if (racDyn.getUnchecked(k2).step == corrStep)
             count++;
         }
         cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
         cout << "--- ------ ------ ---" << endl;
         */
-        
-        //nextRedrawStep(concDyn.getUnchecked(k), racDyn.getUnchecked(k));
-        //nextRedrawStep(concDyn.getUnchecked(k), thisStepRACs);
-        nextRedrawStep(dynHistory->concentHistory.getUnchecked(k), thisStepRACs);
+        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate 
+        ConcentrationSnapshot thisStepConc = dynHistory->getConcentrationSnapshotForRunAndStep(runToDraw, corrStep, kestimate);
+        nextRedrawStep(thisStepConc, thisStepRACs);
         k++;
       }
       else
@@ -2835,9 +2862,9 @@ void Simulation::run()
         pair<int, int> pr = make_pair(p.id, ent->idSAT);
         entityValues[pr] = ent->concent[p.id];
       }
-      else
+      else // need sole work here
       {
-        LOGWARNING("Probably this part is messing up, need some work.");
+        //LOGWARNING("Probably this part is messing up, need some work.");
         //int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
         //entityValues.add(ent->concentHistory[lastrunstep].second);
       }
@@ -2846,6 +2873,7 @@ void Simulation::run()
 
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
   
+
   if (redrawRun || redrawPatch)
   {
     redrawRun = false;
@@ -2874,14 +2902,13 @@ void Simulation::run()
 
   if (Settings::getInstance()->printHistoryToFile->boolValue())
   {
-    //LOG("Printing history to file not enabled for now, disabling it in Settings");
-    //Settings::getInstance()->printHistoryToFile->setValue(false);
     writeHistory();
   }
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
   
+
 }
 
 ///////////////////////////////////////////////////////////////////:
@@ -3161,24 +3188,7 @@ void Simulation::setConcToSteadyState(int idSS)
 
 void Simulation::drawConcOfRun(int idrun)
 {
-  /*
-  cout << "--- sanity check ---" << endl;
-  cout << "Will draw run#" << idrun << endl;
-  cout << "Should have " << round(totalTime->floatValue() / dt->floatValue()) << " steps" << endl;
-  cout << "Number of runs in RAChistory : " << RAChistory.size() << endl;
-  cout << "Number of PACs/steps in each RAChistory : " << RAChistory.size() << endl;
-  for (int irun=0; irun<RAChistory.size(); irun++)
-  {
-    cout << "run #" << irun << " has " << RAChistory[irun]->size() << " RAC(s)" << endl;
-    for (int ipac=0; ipac<RAChistory[irun]->size(); ipac++)
-    {
-      cout << "\tRAC #" << ipac << " has " << RAChistory[irun]->getUnchecked(ipac)->hist.size() << " steps recorded" << endl;
-      for (int ir=0; ir<RAChistory[irun]->getUnchecked(ipac)->hist.size(); ir++)
-        cout << RAChistory[irun]->getUnchecked(ipac)->hist[ir]->rac << "  ";
-      cout << endl;
-    }
-  }
-  */
+
   // check if some simulation exists before redrawing
   if (dynHistory->concentHistory.size()==0)
   {
@@ -3216,6 +3226,7 @@ void Simulation::drawConcOfRun(int idrun)
   startThread();
   
 }
+
 
 
 void Simulation::drawConcOfPatch(int idpatch)

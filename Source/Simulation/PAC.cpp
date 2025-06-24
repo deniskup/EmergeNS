@@ -4,6 +4,7 @@
 #include <regex>
 #include <stack>
 #include <cctype>
+#include "Util.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4267) // on d�sactive les erreur de loss of data (du aux conversion size_t > int) -> mais ca serait compl�tement �vit� en utilisant les types de Juce plut�t que les types c++ natifs (ostringstream >> String)
@@ -356,6 +357,78 @@ void PAC::calculateRealisableScore()
 	score /= (float)reacFlows.size();
 	// cout << "Total score : " << score << endl;
 }
+
+void PAC::computeStoechiometryMatrix()
+{
+	int nEspeces = entities.size();
+	int nReactions = reacFlows.size();
+
+	Eigen::MatrixXi stm(nReactions, nEspeces); 
+	int sign = 1; //-1 when reaction is backwards, +1 if not
+
+	for (int i = 0; i < nReactions; i++)
+	{
+		if (reacDirs[i].second) // if backwards
+		{
+			sign = -1;
+		}
+		else
+		{
+			sign = 1;
+		}
+
+		for (int j = 0; j < nEspeces; j++)
+		{
+			if (!reacFlows[i].first->contains(entities[j]))
+			{
+				stm(i, j) = 0;
+			}
+			else
+			{
+				stm(i, j) = sign * reacFlows[i].first->stoechiometryOfEntity(entities[j]);
+			}
+		}
+	}
+
+	stoechiometryMatrix = stm.transpose();
+	cout << stoechiometryMatrix << endl;
+}
+
+void PAC::computeJacobianAtZero()
+{
+	Eigen::VectorXd directReactionSpeeds;
+	Eigen::VectorXd inverseReactionSpeeds;
+
+	int deleteDirectReaction = 0;
+	int deleteInverseReaction = 0;
+
+	int nReactions = stoechiometryMatrix.cols();
+
+	for (int i=0 ; i< nReactions ; i++)
+	{
+		deleteDirectReaction = 0;
+		deleteInverseReaction = 0;
+
+    //directReactionSpeeds.add(reacFlows[i].first->assocRate); @invasion
+    //inverseReactionSpeeds.add(reacFlows[i].first->dissocRate); @invasion
+
+		for (auto &spec : reacFlows[i].first->reactants)
+		{
+			if (deleteDirectReaction)
+			{
+				//directReactionSpeeds.add(0); @invasion
+			}
+		}
+	}
+
+	// Plan : pour chaque reaction du PAC, on regarde toutes les especes dedans
+	// Si il y a plusieurs reactants/produits au sein du cycle, on met un zéro
+	// sinon on prend la constante cinétique, et les concentrations des autres espèces
+	// et on fait le produit pour obtenir la vitesse effective
+
+}
+
+
 
 map<string, float> parseModelReal(const string &output)
 {
@@ -730,11 +803,11 @@ void PAClist::removePAC(int i)
 	// adjust indexes of basicCACs
 	for (int j = basicCACs.size() - 1; j >= 0; j--)
 	{
-		int k= basicCACs[j];
+		int k = basicCACs[j];
 		if (k == i)
 			basicCACs.remove(j);
 		else if (k > i)
-			basicCACs.set(j, k-1);
+			basicCACs.set(j, k - 1);
 	}
 	// adjust indexes of CACs
 
@@ -1494,76 +1567,77 @@ void PAClist::PACsWithZ3()
 		clauses << ")))\n";
 	}
 
-	//if minimal PACs only, each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
-	if(!Settings::getInstance()->nonMinimalPACs->boolValue()){
-	for (auto &e : simul->entities)
+	// if minimal PACs only, each true entity must appear as reactant (or product if dir=1) of a true reaction exactly once
+	if (!Settings::getInstance()->nonMinimalPACs->boolValue())
 	{
-		if (e->isolated)
+		for (auto &e : simul->entities)
 		{
-			continue;
-		}
-		clauses << "(assert (=> ent" << e->idSAT << " (or";
-		for (auto &r : simul->reactions)
-		{
-			if (r->reactants.contains(e))
+			if (e->isolated)
 			{
-				// dir false and reac
-				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				continue;
 			}
-			if (r->products.contains(e))
+			clauses << "(assert (=> ent" << e->idSAT << " (or";
+			for (auto &r : simul->reactions)
 			{
-				// dir true and reac
-				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
-			}
-		}
-		clauses << ")))\n";
-		// now same but at most 1
-		clauses << "(assert (=> ent" << e->idSAT << " ((_ at-most 1)";
-		for (auto &r : simul->reactions)
-		{
-			if (r->reactants.contains(e))
-			{
-				// dir false and reac
-				clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
-			}
-			if (r->products.contains(e))
-			{
-				// dir true and reac
-				clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
-			}
-		}
-		clauses << ")))\n";
-	}
-
-	// checking that foods are primary if this option is activated
-	if (Settings::getInstance()->primFood->boolValue())
-	{
-		for (auto &r : simul->reactions)
-		{
-			// if dir false, all non-food reactants must be true
-
-			clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
-			for (auto &e : r->reactants)
-			{
-				if (!e->primary)
+				if (r->reactants.contains(e))
 				{
-					clauses << " ent" << e->idSAT;
+					// dir false and reac
+					clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				}
+				if (r->products.contains(e))
+				{
+					// dir true and reac
+					clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
 				}
 			}
 			clauses << ")))\n";
-
-			// same if dir is true with products
-			clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
-			for (auto &e : r->products)
+			// now same but at most 1
+			clauses << "(assert (=> ent" << e->idSAT << " ((_ at-most 1)";
+			for (auto &r : simul->reactions)
 			{
-				if (!e->primary)
+				if (r->reactants.contains(e))
 				{
-					clauses << " ent" << e->idSAT;
+					// dir false and reac
+					clauses << " (and (not dir" << r->idSAT << ") reac" << r->idSAT << ")";
+				}
+				if (r->products.contains(e))
+				{
+					// dir true and reac
+					clauses << " (and dir" << r->idSAT << " reac" << r->idSAT << ")";
 				}
 			}
 			clauses << ")))\n";
 		}
-	}
+
+		// checking that foods are primary if this option is activated
+		if (Settings::getInstance()->primFood->boolValue())
+		{
+			for (auto &r : simul->reactions)
+			{
+				// if dir false, all non-food reactants must be true
+
+				clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
+				for (auto &e : r->reactants)
+				{
+					if (!e->primary)
+					{
+						clauses << " ent" << e->idSAT;
+					}
+				}
+				clauses << ")))\n";
+
+				// same if dir is true with products
+				clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
+				for (auto &e : r->products)
+				{
+					if (!e->primary)
+					{
+						clauses << " ent" << e->idSAT;
+					}
+				}
+				clauses << ")))\n";
+			}
+		}
 	}
 
 	// if PACmustContain is a valid entity, then it must be in the PAC
@@ -1775,6 +1849,7 @@ void PAClist::PACsWithZ3()
 
 			// cout << "PAC #" << pacsFound << endl;
 			pac->calculateRealisableScore();
+			//pac->calculateStoechiometryMatrix(); @invasion. Maybe you meant computeStoechiometryMatrix() ?
 
 			// cout << pac->toString() << endl;
 			// cout << "WITNESS : ";

@@ -328,6 +328,30 @@ void SteadyStateslist::printSteadyStatesToFile()
   }
 }
 
+void SteadyStateslist::printSteadyStatesToFile()
+{
+  ofstream out;
+  out.open("steadyStates.txt", ofstream::out | ofstream::trunc);
+  out << "----- Steady States list -----\n\n";
+  int c = 0;
+  for (auto & sst : arraySteadyStates)
+  {
+    out << "Steady state #" << c << endl;
+    out << "\tis stable ? --> " << sst.isStable << endl;
+    out << "\tis border ? --> " << sst.isBorder << endl;
+    out << "\tis partially stable ? --> " << sst.isPartiallyStable << endl;
+    out << "\tNumber of unstable eigenVec : " << sst.postiveEigenVal << endl;
+    out << "\tComposition :" << endl;
+    out.precision(10);
+    for (auto &c : sst.state)
+    {
+      out << "\t\t[" << c.first->name << "] = " << c.second << endl;
+    }
+    out << endl;
+    c++;
+  }
+}
+
 ////////////////////////////////////////////////////:
 
 void SteadyStateslist::clear()
@@ -337,6 +361,28 @@ void SteadyStateslist::clear()
   nPartStable = 0;
   //stableStates.clear();
   //partiallyStableStates.clear();
+}
+
+
+void SteadyStateslist::cleanLocalFolder()
+{
+  Array<string> filenames;
+  filenames.add("dummy.txt");
+  filenames.add("msolveSteadyConstraints.ms");
+  filenames.add("msolveSteadyOutput.ms");
+  filenames.add("msolvesteadylog.txt");
+  
+  string command = "rm ";
+  for (auto & file : filenames)
+  {
+    ifstream iffile(file.c_str());
+    if (iffile.good())
+    {
+      command += " " + file;
+    }
+  }
+  system(command.c_str());
+  
 }
 
 
@@ -802,16 +848,18 @@ bool SteadyStateslist::computeWithMSolve()
   }
   */
 
-  // test msolve with dummy command
-  system("msolve -h > dummy.txt");
-  ifstream dummy("dummy.txt", ios::binary | ios::ate);
-  // Check if the command was executed successfully, ie if file exists
-  if (!dummy || dummy.tellg() == 0)
-  {
-    LOGWARNING("msolve not found, aborting.");
+
+	// test msolve with dummy command
+	system("msolve -h > dummy.txt");
+	ifstream dummy("dummy.txt", ios::binary | ios::ate);
+	// Check if the command was executed successfully, ie if file exists
+	if (!dummy || dummy.tellg() == 0)
+	{
+		LOGWARNING("msolve not found, aborting.");
     cleanLocalFolder();
-    return false;
-  }
+		return false;
+	}
+
 
   
   string inputFile = "msolveSteadyConstraints.ms";
@@ -957,8 +1005,10 @@ bool SteadyStateslist::computeWithMSolve()
     vector<int> l(simul->entities.size(), 0);
     iota(l.begin(), l.end(), i * simul->entities.size());
 
-    SteadyState sstate;
-    bool keepState = true; // only keep positive roots
+
+		SteadyState sstate;
+		bool keepState = true; // only keep positive roots
+
     bool isBorderState = false;
     for (auto &index : l)
     {
@@ -1000,23 +1050,24 @@ bool SteadyStateslist::computeWithMSolve()
         arraySteadyStates.add(sstate);
         //cout << "--- FOLLOWING STATE IS BORDER : " << isBorderState << "----" << endl;
         //printOneSteadyState(sstate);
-      }
-    }
-  }
-  
-  // print result
-  string sStr = "";
-  if (arraySteadyStates.size() > 1)
-    sStr = 's';
-  LOG(" msolve found " + to_string(arraySteadyStates.size()) + " steady state" + sStr);
 
-  // sanity check
-  // printSteadyStates();
+			}
+		}
+	}
+  
+	// print result
+	string sStr = "";
+	if (arraySteadyStates.size() > 1)
+		sStr = 's';
+	LOG(" msolve found " + to_string(arraySteadyStates.size()) + " steady state" + sStr);
+
+	// sanity check
+	// printSteadyStates();
   
   // clean folder
   cleanLocalFolder();
   
-  return true;
+	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////:
@@ -1026,14 +1077,14 @@ bool SteadyStateslist::computeWithMSolve()
 vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
 {
 
-  // affect id to entities in reactions
-  simul->affectSATIds();
+	// affect id to entities in reactions
+	simul->affectSATIds();
 
-  // init rate vector
-  vector<Polynom> rateVector(simul->entities.size());
+	// init rate vector
+	vector<Polynom> rateVector(simul->entities.size());
 
-  // loop over reactions
-  for (auto &r : simul->reactions)
+	// loop over reactions
+	for (auto &r : simul->reactions)
   {
     
     if (!r->enabled)
@@ -1097,122 +1148,123 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
      */
      
     
-    // add forward/backward monoms for each entity involved in the reaction
-    for (auto &[entID, sto] : stoec) // entity is either consumed or produced by reaction. Information carried by sign of stoechiometry
-    {
-      Monom mon = forwardRate;
-      // multiply reaction rate by stoechiometry and add it to the rate vector
-      mon.coef *= (float)sto; // multiply rate constant by stoechiometry
-      rateVector[entID].add(mon);
 
-      // opposite if reaction is reversible
-      if (r->isReversible)
-      {
-        Monom bmon = backwardRate;
-        // multiply reaction rate by (-stoechiometry) and add it to the rate vector
-        bmon.coef *= -1. * (float)sto; // multiply rate constant by opposite stoechiometry
-        rateVector[entID].add(bmon);
-      }
-    } // end loop over stoechiometry vector of reaction
+		// add forward/backward monoms for each entity involved in the reaction
+		for (auto &[entID, sto] : stoec) // entity is either consumed or produced by reaction. Information carried by sign of stoechiometry
+		{
+			Monom mon = forwardRate;
+			// multiply reaction rate by stoechiometry and add it to the rate vector
+			mon.coef *= (float)sto; // multiply rate constant by stoechiometry
+			rateVector[entID].add(mon);
+
+			// opposite if reaction is reversible
+			if (r->isReversible)
+			{
+				Monom bmon = backwardRate;
+				// multiply reaction rate by (-stoechiometry) and add it to the rate vector
+				bmon.coef *= -1. * (float)sto; // multiply rate constant by opposite stoechiometry
+				rateVector[entID].add(bmon);
+			}
+		} // end loop over stoechiometry vector of reaction
     
 
-  } // end reaction loop
+	} // end reaction loop
 
-  // // add creation and destruction rates for each entity
-  for (int ir = 0; ir < rateVector.size(); ir++)
-  {
+	// // add creation and destruction rates for each entity
+	for (int ir = 0; ir < rateVector.size(); ir++)
+	{
 
-    // cout << "entity #" << ir << " : " << simul->entities[ir]->name << endl;
-    // cout << "kc = " << simul->entities[ir]->creationRate << "\tkd = " << simul->entities[ir]->destructionRate << endl;
-    //  creation rate
-    if (simul->entities[ir]->creationRate > 0 && simul->entities[ir]->primary)
-    {
-      Monom creat;
-      creat.coef = simul->entities[ir]->creationRate;
-      rateVector[ir].add(creat);
-    }
+		// cout << "entity #" << ir << " : " << simul->entities[ir]->name << endl;
+		// cout << "kc = " << simul->entities[ir]->creationRate << "\tkd = " << simul->entities[ir]->destructionRate << endl;
+		//  creation rate
+		if (simul->entities[ir]->creationRate > 0 && simul->entities[ir]->primary)
+		{
+			Monom creat;
+			creat.coef = simul->entities[ir]->creationRate;
+			rateVector[ir].add(creat);
+		}
 
-    if (simul->entities[ir]->destructionRate > 0)
-    {
-      Monom dest;
-      dest.coef = -1. * simul->entities[ir]->destructionRate;
-      dest.variables.add(make_pair(ir, 1)); // destruction rate has the form -kd*c_i
-      rateVector[ir].add(dest);
-    }
-  }
+		if (simul->entities[ir]->destructionRate > 0)
+		{
+			Monom dest;
+			dest.coef = -1. * simul->entities[ir]->destructionRate;
+			dest.variables.add(make_pair(ir, 1)); // destruction rate has the form -kd*c_i
+			rateVector[ir].add(dest);
+		}
+	}
 
   /*
-   // sanity check
-   int ic=-1;
-   for (auto& polynomrate : rateVector)
-   {
-     ic++;
-     cout << "entity #" << ic << endl;
-     for (auto& monom : polynomrate)
-       {
-         cout << "-----------\n\tcoeff = " << monom.coef << endl;
-         cout << "\tvars =";
-         for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
-         cout << endl;
-       }
-       cout << "------------" << endl;
-   } // end sanity check
+	 // sanity check
+	 int ic=-1;
+	 for (auto& polynomrate : rateVector)
+	 {
+	 	ic++;
+	 	cout << "entity #" << ic << endl;
+	 	for (auto& monom : polynomrate)
+	 		{
+	 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
+	 			cout << "\tvars =";
+	 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
+	 			cout << endl;
+	 		}
+	 		cout << "------------" << endl;
+	 } // end sanity check
   */
 
-  // factorize monoms with same variables together
-  vector<Polynom> factRateVector(simul->entities.size());
-  int irv = -1;
-  for (auto &poly : rateVector)
-  {
-    irv++;
-    Array<int> match;
-    for (int i = 0; i < poly.size(); i++)
-    {
-      if (match.contains(i))
-        continue;
-      map<int, int> m1;
-      for (auto &p : poly[i].variables)
-        m1[p.first] = p.second;
-      for (int j = i + 1; j < poly.size(); j++)
-      {
-        map<int, int> m2;
-        for (auto &p : poly[j].variables)
-          m2[p.first] = p.second;
-        if (m1 == m2)
-        {
-          match.add(j);
-          poly.getReference(i).coef += poly[j].coef;
-        }
-      } // end internal loop over monoms
-    } // end first loop on monoms
-    Polynom factPoly;
-    for (int i = 0; i < poly.size(); i++)
-    {
-      if (match.contains(i))
-        continue;
-      factPoly.add(poly[i]);
-    }
-    factRateVector[irv] = factPoly;
-  } // end rate Vector loop
+	// factorize monoms with same variables together
+	vector<Polynom> factRateVector(simul->entities.size());
+	int irv = -1;
+	for (auto &poly : rateVector)
+	{
+		irv++;
+		Array<int> match;
+		for (int i = 0; i < poly.size(); i++)
+		{
+			if (match.contains(i))
+				continue;
+			map<int, int> m1;
+			for (auto &p : poly[i].variables)
+				m1[p.first] = p.second;
+			for (int j = i + 1; j < poly.size(); j++)
+			{
+				map<int, int> m2;
+				for (auto &p : poly[j].variables)
+					m2[p.first] = p.second;
+				if (m1 == m2)
+				{
+					match.add(j);
+					poly.getReference(i).coef += poly[j].coef;
+				}
+			} // end internal loop over monoms
+		} // end first loop on monoms
+		Polynom factPoly;
+		for (int i = 0; i < poly.size(); i++)
+		{
+			if (match.contains(i))
+				continue;
+			factPoly.add(poly[i]);
+		}
+		factRateVector[irv] = factPoly;
+	} // end rate Vector loop
 
-  // sanity check
-  // cout << "\n\n----- Sanity check on factorization -------" << endl;
-  // int ic2=-1;
-  // for (auto& polynomrate : factRateVector)
-  // {
-  //   ic2++;
-  //   cout << "entity #" << ic2 << endl;
-  //   for (auto& monom : polynomrate)
-  //     {
-  //       cout << "-----------\n\tcoeff = " << monom.coef << endl;
-  //       cout << "\tvars =";
-  //       for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
-  //       cout << endl;
-  //     }
-  //     cout << "------------" << endl;
-  // } // end sanity check
+	// sanity check
+	// cout << "\n\n----- Sanity check on factorization -------" << endl;
+	// int ic2=-1;
+	// for (auto& polynomrate : factRateVector)
+	// {
+	// 	ic2++;
+	// 	cout << "entity #" << ic2 << endl;
+	// 	for (auto& monom : polynomrate)
+	// 		{
+	// 			cout << "-----------\n\tcoeff = " << monom.coef << endl;
+	// 			cout << "\tvars =";
+	// 			for (auto& p : monom.variables) cout << "c" << p.first << "^" << p.second << "  ";
+	// 			cout << endl;
+	// 		}
+	// 		cout << "------------" << endl;
+	// } // end sanity check
 
-  return factRateVector;
+	return factRateVector;
 
 } // end func computeConcentrationRateVector
 
@@ -1388,53 +1440,55 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(SteadyState &witness)
 void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globally)
 {
 
-  // as a general info, commands to diagonalize a matrix are :
-  // //init eigen solver objects for current jacobi matrix
-  // Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
-  // if (es.info() == Eigen::Success) // if diagonalization succeeded
-  // {
-  // retrieve eigenvalues :
-  // cout << es.eigenvalues() << endl;
-  // cout << es.eigenvectors() << endl;
-  //   // retrieve eigenvalues if diagonalized
-  //}
 
-  // jacobi matrix should be always triangularizable on C
-  // so I directly reach this option without bothering on diagonalization
-  Eigen::ComplexSchur<Eigen::MatrixXd> cs;
-  cs.compute(jm);
+	// as a general info, commands to diagonalize a matrix are :
+	// //init eigen solver objects for current jacobi matrix
+	// Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+	// if (es.info() == Eigen::Success) // if diagonalization succeeded
+	// {
+	// retrieve eigenvalues :
+	// cout << es.eigenvalues() << endl;
+	// cout << es.eigenvectors() << endl;
+	// 	// retrieve eigenvalues if diagonalized
+	//}
+
+	// jacobi matrix should be always triangularizable on C
+	// so I directly reach this option without bothering on diagonalization
+	Eigen::ComplexSchur<Eigen::MatrixXd> cs;
+	cs.compute(jm);
   
   SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
 
-  // just in case it failed, print a warning
-  if (cs.info() != Eigen::Success)
-  {
-    LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, setting true by default for the following steady state :");
+	// just in case it failed, print a warning
+	if (cs.info() != Eigen::Success)
+	{
+		LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, setting true by default for the following steady state :");
     printOneSteadyState(witness);
     witness.isStable = true;
     witness.postiveEigenVal = 0;
     arraySteadyStates.setUnchecked(sst_index, witness);
-    return;
-  }
+		return;
+	}
 
-  // retrieve upper triangular matrix
-  Eigen::MatrixXcd triang = cs.matrixT();
+	// retrieve upper triangular matrix
+	Eigen::MatrixXcd triang = cs.matrixT();
   
   //cout << "SteadyState::IsStable --- looking at steady state" << endl;
   //printOneSteadyState(witness);
 
-  //cout << "--------triang. of jacobi matrix---------" << endl;
-  //cout << triang << endl;
 
-  // sparse signs of real part of diagonal elements
-  //bool isCertain = true;
+	//cout << "--------triang. of jacobi matrix---------" << endl;
+	//cout << triang << endl;
+
+	// sparse signs of real part of diagonal elements
+	//bool isCertain = true;
   int nPositiveEig = 0; // numer of eigenvalues with positive real parts
-  for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
-  {
+	for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
+	{
     //cout << "\t" << triang(i, i).real() << endl;
     if (triang(i, i).real() > 0.) // maybe use epsilon instead of 0 to be more safe ?
       nPositiveEig++;
-  }
+	}
   //cout << "Npositive eigenvalues = " << nPositiveEig << endl;
   witness.postiveEigenVal = nPositiveEig;
   if (nPositiveEig == 0)
@@ -1467,62 +1521,62 @@ void SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, int sst_index)
 {
   SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
   
-  // retrieve index where witness elements are 0
-  Array<int> zeroindex;
-  for (int k = 0; k < witness.state.size(); k++)
-  {
-    if (witness.state.getReference(k).second == 0.)
-      zeroindex.add(k);
-  }
+	// retrieve index where witness elements are 0
+	Array<int> zeroindex;
+	for (int k = 0; k < witness.state.size(); k++)
+	{
+		if (witness.state.getReference(k).second == 0.)
+			zeroindex.add(k);
+	}
 
-  // Init sub jacobi matrix
-  int subsize = witness.state.size() - zeroindex.size();
-  Eigen::MatrixXd subjm(subsize, subsize);
+	// Init sub jacobi matrix
+	int subsize = witness.state.size() - zeroindex.size();
+	Eigen::MatrixXd subjm(subsize, subsize);
 
-  // Retrieve elements of global jacobi matrix associated to non-zero witness element
-  Array<float> eljm;
-  for (int i = 0; i < witness.state.size(); i++)
-  {
-    if (zeroindex.contains(i))
-      continue;
-    for (int j = 0; j < witness.state.size(); j++)
-    {
-      if (zeroindex.contains(j))
-        continue;
-      eljm.add(jm(i, j));
-    }
-  }
+	// Retrieve elements of global jacobi matrix associated to non-zero witness element
+	Array<float> eljm;
+	for (int i = 0; i < witness.state.size(); i++)
+	{
+		if (zeroindex.contains(i))
+			continue;
+		for (int j = 0; j < witness.state.size(); j++)
+		{
+			if (zeroindex.contains(j))
+				continue;
+			eljm.add(jm(i, j));
+		}
+	}
 
-  // sanity check on sizes
-  if (eljm.size() != (subsize * subsize))
-  {
-    LOG("Warning, size issue with partial Jacobi Matrix");
-    LOG("partial stability can't be trusted for steady state:");
-    printOneSteadyState(witness);
-  }
+	// sanity check on sizes
+	if (eljm.size() != (subsize * subsize))
+	{
+		LOG("Warning, size issue with partial Jacobi Matrix");
+		LOG("partial stability can't be trusted for steady state:");
+		printOneSteadyState(witness);
+	}
 
-  // Fill sub jacobi matrix
-  for (int i = 0; i < subsize; i++)
-  {
-    for (int j = 0; j < subsize; j++)
-    {
-      int index = j + i * subsize;
-      subjm(i, j) = eljm.getReference(index);
-    }
-  }
+	// Fill sub jacobi matrix
+	for (int i = 0; i < subsize; i++)
+	{
+		for (int j = 0; j < subsize; j++)
+		{
+			int index = j + i * subsize;
+			subjm(i, j) = eljm.getReference(index);
+		}
+	}
 
-  //cout << "----- Sub Jacobi Matrix-----" << endl;
-  //cout << subjm << endl;
+	//cout << "----- Sub Jacobi Matrix-----" << endl;
+	//cout << subjm << endl;
 
-  // build sub witness state
-  State subWitness;
-  for (int k = 0; k < witness.state.size(); k++)
-  {
-    if (!zeroindex.contains(k))
-      subWitness.add(witness.state.getReference(k));
-  }
+	// build sub witness state
+	State subWitness;
+	for (int k = 0; k < witness.state.size(); k++)
+	{
+		if (!zeroindex.contains(k))
+			subWitness.add(witness.state.getReference(k));
+	}
 
-  isStable(subjm, sst_index, false);
+	isStable(subjm, sst_index, false);
 
 }
 
@@ -1559,15 +1613,20 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     isStable(jm, iw, true);
     
     
+		// is steady state globally stable ?
+    //bool stable = isStable(jm, witness);
+		isStable(jm, iw, true);
+    
+    
     //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;
-    // else cout << "--> unstable !" << endl;
+		// else cout << "--> unstable !" << endl;
 
-    // for border steady states, check partial stability, i.e. not taking into account variables that are exactly 0
-    if (arraySteadyStates.getReference(iw).isBorder)
-    {
+		// for border steady states, check partial stability, i.e. not taking into account variables that are exactly 0
+		if (arraySteadyStates.getReference(iw).isBorder)
+		{
       //bool partiallyStable = isPartiallyStable(jm, witness);
-      isPartiallyStable(jm, iw);
-    }
+			isPartiallyStable(jm, iw);
+		}
     
     // keep counts for non-border steady states
     if (!arraySteadyStates.getReference(iw).isBorder)
@@ -1584,7 +1643,9 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     }
     
     
-  } // end loop over steady states
+
+	} // end loop over steady states
+
   
   /*
   int count = -1;
@@ -1616,10 +1677,11 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     if (!s.isBorder && s.isStable)
       printOneSteadyState(s);
 
-  // print partially stable steady states
+
+	// print partially stable steady states
   plural = (nPartStable > 1) ? "s" : "";
-  LOG("Found " + to_string(nPartStable) + " partially stable steady state" + plural + " for the network.");
-  for (auto &s : arraySteadyStates)
+	LOG("Found " + to_string(nPartStable) + " partially stable steady state" + plural + " for the network.");
+	for (auto &s : arraySteadyStates)
     if (s.isBorder && s.isPartiallyStable)
       printOneSteadyState(s);
   

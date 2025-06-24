@@ -83,6 +83,8 @@
         <FILE id="HxDELV" name="SteadyStates.h" compile="0" resource="0" file="Source/Simulation/SteadyStates.h"/>
         <FILE id="z28CFG" name="Statistics.cpp" compile="1" resource="0" file="Source/Simulation/Statistics.cpp"/>
         <FILE id="BUtSiN" name="Statistics.h" compile="0" resource="0" file="Source/Simulation/Statistics.h"/>
+        <FILE id="RG1OMy" name="Space.cpp" compile="1" resource="0" file="Source/Simulation/Space.cpp"/>
+        <FILE id="RtEylC" name="Space.h" compile="0" resource="0" file="Source/Simulation/Space.h"/>
         <FILE id="bj1PHy" name="Util.cpp" compile="1" resource="0" file="Source/Simulation/Util.cpp"/>
         <FILE id="jLnPVN" name="Util.h" compile="0" resource="0" file="Source/Simulation/Util.h"/>
         <FILE id="Ut1fOp" name="NEP.cpp" compile="1" resource="0" file="Source/Simulation/NEP.cpp"/>
