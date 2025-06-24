@@ -113,6 +113,46 @@ public:
   {
     return concentHistory.getUnchecked(concentHistory.size()-1);
   }
+  
+  ConcentrationSnapshot getConcentrationSnapshotForRunAndStep(int _run, int _step, int indexToStart)
+  {
+    int kbackward = indexToStart;
+    int ntries = 0;
+    ConcentrationSnapshot output;
+    bool success = false;
+    for (int kforward=indexToStart; kforward<concentHistory.size(); kforward++)
+    {
+      ntries++;
+      kbackward--;
+      if (concentHistory.getUnchecked(kforward).runID == _run && concentHistory.getUnchecked(kforward).step == _step)
+      {
+        output = concentHistory.getUnchecked(kforward);
+        success = true;
+        break;
+      }
+      if (kbackward>=0)
+      {
+        if (concentHistory.getUnchecked(kbackward).runID == _run && concentHistory.getUnchecked(kbackward).step == _step)
+        {
+          output = concentHistory.getUnchecked(kbackward);
+          success = true;
+          break;
+        }
+      }
+    }
+    // if this point is reached without success, return dummy snapshot with unexpected value, to control later for the success of the function
+    jassert(success); // raise a message to tell user this function failed
+    if (!success)
+    {
+      LOGWARNING("DynamicsHistory::getConcentrationSnapshotForRunAndStep() probably failed.");
+      ConcentrationSnapshot dummy; // returning dummy snapshot. Should find a better outing
+      dummy.step = -1;
+      return dummy;
+    }
+    return output;
+  }
+  
+
   /*
   Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
   {

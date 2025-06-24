@@ -1869,11 +1869,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   setRun->setValue(nRuns-1);
   runToDraw = nRuns - 1;
   
-  if (isMultipleRun && isSpace->boolValue())
-  {
-    LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
-    return;
-  }
+
 
   
   // will print dynamics to file
@@ -1904,7 +1900,8 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
-  LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
+  //LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
+  // work to do around here
   for (auto & [name, conc] : lastrun) // init with last run
   {
     if (conc > recordConcent[0])
@@ -2033,7 +2030,7 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
       //cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
     }
   
-    
+    // bug to fix around here
     if (racSnaps.size() != pacList->cycles.size())
     {
       cout << "racsnap size : " << racSnaps.size() << " VS pac cycle size : " << pacList->cycles.size() << endl;
@@ -2775,6 +2772,7 @@ void Simulation::run()
   {
     // recover dynamics of concentrations and RAC corresponding to run or patch to redraw
     //Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
+    //cout << "retrieving rac snaps for run #" << runToDraw << " and patch #" << patchToDraw << endl;
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
     cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
@@ -2796,13 +2794,14 @@ void Simulation::run()
     int flag = 0;
     while (!finished->boolValue() && !threadShouldExit())
     {
+      int corrStep = nSteps+1; // step in racDyn is made equal to nSteps, but at this stage nSteps has not been updated yet, hence using nSteps+1
       if (k<maxSteps)
       {
         // retrieve all racs values for this step
         Array<RACSnapshot> thisStepRACs;
         for (int k2=flag; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == nSteps)
+          if (racDyn.getUnchecked(k2).step == corrStep)
           {
             thisStepRACs.add(racDyn.getUnchecked(k2));
           }
@@ -2817,16 +2816,16 @@ void Simulation::run()
         int count=0;
         for (int k2=0; k2<racDyn.size(); k2++)
         {
-          if (racDyn.getUnchecked(k2).step == nSteps)
+          //cout << "nSteps = " << nSteps << ". k2 = " << k2 << ". step rac = " << racDyn.getUnchecked(k2).step << endl;
+          if (racDyn.getUnchecked(k2).step == corrStep)
             count++;
         }
         cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
         cout << "--- ------ ------ ---" << endl;
         */
-        
-        //nextRedrawStep(concDyn.getUnchecked(k), racDyn.getUnchecked(k));
-        //nextRedrawStep(concDyn.getUnchecked(k), thisStepRACs);
-        nextRedrawStep(dynHistory->concentHistory.getUnchecked(k), thisStepRACs);
+        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate 
+        ConcentrationSnapshot thisStepConc = dynHistory->getConcentrationSnapshotForRunAndStep(runToDraw, corrStep, kestimate);
+        nextRedrawStep(thisStepConc, thisStepRACs);
         k++;
       }
       else
@@ -2858,9 +2857,9 @@ void Simulation::run()
         pair<int, int> pr = make_pair(p.id, ent->idSAT);
         entityValues[pr] = ent->concent[p.id];
       }
-      else
+      else // need sole work here
       {
-        LOGWARNING("Probably this part is messing up, need some work.");
+        //LOGWARNING("Probably this part is messing up, need some work.");
         //int lastrunstep = maxSteps+maxSteps*setRun->intValue()-1;
         //entityValues.add(ent->concentHistory[lastrunstep].second);
       }
@@ -3187,24 +3186,7 @@ void Simulation::setConcToSteadyState(int idSS)
 
 void Simulation::drawConcOfRun(int idrun)
 {
-  /*
-  cout << "--- sanity check ---" << endl;
-  cout << "Will draw run#" << idrun << endl;
-  cout << "Should have " << round(totalTime->floatValue() / dt->floatValue()) << " steps" << endl;
-  cout << "Number of runs in RAChistory : " << RAChistory.size() << endl;
-  cout << "Number of PACs/steps in each RAChistory : " << RAChistory.size() << endl;
-  for (int irun=0; irun<RAChistory.size(); irun++)
-  {
-    cout << "run #" << irun << " has " << RAChistory[irun]->size() << " RAC(s)" << endl;
-    for (int ipac=0; ipac<RAChistory[irun]->size(); ipac++)
-    {
-      cout << "\tRAC #" << ipac << " has " << RAChistory[irun]->getUnchecked(ipac)->hist.size() << " steps recorded" << endl;
-      for (int ir=0; ir<RAChistory[irun]->getUnchecked(ipac)->hist.size(); ir++)
-        cout << RAChistory[irun]->getUnchecked(ipac)->hist[ir]->rac << "  ";
-      cout << endl;
-    }
-  }
-  */
+
   // check if some simulation exists before redrawing
   if (dynHistory->concentHistory.size()==0)
   {
@@ -3217,16 +3199,7 @@ void Simulation::drawConcOfRun(int idrun)
     LOG("Index of chosen run to draw exceeds numbers of runs currently stored in simul. Can't draw run #" + to_string(setRun->intValue()));
     return;
   }
-/*
-  // checks if number of checkpoints changed since last start, otherwise that would mess with RAC display
-  if (checkPoint != maxSteps/pointsDrawn->intValue())
-  {
-    cout << "current checkpoint value = " << pointsDrawn->intValue() << endl;
-    cout << "previous checkpoint value = maxSteps / checkpoint = " << maxSteps << " / " << checkPoint << " = " << maxSteps/checkPoint << endl;
-    LOG("Checkpoint parameter changed since last simulation. Please run simulation again.");
-    return;
-  }
-  */
+
   // update checkpoint if user changed it since last simu
   checkPoint = maxSteps / pointsDrawn->intValue();
   checkPoint = jmax(1, checkPoint);

@@ -647,6 +647,11 @@ void PhasePlane::importRunsFromCSVFile()
 
 void PhasePlane::startRuns()
 {
+  if (Simulation::getInstance()->isSpace->boolValue())
+  {
+    LOGWARNING("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
+    return;
+  }
   
   // loop over runs
   int count = -1;

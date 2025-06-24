@@ -213,21 +213,8 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         }
       }
     }
-    /*
-    // normalize each concentration w.r.t to max concent found in all patches
-    Array<float> maxConcInGrid;
-    maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
-    int ie=-1;
-    for (auto & ent : simul->entities)
-    {
-      ie++;
-      for (auto & patch : space->spaceGrid)
-      {
-        if (ent->concent.getUnchecked(patch.id) > maxConcInGrid.getUnchecked(ie))
-          maxConcInGrid.setUnchecked(ie, ent->concent)
-      }
-    }
-    */
+    
+    
     /*
     cout << "In patch #" << pid << endl;
     
@@ -240,12 +227,17 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     // normalize vector of concentrations of current patch w.r.t to max of all patches
     // this method does not take into account maxima that would be found later in simulation or that have been found previously.
     // for instance, in a single patch simulation, if X1 = 0.1 and X2 = 0.2 but later W1 = 1 and X2 = 2, they would be shown with the same colour
-    for (int k=0; k<conc.size(); k++)
+    // also it should not be done in the case of s single patch, since it will always set the colour to be the same
+    if (space->spaceGrid.size()>1)
     {
-      float max = maxConcInGrid.getUnchecked(k);
-      //cout << "max for ent #" << k << " = " << max << endl;
-      jassert(max>0.);
-      conc.setUnchecked(k, conc.getUnchecked(k)/max);
+      for (int k=0; k<conc.size(); k++)
+      {
+        float max = maxConcInGrid.getUnchecked(k);
+        max = jmax(max, 1.f);
+        //cout << "max for ent #" << k << " = " << max << endl;
+        jassert(max>0.);
+        conc.setUnchecked(k, conc.getUnchecked(k)/max);
+      }
     }
     /*
     cout << "-- vector of conc norm. to max in space grid -- " << endl;
