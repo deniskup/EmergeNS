@@ -45,14 +45,10 @@
 		A0FEEF4C684BC19BAD78EEC8 /* Security.framework */ = {isa = PBXBuildFile; fileRef = E9CB0DD14A5FB3D546279B62; };
 		A26E1E6A03B3FC21395149DA /* include_juce_audio_formats.mm */ = {isa = PBXBuildFile; fileRef = 31F714C9454DBBBA98FEA8DB; };
 		A6BDC76D23924E3E2FDE6DC5 /* ReactionUI.cpp */ = {isa = PBXBuildFile; fileRef = 469CB20A298492D8A306BC2D; };
-<<<<<<< HEAD
 		A83607045EF84BECA69181FF /* CoreAudio.framework */ = {isa = PBXBuildFile; fileRef = 820CA52A4ED406F88DDE9D68; };
 		AD95F5770373DCE1BA608398 /* Space.cpp */ = {isa = PBXBuildFile; fileRef = 08546C480AA55B55148DA0C9; };
 		AEA70A20F38E5DE31D006C32 /* CoreMIDI.framework */ = {isa = PBXBuildFile; fileRef = 9B8BB62EA5B70E10EE3596B7; };
 		B2AE755FBC55F2A2199F4121 /* include_juce_dsp.mm */ = {isa = PBXBuildFile; fileRef = C3629C15620D26B872AE5409; };
-=======
-		AD95F5770373DCE1BA608398 /* Space.cpp */ = {isa = PBXBuildFile; fileRef = 08546C480AA55B55148DA0C9; };
->>>>>>> main
 		B53390FB7C75A3E1DF966390 /* Foundation.framework */ = {isa = PBXBuildFile; fileRef = 2C70B295F1FD425BAF034037; };
 		B5578228D88F937CA7AC7BFE /* SimulationUI.cpp */ = {isa = PBXBuildFile; fileRef = 4D107F5B6E186C13EEB8FFAA; };
 		B83FAAD5FAAF6281C243D176 /* include_juce_events.mm */ = {isa = PBXBuildFile; fileRef = FB13568AE887A042A24B8615; };
@@ -67,10 +63,7 @@
 		D4E8B5AB578CB4E6DB7F792D /* Reaction.cpp */ = {isa = PBXBuildFile; fileRef = EAECDD9F00C30A7B00179823; };
 		D5AD34FD2951048E47C75452 /* IOKit.framework */ = {isa = PBXBuildFile; fileRef = 5310EA5CBC9D152C73B414D8; };
 		D69C0FC58395E0C7AC953EFC /* SpaceUI.cpp */ = {isa = PBXBuildFile; fileRef = 54E6994C54A8EC8ABBBC1F30; };
-<<<<<<< HEAD
 		E23859C82A93B7C2DE6EF100 /* Accelerate.framework */ = {isa = PBXBuildFile; fileRef = FE523D350CE7406CE17B531D; };
-=======
->>>>>>> main
 		EAE544A3F8ADEDE5960C264D /* include_juce_core.mm */ = {isa = PBXBuildFile; fileRef = 2F15FC5A32107F5E083CD650; };
 		EB79FEB1008F17C067D2C223 /* PACUI.cpp */ = {isa = PBXBuildFile; fileRef = 48F73767A72C8D61533FE10D; };
 		ED7EFB546DF9D12CADD1C9B8 /* SteadyStates.cpp */ = {isa = PBXBuildFile; fileRef = FB681EF776A25D6A16BA5E15; };
@@ -126,10 +119,7 @@
 		57D49C4CAC730F256DDB59C0 /* SpaceUI.h */ /* SpaceUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpaceUI.h; path = ../../Source/Simulation/ui/SpaceUI.h; sourceTree = SOURCE_ROOT; };
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
 		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
 		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
-=======
->>>>>>> main
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
