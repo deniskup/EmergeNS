@@ -124,9 +124,13 @@
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
 		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
 >>>>>>> c0c80a3 (Progress on NEP implementation)
+=======
+		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
+>>>>>>> d54b9f5 (fix conflicts due to bad merging)
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };

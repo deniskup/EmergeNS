@@ -230,7 +230,7 @@ var EmergeNSEngine::getJSONData(bool includeNonOverriden)
   data.getDynamicObject()->setProperty(Settings::getInstance()->shortName, Settings::getInstance()->getJSONData());
   data.getDynamicObject()->setProperty(PhasePlane::getInstance()->shortName, PhasePlane::getInstance()->getJSONData());
   data.getDynamicObject()->setProperty(Space::getInstance()->shortName, Space::getInstance()->getJSONData());
-  //data.getDynamicObject()->setProperty(NEP::getInstance()->shortName, NEP::getInstance()->getJSONData());
+  data.getDynamicObject()->setProperty(NEP::getInstance()->shortName, NEP::getInstance()->getJSONData());
   data.getDynamicObject()->setProperty("currentSimul", Simulation::getInstance()->toJSONData());
 
   return data;
@@ -245,7 +245,7 @@ void EmergeNSEngine::loadJSONDataInternalEngine(var data, ProgressTask* loadingT
   Settings::getInstance()->loadJSONData(data.getProperty(Settings::getInstance()->shortName, var()));
   PhasePlane::getInstance()->loadJSONData(data.getProperty(PhasePlane::getInstance()->shortName, var()));
   Space::getInstance()->loadJSONData(data.getProperty(Space::getInstance()->shortName, var()));
-  //NEP::getInstance()->loadJSONData(data.getProperty(NEP::getInstance()->shortName, var()));
+  NEP::getInstance()->loadJSONData(data.getProperty(NEP::getInstance()->shortName, var()));
 	Simulation::getInstance()->importJSONData(data.getProperty("currentSimul", var()));
 
   //Simulation::getInstance()->establishLinks();

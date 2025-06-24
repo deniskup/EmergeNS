@@ -304,29 +304,6 @@ void SteadyStateslist::printSteadyStates()
   }
 }
 
-void SteadyStateslist::printSteadyStatesToFile()
-{
-  ofstream out;
-  out.open("steadyStates.txt", ofstream::out | ofstream::trunc);
-  out << "----- Steady States list -----\n\n";
-  int c = 0;
-  for (auto & sst : arraySteadyStates)
-  {
-    out << "Steady state #" << c << endl;
-    out << "\tis stable ? --> " << sst.isStable << endl;
-    out << "\tis border ? --> " << sst.isBorder << endl;
-    out << "\tis partially stable ? --> " << sst.isPartiallyStable << endl;
-    out << "\tNumber of unstable eigenVec : " << sst.postiveEigenVal << endl;
-    out << "\tComposition :" << endl;
-    out.precision(10);
-    for (auto &c : sst.state)
-    {
-      out << "\t\t[" << c.first->name << "] = " << c.second << endl;
-    }
-    out << endl;
-    c++;
-  }
-}
 
 void SteadyStateslist::printSteadyStatesToFile()
 {
@@ -386,26 +363,7 @@ void SteadyStateslist::cleanLocalFolder()
 }
 
 
-void SteadyStateslist::cleanLocalFolder()
-{
-  Array<string> filenames;
-  filenames.add("dummy.txt");
-  filenames.add("msolveSteadyConstraints.ms");
-  filenames.add("msolveSteadyOutput.ms");
-  filenames.add("msolvesteadylog.txt");
-  
-  string command = "rm ";
-  for (auto & file : filenames)
-  {
-    ifstream iffile(file.c_str());
-    if (iffile.good())
-    {
-      command += " " + file;
-    }
-  }
-  system(command.c_str());
-  
-}
+
 
 void SteadyStateslist::computeSteadyStates()
 {
