@@ -73,10 +73,10 @@ public:
     // i.e. cutoffFreq < sampleRate / 2
     
     // retrieve number of entities
-    const int nPoints = static_cast<int>(data.size());
+    const int np = static_cast<int>(data.size());
     const int numEntities = static_cast<int>(data[0].size());
     
-    vector<vector<double>> filtdata(nPoints, vector<double>(numEntities, 0.));
+    vector<vector<double>> filtdata(np, vector<double>(numEntities, 0.));
     
     //cout << "npoints = " << nPoints << endl;
     //cout << "numEnt = " << numEntities << endl;
@@ -85,8 +85,8 @@ public:
     for (int ient=0; ient<numEntities; ient++)
     {
       // retrieve signal along current entity index
-      vector<double> signal(nPoints, 0.);
-      for (int p=0; p<nPoints; p++)
+      vector<double> signal(np, 0.);
+      for (int p=0; p<np; p++)
       {
         signal[p] = data.getUnchecked(p).getUnchecked(ient);
         //signal.setUnchecked(p, data.getUnchecked(p).getUnchecked(ient));
@@ -99,11 +99,11 @@ public:
       }
       
       // Réinjection
-      for (int p=0; p<nPoints; p++)
+      for (int p=0; p<np; p++)
         filtdata[p][ient] = signal[p];
       
       // Modify input
-      for (int p=0; p<nPoints; p++)
+      for (int p=0; p<np; p++)
       {
         data.getReference(p).setUnchecked(ient, filtdata[p][ient]);
       }
@@ -181,24 +181,11 @@ public:
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
   StateVec evalHamiltonianGradientWithQ(const StateVec q, const StateVec p);
   
-  
-  
+  //var getJSONData() override;
+
   void loadJSONData(var data, bool createIfNotThere = false) override;
-  var getJSONData(bool includeNonOverriden = true) override;
   
-  
-   class NEPListener
-   {
-   public:
-   virtual ~NEPListener() {}
-   virtual void updateNEPUI(NEP *){};
-   };
-   
-   
-   ListenerList<NEPListener> listeners;
-   void addNEPListener(NEPListener *newListener) { listeners.add(newListener); }
-   void removeNEPListener(NEPListener *listener) { listeners.remove(listener); }
-  
+    
   void newMessage(const Simulation::SimulationEvent &e) override;
   
   void newMessage(const ContainerAsyncEvent &e) override;
@@ -213,15 +200,12 @@ public:
   public:
     enum Type
     {
-      UPDATEPARAMS,
       WILL_START,
-      STARTED,
       NEWSTEP,
-      FINISHED,
     };
 
-    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0.)
-      : type(_t), nep(_nep), curStep(_curStep), action(_action)
+    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0.)
+      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric)
     {
     }
 
@@ -229,72 +213,20 @@ public:
     NEP* nep;
     int curStep;
     double action;
+    double cutofffreq;
+    int npoints;
+    double metric;
   };
   
   QueuedNotifier<NEPEvent> nepNotifier;
+  std::set<void*> debugKnownListeners;
   typedef QueuedNotifier<NEPEvent>::Listener AsyncNEPListener;
 
-  void addAsyncNEPListener(AsyncNEPListener* newListener) { nepNotifier.addListener(newListener); }
-  void addAsyncCoalescedNEPListener(AsyncNEPListener* newListener) { nepNotifier.addAsyncCoalescedListener(newListener); }
-  void removeAsyncNEPListener(AsyncNEPListener* listener) { nepNotifier.removeListener(listener); }
-  
-/*
-  QueuedNotifier<SimulationEvent> simNotifier;
-  typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
+  void addAsyncNEPListener(AsyncNEPListener* newListener) {nepNotifier.addListener(newListener); }
+  void addAsyncCoalescedNEPListener(AsyncNEPListener* newListener) { nepNotifier.addAsyncCoalescedListener(newListener);}
+  void removeAsyncNEPListener(AsyncNEPListener* listener) {nepNotifier.removeListener(listener);}
 
-  void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
-  void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
-  void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
-  */
-/*
-  // ASYNC
-  class SimulationEvent
-  {
-  public:
-    enum Type
-    {
-      UPDATEPARAMS,
-      WILL_START,
-      STARTED,
-      NEWSTEP,
-      FINISHED,
-    };
 
-    SimulationEvent(Type t,
-      Simulation* sim,
-      //int _run = 0,
-      //int _patch = 0,
-      int curStep = 0,
-      //Array<float> entityValues = Array<float>(),
-      ConcentrationGrid entityValues = {},
-      Array<Colour> entityColors = Array<Colour>(),
-      Array<float> PACsValues = Array<float>(),
-      Array<bool> RACList = Array<bool>())
-      : type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
-    {
-    }
-
-    Type type;
-    Simulation* sim;
-    //int run;
-    //int patch;
-    int curStep;
-    //Array<float> entityValues;
-    ConcentrationGrid entityValues;
-    Array<Colour> entityColors;
-    Array<float> PACsValues;
-    Array<bool> RACList;
-    //map<PAC*, bool> RACList;
-  };
-
-  QueuedNotifier<SimulationEvent> simNotifier;
-  typedef QueuedNotifier<SimulationEvent>::Listener AsyncSimListener;
-
-  void addAsyncSimulationListener(AsyncSimListener* newListener) { simNotifier.addListener(newListener); }
-  void addAsyncCoalescedSimulationListener(AsyncSimListener* newListener) { simNotifier.addAsyncCoalescedListener(newListener); }
-  void removeAsyncSimulationListener(AsyncSimListener* listener) { simNotifier.removeListener(listener); }
-  */
-  
   
 private:
   
@@ -302,6 +234,12 @@ private:
   void initConcentrationCurve();
   
   void writeDescentToFile();
+  
+  void filterConcentrationTrajectory();
+  
+  void updateDescentParams();
+  
+  bool descentShouldUpdateParams(double);
 
   LiftTrajectoryOptResults liftCurveToTrajectory();
   
@@ -323,9 +261,15 @@ private:
   double length_qcurve = 0.;
   Array<double> times;
   double action;
+  double metric = 1.; // distance from hamilton's equation of motion
   
   // sample rate, calculated from current qcurve
   double sampleRate;
+  
+  // #para
+  double deltaActionth = 1e-4;
+  double stepDescentThreshold = 1e-4;
+  double stepDescent = 0.1;
   
   // for filtering
   MultiButterworthLowPass filter;

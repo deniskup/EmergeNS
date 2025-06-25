@@ -119,77 +119,11 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
   double deltaT = 1.; // fix delta t for optimization its amplitude will be fixed later
   double lt = legendreTransform(ev, deltaT);
   return lt;
-  
-  /*
-  cout << "check p "<< endl;
-  for (auto & pi : *ev->p)
-    cout << pi << " ";
-  cout << endl;
-  */
-  
-  // ----- Step 1 : minimize hamiltonian w.r.t to t at fixed p -----
-  //nlopt::opt opt_t(nlopt::LD_LBFGS, 1);  // t is scalar variable
-  //nlopt::opt opt_t(nlopt::LN_COBYLA, 1);  // method without gradient
-  
 
-  // lower and upper bounds
-  //vector<double> lowerbound_t(1, 0.0);
-  //vector<double> upperbound_t(1, 100.0);
-  //opt_t.set_lower_bounds(lowerbound_t);
-  //opt_t.set_upper_bounds(upperbound_t);
-  
-
-  // define function to minimize
-  //opt_t.set_min_objective(objective_min_t, f_data);
-  //opt_t.set_xtol_rel(1e-6);
-
-  //std::vector<double> t(1, 0.0);
-  //double minf;
-
-  //nlopt::result result = opt_t.optimize(t, minf);
-  
-  // stock optimize t value
-  //ev->t_opt = t[0];
-  
-  // convert grad to vector
-  //vector<double> gradvec(grad, grad + n);
-
-  // if we want the gradient w.r.t p :
-  //if (!gradvec.empty())
-
-  /*
-  if (grad != nullptr)
-  {
-
-    StateVec gradH = ev->nep->evalHamiltonianGradientWithP(*ev->qcenter, *ev->p);
-    //Array<double> actualgrad;
-    //jassert(gradH.size() == ev->deltaq->size());
-    cout << "gradientP : ";
-    for (int k=0; k<gradH.size(); k++)
-    {
-      grad[k] = gradH.getUnchecked(k);
-      cout << grad[k] << " ";
-      //actualgrad.add( ev->deltaq->getUnchecked(k) - gradH.getUnchecked(k)*t[0] );
-    }
-    cout << endl;
-    //for (unsigned i = 0; i < gradH.size(); ++i)
-     //   grad[i] = actualgrad[i];
-  }
-  */
-
-    
-  // return  opposite of min found -----
-  //return -minf; // car on veut max_p => -min_t
+ 
  }
  
-/*
-NEP::NEP() : ControllableContainer("NEP"),
-             Thread("NEP"),
-            nepNotifier(1000)
-{
-  
-}
-*/
+
 
 NEP::NEP() : ControllableContainer("NEP"),
             Thread("NEP"),
@@ -197,17 +131,12 @@ NEP::NEP() : ControllableContainer("NEP"),
             nepNotifier(1000)
 {
   
-  //rm = new RunManager();
-  //ShapeShifterFactory::getInstance()->defs.add(new ShapeShifterDefinition("RunManager", &RunManagerUI::create));
+  
+  //showWarningInUI = true;
+ // saveAndLoadRecursiveData = true;
+  //includeInRecursiveSave = true;
+  
 
-  
-  showWarningInUI = true;
-  saveAndLoadRecursiveData = true;
-  includeInRecursiveSave = true;
-  
-  // set this class as simulation listener
-  simul->addAsyncSimulationListener(this);
-  simul->addAsyncContainerListener(this);
   
   // affect satID to entities
   simul->affectSATIds();
@@ -222,7 +151,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
-  nPoints = addIntParameter("Number of sampling points", "Number of sampling points", 100);
+  nPoints = addIntParameter("Sampling points", "Number of sampling points", 100);
 
   cutoffFreq = addFloatParameter("Cutoff frequency", "frequency of low-pass filtering used by the descent algorithm", 4.);
   
@@ -232,20 +161,12 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   // set options
   updateSteadyStateList();
-  /*
-  sst_stable->clearOptions();
-  sst_saddle->clearOptions();
-  //for (int k=0; k<Simulation::getInstance()->steadyStatesList->arraySteadyStates.size(); k++)
-  for (int k=0; k<simul->steadyStatesList->arraySteadyStates.size(); k++)
-  {
-    //SteadyState sst = Simulation::getInstance()->steadyStatesList->arraySteadyStates.getUnchecked(k);
-    SteadyState sst = simul->steadyStatesList->arraySteadyStates.getUnchecked(k);
-    if (sst.isBorder)
-      continue;
-    sst_stable->addOption(String(k), k);
-    sst_saddle->addOption(String(k), k);
-  }
-  */
+  
+  // set this class as simulation listener
+  simul->addAsyncSimulationListener(this);
+  simul->addAsyncContainerListener(this);
+  
+
 
   
 }
@@ -264,7 +185,7 @@ void NEP::updateSteadyStateList()
   // set options
   sst_stable->clearOptions();
   sst_saddle->clearOptions();
-  //for (int k=0; k<Simulation::getInstance()->steadyStatesList->arraySteadyStates.size(); k++)
+  cout << "[DEBUG] : setting steady state choices to size : " << simul->steadyStatesList->arraySteadyStates.size() << endl;
   for (int k=0; k<simul->steadyStatesList->arraySteadyStates.size(); k++)
   {
     SteadyState sst = simul->steadyStatesList->arraySteadyStates.getUnchecked(k);
@@ -282,12 +203,7 @@ void NEP::updateSteadyStateList()
 
 void NEP::onContainerParameterChanged(Parameter *p)
 {
-/*
-  if (p == nRuns)
-  {
-    
-  }
-*/
+  
 }
 
 
@@ -932,6 +848,8 @@ void NEP::reset()
 // start thread
 void NEP::run()
 {
+  //cout << "nepnotifier size = " << nepNotifier.size() << endl;
+  
   simul->affectSATIds();
   reset();
   
@@ -941,6 +859,9 @@ void NEP::run()
   return;
 */
   
+  // has bad behavior for now, trajectory eventually diverges
+  // need deeper understanding
+  // see https://web.pa.msu.edu/people/dykman/pub06/jcp100_5735.pdf
   if (heteroclinic_study)
   {
     heteroclinicStudy();
@@ -1006,8 +927,8 @@ void NEP::run()
   cout << "init qcurve" << endl;
   initConcentrationCurve();
   
-  int count = -1;
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, count, 0.));
+  int count = 0;
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
   while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
@@ -1034,9 +955,26 @@ void NEP::run()
     // update action value
     cout << "calculating action" << endl;
     double newaction = calculateAction(qcurve, pcurve, times);
+    double diffAction = abs(action - newaction);
+    actionDescent.add(newaction);
+    
+    // message to async to monitor the descent
+    cout << "in NEP : " << newaction << " " << cutoffFreq->floatValue() << " " << nPoints->intValue() << " " << metric << endl;
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric));
+    
+    // check algorithm descent status
+    bool shouldUpdate = descentShouldUpdateParams(diffAction);
+    if (shouldUpdate && count>1)
+    {
+      updateDescentParams();
+      filterConcentrationTrajectory();
+      stepDescent = 0.;
+      // increase sampling of concentration curve is optionnal. Not implemented at the moment.
+      continue; // next iteration using the filtered qcurve
+    }
+    
     action = newaction;
     // keep track of action history
-    actionDescent.add(newaction);
     cout << "action = " << action << endl;
     
     //if (action < action_threshold->floatValue())
@@ -1046,12 +984,7 @@ void NEP::run()
     // now update the concentration trajectory with functionnal gradient descent
     // this function update global variable qcurve
     updateOptimalConcentrationCurve(liftoptres.opt_momentum, liftoptres.opt_deltaT);
-    
-    // I could call at this stage a NEPEvent to display real time algorithm progress in the NEPUI window
-    // that would be really badass, but not a priority
-    
-    // message to async
-    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count+1, action));
+        
     
   } // end while
   
@@ -1355,6 +1288,26 @@ void NEP::initConcentrationCurve()
   
 }
 
+void NEP::filterConcentrationTrajectory()
+{
+  // filter the gradient
+  filter.setCutoffFrequency(cutoffFreq->floatValue());
+  filter.prepare(sampleRate, simul->entities.size());
+  filter.process(qcurve);
+}
+
+
+void NEP::updateDescentParams()
+{
+  cutoffFreq->setValue(cutoffFreq->floatValue() + 10.);
+}
+
+
+bool NEP::descentShouldUpdateParams(double diffAction)
+{
+  return ((diffAction<deltaActionth || stepDescent<stepDescentThreshold));
+}
+
 
 void NEP::writeDescentToFile()
 {
@@ -1468,7 +1421,8 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
   filter.process(dAdq);
   
   
-  double step = backTrackingMethodForStepSize(qcurve, dAdq);
+  stepDescent = backTrackingMethodForStepSize(qcurve, dAdq);
+  //double step = backTrackingMethodForStepSize(qcurve, dAdq);
   //double step = 1.;
   //cout << "step for descent = " << step << endl;
   
@@ -1482,13 +1436,15 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
     {
       //double qnew = qcurve.getUnchecked(k).getUnchecked(m) - step * deltaq.getUnchecked(k).getUnchecked(m);
       //qcurve.setUnchecked(int indexToChange, <#ParameterType newValue#>)
-      newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq.getUnchecked(k).getUnchecked(m) );
+      newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - stepDescent * dAdq.getUnchecked(k).getUnchecked(m) );
       //newqk.add( qcurve.getUnchecked(k).getUnchecked(m) + step * dAdq.getUnchecked(k).getUnchecked(m) );
     }
     qcurve.setUnchecked(k, newqk);
     //qcurve.add(newqk);
   }
   length_qcurve = curveLength(qcurve);
+  if (length_qcurve>0.)
+    sampleRate = (double) nPoints->intValue() / length_qcurve;
   jassert(qcurve.size() == nPoints->intValue());
   
 }
@@ -1858,96 +1814,12 @@ void NEP::heteroclinicStudy()
 
 
 
-
-
 void NEP::loadJSONData(var data, bool createIfNotThere)
 {
-  /*
-  if (data.isVoid())
-    return;
-  
-  if (!data.getDynamicObject()->hasProperty("runs"))
-  {
-    LOGWARNING("couldn't retrieve any run from json file");
-    return;
-  }
-  
-  // load runs
-  auto arrayruns = data.getProperty("runs", juce::var());
-  // retrieve runs
- // cout << "is array ? --> " << data.getProperty("runs", juce::var()).isArray() << endl;
-  
-  if (!data.getProperty("runs", juce::var()).isArray())
-  {
-    LOGWARNING(" Runs not stored as array in json file, will not init them");
-    return;
-  }
-  
-  
-  // loop over stored runs
-  for (auto & arun : *arrayruns.getArray())
-  {
-    if (!arun.getDynamicObject()->hasProperty("parameters"))
-    {
-      LOGWARNING(" No parameters in run.");
-      return;
-    }
-    
-    Run * newrun = new Run(arun);
-    addRun(newrun);
-    //addChildControllableContainer(newrun);
-    //runs.add(newrun);
-    
-  }
-
-  if (data.getDynamicObject()->hasProperty("nRuns"))
-    nRuns->setValue(data.getDynamicObject()->getProperty("nRuns"));
-  
-  //if (data.getDynamicObject()->hasProperty("pathToEmergens"))
-  //  pathToEmergens->setValue(data.getDynamicObject()->getProperty("pathToEmergens"));
-  
-  if (data.getDynamicObject()->hasProperty("xAxis"))
-    xAxis->setValue(data.getDynamicObject()->getProperty("xAxis"));
-  
-  if (data.getDynamicObject()->hasProperty("yAxis"))
-    yAxis->setValue(data.getDynamicObject()->getProperty("yAxis"));
-  
-  if (data.getDynamicObject()->hasProperty("pathToCSV"))
-    pathToCSV->setValue(data.getDynamicObject()->getProperty("pathToCSV"));
-  */
-  
+  updateSteadyStateList();
+  // call mother class
+  ControllableContainer::loadJSONData(data);
 }
-
-
-
-
-
-var NEP::getJSONData(bool includeNonOverriden)
-{
-  /*
-  // add saved material specific to daughter class
-  var data = new DynamicObject();
-  //data.getDynamicObject()->setProperty("pathToEmergens", pathToEmergens->stringValue());
-  data.getDynamicObject()->setProperty("xAxis", xAxis->getValue());
-  data.getDynamicObject()->setProperty("yAxis", yAxis->getValue());
-  data.getDynamicObject()->setProperty("pathToCSV", pathToCSV->stringValue());
-  data.getDynamicObject()->setProperty("nRuns", nRuns->intValue());
-
-  var vruns;
-  for (auto& r : runs)
-  {
-    var v = r->getJSONData();
-    vruns.append(v);
-  }
-  data.getDynamicObject()->setProperty("runs", vruns);
-
-  
-  return data;
-  */
-  
-}
-
-
 
 
 
@@ -1959,18 +1831,27 @@ void NEP::newMessage(const Simulation::SimulationEvent &ev)
     {
       updateSteadyStateList();
     }
+      break;
+      
     case Simulation::SimulationEvent::WILL_START:
     {
     }
+      break;
+      
     case Simulation::SimulationEvent::STARTED:
     {
     }
+      break;
+      
     case Simulation::SimulationEvent::NEWSTEP:
     {
     }
+      break;
+      
     case Simulation::SimulationEvent::FINISHED:
     {
     }
+      break;
   }
 }
 

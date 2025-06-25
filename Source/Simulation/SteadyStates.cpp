@@ -219,6 +219,41 @@ SteadyState::SteadyState(var data)
       return;
     }
   }
+  
+  if (data.getDynamicObject()->hasProperty("isStable"))
+  {
+    if (data.getDynamicObject()->getProperty("isStable").isBool())
+      isStable = data.getDynamicObject()->getProperty("isStable").operator bool();
+    else
+    {
+      LOGWARNING("Wrong Steady State format (boolean isStable) in JSON file.");
+      return;
+    }
+  }
+  
+  if (data.getDynamicObject()->hasProperty("isPartiallyStable"))
+  {
+    if (data.getDynamicObject()->getProperty("isPartiallyStable").isBool())
+      isPartiallyStable = data.getDynamicObject()->getProperty("isPartiallyStable").operator bool();
+    else
+    {
+      LOGWARNING("Wrong Steady State format (boolean isPartiallyStable) in JSON file.");
+      return;
+    }
+  }
+  
+  if (data.getDynamicObject()->hasProperty("postiveEigenVal"))
+  {
+    if (data.getDynamicObject()->getProperty("postiveEigenVal").isInt())
+      postiveEigenVal = data.getDynamicObject()->getProperty("postiveEigenVal").operator int();
+    else
+    {
+      LOGWARNING("Wrong Steady State format (int postiveEigenVal) in JSON file.");
+      return;
+    }
+  }
+  
+  
     
   if (data.getDynamicObject()->hasProperty("State"))
   {
@@ -255,6 +290,9 @@ var SteadyState::toJSONData()
   var data = new DynamicObject();
   
   data.getDynamicObject()->setProperty("isBorder", isBorder);
+  data.getDynamicObject()->setProperty("isStable", isStable);
+  data.getDynamicObject()->setProperty("isPartiallyStable", isPartiallyStable);
+  data.getDynamicObject()->setProperty("postiveEigenVal", postiveEigenVal);
   
   var vst;
   for (auto st : state)
@@ -1686,10 +1724,12 @@ void SteadyStateslist::fromJSONData(var data)
   {
     SteadyState sst(varsst);
     arraySteadyStates.add(sst);
-    if (sst.isBorder)
+    if (sst.isPartiallyStable)
       nPartStable++;
-    else
+    if (sst.isStable)
       nGlobStable++;
+    if (sst.postiveEigenVal == 1)
+      nSaddle++;
   }
   
   // some printing

@@ -215,10 +215,10 @@ void Simulation::updateParams()
   // set space
   updateSpaceGridSizeInSimu();
   
-  
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  
 }
 
 
@@ -227,16 +227,14 @@ void Simulation::updateSpaceGridSizeInSimu()
   //cout << "Current simul  has " << entities.size() << " entities." << endl;
   //if (entities.size() == 0)
   //  return;
-  //cout << "updateSpaceGridSizeInSimu()" << endl;
-    //cout << "spacegrid size in SimEntities = " << entities.getUnchecked(0)->startConcent.size() << endl;
   for (auto& ent : entities)
   {
     //float start0 = ent->startConcent.getUnchecked(0);
-    
-    ent->startConcent.resize(Space::getInstance()->nPatch);
-    ent->concent.resize(Space::getInstance()->nPatch);
-    ent->deterministicConcent.resize(Space::getInstance()->nPatch);
-    ent->previousConcent.resize(Space::getInstance()->nPatch);
+    cout << ent->name << endl;
+    ent->startConcent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->concent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->deterministicConcent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->previousConcent.resize(Space::getInstance()->tilingSize->intValue());
     
     // for start concentrations, I duplicate the values of the first patch
     // for others, I init with null values // #BUG
@@ -1688,6 +1686,7 @@ void Simulation::resetBeforeRunning()
 
 void Simulation::start(bool restart)
 {
+  
   nRuns = 1;
   resetBeforeRunning();
   updateParams();

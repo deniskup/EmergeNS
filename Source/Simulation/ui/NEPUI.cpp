@@ -6,11 +6,7 @@
 NEPUI::NEPUI() : ShapeShifterContentComponent(NEP::getInstance()->niceName),
                                nep(NEP::getInstance())
 {
-
-    nep->addAsyncNEPListener(this);
-    nep->addAsyncCoalescedNEPListener(this);
-    //nep->addAsyncContainerListener(this);
-
+  
     editorUI.reset(new GenericControllableContainerEditor(nep, true));
     addAndMakeVisible(editorUI.get());
   
@@ -21,8 +17,10 @@ NEPUI::NEPUI() : ShapeShifterContentComponent(NEP::getInstance()->niceName),
     vp.setBounds(getLocalBounds());
     vp.setViewedComponent(editorUI.get(), false);
   
-
- 
+  nep->addAsyncNEPListener(this);
+  nep->addAsyncContainerListener(this);
+  
+ /*
     // reset components
     startDescentUI.reset(nep->startDescent->createButtonUI());
     start_heteroclinic_studyUI.reset(nep->start_heteroclinic_study->createButtonUI());
@@ -43,6 +41,7 @@ NEPUI::NEPUI() : ShapeShifterContentComponent(NEP::getInstance()->niceName),
     cutoffFreqUI->setSize(150, 20);
     action_thresholdUI->setSize(150, 20);
     timescale_factorUI->setSize(150, 20);
+  */
   /*
     addAndMakeVisible(startDescentUI.get());
     addAndMakeVisible(start_heteroclinic_studyUI.get());
@@ -64,15 +63,14 @@ NEPUI::~NEPUI()
 
 // #HERE
 // tick marks as well as labels do not display correctly in UI
-void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int nticks, float max)
+void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int nticks, float max, int ndigits)
 {
   g.setColour(NORMAL_COLOR);
   g.setFont(10.);
   
   int markwidth = 4;
   int markheight = 2;
-  int ndigits = (type =="Y" ? 2 : 0);
-  int textboxwidth = 20;
+  int textboxwidth = 25;
   int textboxheight = 5;
   int shiftXaxisLabels = 10;
   int shiftYaxisLabels = 25;
@@ -143,6 +141,7 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   if (data.size() == 0)
     return;
   jassert(data.size() == iterations.size());
+  //cout << "data type : " << title << ". size = " << data.size() << " vs Niter = " << iterations.size() << endl;
   
   // retrieve max from array data
   float max = 0.;
@@ -160,8 +159,10 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   // find min and max of data
   float minX = *min_element(iterations.begin(), iterations.end());
   float maxX = *max_element(iterations.begin(), iterations.end());
-  float minY = *min_element(data.begin(), data.end());
+  //float minY = *min_element(data.begin(), data.end());
+  float minY = 0.;
   float maxY = *max_element(data.begin(), data.end());
+  maxY *= 1.1; // little more room for esthetics
   
   float rangeX = maxX - minX;
   float rangeY = maxY - minY;
@@ -193,20 +194,35 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   }
   
   // draw the data
-  g.setColour(juce::Colours::yellow);
+  juce::Colour col = juce::Colours::purple;
+  if (title == "Action")
+    col = juce::Colours::yellow;
+  else if (title == "Cutoff frequency")
+    col = juce::Colours::pink;
+  else if (title == "nPoints")
+    col = juce::Colours::powderblue;
+  else if (title == "Metric")
+    col = juce::Colours::orangered;
+  g.setColour(col);
   g.strokePath(*path, PathStrokeType(1.2));
   
   // draw axis
   int nticksX = 4;
   int nticksY = 4;
-  paintAxis(g, r, "X", nticksX, iterations.getLast());
-  paintAxis(g, r, "Y", nticksY, max);
+  int ndigitsX = 0;
+  int ndigitsY = 2;
+  if (title == "nPoints")
+    ndigitsY = 0;
+  
+  paintAxis(g, r, "X", nticksX, iterations.getLast(), ndigitsX);
+  paintAxis(g, r, "Y", nticksY, maxY, ndigitsY);
   
   // add plot title
   g.setFont(15.);
-  int titleX = r.getX() + r.getWidth()/2 - 50;
+  int titleboxwidth = 150;
+  int titleX = r.getX() + r.getWidth()/2 - titleboxwidth/2;
   int titleY = r.getY() - 20;
-  Rectangle<int> titlepos(titleX, titleY, 100, 20);
+  Rectangle<int> titlepos(titleX, titleY, titleboxwidth, 20);
   g.drawText(title, titlepos, Justification::centred, true);
 
 
@@ -217,17 +233,27 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
 
 void NEPUI::paint(juce::Graphics & g)
 {
-  //cout << "calling paint" << endl;
+  if (iterations.size()==0)
+    return;
+  /*
+  cout << "calling paint. " << endl;
+  cout << "sizes are : " << iterations.size() << " " << actions.size() << " " << cutoffFreqs.size() << " " << nPoints.size();
+  
+  cout << " " << metrics.size() << endl;
+  cout << "first elements are " << iterations.getFirst() << " ";
+  cout << actions.getFirst() << " " << cutoffFreqs.getFirst() << " ";
+  cout << nPoints.getFirst() << " " << metrics.getFirst() << " " << endl;
+  */
   //cout << "action size : " << actions.size() << endl;
   // retrieve bounds
   Rectangle<int> bounds = getLocalBounds();
   // lower part for monitoring
   Rectangle<int> lowerHalf = bounds.removeFromBottom(bounds.getHeight() / 2);
   // remove a bit of margin
-  int borderMargin = 30;
+  int borderMargin = 35;
   lowerHalf = lowerHalf.reduced(borderMargin);
   
-  int innerMargin = 30;
+  int innerMargin = 35;
   
   // Divide lower half into 4 equal parts
   int w = (lowerHalf.getWidth()-innerMargin) / 2;
@@ -241,86 +267,19 @@ void NEPUI::paint(juce::Graphics & g)
   
   // draw action evolution in first recangle
   paintOneMonitoredQuantity(g, r1, "Action", actions);
+  paintOneMonitoredQuantity(g, r2, "Cutoff frequency", cutoffFreqs);
+  paintOneMonitoredQuantity(g, r3, "nPoints", nPoints);
+  paintOneMonitoredQuantity(g, r4, "Metric", metrics);
   
-  g.setColour(NORMAL_COLOR);
-  
+  //g.setColour(NORMAL_COLOR);
   //g.drawRect(r1);
-  g.drawRect(r2);
-  g.drawRect(r3);
-  g.drawRect(r4);
+  //g.drawRect(r2);
+  //g.drawRect(r3);
+  //g.drawRect(r4);
   
   
 }
 
-
-/*
-
-
- // draw X and Y axis ticks with numerical labels
- int ncorr = nticks + 1;
- for (int i = 0; i <= ncorr; i++)
- {
-   // draw Y axis ticks and text
-
-   // x position of ticks = origin
-   int x = simBounds.getX();
-   // y position of ticks
-   float ii = i;
-   float step = (float)simBounds.getHeight() * ii / (float)ncorr;
-   int y = simBounds.getY() + round(step);
-   // draw the tick
-   Rectangle<int> m1(x - markwidth / 2, y, markwidth, markheight);
-   if (i != ncorr & i != 0)
-     g.drawRect(m1, markheight);
-
-   // add corresponding concentration value
-
-   // decide number of digits to print to labels
-   int ndigits = 0;
-   int pow = round(log10(maxC)); //
-   if (pow<=2) ndigits = -pow + 2;
-
-   // x position of ticks labels
-   int xx = simBounds.getX() - 50;
-   Rectangle<int> tpos(xx, y, 50, 5);
-   float conc = maxC * (1. - ii / ncorr);
-   stringstream ssconc;
-   ssconc << fixed << setprecision(ndigits) << conc;
-   string text = ssconc.str();
-   g.drawText(text, tpos, Justification::centred, true);
-
-   // draw X axis ticks and texts
-
-   // y position of ticks = x axis
-   y = simBounds.getY() + simBounds.getHeight();
-   // x position of ticks
-   step = (float)simBounds.getWidth() * ii / (float)ncorr;
-   x = simBounds.getX() + round(step);
-   // draw the tick
-   Rectangle<int> m2(x, y - markwidth / 2, markheight, markwidth);
-   if (i != ncorr & i != 0)
-     g.drawRect(m2, markheight);
-
-   // add corresponding time value
-   // here decide the number of gigits to display
-   pow = round(log10(simul->totalTime->floatValue()));
-   ndigits = 0;
-   if (pow<=2) ndigits = -pow + 2;
-
-   //x -= 3 * pow;
-   int boxwidth = 100;
-   Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
-   float time = simul->totalTime->floatValue() * ii / ncorr;
-   stringstream sstime;
-   sstime << fixed << setprecision(ndigits) << time;
-   text = sstime.str();
-   if (i == 0)
-     continue; // skip first tick
-   else if (i > 0 && i <= ncorr)
-     g.drawText(text, tpos2, Justification::centred, true);
- } // end loop over ticks
-
- */
 
 
 void NEPUI::resized()
@@ -328,19 +287,6 @@ void NEPUI::resized()
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     vp.setBounds(r);
-  /*
-    Rectangle<int> area = getLocalBounds().removeFromBottom(getHeight() / 2).reduced(20);
-
-    juce::FlexBox fb;
-    fb.flexDirection = juce::FlexBox::Direction::row;
-    fb.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
-    fb.alignItems = juce::FlexBox::AlignItems::center;
-
-     if (startDescentUI)
-         fb.items.add(juce::FlexItem(*startDescentUI).withWidth(150).withHeight(20));
-
-     fb.performLayout(area);
-  */
 }
 
 
@@ -379,33 +325,35 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
 {
   switch (ev.type)
   {
-    case NEP::NEPEvent::UPDATEPARAMS:
-    {
-    }
     case NEP::NEPEvent::WILL_START:
     {
+      //cout << "calling WILL START" << endl;
       iterations.clear();
       actions.clear();
+      cutoffFreqs.clear();
+      nPoints.clear();
+      metrics.clear();
     }
-    case NEP::NEPEvent::STARTED:
-    {
-    }
+    break;
+
     case NEP::NEPEvent::NEWSTEP:
     {
+     // cout << "calling NEWSTEP" << endl;
       iterations.add(ev.curStep);
       actions.add(ev.action);
+      cutoffFreqs.add(ev.cutofffreq);
+      nPoints.add( (double) ev.npoints);
+      metrics.add(ev.metric);
       repaint();
     }
-    case NEP::NEPEvent::FINISHED:
-    {
-    }
+    break;
+
   }
 }
 
 
 void NEPUI::newMessage(const ContainerAsyncEvent &e)
 {
-
 }
 
 
