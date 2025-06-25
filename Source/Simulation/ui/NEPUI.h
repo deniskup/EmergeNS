@@ -4,6 +4,11 @@
 
 using namespace std;
 
+//class SpaceUI : public ShapeShifterContentComponent,
+//                public Simulation::AsyncSimListener,
+//                public Space::AsyncSpaceListener,
+//                public Timer,
+//                public ContainerAsyncListener
 
 
 class NEPUI : public ShapeShifterContentComponent,
@@ -19,25 +24,16 @@ public:
     
     std::unique_ptr<GenericControllableContainerEditor> editorUI;
   
-  
-    unique_ptr<TriggerUI> startDescentUI;
-    unique_ptr<TriggerUI> start_heteroclinic_studyUI;
-    unique_ptr<EnumParameterUI> sst_stableUI;
-    unique_ptr<EnumParameterUI> sst_saddleUI;
-    unique_ptr<IntStepperUI> NiterationsUI;
-    unique_ptr<IntStepperUI> nPointsUI;
-    unique_ptr<FloatParameterLabelUI> cutoffFreqUI;
-    unique_ptr<FloatParameterLabelUI> action_thresholdUI;
-    unique_ptr<FloatParameterLabelUI> timescale_factorUI;
-
-  
     juce::Viewport vp; // scrollable window
 
     // Action array
     Array<int> iterations;
     Array<double> actions;
+    Array<double> cutoffFreqs;
+    Array<double> nPoints;
+    Array<double> metrics;
   
-    void paintAxis(juce::Graphics &g, Rectangle<int> bounds, String type, int nticks, float max);
+    void paintAxis(juce::Graphics &g, Rectangle<int> bounds, String type, int nticks, float max, int ndigits);
   
     void paintOneMonitoredQuantity(juce::Graphics &, Rectangle<int>, String, Array<double>);
 
