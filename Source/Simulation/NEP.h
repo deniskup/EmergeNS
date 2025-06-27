@@ -47,6 +47,7 @@ typedef Array<PhaseSpaceVec> Trajectory;
 class MultiButterworthLowPass
 {
 public:
+  /*
   void prepare(double sampleRate, int numEntities)
   {
     filters.clear();
@@ -84,19 +85,26 @@ public:
     // I'm Here, check that this is not bullshit
     for (int ient=0; ient<numEntities; ient++)
     {
+      cout << "entity #" << ient << endl;
       // retrieve signal along current entity index
       vector<double> signal(np, 0.);
+      cout << "raw signal : ";
       for (int p=0; p<np; p++)
       {
         signal[p] = data.getUnchecked(p).getUnchecked(ient);
+        cout << signal[p] << " ";
         //signal.setUnchecked(p, data.getUnchecked(p).getUnchecked(ient));
       }
+      cout << endl;
       
+      cout << "filetred signal : ";
       // filtering
       for (int p=0; p<signal.size(); p++)
       {
         signal[p] = filters[ient]->processSample(signal[p]);
+        cout << signal[p] << " ";
       }
+      cout << endl;
       
       // Réinjection
       for (int p=0; p<np; p++)
@@ -111,15 +119,64 @@ public:
     
     
   }
+  */
 
-  void setCutoffFrequency(double newCutoffHz)
+  void setCutoffFrequency(double _cutoffHz)
   {
-    cutoffHz = newCutoffHz;
+    cutoffHz = _cutoffHz;
   }
+  
+  void setSamplingRate(double _sampRate)
+  {
+    sampRate = _sampRate;
+  }
+  
+  
+  void process(Array<Array<double>> & data)
+  {
+    if (data.size()==0)
+      return;
+    
+    const int nChannels = data.getUnchecked(0).size();
+    const int nSamples = data.size();
+    constexpr auto PI = 3.141592653589793f;
+    dnBuffer.resize(nChannels, 0.f);
+    
+    const double tan = std::tan(PI * cutoffHz / sampRate);
+    const double a1 = (tan - 1.f) / (tan + 1.f);
+    
+    for (int channel=0; channel<nChannels; channel++)
+    {
+      // retrieve signal for this particular channel
+      vector<double> channelSample;
+      for (int point=0; point<nSamples; point++)
+      {
+        channelSample.push_back(data.getUnchecked(point).getUnchecked(channel));
+      }
+      
+      for (int i=0; i<nSamples; i++)
+      {
+        double inputSample = channelSample[i];
+        double allpassFilteredSample = a1 * inputSample + dnBuffer[channel];
+        dnBuffer[channel] = inputSample - a1*allpassFilteredSample;
+        double filterOutput = 0.5f * (inputSample + allpassFilteredSample);
+        channelSample[i] = filterOutput;
+      }
+      
+      // write it to data
+      for (int i=0; i<nSamples; i++)
+      {
+        data.getUnchecked(i).setUnchecked(channel, channelSample[i]);
+      }
+      
+    }
+  } // end process method
 
 private:
     double cutoffHz = 1.;
-    juce::OwnedArray<juce::dsp::IIR::Filter<double>> filters;
+    double sampRate = 1.;
+    vector<double> dnBuffer;
+    juce::OwnedArray<juce::dsp::IIR::Filter<float>> filters;
 };
 
 
@@ -149,6 +206,14 @@ public:
   
   Simulation * simul;
   
+  enum NEPState
+  {
+    Descending,
+    Idle
+  };
+  
+  NEPState state = Idle;
+  
   // adjustable parameters
   Trigger * startDescent;
   Trigger * start_heteroclinic_study;
@@ -173,9 +238,10 @@ public:
   
   
   void reset();
+  void stop();
   void run() override; // thread function
   
-  void stop();
+  
   
   double evalHamiltonian(const StateVec q, const StateVec p);
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
@@ -267,7 +333,6 @@ private:
   double sampleRate;
   
   // #para
-  double deltaActionth = 1e-4;
   double stepDescentThreshold = 1e-4;
   double stepDescent = 0.1;
   
@@ -277,10 +342,11 @@ private:
   // for printing history to file
   Array<double> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  Array<Trajectory> dAdqDescent; // keep track of gradient history
   
   
   
-  
+  void debugFiltering();
   
 
    

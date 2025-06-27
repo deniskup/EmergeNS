@@ -212,6 +212,7 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
   if (t == startDescent)
   {
     stopThread(10);
+    //state = Descending;
     startThread();
   }
   if (t == start_heteroclinic_study)
@@ -655,7 +656,8 @@ void NEP::checkGradH()
   StateVec qInter;
   for (int m=0; m<qI.size(); m++)
   {
-    qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
+    //qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
+    qInter.add(qI.getUnchecked(m));
   }
   
   cout << "qIntermediate = ";
@@ -663,7 +665,7 @@ void NEP::checkGradH()
     cout << q << " ";
   cout << endl;
   
-  StateVec ptest = {0.1, 0.2};
+  StateVec ptest = {0., 0.};
   cout << "using ptest = ";
   for (auto & p : ptest)
     cout << p << " ";
@@ -757,7 +759,8 @@ void NEP::checkGradH2()
   StateVec qInter;
   for (int m=0; m<qI.size(); m++)
   {
-    qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
+    //qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
+    qInter.add(qI.getUnchecked(m));
   }
   
   cout << "qIntermediate = ";
@@ -765,7 +768,7 @@ void NEP::checkGradH2()
     cout << q << " ";
   cout << endl;
   
-  StateVec ptest = {0.1, 0.2};
+  StateVec ptest = {0., 0.};
   cout << "using ptest = ";
   for (auto & p : ptest)
     cout << p << " ";
@@ -844,6 +847,13 @@ void NEP::reset()
 }
 
 
+void NEP::stop()
+{
+  state = Idle;
+  cout << "[DEBUG] stop() NEP state = " << state << endl;
+}
+
+
 
 // start thread
 void NEP::run()
@@ -853,11 +863,17 @@ void NEP::run()
   simul->affectSATIds();
   reset();
   
- /* for debugging gradient calculations
+  /*
+  //for debugging gradient calculations
   checkGradH();
   checkGradH2();
   return;
-*/
+  */
+  /*
+   //for debugging the filtering step
+  debugFiltering();
+   return;
+   */
   
   // has bad behavior for now, trajectory eventually diverges
   // need deeper understanding
@@ -952,14 +968,42 @@ void NEP::run()
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
     trajDescent.add(newtraj);
     
+    // plot dA / dq
+    Array<StateVec> dAdq;
+    for (int point=0; point<nPoints->intValue(); point++)
+    {
+      StateVec dHdqk = evalHamiltonianGradientWithQ(qcurve.getUnchecked(point), pcurve.getUnchecked(point));
+      StateVec dpdtk;
+      dpdtk.insertMultiple(0, 0., nPoints->intValue());
+      if (point>0 && point<(nPoints->intValue()-1))
+      {
+        for (int m=0; m<dHdqk.size(); m++)
+        {
+          double dpm = liftoptres.opt_momentum.getUnchecked(point).getUnchecked(m) - liftoptres.opt_momentum.getUnchecked(point-1.).getUnchecked(m);
+          double dtm = 0.5*(liftoptres.opt_deltaT.getUnchecked(point) + liftoptres.opt_deltaT.getUnchecked(point-1));
+          dpdtk.setUnchecked(m, dpm/dtm);
+        }
+      }
+      
+      StateVec dAdqk;
+      for (int m=0; m<dHdqk.size(); m++)
+      {
+        dAdqk.add(-dHdqk.getUnchecked(m) - dpdtk.getUnchecked(m));
+      }
+      
+      dAdq.add(dAdqk);
+    }
+    dAdqDescent.add(dAdq);
+    
+    
     // update action value
     cout << "calculating action" << endl;
     double newaction = calculateAction(qcurve, pcurve, times);
     double diffAction = abs(action - newaction);
-    actionDescent.add(newaction);
+    actionDescent.add(diffAction);
     
     // message to async to monitor the descent
-    cout << "in NEP : " << newaction << " " << cutoffFreq->floatValue() << " " << nPoints->intValue() << " " << metric << endl;
+    cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
     nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric));
     
     // check algorithm descent status
@@ -977,9 +1021,6 @@ void NEP::run()
     // keep track of action history
     cout << "action = " << action << endl;
     
-    //if (action < action_threshold->floatValue())
-    //  break;
-    
     cout << "updating concentration curve" << endl;
     // now update the concentration trajectory with functionnal gradient descent
     // this function update global variable qcurve
@@ -994,6 +1035,7 @@ void NEP::run()
   cout << "writing to file" << endl;
   writeDescentToFile();
   
+  stop();
   
   
 }
@@ -1290,22 +1332,26 @@ void NEP::initConcentrationCurve()
 
 void NEP::filterConcentrationTrajectory()
 {
+  cout << "filtering concentration curve" << endl;
   // filter the gradient
+  //filter.setCutoffFrequency(cutoffFreq->floatValue());
+  //filter.prepare(sampleRate, simul->entities.size());
+  filter.setSamplingRate(sampleRate);
   filter.setCutoffFrequency(cutoffFreq->floatValue());
-  filter.prepare(sampleRate, simul->entities.size());
   filter.process(qcurve);
 }
 
 
 void NEP::updateDescentParams()
 {
+  cout << "updating descent params" << endl;
   cutoffFreq->setValue(cutoffFreq->floatValue() + 10.);
 }
 
 
 bool NEP::descentShouldUpdateParams(double diffAction)
 {
-  return ((diffAction<deltaActionth || stepDescent<stepDescentThreshold));
+  return ((diffAction<action_threshold->floatValue() || stepDescent<stepDescentThreshold));
 }
 
 
@@ -1321,10 +1367,14 @@ void NEP::writeDescentToFile()
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",dAdq_" << ent->name;
   historyFile << endl;
   cout << "action descent size :" << actionDescent.size() << endl;
   cout << "trajDescent descent size :" << trajDescent.size() << endl;
-  jassert(actionDescent.size() == trajDescent.size()); // HERE
+  cout << "grad Descent size :" << dAdqDescent.size() << endl;
+  jassert(actionDescent.size() == trajDescent.size());
+  jassert(actionDescent.size() == dAdqDescent.size());
   
   for (int iter=0; iter<actionDescent.size(); iter++)
   {
@@ -1332,11 +1382,14 @@ void NEP::writeDescentToFile()
     {
       historyFile << iter << "," << actionDescent.getUnchecked(iter) << "," << point;
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       //cout << "trajectory size : " << trajpq.size() << endl;
       for (int m=0; m<trajpq.size()/2; m++)
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
+      for (int m=0; m<dAdq.size(); m++)
+        historyFile << "," << dAdq.getUnchecked(m);
       historyFile << endl;
     } // end loop over points in current iteration
     //historyFile << endl;
@@ -1416,8 +1469,10 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
   
   
   // filter the gradient
+  //filter.setCutoffFrequency(cutoffFreq->floatValue());
+  //filter.prepare(sampleRate, simul->entities.size());
+  filter.setSamplingRate(sampleRate);
   filter.setCutoffFrequency(cutoffFreq->floatValue());
-  filter.prepare(sampleRate, simul->entities.size());
   filter.process(dAdq);
   
   
@@ -1861,3 +1916,262 @@ void NEP::newMessage(const ContainerAsyncEvent &e)
 
 }
 
+
+
+
+void NEP::debugFiltering()
+{
+  state = Idle;
+  cout << "debugFiltering" << endl;
+  //data
+  cout << "##" << endl;
+  Trajectory traj;
+  cout << "#0" << endl;
+  traj.add({1.00115,1.00115});
+  cout << "#1" << endl;
+  traj.add({1.00662,1.00163});
+  traj.add({1.01103,1.00215});
+  traj.add({1.01386,1.00272});
+  traj.add({1.01518,1.00332});
+  traj.add({1.01537,1.00389});
+  traj.add({1.01493,1.00441});
+  traj.add({1.01431,1.00484});
+   //iteration,action,point,q_X1,q_X2,p_X1,p_X2,dAdq_X1,dAdq_X2
+  traj.add({1.01388,1.00517});
+  traj.add({1.01385,1.00541});
+  traj.add({1.01432,1.00557});
+traj.add({1.01527,1.0057});
+traj.add({1.01663,1.00583});
+traj.add({1.0183,1.00597});
+traj.add({1.02019,1.00616});
+traj.add({1.0222,1.0064});
+traj.add({1.02428,1.0067});
+  traj.add({1.02639,1.00704});
+  traj.add({1.02852,1.00743});
+  traj.add({1.03068,1.00786});
+  traj.add({1.03289,1.00831});
+  traj.add({1.03518,1.00877});
+  traj.add({1.03756,1.00924});
+  traj.add({1.04007,1.00971});
+  traj.add({1.04272,1.01018});
+  cout << "#2" << endl;
+  traj.add({1.04554,1.01065});
+  traj.add({1.04853,1.01113});
+  traj.add({1.05171,1.0116});
+  traj.add({1.05508,1.01209});
+  traj.add({1.05866,1.01259});
+  traj.add({1.06243,1.01309});
+  traj.add({1.06642,1.01361});
+  traj.add({1.07063,1.01414});
+  traj.add({1.07506,1.01469});
+  traj.add({1.07972,1.01525});
+  traj.add({1.08461,1.01582});
+  traj.add({1.08975,1.0164});
+  traj.add({1.09513,1.017});
+  traj.add({1.10077,1.01761});
+  traj.add({1.10666,1.01823});
+  traj.add({1.11281,1.01886});
+  traj.add({1.11923,1.01949});
+  traj.add({1.1259,1.02014});
+  traj.add({1.13285,1.02079});
+  traj.add({1.14006,1.02145});
+  traj.add({1.14753,1.02211});
+  traj.add({1.15526,1.02278});
+  traj.add({1.16324,1.02346});
+  traj.add({1.17147,1.02413});
+  traj.add({1.17993,1.02482});
+  traj.add({1.18863,1.0255});
+  traj.add({1.19754,1.02619});
+  traj.add({1.20666,1.02687});
+  traj.add({1.21597,1.02756});
+  traj.add({1.22545,1.02825});
+  traj.add({1.2351,1.02893});
+  traj.add({1.2449,1.02962});
+  traj.add({1.25482,1.0303});
+  traj.add({1.26486,1.03098});
+  traj.add({1.275,1.03165});
+           traj.add({1.28521,1.03233});
+      traj.add({1.29548,1.03299});
+  traj.add({1.3058,1.03365});
+  traj.add({1.31615,1.03431});
+  traj.add({1.32651,1.03496});
+  traj.add({1.33686,1.0356});
+  traj.add({1.34719,1.03624});
+  traj.add({1.3575,1.03687});
+  traj.add({1.36776,1.0375});
+  traj.add({1.37796,1.03812});
+  traj.add({1.38809,1.03873});
+  traj.add({1.39815,1.03933});
+  traj.add({1.40813,1.03993});
+  traj.add({1.41801,1.04052});
+  traj.add({1.42779,1.0411});
+  traj.add({1.43747,1.04167});
+  traj.add({1.44703,1.04224});
+  traj.add({1.45648,1.0428});
+  traj.add({1.46582,1.0433});
+  traj.add({1.47504,1.04391});
+  traj.add({1.48413,1.04445});
+  traj.add({1.4931,1.04498});
+  traj.add({1.50195,1.04551});
+  traj.add({1.51068,1.04603});
+  traj.add({1.51928,1.04655});
+  traj.add({1.52776,1.0470});
+  traj.add({1.53612,1.04756});
+  traj.add({1.54436,1.04806});
+  traj.add({1.55249,1.04856});
+  traj.add({1.56049,1.04905});
+  traj.add({1.56839,1.04953});
+  traj.add({1.57617,1.05001});
+  traj.add({1.58384,1.05048});
+  traj.add({1.5914,1.05095});
+  traj.add({1.59886,1.05142});
+  traj.add({1.60621,1.05188});
+  traj.add({1.61347,1.05234});
+  traj.add({1.62063,1.05279});
+  traj.add({1.62769,1.05324});
+               traj.add({1.63466,1.05368});
+  traj.add({1.64155,1.05413});
+  traj.add({1.64834,1.05456});
+  traj.add({1.65505,1.055});
+               traj.add({1.66168,1.05543});
+               traj.add({1.66823,1.05586});
+               traj.add({1.6747,1.05629});
+               traj.add({1.6811,1.05671});
+               traj.add({1.68743,1.05713});
+               traj.add({1.69368,1.05755});
+               traj.add({1.69987,1.05797});
+               traj.add({1.706,1.05838});
+                 traj.add({1.71206,1.05879});
+                          traj.add({1.71806,1.0592});
+                          traj.add({1.724,1.05961});
+                          traj.add({1.72988,1.06001});
+                          traj.add({1.73571,1.06041});
+                          traj.add({1.74148,1.06082});
+                          traj.add({1.74721,1.06122});
+                          traj.add({1.75288,1.06161});
+                          traj.add({1.75851,1.06201});
+                          traj.add({1.76409,1.06241});
+                          traj.add({1.76963,1.0628});
+                          traj.add({1.77512,1.06319});
+                          traj.add({1.78058,1.06358});
+                          traj.add({1.78599,1.06397});
+                          traj.add({1.79137,1.06436});
+                          traj.add({1.79671,1.06475});
+                          traj.add({1.80201,1.06514});
+                          traj.add({1.80728,1.06552});
+                          traj.add({1.81252,1.06591});
+                          traj.add({1.81773,1.06629});
+                          traj.add({1.82291,1.06668});
+                          traj.add({1.82806,1.06706});
+                          traj.add({1.83318,1.06744});
+                          traj.add({1.83828,1.06783});
+                          traj.add({1.84335,1.06821});
+                          traj.add({1.8484,1.06859});
+                          traj.add({1.85343,1.06897});
+                          traj.add({1.85844,1.06935});
+                          traj.add({1.86342,1.06973});
+                          traj.add({1.86839,1.07011});
+                          traj.add({1.87334,1.07049});
+                          traj.add({1.87827,1.07087});
+                          traj.add({1.88318,1.07125});
+                          traj.add({1.88808,1.07163});
+                          traj.add({1.89297,1.07201});
+                          traj.add({1.89784,1.07239});
+                          traj.add({1.9027,1.07277});
+                          traj.add({1.90754,1.07315});
+                          traj.add({1.91238,1.07354});
+                          traj.add({1.91721,1.07392});
+                          traj.add({1.92202,1.0743});
+                          traj.add({1.92683,1.07468});
+                          traj.add({1.93163,1.07506});
+                          traj.add({1.93643,1.07544});
+                          traj.add({1.94121,1.07582});
+                          traj.add({1.946,1.07621});
+                          traj.add({1.95078,1.07659});
+                          traj.add({1.95555,1.07698});
+                          traj.add({1.96032,1.07736});
+                          traj.add({1.96509,1.07774});
+                          traj.add({1.96986,1.07813});
+                          traj.add({1.97462,1.07852});
+                          traj.add({1.97939,1.0789});
+                          traj.add({1.98415,1.07929});
+                          traj.add({1.98892,1.07968});
+                          traj.add({1.99368,1.08007});
+                          traj.add({1.99845,1.08046});
+                          traj.add({2.00323,1.08085});
+                          traj.add({2.008,1.08124});
+                          traj.add({2.01278,1.08164});
+                          traj.add({2.01756,1.08203});
+                          traj.add({2.02235,1.08242});
+                          traj.add({2.02714,1.08282});
+                          traj.add({2.03194,1.08322});
+                          traj.add({2.03675,1.08361});
+                          traj.add({2.04156,1.08401});
+                          traj.add({2.04638,1.08441});
+                          traj.add({2.05121,1.08481});
+                          traj.add({2.05604,1.08522});
+                          traj.add({2.06089,1.08562});
+                          traj.add({2.06574,1.08602});
+                          traj.add({2.07061,1.08643});
+                          traj.add({2.07548,1.08684});
+                          traj.add({2.08037,1.08725});
+                          traj.add({2.08527,1.08766});
+                          traj.add({2.09018,1.08807});
+                          traj.add({2.0951,1.08848});
+                          traj.add({2.10003,1.08889});
+                          traj.add({2.10498,1.08931});
+             traj.add({2.10994,1.08972});
+             traj.add({2.11491,1.09014});
+             traj.add({2.1199,1.09056});
+             traj.add({2.1249,1.09098});
+             traj.add({2.12992,1.0914});
+             traj.add({2.13495,1.0918});
+             traj.add({2.14,1.09225});
+             traj.add({2.14507,1.09268});
+             traj.add({2.15015,1.09311});
+             traj.add({2.15525,1.09354});
+  
+  cout << "flag A0" << endl;
+   
+  Trajectory trajfilter = traj;
+  
+  float sr = (float) curveLength(traj) / float(traj.size());
+  filter.setCutoffFrequency(cutoffFreq->floatValue());
+  //filter.prepare(sr, simul->entities.size());
+  filter.setSamplingRate(sr);
+  filter.setCutoffFrequency(cutoffFreq->floatValue());
+  filter.process(trajfilter);
+  
+  cout << "flag A" << endl;
+  
+  // open output file
+  String filename = "debug-filtering.csv";
+  ofstream historyFile;
+  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+  
+  historyFile << "point";
+  for (auto & ent : simul->entities)
+    historyFile << ",q_" << ent->name << ",qfilt_" << ent->name;
+  historyFile << endl;
+
+  cout << "flag B" << endl;
+  cout << traj.size() << " " << trajfilter.size() << endl;
+
+    for (int point=0; point<traj.size(); point++)
+    {
+      historyFile << point;
+      StateVec q = traj.getUnchecked(point);
+      StateVec qfilt = trajfilter.getUnchecked(point);
+      
+      for (int m=0; m<q.size(); m++)
+      {
+        historyFile << "," << q.getUnchecked(m) << "," << qfilt.getUnchecked(m);
+      }
+      historyFile << endl;
+    } // end loop over points in current iteration
+    //historyFile << endl;
+  
+  cout << "END debugFiltering" << endl;
+  state = Idle;
+  
+}

@@ -233,6 +233,12 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
 
 void NEPUI::paint(juce::Graphics & g)
 {
+  
+  if (nep->state != NEP::NEPState::Descending)
+    return;
+  
+  cout << "calling paint ? NEP state : " << nep->state << endl;
+  
   if (iterations.size()==0)
     return;
   /*
