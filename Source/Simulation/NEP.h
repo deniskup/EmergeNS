@@ -23,12 +23,17 @@
 #pragma once
 
 #include "JuceHeader.h"
-//#include "Simulation.h"
 #include "nlopt.hpp"
-#include "Simulation.h"
-//#include "Settings.h"
+//#include "Simulation.h"
+
+class Simulation;
+
+using namespace std;
 
 //class Simulation;
+//class Simulation::SimulationEvent;
+//class Simulation::AsyncSimListener;
+
 using namespace juce;
 
 // some typedef for readability
@@ -192,14 +197,12 @@ class LiftTrajectoryOptResults
 
 
 
-class NEP : public ControllableContainer, public Thread, public Simulation::AsyncSimListener, public ContainerAsyncListener
+class NEP : public ControllableContainer, public Thread/*, public Simulation::AsyncSimListener, public ContainerAsyncListener*/
 
 {
 public:
   juce_DeclareSingleton(NEP, true);
   NEP();
-  //NEP(Simulation *simul) : ControllableContainer("NEP"), Thread("NEP"), simul(simul),  nepNotifier(1000) {};
-  //NEP(Simulation *simul);
 
   NEP(var data); // import from JSON
   ~NEP();
@@ -252,9 +255,9 @@ public:
   void loadJSONData(var data, bool createIfNotThere = false) override;
   
     
-  void newMessage(const Simulation::SimulationEvent &e) override;
+  //void newMessage(const Simulation::SimulationEvent &e) override;
   
-  void newMessage(const ContainerAsyncEvent &e) override;
+  //void newMessage(const ContainerAsyncEvent &e) override;
   
   
   void checkGradH();

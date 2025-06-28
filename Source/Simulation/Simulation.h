@@ -16,6 +16,8 @@ using namespace std;
 
 class Entity;
 class Reaction;
+//class NEP;
+
 /*
 class ConcentrationGrid // represents concentrations of entities over all the space grid
 {
@@ -295,7 +297,7 @@ public:
 	public:
 		enum Type
 		{
-			UPDATEPARAMS,
+      UPDATEPARAMS,
 			WILL_START,
 			STARTED,
 			NEWSTEP,

@@ -20,45 +20,15 @@ NEPUI::NEPUI() : ShapeShifterContentComponent(NEP::getInstance()->niceName),
   nep->addAsyncNEPListener(this);
   nep->addAsyncContainerListener(this);
   
- /*
-    // reset components
-    startDescentUI.reset(nep->startDescent->createButtonUI());
-    start_heteroclinic_studyUI.reset(nep->start_heteroclinic_study->createButtonUI());
-    sst_stableUI.reset(nep->sst_stable->createUI());
-    sst_saddleUI.reset(nep->sst_saddle->createUI());
-    NiterationsUI.reset(nep->Niterations->createStepper());
-    nPointsUI.reset(nep->nPoints->createStepper());
-    cutoffFreqUI.reset(nep->cutoffFreq->createLabelParameter());
-    action_thresholdUI.reset(nep->action_threshold->createLabelParameter());
-    timescale_factorUI.reset(nep->timescale_factor->createLabelParameter());
-  
-    startDescentUI->setSize(150, 20);
-    start_heteroclinic_studyUI->setSize(150, 20);
-    sst_stableUI->setSize(150, 20);
-    sst_saddleUI->setSize(150, 20);
-    NiterationsUI->setSize(150, 20);
-    nPointsUI->setSize(150, 20);
-    cutoffFreqUI->setSize(150, 20);
-    action_thresholdUI->setSize(150, 20);
-    timescale_factorUI->setSize(150, 20);
-  */
-  /*
-    addAndMakeVisible(startDescentUI.get());
-    addAndMakeVisible(start_heteroclinic_studyUI.get());
-    addAndMakeVisible(sst_stableUI.get());
-    addAndMakeVisible(sst_saddleUI.get());
-    addAndMakeVisible(NiterationsUI.get());
-    addAndMakeVisible(nPointsUI.get());
-    addAndMakeVisible(cutoffFreqUI.get());
-    addAndMakeVisible(action_thresholdUI.get());
-    addAndMakeVisible(timescale_factorUI.get());
-*/
+
   
 }
 
 NEPUI::~NEPUI()
 {
   nep->removeAsyncNEPListener(this);
+  nep->removeAsyncContainerListener(this);
+
 }
 
 // #HERE
@@ -290,9 +260,11 @@ void NEPUI::paint(juce::Graphics & g)
 
 void NEPUI::resized()
 {
+  cout << "NEPUI::resized()" << endl;
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     vp.setBounds(r);
+  cout << "END NEPUI::resized()" << endl;
 }
 
 
@@ -318,14 +290,9 @@ bool NEPUI::keyPressed(const KeyPress &e)
 
 void NEPUI::timerCallback()
 {
-  /*
-  if (shouldRepaint)
-  {
-    repaint();
-    shouldRepaint = false;
-  }
-  */
+
 }
+
 
 void NEPUI::newMessage(const NEP::NEPEvent &ev)
 {
