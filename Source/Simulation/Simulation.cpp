@@ -5,6 +5,7 @@
 #include "Settings.h"
 #include "Statistics.h"
 #include "Util.h"
+#include "NEP.h"
 
 // #include <SimpleXlsxWriter.hpp> // Inclure la bibliothèque C++ Excel
 
@@ -150,6 +151,7 @@ void Simulation::clearParams()
   steadyStatesList->arraySteadyStates.clear();
   steadyStatesList->nGlobStable = 0;
   steadyStatesList->nPartStable = 0;
+  steadyStatesList->nSaddle = 0;
   //steadyStatesList->stableStates.clear();
   //steadyStatesList->partiallyStableStates.clear();
 }
@@ -214,6 +216,10 @@ void Simulation::updateParams()
   
   // set space
   updateSpaceGridSizeInSimu();
+  
+  // update steady state list in NEP class
+  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATENEPPARAMS, this));
+  NEP::getInstance()->updateSteadyStateList();
   
   //}
   // update the parameters of the simulation in the UI

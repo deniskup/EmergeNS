@@ -5,6 +5,8 @@
 //
 
 #include "NEP.h"
+#include "Simulation.h"
+
 
 juce_ImplementSingleton(NEP);
 
@@ -163,8 +165,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   updateSteadyStateList();
   
   // set this class as simulation listener
-  simul->addAsyncSimulationListener(this);
-  simul->addAsyncContainerListener(this);
+  //simul->addAsyncSimulationListener(this);
+  //simul->addAsyncContainerListener(this);
   
 
 
@@ -175,8 +177,8 @@ NEP::NEP() : ControllableContainer("NEP"),
 
 NEP::~NEP()
 {
-  simul->removeAsyncSimulationListener(this);
-  simul->removeAsyncContainerListener(this);
+  //simul->removeAsyncSimulationListener(this);
+  //simul->removeAsyncContainerListener(this);
 }
 
 
@@ -185,17 +187,16 @@ void NEP::updateSteadyStateList()
   // set options
   sst_stable->clearOptions();
   sst_saddle->clearOptions();
-  cout << "[DEBUG] : setting steady state choices to size : " << simul->steadyStatesList->arraySteadyStates.size() << endl;
   for (int k=0; k<simul->steadyStatesList->arraySteadyStates.size(); k++)
   {
     SteadyState sst = simul->steadyStatesList->arraySteadyStates.getUnchecked(k);
     if (sst.isBorder)
       continue;
-    /*
-     TODO : options to add should depend on stability of steady states
-     */
-    sst_stable->addOption(String(k), k);
-    sst_saddle->addOption(String(k), k);
+    
+    if (sst.isStable)
+      sst_stable->addOption(String(k), k);
+    else if (!sst.isStable)
+      sst_saddle->addOption(String(k), k);
   }
   
 }
@@ -1877,7 +1878,7 @@ void NEP::loadJSONData(var data, bool createIfNotThere)
 }
 
 
-
+/*
 void NEP::newMessage(const Simulation::SimulationEvent &ev)
 {
   switch (ev.type)
@@ -1915,7 +1916,7 @@ void NEP::newMessage(const ContainerAsyncEvent &e)
 {
 
 }
-
+*/
 
 
 
