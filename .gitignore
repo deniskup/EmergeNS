@@ -36,3 +36,6 @@ Builds/VisualStudio2022_CI/EmergeNS_App.vcxproj
 Builds/VisualStudio2022_CI/icon.ico
 Builds/LinuxMakefile_CI/Makefile
 ReactionSystems/model_001.ens
+ReactionSystems/z3satmodel.txt
+ReactionSystems/z3satmodel.txt
+ReactionSystems/dummy.txt

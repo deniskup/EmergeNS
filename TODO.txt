@@ -1,5 +1,6 @@
 -still problems of links Simentity <-> entity <-> PACs
 stuff is sometimes not imported automatically, e.g. "draw", and list->simuls still necessary, to solve.
+when creating new file, and adding entities manually, we have to import them in the simulation at the beginning. one solution: if no simulation loaded, apply list->simul (when user list mode is enabled)
 
 -CAC seems weird, for install on model 004, when starting from CAC witness 1 or 2, only RAC 1 shows despite different curves.
 
