@@ -226,6 +226,7 @@ public:
   IntParameter * Niterations;
   IntParameter * nPoints;
   FloatParameter * cutoffFreq;
+  FloatParameter * maxcutoffFreq;
   FloatParameter * action_threshold ;
   FloatParameter * timescale_factor;
 
@@ -309,10 +310,13 @@ private:
   void updateDescentParams();
   
   bool descentShouldUpdateParams(double);
+  
+  bool descentShouldContinue(int);
 
   LiftTrajectoryOptResults liftCurveToTrajectory();
   
-  void updateOptimalConcentrationCurve(const Array<StateVec> popt, const Array<double> deltaTopt);
+  void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
+  void updateOptimalConcentrationCurve();
 
   double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
@@ -331,13 +335,15 @@ private:
   Array<double> times;
   double action;
   double metric = 1.; // distance from hamilton's equation of motion
+  Array<StateVec> dAdq, dAdq_filt;
+
   
   // sample rate, calculated from current qcurve
   double sampleRate;
   
   // #para
   double stepDescentThreshold = 1e-4;
-  double stepDescent = 0.1;
+  double stepDescent = 1.;
   
   // for filtering
   MultiButterworthLowPass filter;
@@ -346,10 +352,15 @@ private:
   Array<double> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   Array<Trajectory> dAdqDescent; // keep track of gradient history
+  Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   
   
   
   void debugFiltering();
+  
+  bool debug = true;
+  ofstream debugfile;
+
   
 
    
