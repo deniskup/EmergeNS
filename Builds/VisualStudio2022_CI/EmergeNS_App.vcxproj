@@ -2716,7 +2716,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\utilities\juce_Interpolators.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\utilities\juce_Reverb.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\utilities\juce_SmoothedValue.h"/>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\juce_audio_basics.h"/>
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_audio_basics\juce_audio_basics.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\libFLAC\include\private\bitmath.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\libFLAC\include\private\bitreader.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\codecs\flac\libFLAC\include\private\bitwriter.h"/>
@@ -2813,7 +2813,7 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\format\juce_BufferingAudioFormatReader.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\format\juce_MemoryMappedAudioFormatReader.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\sampler\juce_Sampler.h"/>
-    <ClInclude Include="..\..\..\JUCE\modules\juce_audio_formats\juce_audio_formats.h"/>
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_audio_formats\juce_audio_formats.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_AbstractFifo.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_Array.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_core\containers\juce_ArrayAllocationBase.h"/>
@@ -2975,6 +2975,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_core\juce_core.h"/>
 =======
 <<<<<<< HEAD
@@ -2992,12 +2993,16 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_core\juce_core.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_core\juce_core.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_BlowFish.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_Primes.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\encryption\juce_RSAKey.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_MD5.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_SHA256.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_cryptography\hashing\juce_Whirlpool.h"/>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3019,6 +3024,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_cryptography\juce_cryptography.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\app_properties\juce_PropertiesFile.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\undomanager\juce_UndoableAction.h"/>
@@ -3028,6 +3036,7 @@
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTree.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTreePropertyWithDefault.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_data_structures\values\juce_ValueTreeSynchroniser.h"/>
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3050,6 +3059,9 @@
 <<<<<<< HEAD
 >>>>>>> c0c80a3 (Progress on NEP implementation)
 =======
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\containers\juce_AudioBlock.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\containers\juce_SIMDRegister.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\containers\juce_SIMDRegister_Impl.h"/>
@@ -3095,11 +3107,15 @@
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\widgets\juce_Phaser.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\widgets\juce_Reverb.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\widgets\juce_WaveShaper.h"/>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\JUCE\modules\juce_dsp\juce_dsp.h"/>
 <<<<<<< HEAD
 >>>>>>> 843b997 (Progress on NEP implementation)
 =======
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_dsp\juce_dsp.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionBroadcaster.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_ActionListener.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_events\broadcasters\juce_AsyncUpdater.h"/>
@@ -3134,6 +3150,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_events\juce_events.h"/>
 =======
 <<<<<<< HEAD
@@ -3151,6 +3168,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_events\juce_events.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_events\juce_events.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colour.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_ColourGradient.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_graphics\colour\juce_Colours.h"/>
@@ -3214,6 +3234,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_graphics\juce_graphics.h"/>
 =======
 <<<<<<< HEAD
@@ -3231,6 +3252,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_graphics\juce_graphics.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_graphics\juce_graphics.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityActions.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityEvent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_basics\accessibility\enums\juce_AccessibilityRole.h"/>
@@ -3438,6 +3462,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
 =======
 <<<<<<< HEAD
@@ -3455,6 +3480,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeDocument.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeEditorComponent.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_gui_extra\code_editor\juce_CodeTokeniser.h"/>
@@ -3486,6 +3514,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
 =======
 <<<<<<< HEAD
@@ -3503,6 +3532,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_gui_extra\juce_gui_extra.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Draggable3DOrientation.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Matrix3D.h"/>
     <ClInclude Include="..\..\JUCE\modules\juce_opengl\geometry\juce_Quaternion.h"/>
@@ -3531,6 +3563,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_opengl\juce_opengl.h"/>
 =======
 <<<<<<< HEAD
@@ -3548,6 +3581,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_opengl\juce_opengl.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_opengl\juce_opengl.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\Modules\juce_organicui\app\CrashHandler.h"/>
     <ClInclude Include="..\..\Modules\juce_organicui\app\OrganicApplication.h"/>
     <ClInclude Include="..\..\Modules\juce_organicui\app\OrganicMainComponent.h"/>
@@ -3765,6 +3801,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\Software\JUCE\modules\juce_osc\juce_osc.h"/>
 =======
 <<<<<<< HEAD
@@ -3782,6 +3819,9 @@
 =======
     <ClInclude Include="..\..\..\JUCE\modules\juce_osc\juce_osc.h"/>
 >>>>>>> d54b9f5 (fix conflicts due to bad merging)
+=======
+    <ClInclude Include="..\..\..\JUCE\JUCE\modules\juce_osc\juce_osc.h"/>
+>>>>>>> 7a1614b (Produce debug file)
     <ClInclude Include="..\..\JuceLibraryCode\BinaryData.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>

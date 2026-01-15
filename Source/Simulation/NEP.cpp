@@ -156,6 +156,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   nPoints = addIntParameter("Sampling points", "Number of sampling points", 100);
 
   cutoffFreq = addFloatParameter("Cutoff frequency", "frequency of low-pass filtering used by the descent algorithm", 4.);
+
+  maxcutoffFreq = addFloatParameter("Max. cutoff frequency", "max. frequency of low-pass filtering, after what descent will stop.", 100.);
   
   action_threshold = addFloatParameter("Action threshold", "Descent will stop when action threshold is reached", 0.01);
   
@@ -213,7 +215,7 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
   if (t == startDescent)
   {
     stopThread(10);
-    //state = Descending;
+    state = Descending;
     startThread();
   }
   if (t == start_heteroclinic_study)
@@ -845,6 +847,12 @@ void NEP::reset()
   qcurve.clear();
   pcurve.clear();
   times.clear();
+  dAdq.clear();
+  dAdq_filt.clear();
+  action = 10.;
+  length_qcurve = 0.;
+  stepDescent = 1.;
+  //cutoffFreq TODO : should reset as well ?
 }
 
 
@@ -939,6 +947,13 @@ void NEP::run()
   
 */
   
+  if (debug)
+  {
+    debugfile.open("DEBUG.txt", ofstream::out | ofstream::trunc);
+    debugfile << "\t\t\t------ DEBUG ------" << endl;
+    debugfile << "Descent parameters" << endl;
+    debugfile << "sampling points : " << nPoints->intValue() << endl;
+  }
   
   // init concentration curve
   cout << "init qcurve" << endl;
@@ -946,10 +961,38 @@ void NEP::run()
   
   int count = 0;
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
-  while (count < Niterations->intValue() && !threadShouldExit())
+  //while (count < Niterations->intValue() && !threadShouldExit())
+  while (descentShouldContinue(count+1) && !threadShouldExit())
   {
     count++;
+    if (count==1)
+      cout << "initial value of action = " << action << endl;
     cout << "iteration #" << count << endl;
+    
+    if (count>1)
+    {
+      stepDescent = backTrackingMethodForStepSize(qcurve, dAdq_filt);
+      updateOptimalConcentrationCurve();
+    }
+    
+    if (debug)
+    {
+      debugfile << "\nIteration " << count << endl;
+      debugfile << "-- concentration curve --" << endl;
+      for (int p=0; p<nPoints->intValue(); p++)
+      {
+        debugfile << "(";
+        int c=0;
+        for (auto & qm : qcurve.getUnchecked(p))
+        {
+          string comma = (c == qcurve.getUnchecked(p).size()-1 ? ") " : ",");
+          debugfile << qm << comma ;
+          c++;
+        }
+      }
+      debugfile << endl;
+    }
+    
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables pcurve and times
     cout << "lifting trajectory" << endl;
@@ -969,8 +1012,56 @@ void NEP::run()
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
     trajDescent.add(newtraj);
     
-    // plot dA / dq
-    Array<StateVec> dAdq;
+    if (debug)
+    {
+      debugfile << "-- momentum curve --" << endl;
+      for (int p=0; p<nPoints->intValue(); p++)
+      {
+        debugfile << "(";
+        int c=0;
+        for (auto & pm : pcurve.getUnchecked(p))
+        {
+          string comma = (c == pcurve.getUnchecked(p).size()-1 ? ") " : ",");
+          debugfile << pm << comma ;
+          c++;
+        }
+      }
+      debugfile << endl;
+    }
+  
+    
+    // calculate action value
+    cout << "calculating action" << endl;
+    double newaction = calculateAction(qcurve, pcurve, times);
+    double diffAction = abs(action - newaction);
+    //actionDescent.add(diffAction);
+    actionDescent.add(newaction);
+    
+    if (debug)
+    {
+      debugfile << "-- Action --" << endl;
+      debugfile << "S = " << newaction << " & deltaS = " << diffAction << endl;
+    }
+    
+    // message to async to monitor the descent
+    cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric));
+    
+    
+    // check algorithm descent status
+    bool shouldUpdate = descentShouldUpdateParams(diffAction);
+    if (shouldUpdate && count>1)
+    {
+      updateDescentParams();
+      filterConcentrationTrajectory(); //TODO : in gagrani & smith here they use a time parametrization
+      stepDescent = 1.;
+      // increase sampling of concentration curve is optionnal. Not implemented at the moment.
+      //continue; // next iteration using the filtered qcurve
+    }
+    
+    
+    // dA / dq
+//    Array<StateVec> dAdq;
     for (int point=0; point<nPoints->intValue(); point++)
     {
       StateVec dHdqk = evalHamiltonianGradientWithQ(qcurve.getUnchecked(point), pcurve.getUnchecked(point));
@@ -996,36 +1087,40 @@ void NEP::run()
     }
     dAdqDescent.add(dAdq);
     
+    // filtered gradient
+    dAdq_filt = dAdq;
+    filter.setSamplingRate(sampleRate);
+    filter.setCutoffFrequency(cutoffFreq->floatValue());
+    filter.process(dAdq_filt);
+    dAdqDescent_filt.add(dAdq_filt);
     
-    // update action value
-    cout << "calculating action" << endl;
-    double newaction = calculateAction(qcurve, pcurve, times);
-    double diffAction = abs(action - newaction);
-    actionDescent.add(diffAction);
-    
-    // message to async to monitor the descent
-    cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
-    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric));
-    
-    // check algorithm descent status
-    bool shouldUpdate = descentShouldUpdateParams(diffAction);
-    if (shouldUpdate && count>1)
+    if (debug)
     {
-      updateDescentParams();
-      filterConcentrationTrajectory();
-      stepDescent = 0.;
-      // increase sampling of concentration curve is optionnal. Not implemented at the moment.
-      continue; // next iteration using the filtered qcurve
+      debugfile << "-- dAdq --" << endl;
+      for (int p=0; p<nPoints->intValue(); p++)
+      {
+        debugfile << "(";
+        StateVec dAdqk = dAdq.getUnchecked(p);
+        int c=0;
+        for (auto & coord : dAdqk)
+        {
+          string comma = ( c==dAdqk.size()-1 ? ")" : "," );
+          debugfile << coord << comma;
+          c++;
+        }
+      }
+      debugfile << endl;
     }
+    
     
     action = newaction;
     // keep track of action history
     cout << "action = " << action << endl;
     
-    cout << "updating concentration curve" << endl;
+    //cout << "updating concentration curve" << endl;
     // now update the concentration trajectory with functionnal gradient descent
     // this function update global variable qcurve
-    updateOptimalConcentrationCurve(liftoptres.opt_momentum, liftoptres.opt_deltaT);
+    //updateOptimalConcentrationCurve_old(liftoptres.opt_momentum, liftoptres.opt_deltaT);
         
     
   } // end while
@@ -1215,6 +1310,11 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectory()
       pcurve.add(meanP);
     }
   }
+  
+  
+  // TODO
+  // smooth pcurve
+  
   /*
   cout << "--- popt ---" << endl;
   for (auto & ppoint : opt_momentum)
@@ -1252,6 +1352,30 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectory()
   LiftTrajectoryOptResults output;
   output.opt_deltaT = opt_deltaT;
   output.opt_momentum = opt_momentum;
+  
+  if (debug)
+  {
+    debugfile << "-- lifting optima found --" << endl;
+    debugfile << "p* = ";
+    for (auto & ppoint : opt_momentum)
+    {
+      debugfile << "(";
+      int c=0;
+      for (auto & pm : ppoint)
+      {
+        string comma = ( c==ppoint.size()-1 ? ") " : "," );
+        debugfile << pm << comma;
+        c++;
+      }
+    }
+  debugfile << endl;
+  debugfile << "deltaT = ";
+  for (auto & tpoint : opt_deltaT)
+  {
+    debugfile << tpoint << " ";
+  }
+  debugfile << endl;
+  }
   
   return output;
   
@@ -1292,7 +1416,7 @@ void NEP::initConcentrationCurve()
   // init with straight line between qI and qF
   qcurve.clear();
   double NN = (double) nPoints->intValue();
-  jassert(nPoints->intValue()>0);
+  jassert(nPoints->intValue()>1);
   for (int point=0; point<nPoints->intValue(); point++)
   {
     StateVec vec;
@@ -1347,12 +1471,18 @@ void NEP::updateDescentParams()
 {
   cout << "updating descent params" << endl;
   cutoffFreq->setValue(cutoffFreq->floatValue() + 10.);
+  stepDescent = 1.;
 }
 
 
 bool NEP::descentShouldUpdateParams(double diffAction)
 {
   return ((diffAction<action_threshold->floatValue() || stepDescent<stepDescentThreshold));
+}
+
+bool NEP::descentShouldContinue(int step)
+{
+  return (step<=Niterations->intValue() || cutoffFreq->floatValue()<maxcutoffFreq->floatValue());
 }
 
 
@@ -1402,7 +1532,7 @@ void NEP::writeDescentToFile()
 
 
 
-void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Array<double> deltaTopt)
+void NEP::updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt)
 {
   jassert(popt.size() == nPoints->intValue()-1);
   jassert(deltaTopt.size() == nPoints->intValue()-1);
@@ -1504,6 +1634,32 @@ void NEP::updateOptimalConcentrationCurve(const Array<StateVec> popt, const Arra
   jassert(qcurve.size() == nPoints->intValue());
   
 }
+
+
+
+
+// update concentration curve as q^I = q^(I-1) - stepDescent * dAdq_filtered
+void NEP::updateOptimalConcentrationCurve()
+{
+
+  for (int k=0; k<nPoints->intValue(); k++)
+  {
+    // update curve point k component wise
+    StateVec newqk;
+    for (int m=0; m<qcurve.getUnchecked(k).size(); m++)
+    {
+      newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - stepDescent * dAdq_filt.getUnchecked(k).getUnchecked(m) );
+    }
+    qcurve.setUnchecked(k, newqk);
+    //qcurve.add(newqk);
+  }
+  length_qcurve = curveLength(qcurve);
+  if (length_qcurve>0.)
+    sampleRate = (double) nPoints->intValue() / length_qcurve;
+  jassert(qcurve.size() == nPoints->intValue());
+  
+}
+
 
 
 //void NEP::calculateNewActionValue()

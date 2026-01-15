@@ -207,7 +207,7 @@ void NEPUI::paint(juce::Graphics & g)
   if (nep->state != NEP::NEPState::Descending)
     return;
   
-  cout << "calling paint ? NEP state : " << nep->state << endl;
+  //cout << "calling paint ? NEP state : " << nep->state << endl;
   
   if (iterations.size()==0)
     return;
@@ -311,7 +311,7 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
 
     case NEP::NEPEvent::NEWSTEP:
     {
-     // cout << "calling NEWSTEP" << endl;
+      //cout << "calling NEWSTEP. NEP state = " << nep->state << " vs " << NEP::NEPState::Descending << endl;
       iterations.add(ev.curStep);
       actions.add(ev.action);
       cutoffFreqs.add(ev.cutofffreq);
