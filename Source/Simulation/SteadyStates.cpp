@@ -1439,14 +1439,14 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 
 	// as a general info, commands to diagonalize a matrix are :
 	// //init eigen solver objects for current jacobi matrix
-	// Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
-	// if (es.info() == Eigen::Success) // if diagonalization succeeded
-	// {
+	 Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
+	 if (es.info() == Eigen::Success) // if diagonalization succeeded
+	 {
 	// retrieve eigenvalues :
-	// cout << es.eigenvalues() << endl;
-	// cout << es.eigenvectors() << endl;
-	// 	// retrieve eigenvalues if diagonalized
-	//}
+	 cout << es.eigenvalues() << endl;
+	 cout << es.eigenvectors() << endl;
+	 	// retrieve eigenvalues if diagonalized
+   }
 
 	// jacobi matrix should be always triangularizable on C
 	// so I directly reach this option without bothering on diagonalization
@@ -1585,12 +1585,13 @@ void SteadyStateslist::evaluateSteadyStatesStability()
 
   //int nss = arraySteadyStates.size(); // keep track of how many steady states there are
   
+  cout << "--- SteadyStateslist::evaluateSteadyStatesStability() ---" << endl;
   // loop over steady states
   for (int iw = arraySteadyStates.size() - 1; iw >= 0; iw--)
   {
     SteadyState witness = arraySteadyStates.getReference(iw);
 
-    //printOneSteadyState(witness);
+    printOneSteadyState(witness);
 
     if (witness.state.size() != simul->entities.size()) // just in case
     {
@@ -1601,8 +1602,8 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     // evaluate jacobi matrx at current state vector
     Eigen::MatrixXd jm = evaluateJacobiMatrix(witness);
 
-    // cout << "---- Jacobi Matrix ----" << endl;
-    // cout << jm << endl;
+    cout << "---- Jacobi Matrix ----" << endl;
+    cout << jm << endl;
     
     // is steady state globally stable ?
     //bool stable = isStable(jm, witness);
@@ -1615,7 +1616,7 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     
     
     //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;
-		// else cout << "--> unstable !" << endl;
+    //else cout << "--> unstable !" << endl;
 
 		// for border steady states, check partial stability, i.e. not taking into account variables that are exactly 0
 		if (arraySteadyStates.getReference(iw).isBorder)
