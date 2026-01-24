@@ -24,6 +24,7 @@
 
 #include "JuceHeader.h"
 #include "nlopt.hpp"
+#include <random>
 //#include "Simulation.h"
 
 class Simulation;
@@ -47,84 +48,12 @@ typedef Array<StateVec> pCurve;
 // represent a trajectory in the {concentration; momentum} space
 typedef Array<PhaseSpaceVec> Trajectory;
 
-
+/*
 // class for filtering
 class MultiButterworthLowPass
 {
 public:
-  /*
-  void prepare(double sampleRate, int numEntities)
-  {
-    filters.clear();
 
-    for (int i = 0; i < numEntities; ++i)
-    {
-      auto* f = new juce::dsp::IIR::Filter<double>();
-      //juce::dsp::IIR::Filter<double> f;
-      //cout << "sample rate = " << sampleRate << endl;
-      //cout << "cutoff freq = " << cutoffHz << endl;
-      //cout << cutoffHz << " < " << sampleRate/2.  << " ?" << endl;
-      auto coeffs = juce::dsp::IIR::Coefficients<double>::makeLowPass(sampleRate, cutoffHz);
-      f->coefficients = coeffs;
-      filters.add(std::move(f));
-    }
-  }
-
-  void process(juce::Array<juce::Array<double>>& data) // first dim = nPoints, inner dim = nentities
-  {
-    if (data.size()==0)
-      return;
-    
-    // should add protection if nqyist condition not satisfied,
-    // i.e. cutoffFreq < sampleRate / 2
-    
-    // retrieve number of entities
-    const int np = static_cast<int>(data.size());
-    const int numEntities = static_cast<int>(data[0].size());
-    
-    vector<vector<double>> filtdata(np, vector<double>(numEntities, 0.));
-    
-    //cout << "npoints = " << nPoints << endl;
-    //cout << "numEnt = " << numEntities << endl;
-    
-    // I'm Here, check that this is not bullshit
-    for (int ient=0; ient<numEntities; ient++)
-    {
-      cout << "entity #" << ient << endl;
-      // retrieve signal along current entity index
-      vector<double> signal(np, 0.);
-      cout << "raw signal : ";
-      for (int p=0; p<np; p++)
-      {
-        signal[p] = data.getUnchecked(p).getUnchecked(ient);
-        cout << signal[p] << " ";
-        //signal.setUnchecked(p, data.getUnchecked(p).getUnchecked(ient));
-      }
-      cout << endl;
-      
-      cout << "filetred signal : ";
-      // filtering
-      for (int p=0; p<signal.size(); p++)
-      {
-        signal[p] = filters[ient]->processSample(signal[p]);
-        cout << signal[p] << " ";
-      }
-      cout << endl;
-      
-      // Réinjection
-      for (int p=0; p<np; p++)
-        filtdata[p][ient] = signal[p];
-      
-      // Modify input
-      for (int p=0; p<np; p++)
-      {
-        data.getReference(p).setUnchecked(ient, filtdata[p][ient]);
-      }
-    } // end entity loop
-    
-    
-  }
-  */
 
   void setCutoffFrequency(double _cutoffHz)
   {
@@ -183,7 +112,7 @@ private:
     vector<double> dnBuffer;
     juce::OwnedArray<juce::dsp::IIR::Filter<float>> filters;
 };
-
+*/
 
 
 class LiftTrajectoryOptResults
@@ -230,6 +159,8 @@ public:
   FloatParameter * action_threshold ;
   FloatParameter * timescale_factor;
 
+  Trigger * debug;
+
 
   // update steady state list when updateParams is calle din SImulation
   void updateSteadyStateList();
@@ -244,6 +175,7 @@ public:
   void reset();
   void stop();
   void run() override; // thread function
+
   
   
   
@@ -312,8 +244,10 @@ private:
   bool descentShouldUpdateParams(double);
   
   bool descentShouldContinue(int);
+  
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithKinSolve();
 
-  LiftTrajectoryOptResults liftCurveToTrajectory();
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT();
   
   void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
   void updateOptimalConcentrationCurve();
@@ -321,6 +255,11 @@ private:
   double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
   double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
+  
+  //filtering
+  void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
+  //vector<juce::dsp::IIR::Filter<double>> makeFilters(ReferenceCountedArray<IIRCoefficients>);
+  void lowPassFiltering(Array<StateVec>&);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
@@ -346,7 +285,7 @@ private:
   double stepDescent = 1.;
   
   // for filtering
-  MultiButterworthLowPass filter;
+  //MultiButterworthLowPass filter;
 
   // for printing history to file
   Array<double> actionDescent;
@@ -356,9 +295,11 @@ private:
   
   
   
+  void debugNEPImplementation();
+
   void debugFiltering();
   
-  bool debug = true;
+  bool bDebug = false;
   ofstream debugfile;
 
   
