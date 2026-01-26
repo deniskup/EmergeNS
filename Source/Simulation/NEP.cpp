@@ -21,6 +21,13 @@ struct EncapsVarForNLOpt {
 };
 
 
+struct EncapsVarForGSL {
+  const Array<double>* qcenter; // current concentration point
+  const Array<double>* deltaq; // current concentration point
+  NEP * nep; // nep class for hamiltonian class
+};
+
+
 double cartesianDistance(StateVec v1, StateVec v2)
 {
   jassert(v1.size() == v2.size());
@@ -165,6 +172,190 @@ double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad
   
   return ev->nep->evalHamiltonian(*ev->qcenter, p);
 }
+
+
+
+
+int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
+{
+  
+  // retrieve q and dq
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter == nullptr || ev->deltaq == nullptr)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return GSL_EINVAL;
+  }
+  StateVec q = *ev->qcenter;
+  StateVec dq = *ev->deltaq;
+  
+  const unsigned long n = x->size;
+
+  // retrieve momentum and time
+  StateVec p;
+  for (int k=0; k<n-1; k++)
+  {
+    double pk = gsl_vector_get(x, k);
+    p.add(pk);
+  }
+  double dt = gsl_vector_get(x, n-1);
+  
+  // calculate hamiltonian
+  double H = ev->nep->evalHamiltonian(q, p);
+
+  // calculate dH/dp
+  StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
+  
+  assert(dHdp.size() == n-1);
+  assert(dq.size() == n-1);
+  
+  // set the non-linear equalitites to solve by gsl
+  gsl_vector_set(f, 0, H);
+  for (int k=1; k<=n-1; k++)
+  {
+    double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
+    gsl_vector_set(f, k, u);
+  }
+  
+  return GSL_SUCCESS;
+}
+
+
+int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
+{
+  
+  // retrieve q and dq
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter == nullptr || ev->deltaq == nullptr)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return GSL_EINVAL;
+  }
+  StateVec q = *ev->qcenter;
+  StateVec dq = *ev->deltaq;
+  
+  const unsigned long n = x->size;
+
+  // retrieve momentum and time
+  StateVec p;
+  for (int k=0; k<n-1; k++)
+  {
+    double pk = gsl_vector_get(x, k);
+    p.add(pk);
+  }
+  double dt = gsl_vector_get(x, n-1);
+  
+  // calculate dH/dp
+  StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
+  
+  // calculate d^2H/dp2 (hessian matrix w.r.t to p)
+  dsp::Matrix<double> d2Hd2p = ev->nep->evalHamiltonianHessianWithP(q, p);
+  
+  assert(dHdp.size() == n-1);
+  assert(d2Hd2p.getSize().getUnchecked(0) == n-1);
+  assert(d2Hd2p.getSize().getUnchecked(1) == n-1);
+  
+  // set the jacobian elements associated to equations
+  // H = 0
+  // dH/dp * dt - dq = 0
+  for (int i=0; i<n; i++)
+  {
+    for (int j=0; j<n; j++)
+    {
+      if (i==0)
+      {
+        if (j==n-1)
+          gsl_matrix_set(J, i, j, 0.);
+        else
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(j));
+      }
+      else
+      {
+        if (j==n-1)
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1));
+        else
+          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
+      }
+    }
+  }
+  
+  return GSL_SUCCESS;
+}
+
+
+
+int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
+{
+  
+  // retrieve q and dq
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter == nullptr || ev->deltaq == nullptr)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return GSL_EINVAL;
+  }
+  StateVec q = *ev->qcenter;
+  StateVec dq = *ev->deltaq;
+  
+  const unsigned long n = x->size;
+
+  // retrieve momentum and time
+  StateVec p;
+  for (int k=0; k<n-1; k++)
+  {
+    double pk = gsl_vector_get(x, k);
+    p.add(pk);
+  }
+  double dt = gsl_vector_get(x, n-1);
+  
+  // calculate hamiltonian
+  double H = ev->nep->evalHamiltonian(q, p);
+
+  // calculate dH/dp
+  StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
+
+  // calculate d^2H/dp2 (hessian matrix w.r.t to p)
+  dsp::Matrix<double> d2Hd2p = ev->nep->evalHamiltonianHessianWithP(q, p);
+  
+  assert(dHdp.size() == n-1);
+  assert(d2Hd2p.getSize().getUnchecked(0) == n-1);
+  assert(d2Hd2p.getSize().getUnchecked(1) == n-1);
+  
+  // set the non-linear equalitites to solve by gsl
+  gsl_vector_set(f, 0, H);
+  for (int k=1; k<=n-1; k++)
+  {
+    double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
+    gsl_vector_set(f, k, u);
+  }
+  
+  // set the jacobian elements associated to equations
+  // H = 0
+  // dH/dp * dt - dq = 0
+  for (int i=0; i<n; i++)
+  {
+    for (int j=0; j<n; j++)
+    {
+      if (i==0)
+      {
+        if (j==n-1)
+          gsl_matrix_set(J, i, j, 0.);
+        else
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(j));
+      }
+      else
+      {
+        if (j==n-1)
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1));
+        else
+          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
+      }
+    }
+  }
+  
+  return GSL_SUCCESS;
+}
+
  
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -271,8 +462,8 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
   }
   if (t == debug)
   {
-    //debugNEPImplementation();
-    debugFiltering();
+    debugNEPImplementation();
+    //debugFiltering();
   }
 }
 
@@ -491,6 +682,149 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
     gradpH.setUnchecked(m, gradpH.getUnchecked(m)*timescale_factor->floatValue());
   
   return gradpH;
+}
+
+
+
+dsp::Matrix<double> NEP::evalHamiltonianHessianWithP(const StateVec q, const StateVec p)
+{
+  /*
+    cout << "--- evalHamiltonianHessianWithP() ---" << endl;
+    cout << setprecision(8) << endl;
+    cout << "q = ";
+    for (auto & f : q)
+      cout << f << " ";
+    cout << endl;
+    cout << "p = ";
+    for (auto & f : p)
+      cout << f << " ";
+    cout << endl;
+    */
+  
+  // init hessian as null matrix
+  dsp::Matrix<double> nullmatrix(p.size(), p.size());
+  nullmatrix.clear();
+  dsp::Matrix hess(nullmatrix);
+    
+  
+    // loop over reactions
+    for (auto & reaction : Simulation::getInstance()->reactions)
+    {
+      //cout << reaction->name << endl;
+      // forward reaction
+      double forward = reaction->assocRate;
+      double sp1 = 0.;
+      double pow1 = 1.;
+      StateVec prevec1;
+      prevec1.insertMultiple(0, 0., q.size());
+      for (auto & ent : reaction->reactants)
+      {
+        sp1 -= p.getUnchecked(ent->idSAT);
+        pow1 *= q.getUnchecked(ent->idSAT);
+        prevec1.setUnchecked(ent->idSAT, prevec1.getUnchecked(ent->idSAT) - 1.);
+      }
+      for (auto & ent : reaction->products)
+      {
+        sp1 += p.getUnchecked(ent->idSAT);
+        prevec1.setUnchecked(ent->idSAT, prevec1.getUnchecked(ent->idSAT) + 1.);
+      }
+      forward *= exp(sp1) * pow1;
+      
+
+      /*
+      cout << "(ybeta - yalpha) forward = ";
+      for (auto p : prevec1)
+        cout << p << " ";
+      cout << endl;
+      cout << "s.p = " << sp1 << endl;
+      cout << "exp(s.p) = " << exp(sp1) << endl;
+      cout << "k = " << reaction->assocRate << endl;
+      cout << "monom = " << pow1 << endl;
+      cout << "forward term = " << forward << endl;
+      */
+      
+      // backward contribution
+      double backward = reaction->dissocRate;
+      double sp2 = 0.;
+      double pow2 = 1.;
+      StateVec prevec2;
+      prevec2.insertMultiple(0, 0., q.size());
+      for (auto & ent : reaction->reactants)
+      {
+        sp2 += p.getUnchecked(ent->idSAT);
+        prevec2.setUnchecked(ent->idSAT, prevec2.getUnchecked(ent->idSAT) + 1.);
+      }
+      for (auto & ent : reaction->products)
+      {
+        sp2 -= p.getUnchecked(ent->idSAT);
+        pow2 *= q.getUnchecked(ent->idSAT);
+        prevec2.setUnchecked(ent->idSAT, prevec2.getUnchecked(ent->idSAT) - 1.);
+      }
+      backward *= exp(sp2) * pow2;
+      
+      
+      /*
+      cout << "(ybeta - yalpha) backward = ";
+      for (auto p : prevec2)
+        cout << p << " ";
+      cout << endl;
+      cout << "s.p = " << sp2 << endl;
+      cout << "exp(s.p) = " << exp(sp2) << endl;
+      cout << "k = " << reaction->dissocRate << endl;
+      cout << "monom = " << pow2 << endl;
+      cout << "backward term = " << backward << endl;
+      */
+      
+      // add contributions to hessian matrix
+      for (int i=0; i<hess.getSize().getUnchecked(0); i++)
+      {
+        for (int j=0; j<hess.getSize().getUnchecked(1); j++)
+        {
+          double el = prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward + prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward;
+          //cout << "modyfing element (" << i << "," << j << ") by " << el << endl;
+          hess(i, j) += el;
+        }
+      }
+      
+      
+  /*
+      cout << "d^2H/dp^2 to this reac : ";
+      cout << endl;
+  */
+    } // end loop over reactions
+    
+    
+    // creation / destruction reactions, formally treated as 0 <--> entity
+    for (auto & ent : simul->entities)
+    {
+      // forward reaction = creation
+      double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
+      hess(ent->idSAT, ent->idSAT) += creatfact;
+      //cout << "grapH coord " << ent->idSAT << " += " << creatfact << " for forward" << endl;
+      
+      // backward reaction = destruction
+      double destfact = ent->destructionRate * exp(-1.*p.getUnchecked(ent->idSAT)) * q.getUnchecked(ent->idSAT);
+      hess(ent->idSAT, ent->idSAT) += destfact;
+      //cout << "grapH coord " << ent->idSAT << " -= " << destfact << " for backward" << endl;
+      /*
+      cout << "current dH/dp : ";
+      for (auto & ele : gradpH)
+        cout << ele << " ";
+      cout << endl;
+      */
+    }
+    
+    // multiply by timescale factor
+    for (int i=0; i<hess.getSize().getUnchecked(0); i++)
+    {
+      for (int j=0; j<hess.getSize().getUnchecked(0); j++)
+      {
+        hess(i, j) *= timescale_factor->floatValue();
+      }
+    }
+    
+    return hess;
+  
 }
 
 
@@ -903,7 +1237,7 @@ void NEP::reset()
   dAdq_filt.clear();
   action = 10.;
   length_qcurve = 0.;
-  stepDescent = 1.;
+  stepDescent = stepDescentInitVal;
   cutoffFreq->setValue(0.5);
 }
 
@@ -949,7 +1283,7 @@ void NEP::run()
   
   if (bDebug)
   {
-    debugfile.open("DEBUG.txt", ofstream::out | ofstream::trunc);
+    debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
     debugfile << "sampling points : " << nPoints->intValue() << endl;
@@ -999,7 +1333,9 @@ void NEP::run()
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables pcurve and times
     cout << "lifting trajectory" << endl;
-    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
+    //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
+    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL();
+    cout << "end lifting" << endl;
     
     // keep track of trajectory update in (q ; p) space
     Trajectory newtraj;
@@ -1139,8 +1475,185 @@ void NEP::run()
 
 
 
-LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithKinSolve()
+LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
 {
+  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  // dimension of the problem
+  const int n = simul->entities.size() + 1; // number of entities + 1 (time)
+  
+  Array<double> vec_dt; // vector of optimal time assigned between each q(i) and q(i+1)
+  Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
+  
+  // loop over points in concentration space
+  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- qn
+  for (int k=0; k<nPoints->intValue()-1; k++) // n - 1 iterations
+  {
+    cout << "qcurve point #" << k << endl;
+    
+    // calculate q, dq of current concentration curve
+    StateVec q = qcurve.getUnchecked(k);
+    StateVec qnext = qcurve.getUnchecked(k+1);
+    jassert(q.size() == qnext.size());
+    StateVec qcenter;
+    Array<double> deltaq;
+    for (int m=0; m<q.size(); m++)
+    {
+      deltaq.add(qnext.getUnchecked(m) - q.getUnchecked(m));
+      qcenter.add( 0.5* (q.getUnchecked(m) + qnext.getUnchecked(m)));
+    }
+    
+    
+    // encaps useful variables to pass to GSL
+    EncapsVarForGSL ev;
+    ev.qcenter = &qcenter;
+    ev.deltaq = &deltaq;
+    ev.nep = this;
+    
+    
+    // function to solve
+    //gsl_multiroot_function f;
+    gsl_multiroot_function_fdf fdf; // using jacobian
+    //f.f = residual4GSL;
+    //f.n = n;
+    //f.params = &ev;
+    fdf.f = residual4GSL;
+    fdf.df = residual4GSL_df;
+    fdf.fdf = residual4GSL_fdf; // combines function to evaluate and the jacobian
+    fdf.n = n;
+    fdf.params = &ev;
+    
+    
+    // initial value for p and dt
+    gsl_vector* x = gsl_vector_alloc(n);
+    for (int m=0; m<n-1; m++)
+      gsl_vector_set(x, m, 0.05);
+    gsl_vector_set(x, n-1, 30.);
+    
+    
+    
+    // init gsl solver withtout derivative
+    //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // hybrid to be more robust than newton, but slower. See if a change is needed
+    //gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc(T, n);
+    // init gsl solver with derivatives
+    const gsl_multiroot_fdfsolver_type * T = gsl_multiroot_fdfsolver_hybridj;
+    gsl_multiroot_fdfsolver * s = gsl_multiroot_fdfsolver_alloc(T, n);
+    gsl_multiroot_fdfsolver_set(s, &fdf, x);
+        
+    // iterate to solve
+    int status = GSL_CONTINUE;
+    int iter = 0;
+    int maxiter = 200;
+    double tolerance = 1e-8;
+    while (status == GSL_CONTINUE && iter <= maxiter)
+    {
+      iter++;
+      //cout << "\titer" << iter << endl;
+      //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
+      status = gsl_multiroot_fdfsolver_iterate(s);
+      if (status)
+        break;
+      status = gsl_multiroot_test_residual(s->f, tolerance);
+    }
+    
+    // some printing
+    std::cout << "status = " << gsl_strerror(status) << "\n";
+
+    //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
+    //std::cout << "p1 = " << gsl_vector_get(s->x, 1) << "\n";
+    //std::cout << "dt = " << gsl_vector_get(s->x, 1) << "\n";
+    //cout << "used " << iter << " iterations" << endl;
+    
+    // retrieve results in a non-GSL form
+    StateVec pstar;
+    for (int m=0; m<n-1; m++)
+      pstar.add(gsl_vector_get(s->x, m));
+    double dt = gsl_vector_get(s->x, n-1);
+    
+    // add optimizing time
+    //opt_deltaT.add(ev->t_opt);
+    vec_dt.add(dt);
+    
+    // add optimizing momentum vector
+    vec_pstar.add(pstar);
+    
+    //gsl_multiroot_fsolver_free(s);
+    gsl_multiroot_fdfsolver_free(s);
+    gsl_vector_free(x);
+    
+  } // end loop over points in concentration curve
+  
+
+  // Build full trajectory in (q ; p) space from optima found previously
+  pcurve.clear();
+  times.clear();
+  
+  // init a null vector
+  Array<double> nullP;
+  for (int i=0; i<Simulation::getInstance()->entities.size(); i++)
+    nullP.add(0.);
+
+  // first elements are 0
+  double sumtime = 0.;
+  pcurve.add(nullP);
+  times.add(sumtime);
+  for (int k=1; k<nPoints->intValue(); k++) // nPoints-1 iterations
+  {
+    if (k==0)
+      continue;
+        
+    // handle time
+    sumtime += vec_dt.getUnchecked(k-1);
+    times.add(sumtime);
+    
+    // handle momentum, mean between current and next p
+    if (k==nPoints->intValue()-1) // force last momentum vec to be 0
+      pcurve.add(nullP);
+    else
+    {
+      StateVec meanP;
+      for (int m=0; m<vec_pstar.getUnchecked(k).size(); m++)
+      {
+        double pm = 0.5*(vec_pstar.getUnchecked(k-1).getUnchecked(m) + vec_pstar.getUnchecked(k).getUnchecked(m));
+        meanP.add(pm);
+      }
+      pcurve.add(meanP);
+    }
+  }
+
+  jassert(pcurve.size() == qcurve.size());
+  jassert(times.size() == qcurve.size());
+  
+  
+  // Return optimization results
+  LiftTrajectoryOptResults output;
+  output.opt_deltaT = vec_dt;
+  output.opt_momentum = vec_pstar;
+  
+  if (bDebug)
+  {
+    debugfile << "-- lifting optima found --" << endl;
+    debugfile << "p* = ";
+    for (auto & ppoint : vec_pstar)
+    {
+      debugfile << "(";
+      int c=0;
+      for (auto & pm : ppoint)
+      {
+        string comma = ( c==ppoint.size()-1 ? ") " : "," );
+        debugfile << pm << comma;
+        c++;
+      }
+    }
+  debugfile << endl;
+  debugfile << "dt = ";
+  for (auto & tpoint : vec_dt)
+  {
+    debugfile << tpoint << " ";
+  }
+  debugfile << endl;
+  }
+  
+  return output;
   
 }
 
@@ -1486,7 +1999,7 @@ void NEP::updateDescentParams()
 {
   cout << "updating descent params" << endl;
   cutoffFreq->setValue(cutoffFreq->floatValue() + 0.5);
-  stepDescent = 1.;
+  stepDescent = stepDescentInitVal;
 }
 
 
@@ -1506,8 +2019,6 @@ bool NEP::descentShouldContinue(int step)
 {
   bool b = step<=Niterations->intValue();
   bool b2 = cutoffFreq->floatValue()<maxcutoffFreq->floatValue();
-  cout << "NEP::descentShouldContinue : comparing " << step << " and " << Niterations->intValue() << ". bool : " << b << endl;
-  cout << "NEP::descentShouldContinue : comparing " << cutoffFreq->floatValue() << " and " << maxcutoffFreq->floatValue() << ". bool : " << b2 << endl;
   return (step<=Niterations->intValue() && cutoffFreq->floatValue()<maxcutoffFreq->floatValue());
 }
 
@@ -1774,7 +2285,7 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
 double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& dAdq)
 {
   // init step with large value #para ?
-  double step = 1.;
+  double step = stepDescentInitVal;
   int timeout = 30; // (2/3)^30 < 1e-5, will trigger the loop to break
   
   double currentaction = calculateAction(qc, pcurve, times);
@@ -2364,6 +2875,57 @@ double constraint_debug(const vector<double> &x, vector<double> &grad, void* f_d
 }
 
 
+struct Params
+{
+  double q;
+  double dq;
+};
+
+int debugGSLresidual(const gsl_vector* x, void* params, gsl_vector* f)
+{
+    Params* param = static_cast<Params*>(params);
+
+    double p = gsl_vector_get(x, 0);
+    double dt = gsl_vector_get(x, 1);
+
+    double H = 0.5 * (p-1.) * (p-1.) + (param->q - 2.0) * (param->q - 2.0) * (param->q - 2.0);
+    double dHdp = (p-1.);
+
+    gsl_vector_set(f, 0, H);
+    gsl_vector_set(f, 1, param->dq - dt * dHdp);
+
+    return GSL_SUCCESS;
+}
+/*
+int debugGSL_fdf (gsl_vector * x, void * _p, gsl_matrix * f, gsl_matrix * J)
+{
+   Params * params = (Params*) _p;
+   const double q = (params->q);
+   const double dq = (params->dq);
+   const double p = gsl_vector_get(x,0);
+   const double dt = gsl_vector_get(x,1);
+
+   const double u0 = exp(-x0);
+   const double u1 = exp(-x1);
+
+   gsl_vector_set (f, 0, A * x0 * x1 - 1);
+   gsl_vector_set (f, 1, u0 + u1 - (1 + 1/A));
+
+   gsl_matrix_set (J, 0, 0, A * x1);
+   gsl_matrix_set (J, 0, 1, A * x0);
+   gsl_matrix_set (J, 1, 0, -u0);
+   gsl_matrix_set (J, 1, 1, -u1);
+   return GSL_SUCCESS
+}
+*/
+
+
+int ftest(const gsl_vector*, void*, gsl_vector*)
+{
+    return GSL_SUCCESS;
+}
+
+
 void NEP::debugNEPImplementation()
 {
   
@@ -2371,6 +2933,9 @@ void NEP::debugNEPImplementation()
   simul->affectSATIds();
   
   /*
+   
+  // NLOPT BASIC IMPLEMETATION
+   
   int n = 1;
   int nent = n;
   //nlopt::opt opt(nlopt::GN_DIRECT_L, nent);  // no gradient. #para. User could choose between different optimizers
@@ -2499,7 +3064,25 @@ void NEP::debugNEPImplementation()
   return;
   
 */
+  /*
+  const size_t n = 2;
 
+  gsl_multiroot_function f;
+  f.f = ftest;
+  f.n = n;
+  f.params = nullptr;
+
+  gsl_vector* x = gsl_vector_alloc(n);
+  gsl_vector_set_all(x, 0.0);
+
+  const gsl_multiroot_fsolver_type* T = gsl_multiroot_fsolver_hybrids;
+
+  gsl_multiroot_fsolver* s = gsl_multiroot_fsolver_alloc(T, n);
+
+  gsl_multiroot_fsolver_set(s, &f, x);
+  
+  */
+  /*
   StateVec qc = {0.5, 0.6};
   StateVec pc = {0.5, 0.6};
   //cout << "H(qc, pc) = " << evalHamiltonian(qc, pc) << endl;
@@ -2514,6 +3097,48 @@ void NEP::debugNEPImplementation()
   for (auto & el : dHdq)
     cout << el << " ";
   cout << endl;
+  
+  dsp::Matrix<double> hess = evalHamiltonianHessianWithP(qc, pc);
+  cout << "d^2H/dp2 = \n";
+  for (int i=0; i<hess.getSize().getUnchecked(0); i++)
+  {
+    for (int j=0; j<hess.getSize().getUnchecked(1); j++)
+    {
+      cout << hess(i,j) << " ";
+    }
+    cout << endl;
+  }
+  cout << endl;
+  
+  */
+  /*
+  // create curve to filter = straight line with noise around it.
+  StateVec firstpoint = {1.00115,1.00115};
+  StateVec lastpoint = {2.15525,1.09354};
+  Trajectory traj;
+  int N = 5; double NN = (double) N;
+  double stepX = (lastpoint.getUnchecked(0) - firstpoint.getUnchecked(0)) / NN;
+  double stepY = (lastpoint.getUnchecked(1) - firstpoint.getUnchecked(1)) / NN;
+  StateVec step; step.add(stepX); step.add(stepY);
+  Trajectory straightline;
+  for (int i=0; i<=50; i++)
+  {
+    StateVec slpoint;
+    for (int m=0; m<2; m++)
+    {
+      double c = firstpoint.getUnchecked(m) + (double) i / NN * (lastpoint.getUnchecked(m) - firstpoint.getUnchecked(m));
+      //double crand = c;
+      slpoint.add(c);
+    }
+    straightline.add(slpoint);
+  }
+  
+  for (int i=0; i<straightline.size(); i++)
+  {
+    StateVec q = stri
+    
+  }
+  */
   
 }
 
@@ -2535,211 +3160,7 @@ void NEP::debugFiltering()
 {
   state = Idle;
   cout << "debugFiltering" << endl;
-  /*
-  //data
-  Trajectory traj;
-  traj.add({1.00115,1.00115});
-  traj.add({1.00662,1.00163});
-  traj.add({1.01103,1.00215});
-  traj.add({1.01386,1.00272});
-  traj.add({1.01518,1.00332});
-  traj.add({1.01537,1.00389});
-  traj.add({1.01493,1.00441});
-  traj.add({1.01431,1.00484});
-   //iteration,action,point,q_X1,q_X2,p_X1,p_X2,dAdq_X1,dAdq_X2
-  traj.add({1.01388,1.00517});
-  traj.add({1.01385,1.00541});
-  traj.add({1.01432,1.00557});
-traj.add({1.01527,1.0057});
-traj.add({1.01663,1.00583});
-traj.add({1.0183,1.00597});
-traj.add({1.02019,1.00616});
-traj.add({1.0222,1.0064});
-traj.add({1.02428,1.0067});
-  traj.add({1.02639,1.00704});
-  traj.add({1.02852,1.00743});
-  traj.add({1.03068,1.00786});
-  traj.add({1.03289,1.00831});
-  traj.add({1.03518,1.00877});
-  traj.add({1.03756,1.00924});
-  traj.add({1.04007,1.00971});
-  traj.add({1.04272,1.01018});
-  traj.add({1.04554,1.01065});
-  traj.add({1.04853,1.01113});
-  traj.add({1.05171,1.0116});
-  traj.add({1.05508,1.01209});
-  traj.add({1.05866,1.01259});
-  traj.add({1.06243,1.01309});
-  traj.add({1.06642,1.01361});
-  traj.add({1.07063,1.01414});
-  traj.add({1.07506,1.01469});
-  traj.add({1.07972,1.01525});
-  traj.add({1.08461,1.01582});
-  traj.add({1.08975,1.0164});
-  traj.add({1.09513,1.017});
-  traj.add({1.10077,1.01761});
-  traj.add({1.10666,1.01823});
-  traj.add({1.11281,1.01886});
-  traj.add({1.11923,1.01949});
-  traj.add({1.1259,1.02014});
-  traj.add({1.13285,1.02079});
-  traj.add({1.14006,1.02145});
-  traj.add({1.14753,1.02211});
-  traj.add({1.15526,1.02278});
-  traj.add({1.16324,1.02346});
-  traj.add({1.17147,1.02413});
-  traj.add({1.17993,1.02482});
-  traj.add({1.18863,1.0255});
-  traj.add({1.19754,1.02619});
-  traj.add({1.20666,1.02687});
-  traj.add({1.21597,1.02756});
-  traj.add({1.22545,1.02825});
-  traj.add({1.2351,1.02893});
-  traj.add({1.2449,1.02962});
-  traj.add({1.25482,1.0303});
-  traj.add({1.26486,1.03098});
-  traj.add({1.275,1.03165});
-           traj.add({1.28521,1.03233});
-      traj.add({1.29548,1.03299});
-  traj.add({1.3058,1.03365});
-  traj.add({1.31615,1.03431});
-  traj.add({1.32651,1.03496});
-  traj.add({1.33686,1.0356});
-  traj.add({1.34719,1.03624});
-  traj.add({1.3575,1.03687});
-  traj.add({1.36776,1.0375});
-  traj.add({1.37796,1.03812});
-  traj.add({1.38809,1.03873});
-  traj.add({1.39815,1.03933});
-  traj.add({1.40813,1.03993});
-  traj.add({1.41801,1.04052});
-  traj.add({1.42779,1.0411});
-  traj.add({1.43747,1.04167});
-  traj.add({1.44703,1.04224});
-  traj.add({1.45648,1.0428});
-  traj.add({1.46582,1.0433});
-  traj.add({1.47504,1.04391});
-  traj.add({1.48413,1.04445});
-  traj.add({1.4931,1.04498});
-  traj.add({1.50195,1.04551});
-  traj.add({1.51068,1.04603});
-  traj.add({1.51928,1.04655});
-  traj.add({1.52776,1.0470});
-  traj.add({1.53612,1.04756});
-  traj.add({1.54436,1.04806});
-  traj.add({1.55249,1.04856});
-  traj.add({1.56049,1.04905});
-  traj.add({1.56839,1.04953});
-  traj.add({1.57617,1.05001});
-  traj.add({1.58384,1.05048});
-  traj.add({1.5914,1.05095});
-  traj.add({1.59886,1.05142});
-  traj.add({1.60621,1.05188});
-  traj.add({1.61347,1.05234});
-  traj.add({1.62063,1.05279});
-  traj.add({1.62769,1.05324});
-               traj.add({1.63466,1.05368});
-  traj.add({1.64155,1.05413});
-  traj.add({1.64834,1.05456});
-  traj.add({1.65505,1.055});
-               traj.add({1.66168,1.05543});
-               traj.add({1.66823,1.05586});
-               traj.add({1.6747,1.05629});
-               traj.add({1.6811,1.05671});
-               traj.add({1.68743,1.05713});
-               traj.add({1.69368,1.05755});
-               traj.add({1.69987,1.05797});
-               traj.add({1.706,1.05838});
-                 traj.add({1.71206,1.05879});
-                          traj.add({1.71806,1.0592});
-                          traj.add({1.724,1.05961});
-                          traj.add({1.72988,1.06001});
-                          traj.add({1.73571,1.06041});
-                          traj.add({1.74148,1.06082});
-                          traj.add({1.74721,1.06122});
-                          traj.add({1.75288,1.06161});
-                          traj.add({1.75851,1.06201});
-                          traj.add({1.76409,1.06241});
-                          traj.add({1.76963,1.0628});
-                          traj.add({1.77512,1.06319});
-                          traj.add({1.78058,1.06358});
-                          traj.add({1.78599,1.06397});
-                          traj.add({1.79137,1.06436});
-                          traj.add({1.79671,1.06475});
-                          traj.add({1.80201,1.06514});
-                          traj.add({1.80728,1.06552});
-                          traj.add({1.81252,1.06591});
-                          traj.add({1.81773,1.06629});
-                          traj.add({1.82291,1.06668});
-                          traj.add({1.82806,1.06706});
-                          traj.add({1.83318,1.06744});
-                          traj.add({1.83828,1.06783});
-                          traj.add({1.84335,1.06821});
-                          traj.add({1.8484,1.06859});
-                          traj.add({1.85343,1.06897});
-                          traj.add({1.85844,1.06935});
-                          traj.add({1.86342,1.06973});
-                          traj.add({1.86839,1.07011});
-                          traj.add({1.87334,1.07049});
-                          traj.add({1.87827,1.07087});
-                          traj.add({1.88318,1.07125});
-                          traj.add({1.88808,1.07163});
-                          traj.add({1.89297,1.07201});
-                          traj.add({1.89784,1.07239});
-                          traj.add({1.9027,1.07277});
-                          traj.add({1.90754,1.07315});
-                          traj.add({1.91238,1.07354});
-                          traj.add({1.91721,1.07392});
-                          traj.add({1.92202,1.0743});
-                          traj.add({1.92683,1.07468});
-                          traj.add({1.93163,1.07506});
-                          traj.add({1.93643,1.07544});
-                          traj.add({1.94121,1.07582});
-                          traj.add({1.946,1.07621});
-                          traj.add({1.95078,1.07659});
-                          traj.add({1.95555,1.07698});
-                          traj.add({1.96032,1.07736});
-                          traj.add({1.96509,1.07774});
-                          traj.add({1.96986,1.07813});
-                          traj.add({1.97462,1.07852});
-                          traj.add({1.97939,1.0789});
-                          traj.add({1.98415,1.07929});
-                          traj.add({1.98892,1.07968});
-                          traj.add({1.99368,1.08007});
-                          traj.add({1.99845,1.08046});
-                          traj.add({2.00323,1.08085});
-                          traj.add({2.008,1.08124});
-                          traj.add({2.01278,1.08164});
-                          traj.add({2.01756,1.08203});
-                          traj.add({2.02235,1.08242});
-                          traj.add({2.02714,1.08282});
-                          traj.add({2.03194,1.08322});
-                          traj.add({2.03675,1.08361});
-                          traj.add({2.04156,1.08401});
-                          traj.add({2.04638,1.08441});
-                          traj.add({2.05121,1.08481});
-                          traj.add({2.05604,1.08522});
-                          traj.add({2.06089,1.08562});
-                          traj.add({2.06574,1.08602});
-                          traj.add({2.07061,1.08643});
-                          traj.add({2.07548,1.08684});
-                          traj.add({2.08037,1.08725});
-                          traj.add({2.08527,1.08766});
-                          traj.add({2.09018,1.08807});
-                          traj.add({2.0951,1.08848});
-                          traj.add({2.10003,1.08889});
-                          traj.add({2.10498,1.08931});
-             traj.add({2.10994,1.08972});
-             traj.add({2.11491,1.09014});
-             traj.add({2.1199,1.09056});
-             traj.add({2.1249,1.09098});
-             traj.add({2.12992,1.0914});
-             traj.add({2.13495,1.0918});
-             traj.add({2.14,1.09225});
-             traj.add({2.14507,1.09268});
-             traj.add({2.15015,1.09311});
-             traj.add({2.15525,1.09354});
-   */
+
   mt19937 rng(std::random_device{}()); // moteur Mersenne Twister
   
   cout << "NEP::debugFilering() -- create curve" << endl;

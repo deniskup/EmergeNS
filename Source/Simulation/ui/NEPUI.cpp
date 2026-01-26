@@ -129,16 +129,24 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   // find min and max of data
   float minX = *min_element(iterations.begin(), iterations.end());
   float maxX = *max_element(iterations.begin(), iterations.end());
-  //float minY = *min_element(data.begin(), data.end());
-  float minY = 0.;
-  if (title == "Action")
-    minY = *min_element(data.begin(), data.end());
+  float minY = *min_element(data.begin(), data.end());
   float maxY = *max_element(data.begin(), data.end());
-  maxY *= 1.1; // little more room for esthetics
-  
   float rangeX = maxX - minX;
   float rangeY = maxY - minY;
-  if (rangeX<=0. || rangeY <= 0.)
+  
+  if (title == "Action")
+  {
+    maxY += 1.1*rangeY;
+    minY -= 1.1*rangeY;
+  }
+  else
+  {
+    minY = 0.;
+    maxY *= 1.1; // little more room for esthetics
+  }
+    
+  cout << "plot " << title << ". rangeX = " << rangeX << " & rangeY = " << rangeY << endl;
+  if (rangeX<0. || rangeY<0.)
     return;
   
   // convert data point into pixel coordinates

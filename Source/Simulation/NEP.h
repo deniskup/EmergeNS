@@ -13,7 +13,7 @@
 // TODO : modify
 
 /*
-- update read me for compilation with nlopt
+- update read me for compilation with nlopt and gsl, indicate that user should add lib and header paths to projucer file
 - reparametrization of qcurve
 - calculate distance from hamilton equation of motion
 - recover 2-schlogl results of gagrani and smith
@@ -24,6 +24,7 @@
 
 #include "JuceHeader.h"
 #include "nlopt.hpp"
+#include <gsl/gsl_multiroots.h>
 #include <random>
 //#include "Simulation.h"
 
@@ -40,6 +41,7 @@ using namespace juce;
 // some typedef for readability
 typedef Array<double> StateVec;
 typedef Array<double> PhaseSpaceVec;
+//typedef Array<Array<double>> Matrix;
 
 // represent a curve in the concentration space
 typedef Array<StateVec> Curve;
@@ -47,72 +49,6 @@ typedef Array<StateVec> Curve;
 typedef Array<StateVec> pCurve;
 // represent a trajectory in the {concentration; momentum} space
 typedef Array<PhaseSpaceVec> Trajectory;
-
-/*
-// class for filtering
-class MultiButterworthLowPass
-{
-public:
-
-
-  void setCutoffFrequency(double _cutoffHz)
-  {
-    cutoffHz = _cutoffHz;
-  }
-  
-  void setSamplingRate(double _sampRate)
-  {
-    sampRate = _sampRate;
-  }
-  
-  
-  void process(Array<Array<double>> & data)
-  {
-    if (data.size()==0)
-      return;
-    
-    const int nChannels = data.getUnchecked(0).size();
-    const int nSamples = data.size();
-    constexpr auto PI = 3.141592653589793f;
-    dnBuffer.resize(nChannels, 0.f);
-    
-    const double tan = std::tan(PI * cutoffHz / sampRate);
-    const double a1 = (tan - 1.f) / (tan + 1.f);
-    
-    for (int channel=0; channel<nChannels; channel++)
-    {
-      // retrieve signal for this particular channel
-      vector<double> channelSample;
-      for (int point=0; point<nSamples; point++)
-      {
-        channelSample.push_back(data.getUnchecked(point).getUnchecked(channel));
-      }
-      
-      for (int i=0; i<nSamples; i++)
-      {
-        double inputSample = channelSample[i];
-        double allpassFilteredSample = a1 * inputSample + dnBuffer[channel];
-        dnBuffer[channel] = inputSample - a1*allpassFilteredSample;
-        double filterOutput = 0.5f * (inputSample + allpassFilteredSample);
-        channelSample[i] = filterOutput;
-      }
-      
-      // write it to data
-      for (int i=0; i<nSamples; i++)
-      {
-        data.getUnchecked(i).setUnchecked(channel, channelSample[i]);
-      }
-      
-    }
-  } // end process method
-
-private:
-    double cutoffHz = 1.;
-    double sampRate = 1.;
-    vector<double> dnBuffer;
-    juce::OwnedArray<juce::dsp::IIR::Filter<float>> filters;
-};
-*/
 
 
 class LiftTrajectoryOptResults
@@ -181,6 +117,7 @@ public:
   
   double evalHamiltonian(const StateVec q, const StateVec p);
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
+  dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
   StateVec evalHamiltonianGradientWithQ(const StateVec q, const StateVec p);
   
   //var getJSONData() override;
@@ -245,7 +182,7 @@ private:
   
   bool descentShouldContinue(int);
   
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithKinSolve();
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL();
 
   LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT();
   
@@ -282,7 +219,8 @@ private:
   
   // #para
   double stepDescentThreshold = 1e-4;
-  double stepDescent = 1.;
+  double stepDescentInitVal = 1000.;
+  double stepDescent = stepDescentInitVal;
   
   // for filtering
   //MultiButterworthLowPass filter;
@@ -299,7 +237,7 @@ private:
 
   void debugFiltering();
   
-  bool bDebug = false;
+  bool bDebug = true;
   ofstream debugfile;
 
   
