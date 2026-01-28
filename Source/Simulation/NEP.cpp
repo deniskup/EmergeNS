@@ -25,6 +25,7 @@ struct EncapsVarForGSL {
   const Array<double>* qcenter; // current concentration point
   const Array<double>* deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian class
+  double scale = 1.;
 };
 
 
@@ -173,9 +174,54 @@ double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad
   return ev->nep->evalHamiltonian(*ev->qcenter, p);
 }
 
+// x size = number of entities in the system
+int residualToInitGSL_old(const gsl_vector* x, void* params, gsl_vector* f)
+{
+  
+  // retrieve q and dq
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter == nullptr || ev->deltaq == nullptr)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return GSL_EINVAL;
+  }
+  StateVec q = *ev->qcenter;
+  StateVec dq = *ev->deltaq;
+  
+  const unsigned long n = x->size;
+
+  // retrieve momentum and time
+  StateVec p;
+  for (int k=0; k<n; k++)
+  {
+    double pk = gsl_vector_get(x, k);
+    p.add(pk);
+  }
+  double dt = 1.;
+  
+  // calculate dH/dp
+  StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
+  
+  assert(dHdp.size() == n);
+  assert(dq.size() == n);
+  
+  // set the non-linear equalitites to solve by gsl
+  for (int k=0; k<n; k++)
+  {
+    double u = dHdp.getUnchecked(k) * dt - dq.getUnchecked(k);
+    gsl_vector_set(f, k, u);
+  }
+  
+  return GSL_SUCCESS;
+}
 
 
 
+
+
+
+
+// x size = number of entities in the system + 1
 int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
 {
   
@@ -198,7 +244,9 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
     double pk = gsl_vector_get(x, k);
     p.add(pk);
   }
-  double dt = gsl_vector_get(x, n-1);
+  //double dt = gsl_vector_get(x, n-1);
+  double s = gsl_vector_get(x, n-1);
+  double dt = exp(s);
   
   // calculate hamiltonian
   double H = ev->nep->evalHamiltonian(q, p);
@@ -214,13 +262,14 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
   for (int k=1; k<=n-1; k++)
   {
     double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
-    gsl_vector_set(f, k, u);
+    gsl_vector_set(f, k, u * ev->scale);
   }
   
   return GSL_SUCCESS;
 }
 
 
+// x size = number of entities in the system + 1
 int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
 {
   
@@ -243,7 +292,9 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
     double pk = gsl_vector_get(x, k);
     p.add(pk);
   }
-  double dt = gsl_vector_get(x, n-1);
+  //double dt = gsl_vector_get(x, n-1);
+  double s = gsl_vector_get(x, n-1);
+  double dt = exp(s);
   
   // calculate dH/dp
   StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
@@ -272,7 +323,7 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1));
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1)*dt);
         else
           gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
       }
@@ -284,6 +335,7 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
 
 
 
+// x size = number of entities in the system + 1
 int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
 {
   
@@ -306,7 +358,9 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
     double pk = gsl_vector_get(x, k);
     p.add(pk);
   }
-  double dt = gsl_vector_get(x, n-1);
+  //double dt = gsl_vector_get(x, n-1);
+  double s = gsl_vector_get(x, n-1);
+  double dt = exp(s);
   
   // calculate hamiltonian
   double H = ev->nep->evalHamiltonian(q, p);
@@ -325,7 +379,7 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
   gsl_vector_set(f, 0, H);
   for (int k=1; k<=n-1; k++)
   {
-    double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
+    double u = (dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1));
     gsl_vector_set(f, k, u);
   }
   
@@ -346,7 +400,7 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1));
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1)*dt);
         else
           gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
       }
@@ -396,6 +450,10 @@ NEP::NEP() : ControllableContainer("NEP"),
   action_threshold = addFloatParameter("Action threshold", "Descent will stop when action threshold is reached", 0.01);
   
   timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
+  
+  stepDescentInitVal = addFloatParameter("Step descent", "Descent will try proceeding with user indicated step, and will use backtracking method if this step is too large.", 1.);
+  
+  maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
   
   debug = addTrigger("Debug", "Debugging NEP implementation");
   
@@ -1237,7 +1295,7 @@ void NEP::reset()
   dAdq_filt.clear();
   action = 10.;
   length_qcurve = 0.;
-  stepDescent = stepDescentInitVal;
+  stepDescent = stepDescentInitVal->floatValue();
   cutoffFreq->setValue(0.5);
 }
 
@@ -1245,7 +1303,7 @@ void NEP::reset()
 void NEP::stop()
 {
   state = Idle;
-  cout << "[DEBUG] stop() NEP state = " << state << endl;
+  cout << "[DEBUG] stop() NEP state = " << toString(state) << endl;
 }
 
 
@@ -1281,8 +1339,9 @@ void NEP::run()
   }
 
   
-  if (bDebug)
+  if (maxPrinting->boolValue())
   {
+    system("mkdir -p debug");
     debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
@@ -1294,7 +1353,7 @@ void NEP::run()
   initConcentrationCurve();
   
   int count = 0;
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+  //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this)); // #silent
   //while (count < Niterations->intValue() && !threadShouldExit())
   cout << descentShouldContinue(count+1) << " && " << !threadShouldExit() << endl;
   while (descentShouldContinue(count+1) && !threadShouldExit())
@@ -1312,7 +1371,7 @@ void NEP::run()
       updateOptimalConcentrationCurve();
     }
     
-    if (bDebug)
+    if (maxPrinting->boolValue())
     {
       debugfile << "\nIteration " << count << endl;
       debugfile << "-- concentration curve --" << endl;
@@ -1351,7 +1410,7 @@ void NEP::run()
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
     trajDescent.add(newtraj);
     
-    if (bDebug)
+    if (maxPrinting->boolValue())
     {
       debugfile << "-- momentum curve --" << endl;
       for (int p=0; p<nPoints->intValue(); p++)
@@ -1366,6 +1425,13 @@ void NEP::run()
         }
       }
       debugfile << endl;
+      debugfile << "-- time sampling --" << endl;
+      //cout << "times.size = " << times.size() << endl;
+      for (int p=0; p<nPoints->intValue(); p++)
+      {
+        debugfile << times.getUnchecked(p) << " " ;
+      }
+      debugfile << endl;
     }
   
     
@@ -1376,7 +1442,7 @@ void NEP::run()
     //actionDescent.add(diffAction);
     actionDescent.add(newaction);
     
-    if (bDebug)
+    if (maxPrinting->boolValue())
     {
       debugfile << "-- Action --" << endl;
       debugfile << "S = " << newaction << " & deltaS = " << diffAction << endl;
@@ -1384,7 +1450,7 @@ void NEP::run()
     
     // message to async to monitor the descent
     cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
-    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric));
+    //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric)); // #silent
     
     
     // check algorithm descent status
@@ -1393,7 +1459,13 @@ void NEP::run()
     {
       cout << "descentShouldUpdateParams() returned true" << endl;
       updateDescentParams();
-      //filterConcentrationTrajectory(); //TODO : in gagrani & smith here they use a time parametrization
+      cout << "resampling in time uniform" << endl;
+      resampleInTimeUniform(qcurve);
+      cout << "filtering in time uniform" << endl;
+      lowPassFiltering(qcurve, true); //TODO : in gagrani & smith here they use a time parametrization
+      cout << "lift to (q, p, t)" << endl;
+      liftCurveToTrajectoryWithGSL();
+      cout << "done" << endl;
       // increase sampling of concentration curve is optionnal. Not implemented at the moment.
       //continue; // next iteration using the filtered qcurve
     }
@@ -1428,10 +1500,10 @@ void NEP::run()
     
     // filter gradient
     dAdq_filt = dAdq;
-    lowPassFiltering(dAdq_filt);
+    lowPassFiltering(dAdq_filt, false);
     dAdqDescent_filt.add(dAdq_filt);
    
-    if (bDebug)
+    if (maxPrinting->boolValue())
     {
       debugfile << "-- dAdq --" << endl;
       for (int p=0; p<nPoints->intValue(); p++)
@@ -1474,7 +1546,11 @@ void NEP::run()
 }
 
 
-
+// #TODO
+// Split this method into several :
+// 1/ GSL implementation that returns p_star and dt
+// 2/ lift operation, i.e. build p from q and p_star
+// 3/ Moving average on newly built p to reduce noise in p solving
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
 {
   //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
@@ -1488,7 +1564,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
   // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- qn
   for (int k=0; k<nPoints->intValue()-1; k++) // n - 1 iterations
   {
-    cout << "qcurve point #" << k << endl;
+    //cout << "qcurve point #" << k << endl;
     
     // calculate q, dq of current concentration curve
     StateVec q = qcurve.getUnchecked(k);
@@ -1503,60 +1579,121 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
     }
     
     
+    
     // encaps useful variables to pass to GSL
     EncapsVarForGSL ev;
     ev.qcenter = &qcenter;
     ev.deltaq = &deltaq;
     ev.nep = this;
+    ev.scale = 1.;
     
     
     // function to solve
-    //gsl_multiroot_function f;
+    //gsl_multiroot_function f0;
+    //f0.f = residual4GSL;
+    //f0.n = n;
+    //f0.params = &ev;
+    
+    // initial value for p and dt
+    // p
+    gsl_vector* x = gsl_vector_alloc(n);
+    StateVec pinit;
+    for (int m=0; m<n-1; m++)
+    {
+      double pm = 0.1;
+      gsl_vector_set(x, m, pm);
+      pinit.add(pm);
+    }
+    // dt = (dq•dH/dp) / || dH/dp ||^2
+    StateVec dHdp = evalHamiltonianGradientWithP(qcenter, pinit);
+    double norm2 = 0.;
+    double sp = 0.;
+    for (int m=0; m<pinit.size(); m++)
+    {
+      norm2 += dHdp.getUnchecked(m)*dHdp.getUnchecked(m);
+      sp += qcenter.getUnchecked(m)*dHdp.getUnchecked(m);
+    }
+    norm2 = sqrt(norm2);
+    double dtinit = 1.;
+    if (norm2>0.)
+      dtinit = abs(sp) / norm2;
+    else
+    {
+      LOGWARNING("|| dH/dp || = 0, dt initialized to 1");
+      cout << "dH/dp = ";
+      for (int k=0; k<dHdp.size(); k++)
+        cout << dHdp.getUnchecked(k) << " ";
+      cout << endl;
+    }
+    gsl_vector_set(x, n-1, dtinit);
+    
+    /*
+    // init the solver to solve for dt at p held fixed
+    const gsl_multiroot_fsolver_type * T0 = gsl_multiroot_fsolver_hybrids;
+    gsl_multiroot_fsolver * s0 = gsl_multiroot_fsolver_alloc(T0, 1);
+    gsl_multiroot_fsolver_set(s0, &f, x);
+    */
+    
+    //gslSolve();
+    
+    
     gsl_multiroot_function_fdf fdf; // using jacobian
-    //f.f = residual4GSL;
-    //f.n = n;
-    //f.params = &ev;
     fdf.f = residual4GSL;
     fdf.df = residual4GSL_df;
     fdf.fdf = residual4GSL_fdf; // combines function to evaluate and the jacobian
     fdf.n = n;
     fdf.params = &ev;
     
-    
-    // initial value for p and dt
-    gsl_vector* x = gsl_vector_alloc(n);
-    for (int m=0; m<n-1; m++)
-      gsl_vector_set(x, m, 0.05);
-    gsl_vector_set(x, n-1, 30.);
-    
-    
-    
     // init gsl solver withtout derivative
-    //const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids; // hybrid to be more robust than newton, but slower. See if a change is needed
-    //gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc(T, n);
-    // init gsl solver with derivatives
     const gsl_multiroot_fdfsolver_type * T = gsl_multiroot_fdfsolver_hybridj;
     gsl_multiroot_fdfsolver * s = gsl_multiroot_fdfsolver_alloc(T, n);
     gsl_multiroot_fdfsolver_set(s, &fdf, x);
+    
+    
         
     // iterate to solve
+    // set scale of the system
+    double epsilon = 0.;
     int status = GSL_CONTINUE;
     int iter = 0;
-    int maxiter = 200;
+    int maxiter = 20;
     double tolerance = 1e-8;
-    while (status == GSL_CONTINUE && iter <= maxiter)
+    
+    for (int e=0; e<10; e++)
     {
-      iter++;
-      //cout << "\titer" << iter << endl;
-      //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
-      status = gsl_multiroot_fdfsolver_iterate(s);
-      if (status)
-        break;
-      status = gsl_multiroot_test_residual(s->f, tolerance);
+      ev.scale = epsilon;
+      fdf.params = &ev;
+      iter = 0;
+      status = GSL_CONTINUE;
+      //cout << "\tepsilon = " << epsilon << endl;
+      
+      // set initial guess to output of previous iteration
+      gsl_vector * xprev = s->x;
+      gsl_multiroot_fdfsolver_set(s, &fdf, xprev);
+      
+      while (status == GSL_CONTINUE && iter <= maxiter)
+      {
+        iter++;
+        //cout << "\titer" << iter << endl;
+        //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
+        status = gsl_multiroot_fdfsolver_iterate(s);
+        if (status)
+          break;
+        status = gsl_multiroot_test_residual(s->f, tolerance);
+        double norm2 = 0.;
+        for (int k=0; k<s->f->size; k++)
+          norm2 += gsl_vector_get(s->f, k)*gsl_vector_get(s->f, k);
+        norm2 = sqrt(norm2);
+        //cout << "\tresidual : " << norm2 << endl;
+      }
+      //std::cout << "\tstatus = " << gsl_strerror(status) << "\n";
+      epsilon += 1./10.;
     }
     
     // some printing
-    std::cout << "status = " << gsl_strerror(status) << "\n";
+    //std::cout << "FINAL status = " << gsl_strerror(status) << "\n";
+    
+  
 
     //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
     //std::cout << "p1 = " << gsl_vector_get(s->x, 1) << "\n";
@@ -1567,7 +1704,40 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
     StateVec pstar;
     for (int m=0; m<n-1; m++)
       pstar.add(gsl_vector_get(s->x, m));
-    double dt = gsl_vector_get(s->x, n-1);
+    //double dt = gsl_vector_get(s->x, n-1);
+    double tau = gsl_vector_get(s->x, n-1);
+    double dt = exp(tau);
+    
+    /*
+    double Hscale = evalHamiltonian(qcenter, pstar);
+    StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
+    dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
+    
+    cout << "-- Scaling of the problem --" << endl;
+    cout << "f0 = " << Hscale << endl;
+    for (int k=0; k<dHdpscale.size(); k++)
+    {
+      cout << "f" << k+1 << " = " << dHdpscale.getUnchecked(k)*dt - deltaq.getUnchecked(k) << endl;
+    }
+    
+    
+    cout << "J = ";
+    for (int i=0; i<n; i++)
+    {
+      for (int j=0; j<n; j++)
+      {
+        if (i==0 && j<n-1)
+          cout << dHdpscale.getUnchecked(j) << " ";
+        else if (i==0 && j==n-1)
+          cout << "0";
+        else if (i>0 && j<n-1)
+          cout << hessian(i-1, j) << " ";
+        else if (i>0 && j==n-1)
+          cout << dHdpscale.getUnchecked(i-1);
+      }
+      cout << endl;
+    }
+     */
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
@@ -1623,13 +1793,41 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL()
   jassert(pcurve.size() == qcurve.size());
   jassert(times.size() == qcurve.size());
   
+  // moving average on pcurve (execpt first and last point that must remain 0)
+  int window = 3;
+  Trajectory av_pcurve;
+  for (int k=0; k<pcurve.size(); k++)
+  {
+    StateVec avp;
+    // loop over dimensions
+    for (int dim=0; dim<pcurve.getUnchecked(k).size(); dim++)
+    {
+      int w = min(min(window, k), pcurve.size()-1-k);
+      double av = 0.;
+      double c = 0.;
+      for (int k2=k-w; k2<=k+w; k2++)
+      {
+        c++;
+        av += pcurve.getUnchecked(k2).getUnchecked(dim);
+      }
+      av /= c;
+      avp.add(av);
+    }
+    jassert(avp.size() == n-1);
+    av_pcurve.add(avp);
+  }
+  
+  jassert(av_pcurve.size() == pcurve.size());
+  //cout << "average pcurve size : " << av_pcurve.size() << endl;
+  
+  
   
   // Return optimization results
   LiftTrajectoryOptResults output;
   output.opt_deltaT = vec_dt;
   output.opt_momentum = vec_pstar;
   
-  if (bDebug)
+  if (maxPrinting->boolValue())
   {
     debugfile << "-- lifting optima found --" << endl;
     debugfile << "p* = ";
@@ -1880,7 +2078,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT()
   output.opt_deltaT = opt_deltaT;
   output.opt_momentum = opt_momentum;
   
-  if (bDebug)
+  if (maxPrinting->boolValue())
   {
     debugfile << "-- lifting optima found --" << endl;
     debugfile << "p* = ";
@@ -1999,7 +2197,7 @@ void NEP::updateDescentParams()
 {
   cout << "updating descent params" << endl;
   cutoffFreq->setValue(cutoffFreq->floatValue() + 0.5);
-  stepDescent = stepDescentInitVal;
+  stepDescent = stepDescentInitVal->floatValue();
 }
 
 
@@ -2009,8 +2207,8 @@ bool NEP::descentShouldUpdateParams(double diffAction)
   {
     bool b1 = diffAction<action_threshold->floatValue();
     bool b2 = stepDescent<stepDescentThreshold;
-    cout << "Will update descent params. action criteria : " << b1;
-    cout << ". step descent criteria : " << b2 << endl;
+    //cout << "Will update descent params. action criteria : " << b1;
+    //cout << ". step descent criteria : " << b2 << endl;
   }
   return ((diffAction<action_threshold->floatValue() || stepDescent<stepDescentThreshold));
 }
@@ -2285,7 +2483,7 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
 double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& dAdq)
 {
   // init step with large value #para ?
-  double step = stepDescentInitVal;
+  double step = stepDescentInitVal->floatValue();
   int timeout = 30; // (2/3)^30 < 1e-5, will trigger the loop to break
   
   double currentaction = calculateAction(qc, pcurve, times);
@@ -2421,36 +2619,106 @@ vector<juce::dsp::IIR::Filter<double>> NEP::makeFilters(ReferenceCountedArray<II
 
 */
 
-void NEP::lowPassFiltering(Array<StateVec>& signal)
+void NEP::resampleInTimeUniform(Array<StateVec>& signal)
+{
+  if (signal.size() != times.size())
+  {
+    LOGWARNING("Cannot resample in time uniform, array sizes do not match.");
+    return;
+  }
+  /*
+  cout << "NEP::resampleInTimeUniform()" << endl;
+  cout << "input = ";
+  for (int i=0; i<signal.size(); i++)
+  {
+    for (int j=0; j<signal.getUnchecked(i).size(); j++)
+    {
+      string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
+      cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+    }
+  }
+  */
+  
+  int N = signal.size();
+  double NN = signal.size();
+  double ti = times.getFirst();
+  double tf = times.getLast();
+  
+  // init newtraj
+  Trajectory resampled_signal;
+  resampled_signal.resize(signal.size());
+  for (int i = 0; i<resampled_signal.size(); ++i)
+    resampled_signal.getReference(i).resize(signal.getUnchecked(i).size());
+  /*
+  cout << "tvec : ";
+  for (auto & el : times)
+    cout << el << " ";
+  cout << endl;
+  */
+  for (int i=0; i<signal.size(); i++)
+  {
+    // linear timing between ti and tf
+    double t = ti + (double)i * (tf-ti)/(NN-1.);
+    
+    
+    // find closest index in time
+    int closest = 0;
+    while (closest < N-1 && times.getUnchecked(closest+1)<t)
+      closest++;
+    
+    
+    if (i==0 && i==signal.size()-1)
+    {
+      resampled_signal.setUnchecked(i, signal.getUnchecked(i));
+    }
+    else
+    {
+      // interpolate between q[closest] and q[closest+1]
+      double alpha = (t-times.getUnchecked(closest)) / (times.getUnchecked(closest+1)-times.getUnchecked(closest));
+      for (int m=0; m<signal.getUnchecked(0).size(); m++)
+      {
+        double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
+        resampled_signal.getReference(i).setUnchecked(m, val);
+      } // end loop over dimension of the system
+    } // end if
+  }
+  
+
+  // modify input signal
+  for (int i=0; i<signal.size(); i++)
+  {
+    for (int j=0; j<signal.getUnchecked(i).size(); j++)
+      signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
+  }
+  /*
+  cout << "NEP::resampleInTimeUniform()" << endl;
+  cout << "output = ";
+  for (int i=0; i<signal.size(); i++)
+  {
+    for (int j=0; j<signal.getUnchecked(i).size(); j++)
+    {
+      string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
+      cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+    }
+  }
+  */
+  
+  
+}
+
+
+void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
 {
   if (signal.size() < 2)
     return;
   
   int npoints = signal.size();
   int dim = signal.getFirst().size();
-  /*
-  // create curve to filter = straight line with noise around it.
-  double stepX = (lastpoint.getUnchecked(0) - firstpoint.getUnchecked(0)) / NN;
-  double stepY = (lastpoint.getUnchecked(1) - firstpoint.getUnchecked(1)) / NN;
-  StateVec step; step.add(stepX); step.add(stepY);
-  Trajectory straightline;
-  for (int i=0; i<=50; i++)
-  {
-    StateVec slpoint;
-    for (int m=0; m<2; m++)
-    {
-      double c = firstpoint.getUnchecked(m) + (double) i / NN * (lastpoint.getUnchecked(m) - firstpoint.getUnchecked(m));
-      double interval = 0.5*step.getUnchecked(m);
-      //double crand = c;
-      point.add(crand);
-      slpoint.add(c);
-    }
-    straightline.add(slpoint);
-  }
-  */
+    
   // substract straight signal from input signal
   StateVec firstpoint = signal.getFirst();
   StateVec lastpoint = signal.getLast();
+  /*
   cout << "NEP::lowPassFiltering() 1st point : ";
   for (auto & p : firstpoint)
     cout << p << " ";
@@ -2459,6 +2727,7 @@ void NEP::lowPassFiltering(Array<StateVec>& signal)
   for (auto & p : lastpoint)
     cout << p << " ";
   cout << endl;
+  */
   
   // build a modified signal which uses the firstpoint as origin and unitary vector u as direction
   // x'_i = xlast + ( 1 - i/(N-1) ) ( xfirst - xlast )
@@ -2468,10 +2737,27 @@ void NEP::lowPassFiltering(Array<StateVec>& signal)
   {
     StateVec point;
     StateVec slpoint;
+    double alpha = double(i) / double(npoints-1.);
+    if (isTimeUniform)
+    {
+      double ttot = times.getLast() - times.getFirst();
+      if (ttot>0)
+        alpha = (times.getUnchecked(i)-times.getFirst()) / (times.getLast() - times.getFirst());
+      else
+      {
+        LOGWARNING("Total time along trajectory is null, time filtering uses space uniform sampling");
+        cout << "t = ";
+        for (auto &t : times)
+          cout << t << " ";
+        cout << endl;
+      }
+    }
     for (int m=0; m<dim; m++)
     {
-      double pprime = lastpoint.getUnchecked(m) + (1. - double(i) / double(npoints-1.)) *
-      (firstpoint.getUnchecked(m)-lastpoint.getUnchecked(m));
+      //double pprime = lastpoint.getUnchecked(m) + (1. - double(i) / double(npoints-1.)) *
+      //(firstpoint.getUnchecked(m)-lastpoint.getUnchecked(m))
+      
+      double pprime = firstpoint.getUnchecked(m) + alpha * (lastpoint.getUnchecked(m)-firstpoint.getUnchecked(m));
       point.add(signal.getUnchecked(i).getUnchecked(m)-pprime);
       slpoint.add(pprime);
     }
