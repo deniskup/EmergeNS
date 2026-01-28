@@ -18,6 +18,7 @@
 - calculate distance from hamilton equation of motion
 - recover 2-schlogl results of gagrani and smith
 - smooth start when there exists some vortex arounf fixed points
+ - regarding non linear solving, IPOPT to try if I want to stick to saddle point optimisation
 */
 
 #pragma once
@@ -80,6 +81,16 @@ public:
     Idle
   };
   
+  const char* toString(NEPState s)
+  {
+    switch (s)
+    {
+      case Descending: return "Descending";
+      case Idle:       return "Idle";
+      default:         return "Unknown";
+    }
+  }
+  
   NEPState state = Idle;
   
   // adjustable parameters
@@ -93,7 +104,9 @@ public:
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   FloatParameter * action_threshold ;
+  FloatParameter * stepDescentInitVal;
   FloatParameter * timescale_factor;
+  BoolParameter * maxPrinting;
 
   Trigger * debug;
 
@@ -182,6 +195,8 @@ private:
   
   bool descentShouldContinue(int);
   
+  // gslSolve();
+  
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL();
 
   LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT();
@@ -196,7 +211,8 @@ private:
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
   //vector<juce::dsp::IIR::Filter<double>> makeFilters(ReferenceCountedArray<IIRCoefficients>);
-  void lowPassFiltering(Array<StateVec>&);
+  void resampleInTimeUniform(Array<StateVec>& signal);
+  void lowPassFiltering(Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
@@ -219,8 +235,7 @@ private:
   
   // #para
   double stepDescentThreshold = 1e-4;
-  double stepDescentInitVal = 1000.;
-  double stepDescent = stepDescentInitVal;
+  double stepDescent;
   
   // for filtering
   //MultiButterworthLowPass filter;
@@ -237,7 +252,6 @@ private:
 
   void debugFiltering();
   
-  bool bDebug = true;
   ofstream debugfile;
 
   
