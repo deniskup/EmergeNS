@@ -211,7 +211,8 @@ private:
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
   //vector<juce::dsp::IIR::Filter<double>> makeFilters(ReferenceCountedArray<IIRCoefficients>);
-  void resampleInTimeUniform(Array<StateVec>& signal);
+  void resampleInSpaceUniform(Array<StateVec>& signal, int);
+  void resampleInTimeUniform(Array<StateVec>& signal, int);
   void lowPassFiltering(Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
@@ -245,8 +246,7 @@ private:
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  
-  
+  Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
   
   void debugNEPImplementation();
 

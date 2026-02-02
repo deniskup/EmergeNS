@@ -443,7 +443,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   nPoints = addIntParameter("Sampling points", "Number of sampling points", 100);
 
-  cutoffFreq = addFloatParameter("Cutoff frequency", "frequency of low-pass filtering used by the descent algorithm", 4.);
+  cutoffFreq = addFloatParameter("Cutoff frequency", "Cutoff frequency normalized to a sampling rate of 1", 0.05);
 
   maxcutoffFreq = addFloatParameter("Max. cutoff frequency", "max. frequency of low-pass filtering, after what descent will stop.", 100.);
   
@@ -1293,10 +1293,11 @@ void NEP::reset()
   times.clear();
   dAdq.clear();
   dAdq_filt.clear();
+  ham_descent.clear();
   action = 10.;
   length_qcurve = 0.;
   stepDescent = stepDescentInitVal->floatValue();
-  cutoffFreq->setValue(0.5);
+  cutoffFreq->setValue(0.05);
 }
 
 
@@ -1362,7 +1363,7 @@ void NEP::run()
     count++;
     if (count==1)
       cout << "initial value of action = " << action << endl;
-    cout << "iteration #" << count << endl;
+    cout << "\niteration #" << count << endl;
     
     if (count>1)
     {
@@ -1398,6 +1399,7 @@ void NEP::run()
     
     // keep track of trajectory update in (q ; p) space
     Trajectory newtraj;
+    Array<double> hams;
     for (int point=0; point<nPoints->intValue(); point++)
     {
       PhaseSpaceVec psv;
@@ -1406,9 +1408,11 @@ void NEP::run()
       for (auto & pm : pcurve.getUnchecked(point))
         psv.add(pm);
       newtraj.add(psv);
+      hams.add(evalHamiltonian(qcurve.getUnchecked(point), pcurve.getUnchecked(point))); 
     }
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << qcurve.size() << " + " << pcurve.size() << endl;
     trajDescent.add(newtraj);
+    ham_descent.add(hams);
     
     if (maxPrinting->boolValue())
     {
@@ -1460,9 +1464,11 @@ void NEP::run()
       cout << "descentShouldUpdateParams() returned true" << endl;
       updateDescentParams();
       cout << "resampling in time uniform" << endl;
-      resampleInTimeUniform(qcurve);
+      //resampleInTimeUniform(qcurve, qcurve.size());
       cout << "filtering in time uniform" << endl;
-      lowPassFiltering(qcurve, true); //TODO : in gagrani & smith here they use a time parametrization
+      //lowPassFiltering(qcurve, true);
+      cout << "Resample in space uniform" << endl;
+      //resampleInSpaceUniform(qcurve, qcurve.size());
       cout << "lift to (q, p, t)" << endl;
       liftCurveToTrajectoryWithGSL();
       cout << "done" << endl;
@@ -2181,7 +2187,7 @@ void NEP::initConcentrationCurve()
   
 }
 
-void NEP::filterConcentrationTrajectory()
+void NEP::filterConcentrationTrajectory() // old
 {
   cout << "filtering concentration curve" << endl;
   // filter the gradient
@@ -2196,7 +2202,7 @@ void NEP::filterConcentrationTrajectory()
 void NEP::updateDescentParams()
 {
   cout << "updating descent params" << endl;
-  cutoffFreq->setValue(cutoffFreq->floatValue() + 0.5);
+  cutoffFreq->setValue(cutoffFreq->floatValue() + 0.01);
   stepDescent = stepDescentInitVal->floatValue();
 }
 
@@ -2237,6 +2243,7 @@ void NEP::writeDescentToFile()
     historyFile << ",dAdq_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",dAdq_filt_" << ent->name;
+  historyFile << ",H";
   historyFile << endl;
   cout << "action descent size :" << actionDescent.size() << endl;
   cout << "trajDescent descent size :" << trajDescent.size() << endl;
@@ -2245,6 +2252,7 @@ void NEP::writeDescentToFile()
   jassert(actionDescent.size() == trajDescent.size());
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_filt.size());
+  jassert(actionDescent.size() == ham_descent.size());
   
   for (int iter=0; iter<actionDescent.size(); iter++)
   {
@@ -2263,6 +2271,7 @@ void NEP::writeDescentToFile()
         historyFile << "," << dAdq_local.getUnchecked(m);
       for (int m=0; m<dAdq_filt_local.size(); m++)
         historyFile << "," << dAdq_filt_local.getUnchecked(m);
+      historyFile << "," << ham_descent.getUnchecked(iter).getUnchecked(point);
       historyFile << endl;
     } // end loop over points in current iteration
     //historyFile << endl;
@@ -2452,19 +2461,23 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
   {
     //cout << "at step " << i << endl;
     double deltaTi = t.getUnchecked(i+1) - t.getUnchecked(i);
-   // cout << "\tdelta Ti = " << deltaTi << endl;
+    //cout << "\tdelta Ti = " << deltaTi << endl;
     // integrad at i
     double integrand = -0.5 * (hamilt.getUnchecked(i) + hamilt.getUnchecked(i+1)) * deltaTi;
-   // cout << "\t-mean H x deltaT_"<< i << " = " << integrand << endl;
+    //integrand = 0.;
+    
     jassert(pc.getUnchecked(i).size() == pc.getUnchecked(i+1).size()); // safety check
     jassert(qc.getUnchecked(i).size() == qc.getUnchecked(i+1).size());
+    double spdebug = 0.;
     for (int m=0; m<qc.getUnchecked(i).size(); m++)
     {
+      spdebug = pc.getUnchecked(i).getUnchecked(m)*(qc.getUnchecked(i+1).getUnchecked(m)-qc.getUnchecked(i).getUnchecked(m));
       double sp = 0.5 * (pc.getUnchecked(i).getUnchecked(m) + pc.getUnchecked(i+1).getUnchecked(m)) * (qc.getUnchecked(i+1).getUnchecked(m)-qc.getUnchecked(i).getUnchecked(m));
       integrand += sp;
       //cout << "\t(sp)_" << m << " = 1/2 * (" << pc.getUnchecked(i+1).getUnchecked(m) << "+" << pc.getUnchecked(i).getUnchecked(m);
       //cout << " * (" << qc.getUnchecked(i+1).getUnchecked(m) << "-" << qc.getUnchecked(i).getUnchecked(m) << ")" << " = " << sp << endl;
     }
+    //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << endl;
     newaction += integrand;
     //cout << "\tadding " << integrand << endl;
   }
@@ -2619,14 +2632,123 @@ vector<juce::dsp::IIR::Filter<double>> NEP::makeFilters(ReferenceCountedArray<II
 
 */
 
-void NEP::resampleInTimeUniform(Array<StateVec>& signal)
+void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int size)
 {
+  if (signal.size()<2)
+    return;
+  
+  /*
+cout << "NEP::resampleInSpaceUniform()" << endl;
+cout << "input = ";
+for (int i=0; i<signal.size(); i++)
+{
+  for (int j=0; j<signal.getUnchecked(i).size(); j++)
+  {
+    string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
+    cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+  }
+}
+*/
+  
+  int dim = signal.getUnchecked(0).size();
+  double dsize = (double) size;
+  double L = curveLength(qcurve);
+  
+  // init newtraj
+  Trajectory resampled_signal;
+  resampled_signal.resize(size);
+  for (int i=0; i<resampled_signal.size(); ++i)
+  {
+    StateVec nullvec;
+    nullvec.insertMultiple(0, 0., dim);
+    resampled_signal.setUnchecked(i, nullvec);
+  }
+ 
+  // resampling
+  for (int i=0; i<signal.size(); i++)
+  {
+    // linear distance between 0 and qcurve length
+    double l = 0. + (double)i * L/(dsize-1.);
+    
+    //cout << "i = " << i << endl;
+    
+    // find closest (left bound) index in space curve
+    int closest = 0;
+    Trajectory partial_curve;
+    partial_curve.add(signal.getUnchecked(0));
+    partial_curve.add(signal.getUnchecked(1));
+    //cout << "npoints : " << qcurve.size() << ". partial curve has " << partial_curve.size() << " points" << endl;
+    while (closest<size-1 && curveLength(partial_curve)<l)
+    {
+      closest++;
+      partial_curve.add(signal.getUnchecked(closest+1));
+    }
+    //cout << "flga A" << endl;
+    double l_pc_next = curveLength(partial_curve);
+    //cout << "flga B" << endl;
+    partial_curve.removeLast();
+    //cout << "flga C" << endl;
+    double l_pc = curveLength(partial_curve);
+    
+    if (i==0)
+    {
+      resampled_signal.setUnchecked(i, signal.getFirst());
+    }
+    else if (i==signal.size()-1)
+    {
+      resampled_signal.setUnchecked(i, signal.getLast());
+    }
+    else
+    {
+      // interpolate between q[closest] and q[closest+1]
+      for (int m=0; m<signal.getUnchecked(0).size(); m++)
+      {
+        double alpha = (l-l_pc) / (l_pc_next-l_pc);
+        double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
+        resampled_signal.getReference(i).setUnchecked(m, val);
+      } // end loop over dimension of the system
+    } // end if
+  }
+  
+
+  // modify input signal
+  signal.resize(size);
+  for (int i=0; i<signal.size(); i++)
+  {
+    signal.getUnchecked(i).insertMultiple(0, 0., dim);
+    for (int j=0; j<signal.getUnchecked(i).size(); j++)
+    {
+      signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
+    }
+  }
+  /*
+  cout << "NEP::resampleInTimeUniform()" << endl;
+  cout << "output = ";
+  for (int i=0; i<signal.size(); i++)
+  {
+    for (int j=0; j<signal.getUnchecked(i).size(); j++)
+    {
+      string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
+      cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+    }
+  }
+  */
+  
+  
+}
+
+
+void NEP::resampleInTimeUniform(Array<StateVec>& signal, int size)
+{
+  if (signal.size()<2)
+    return;
+  
   if (signal.size() != times.size())
   {
     LOGWARNING("Cannot resample in time uniform, array sizes do not match.");
     return;
   }
-  /*
+    /*
   cout << "NEP::resampleInTimeUniform()" << endl;
   cout << "input = ";
   for (int i=0; i<signal.size(); i++)
@@ -2639,37 +2761,44 @@ void NEP::resampleInTimeUniform(Array<StateVec>& signal)
   }
   */
   
-  int N = signal.size();
-  double NN = signal.size();
+  //int N = signal.size();
+  int dim = signal.getUnchecked(0).size();
+  double dsize =  (double) size;
   double ti = times.getFirst();
   double tf = times.getLast();
   
   // init newtraj
   Trajectory resampled_signal;
-  resampled_signal.resize(signal.size());
+  resampled_signal.resize(size);
   for (int i = 0; i<resampled_signal.size(); ++i)
-    resampled_signal.getReference(i).resize(signal.getUnchecked(i).size());
+    resampled_signal.getReference(i).resize(dim);
+  
   /*
   cout << "tvec : ";
   for (auto & el : times)
     cout << el << " ";
   cout << endl;
   */
+  
   for (int i=0; i<signal.size(); i++)
   {
     // linear timing between ti and tf
-    double t = ti + (double)i * (tf-ti)/(NN-1.);
-    
+    double t = ti + (double)i * (tf-ti)/(dsize-1.);
     
     // find closest index in time
     int closest = 0;
-    while (closest < N-1 && times.getUnchecked(closest+1)<t)
+    while (closest < signal.size()-1 && times.getUnchecked(closest+1)<t)
       closest++;
     
+   // cout << "closest = " << closest << " & signal.size = " << signal.size() << endl;
     
-    if (i==0 && i==signal.size()-1)
+    if (i==0)
     {
-      resampled_signal.setUnchecked(i, signal.getUnchecked(i));
+      resampled_signal.setUnchecked(i, signal.getFirst());
+    }
+    else if (i==signal.size()-1)
+    {
+      resampled_signal.setUnchecked(i, signal.getLast());
     }
     else
     {
@@ -2690,6 +2819,7 @@ void NEP::resampleInTimeUniform(Array<StateVec>& signal)
     for (int j=0; j<signal.getUnchecked(i).size(); j++)
       signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
   }
+  
   /*
   cout << "NEP::resampleInTimeUniform()" << endl;
   cout << "output = ";
@@ -2709,7 +2839,7 @@ void NEP::resampleInTimeUniform(Array<StateVec>& signal)
 
 void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
 {
-  if (signal.size() < 2)
+  if (signal.size() < 2 || times.size() < 2)
     return;
   
   int npoints = signal.size();
@@ -2728,6 +2858,30 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
     cout << p << " ";
   cout << endl;
   */
+  
+  if (isTimeUniform)
+  {
+    cout << "input time :{ " << endl;
+    for (int i=0; i<times.size(); i++)
+    {
+      string comma = ( i==times.size()-1 ? "};" : "," );
+      cout << times.getUnchecked(i) << comma;
+    }
+    cout << endl;
+    
+    cout << "input signal : " << endl;
+    for (int i=0; i<signal.size(); i++)
+    {
+      cout << "signal.add({";
+      for (int j=0; j<signal.getUnchecked(i).size(); j++)
+      {
+        string comma = ( j==signal.getUnchecked(i).size()-1? "});" : "," );
+        cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+      }
+      cout << endl;
+    }
+  }
+  
   
   // build a modified signal which uses the firstpoint as origin and unitary vector u as direction
   // x'_i = xlast + ( 1 - i/(N-1) ) ( xfirst - xlast )
@@ -2793,21 +2947,31 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
   
   // actual filter
   
-  // sampling rate set to 1 for filtering in soace uniform, but should be properly calculated in case of time uniform sampling filtering
+  // sampling rate set to 1 for filtering in space uniform
   float sr = 1.;
-  // convert interfaceUI frequency for JUCE.
-  // for instance f=10 means
-  float jucefreq = cutoffFreq->floatValue() / (float) npoints;
+  if (isTimeUniform)
+  {
+    float timestep = times.getLast() / (float) (npoints-1.);
+    if (timestep>0.)
+      sr = 1./timestep;
+    else
+      LOGWARNING("time step is null --> sampling freq. = inf !! Use sampling rate of 1 by default, results should not be trusted.");
+  }
+  
+  // interfaceUI gives max frequency in the signal. For instance 5 would mean any signal whose frequency is above 5 is suppressed.
+  // this quantity is normalized to a sampling rate of 1.
+  float juce_cutoffFreq = sr * cutoffFreq->floatValue();
   
   // if Nyquist condition is not met --> modify cutoff frequency, otherwise juce will complain
-  if (jucefreq >= sr/2.)
+  if (juce_cutoffFreq >= sr/2.)
   {
-    jucefreq = sr/2.;
+    LOGWARNING("filtering above Nyquist frequency. Reducing cutoff freq. to Nyquist frequency.");
+    juce_cutoffFreq = sr/2.;
     return;
   }
 
   // coeffs filtering
-  auto coeffs = juce::dsp::FilterDesign<double>::designIIRLowpassHighOrderButterworthMethod(jucefreq, sr, 4);
+  auto coeffs = juce::dsp::FilterDesign<double>::designIIRLowpassHighOrderButterworthMethod(juce_cutoffFreq, sr, 4);
   
   // lambda function to get filters
   auto makeFilters = [&]()
@@ -2869,7 +3033,8 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
       point.add( signal2filter.getUnchecked(i+npoints-1).getUnchecked(m) + straightline.getUnchecked(i).getUnchecked(m) );
       //point.add( straightline.getUnchecked(i).getUnchecked(m) );
     }
-    signal.setUnchecked(i, point);
+    if (i>0 && i<npoints-1) // do not modify first and last point of input signal
+      signal.setUnchecked(i, point);
   }
   
   
@@ -3218,6 +3383,49 @@ void NEP::debugNEPImplementation()
   cout << "NEP::debugNEPImplementation()" << endl;
   simul->affectSATIds();
   
+  Trajectory qdebug;
+  Trajectory pdebug;
+  
+  qdebug.add({1.00115, 1.00115});
+  qdebug.add({1.12912, 1.01141});
+  qdebug.add({1.25709, 1.02168});
+  qdebug.add({1.38506, 1.03194});
+  qdebug.add({1.51303, 1.04221});
+  qdebug.add({1.64101, 1.05247});
+  qdebug.add({1.76898, 1.06274});
+  qdebug.add({1.89695, 1.07300});
+  qdebug.add({2.02492, 1.08327});
+  qdebug.add({2.15289, 1.09353});
+  
+  pdebug.add({0.00000, 0.00000});
+  pdebug.add({0.00997, 0.00072});
+  pdebug.add({0.00882, 0.00064});
+  pdebug.add({0.00767, 0.00056});
+  pdebug.add({0.00651, 0.00048});
+  pdebug.add({0.00534, 0.00039});
+  pdebug.add({0.00417, 0.00031});
+  pdebug.add({0.00298, 0.00022});
+  pdebug.add({0.00179, 0.00013});
+  pdebug.add({0.00000, 0.00000});
+  
+  Array<double> tdebug;
+  tdebug.add(0.00000);
+  tdebug.add(86.60799);
+  tdebug.add(163.59456);
+  tdebug.add(230.95916);
+  tdebug.add(288.70159);
+  tdebug.add(336.82139);
+  tdebug.add(375.31808);
+  tdebug.add(404.19119);
+  tdebug.add(423.44023);
+  tdebug.add(433.06503);
+  
+  double act = calculateAction(qdebug, pdebug, tdebug);
+  
+  cout << "action debug = " << act << endl;
+  
+  return;
+  
   /*
    
   // NLOPT BASIC IMPLEMETATION
@@ -3446,6 +3654,67 @@ void NEP::debugFiltering()
 {
   state = Idle;
   cout << "debugFiltering" << endl;
+  
+  times = {0,0.919079,1.25637,1.47272,1.63751,1.77431,1.89395,2.00241,2.10337,2.19929,2.29196,2.38276,2.47283,2.56318,2.65477,2.74857,2.84562,2.9471,3.05441,3.16926,3.29379,3.43083,3.5842,3.75937,3.96456,4.21306,4.52856,4.95972,5.63383,7.21447};
+  
+  Array<Array<double>> signal;
+  signal.add({1.00115,1.00115});
+  signal.add({1.01176,1.00263});
+  signal.add({1.02236,1.0041});
+  signal.add({1.03296,1.00558});
+  signal.add({1.04917,1.00777});
+  signal.add({1.0781,1.01159});
+  signal.add({1.12364,1.01714});
+  signal.add({1.18835,1.02384});
+  signal.add({1.2729,1.03017});
+  signal.add({1.37455,1.03435});
+  signal.add({1.48443,1.03664});
+  signal.add({1.593,1.03929});
+  signal.add({1.69222,1.04406});
+  signal.add({1.7782,1.0506});
+  signal.add({1.85011,1.05768});
+  signal.add({1.90931,1.06434});
+  signal.add({1.95735,1.07011});
+  signal.add({1.99611,1.07489});
+  signal.add({2.02706,1.07873});
+  signal.add({2.05139,1.08173});
+  signal.add({2.07352,1.08445});
+  signal.add({2.08801,1.08621});
+  signal.add({2.1025,1.08796});
+  signal.add({2.11415,1.08934});
+  signal.add({2.12061,1.09004});
+  signal.add({2.12706,1.09074});
+  signal.add({2.13352,1.09143});
+  signal.add({2.13997,1.09213});
+  signal.add({2.14643,1.09283});
+  signal.add({2.15289,1.09353});
+  
+  // open output file
+  String fn = "./debug/debug-time-uniform-filtering.csv";
+  ofstream hF;
+  hF.open(fn.toStdString(), ofstream::out | ofstream::trunc);
+  
+  // print input signal to file
+  hF << "isFilt,point,time,q_X1,q_X2" << endl;
+  for (int i=0; i<signal.size(); i++)
+  {
+    hF << false << "," << i << "," << times.getUnchecked(i) << "," << signal.getUnchecked(i).getUnchecked(0) << "," << signal.getUnchecked(i).getUnchecked(1) << endl;
+  }
+  
+  // filter
+  lowPassFiltering(signal, 1);
+  
+  // print output signal to file
+  for (int i=0; i<signal.size(); i++)
+  {
+    hF << true << "," << i << "," << times.getUnchecked(i) << "," << signal.getUnchecked(i).getUnchecked(0) << "," << signal.getUnchecked(i).getUnchecked(1) << endl;
+  }
+  
+  
+  return;
+  
+  
+  
 
   mt19937 rng(std::random_device{}()); // moteur Mersenne Twister
   
@@ -3524,15 +3793,8 @@ void NEP::debugFiltering()
   
   //float sr = (float) curveLength(traj2filter) / float(traj2filter.size());
   float sr = 1.;
-  /*
-  filter.setCutoffFrequency(cutoffFreq->floatValue());
-  //filter.prepare(sr, simul->entities.size());
-  filter.setSamplingRate(sr);
-  filter.setCutoffFrequency(cutoffFreq->floatValue());
-  filter.process(traj2filter);
-  */
-  
-  float jucefreq = cutoffFreq->floatValue() / (float) N;
+
+  float jucefreq = cutoffFreq->floatValue() / (float) N; // wrong, should be sampling rate / minPeriodInSample
   // careful ! cutoff freq cannot exceed fqnyst. 0 < cutofffreq < samplingrate/2
   auto coeffs = juce::dsp::FilterDesign<double>::designIIRLowpassHighOrderButterworthMethod(jucefreq, sr, 4);
   
