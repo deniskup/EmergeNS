@@ -2951,7 +2951,7 @@ void Simulation::writeHistory()
     string comma = ",";
     if ( c == (entities.size() - 1) && pacList->cycles.size()==0)
       comma = "";
-    historyFile << "[" << ent->name << "]" << comma;
+    historyFile << ent->name << comma;
   }
   //for (auto & cycle : pacList->cycles)
   for (int c=0; c<pacList->cycles.size(); c++)
