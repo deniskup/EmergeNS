@@ -59,6 +59,8 @@ class LiftTrajectoryOptResults
     ~LiftTrajectoryOptResults(){};
     Array<StateVec> opt_momentum;
     Array<double> opt_deltaT;
+    pCurve pcurve;
+    Array<double> times;
 };
 
 
@@ -183,6 +185,7 @@ public:
 private:
   
 
+  void testinitConcentrationCurve();
   void initConcentrationCurve();
   
   void writeDescentToFile();
@@ -194,19 +197,18 @@ private:
   bool descentShouldUpdateParams(double);
   
   bool descentShouldContinue(int);
-  
-  // gslSolve();
-  
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL();
+    
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&);
 
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT();
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
   void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
-  void updateOptimalConcentrationCurve();
+  void updateOptimalConcentrationCurve(Curve &, double);
 
   double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
-  double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
+  //double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
+  double backTrackingMethodForStepSize(const Curve& c);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
@@ -222,10 +224,10 @@ private:
   void heteroclinicStudy();
   
   // global variable describing the state of the descent
-  Curve qcurve;
-  pCurve pcurve;
+  Curve g_qcurve;
+  pCurve g_pcurve;
   double length_qcurve = 0.;
-  Array<double> times;
+  Array<double> g_times;
   double action;
   double metric = 1.; // distance from hamilton's equation of motion
   Array<StateVec> dAdq, dAdq_filt;

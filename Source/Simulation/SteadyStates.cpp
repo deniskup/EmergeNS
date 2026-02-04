@@ -1463,8 +1463,8 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 	// retrieve upper triangular matrix
 	Eigen::MatrixXcd triang = cs.matrixT();
   
-  //cout << "SteadyState::IsStable --- looking at steady state" << endl;
-  //printOneSteadyState(witness);
+  cout << "SteadyState::IsStable --- looking at steady state" << endl;
+  printOneSteadyState(witness);
 
   //cout << "--------triang. of jacobi matrix---------" << endl;
   //cout << triang << endl;
