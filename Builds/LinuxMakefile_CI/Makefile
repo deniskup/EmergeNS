@@ -72,6 +72,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS_APP := \
+  $(JUCE_OBJDIR)/FirstExitTime_4857037.o \
   $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o \
   $(JUCE_OBJDIR)/EntityManagerUI_b4e33bac.o \
   $(JUCE_OBJDIR)/EntityUI_e6628173.o \
@@ -129,6 +130,11 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) : $(OBJECTS_APP) $(JUCE_OBJDIR)/execinfo.cmd $
 	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) $(OBJECTS_APP) $(JUCE_LDFLAGS) $(shell cat $(JUCE_OBJDIR)/execinfo.cmd) $(JUCE_LDFLAGS_APP) $(RESOURCES) $(TARGET_ARCH)
+
+$(JUCE_OBJDIR)/FirstExitTime_4857037.o: ../../Source/Engine/FirstExitTime.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling FirstExitTime.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o: ../../Source/Engine/EmergeNSEngine.cpp
 	-$(V_AT)mkdir -p $(@D)

@@ -12,6 +12,7 @@
 		04BEEEBD7B492EBEEC19CF12 /* Util.cpp */ = {isa = PBXBuildFile; fileRef = 086E2A709DB2A17B51F3FF2F; };
 		05AD1EC55D2C6302ED178B97 /* ReactionManager.cpp */ = {isa = PBXBuildFile; fileRef = 74B0702C8DF6E5343D945394; };
 		060027DC34860C9C800706F6 /* include_juce_osc.cpp */ = {isa = PBXBuildFile; fileRef = AB46FF28AD2C6E63E27323E9; };
+		11C8BC36151320EEFA34DDA0 /* FirstExitTime.cpp */ = {isa = PBXBuildFile; fileRef = 26301CA02A17C32F6C80E82D; };
 		1490988804F81BDA6B60B654 /* SimEntity.cpp */ = {isa = PBXBuildFile; fileRef = 403459A56259FA0C77D01E6D; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
 		19D5838B14F0ED8CB2B684DB /* SimReaction.cpp */ = {isa = PBXBuildFile; fileRef = B8252F1965CFB9A32C234CA4; };
@@ -75,6 +76,7 @@
 		22B76F4980A22D40C97C8996 /* EntityManager.cpp */ /* EntityManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EntityManager.cpp; path = ../../Source/Simulation/EntityManager.cpp; sourceTree = SOURCE_ROOT; };
 		254D3044A95762CDE06EA4C4 /* include_juce_gui_extra.mm */ /* include_juce_gui_extra.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_extra.mm; path = ../../JuceLibraryCode/include_juce_gui_extra.mm; sourceTree = SOURCE_ROOT; };
 		25A0FA04997684B70632E61E /* EntityUI.cpp */ /* EntityUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EntityUI.cpp; path = ../../Source/Simulation/ui/EntityUI.cpp; sourceTree = SOURCE_ROOT; };
+		26301CA02A17C32F6C80E82D /* FirstExitTime.cpp */ /* FirstExitTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FirstExitTime.cpp; path = ../../Source/Engine/FirstExitTime.cpp; sourceTree = SOURCE_ROOT; };
 		26C7EE0B659D568885121040 /* juce_events */ /* juce_events */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_events; path = ../../JUCE/modules/juce_events; sourceTree = SOURCE_ROOT; };
 		2B75259F150E51EF767164FE /* default.nslayout */ /* default.nslayout */ = {isa = PBXFileReference; lastKnownFileType = file.nslayout; name = default.nslayout; path = ../../Resources/default.nslayout; sourceTree = SOURCE_ROOT; };
 		2C70B295F1FD425BAF034037 /* Foundation.framework */ /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -136,6 +138,7 @@
 		ABACD94518FB78F24075F5C2 /* Entity.cpp */ /* Entity.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Entity.cpp; path = ../../Source/Simulation/Entity.cpp; sourceTree = SOURCE_ROOT; };
 		B1E31D9C1C0073541A716045 /* include_juce_organicui3.cpp */ /* include_juce_organicui3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui3.cpp; path = ../../JuceLibraryCode/include_juce_organicui3.cpp; sourceTree = SOURCE_ROOT; };
 		B3FF5146B9527D733EAEFFBC /* include_juce_organicui.cpp */ /* include_juce_organicui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui.cpp; path = ../../JuceLibraryCode/include_juce_organicui.cpp; sourceTree = SOURCE_ROOT; };
+		B4A7D20EE7DD8FB3459E3169 /* FirstExitTime.h */ /* FirstExitTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstExitTime.h; path = ../../Source/Engine/FirstExitTime.h; sourceTree = SOURCE_ROOT; };
 		B58663DFA5F4ADBB408B1828 /* EntityManager.h */ /* EntityManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManager.h; path = ../../Source/Simulation/EntityManager.h; sourceTree = SOURCE_ROOT; };
 		B8252F1965CFB9A32C234CA4 /* SimReaction.cpp */ /* SimReaction.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SimReaction.cpp; path = ../../Source/Simulation/SimReaction.cpp; sourceTree = SOURCE_ROOT; };
 		B839AC5419C29F56D15AF22C /* include_juce_organicui2.cpp */ /* include_juce_organicui2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = include_juce_organicui2.cpp; path = ../../JuceLibraryCode/include_juce_organicui2.cpp; sourceTree = SOURCE_ROOT; };
@@ -244,6 +247,8 @@
 		2A545D1CF8B8BC81887FBBDD /* Engine */ = {
 			isa = PBXGroup;
 			children = (
+				26301CA02A17C32F6C80E82D,
+				B4A7D20EE7DD8FB3459E3169,
 				C833D6AD5C82FFD248DA850D,
 				E05C8A4530642669C3E0B8B0,
 			);
@@ -466,6 +471,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				11C8BC36151320EEFA34DDA0,
 				5884FFF13E5628D9E1A530BD,
 				62CE9A5FFE46AEFCDB7DB8D8,
 				F8513DF1E55AD29FEFB24087,
