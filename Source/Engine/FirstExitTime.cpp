@@ -20,6 +20,11 @@ void FirstExitTime::reset()
   // fill entity array with copies of the ones present in the simulation instance
   entities.clear();
   
+  for (auto & ent : simul->entities)
+  {
+    SimEntity * copyent = new SimEntity(ent->entity);
+    entities.add(copyent);
+  }
   
 }
 
@@ -30,21 +35,31 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
     juce::var myvar(val);
-    if (key == "network") networkfile = val;
-    else if (key == "dt") Simulation::getInstance()->dt->setValue(atof(val.toUTF8()));
+    if (key == "network")
+      networkfile = val;
+    else if (key == "dt")
+      simul->dt->setValue(atof(val.toUTF8()));
     //else if (key == "dtbis") dtbis = atof(val.c_str());
-    else if (key == "totalTime") Simulation::getInstance()->totalTime->setValue(atof(val.toUTF8()));
-    else if (key == "exitTimePrecision") precision = atof(val.toUTF8());
-    else if (key == "epsilonNoise") Settings::getInstance()->volume->setValue(-2.*log10(atof(val.toUTF8())));
-    else if (key == "nRuns") nruns = atoi(val.toUTF8());
-    else if (key == "fixedSeed") fixedSeed = atoi(val.toUTF8());
-    else if (key == "seed") seed = atoi(val.toUTF8());
+    else if (key == "totalTime")
+      simul->totalTime->setValue(atof(val.toUTF8()));
+    else if (key == "exitTimePrecision")
+      precision = atof(val.toUTF8());
+    else if (key == "epsilonNoise")
+      Settings::getInstance()->volume->setValue(-2.*log10(atof(val.toUTF8())));
+    else if (key == "nRuns")
+      nruns = atoi(val.toUTF8());
+    else if (key == "fixedSeed")
+      fixedSeed = atoi(val.toUTF8());
+    else if (key == "seed")
+      seed = atoi(val.toUTF8());
     //else if (key == "nstepbis") nstepbis = atoi(val.c_str());
     //else if (key == "epsilon") epsilon = atof(val.c_str());
     //else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
-    else if (key == "outputfilename") outputfilename = val;
+    else if (key == "outputfilename")
+      outputfilename = val;
     //else if (key == "dtsave") dtsave = atof(val.c_str());
-    else if (key == "startSteadyState") startSteadyState = atoi(val.toUTF8());
+    else if (key == "startSteadyState")
+      startSteadyState = atoi(val.toUTF8());
     //else if (key == "superRun") superRun = atoi(val.c_str());
   }
   
@@ -64,12 +79,17 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   */
   
   // additionnal configurations
-  Simulation::getInstance()->autoScale->setValue(true);
-  Simulation::getInstance()->stochasticity->setValue(true);
+  simul->autoScale->setValue(true);
+  simul->stochasticity->setValue(true);
   //Simulation::getInstance()->noVisu = true;
   
 }
 
+
+int FirstExitTime::identifyAttractionBasin()
+{
+  
+}
 
 
 void FirstExitTime::startStudy()
@@ -172,6 +192,7 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
 
   case Simulation::SimulationEvent::NEWSTEP:
   {
+    identifyAttractionBasin();
   }
   break;
 

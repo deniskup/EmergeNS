@@ -15,6 +15,8 @@ public:
   
   void startStudy();
   
+  int identifyAttractionBasin();
+  
   void newMessage(const Simulation::SimulationEvent &e) override;
 
   //void newMessage(const ContainerAsyncEvent &e) override;

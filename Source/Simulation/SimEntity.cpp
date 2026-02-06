@@ -178,7 +178,7 @@ void SimEntity::updateFromEntity(Entity *e)
   // synchronize space grid with entity change
   // in an ugly way by manually calling the trigger button of space instance
   // better way would be use listeners instead ?
-  Space::getInstance()->initGridAtStartValues->trigger();
+  // Space::getInstance()->initGridAtStartValues->trigger(); // #TODO find another solution
 }
 
 var SimEntity::toJSONData()
