@@ -17,13 +17,50 @@ FirstExitTime::~FirstExitTime()
 
 void FirstExitTime::reset()
 {
-  // fill entity array with copies of the ones present in the simulation instance
   entities.clear();
+  reactions.clear();
   
+
+  
+  // fill entity array with copies of the ones present in the simulation instance
+  // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
+  // or make sure to update the simentity concentration value with the one
   for (auto & ent : simul->entities)
+    entities.add(ent->clone().release());
+  
+  for (auto & ent : entities)
+    ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+  
+  for (auto & r : simul->reactions)
   {
-    SimEntity * copyent = new SimEntity(ent->entity);
-    entities.add(copyent);
+    Array<SimEntity*> reactants;
+    Array<SimEntity*> products;
+    for (auto & e : r->reactants)
+    {
+      reactants.add(entities[e->idSAT]);
+    }
+    for (auto & e : r->products)
+    {
+      products.add(entities[e->idSAT]);
+    }
+    SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+    reactions.add(copyr);
+  }
+  
+  cout << "--- FirstExitTime::reset() ---" << endl;
+  cout << "--- SimEntity list : " << endl;
+  for (auto & ent :entities)
+    cout << "\t" << ent->name << endl;
+  cout << "--- SimReaction list : " << endl;
+  for (auto & r :reactions)
+  {
+    cout << r->name << endl;
+    cout << "reactants : " << endl;
+    for (auto& e :r->reactants)
+      cout << "\t" << e->name << endl;
+    cout << "products : " << endl;
+    for (auto& e :r->products)
+      cout << "\t" << e->name << endl;
   }
   
 }
@@ -86,14 +123,16 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
 }
 
 
-int FirstExitTime::identifyAttractionBasin()
-{
-  
-}
 
-
+// #TODO clarify what is in there 
 void FirstExitTime::startStudy()
 {
+  
+  if (simul->isSpace->boolValue())
+  {
+    LOGWARNING("Cannot perform Exit time study in heterogeneous space. Abort study.");
+    return;
+  }
   
   /*
   
@@ -187,12 +226,15 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
 
   case Simulation::SimulationEvent::STARTED:
   {
+    // test in which attraction basin in the system
   }
   break;
 
   case Simulation::SimulationEvent::NEWSTEP:
   {
-    identifyAttractionBasin();
+
+    // test in which attraction basin in the system
+>>>>>>> 28effa7 (More progress in exit study (compiles but execution not tested yet))
   }
   break;
 

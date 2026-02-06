@@ -23,7 +23,8 @@ public:
   
   Simulation * simul;
   
-  Array<SimEntity*> entities;
+  OwnedArray<SimEntity> entities;
+  OwnedArray<SimReaction> reactions;
 
   
   String networkfile;

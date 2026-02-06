@@ -494,7 +494,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 
-		if (simul->realTime->boolValue())
+		if (simul->realTime->boolValue() && ev.run == simul->runToDraw)
 			shouldRepaint = true;
 	}
 	break;

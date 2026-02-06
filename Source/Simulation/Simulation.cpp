@@ -1625,7 +1625,7 @@ void Simulation::resetBeforeRunning()
   }
   
   
-  runToDraw = 0;
+  runToDraw = nRuns-1;
   patchToDraw = 0;
   //recordDrawn = 0.;
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
@@ -1785,7 +1785,7 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));  
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   
     
@@ -1867,7 +1867,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   initialConcentrations = initConc;
   isMultipleRun = true;
   setRun->setValue(nRuns-1);
-  runToDraw = nRuns - 1;
+  //runToDraw = nRuns - 1;
   
 
 
@@ -1896,7 +1896,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   }
   cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
@@ -2057,13 +2057,13 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     
     if (curStep==0)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, curStep, drawnConcGrid, entityColours, racarray, raclist));
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, curStep, drawnConcGrid, entityColours, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, curStep, drawnConcGrid, {}, racarray, raclist));
     }
     else
     {
       //cout << "Calling new SimNotifier in redraw" << endl;
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, curStep, drawnConcGrid, {}, racarray, raclist));
     }
   
   
@@ -2268,9 +2268,9 @@ void Simulation::nextStep()
     
     //cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
     if (isMultipleRun && currentRun==nRuns-1)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, curStep, entityValues, {}, PACsValues, RACList));
     if (!isMultipleRun)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, curStep, entityValues, {}, PACsValues, RACList));
   }
 
   
@@ -2284,10 +2284,10 @@ void Simulation::updateSinglePatchRates(Patch& patch, bool isCheck)
 {
   
   // calculate new reaction rates
-  SteppingReactionRates(patch, isCheck);
+  SteppingReactionRates(reactions, patch, isCheck);
   
   // calculate creation/destruction rates
-  SteppingInflowOutflowRates(patch);
+  SteppingInflowOutflowRates(entities, patch);
 
   // calculate diffusion rates w.r.t closest patch neighbours
   if (isSpace->boolValue())
@@ -2297,11 +2297,12 @@ void Simulation::updateSinglePatchRates(Patch& patch, bool isCheck)
 }
 
 
-void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
+//void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
+void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patch& patch, bool isCheck)
 {
     
   // loop through reactions
-  for (auto &reac : reactions)
+  for (auto &reac : _reactions)
   {
     // for a sanity check
     //cout << "##### " << reac->name << " :" << endl;
@@ -2485,11 +2486,11 @@ void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
 }
 
 
-void Simulation::SteppingInflowOutflowRates(Patch& patch)
+void Simulation::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, Patch& patch)
 {
   
   // loop over entities
-  for (auto &ent : entities)
+  for (auto &ent : _entities)
   {
     ent->previousConcent.set(patch.id, ent->concent[patch.id]); // save concent in previousConcent to compute var speed
     
@@ -2866,7 +2867,7 @@ void Simulation::run()
     }
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, currentRun, curStep, entityValues, {}, {}, {}));
   
   
   if (redrawRun || redrawPatch)

@@ -269,8 +269,9 @@ public:
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
   void nextStep();
   void updateSinglePatchRates(Patch&, bool);
-  void SteppingReactionRates(Patch&, bool);
-  void SteppingInflowOutflowRates(Patch&);
+  //void SteppingReactionRates(Patch&, bool);
+  void SteppingReactionRates(OwnedArray<SimReaction>&, Patch&, bool);
+  void SteppingInflowOutflowRates(OwnedArray<SimEntity>&, Patch&);
 	void SteppingDiffusionRates(Patch&);
   void computeRACsActivity(bool);
 	void stop();
@@ -303,7 +304,7 @@ public:
 
 		SimulationEvent(Type t,
 			Simulation* sim,
-      //int _run = 0,
+      int _run = 0,
       //int _patch = 0,
 			int curStep = 0,
       //Array<float> entityValues = Array<float>(),
@@ -311,7 +312,7 @@ public:
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
-			: type(t), sim(sim), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+			: type(t), sim(sim), run(_run), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
 		{
 		}
 
@@ -330,7 +331,7 @@ public:
     */
 		Type type;
 		Simulation* sim;
-    //int run;
+    int run;
     //int patch;
 		int curStep;
     //Array<float> entityValues;
