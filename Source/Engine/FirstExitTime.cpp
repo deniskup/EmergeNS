@@ -1,7 +1,7 @@
 #include "FirstExitTime.h"
 
 // constructor
-FirstExitTime::FirstExitTime()
+FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
 {
   
 }
@@ -12,6 +12,15 @@ FirstExitTime::FirstExitTime()
 // destructor
 FirstExitTime::~FirstExitTime()
 {
+}
+
+
+void FirstExitTime::reset()
+{
+  // fill entity array with copies of the ones present in the simulation instance
+  entities.clear();
+  
+  
 }
 
 
@@ -152,6 +161,7 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
       
   case Simulation::SimulationEvent::WILL_START:
   {
+    reset();
   }
   break;
 

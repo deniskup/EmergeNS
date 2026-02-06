@@ -9,6 +9,8 @@ public:
   FirstExitTime();
   ~FirstExitTime();
   
+  void reset();
+  
   void setSimulationConfig(std::map<String, String>);
   
   void startStudy();
@@ -16,6 +18,10 @@ public:
   void newMessage(const Simulation::SimulationEvent &e) override;
 
   //void newMessage(const ContainerAsyncEvent &e) override;
+  
+  Simulation * simul;
+  
+  Array<SimEntity*> entities;
 
   
   String networkfile;
