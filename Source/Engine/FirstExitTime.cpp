@@ -232,9 +232,7 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
 
   case Simulation::SimulationEvent::NEWSTEP:
   {
-
     // test in which attraction basin in the system
->>>>>>> 28effa7 (More progress in exit study (compiles but execution not tested yet))
   }
   break;
 
