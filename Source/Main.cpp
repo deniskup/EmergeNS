@@ -33,5 +33,5 @@ void EmergeNSApplication::initialiseInternal(const String&)
 
 bool EmergeNSApplication::moreThanOneInstanceAllowed()
 {
-  return false;
+  return true;
 }
