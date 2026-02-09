@@ -15,6 +15,7 @@
 		11C8BC36151320EEFA34DDA0 /* FirstExitTime.cpp */ = {isa = PBXBuildFile; fileRef = 26301CA02A17C32F6C80E82D; };
 		1490988804F81BDA6B60B654 /* SimEntity.cpp */ = {isa = PBXBuildFile; fileRef = 403459A56259FA0C77D01E6D; };
 		172B54273F79561BA31CB92D /* Entity.cpp */ = {isa = PBXBuildFile; fileRef = ABACD94518FB78F24075F5C2; };
+		17DC8E199AA7E3D7C45D537D /* KineticLaw.cpp */ = {isa = PBXBuildFile; fileRef = 89515CB4FD83FB1F197DB132; };
 		19D5838B14F0ED8CB2B684DB /* SimReaction.cpp */ = {isa = PBXBuildFile; fileRef = B8252F1965CFB9A32C234CA4; };
 		2AA058B1E54B8EF86E9EF667 /* PAC.cpp */ = {isa = PBXBuildFile; fileRef = 0A3CC5BA63C4CFB8D89F0D2A; };
 		34CE593BA3911DF741A62A82 /* Generation.cpp */ = {isa = PBXBuildFile; fileRef = E70390156D59535F88C324EE; };
@@ -113,6 +114,7 @@
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
 		6B28E7757C58181F28CE8C98 /* MainComponentCommands.cpp */ /* MainComponentCommands.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponentCommands.cpp; path = ../../Source/MainComponentCommands.cpp; sourceTree = SOURCE_ROOT; };
 		6F860C2BF4E1A836444D5B8E /* PAC.h */ /* PAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PAC.h; path = ../../Source/Simulation/PAC.h; sourceTree = SOURCE_ROOT; };
+		72D7AE46F64E78FD9B283689 /* KineticLaw.h */ /* KineticLaw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KineticLaw.h; path = ../../Source/Simulation/KineticLaw.h; sourceTree = SOURCE_ROOT; };
 		74B0702C8DF6E5343D945394 /* ReactionManager.cpp */ /* ReactionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManager.cpp; path = ../../Source/Simulation/ReactionManager.cpp; sourceTree = SOURCE_ROOT; };
 		752B455ED22E03C642F99F2F /* SimEntity.h */ /* SimEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimEntity.h; path = ../../Source/Simulation/SimEntity.h; sourceTree = SOURCE_ROOT; };
 		75DE9D4D888466F8BE4DED40 /* MainComponent.cpp */ /* MainComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponent.cpp; path = ../../Source/MainComponent.cpp; sourceTree = SOURCE_ROOT; };
@@ -123,6 +125,7 @@
 		828DE22CEC4B72C6FAFA60C7 /* SettingsUI.cpp */ /* SettingsUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = SettingsUI.cpp; path = ../../Source/Simulation/ui/SettingsUI.cpp; sourceTree = SOURCE_ROOT; };
 		83BF305CE5EF062C10932465 /* MainComponent.h */ /* MainComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainComponent.h; path = ../../Source/MainComponent.h; sourceTree = SOURCE_ROOT; };
 		85738E6567AAAF5831E08056 /* GenerationUI.cpp */ /* GenerationUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GenerationUI.cpp; path = ../../Source/Simulation/ui/GenerationUI.cpp; sourceTree = SOURCE_ROOT; };
+		89515CB4FD83FB1F197DB132 /* KineticLaw.cpp */ /* KineticLaw.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = KineticLaw.cpp; path = ../../Source/Simulation/KineticLaw.cpp; sourceTree = SOURCE_ROOT; };
 		8998AEBF8653D39BEF549D88 /* EntityUI.h */ /* EntityUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityUI.h; path = ../../Source/Simulation/ui/EntityUI.h; sourceTree = SOURCE_ROOT; };
 		8C878E400E743CDBDEFDE449 /* include_juce_gui_basics.mm */ /* include_juce_gui_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_gui_basics.mm; path = ../../JuceLibraryCode/include_juce_gui_basics.mm; sourceTree = SOURCE_ROOT; };
 		8EAFE4B45B11A7B069C5CA3F /* SimReaction.h */ /* SimReaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimReaction.h; path = ../../Source/Simulation/SimReaction.h; sourceTree = SOURCE_ROOT; };
@@ -208,6 +211,8 @@
 		2485712F6E6EC416A75E1175 /* Simulation */ = {
 			isa = PBXGroup;
 			children = (
+				72D7AE46F64E78FD9B283689,
+				89515CB4FD83FB1F197DB132,
 				65F597D7CEC8F963C92135A5,
 				56DFD94A5AB14A9FD1D28610,
 				B8252F1965CFB9A32C234CA4,
@@ -473,6 +478,7 @@
 			files = (
 				11C8BC36151320EEFA34DDA0,
 				5884FFF13E5628D9E1A530BD,
+				17DC8E199AA7E3D7C45D537D,
 				62CE9A5FFE46AEFCDB7DB8D8,
 				F8513DF1E55AD29FEFB24087,
 				90BC5390DB65247E8BFCBEC1,

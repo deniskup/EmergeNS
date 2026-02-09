@@ -7,6 +7,7 @@
 #include "SimulationHelpers.h"
 #include "PhasePlane.h"
 #include "Space.h"
+#include "KineticLaw.h"
 #include <random>
 
 
@@ -37,39 +38,6 @@ typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid;
 
 
 
-class RandomGausGenerator
-{
-  public:
-  RandomGausGenerator(float _mu, float _sigma) // constructor
-  {
-    mu = _mu;
-    sigma = _sigma;
-    gausDist = new normal_distribution<float>;
-    normal_distribution<float> dtemp(mu, sigma);
-    gausDist->param(dtemp.param());
-    generator=new default_random_engine;
-  };
-  
-  // attributes
-  default_random_engine * generator;
-  normal_distribution<float> * gausDist;
-  float mu = 0.;
-  float sigma = 1.;
-  //unsined long seed;
-  
-  // generate actual random number
-  float randomNumber()
-  {
-    return (*gausDist)(*generator);
-  }
-  
-  void setFixedSeed(unsigned int _seed)
-  {
-    generator->seed(_seed);
-  }
-  
-};
-
 
 
 
@@ -98,8 +66,6 @@ public:
   
   // demographic noise
   BoolParameter* stochasticity;
-  RandomGausGenerator * rgg;
-  float noiseEpsilon; // = 1. / sqrt(volume)
   
   // simulation in space
   BoolParameter * isSpace;
@@ -131,6 +97,9 @@ public:
 	bool express = false; // express mode : no graphics, just find equilibrium
   bool redrawRun = false; // redraw mode : just graphics, no simulation
   bool redrawPatch = false; // redraw mode : just graphics, no simulation
+  
+  // kinetics
+  KineticLaw * kinetics;
 
 	// step counters
 	int maxSteps; // totaltime / dt
@@ -219,7 +188,7 @@ public:
 	void computeBarriers(); // compute barriers from rates and energy of entities
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
-	void setConcToSteadyState(int idSS); // set concentrations to Steady State
+	void setConcToSteadyState(OwnedArray<SimEntity>&, int idSS); // set concentrations to Steady State
   void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
   void drawConcOfPatch(int idpatch); // draw concentration dynamics associated to idpatch
 
@@ -269,10 +238,9 @@ public:
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
   void nextStep();
   void updateSinglePatchRates(Patch&, bool);
-  //void SteppingReactionRates(Patch&, bool);
-  void SteppingReactionRates(OwnedArray<SimReaction>&, Patch&, bool);
-  void SteppingInflowOutflowRates(OwnedArray<SimEntity>&, Patch&);
-	void SteppingDiffusionRates(Patch&);
+  //void SteppingReactionRates(OwnedArray<SimReaction>&, int, bool);
+  //void SteppingInflowOutflowRates(OwnedArray<SimEntity>&, int);
+	//void SteppingDiffusionRates(Patch&);
   void computeRACsActivity(bool);
 	void stop();
 	void cancel();

@@ -493,6 +493,9 @@
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp">
       <Filter>EmergeNS\Source\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\KineticLaw.cpp">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityManagerUI.cpp">
       <Filter>EmergeNS\Source\Simulation\ui</Filter>
     </ClCompile>
@@ -2777,6 +2780,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h">
       <Filter>EmergeNS\Source\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\KineticLaw.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\SimulationHelpers.h">
       <Filter>EmergeNS\Source\Simulation</Filter>

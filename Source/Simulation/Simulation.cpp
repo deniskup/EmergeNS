@@ -1640,36 +1640,14 @@ void Simulation::resetBeforeRunning()
   //if (Space::getInstance()->spaceGrid.size() == 0)
   //  Space::getInstance()->tilingSize->setValue(1);
   
-  if (stochasticity->boolValue())
+  // init kinetic law class
+  float noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
+  kinetics = new KineticLaw(stochasticity->boolValue(), noiseEpsilon);
+  if (Settings::getInstance()->fixedSeed->boolValue()==true)
   {
-    rgg = new RandomGausGenerator(0., 1.); // init random generator
-    rgg->generator->seed(std::chrono::system_clock::now().time_since_epoch().count());
-    noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
-    if (Settings::getInstance()->fixedSeed->boolValue()==true)
-    {
-      // check that the seed string has correct format, i.e. only digits
-      string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
-      bool correctFormat = true;
-      for (int k=0; k<strSeed.size(); k++)
-      {
-        if (!isdigit(strSeed[k]))
-        {
-          correctFormat = false;
-          break;
-        }
-      }
-      if (!correctFormat)
-      {
-        LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
-      }
-      else
-      {
-        unsigned int seed = atoi(strSeed.c_str());
-        rgg->setFixedSeed(seed);
-      }
-    }
+    string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
+    kinetics->fixedSeedMode(strSeed);
   }
-  
   
   // clear space grid
   //spaceGrid.clear();
@@ -2282,28 +2260,34 @@ void Simulation::nextStep()
 
 void Simulation::updateSinglePatchRates(Patch& patch, bool isCheck)
 {
+  bool updateReactionFlows = (isCheck || isMultipleRun);
   
   // calculate new reaction rates
-  SteppingReactionRates(reactions, patch, isCheck);
+  //SteppingReactionRates(reactions, patch.id, isCheck);
+  kinetics->SteppingReactionRates(reactions, dt->floatValue(), patch.id, updateReactionFlows);
   
   // calculate creation/destruction rates
-  SteppingInflowOutflowRates(entities, patch);
+  //SteppingInflowOutflowRates(entities, patch.id);
+  kinetics->SteppingInflowOutflowRates(entities, dt->floatValue(), patch.id);
 
   // calculate diffusion rates w.r.t closest patch neighbours
   if (isSpace->boolValue())
-    SteppingDiffusionRates(patch);
-  
+  {
+    //SteppingDiffusionRates(patch);
+    kinetics->SteppingDiffusionRates(entities, patch);
+  }
   
 }
 
-
+/*
 //void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
-void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patch& patch, bool isCheck)
+void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, int patchid, bool isCheck)
 {
     
   // loop through reactions
   for (auto &reac : _reactions)
   {
+    
     // for a sanity check
     //cout << "##### " << reac->name << " :" << endl;
     //cout << "\tassoc/dissoc k : " << reac->assocRate << " ; " << reac->dissocRate << endl;
@@ -2320,25 +2304,25 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
     bool firstEnt = true;
     for (auto &ent : reac->reactants)
     {
-      reacConcent *= ent->concent[patch.id];
-      deterministicReacConcent *= ent->deterministicConcent[patch.id];
+      reacConcent *= ent->concent[patchid];
+      deterministicReacConcent *= ent->deterministicConcent[patchid];
       //cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
-      if (ent == reac->reactants[0] || ent->concent[patch.id] < minReacConcent)
-        minReacConcent = ent->concent[patch.id];
-      if (ent == reac->reactants[0] || ent->deterministicConcent[patch.id] < mindReacConcent)
-        mindReacConcent = ent->deterministicConcent[patch.id];
+      if (ent == reac->reactants[0] || ent->concent[patchid] < minReacConcent)
+        minReacConcent = ent->concent[patchid];
+      if (ent == reac->reactants[0] || ent->deterministicConcent[patchid] < mindReacConcent)
+        mindReacConcent = ent->deterministicConcent[patchid];
     }
     float prodConcent = 1.;
     float deterministicProdConcent = 1.;
     firstEnt = true;
     for (auto &ent : reac->products)
     {
-      prodConcent *= ent->concent[patch.id];
-      deterministicProdConcent *= ent->deterministicConcent[patch.id];
-      if (ent == reac->products[0] || ent->concent[patch.id] < minProdConcent)
-        minProdConcent = ent->concent[patch.id];
-      if (ent == reac->products[0] || ent->deterministicConcent[patch.id] < mindProdConcent)
-        mindProdConcent = ent->deterministicConcent[patch.id];
+      prodConcent *= ent->concent[patchid];
+      deterministicProdConcent *= ent->deterministicConcent[patchid];
+      if (ent == reac->products[0] || ent->concent[patchid] < minProdConcent)
+        minProdConcent = ent->concent[patchid];
+      if (ent == reac->products[0] || ent->deterministicConcent[patchid] < mindProdConcent)
+        mindProdConcent = ent->deterministicConcent[patchid];
     }
 
 
@@ -2380,17 +2364,17 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
     // increase and decrease entities
     for (auto &ent : reac->reactants)
     {
-      ent->increase(patch.id, reverseIncr);
-      ent->deterministicIncrease(patch.id, deterministicReverseIncr);
-      ent->decrease(patch.id, directIncr);
-      ent->deterministicDecrease(patch.id, deterministicDirectIncr);
+      ent->increase(patchid, reverseIncr);
+      ent->deterministicIncrease(patchid, deterministicReverseIncr);
+      ent->decrease(patchid, directIncr);
+      ent->deterministicDecrease(patchid, deterministicDirectIncr);
     }
     for (auto &ent : reac->products)
     {
-      ent->increase(patch.id, directIncr);
-      ent->deterministicIncrease(patch.id, deterministicDirectIncr);
-      ent->decrease(patch.id, reverseIncr);
-      ent->deterministicDecrease(patch.id, deterministicReverseIncr);
+      ent->increase(patchid, directIncr);
+      ent->deterministicIncrease(patchid, deterministicDirectIncr);
+      ent->decrease(patchid, reverseIncr);
+      ent->deterministicDecrease(patchid, deterministicReverseIncr);
     }
     
     
@@ -2409,12 +2393,12 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
       {
         if (!m.count(ent)) // if entity has not been parsed already
         {
-          stoc_directIncr *= sqrt(ent->concent[patch.id]);
+          stoc_directIncr *= sqrt(ent->concent[patchid]);
           m[ent] = 1;
         }
         else
         {
-          float corrC = ent->concent[patch.id] - noiseEpsilon * noiseEpsilon * m[ent];
+          float corrC = ent->concent[patchid] - noiseEpsilon * noiseEpsilon * m[ent];
           if (corrC > 0.) stoc_directIncr *= sqrt(corrC);
           else stoc_directIncr = 0.;
           m[ent]++;
@@ -2438,12 +2422,12 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
         {
           if (!mm.count(ent)) // if entity has not been parsed already
           {
-            stoc_reverseIncr *= sqrt(ent->concent[patch.id]);
+            stoc_reverseIncr *= sqrt(ent->concent[patchid]);
             mm[ent] = 1;
           }
           else
           {
-            float corrC = ent->concent[patch.id] - noiseEpsilon * noiseEpsilon * mm[ent];
+            float corrC = ent->concent[patchid] - noiseEpsilon * noiseEpsilon * mm[ent];
             if (corrC > 0.) stoc_reverseIncr *= sqrt(corrC);
             else stoc_reverseIncr = 0.;
             mm[ent]++;
@@ -2459,13 +2443,13 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
       // increase and decrease entities
       for (auto &ent : reac->reactants)
       {
-        ent->increase(patch.id, stoc_reverseIncr);
-        ent->decrease(patch.id, stoc_directIncr);
+        ent->increase(patchid, stoc_reverseIncr);
+        ent->decrease(patchid, stoc_directIncr);
       }
       for (auto &ent : reac->products)
       {
-        ent->increase(patch.id, stoc_directIncr);
-        ent->decrease(patch.id, stoc_reverseIncr);
+        ent->increase(patchid, stoc_directIncr);
+        ent->decrease(patchid, stoc_reverseIncr);
       }
 
       
@@ -2477,8 +2461,8 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
     {
       //reac->flow = directCoef - reverseCoef;
       //reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
-      reac->flow.set(patch.id, directCoef - reverseCoef);
-      reac->deterministicFlow.set(patch.id, deterministicDirectCoef - deterministicReverseCoef);
+      reac->flow.set(patchid, directCoef - reverseCoef);
+      reac->deterministicFlow.set(patchid, deterministicDirectCoef - deterministicReverseCoef);
     }
   } // end reaction loop
   
@@ -2486,13 +2470,13 @@ void Simulation::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, Patc
 }
 
 
-void Simulation::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, Patch& patch)
+void Simulation::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, int patchid)
 {
   
   // loop over entities
   for (auto &ent : _entities)
   {
-    ent->previousConcent.set(patch.id, ent->concent[patch.id]); // save concent in previousConcent to compute var speed
+    ent->previousConcent.set(patchid, ent->concent[patchid]); // save concent in previousConcent to compute var speed
     
     // creation
     if (ent->primary)
@@ -2509,14 +2493,14 @@ void Simulation::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, Pa
         incr -= stocIncr;
       } // end if stochasticity
       
-      ent->increase(patch.id, incr);
-      ent->deterministicIncrease(patch.id, deterministicIncr);
+      ent->increase(patchid, incr);
+      ent->deterministicIncrease(patchid, deterministicIncr);
     }
     
     //destruction
-    float rate = ent->concent[patch.id] * ent->destructionRate;
+    float rate = ent->concent[patchid] * ent->destructionRate;
     float incr = rate * dt->floatValue();
-    float deterministicRate = ent->deterministicConcent[patch.id] * ent->destructionRate;
+    float deterministicRate = ent->deterministicConcent[patchid] * ent->destructionRate;
     float deterministicIncr = deterministicRate * dt->floatValue();
 
 
@@ -2529,8 +2513,8 @@ void Simulation::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, Pa
       incr -= stocIncr;
     } // end if stochasticity
     
-    ent->decrease(patch.id, incr);
-    ent->deterministicDecrease(patch.id, deterministicIncr);
+    ent->decrease(patchid, incr);
+    ent->deterministicDecrease(patchid, deterministicIncr);
     
     //if (curStep<=10) cout << "Destruction increment:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
 
@@ -2570,6 +2554,7 @@ void Simulation::SteppingDiffusionRates(Patch& patch)
   }
 }
 
+*/
 
 void Simulation::computeRACsActivity(bool isCheck)
 {
@@ -3160,7 +3145,8 @@ void Simulation::setConcToCAC(int idCAC)
   {
     auto ent = entConc.first;
     float conc = entConc.second;
-    ent->concent = conc;
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    ent->concent = arrconc;
     if (ent->entity != nullptr)
       ent->entity->concent->setValue(conc);
     else
@@ -3168,16 +3154,17 @@ void Simulation::setConcToCAC(int idCAC)
   }
 }
 
-void Simulation::setConcToSteadyState(int idSS)
+void Simulation::setConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS)
 {
   if (idSS < 1)
     return;
   SteadyState ss = steadyStatesList->arraySteadyStates[idSS - 1];
   int ident = 0;
-  for (auto ent : entities)
+  for (auto ent : _entities)
   {
     float conc = ss.state[ident].second;
-    ent->concent = conc;
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    ent->concent = arrconc;
     ident++;
     if (ent->entity != nullptr)
       ent->entity->concent->setValue(conc);
@@ -3285,7 +3272,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     if (setSteadyState->intValue() < 1)
       return;
-    setConcToSteadyState(setSteadyState->intValue());
+    setConcToSteadyState(entities, setSteadyState->intValue());
   }
   if (p == setRun)
   {

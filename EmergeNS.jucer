@@ -21,6 +21,8 @@
               file="Source/Engine/EmergeNSEngine.h"/>
       </GROUP>
       <GROUP id="{87A9DC7B-5819-AD03-3D54-9A82506A3449}" name="Simulation">
+        <FILE id="Rtay8b" name="KineticLaw.h" compile="0" resource="0" file="Source/Simulation/KineticLaw.h"/>
+        <FILE id="I9Qq3o" name="KineticLaw.cpp" compile="1" resource="0" file="Source/Simulation/KineticLaw.cpp"/>
         <FILE id="BowSo4" name="SimulationHelpers.h" compile="0" resource="0"
               file="Source/Simulation/SimulationHelpers.h"/>
         <GROUP id="{FC51C38D-0EB8-27ED-53D6-8BBCA209472A}" name="ui">

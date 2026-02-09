@@ -74,6 +74,7 @@ endif
 OBJECTS_APP := \
   $(JUCE_OBJDIR)/FirstExitTime_4857037.o \
   $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o \
+  $(JUCE_OBJDIR)/KineticLaw_9fe9ae12.o \
   $(JUCE_OBJDIR)/EntityManagerUI_b4e33bac.o \
   $(JUCE_OBJDIR)/EntityUI_e6628173.o \
   $(JUCE_OBJDIR)/GenerationUI_294a2f68.o \
@@ -139,6 +140,11 @@ $(JUCE_OBJDIR)/FirstExitTime_4857037.o: ../../Source/Engine/FirstExitTime.cpp
 $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o: ../../Source/Engine/EmergeNSEngine.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling EmergeNSEngine.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/KineticLaw_9fe9ae12.o: ../../Source/Simulation/KineticLaw.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling KineticLaw.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/EntityManagerUI_b4e33bac.o: ../../Source/Simulation/ui/EntityManagerUI.cpp

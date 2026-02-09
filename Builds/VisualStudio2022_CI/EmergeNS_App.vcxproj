@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Engine\FirstExitTime.cpp"/>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\KineticLaw.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityManagerUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\GenerationUI.cpp"/>
@@ -2191,6 +2192,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Engine\FirstExitTime.h"/>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h"/>
+    <ClInclude Include="..\..\Source\Simulation\KineticLaw.h"/>
     <ClInclude Include="..\..\Source\Simulation\SimulationHelpers.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\EntityManagerUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\EntityUI.h"/>
