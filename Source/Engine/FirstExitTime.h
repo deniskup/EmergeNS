@@ -42,17 +42,19 @@ private:
   Array<float> escapeTimes;
   
   String networkfile = "./nextwork.txt";
+  String outputfilename = "./firstExitStudy.txt";
   float precision = 1e-5; // precision up to which the steady state is determined
   float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is
   int superRun = 0;
   int nruns = 1;
-  String outputfilename = "firstExitStudy.txt";
   int startSteadyState = 0;
   bool fixedSeed = false;
   int seed = 1234;
   int patchid = 0; // hardcoded patch in which this study takes place.
-  float dt_study = 0.1; // time step used to identify in which attraction basin the system is
   // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
+  float dt_study = 0.1; // time step used to identify in which attraction basin the system is
+  bool printDynamics2File = false;
+  
 
   
 };

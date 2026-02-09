@@ -127,6 +127,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     } // end command loop
 
     String model2file = "model.txt";
+    String network = "";
 
     // Set model parameters according to config values
     for (auto& [key, val] : configs)
@@ -140,9 +141,13 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       else if (key == "model2file") model2file = val;
       else if (key == "printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
       else if (key == "study") study = String(val);
+      else if (key == "network") network = val;
       //else if (key=="connectedness")
     }
     
+    // open the .ens file
+    juce::File file(network);
+    loadDocumentNoCheck(file);
     
     if (study == "firstExit")
     {

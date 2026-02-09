@@ -70,7 +70,9 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
     juce::var myvar(val);
-    if (key == "network")
+    //if (key == "network")
+    //  networkfile = val;
+    if (key == "output")
       networkfile = val;
     else if (key == "dt")
       simul->dt->setValue(atof(val.toUTF8()));
@@ -96,9 +98,12 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
       startSteadyState = atoi(val.toUTF8());
     else if (key == "superRun")
       superRun = atoi(val.toUTF8());
+    else if (key == "dynamics2file")
+      printDynamics2File = atoi(val.toUTF8());
   }
+  printDynamics2File = bool(printDynamics2File);
   
-  // set simulation instance parameters according to those of
+  // set simulation instance parameters according to those of config file
   
   // seeds
   Settings::getInstance()->fixedSeed->setValue(fixedSeed);
@@ -116,7 +121,8 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   // additionnal configurations
   simul->autoScale->setValue(true);
   simul->stochasticity->setValue(true);
-  //Simulation::getInstance()->noVisu = true;
+  GlobalSettings::getInstance()->logAutosave->setValue(false); // autosave pretty annoying in the case of this study
+  Settings::getInstance()->printHistoryToFile->setValue(printDynamics2File);
   
 }
 
