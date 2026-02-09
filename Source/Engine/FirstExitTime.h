@@ -20,11 +20,13 @@ public:
   
 private:
   
-  int identifyAttractionBasin(ConcentrationGrid &);
+  int identifyAttractionBasin(ConcentrationGrid &, float);
   
   float distanceFromSteadyState(State sst);
   
   SimEntity * getSimEntityForID(const size_t);
+  
+  void printResultsToFile();
   
   void newMessage(const Simulation::SimulationEvent &e) override;
 
@@ -36,9 +38,13 @@ private:
   OwnedArray<SimEntity> entities;
   OwnedArray<SimReaction> reactions;
 
+  // to store escape times during this study
+  Array<float> escapeTimes;
   
   String networkfile = "./nextwork.txt";
-  float precision = 1e-5; // precision up to which the steady state is calculated
+  float precision = 1e-5; // precision up to which the steady state is determined
+  float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is
+  int superRun = 0;
   int nruns = 1;
   String outputfilename = "firstExitStudy.txt";
   int startSteadyState = 0;

@@ -166,6 +166,7 @@ public:
 	};
 
 	SimulationState state = Idle;
+  std::atomic<bool> requestNewRun {false}; // to request thread (outside from it) to move to next run
 
 
 	void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
@@ -233,6 +234,7 @@ public:
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
+  void requestToMoveToNextRun(){requestNewRun.store(true, std::memory_order_release);}
   int checkRunStatus();
   void resetForNextRun();
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
@@ -274,13 +276,13 @@ public:
 			Simulation* sim,
       int _run = 0,
       //int _patch = 0,
-			int curStep = 0,
+			int nStep = 0,
       //Array<float> entityValues = Array<float>(),
       ConcentrationGrid entityValues = {},
 			Array<Colour> entityColors = Array<Colour>(),
 			Array<float> PACsValues = Array<float>(),
 			Array<bool> RACList = Array<bool>())
-			: type(t), sim(sim), run(_run), curStep(curStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+			: type(t), sim(sim), run(_run), nStep(nStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
 		{
 		}
 
@@ -301,7 +303,7 @@ public:
 		Simulation* sim;
     int run;
     //int patch;
-		int curStep;
+		int nStep;
     //Array<float> entityValues;
 		ConcentrationGrid entityValues;
 		Array<Colour> entityColors;

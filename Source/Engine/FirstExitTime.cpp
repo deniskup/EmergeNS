@@ -78,8 +78,10 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
       dt_study = atof(val.toUTF8());
     else if (key == "totalTime")
       simul->totalTime->setValue(atof(val.toUTF8()));
-    else if (key == "exitTimePrecision")
+    else if (key == "precision")
       precision = atof(val.toUTF8());
+    else if (key == "exitTimePrecision")
+      exitTimePrecision = atof(val.toUTF8());
     else if (key == "epsilonNoise")
       Settings::getInstance()->volume->setValue(-2.*log10(atof(val.toUTF8())));
     else if (key == "nRuns")
@@ -88,31 +90,28 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
       fixedSeed = atoi(val.toUTF8());
     else if (key == "seed")
       seed = atoi(val.toUTF8());
-    //else if (key == "nstepbis") nstepbis = atoi(val.c_str());
-    //else if (key == "epsilon") epsilon = atof(val.c_str());
-    //else if (key == "maxsteps_study") maxsteps_study = atoi(val.c_str());
     else if (key == "outputfilename")
       outputfilename = val;
-    //else if (key == "dtsave") dtsave = atof(val.c_str());
     else if (key == "startSteadyState")
       startSteadyState = atoi(val.toUTF8());
-    //else if (key == "superRun") superRun = atoi(val.c_str());
+    else if (key == "superRun")
+      superRun = atoi(val.toUTF8());
   }
   
   // set simulation instance parameters according to those of
-  //Simulation::getInstance()->exitTimeStudy = true;
-  //Simulation::getInstance()->transitStudy = false;
+  
+  // seeds
   Settings::getInstance()->fixedSeed->setValue(fixedSeed);
   Settings::getInstance()->randomSeed->setValue(seed);
   
-  /*
-  Simulation::getInstance()->dtbis = dtbis;
-  Simulation::getInstance()->maxsteps_study = maxsteps_study;
-  Simulation::getInstance()->exitTimePrecision = exitTimePrecision;
-  Simulation::getInstance()->epsilon = epsilon;
-  Simulation::getInstance()->outputfilename = outputfilename;
-  Simulation::getInstance()->superRun = superRun;
-  */
+  // number of checkpoints
+  if (exitTimePrecision == 0.)
+  {
+    LOGWARNING("Exit time precision set to 0., reset its value to default value 10.");
+    exitTimePrecision = 10.;
+  }
+  int ncheckpoints = simul->totalTime->floatValue() / exitTimePrecision;
+  
   
   // additionnal configurations
   simul->autoScale->setValue(true);
@@ -187,7 +186,7 @@ void FirstExitTime::setConcToSteadyState(int id)
 */
 
 
-int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg)
+int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
 {
   // desactivate noise in Simulation !!
   
@@ -243,6 +242,28 @@ int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg)
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
   
+  // check if the system left initial attraction basin
+  if (reachedSST != startSteadyState)
+  {
+    string strtime = to_string(time); // find a way to know time of simulation in here and tell simulation to move to next run
+    
+    // print to user for a follow-up
+    LOG("Has Left Initial Attraction Basin at time " + strtime);
+    
+    // store escape time, taken at the bin center of interval [time - exitTimePrecision ; time]
+    escapeTimes.add(time - 0.5*exitTimePrecision);
+    
+    // request a new run to simulation thread
+    simul->requestToMoveToNextRun();
+  }
+  
+  // if current time is greater than simulation time and still no escape is detected, keep track of it
+  if (time + 2*simul->dt->floatValue() > simul->totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
+  {
+    LOG("No escape detected");
+    escapeTimes.add(-1.);
+  }
+  
   return reachedSST;
 }
 
@@ -277,6 +298,29 @@ SimEntity * FirstExitTime::getSimEntityForID(const size_t idToFind)
 
 
 
+void FirstExitTime::printResultsToFile()
+{
+  ofstream outputfile;
+  String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
+  outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+
+  cout << "writing to file " << out << endl;
+  
+  outputfile << "Network " << networkfile << "\n" << endl;
+  outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << "\n" << endl;
+        
+  int c=-1;
+  for (auto & t : escapeTimes)
+  {
+    c++;
+    string newline = ((c == (escapeTimes.size()-1) ) ? "" : "\n");
+    outputfile << t << newline;
+  }
+  outputfile << endl;
+}
+
+
+
 void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
 {
   switch (ev.type)
@@ -301,12 +345,14 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
   {
     // test in which attraction basin in the system
     ConcentrationGrid cg = ev.entityValues;
-    identifyAttractionBasin(cg);
+    float time = simul->dt->floatValue() * ev.nStep;
+    identifyAttractionBasin(cg, time);
   }
   break;
 
   case Simulation::SimulationEvent::FINISHED:
   {
+    printResultsToFile();
   }
       
   } // end switch
