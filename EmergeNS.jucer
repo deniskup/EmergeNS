@@ -12,6 +12,10 @@
     </GROUP>
     <GROUP id="{5644C93F-D830-ABEA-7B3B-D680ED5AD24D}" name="Source">
       <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
+        <FILE id="Q44cI9" name="FirstExitTimeWorker.h" compile="0" resource="0"
+              file="Source/Engine/FirstExitTimeWorker.h"/>
+        <FILE id="yWK4Au" name="FirstExitTimeWorker.cpp" compile="1" resource="0"
+              file="Source/Engine/FirstExitTimeWorker.cpp"/>
         <FILE id="P4ShFd" name="FirstExitTime.cpp" compile="1" resource="0"
               file="Source/Engine/FirstExitTime.cpp"/>
         <FILE id="wAKWKZ" name="FirstExitTime.h" compile="0" resource="0" file="Source/Engine/FirstExitTime.h"/>

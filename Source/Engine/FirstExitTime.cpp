@@ -3,7 +3,9 @@
 // constructor
 FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
 {
-  kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity, not relevant in this study
+  cout << "calling creator FirstExitTime()" << endl;
+  worker = new FirstExitTimeWorker(*simul);
+  simul->addAsyncSimulationListener(this);
 }
 
 //SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
@@ -15,57 +17,10 @@ FirstExitTime::~FirstExitTime()
 }
 
 
-void FirstExitTime::reset()
-{
-  entities.clear();
-  reactions.clear();
-  
-  // fill entity array with copies of the ones present in the simulation instance
-  // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
-  // or make sure to update the simentity concentration value with the one
-  for (auto & ent : simul->entities)
-    entities.add(ent->clone().release());
-  
-  for (auto & ent : entities)
-    ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
-  
-  for (auto & r : simul->reactions)
-  {
-    Array<SimEntity*> reactants;
-    Array<SimEntity*> products;
-    for (auto & e : r->reactants)
-    {
-      reactants.add(entities[e->idSAT]);
-    }
-    for (auto & e : r->products)
-    {
-      products.add(entities[e->idSAT]);
-    }
-    SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
-    reactions.add(copyr);
-  }
-  
-  cout << "--- FirstExitTime::reset() ---" << endl;
-  cout << "--- SimEntity list : " << endl;
-  for (auto & ent :entities)
-    cout << "\t" << ent->name << endl;
-  cout << "--- SimReaction list : " << endl;
-  for (auto & r :reactions)
-  {
-    cout << r->name << endl;
-    cout << "reactants : " << endl;
-    for (auto& e :r->reactants)
-      cout << "\t" << e->name << endl;
-    cout << "products : " << endl;
-    for (auto& e :r->products)
-      cout << "\t" << e->name << endl;
-  }
-  
-}
-
 
 void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
 {
+  cout << "FirstExitTime::setSimulationConfig()" << endl;
   for (auto& [key, val] : configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
@@ -92,8 +47,6 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
       fixedSeed = atoi(val.toUTF8());
     else if (key == "seed")
       seed = atoi(val.toUTF8());
-    else if (key == "outputfilename")
-      outputfilename = val;
     else if (key == "startSteadyState")
       startSteadyState = atoi(val.toUTF8());
     else if (key == "superRun")
@@ -112,11 +65,11 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   // number of checkpoints
   if (exitTimePrecision == 0.)
   {
-    LOGWARNING("Exit time precision set to 0., reset its value to default value 10.");
+    LOGWARNING("Exit time precision is 0., reset its value to default value 10.");
     exitTimePrecision = 10.;
   }
   int ncheckpoints = simul->totalTime->floatValue() / exitTimePrecision;
-  
+  simul->pointsDrawn->setValue(ncheckpoints);
   
   // additionnal configurations
   simul->autoScale->setValue(true);
@@ -124,14 +77,17 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   GlobalSettings::getInstance()->logAutosave->setValue(false); // autosave pretty annoying in the case of this study
   Settings::getInstance()->printHistoryToFile->setValue(printDynamics2File);
   
+  // pass reelavnt parameters to the worker
+  worker->setConfig(configs);
+  
 }
 
 
 
-// #TODO clarify what is in there 
+// #TODO clarify what is in there
 void FirstExitTime::startStudy()
 {
-  
+  cout << "FirstExitTime::startStudy()" << endl;
   if (simul->isSpace->boolValue())
   {
     LOGWARNING("Cannot perform Exit time study in heterogeneous space. Abort study.");
@@ -153,7 +109,7 @@ void FirstExitTime::startStudy()
   // set concentration of entities in simul to the one of initial steady state
   simul->setConcToSteadyState(simul->entities, startSteadyState+1); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
-  simul->setConcToSteadyState(entities, startSteadyState+1); // I should avoid this
+  simul->setConcToSteadyState(worker->entities, startSteadyState+1); // I should avoid this
   
   // just in case
   //Simulation::getInstance()->generateSimFromUserList();
@@ -191,7 +147,7 @@ void FirstExitTime::setConcToSteadyState(int id)
 }
 */
 
-
+/*
 int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
 {
   // desactivate noise in Simulation !!
@@ -245,6 +201,9 @@ int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
     c++;
   }
   
+  cout << "FirstExitTime::identifyAttraxctionBasin()" << endl;
+  cout << "startSST = " << startSteadyState << " vs reahcedSST " << reachedSST << endl;
+  
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
   
@@ -260,7 +219,7 @@ int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
     escapeTimes.add(time - 0.5*exitTimePrecision);
     
     // request a new run to simulation thread
-    simul->requestToMoveToNextRun();
+    //simul->requestToMoveToNextRun();
   }
   
   // if current time is greater than simulation time and still no escape is detected, keep track of it
@@ -272,40 +231,15 @@ int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
   
   return reachedSST;
 }
+*/
 
 
-
-float FirstExitTime::distanceFromSteadyState(State state)
-{
-  float d = 0.;
-  for (auto & p : state)
-  {
-    int entID = p.first->idSAT;
-    SimEntity * se = getSimEntityForID(entID);
-    float dc = se->concent.getUnchecked(patchid) - p.second;
-    d += dc*dc;
-  }
-  d = sqrt(d);
-  
-  return d;
-}
-
-
-SimEntity * FirstExitTime::getSimEntityForID(const size_t idToFind)
-{
-  for (auto &se : entities)
-  {
-    if (se->idSAT == idToFind)
-      return se;
-  }
-  LOGWARNING("Failed to find SimEntity for id " << idToFind);
-  return nullptr;
-}
 
 
 
 void FirstExitTime::printResultsToFile()
 {
+  cout << "printResultsToFile()" << endl;
   ofstream outputfile;
   String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
   outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
@@ -331,57 +265,46 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
 {
   switch (ev.type)
   {
-  case Simulation::SimulationEvent::UPDATEPARAMS:
-  {
-  }
+    case Simulation::SimulationEvent::UPDATEPARAMS:
+    {
+    }
+  break;
       
-  case Simulation::SimulationEvent::WILL_START:
-  {
-    reset();
-  }
+    case Simulation::SimulationEvent::WILL_START:
+    {
+      worker->reset();
+      worker->startThread(); // start the worker thread
+    }
   break;
 
-  case Simulation::SimulationEvent::STARTED:
-  {
-    // test in which attraction basin in the system
-  }
+    case Simulation::SimulationEvent::STARTED:
+    {
+      // test in which attraction basin in the system
+    }
   break;
 
-  case Simulation::SimulationEvent::NEWSTEP:
-  {
-    // test in which attraction basin in the system
-    ConcentrationGrid cg = ev.entityValues;
-    float time = simul->dt->floatValue() * ev.nStep;
-    identifyAttractionBasin(cg, time);
-  }
+    case Simulation::SimulationEvent::NEWSTEP:
+    {
+      // test in which attraction basin in the system
+      ConcentrationGrid cg = ev.entityValues;
+      float time = simul->dt->floatValue() * static_cast<float>(ev.nStep-1);
+      cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
+      worker->submitSnapshot(cg, time);
+      //identifyAttractionBasin(cg, time);
+    }
+  break;
+      
+    case Simulation::SimulationEvent::NEWRUN:
+    {
+      worker->clearSnapshots();
+    }
   break;
 
-  case Simulation::SimulationEvent::FINISHED:
-  {
-    printResultsToFile();
-  }
+    case Simulation::SimulationEvent::FINISHED:
+    {
+      escapeTimes = worker->escapeTimes;
+      printResultsToFile();
+    }
       
   } // end switch
 }
-/*
-void FirstExitTime::newMessage(const ContainerAsyncEvent &e)
-{
-  if (e.type == ContainerAsyncEvent::EventType::ControllableFeedbackUpdate)
-  {
-    if (e.targetControllable == simul->autoScale)
-    {
-      //  maxConcentUI->setVisible(!simul->autoScale->boolValue());
-      shouldRepaint = true;
-    }
-    else if (e.targetControllable == simul->maxConcent)
-    {
-      shouldRepaint = true;
-    }
-    else if (e.targetControllable == simul->detectEquilibrium)
-    {
-      epsilonEqUI->setVisible(simul->detectEquilibrium->boolValue());
-      shouldRepaint = true;
-    }
-  }
-}
-*/

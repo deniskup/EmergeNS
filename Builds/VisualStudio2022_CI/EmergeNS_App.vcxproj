@@ -143,6 +143,7 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Engine\FirstExitTimeWorker.cpp"/>
     <ClCompile Include="..\..\Source\Engine\FirstExitTime.cpp"/>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\KineticLaw.cpp"/>
@@ -2190,6 +2191,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_osc.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Engine\FirstExitTimeWorker.h"/>
     <ClInclude Include="..\..\Source\Engine\FirstExitTime.h"/>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h"/>
     <ClInclude Include="..\..\Source\Simulation\KineticLaw.h"/>

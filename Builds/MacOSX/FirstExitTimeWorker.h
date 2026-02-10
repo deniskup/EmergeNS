@@ -2,59 +2,37 @@
 #include "Simulation/Simulation.h"
 #include "Simulation/KineticLaw.h"
 
-class FirstExitTime : public Simulation::AsyncSimListener
-                      //public ContainerAsyncListener
+class FirstExitTimeWorker : public juce::Thread
 {
 public:
-  juce_DeclareSingleton(FirstExitTime, true);
-  FirstExitTime();
-  ~FirstExitTime();
-  
-  void reset();
-  
-  void setSimulationConfig(std::map<String, String>);
-  
-  void startStudy();
-  
-  //void setConcToSteadyState(int);
-  
+    FirstExitTimeWorker(Simulation& sim)
+        : juce::Thread("FirstExitTimeWorker"),
+          simulation(sim)
+    {}
+
+    ~FirstExitTimeWorker() override
+    {
+        signalThreadShouldExit();
+        workAvailable.signal();
+        stopThread(2000);
+    }
+
+    // Appelée depuis FirstExitTime (message thread)
+    void submitSnapshot(const ConcentrationGrid& grid, float time);
+
 private:
-  
-  int identifyAttractionBasin(ConcentrationGrid &, float);
-  
-  float distanceFromSteadyState(State sst);
-  
-  SimEntity * getSimEntityForID(const size_t);
-  
-  void printResultsToFile();
-  
-  void newMessage(const Simulation::SimulationEvent &e) override;
+    void run() override;
 
-  //void newMessage(const ContainerAsyncEvent &e) override;
-  
-  Simulation * simul;
-  KineticLaw * kinetics;
-  
-  OwnedArray<SimEntity> entities;
-  OwnedArray<SimReaction> reactions;
+    // === Synchronisation ===
+    juce::WaitableEvent workAvailable;
 
-  // to store escape times during this study
-  Array<float> escapeTimes;
-  
-  String networkfile = "./nextwork.txt";
-  String outputfilename = "./firstExitStudy.txt";
-  float precision = 1e-5; // precision up to which the steady state is determined
-  float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is
-  int superRun = 0;
-  int nruns = 1;
-  int startSteadyState = 0;
-  bool fixedSeed = false;
-  int seed = 1234;
-  int patchid = 0; // hardcoded patch in which this study takes place.
-  // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
-  float dt_study = 0.1; // time step used to identify in which attraction basin the system is
-  bool printDynamics2File = false;
-  
+    // === Données partagées (protégées) ===
+    juce::CriticalSection dataLock;
+    bool hasPendingWork { false };
 
-  
+    ConcentrationGrid pendingGrid;
+    float pendingTime { 0.f };
+
+    // === Références ===
+    Simulation& simulation;
 };

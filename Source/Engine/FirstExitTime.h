@@ -1,17 +1,15 @@
 #include "JuceHeader.h"
-#include "Simulation/Simulation.h"
-#include "Simulation/KineticLaw.h"
+//#include "Simulation/Simulation.h"
+//#include "Simulation/KineticLaw.h"
+#include "FirstExitTimeWorker.h"
 
-class FirstExitTime : public Simulation::AsyncSimListener//,
-                     // public ContainerAsyncListener
+class FirstExitTime : public Simulation::AsyncSimListener
 {
 public:
   juce_DeclareSingleton(FirstExitTime, true);
   FirstExitTime();
   ~FirstExitTime();
-  
-  void reset();
-  
+    
   void setSimulationConfig(std::map<String, String>);
   
   void startStudy();
@@ -21,22 +19,19 @@ public:
 private:
   
   int identifyAttractionBasin(ConcentrationGrid &, float);
-  
-  float distanceFromSteadyState(State sst);
-  
+    
   SimEntity * getSimEntityForID(const size_t);
   
   void printResultsToFile();
   
   void newMessage(const Simulation::SimulationEvent &e) override;
-
-  //void newMessage(const ContainerAsyncEvent &e) override;
+  
+  FirstExitTimeWorker * worker;
   
   Simulation * simul;
-  KineticLaw * kinetics;
+  //KineticLaw * kinetics;
   
-  OwnedArray<SimEntity> entities;
-  OwnedArray<SimReaction> reactions;
+
 
   // to store escape times during this study
   Array<float> escapeTimes;
@@ -50,7 +45,6 @@ private:
   int startSteadyState = 0;
   bool fixedSeed = false;
   int seed = 1234;
-  int patchid = 0; // hardcoded patch in which this study takes place.
   // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
   float dt_study = 0.1; // time step used to identify in which attraction basin the system is
   bool printDynamics2File = false;

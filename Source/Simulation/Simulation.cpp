@@ -1955,6 +1955,11 @@ void Simulation::resetForNextRun()
     recordConcent.set(k, 0.);
     recordDrawn.set(k, 0.);
   }
+  
+  // message to listeners
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this));
+
+  
 }
 
 // #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
@@ -2573,7 +2578,7 @@ void Simulation::run()
       }
     }
   }
-
+  cout << "Simulation::run() : sending message FINISHED to listeners" << endl;
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, currentRun, nSteps, entityValues, {}, {}, {}));
   
   

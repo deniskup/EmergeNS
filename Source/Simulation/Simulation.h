@@ -268,7 +268,8 @@ public:
 			UPDATEPARAMS,
 			WILL_START,
 			STARTED,
-			NEWSTEP,
+      NEWSTEP,
+			NEWRUN,
 			FINISHED,
 		};
 

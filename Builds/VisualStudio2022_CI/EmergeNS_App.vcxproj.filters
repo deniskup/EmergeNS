@@ -487,6 +487,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\Engine\FirstExitTimeWorker.cpp">
+      <Filter>EmergeNS\Source\Engine</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Engine\FirstExitTime.cpp">
       <Filter>EmergeNS\Source\Engine</Filter>
     </ClCompile>
@@ -2775,6 +2778,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Engine\FirstExitTimeWorker.h">
+      <Filter>EmergeNS\Source\Engine</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Engine\FirstExitTime.h">
       <Filter>EmergeNS\Source\Engine</Filter>
     </ClInclude>

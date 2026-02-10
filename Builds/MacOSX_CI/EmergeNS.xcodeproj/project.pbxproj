@@ -34,6 +34,7 @@
 		79864665CA44312AD50D238E /* include_juce_organicui3.cpp */ = {isa = PBXBuildFile; fileRef = B1E31D9C1C0073541A716045; };
 		7BAFE20C075CDBA708F48D0D /* include_juce_organicui.cpp */ = {isa = PBXBuildFile; fileRef = B3FF5146B9527D733EAEFFBC; };
 		7D8D7A318F242F63ABE5FC58 /* MetalKit.framework */ = {isa = PBXBuildFile; fileRef = DD5AD796CD0E785CF0F03B83; settings = { ATTRIBUTES = (Weak, ); }; };
+		850CAE202B6BA9191A2CE5A9 /* FirstExitTimeWorker.cpp */ = {isa = PBXBuildFile; fileRef = 5892C2F5666659E7551DB8AF; };
 		8963F25C4FE63C03487741C4 /* include_juce_organicui2b.cpp */ = {isa = PBXBuildFile; fileRef = 809AF05ED9C59B5B3A458EF0; };
 		8B14B5695B4D2A3EA6E788AB /* include_juce_data_structures.mm */ = {isa = PBXBuildFile; fileRef = AAC570EA24B0912905F457EC; };
 		8C03AC320571C486402374B8 /* MainComponentCommands.cpp */ = {isa = PBXBuildFile; fileRef = 6B28E7757C58181F28CE8C98; };
@@ -108,6 +109,7 @@
 		577810CB9FAEA9049E0ABA1E /* EntityManagerUI.cpp */ /* EntityManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = EntityManagerUI.cpp; path = ../../Source/Simulation/ui/EntityManagerUI.cpp; sourceTree = SOURCE_ROOT; };
 		57D49C4CAC730F256DDB59C0 /* SpaceUI.h */ /* SpaceUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpaceUI.h; path = ../../Source/Simulation/ui/SpaceUI.h; sourceTree = SOURCE_ROOT; };
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
+		5892C2F5666659E7551DB8AF /* FirstExitTimeWorker.cpp */ /* FirstExitTimeWorker.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FirstExitTimeWorker.cpp; path = ../../Source/Engine/FirstExitTimeWorker.cpp; sourceTree = SOURCE_ROOT; };
 		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
@@ -149,6 +151,7 @@
 		BB013463E169E25B6719AB6E /* Settings.h */ /* Settings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Settings.h; path = ../../Source/Simulation/Settings.h; sourceTree = SOURCE_ROOT; };
 		BB3ACC0D2C9A265AD098E785 /* Statistics.h */ /* Statistics.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Statistics.h; path = ../../Source/Simulation/Statistics.h; sourceTree = SOURCE_ROOT; };
 		BC10A1C04E91AEE5A90A6453 /* Info-App.plist */ /* Info-App.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Info-App.plist"; path = "Info-App.plist"; sourceTree = SOURCE_ROOT; };
+		C02620DE09B387B8DAE4BBE3 /* FirstExitTimeWorker.h */ /* FirstExitTimeWorker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstExitTimeWorker.h; path = ../../Source/Engine/FirstExitTimeWorker.h; sourceTree = SOURCE_ROOT; };
 		C0E8E22458115E47E0AE43E3 /* juce_gui_extra */ /* juce_gui_extra */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_gui_extra; path = ../../JUCE/modules/juce_gui_extra; sourceTree = SOURCE_ROOT; };
 		C31076E2A60099C801D02DFC /* PhasePlane.cpp */ /* PhasePlane.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PhasePlane.cpp; path = ../../Source/Simulation/PhasePlane.cpp; sourceTree = SOURCE_ROOT; };
 		C4C79DF356509EEBD9127A0E /* Reaction.h */ /* Reaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Reaction.h; path = ../../Source/Simulation/Reaction.h; sourceTree = SOURCE_ROOT; };
@@ -252,6 +255,8 @@
 		2A545D1CF8B8BC81887FBBDD /* Engine */ = {
 			isa = PBXGroup;
 			children = (
+				C02620DE09B387B8DAE4BBE3,
+				5892C2F5666659E7551DB8AF,
 				26301CA02A17C32F6C80E82D,
 				B4A7D20EE7DD8FB3459E3169,
 				C833D6AD5C82FFD248DA850D,
@@ -476,6 +481,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				850CAE202B6BA9191A2CE5A9,
 				11C8BC36151320EEFA34DDA0,
 				5884FFF13E5628D9E1A530BD,
 				17DC8E199AA7E3D7C45D537D,

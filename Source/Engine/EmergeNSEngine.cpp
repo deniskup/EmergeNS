@@ -101,6 +101,8 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
   //this contains already several command option like
   // -headless : run the engine without GUI
   // -f "path/to/file.ens": load the file with absolute path
+  
+  cout << "parsing command line" << endl;
 
   //Compile with task MakeRelease for better performance
 
@@ -151,6 +153,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     
     if (study == "firstExit")
     {
+      cout << "calling firstExitTimeStudy()" << endl;
       firstExitTimeStudy(configs);
     }
 /*
@@ -184,7 +187,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
 
 
-    JUCEApplication::getInstance()->systemRequestedQuit();
+    //JUCEApplication::getInstance()->systemRequestedQuit();
 
 
   }
