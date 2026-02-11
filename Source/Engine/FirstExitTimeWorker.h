@@ -8,6 +8,14 @@ struct Snapshot
 {
   ConcentrationGrid concgrid;
   float time;
+  int run;
+};
+
+struct Escape
+{
+  float time;
+  int startSteadyState;
+  int escapeSteadyState;
 };
 
 class FirstExitTimeWorker : public juce::Thread
@@ -31,11 +39,12 @@ public:
   
     void reset();
 
-    void submitSnapshot(const ConcentrationGrid& cg, float time);
+    void submitSnapshot(const ConcentrationGrid& cg, float time, int run);
   
-    void clearSnapshots();
+    void clearSnapshots(const int);
   
-    Array<float> escapeTimes;
+    //Array<float> escapeTimes;
+    Array<Escape> escapes;
     OwnedArray<SimEntity> entities;
     OwnedArray<SimReaction> reactions;
 
@@ -48,6 +57,8 @@ private:
     float distanceFromSteadyState(State sst);
   
     SimEntity * getSimEntityForID(const size_t idToFind);
+  
+    void writeResultsToFile();
   
     KineticLaw * kinetics;
     
@@ -72,6 +83,14 @@ private:
     int startSteadyState = 0;
     // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
     float dt_study = 0.1; // time step used to identify in which attraction basin the system is
+    bool debug = false;
+  String network = "./network.ens";
+    String outputfilename = "./output_escapeTimeStudy.csv";
+    int superRun = 0;
+
+
+  
+    Array<int> runsTreated;
 
 };
 

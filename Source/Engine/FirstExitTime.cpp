@@ -25,11 +25,9 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
     juce::var myvar(val);
-    //if (key == "network")
+    //if (key == "output")
     //  networkfile = val;
-    if (key == "output")
-      networkfile = val;
-    else if (key == "dt")
+    if (key == "dt")
       simul->dt->setValue(atof(val.toUTF8()));
     else if (key == "dt_study")
       dt_study = atof(val.toUTF8());
@@ -49,8 +47,6 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
       seed = atoi(val.toUTF8());
     else if (key == "startSteadyState")
       startSteadyState = atoi(val.toUTF8());
-    else if (key == "superRun")
-      superRun = atoi(val.toUTF8());
     else if (key == "dynamics2file")
       printDynamics2File = atoi(val.toUTF8());
   }
@@ -114,6 +110,8 @@ void FirstExitTime::startStudy()
   // just in case
   //Simulation::getInstance()->generateSimFromUserList();
   
+  // debug
+  simul->steadyStatesList->printSteadyStates();
   
   // initialize runs
   PhasePlane::getInstance()->clearAllRuns();
@@ -125,118 +123,7 @@ void FirstExitTime::startStudy()
   
 }
 
-
 /*
-void FirstExitTime::setConcToSteadyState(int id)
-{
-  if (id < 1)
-  {
-    LOGWARNING("Cannot set concentrations to steady state index < 1");
-    return;
-  }
-  State st = simul->steadyStatesList->arraySteadyStates[id-1].state; // retrieve steady state concent from simul
-  int ident = 0;
-  for (auto ent : entities)
-  {
-    float conc = ss.state[ident].second;
-    ent->concent = conc;
-    ident++;
-    if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
-  }
-}
-*/
-
-/*
-int FirstExitTime::identifyAttractionBasin(ConcentrationGrid & cg, float time)
-{
-  // desactivate noise in Simulation !!
-  
-  // set entities to the concentration corresponding to input argument
-  for (auto & ent : entities)
-  {
-    pair<int, int> p = make_pair(patchid, ent->idSAT);
-    //if (!cg.contains(p))
-    float input_conc = cg[p];
-    ent->concent = input_conc;
-  }
-  
-  // deterministic dynamics of the system until a stationnary state is reached
-  float distance = 1000.;
-  int timeout = 10000;
-  int c = 0;
-  while (distance<precision && c<timeout)
-  {
-    // deterministic traj
-    kinetics->SteppingReactionRates(reactions, dt_study, patchid, false);
-    kinetics->SteppingInflowOutflowRates(entities, dt_study, patchid);
-    
-    // update concentration values of entities
-    for (auto & ent : entities)
-    {
-      ent->refresh();
-    }
-    
-    // calculate variation in last dt
-    distance = 0.;
-    for (auto & ent : entities)
-    {
-      float deltaC = ent->concent.getUnchecked(patchid)-ent->previousConcent.getUnchecked(patchid);
-      distance += deltaC*deltaC;
-    }
-    distance = sqrt(distance);
-    
-  } // end while
-  
-  
-  // determine in which steady state the system is
-  int reachedSST = -1;
-  float dmin = 1000.;
-  c = 0;
-  for (auto & sst : simul->steadyStatesList->arraySteadyStates)
-  {
-    float d = distanceFromSteadyState(sst.state);
-    if (d<dmin)
-      reachedSST = c;
-    c++;
-  }
-  
-  cout << "FirstExitTime::identifyAttraxctionBasin()" << endl;
-  cout << "startSST = " << startSteadyState << " vs reahcedSST " << reachedSST << endl;
-  
-  if (reachedSST<0)
-    LOGWARNING("Could not determine in which steady state the system ended.");
-  
-  // check if the system left initial attraction basin
-  if (reachedSST != startSteadyState)
-  {
-    string strtime = to_string(time); // find a way to know time of simulation in here and tell simulation to move to next run
-    
-    // print to user for a follow-up
-    LOG("Has Left Initial Attraction Basin at time " + strtime);
-    
-    // store escape time, taken at the bin center of interval [time - exitTimePrecision ; time]
-    escapeTimes.add(time - 0.5*exitTimePrecision);
-    
-    // request a new run to simulation thread
-    //simul->requestToMoveToNextRun();
-  }
-  
-  // if current time is greater than simulation time and still no escape is detected, keep track of it
-  if (time + 2*simul->dt->floatValue() > simul->totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
-  {
-    LOG("No escape detected");
-    escapeTimes.add(-1.);
-  }
-  
-  return reachedSST;
-}
-*/
-
-
-
-
-
 void FirstExitTime::printResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
@@ -258,7 +145,7 @@ void FirstExitTime::printResultsToFile()
   }
   outputfile << endl;
 }
-
+*/
 
 
 void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
@@ -288,22 +175,24 @@ void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
       // test in which attraction basin in the system
       ConcentrationGrid cg = ev.entityValues;
       float time = simul->dt->floatValue() * static_cast<float>(ev.nStep-1);
-      cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
-      worker->submitSnapshot(cg, time);
+      //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
+      if (!simul->redrawRun && !simul->redrawPatch)
+        worker->submitSnapshot(cg, time, ev.run);
       //identifyAttractionBasin(cg, time);
     }
   break;
       
     case Simulation::SimulationEvent::NEWRUN:
     {
-      worker->clearSnapshots();
+      //worker->clearSnapshots(); // in principle should already be fine, but just to make sure
     }
   break;
 
     case Simulation::SimulationEvent::FINISHED:
     {
-      escapeTimes = worker->escapeTimes;
-      printResultsToFile();
+      //worker->signalThreadShouldExit(); // tell the worker to exit thread
+      //escapeTimes = worker->escapeTimes;
+      //printResultsToFile();
     }
       
   } // end switch

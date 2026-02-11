@@ -7,7 +7,9 @@ void FirstExitTimeWorker::setConfig(map<String, String> configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
     juce::var myvar(val);
-    if (key == "dt_study")
+    if (key == "output")
+      outputfilename = val;
+    else if (key == "dt_study")
       dt_study = atof(val.toUTF8());
     else if (key == "precision")
       precision = atof(val.toUTF8());
@@ -15,6 +17,10 @@ void FirstExitTimeWorker::setConfig(map<String, String> configs)
       escapeTimePrecision = atof(val.toUTF8());
     else if (key == "startSteadyState")
       startSteadyState = atoi(val.toUTF8());
+    else if (key == "debug")
+      debug = static_cast<bool>(atoi(val.toUTF8()));
+    else if (key == "network")
+      network = val;
   }
 }
 
@@ -51,6 +57,16 @@ void FirstExitTimeWorker::reset()
     reactions.add(copyr);
   }
   
+  clearSnapshots(-1);
+  
+  //escapeTimes.clear();
+  //escapeTimes.insertMultiple(0, 0., simul.nRuns);
+  escapes.clear();
+  Escape defaultEscape = {0., -1, -1};
+  escapes.insertMultiple(0, defaultEscape, simul.nRuns);
+  
+  runsTreated.clear();
+  /*
   cout << "--- FirstExitTime::reset() ---" << endl;
   cout << "--- SimEntity list : " << endl;
   for (auto & ent :entities)
@@ -66,27 +82,39 @@ void FirstExitTimeWorker::reset()
     for (auto& e :r->products)
       cout << "\t" << e->name << endl;
   }
+  */
   
 }
 
 
-void FirstExitTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time)
+void FirstExitTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time, int run)
 {
+  if (!runsTreated.contains(run)) // do not fill the queue with snapshots if this thread already detected an escape for this run
+  {
     const juce::ScopedLock sl(dataLock);
-    pendingSnapshots.push({cg, time});
-
-    workAvailable.signal(); // wake up worker thread
+    pendingSnapshots.push({cg, time, run});
+    
+    workAvailable.signal(); // wake up this thread
+  }
 }
 
-void FirstExitTimeWorker::clearSnapshots()
+// clean all snapshots for a given run
+// if input argument = -1, clean all snapshots
+void FirstExitTimeWorker::clearSnapshots(const int run)
 {
   { // empty the queue with the lock
     const juce::ScopedLock sl(dataLock);
+    
     while (!pendingSnapshots.empty())
-      pendingSnapshots.pop();
+    {
+      if (run == -1 || pendingSnapshots.front().run == run)
+        pendingSnapshots.pop();
+      else
+        break;
+    }
+    
+
   } // free the lock
-  signalThreadShouldExit();
-  workAvailable.signal(); // wake the thread to make it exit
 }
 
 
@@ -117,26 +145,52 @@ void FirstExitTimeWorker::run()
       // if not, request simul to proceed to next run
       if (reachedSST != startSteadyState)
       {
-        string strtime = to_string(snap.time); // find a way to know time of simulation in here and tell simulation to move to next run
+        string strtime = to_string(snap.time);
         
         // print to user for a follow-up
         LOG("Has Left Initial Attraction Basin at time " + strtime);
         
         // store escape time, taken at the bin center of interval [time - exitTimePrecision ; time]
-        if (!hasStoredEscapeTime)
-          escapeTimes.add(snap.time - 0.5*escapeTimePrecision);
+        if (!runsTreated.contains(snap.run)) // store just once
+        {
+          //escapeTimes.setUnchecked(snap.run, snap.time - 0.5*escapeTimePrecision);
+          float centerTime = snap.time - 0.5*escapeTimePrecision;
+          //escapes.add({centerTime, startSteadyState, reachedSST});
+          escapes.setUnchecked(snap.run, {centerTime, startSteadyState, reachedSST});
+          runsTreated.add(snap.run);
+          clearSnapshots(snap.run); // useless to treat following snapshots of current run, so clear them
+        }
         
         // request a new run to simulation thread
-        simul.requestToMoveToNextRun();
+        if (!debug)
+          simul.requestToMoveToNextRun();
       }
+      
+      // if current time is greater than simulation time and still no escape is detected, keep track of it
+      if (snap.time + 2*simul.dt->floatValue() > simul.totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
+      {
+        LOG("No escape detected");
+        escapes.add({-1., startSteadyState, reachedSST});
+      }
+      
+      // Here i should test a condition upon which the study here is finished.
+      // run == nruns - 1 and escape detection. In that case, print results to file
+      
+    } // end while over pending snapshots
+    
+    if (runsTreated.contains(simul.nRuns-1))
+    {
+      writeResultsToFile();
     }
     
-    }
+  } // outter thread while loop
 }
 
 
 
-
+// #HERE debugging to do. Problems spotted :
+// FirstExitTime still seems to interfere with other listeners (such as SimulationUI)
+// this method does not seem to find the correct reached SST following a deterministic trajectory
 int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
 {
   ConcentrationGrid cg = snap.concgrid;
@@ -147,15 +201,31 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     pair<int, int> p = make_pair(patchid, ent->idSAT);
     //if (!cg.contains(p))
     float input_conc = cg[p];
-    ent->concent = input_conc;
+    ent->concent.setUnchecked(patchid, input_conc);
   }
+  
+  /*
+  cout << "FirstExitTimeWorker::identifyAttractionBasin() start conc : ";
+  for (auto & ent : entities)
+    cout << ent->concent.getUnchecked(patchid) << " ";
+  cout << endl;
+  */
   
   // deterministic dynamics of the system until a stationnary state is reached
   float distance = 1000.;
-  int timeout = 10000;
-  int c = 0;
-  while (distance<precision && c<timeout)
+  int timeout = dt_study * 50000;
+  float t = 0.;
+  int count = 0;
+  bool delay = true; // I require the deterministic search to run a minimum amount of time
+  // otherwise, too close from an unstable steady state, variation might be too small
+  while (distance>precision || delay)
   {
+    count++;
+    t += dt_study;
+    if (t>100.) // free the boolean delay
+      delay = false;
+    if (t>timeout)
+      break;
     // deterministic traj
     kinetics->SteppingReactionRates(reactions, dt_study, patchid, false);
     kinetics->SteppingInflowOutflowRates(entities, dt_study, patchid);
@@ -178,45 +248,46 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   } // end while
   
   
+  cout << "used " << count << " steps in deterministic method. t = " << t << " dfinal = " << distance << endl;
+  
+  //cout << "FirstExitTimeWorker::identifyAttractionBasin() end conc : ";
+  //for (auto & ent : entities)
+  //  cout << ent->concent.getUnchecked(patchid) << " ";
+  //cout << endl;
+  
+  
   // determine in which steady state the system is
   int reachedSST = -1;
   float dmin = 1000.;
-  c = 0;
+  count = 0;
   for (auto & sst : simul.steadyStatesList->arraySteadyStates)
   {
+    if (!sst.isStable)
+      continue;
     float d = distanceFromSteadyState(sst.state);
+    //cout << "candidate sst : " << endl;
+    //simul.steadyStatesList->printOneSteadyState(sst);
+    //cout << "is stable ? --> " << sst.isStable << endl;
+    //cout << "distance = " << d << endl;
     if (d<dmin)
-      reachedSST = c;
-    c++;
+    {
+      dmin = d;
+      reachedSST = count;
+    }
+    count++;
   }
   
   cout << "FirstExitTime::identifyAttraxctionBasin()" << endl;
-  cout << "startSST = " << startSteadyState << " vs reahcedSST " << reachedSST << endl;
+  cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
+  cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
   
-  // check if the system left initial attraction basin
-  if (reachedSST != startSteadyState)
-  {
-    string strtime = to_string(snap.time); // find a way to know time of simulation in here and tell simulation to move to next run
-    
-    // print to user for a follow-up
-    LOG("Has Left Initial Attraction Basin at time " + strtime);
-    
-    // store escape time, taken at the bin center of interval [time - exitTimePrecision ; time]
-    escapeTimes.add(snap.time - 0.5*escapeTimePrecision);
-    
-    // request a new run to simulation thread
-    simul.requestToMoveToNextRun();
-  }
-  
-  // if current time is greater than simulation total time and still no escape is detected, keep track of it
-  if (snap.time + 2*simul.dt->floatValue() > simul.totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
-  {
-    LOG("No escape detected");
-    escapeTimes.add(-1.);
-  }
+  cout << "reached sst (";
+  for (auto & ent : entities)
+    cout << ent->concent.getUnchecked(patchid) << " ";
+  cout << ")" << endl;
   
   return reachedSST;
 }
@@ -247,4 +318,26 @@ SimEntity * FirstExitTimeWorker::getSimEntityForID(const size_t idToFind)
   }
   LOGWARNING("Failed to find SimEntity for id " << idToFind);
   return nullptr;
+}
+
+
+void FirstExitTimeWorker::writeResultsToFile()
+{
+  cout << "printResultsToFile()" << endl;
+  ofstream outputfile;
+  String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
+  outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+
+  cout << "writing to file " << out << endl;
+  
+  outputfile << "Network " << network << "\n" << endl;
+  outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << "\n" << endl;
+  outputfile << "<===== RESULTS =====>" << endl;
+  outputfile << "startSST,escapeSST,time" << endl;
+        
+  int c=-1;
+  for (auto & el : escapes)
+  {
+    outputfile << el.startSteadyState << "," << el.escapeSteadyState << "," << el.time << endl;
+  }
 }

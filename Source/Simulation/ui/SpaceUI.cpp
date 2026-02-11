@@ -467,7 +467,8 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
       {
         useStartConcentrationValues = false;
         entityColors = ev.entityColors;
-        entityHistory.add(ev.entityValues);
+        if (ev.run == simul->runToDraw)
+          entityHistory.add(ev.entityValues);
       }
     }
     break;
@@ -477,11 +478,17 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
       if (!simul->redrawPatch && !simul->redrawRun)
       {
         useStartConcentrationValues = false;
-        entityHistory.add(ev.entityValues);
+        if (ev.run == simul->runToDraw)
+          entityHistory.add(ev.entityValues);
         if (space->realTime->boolValue())
           shouldRepaint = true;
       }
        
+    }
+    break;
+        
+    case Simulation::SimulationEvent::NEWRUN:
+    {
     }
     break;
 

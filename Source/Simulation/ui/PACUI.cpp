@@ -267,12 +267,20 @@ void PACUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
+      if (ev.run == simul->runToDraw)
+      {
         PACsHistory.add(ev.PACsValues);
         RACList = ev.RACList;
+      }
         // shouldRepaint=simul->realTime->boolValue())
     }
     break;
-
+        
+    case Simulation::SimulationEvent::NEWRUN:
+    {
+    }
+    break;
+        
     case Simulation::SimulationEvent::FINISHED:
     {
         resized();

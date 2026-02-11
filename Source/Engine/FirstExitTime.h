@@ -13,23 +13,20 @@ public:
   void setSimulationConfig(std::map<String, String>);
   
   void startStudy();
-  
-  //void setConcToSteadyState(int);
-  
+    
 private:
   
   int identifyAttractionBasin(ConcentrationGrid &, float);
     
   SimEntity * getSimEntityForID(const size_t);
   
-  void printResultsToFile();
+  //void printResultsToFile();
   
   void newMessage(const Simulation::SimulationEvent &e) override;
   
   FirstExitTimeWorker * worker;
   
   Simulation * simul;
-  //KineticLaw * kinetics;
   
 
 
@@ -37,10 +34,9 @@ private:
   Array<float> escapeTimes;
   
   String networkfile = "./nextwork.txt";
-  String outputfilename = "./firstExitStudy.txt";
+//  String outputfilename = "./firstExitStudy.txt";
   float precision = 1e-5; // precision up to which the steady state is determined
   float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is
-  int superRun = 0;
   int nruns = 1;
   int startSteadyState = 0;
   bool fixedSeed = false;

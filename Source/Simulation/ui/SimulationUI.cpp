@@ -483,14 +483,16 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::STARTED:
 	{
 		entityColors = ev.entityColors;
-		entityHistory.add(ev.entityValues);
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
 	}
 	break;
 
 	case Simulation::SimulationEvent::NEWSTEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-		entityHistory.add(ev.entityValues);
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 
@@ -498,6 +500,11 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 			shouldRepaint = true;
 	}
 	break;
+      
+  case Simulation::SimulationEvent::NEWRUN:
+  {
+  }
+  break;
 
 	case Simulation::SimulationEvent::FINISHED:
 	{

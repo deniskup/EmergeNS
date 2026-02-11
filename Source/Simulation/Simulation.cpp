@@ -2250,10 +2250,13 @@ void Simulation::nextStep()
     }
     
     //cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
+    /*
     if (isMultipleRun && currentRun==nRuns-1)
       simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
     if (!isMultipleRun)
       simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
+    */
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
   }
 
   

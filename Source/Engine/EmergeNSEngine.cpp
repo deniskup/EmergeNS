@@ -124,8 +124,17 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     for (auto& c : StringUtil::parseCommandLine(commandLine))
     {
       if (c.command == "config")
+      {
         configs = parseConfigFile(c.args[0]);
-      fileLoaded = true;
+        fileLoaded = true; // #todo change value by properly handling an exception in parseConfigFile
+      }
+      else if (c.command == "superRun")
+      {
+        String command = String(c.command);
+        String strval = c.args[0];
+        configs[command] = strval;
+      }
+      
     } // end command loop
 
     String model2file = "model.txt";
@@ -150,6 +159,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     // open the .ens file
     juce::File file(network);
     loadDocumentNoCheck(file);
+    
     
     if (study == "firstExit")
     {
