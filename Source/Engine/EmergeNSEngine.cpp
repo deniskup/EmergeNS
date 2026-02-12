@@ -61,6 +61,8 @@ std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
   if (!file.is_open())
   {
     LOGERROR("can't open config file : " << fileArg);
+    std::cerr << "errno = " << errno << std::endl;
+    std::cerr << strerror(errno) << std::endl;
     JUCEApplication::getInstance()->systemRequestedQuit();
   }
   //fileLoaded = true;
@@ -158,7 +160,9 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     
     // open the .ens file
     juce::File file(network);
+    cout << "will load " << file.getFullPathName() << endl;
     loadDocumentNoCheck(file);
+    cout << "end loaded" << endl;
     
     
     if (study == "firstExit")

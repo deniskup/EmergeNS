@@ -269,7 +269,12 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       for (auto & ent : Simulation::getInstance()->entitiesDrawn)
         entityColors.add(ent->color);
     }
+    if (conc.size() != entityColors.size())
+    {
+      LOG("conc size : " + to_string(conc.size()) + " VS entitycolors size : " + to_string(entityColors.size()));
+    }
     jassert(conc.size() == entityColors.size());
+    
     
     float red = 0.;
     float green = 0.;
@@ -465,10 +470,12 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
       if (!simul->redrawPatch && !simul->redrawRun)
       {
-        useStartConcentrationValues = false;
-        entityColors = ev.entityColors;
         if (ev.run == simul->runToDraw)
+        {
+          useStartConcentrationValues = false;
+          entityColors = ev.entityColors;
           entityHistory.add(ev.entityValues);
+        }
       }
     }
     break;
@@ -477,11 +484,13 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
       if (!simul->redrawPatch && !simul->redrawRun)
       {
-        useStartConcentrationValues = false;
         if (ev.run == simul->runToDraw)
+        {
+          useStartConcentrationValues = false;
           entityHistory.add(ev.entityValues);
-        if (space->realTime->boolValue())
-          shouldRepaint = true;
+          if (space->realTime->boolValue())
+            shouldRepaint = true;
+        }
       }
        
     }
@@ -528,10 +537,12 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
 
     case Space::SpaceEvent::NEWSTEP:
     {
+      cout << "new space event at step " << ev.curStep << endl;
       useStartConcentrationValues = false;
       entityHistory.add(ev.entityValues);
       entityColors = ev.entityColors;
       repaint();
+      
     }
     break;
 

@@ -67,6 +67,7 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
     exitTimePrecision = 10.;
   }
   int ncheckpoints = simul->totalTime->floatValue() / exitTimePrecision;
+  cout << "using " << ncheckpoints << " checkpoints" << endl;
   simul->pointsDrawn->setValue(ncheckpoints);
   
   // additionnal configurations

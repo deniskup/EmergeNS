@@ -89,7 +89,7 @@ void FirstExitTimeWorker::reset()
 
 void FirstExitTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time, int run)
 {
-  if (!runsTreated.contains(run)) // do not fill the queue with snapshots if this thread already detected an escape for this run
+  if (!runsTreated.contains(run)) // do not fill the queue with snapshots if an escape for this run has already been detected
   {
     const juce::ScopedLock sl(dataLock);
     pendingSnapshots.push({cg, time, run});
@@ -277,7 +277,7 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     count++;
   }
   
-  cout << "FirstExitTime::identifyAttraxctionBasin()" << endl;
+  cout << "FirstExitTime::identifyAttractionBasin()" << endl;
   cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
   cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
