@@ -481,11 +481,14 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	break;
 
 	case Simulation::SimulationEvent::STARTED:
-	{
-		entityColors = ev.entityColors;
+  {
+    entityColors = ev.entityColors;
     if (ev.run == simul->runToDraw)
       entityHistory.add(ev.entityValues);
-	}
+    cout << "SimulationEvent::STARTED in UI" << endl;
+    for (auto & [pair, conc] : ev.entityValues)
+      cout << pair.first << " : " << pair.second << " --> " << conc << endl;
+  }
 	break;
 
 	case Simulation::SimulationEvent::NEWSTEP:

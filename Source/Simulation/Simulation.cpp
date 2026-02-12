@@ -1613,6 +1613,13 @@ void Simulation::resetBeforeRunning()
   //RAChistory.clear();
   dynHistory->concentHistory.clear();
   dynHistory->racHistory.clear();
+  
+  // reset concentrations to their starting value
+  for (auto &e : entities)
+  {
+    e->concent = e->startConcent;
+    e->deterministicConcent = e->startConcent;
+  }
 
 
   currentRun = 0;
@@ -1766,7 +1773,7 @@ void Simulation::start(bool restart)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   
-    
+    /*
   // We keep track of dynamics in multipleRun and space mode to be able to redraw the dynamics for a given patch/run
   if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
   {
@@ -1797,6 +1804,7 @@ void Simulation::start(bool restart)
     }
     dynHistory->concentHistory.add(concsnap);
   }
+  */
 
   
   // update maxConc encountered with initial values
@@ -1848,6 +1856,12 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   //runToDraw = nRuns - 1;
   
 
+  // reset concentrations to their starting value
+  for (auto &e : entities)
+  {
+    e->concent = e->startConcent;
+    e->deterministicConcent = e->startConcent;
+  }
 
   
   // will print dynamics to file
@@ -1911,6 +1925,15 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   return;
   
 }
+
+
+
+void Simulation::requestProceedingToNextRun()
+{
+  if (currentRun < nRuns -1)
+    requestNewRun.store(true, std::memory_order_release);
+}
+
 
 /*
  - return values :
@@ -2059,6 +2082,39 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::nextStep()
 {
+  if (nSteps == 0) // keep track of first step ( = initial state)
+  {
+    if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+    {
+      ConcentrationSnapshot concsnap;
+      concsnap.step = 0;
+      concsnap.runID = 0;
+      for (auto & patch : Space::getInstance()->spaceGrid)
+      {
+        for (auto & ent : entities)
+        {
+          pair<int, int> p = make_pair(patch.id, ent->idSAT);
+          concsnap.conc[p] = ent->concent[patch.id];
+        }
+        
+        // add null rac snapshots for each PAC
+        for (int k=0; k<pacList->cycles.size(); k++)
+        {
+          Array<float> nullflows(pacList->cycles[k]->entities.size());
+          for (int j=0; j<nullflows.size(); j++)
+            nullflows.set(j, 0.);
+          RACSnapshot rs(0., nullflows);
+          rs.racID = k;
+          rs.step = 0;
+          rs.patchID = patch.id;
+          rs.runID = 0;
+          dynHistory->racHistory.add(rs);
+        }
+      }
+      dynHistory->concentHistory.add(concsnap);
+    }
+  }
+  
 
   nSteps++;
   
@@ -2663,7 +2719,7 @@ void Simulation::writeHistory()
       historyFile << dynHistory->concentHistory.getUnchecked(step).runID << ",";
       //historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
       historyFile << patch.id << ",";
-      historyFile << step << ",";
+      historyFile << dynHistory->concentHistory.getUnchecked(step).step << ",";
       
       // retrieve entity concent in current patch
       int countent = -1;
@@ -2878,7 +2934,8 @@ void Simulation::setConcToCAC(int idCAC)
     juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
     ent->concent = arrconc;
     if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
+      ent->entity->startConcent->setValue(conc);
+      //ent->entity->concent->setValue(conc);
     else
       LOGWARNING("SetCAC: No entity for SimEntity"+ent->name);
   }
@@ -2889,15 +2946,15 @@ void Simulation::setConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS
   if (idSS < 1)
     return;
   SteadyState ss = steadyStatesList->arraySteadyStates[idSS - 1];
-  int ident = 0;
-  for (auto ent : _entities)
+  for (auto & ent : _entities)
   {
-    float conc = ss.state[ident].second;
+    float conc = ss.state[ent->idSAT].second;
     juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
     ent->concent = arrconc;
-    ident++;
     if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
+    {
+      ent->entity->startConcent->setValue(conc);
+    }
   }
 }
 

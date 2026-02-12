@@ -162,8 +162,8 @@ void FirstExitTimeWorker::run()
         }
         
         // request a new run to simulation thread
-        if (!debug)
-          simul.requestToMoveToNextRun();
+        if (!debug) 
+          simul.requestProceedingToNextRun();
       }
       
       // if current time is greater than simulation time and still no escape is detected, keep track of it

@@ -83,8 +83,8 @@ private:
     int startSteadyState = 0;
     // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
     float dt_study = 0.1; // time step used to identify in which attraction basin the system is
-    bool debug = false;
-  String network = "./network.ens";
+    bool debug = false; // if true, will request thread simulation to proceed to next run as soon as an escape is detected
+    String network = "./network.ens";
     String outputfilename = "./output_escapeTimeStudy.csv";
     int superRun = 0;
 

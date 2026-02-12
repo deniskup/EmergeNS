@@ -234,7 +234,7 @@ public:
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
-  void requestToMoveToNextRun(){requestNewRun.store(true, std::memory_order_release);}
+  void requestProceedingToNextRun();
   int checkRunStatus();
   void resetForNextRun();
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);

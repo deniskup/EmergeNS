@@ -4,6 +4,8 @@
 FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
 {
   cout << "calling creator FirstExitTime()" << endl;
+  if (simul == nullptr)
+    LOGWARNING("SImulation pointer init. to null pointer");
   worker = new FirstExitTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
 }
