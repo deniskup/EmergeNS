@@ -17,7 +17,7 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation"),
                                curStep(0),
-                               simNotifier(1000), // max messages async that can be sent at once
+                               simNotifier(100000), // max messages async that can be sent at once
                                pacList(new PAClist(this)),
                                steadyStatesList(new SteadyStateslist(this))
   //                             space(new Space(this))

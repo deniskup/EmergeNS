@@ -16,6 +16,8 @@ FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
 // destructor
 FirstExitTime::~FirstExitTime()
 {
+  simul->removeAsyncSimulationListener(this);
+  //simul->removeAsyncContainerListener(this);
 }
 
 
@@ -120,6 +122,10 @@ void FirstExitTime::startStudy()
   PhasePlane::getInstance()->clearAllRuns();
   PhasePlane::getInstance()->nRuns->setValue(nruns);
   PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
+  
+  // start worker thread
+  //worker->reset();
+  //worker->startThread(); // start the worker thread
   
   // start simulation
   PhasePlane::getInstance()->startRuns(); // start simulation thread
