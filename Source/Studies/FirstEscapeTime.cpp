@@ -3,7 +3,6 @@
 // constructor
 FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
 {
-  cout << "calling creator FirstEscapeTime()" << endl;
   if (simul == nullptr)
     LOGWARNING("SImulation pointer init. to null pointer");
   worker = new FirstEscapeTimeWorker(*simul);
@@ -24,7 +23,6 @@ FirstEscapeTime::~FirstEscapeTime()
 
 void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
 {
-  cout << "FirstEscapeTime::setSimulationConfig()" << endl;
   for (auto& [key, val] : configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
@@ -69,7 +67,6 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
     exitTimePrecision = 10.;
   }
   int ncheckpoints = simul->totalTime->floatValue() / exitTimePrecision;
-  cout << "using " << ncheckpoints << " checkpoints" << endl;
   simul->pointsDrawn->setValue(ncheckpoints);
   
   // additionnal configurations
@@ -88,7 +85,6 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
 // #TODO clarify what is in there
 void FirstEscapeTime::startStudy()
 {
-  cout << "FirstEscapeTime::startStudy()" << endl;
   if (simul->isSpace->boolValue())
   {
     LOGWARNING("Cannot perform Exit time study in heterogeneous space. Abort study.");
@@ -116,7 +112,7 @@ void FirstEscapeTime::startStudy()
   //Simulation::getInstance()->generateSimFromUserList();
   
   // debug
-  simul->steadyStatesList->printSteadyStates();
+  //simul->steadyStatesList->printSteadyStates();
   
   // initialize runs
   PhasePlane::getInstance()->clearAllRuns();

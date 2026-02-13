@@ -50,7 +50,7 @@ void EmergeNSEngine::clearInternal()
 std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
 {
   
-  cout << "will open file : " << fileArg << endl;
+  //cout << "will open file : " << fileArg << endl;
 
   std::map<String, String> configs;
 
@@ -160,9 +160,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     
     // open the .ens file
     juce::File file(network);
-    cout << "will load " << file.getFullPathName() << endl;
     loadDocumentNoCheck(file);
-    cout << "end loaded" << endl;
     
     
     if (study == "firstEscape")

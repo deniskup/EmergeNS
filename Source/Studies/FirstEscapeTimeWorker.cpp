@@ -28,7 +28,6 @@ void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
 
 void FirstEscapeTimeWorker::reset()
 {
-  cout << "FirstEscapeTimeWorker::reset()" << endl;
   entities.clear();
   reactions.clear();
   
@@ -245,7 +244,6 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   } // end while
   
   
-  cout << "used " << count << " steps in deterministic method. t = " << t << " dfinal = " << distance << endl;
   
   //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
   //for (auto & ent : entities)
@@ -274,17 +272,18 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     count++;
   }
   
-  cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
-  cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
-  cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
+  //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
+  //cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
+  //cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
-  
+  /*
   cout << "reached sst (";
   for (auto & ent : entities)
     cout << ent->concent.getUnchecked(patchid) << " ";
   cout << ")" << endl;
+  */
   
   return reachedSST;
 }
