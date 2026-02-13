@@ -165,10 +165,9 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     cout << "end loaded" << endl;
     
     
-    if (study == "firstExit")
+    if (study == "firstEscape")
     {
-      cout << "calling firstExitTimeStudy()" << endl;
-      firstExitTimeStudy(configs);
+      firstEscapeTimeStudy(configs);
     }
 /*
     // Generate a reaction network
@@ -212,9 +211,9 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 }
 
 
-void EmergeNSEngine::firstExitTimeStudy(map<String, String> configs)
+void EmergeNSEngine::firstEscapeTimeStudy(map<String, String> configs)
 {
-  FirstExitTime * fet = new FirstExitTime();
+  FirstEscapeTime * fet = new FirstEscapeTime();
   fet->setSimulationConfig(configs);
   fet->startStudy();
 }

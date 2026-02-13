@@ -1,7 +1,7 @@
-#include "FirstExitTimeWorker.h"
+#include "FirstEscapeTimeWorker.h"
 
 
-void FirstExitTimeWorker::setConfig(map<String, String> configs)
+void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
 {
   for (auto& [key, val] : configs)
   {
@@ -26,9 +26,9 @@ void FirstExitTimeWorker::setConfig(map<String, String> configs)
 
 
 
-void FirstExitTimeWorker::reset()
+void FirstEscapeTimeWorker::reset()
 {
-  cout << "FirstExitTimeWorker::reset()" << endl;
+  cout << "FirstEscapeTimeWorker::reset()" << endl;
   entities.clear();
   reactions.clear();
   
@@ -67,7 +67,7 @@ void FirstExitTimeWorker::reset()
   
   runsTreated.clear();
   /*
-  cout << "--- FirstExitTime::reset() ---" << endl;
+  cout << "--- FirstEscapeTime::reset() ---" << endl;
   cout << "--- SimEntity list : " << endl;
   for (auto & ent :entities)
     cout << "\t" << ent->name << endl;
@@ -87,7 +87,7 @@ void FirstExitTimeWorker::reset()
 }
 
 
-void FirstExitTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time, int run)
+void FirstEscapeTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time, int run)
 {
   if (!runsTreated.contains(run)) // do not fill the queue with snapshots if an escape for this run has already been detected
   {
@@ -100,7 +100,7 @@ void FirstExitTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time
 
 // clean all snapshots for a given run
 // if input argument = -1, clean all snapshots
-void FirstExitTimeWorker::clearSnapshots(const int run)
+void FirstEscapeTimeWorker::clearSnapshots(const int run)
 {
   { // empty the queue with the lock
     const juce::ScopedLock sl(dataLock);
@@ -119,7 +119,7 @@ void FirstExitTimeWorker::clearSnapshots(const int run)
 
 
 
-void FirstExitTimeWorker::run()
+void FirstEscapeTimeWorker::run()
 {
   while (!threadShouldExit())
   {
@@ -188,10 +188,7 @@ void FirstExitTimeWorker::run()
 
 
 
-// #HERE debugging to do. Problems spotted :
-// FirstExitTime still seems to interfere with other listeners (such as SimulationUI)
-// this method does not seem to find the correct reached SST following a deterministic trajectory
-int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
+int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
 {
   ConcentrationGrid cg = snap.concgrid;
   
@@ -205,7 +202,7 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   }
   
   /*
-  cout << "FirstExitTimeWorker::identifyAttractionBasin() start conc : ";
+  cout << "FirstEscapeTimeWorker::identifyAttractionBasin() start conc : ";
   for (auto & ent : entities)
     cout << ent->concent.getUnchecked(patchid) << " ";
   cout << endl;
@@ -250,7 +247,7 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   
   cout << "used " << count << " steps in deterministic method. t = " << t << " dfinal = " << distance << endl;
   
-  //cout << "FirstExitTimeWorker::identifyAttractionBasin() end conc : ";
+  //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
   //for (auto & ent : entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
@@ -277,7 +274,7 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     count++;
   }
   
-  cout << "FirstExitTime::identifyAttractionBasin()" << endl;
+  cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
   cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
   cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
@@ -294,7 +291,7 @@ int FirstExitTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
 
 
 
-float FirstExitTimeWorker::distanceFromSteadyState(State state)
+float FirstEscapeTimeWorker::distanceFromSteadyState(State state)
 {
   float d = 0.;
   for (auto & p : state)
@@ -309,7 +306,7 @@ float FirstExitTimeWorker::distanceFromSteadyState(State state)
   return d;
 }
 
-SimEntity * FirstExitTimeWorker::getSimEntityForID(const size_t idToFind)
+SimEntity * FirstEscapeTimeWorker::getSimEntityForID(const size_t idToFind)
 {
   for (auto &se : entities)
   {
@@ -321,7 +318,7 @@ SimEntity * FirstExitTimeWorker::getSimEntityForID(const size_t idToFind)
 }
 
 
-void FirstExitTimeWorker::writeResultsToFile()
+void FirstEscapeTimeWorker::writeResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
   ofstream outputfile;

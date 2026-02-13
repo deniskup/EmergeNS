@@ -5,6 +5,9 @@
     <Filter Include="EmergeNS\Resources">
       <UniqueIdentifier>{67CF7E37-F903-3DB6-DA48-A7C351569785}</UniqueIdentifier>
     </Filter>
+    <Filter Include="EmergeNS\Source\Studies">
+      <UniqueIdentifier>{A2A7D7D7-1297-7819-F8B8-84A54BD3631D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="EmergeNS\Source\Engine">
       <UniqueIdentifier>{966090E8-8FD3-CC28-45BB-E1D9A70D4492}</UniqueIdentifier>
     </Filter>
@@ -487,11 +490,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Engine\FirstExitTimeWorker.cpp">
-      <Filter>EmergeNS\Source\Engine</Filter>
+    <ClCompile Include="..\..\Source\Studies\FirstEscapeTime.cpp">
+      <Filter>EmergeNS\Source\Studies</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Engine\FirstExitTime.cpp">
-      <Filter>EmergeNS\Source\Engine</Filter>
+    <ClCompile Include="..\..\Source\Studies\FirstEscapeTimeWorker.cpp">
+      <Filter>EmergeNS\Source\Studies</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp">
       <Filter>EmergeNS\Source\Engine</Filter>
@@ -2778,11 +2781,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Engine\FirstExitTimeWorker.h">
-      <Filter>EmergeNS\Source\Engine</Filter>
+    <ClInclude Include="..\..\Source\Studies\FirstEscapeTime.h">
+      <Filter>EmergeNS\Source\Studies</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Engine\FirstExitTime.h">
-      <Filter>EmergeNS\Source\Engine</Filter>
+    <ClInclude Include="..\..\Source\Studies\FirstEscapeTimeWorker.h">
+      <Filter>EmergeNS\Source\Studies</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h">
       <Filter>EmergeNS\Source\Engine</Filter>

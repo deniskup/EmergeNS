@@ -1,12 +1,12 @@
-#include "FirstExitTime.h"
+#include "FirstEscapeTime.h"
 
 // constructor
-FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
+FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
 {
-  cout << "calling creator FirstExitTime()" << endl;
+  cout << "calling creator FirstEscapeTime()" << endl;
   if (simul == nullptr)
     LOGWARNING("SImulation pointer init. to null pointer");
-  worker = new FirstExitTimeWorker(*simul);
+  worker = new FirstEscapeTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
 }
 
@@ -14,7 +14,7 @@ FirstExitTime::FirstExitTime() : simul(Simulation::getInstance())
 //                 simul(Simulation::getInstance())
 
 // destructor
-FirstExitTime::~FirstExitTime()
+FirstEscapeTime::~FirstEscapeTime()
 {
   simul->removeAsyncSimulationListener(this);
   //simul->removeAsyncContainerListener(this);
@@ -22,9 +22,9 @@ FirstExitTime::~FirstExitTime()
 
 
 
-void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
+void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
 {
-  cout << "FirstExitTime::setSimulationConfig()" << endl;
+  cout << "FirstEscapeTime::setSimulationConfig()" << endl;
   for (auto& [key, val] : configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
@@ -86,9 +86,9 @@ void FirstExitTime::setSimulationConfig(std::map<String, String> configs)
 
 
 // #TODO clarify what is in there
-void FirstExitTime::startStudy()
+void FirstEscapeTime::startStudy()
 {
-  cout << "FirstExitTime::startStudy()" << endl;
+  cout << "FirstEscapeTime::startStudy()" << endl;
   if (simul->isSpace->boolValue())
   {
     LOGWARNING("Cannot perform Exit time study in heterogeneous space. Abort study.");
@@ -133,7 +133,7 @@ void FirstExitTime::startStudy()
 }
 
 /*
-void FirstExitTime::printResultsToFile()
+void FirstEscapeTime::printResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
   ofstream outputfile;
@@ -157,7 +157,7 @@ void FirstExitTime::printResultsToFile()
 */
 
 
-void FirstExitTime::newMessage(const Simulation::SimulationEvent &ev)
+void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 {
   switch (ev.type)
   {

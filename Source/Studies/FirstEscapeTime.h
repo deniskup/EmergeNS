@@ -1,15 +1,26 @@
+/*
+  ==============================================================================
+
+  FirstEscapeTime.h
+  Created: Feb. 2026
+  Author:  thkosc
+
+  ==============================================================================
+*/
+
+
 #include "JuceHeader.h"
 //#include "Simulation/Simulation.h"
 //#include "Simulation/KineticLaw.h"
-#include "FirstExitTimeWorker.h"
+#include "FirstEscapeTimeWorker.h"
 
 
-class FirstExitTime : public Simulation::AsyncSimListener
+class FirstEscapeTime : public Simulation::AsyncSimListener
 {
 public:
-  juce_DeclareSingleton(FirstExitTime, true);
-  FirstExitTime();
-  ~FirstExitTime();
+  juce_DeclareSingleton(FirstEscapeTime, true);
+  FirstEscapeTime();
+  ~FirstEscapeTime();
     
   void setSimulationConfig(std::map<String, String>);
   
@@ -25,7 +36,7 @@ private:
   
   void newMessage(const Simulation::SimulationEvent &e) override;
   
-  FirstExitTimeWorker * worker;
+  FirstEscapeTimeWorker * worker;
   
   Simulation * simul;
   

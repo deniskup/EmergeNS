@@ -1,7 +1,16 @@
+/*
+  ==============================================================================
+
+  FirstEscapeTime.h
+  Created: Feb. 2026
+  Author:  thkosc
+
+  ==============================================================================
+*/
+
 #include "JuceHeader.h"
 #include "Simulation/Simulation.h"
 #include "Simulation/KineticLaw.h"
-//#include "FirstExitTimeWorker.h"
 
 
 struct Snapshot
@@ -18,17 +27,17 @@ struct Escape
   int escapeSteadyState;
 };
 
-class FirstExitTimeWorker : public juce::Thread
+class FirstEscapeTimeWorker : public juce::Thread
 {
 public:
-    FirstExitTimeWorker(Simulation& sim)
-        : juce::Thread("FirstExitTimeWorker"),
+    FirstEscapeTimeWorker(Simulation& sim)
+        : juce::Thread("FirstEscapeTimeWorker"),
           simul(sim)
     {
       kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
     }
 
-    ~FirstExitTimeWorker() override
+    ~FirstEscapeTimeWorker() override
     {
         signalThreadShouldExit();
         workAvailable.signal();
