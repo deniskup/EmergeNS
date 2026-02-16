@@ -135,6 +135,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
         String command = String(c.command);
         String strval = c.args[0];
         configs[command] = strval;
+        cout << "setting super run to " << strval << endl;
       }
       
     } // end command loop

@@ -31,6 +31,9 @@ void FirstEscapeTimeWorker::reset()
   entities.clear();
   reactions.clear();
   
+  // Must be called here, otherwise copy will not work properly
+  simul.affectSATIds();
+  
   // fill entity array with copies of the ones present in the simulation instance
   // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
   // or make sure to update the simentity concentration value with the one
@@ -62,7 +65,7 @@ void FirstEscapeTimeWorker::reset()
   //escapeTimes.insertMultiple(0, 0., simul.nRuns);
   escapes.clear();
   Escape defaultEscape = {0., -1, -1};
-  escapes.insertMultiple(0, defaultEscape, simul.nRuns);
+  escapes.insertMultiple(0, defaultEscape, PhasePlane::getInstance()->nRuns->intValue());
   
   runsTreated.clear();
   /*
@@ -76,10 +79,10 @@ void FirstEscapeTimeWorker::reset()
     cout << r->name << endl;
     cout << "reactants : " << endl;
     for (auto& e :r->reactants)
-      cout << "\t" << e->name << endl;
+      cout << "\t" << e->name << " : " << e->idSAT << endl;
     cout << "products : " << endl;
     for (auto& e :r->products)
-      cout << "\t" << e->name << endl;
+      cout << "\t" << e->name << " : " << e->idSAT << endl;
   }
   */
   
@@ -144,7 +147,7 @@ void FirstEscapeTimeWorker::run()
       // if not, request simul to proceed to next run
       if (reachedSST != startSteadyState)
       {
-        string strtime = to_string(snap.time);
+        string strtime = to_string(snap.time-0.5*escapeTimePrecision);
         
         // print to user for a follow-up
         LOG("Has Left Initial Attraction Basin at time " + strtime);
@@ -162,19 +165,17 @@ void FirstEscapeTimeWorker::run()
         
         // request a new run to simulation thread
         if (!debug) 
-          simul.requestProceedingToNextRun();
+          simul.requestProceedingToNextRun(snap.run);
       }
       
       // if current time is greater than simulation time and still no escape is detected, keep track of it
       if (snap.time + 2*simul.dt->floatValue() > simul.totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
       {
         LOG("No escape detected");
-        escapes.add({-1., startSteadyState, reachedSST});
+        escapes.setUnchecked(snap.run, {-1., startSteadyState, startSteadyState});
+        //escapes.add({-1., startSteadyState, reachedSST});
       }
-      
-      // Here i should test a condition upon which the study here is finished.
-      // run == nruns - 1 and escape detection. In that case, print results to file
-      
+            
     } // end while over pending snapshots
     
     if (runsTreated.contains(simul.nRuns-1))
@@ -189,6 +190,7 @@ void FirstEscapeTimeWorker::run()
 
 int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
 {
+  //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
   ConcentrationGrid cg = snap.concgrid;
   
   // set entities to the concentration corresponding to input argument
@@ -200,12 +202,12 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     ent->concent.setUnchecked(patchid, input_conc);
   }
   
-  /*
-  cout << "FirstEscapeTimeWorker::identifyAttractionBasin() start conc : ";
-  for (auto & ent : entities)
-    cout << ent->concent.getUnchecked(patchid) << " ";
-  cout << endl;
-  */
+  
+  //cout << "start conc : ";
+  //for (auto & ent : entities)
+  //  cout << ent->concent.getUnchecked(patchid) << " ";
+  //cout << endl;
+  
   
   // deterministic dynamics of the system until a stationnary state is reached
   float distance = 1000.;
@@ -272,18 +274,17 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     count++;
   }
   
-  //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
   //cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
   //cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
-  /*
-  cout << "reached sst (";
-  for (auto & ent : entities)
-    cout << ent->concent.getUnchecked(patchid) << " ";
-  cout << ")" << endl;
-  */
+  
+  //cout << "reached sst (";
+  //for (auto & ent : entities)
+  //  cout << ent->concent.getUnchecked(patchid) << " ";
+  //cout << ")" << endl;
+  
   
   return reachedSST;
 }

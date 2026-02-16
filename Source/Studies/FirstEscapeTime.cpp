@@ -75,8 +75,14 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   GlobalSettings::getInstance()->logAutosave->setValue(false); // autosave pretty annoying in the case of this study
   Settings::getInstance()->printHistoryToFile->setValue(printDynamics2File);
   
-  // pass reelavnt parameters to the worker
-  worker->setConfig(configs);
+  // initialize runs
+  PhasePlane::getInstance()->clearAllRuns();
+  PhasePlane::getInstance()->nRuns->setValue(nruns);
+  PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
+  
+  // pass relevant parameters to the worker
+  worker->reset(); // will copy some simulation thread parameters
+  worker->setConfig(configs); // will copy some input config file parameters
   
 }
 
@@ -115,9 +121,9 @@ void FirstEscapeTime::startStudy()
   //simul->steadyStatesList->printSteadyStates();
   
   // initialize runs
-  PhasePlane::getInstance()->clearAllRuns();
-  PhasePlane::getInstance()->nRuns->setValue(nruns);
-  PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
+  //PhasePlane::getInstance()->clearAllRuns();
+  //PhasePlane::getInstance()->nRuns->setValue(nruns);
+  //PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
   
   // start worker thread
   //worker->reset();
@@ -164,7 +170,6 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       
     case Simulation::SimulationEvent::WILL_START:
     {
-      worker->reset();
       worker->startThread(); // start the worker thread
     }
   break;
@@ -179,7 +184,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     {
       // test in which attraction basin in the system
       ConcentrationGrid cg = ev.entityValues;
-      float time = simul->dt->floatValue() * static_cast<float>(ev.nStep-1);
+      float time = simul->dt->floatValue() * static_cast<float>(ev.nStep);
       //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
       if (!simul->redrawRun && !simul->redrawPatch)
         worker->submitSnapshot(cg, time, ev.run);

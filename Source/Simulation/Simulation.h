@@ -234,7 +234,7 @@ public:
   void resetBeforeRunning();
 	void start(bool restart = true);
   void startMultipleRuns(Array<map<String, float>> initConc);
-  void requestProceedingToNextRun();
+  void requestProceedingToNextRun(const int);
   int checkRunStatus();
   void resetForNextRun();
   void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);

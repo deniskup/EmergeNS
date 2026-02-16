@@ -1928,10 +1928,12 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 
 
 
-void Simulation::requestProceedingToNextRun()
+void Simulation::requestProceedingToNextRun(const int _run)
 {
-  if (currentRun < nRuns -1)
+  if (currentRun<nRuns-1 && currentRun == _run)
     requestNewRun.store(true, std::memory_order_release);
+  else if (currentRun==nRuns-1 && currentRun == _run)
+    finished->setValue(true);
 }
 
 
@@ -2139,7 +2141,8 @@ void Simulation::nextStep()
   
   
   // is this step a checkpoint step ?
-  bool isCheck = (curStep % checkPoint == 0);
+  //bool isCheck = (curStep % checkPoint == 0);
+  bool isCheck = (nSteps % checkPoint == 0);
   if (displayLog && isCheck)
   {
     LOG("New Step : " << curStep);
