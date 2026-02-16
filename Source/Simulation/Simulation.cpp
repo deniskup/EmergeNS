@@ -17,7 +17,7 @@ juce_ImplementSingleton(Simulation)
     Simulation::Simulation() : ControllableContainer("Simulation"),
                                Thread("Simulation"),
                                curStep(0),
-                               simNotifier(1000), // max messages async that can be sent at once
+                               simNotifier(100000), // max messages async that can be sent at once
                                pacList(new PAClist(this)),
                                steadyStatesList(new SteadyStateslist(this))
   //                             space(new Space(this))
@@ -1613,6 +1613,13 @@ void Simulation::resetBeforeRunning()
   //RAChistory.clear();
   dynHistory->concentHistory.clear();
   dynHistory->racHistory.clear();
+  
+  // reset concentrations to their starting value
+  for (auto &e : entities)
+  {
+    e->concent = e->startConcent;
+    e->deterministicConcent = e->startConcent;
+  }
 
 
   currentRun = 0;
@@ -1625,7 +1632,7 @@ void Simulation::resetBeforeRunning()
   }
   
   
-  runToDraw = 0;
+  runToDraw = nRuns-1;
   patchToDraw = 0;
   //recordDrawn = 0.;
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
@@ -1640,36 +1647,14 @@ void Simulation::resetBeforeRunning()
   //if (Space::getInstance()->spaceGrid.size() == 0)
   //  Space::getInstance()->tilingSize->setValue(1);
   
-  if (stochasticity->boolValue())
+  // init kinetic law class
+  float noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
+  kinetics = new KineticLaw(stochasticity->boolValue(), noiseEpsilon);
+  if (Settings::getInstance()->fixedSeed->boolValue()==true)
   {
-    rgg = new RandomGausGenerator(0., 1.); // init random generator
-    rgg->generator->seed(std::chrono::system_clock::now().time_since_epoch().count());
-    noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
-    if (Settings::getInstance()->fixedSeed->boolValue()==true)
-    {
-      // check that the seed string has correct format, i.e. only digits
-      string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
-      bool correctFormat = true;
-      for (int k=0; k<strSeed.size(); k++)
-      {
-        if (!isdigit(strSeed[k]))
-        {
-          correctFormat = false;
-          break;
-        }
-      }
-      if (!correctFormat)
-      {
-        LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
-      }
-      else
-      {
-        unsigned int seed = atoi(strSeed.c_str());
-        rgg->setFixedSeed(seed);
-      }
-    }
+    string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
+    kinetics->fixedSeedMode(strSeed);
   }
-  
   
   // clear space grid
   //spaceGrid.clear();
@@ -1785,10 +1770,10 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));  
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   
-    
+    /*
   // We keep track of dynamics in multipleRun and space mode to be able to redraw the dynamics for a given patch/run
   if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
   {
@@ -1819,6 +1804,7 @@ void Simulation::start(bool restart)
     }
     dynHistory->concentHistory.add(concsnap);
   }
+  */
 
   
   // update maxConc encountered with initial values
@@ -1867,9 +1853,15 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   initialConcentrations = initConc;
   isMultipleRun = true;
   setRun->setValue(nRuns-1);
-  runToDraw = nRuns - 1;
+  //runToDraw = nRuns - 1;
   
 
+  // reset concentrations to their starting value
+  for (auto &e : entities)
+  {
+    e->concent = e->startConcent;
+    e->deterministicConcent = e->startConcent;
+  }
 
   
   // will print dynamics to file
@@ -1896,7 +1888,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   }
   cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, 0, entityValues, entityColors));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
@@ -1933,6 +1925,17 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   return;
   
 }
+
+
+
+void Simulation::requestProceedingToNextRun(const int _run)
+{
+  if (currentRun<nRuns-1 && currentRun == _run)
+    requestNewRun.store(true, std::memory_order_release);
+  else if (currentRun==nRuns-1 && currentRun == _run)
+    finished->setValue(true);
+}
+
 
 /*
  - return values :
@@ -1977,6 +1980,11 @@ void Simulation::resetForNextRun()
     recordConcent.set(k, 0.);
     recordDrawn.set(k, 0.);
   }
+  
+  // message to listeners
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this));
+
+  
 }
 
 // #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
@@ -2057,13 +2065,13 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     
     if (curStep==0)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, curStep, drawnConcGrid, entityColours, racarray, raclist));
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, nSteps, drawnConcGrid, entityColours, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
     }
     else
     {
       //cout << "Calling new SimNotifier in redraw" << endl;
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
     }
   
   
@@ -2076,6 +2084,39 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::nextStep()
 {
+  if (nSteps == 0) // keep track of first step ( = initial state)
+  {
+    if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+    {
+      ConcentrationSnapshot concsnap;
+      concsnap.step = 0;
+      concsnap.runID = 0;
+      for (auto & patch : Space::getInstance()->spaceGrid)
+      {
+        for (auto & ent : entities)
+        {
+          pair<int, int> p = make_pair(patch.id, ent->idSAT);
+          concsnap.conc[p] = ent->concent[patch.id];
+        }
+        
+        // add null rac snapshots for each PAC
+        for (int k=0; k<pacList->cycles.size(); k++)
+        {
+          Array<float> nullflows(pacList->cycles[k]->entities.size());
+          for (int j=0; j<nullflows.size(); j++)
+            nullflows.set(j, 0.);
+          RACSnapshot rs(0., nullflows);
+          rs.racID = k;
+          rs.step = 0;
+          rs.patchID = patch.id;
+          rs.runID = 0;
+          dynHistory->racHistory.add(rs);
+        }
+      }
+      dynHistory->concentHistory.add(concsnap);
+    }
+  }
+  
 
   nSteps++;
   
@@ -2088,7 +2129,7 @@ void Simulation::nextStep()
     stop();
     return;
   }
-  else if (status == 1) // current run is over, but not simu. Move to next run
+  else if (status == 1 || requestNewRun.exchange(false, std::memory_order_acquire)) // current run is over, but not simu. Move to next run
   {
     resetForNextRun();
     return;
@@ -2100,7 +2141,8 @@ void Simulation::nextStep()
   
   
   // is this step a checkpoint step ?
-  bool isCheck = (curStep % checkPoint == 0);
+  //bool isCheck = (curStep % checkPoint == 0);
+  bool isCheck = (nSteps % checkPoint == 0);
   if (displayLog && isCheck)
   {
     LOG("New Step : " << curStep);
@@ -2267,10 +2309,13 @@ void Simulation::nextStep()
     }
     
     //cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
+    /*
     if (isMultipleRun && currentRun==nRuns-1)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
     if (!isMultipleRun)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, curStep, entityValues, {}, PACsValues, RACList));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
+    */
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
   }
 
   
@@ -2282,292 +2327,22 @@ void Simulation::nextStep()
 
 void Simulation::updateSinglePatchRates(Patch& patch, bool isCheck)
 {
+  bool updateReactionFlows = (isCheck || isMultipleRun);
   
   // calculate new reaction rates
-  SteppingReactionRates(patch, isCheck);
+  kinetics->SteppingReactionRates(reactions, dt->floatValue(), patch.id, updateReactionFlows);
   
   // calculate creation/destruction rates
-  SteppingInflowOutflowRates(patch);
+  kinetics->SteppingInflowOutflowRates(entities, dt->floatValue(), patch.id);
 
   // calculate diffusion rates w.r.t closest patch neighbours
   if (isSpace->boolValue())
-    SteppingDiffusionRates(patch);
-  
-  
-}
-
-
-void Simulation::SteppingReactionRates(Patch& patch, bool isCheck)
-{
-    
-  // loop through reactions
-  for (auto &reac : reactions)
   {
-    // for a sanity check
-    //cout << "##### " << reac->name << " :" << endl;
-    //cout << "\tassoc/dissoc k : " << reac->assocRate << " ; " << reac->dissocRate << endl;
-    if (!reac->enabled)
-      continue;
-    
-    // multiply reactants/products concentration together
-    float minReacConcent = 100.;
-    float mindReacConcent = 100.;
-    float minProdConcent = 100.;
-    float mindProdConcent = 100.;
-    float reacConcent = 1.;
-    float deterministicReacConcent = 1.;
-    bool firstEnt = true;
-    for (auto &ent : reac->reactants)
-    {
-      reacConcent *= ent->concent[patch.id];
-      deterministicReacConcent *= ent->deterministicConcent[patch.id];
-      //cout << "localReac::" << ent->name << ": " << ent->concent << "  :  " << ent->deterministicConcent << endl;
-      if (ent == reac->reactants[0] || ent->concent[patch.id] < minReacConcent)
-        minReacConcent = ent->concent[patch.id];
-      if (ent == reac->reactants[0] || ent->deterministicConcent[patch.id] < mindReacConcent)
-        mindReacConcent = ent->deterministicConcent[patch.id];
-    }
-    float prodConcent = 1.;
-    float deterministicProdConcent = 1.;
-    firstEnt = true;
-    for (auto &ent : reac->products)
-    {
-      prodConcent *= ent->concent[patch.id];
-      deterministicProdConcent *= ent->deterministicConcent[patch.id];
-      if (ent == reac->products[0] || ent->concent[patch.id] < minProdConcent)
-        minProdConcent = ent->concent[patch.id];
-      if (ent == reac->products[0] || ent->deterministicConcent[patch.id] < mindProdConcent)
-        mindProdConcent = ent->deterministicConcent[patch.id];
-    }
-
-
-    // multiply concentrations by froward/backward constant rates
-    float directCoef = reacConcent * reac->assocRate;
-    float deterministicDirectCoef = deterministicReacConcent * reac->assocRate;
-    float reverseCoef = prodConcent * reac->dissocRate;
-    float deterministicReverseCoef = deterministicProdConcent * reac->dissocRate;
-    if (!reac->isReversible)
-    {
-      reverseCoef = 0.;
-      deterministicReverseCoef = 0.;
-    }
-    
-    // init increments
-    float directIncr = directCoef * dt->floatValue();
-    float deterministicDirectIncr = deterministicDirectCoef * dt->floatValue();
-    float reverseIncr = reverseCoef * dt->floatValue();
-    float deterministicReverseIncr = deterministicReverseCoef * dt->floatValue();
-
-    //if (print)
-    //{
-     // cout << "K+ = " << reac->assocRate << endl;
-     // for (auto & ent : reac->reactants)
-     // {
-     //   cout << "[" << ent->name << "] = " << ent->concent << endl;
-     // }
-      //cout << "forward incr = " << directIncr << " det. forward incr = " << deterministicDirectIncr  << endl;
-    //}
-
-    // adjust the increments depending on available entities
-    directIncr = jmin(directIncr, minReacConcent);
-    deterministicDirectIncr = jmin(deterministicDirectIncr, mindReacConcent);
-    reverseIncr = jmin(reverseIncr, minProdConcent);
-    deterministicReverseIncr = jmin(deterministicReverseIncr, mindProdConcent);
-
-    // to treat reactions equally: save increments for later. increase() and decrease() store changes to make, and refresh() will effectively make them
-
-    // increase and decrease entities
-    for (auto &ent : reac->reactants)
-    {
-      ent->increase(patch.id, reverseIncr);
-      ent->deterministicIncrease(patch.id, deterministicReverseIncr);
-      ent->decrease(patch.id, directIncr);
-      ent->deterministicDecrease(patch.id, deterministicDirectIncr);
-    }
-    for (auto &ent : reac->products)
-    {
-      ent->increase(patch.id, directIncr);
-      ent->deterministicIncrease(patch.id, deterministicDirectIncr);
-      ent->decrease(patch.id, reverseIncr);
-      ent->deterministicDecrease(patch.id, deterministicReverseIncr);
-    }
-    
-    
-    // demographic noise
-    if (stochasticity->boolValue())
-    {
-      float stoc_directIncr = sqrt(reac->assocRate) * noiseEpsilon;
-      float stoc_reverseIncr = sqrt(reac->dissocRate) * noiseEpsilon;
-      // for a sanity check
-      //string testname = "2+2=4";
-      //bool print(testname==reac->name ? true : false);
-      
-      // forward reaction
-      map<SimEntity*, double> m;
-      for (auto& ent : reac->reactants)
-      {
-        if (!m.count(ent)) // if entity has not been parsed already
-        {
-          stoc_directIncr *= sqrt(ent->concent[patch.id]);
-          m[ent] = 1;
-        }
-        else
-        {
-          float corrC = ent->concent[patch.id] - noiseEpsilon * noiseEpsilon * m[ent];
-          if (corrC > 0.) stoc_directIncr *= sqrt(corrC);
-          else stoc_directIncr = 0.;
-          m[ent]++;
-        }
-      }
-      
-      // random fluctuation of forward reaction associated to current timestep
-      float sqrtdt = sqrt(dt->floatValue());
-      float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
-      //if (print) cout << "forward wiener : " << directWiener << endl;
-      stoc_directIncr *= directWiener;
-      
-      
-      // backward reaction
-      if (!reac->isReversible)
-        stoc_reverseIncr = 0.;
-      else
-      {
-        map<SimEntity*, double> mm;
-        for (auto& ent : reac->products)
-        {
-          if (!mm.count(ent)) // if entity has not been parsed already
-          {
-            stoc_reverseIncr *= sqrt(ent->concent[patch.id]);
-            mm[ent] = 1;
-          }
-          else
-          {
-            float corrC = ent->concent[patch.id] - noiseEpsilon * noiseEpsilon * mm[ent];
-            if (corrC > 0.) stoc_reverseIncr *= sqrt(corrC);
-            else stoc_reverseIncr = 0.;
-            mm[ent]++;
-          }
-        }
-      }
-      
-      // random fluctuation of forward reactions associated to current timestep
-      float reverseWiener = rgg->randomNumber()*sqrtdt;
-      //if (print) cout << "backward wiener : " << reverseWiener << endl;
-      stoc_reverseIncr *= reverseWiener;
-      
-      // increase and decrease entities
-      for (auto &ent : reac->reactants)
-      {
-        ent->increase(patch.id, stoc_reverseIncr);
-        ent->decrease(patch.id, stoc_directIncr);
-      }
-      for (auto &ent : reac->products)
-      {
-        ent->increase(patch.id, stoc_directIncr);
-        ent->decrease(patch.id, stoc_reverseIncr);
-      }
-
-      
-    } // end if stochasticity
-
-          
-    // update flow needed only at checkpoints
-    if (isCheck || isMultipleRun)
-    {
-      //reac->flow = directCoef - reverseCoef;
-      //reac->deterministicFlow = deterministicDirectCoef - deterministicReverseCoef;
-      reac->flow.set(patch.id, directCoef - reverseCoef);
-      reac->deterministicFlow.set(patch.id, deterministicDirectCoef - deterministicReverseCoef);
-    }
-  } // end reaction loop
-  
-  
-}
-
-
-void Simulation::SteppingInflowOutflowRates(Patch& patch)
-{
-  
-  // loop over entities
-  for (auto &ent : entities)
-  {
-    ent->previousConcent.set(patch.id, ent->concent[patch.id]); // save concent in previousConcent to compute var speed
-    
-    // creation
-    if (ent->primary)
-    {
-      float incr = ent->creationRate * dt->floatValue();
-      float deterministicIncr = ent->creationRate * dt->floatValue();
-      
-      // demographic noise
-      if (stochasticity->boolValue())
-      {
-        float stocIncr = sqrt(ent->creationRate) * noiseEpsilon;
-        float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
-        stocIncr *= wiener;
-        incr -= stocIncr;
-      } // end if stochasticity
-      
-      ent->increase(patch.id, incr);
-      ent->deterministicIncrease(patch.id, deterministicIncr);
-    }
-    
-    //destruction
-    float rate = ent->concent[patch.id] * ent->destructionRate;
-    float incr = rate * dt->floatValue();
-    float deterministicRate = ent->deterministicConcent[patch.id] * ent->destructionRate;
-    float deterministicIncr = deterministicRate * dt->floatValue();
-
-
-    // demographic noise
-    if (stochasticity->boolValue())
-    {
-      double stocIncr = sqrt(rate) * noiseEpsilon;
-      float wiener = rgg->randomNumber() * sqrt(dt->floatValue());
-      stocIncr *= wiener;
-      incr -= stocIncr;
-    } // end if stochasticity
-    
-    ent->decrease(patch.id, incr);
-    ent->deterministicDecrease(patch.id, deterministicIncr);
-    
-    //if (curStep<=10) cout << "Destruction increment:: " << curStep << " -> " << deterministicIncr << "  :  " << incr << endl;
-
-  } // end loop over entities
-
-  
-
-  
-}
-
-
-void Simulation::SteppingDiffusionRates(Patch& patch)
-{
-  
-  // loop over neighbour patches of current patch
-  for (auto& neighbour : patch.neighbours)
-  {
-    // loop over entities
-    for (auto& ent : entities)
-    {
-      float grad = ent->concent[patch.id] - ent->concent[neighbour];
-      float detgrad = ent->deterministicConcent[patch.id] - ent->deterministicConcent[neighbour];
-      
-      float incr = -grad * Space::getInstance()->diffConstant->floatValue();
-      float detIncr = -detgrad * Space::getInstance()->diffConstant->floatValue();
-      // atually it is -grad * kd / L where L is the distance between two patches. Included in kd definition
-      
-      if (stochasticity->boolValue())
-      {
-        // *** TODO
-      }
-      
-      // increase concentrations of entities
-      ent->increase(patch.id, incr);
-      ent->deterministicIncrease(patch.id, incr);
-    }
+    kinetics->SteppingDiffusionRates(entities, patch);
   }
+  
 }
+
 
 
 void Simulation::computeRACsActivity(bool isCheck)
@@ -2865,8 +2640,8 @@ void Simulation::run()
       }
     }
   }
-
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
+  cout << "Simulation::run() : sending message FINISHED to listeners" << endl;
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, currentRun, nSteps, entityValues, {}, {}, {}));
   
   
   if (redrawRun || redrawPatch)
@@ -2947,7 +2722,7 @@ void Simulation::writeHistory()
       historyFile << dynHistory->concentHistory.getUnchecked(step).runID << ",";
       //historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
       historyFile << patch.id << ",";
-      historyFile << step << ",";
+      historyFile << dynHistory->concentHistory.getUnchecked(step).step << ",";
       
       // retrieve entity concent in current patch
       int countent = -1;
@@ -3159,27 +2934,30 @@ void Simulation::setConcToCAC(int idCAC)
   {
     auto ent = entConc.first;
     float conc = entConc.second;
-    ent->concent = conc;
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    ent->concent = arrconc;
     if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
+      ent->entity->startConcent->setValue(conc);
+      //ent->entity->concent->setValue(conc);
     else
       LOGWARNING("SetCAC: No entity for SimEntity"+ent->name);
   }
 }
 
-void Simulation::setConcToSteadyState(int idSS)
+void Simulation::setConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS)
 {
   if (idSS < 1)
     return;
   SteadyState ss = steadyStatesList->arraySteadyStates[idSS - 1];
-  int ident = 0;
-  for (auto ent : entities)
+  for (auto & ent : _entities)
   {
-    float conc = ss.state[ident].second;
-    ent->concent = conc;
-    ident++;
+    float conc = ss.state[ent->idSAT].second;
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    ent->concent = arrconc;
     if (ent->entity != nullptr)
-      ent->entity->concent->setValue(conc);
+    {
+      ent->entity->startConcent->setValue(conc);
+    }
   }
 }
 
@@ -3284,7 +3062,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     if (setSteadyState->intValue() < 1)
       return;
-    setConcToSteadyState(setSteadyState->intValue());
+    setConcToSteadyState(entities, setSteadyState->intValue());
   }
   if (p == setRun)
   {

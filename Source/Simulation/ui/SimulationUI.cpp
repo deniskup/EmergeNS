@@ -115,7 +115,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->autoScale->boolValue())
 	{
-		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01); // #TODO find a way to specify which patch is being drawn
+		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01); 
 	}
 	float maxC = simul->maxConcent->floatValue();
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -481,23 +481,33 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	break;
 
 	case Simulation::SimulationEvent::STARTED:
-	{
-		entityColors = ev.entityColors;
-		entityHistory.add(ev.entityValues);
-	}
+  {
+    entityColors = ev.entityColors;
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
+    cout << "SimulationEvent::STARTED in UI" << endl;
+    for (auto & [pair, conc] : ev.entityValues)
+      cout << pair.first << " : " << pair.second << " --> " << conc << endl;
+  }
 	break;
 
 	case Simulation::SimulationEvent::NEWSTEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-		entityHistory.add(ev.entityValues);
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 
-		if (simul->realTime->boolValue())
+		if (simul->realTime->boolValue() && ev.run == simul->runToDraw)
 			shouldRepaint = true;
 	}
 	break;
+      
+  case Simulation::SimulationEvent::NEWRUN:
+  {
+  }
+  break;
 
 	case Simulation::SimulationEvent::FINISHED:
 	{

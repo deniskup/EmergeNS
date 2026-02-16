@@ -3,7 +3,7 @@
 #pragma once
 
 #include "JuceHeader.h"
-#include "FirstExitTime.h"
+#include "Studies/FirstEscapeTime.h"
 
 using namespace juce;
 
@@ -22,7 +22,7 @@ public:
 
   bool parseCommandline(const String &) override;
   
-  void firstExitTimeStudy(map<String, String>);
+  void firstEscapeTimeStudy(map<String, String>);
 
   var getJSONData(bool includeNonOverriden = false) override;
   void loadJSONDataInternalEngine(var data, ProgressTask* loadingTask) override;

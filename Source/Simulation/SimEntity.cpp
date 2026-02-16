@@ -149,6 +149,51 @@ SimEntity::SimEntity(bool isPrimary, float concent, float cRate, float dRate, fl
 {
 }
 
+SimEntity::SimEntity(const SimEntity* other)
+{
+    jassert(other != nullptr);
+
+    name = other->name;
+    entity = other->entity; // shallow copy 
+    color = other->color;
+    primary = other->primary;
+    chemostat = other->chemostat;
+    id = other->id;
+
+    concent = other->concent;
+    deterministicConcent = other->deterministicConcent;
+    startConcent = other->startConcent;
+    previousConcent = other->previousConcent;
+
+    creationRate = other->creationRate;
+    destructionRate = other->destructionRate;
+    freeEnergy = other->freeEnergy;
+
+    change = other->change;
+    deterministicChange = other->deterministicChange;
+
+    reached = other->reached;
+    isolated = other->isolated;
+    enabled = other->enabled;
+    generatedFromUserList = other->generatedFromUserList;
+    toImport = other->toImport;
+
+    level = other->level;
+    draw = other->draw;
+
+    composition = other->composition;
+    idSAT = other->idSAT;
+
+}
+
+
+unique_ptr<SimEntity> SimEntity::clone() const
+{
+    return std::make_unique<SimEntity>(this);
+}
+
+
+
 void SimEntity::updateFromEntity(Entity *e)
 {
 	if(e==nullptr)
@@ -178,7 +223,7 @@ void SimEntity::updateFromEntity(Entity *e)
   // synchronize space grid with entity change
   // in an ugly way by manually calling the trigger button of space instance
   // better way would be use listeners instead ?
-  Space::getInstance()->initGridAtStartValues->trigger();
+  // Space::getInstance()->initGridAtStartValues->trigger(); // #TODO find another solution
 }
 
 var SimEntity::toJSONData()

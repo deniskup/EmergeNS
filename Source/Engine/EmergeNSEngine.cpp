@@ -50,7 +50,7 @@ void EmergeNSEngine::clearInternal()
 std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
 {
   
-  cout << "will open file : " << fileArg << endl;
+  //cout << "will open file : " << fileArg << endl;
 
   std::map<String, String> configs;
 
@@ -61,6 +61,8 @@ std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
   if (!file.is_open())
   {
     LOGERROR("can't open config file : " << fileArg);
+    std::cerr << "errno = " << errno << std::endl;
+    std::cerr << strerror(errno) << std::endl;
     JUCEApplication::getInstance()->systemRequestedQuit();
   }
   //fileLoaded = true;
@@ -101,6 +103,8 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
   //this contains already several command option like
   // -headless : run the engine without GUI
   // -f "path/to/file.ens": load the file with absolute path
+  
+  cout << "parsing command line" << endl;
 
   //Compile with task MakeRelease for better performance
 
@@ -122,11 +126,22 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     for (auto& c : StringUtil::parseCommandLine(commandLine))
     {
       if (c.command == "config")
+      {
         configs = parseConfigFile(c.args[0]);
-      fileLoaded = true;
+        fileLoaded = true; // #todo change value by properly handling an exception in parseConfigFile
+      }
+      else if (c.command == "superRun")
+      {
+        String command = String(c.command);
+        String strval = c.args[0];
+        configs[command] = strval;
+        cout << "setting super run to " << strval << endl;
+      }
+      
     } // end command loop
 
     String model2file = "model.txt";
+    String network = "";
 
     // Set model parameters according to config values
     for (auto& [key, val] : configs)
@@ -140,13 +155,18 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       else if (key == "model2file") model2file = val;
       else if (key == "printPACsToFile")Settings::getInstance()->printPACsToFile->setValueInternal(myvar);
       else if (key == "study") study = String(val);
+      else if (key == "network") network = val;
       //else if (key=="connectedness")
     }
     
+    // open the .ens file
+    juce::File file(network);
+    loadDocumentNoCheck(file);
     
-    if (study == "firstExit")
+    
+    if (study == "firstEscape")
     {
-      firstExitTimeStudy(configs);
+      firstEscapeTimeStudy(configs);
     }
 /*
     // Generate a reaction network
@@ -179,7 +199,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
 
 
-    JUCEApplication::getInstance()->systemRequestedQuit();
+    //JUCEApplication::getInstance()->systemRequestedQuit();
 
 
   }
@@ -190,9 +210,9 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 }
 
 
-void EmergeNSEngine::firstExitTimeStudy(map<String, String> configs)
+void EmergeNSEngine::firstEscapeTimeStudy(map<String, String> configs)
 {
-  FirstExitTime * fet = new FirstExitTime();
+  FirstEscapeTime * fet = new FirstEscapeTime();
   fet->setSimulationConfig(configs);
   fet->startStudy();
 }

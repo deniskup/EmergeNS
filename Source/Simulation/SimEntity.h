@@ -25,6 +25,9 @@ public:
     SimEntity(var data); // import from JSON
     SimEntity(Entity* e);
     SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
+    SimEntity(const SimEntity*);
+  
+    unique_ptr<SimEntity> clone() const; // cloning the sim entity
 
     void updateFromEntity(Entity* e);
 

@@ -143,8 +143,10 @@
     <Lib/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Engine\FirstExitTime.cpp"/>
+    <ClCompile Include="..\..\Source\Studies\FirstEscapeTime.cpp"/>
+    <ClCompile Include="..\..\Source\Studies\FirstEscapeTimeWorker.cpp"/>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\KineticLaw.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityManagerUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\EntityUI.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\ui\GenerationUI.cpp"/>
@@ -2189,8 +2191,10 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_osc.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Engine\FirstExitTime.h"/>
+    <ClInclude Include="..\..\Source\Studies\FirstEscapeTime.h"/>
+    <ClInclude Include="..\..\Source\Studies\FirstEscapeTimeWorker.h"/>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h"/>
+    <ClInclude Include="..\..\Source\Simulation\KineticLaw.h"/>
     <ClInclude Include="..\..\Source\Simulation\SimulationHelpers.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\EntityManagerUI.h"/>
     <ClInclude Include="..\..\Source\Simulation\ui\EntityUI.h"/>
