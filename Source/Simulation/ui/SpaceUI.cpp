@@ -58,12 +58,14 @@ void SpaceUI::resized()
 
 void SpaceUI::paint(juce::Graphics &g)
 {
+  //if (!shouldRepaint && gridIsAlreadyDrawn)
+  //  return;
   
   // should not be called while redrawing a patch or a run
   if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
     return;
   
-  
+  cout << "SpaceUI::paint()" << endl;
   
   g.fillAll(BG_COLOR);
   
@@ -94,6 +96,8 @@ void SpaceUI::paint(juce::Graphics &g)
 
 void SpaceUI::drawSpaceGrid(juce::Graphics & g)
 {
+  cout << "SpaceUI::drawSpaceGrid()" << endl;
+  
   // start is at upper left corner
   int til = space->tilingSize->intValue();
   float ftil = (float) til;
@@ -148,6 +152,7 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
 
 void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, float width)
 {
+  cout << "SpaceUI::paintOneHexagon()" << endl;
   
   g.setColour(NORMAL_COLOR);
   Path * hex = new Path();
@@ -171,6 +176,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   // retrieve patch ID corresponding to current position
   juce::Point<int> p(centerX, centerY);
   int pid = getPatchIDAtPosition(p);
+  cout << "patch ID = " << pid << endl;
     
   if (pid>=0)
   {
@@ -195,6 +201,10 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
            maxConcInGrid.setUnchecked(ie, cp);
        }
      }
+      cout << "concentration = ( " << endl;
+      for (auto & c : conc)
+        cout << c << " ";
+      cout << ")" << endl;
     }
     else
     {
@@ -429,8 +439,8 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
   int locatepatch = getPatchIDAtPosition(event.getPosition());
   if (locatepatch>=0)
   {
-    EntityManager::getInstance()->setEntityToPatchID(locatepatch);
-    Simulation::getInstance()->drawConcOfPatch(locatepatch);
+    EntityManager::getInstance()->setEntityToPatchID(locatepatch); // entity in manager synchronizes with entity state in current patch
+    simul->drawConcOfPatch(locatepatch);
   }
   
 }
@@ -438,7 +448,8 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
 
 void SpaceUI::timerCallback()
 {
-    if (shouldRepaint)
+  //cout << "SpaceUI::timerCallback(). should repaint = " << shouldRepaint << ". grid already drawn : " << gridIsAlreadyDrawn << endl;
+    if (shouldRepaint || !gridIsAlreadyDrawn)
     {
         repaint();
         shouldRepaint = false;
@@ -488,8 +499,11 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
         {
           useStartConcentrationValues = false;
           entityHistory.add(ev.entityValues);
+          shouldRepaint = true;
           if (space->realTime->boolValue())
-            shouldRepaint = true;
+            repaint();
+          shouldRepaint = false;
+            //shouldRepaint = true;
         }
       }
        
@@ -505,6 +519,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
       useStartConcentrationValues = false;
       //resized();
+      shouldRepaint = false;
       repaint();
     }
     break;
@@ -524,6 +539,7 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
       gridIsAlreadyDrawn = false;
       shouldRepaint = true;
       repaint();
+      shouldRepaint = false;
     }
     break;
       
@@ -541,14 +557,15 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
       useStartConcentrationValues = false;
       entityHistory.add(ev.entityValues);
       entityColors = ev.entityColors;
+      shouldRepaint = true;
       repaint();
-      
+      shouldRepaint = false;
     }
     break;
 
     case Space::SpaceEvent::FINISHED:
     {
-      useStartConcentrationValues = true;
+      //useStartConcentrationValues = true;
       //resized();
       //repaint();
     }
