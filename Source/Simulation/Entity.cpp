@@ -48,6 +48,7 @@ Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 	e->entity = this;
 	level = e->level;
 	id = e->id;
+	simEnt = e;
 	draw->setValue(e->draw);
 }
 

@@ -177,14 +177,24 @@ void Reaction::autoRename()
 	{
 		if (newName.isNotEmpty())
 			newName += "+";
-		newName += c->niceName;
+		//get name of entity in c
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+		newName += e->niceName;
 	}
 	newName += "=";
+	bool firstProduct = true;
 	for (auto c : products->controllables)
 	{
-		if (newName.isNotEmpty())
+		if (firstProduct)
+		{
+			firstProduct = false;
+		}
+		else
+		{
 			newName += "+";
-		newName += c->niceName;
+		}
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+		newName += e->niceName;
 	}
 
 	if (newName != niceName)
