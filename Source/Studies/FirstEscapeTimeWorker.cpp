@@ -21,6 +21,8 @@ void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
       debug = static_cast<bool>(atoi(val.toUTF8()));
     else if (key == "network")
       network = val;
+    else if (key == "superRun")
+      superRun = atoi(val.toUTF8());
   }
 }
 
@@ -247,10 +249,10 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   
   
   
-  cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
-  for (auto & ent : entities)
-    cout << ent->concent.getUnchecked(patchid) << " ";
-  cout << endl;
+  //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
+  //for (auto & ent : entities)
+  //  cout << ent->concent.getUnchecked(patchid) << " ";
+  //cout << endl;
   
   
   // determine in which steady state the system is
