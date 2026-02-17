@@ -123,14 +123,7 @@
 		57D49C4CAC730F256DDB59C0 /* SpaceUI.h */ /* SpaceUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SpaceUI.h; path = ../../Source/Simulation/ui/SpaceUI.h; sourceTree = SOURCE_ROOT; };
 		581FB50CE9EE4551FB796564 /* include_juce_cryptography.mm */ /* include_juce_cryptography.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_cryptography.mm; path = ../../JuceLibraryCode/include_juce_cryptography.mm; sourceTree = SOURCE_ROOT; };
 		5A4323D250C42070E4FCCF73 /* Space.h */ /* Space.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Space.h; path = ../../Source/Simulation/Space.h; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
->>>>>>> c0c80a3 (Progress on NEP implementation)
-=======
-		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
->>>>>>> d54b9f5 (fix conflicts due to bad merging)
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
@@ -138,11 +131,8 @@
 		6B28E7757C58181F28CE8C98 /* MainComponentCommands.cpp */ /* MainComponentCommands.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponentCommands.cpp; path = ../../Source/MainComponentCommands.cpp; sourceTree = SOURCE_ROOT; };
 		6D27F6CEEB3DA7EEA88B8551 /* NEP.cpp */ /* NEP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEP.cpp; path = ../../Source/Simulation/NEP.cpp; sourceTree = SOURCE_ROOT; };
 		6F860C2BF4E1A836444D5B8E /* PAC.h */ /* PAC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PAC.h; path = ../../Source/Simulation/PAC.h; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
 		72D7AE46F64E78FD9B283689 /* KineticLaw.h */ /* KineticLaw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = KineticLaw.h; path = ../../Source/Simulation/KineticLaw.h; sourceTree = SOURCE_ROOT; };
-=======
 		7465EB028A468ADF4C67539D /* AudioToolbox.framework */ /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
->>>>>>> 843b997 (Progress on NEP implementation)
 		74B0702C8DF6E5343D945394 /* ReactionManager.cpp */ /* ReactionManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManager.cpp; path = ../../Source/Simulation/ReactionManager.cpp; sourceTree = SOURCE_ROOT; };
 		752B455ED22E03C642F99F2F /* SimEntity.h */ /* SimEntity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimEntity.h; path = ../../Source/Simulation/SimEntity.h; sourceTree = SOURCE_ROOT; };
 		75DE9D4D888466F8BE4DED40 /* MainComponent.cpp */ /* MainComponent.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponent.cpp; path = ../../Source/MainComponent.cpp; sourceTree = SOURCE_ROOT; };
@@ -160,11 +150,8 @@
 		8EAFE4B45B11A7B069C5CA3F /* SimReaction.h */ /* SimReaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimReaction.h; path = ../../Source/Simulation/SimReaction.h; sourceTree = SOURCE_ROOT; };
 		94ADA8C705B58B18B65F8620 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
 		979AB46578CDD5433CE6BAB9 /* ReactionManagerUI.cpp */ /* ReactionManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManagerUI.cpp; path = ../../Source/Simulation/ui/ReactionManagerUI.cpp; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
 		9956166B4880728035A87C80 /* FirstEscapeTime.h */ /* FirstEscapeTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstEscapeTime.h; path = ../../Source/Studies/FirstEscapeTime.h; sourceTree = SOURCE_ROOT; };
-=======
 		9B8BB62EA5B70E10EE3596B7 /* CoreMIDI.framework */ /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
->>>>>>> 843b997 (Progress on NEP implementation)
 		9C777874D6DDED0AF1A9C0F9 /* Metal.framework */ /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		9D87137897220C2A6890BD5D /* PhasePlaneUI.h */ /* PhasePlaneUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PhasePlaneUI.h; path = ../../Source/Simulation/ui/PhasePlaneUI.h; sourceTree = SOURCE_ROOT; };
 		9EC0C402F7E2CEA90A038BD5 /* Main.cpp */ /* Main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = SOURCE_ROOT; };
@@ -192,11 +179,8 @@
 		C9BB0C859DCA69964A007AA8 /* PACUI.h */ /* PACUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PACUI.h; path = ../../Source/Simulation/ui/PACUI.h; sourceTree = SOURCE_ROOT; };
 		D7B97D77FC6064DB8D8FB845 /* juce_opengl */ /* juce_opengl */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_opengl; path = ../../JUCE/modules/juce_opengl; sourceTree = SOURCE_ROOT; };
 		D8E436FB2DA37799939E2EC5 /* ReactionManagerUI.h */ /* ReactionManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ReactionManagerUI.h; path = ../../Source/Simulation/ui/ReactionManagerUI.h; sourceTree = SOURCE_ROOT; };
-<<<<<<< HEAD
-		DC033714E4EA0A7DCB5942FC /* FirstEscapeTime.cpp */ /* FirstEscapeTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FirstEscapeTime.cpp; path = ../../Source/Studies/FirstEscapeTime.cpp; sourceTree = SOURCE_ROOT; };
-=======
 		D9F00956CA1E225335F248BA /* include_juce_audio_basics.mm */ /* include_juce_audio_basics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_basics.mm; path = ../../JuceLibraryCode/include_juce_audio_basics.mm; sourceTree = SOURCE_ROOT; };
->>>>>>> 843b997 (Progress on NEP implementation)
+		DC033714E4EA0A7DCB5942FC /* FirstEscapeTime.cpp */ /* FirstEscapeTime.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = FirstEscapeTime.cpp; path = ../../Source/Studies/FirstEscapeTime.cpp; sourceTree = SOURCE_ROOT; };
 		DD4594810EE458E97AD4DC65 /* Main.h */ /* Main.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Main.h; path = ../../Source/Main.h; sourceTree = SOURCE_ROOT; };
 		DD5AD796CD0E785CF0F03B83 /* MetalKit.framework */ /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		E05C8A4530642669C3E0B8B0 /* EmergeNSEngine.h */ /* EmergeNSEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EmergeNSEngine.h; path = ../../Source/Engine/EmergeNSEngine.h; sourceTree = SOURCE_ROOT; };
@@ -261,8 +245,8 @@
 		2485712F6E6EC416A75E1175 /* Simulation */ = {
 			isa = PBXGroup;
 			children = (
-				72D7AE46F64E78FD9B283689,
 				89515CB4FD83FB1F197DB132,
+				72D7AE46F64E78FD9B283689,
 				65F597D7CEC8F963C92135A5,
 				56DFD94A5AB14A9FD1D28610,
 				B8252F1965CFB9A32C234CA4,

@@ -433,13 +433,12 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
  Does nothing if the click occurs outside of space grid, maybe relying on color background ?
 
  */
-int SpaceUI::getPatchIDAtPosition(const juce::MouseEvent& event)
+void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
   
   int locatepatch = getPatchIDAtPosition(event.getPosition());
   if (locatepatch>=0)
   {
-
     EntityManager::getInstance()->setEntityToPatchID(locatepatch);
     Simulation::getInstance()->drawConcOfPatch(locatepatch);
   }

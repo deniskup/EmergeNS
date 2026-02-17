@@ -12,13 +12,13 @@
     </GROUP>
     <GROUP id="{5644C93F-D830-ABEA-7B3B-D680ED5AD24D}" name="Source">
       <GROUP id="{2AC50341-A3E0-0178-3088-A89F507F4B7C}" name="Studies">
-        <FILE id="MDo7zb" name="FirstEscapeTime.cpp" compile="1" resource="0"
+        <FILE id="e9KsAW" name="FirstEscapeTime.cpp" compile="1" resource="0"
               file="Source/Studies/FirstEscapeTime.cpp"/>
-        <FILE id="KSNu3X" name="FirstEscapeTime.h" compile="0" resource="0"
+        <FILE id="N4zD82" name="FirstEscapeTime.h" compile="0" resource="0"
               file="Source/Studies/FirstEscapeTime.h"/>
-        <FILE id="KW0IVm" name="FirstEscapeTimeWorker.cpp" compile="1" resource="0"
+        <FILE id="ZwdTkR" name="FirstEscapeTimeWorker.cpp" compile="1" resource="0"
               file="Source/Studies/FirstEscapeTimeWorker.cpp"/>
-        <FILE id="FdlwM5" name="FirstEscapeTimeWorker.h" compile="0" resource="0"
+        <FILE id="xes6XP" name="FirstEscapeTimeWorker.h" compile="0" resource="0"
               file="Source/Studies/FirstEscapeTimeWorker.h"/>
       </GROUP>
       <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
@@ -28,8 +28,8 @@
               file="Source/Engine/EmergeNSEngine.h"/>
       </GROUP>
       <GROUP id="{87A9DC7B-5819-AD03-3D54-9A82506A3449}" name="Simulation">
-        <FILE id="Rtay8b" name="KineticLaw.h" compile="0" resource="0" file="Source/Simulation/KineticLaw.h"/>
-        <FILE id="I9Qq3o" name="KineticLaw.cpp" compile="1" resource="0" file="Source/Simulation/KineticLaw.cpp"/>
+        <FILE id="T3CrTM" name="KineticLaw.cpp" compile="1" resource="0" file="Source/Simulation/KineticLaw.cpp"/>
+        <FILE id="mAO3IT" name="KineticLaw.h" compile="0" resource="0" file="Source/Simulation/KineticLaw.h"/>
         <FILE id="BowSo4" name="SimulationHelpers.h" compile="0" resource="0"
               file="Source/Simulation/SimulationHelpers.h"/>
         <GROUP id="{FC51C38D-0EB8-27ED-53D6-8BBCA209472A}" name="ui">
@@ -60,13 +60,8 @@
           <FILE id="HQjadc" name="SimulationUI.cpp" compile="1" resource="0"
                 file="Source/Simulation/ui/SimulationUI.cpp"/>
           <FILE id="o6wALL" name="SimulationUI.h" compile="0" resource="0" file="Source/Simulation/ui/SimulationUI.h"/>
-<<<<<<< HEAD
-          <FILE id="iz2NwA" name="SpaceUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/SpaceUI.cpp"/>
-          <FILE id="hd2Fe4" name="SpaceUI.h" compile="0" resource="0" file="Source/Simulation/ui/SpaceUI.h"/>
-=======
           <FILE id="eF447r" name="SpaceUI.cpp" compile="1" resource="0" file="Source/Simulation/ui/SpaceUI.cpp"/>
           <FILE id="QMydLh" name="SpaceUI.h" compile="0" resource="0" file="Source/Simulation/ui/SpaceUI.h"/>
->>>>>>> c0c80a3 (Progress on NEP implementation)
         </GROUP>
         <FILE id="i8eM9d" name="SimReaction.cpp" compile="1" resource="0" file="Source/Simulation/SimReaction.cpp"/>
         <FILE id="H0jhab" name="SimReaction.h" compile="0" resource="0" file="Source/Simulation/SimReaction.h"/>
