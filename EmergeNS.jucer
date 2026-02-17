@@ -88,8 +88,6 @@
         <FILE id="Qw1YRj" name="Settings.h" compile="0" resource="0" file="Source/Simulation/Settings.h"/>
         <FILE id="H8bR8k" name="Simulation.h" compile="0" resource="0" file="Source/Simulation/Simulation.h"/>
         <FILE id="p4F7v6" name="Simulation.cpp" compile="1" resource="0" file="Source/Simulation/Simulation.cpp"/>
-        <FILE id="wLDzUf" name="Space.cpp" compile="1" resource="0" file="Source/Simulation/Space.cpp"/>
-        <FILE id="WgOzDK" name="Space.h" compile="0" resource="0" file="Source/Simulation/Space.h"/>
         <FILE id="DoXUOl" name="SteadyStates.cpp" compile="1" resource="0"
               file="Source/Simulation/SteadyStates.cpp"/>
         <FILE id="HxDELV" name="SteadyStates.h" compile="0" resource="0" file="Source/Simulation/SteadyStates.h"/>
@@ -163,7 +161,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2022 targetFolder="Builds/VisualStudio2022" extraCompilerFlags="/bigobj"
-            smallIcon="iGjYAz" bigIcon="iGjYAz">
+            smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release"/>
@@ -228,7 +226,7 @@
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2022 targetFolder="Builds/VisualStudio2022_CI" extraCompilerFlags="/bigobj"
-            smallIcon="iGjYAz" bigIcon="iGjYAz">
+            smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI"/>
         <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI"/>
