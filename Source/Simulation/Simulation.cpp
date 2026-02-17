@@ -5,6 +5,7 @@
 #include "Settings.h"
 #include "Statistics.h"
 #include "Util.h"
+#include "NEP.h"
 
 // #include <SimpleXlsxWriter.hpp> // Inclure la bibliothèque C++ Excel
 
@@ -150,6 +151,7 @@ void Simulation::clearParams()
   steadyStatesList->arraySteadyStates.clear();
   steadyStatesList->nGlobStable = 0;
   steadyStatesList->nPartStable = 0;
+  steadyStatesList->nSaddle = 0;
   //steadyStatesList->stableStates.clear();
   //steadyStatesList->partiallyStableStates.clear();
 }
@@ -215,10 +217,14 @@ void Simulation::updateParams()
   // set space
   updateSpaceGridSizeInSimu();
   
+  // update steady state list in NEP class
+  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATENEPPARAMS, this));
+  NEP::getInstance()->updateSteadyStateList();
   
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  
 }
 
 
@@ -227,16 +233,14 @@ void Simulation::updateSpaceGridSizeInSimu()
   //cout << "Current simul  has " << entities.size() << " entities." << endl;
   //if (entities.size() == 0)
   //  return;
-  //cout << "updateSpaceGridSizeInSimu()" << endl;
-    //cout << "spacegrid size in SimEntities = " << entities.getUnchecked(0)->startConcent.size() << endl;
   for (auto& ent : entities)
   {
     //float start0 = ent->startConcent.getUnchecked(0);
-    
-    ent->startConcent.resize(Space::getInstance()->nPatch);
-    ent->concent.resize(Space::getInstance()->nPatch);
-    ent->deterministicConcent.resize(Space::getInstance()->nPatch);
-    ent->previousConcent.resize(Space::getInstance()->nPatch);
+    cout << ent->name << endl;
+    ent->startConcent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->concent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->deterministicConcent.resize(Space::getInstance()->tilingSize->intValue());
+    ent->previousConcent.resize(Space::getInstance()->tilingSize->intValue());
     
     // for start concentrations, I duplicate the values of the first patch
     // for others, I init with null values // #BUG
@@ -1688,9 +1692,14 @@ void Simulation::resetBeforeRunning()
 
 void Simulation::start(bool restart)
 {
+  
   nRuns = 1;
   resetBeforeRunning();
   updateParams();
+  
+  // check that the space grid is non non-0. If non 0, set it to size 1
+  if (Space::getInstance()->spaceGrid.size() == 0)
+    Space::getInstance()->tilingSize->setValue(1);
   
   
   if (isMultipleRun && isSpace->boolValue())
@@ -1750,7 +1759,6 @@ void Simulation::start(bool restart)
   // 1st call of simulation event
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
-    
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1761,7 +1769,6 @@ void Simulation::start(bool restart)
     {
       //entityValues.add(ent->concent);
       //entityValues.add(ent->concent[0]);
-      //pair<int, SimEntity*> pr = make_pair(p.id, ent);
       pair<int, int> pr = make_pair(p.id, ent->idSAT);
       entityValues[pr] = ent->concent[p.id];
     }
@@ -1864,6 +1871,13 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   }
 
   
+  if (isMultipleRun && isSpace->boolValue())
+  {
+    LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
+    return;
+  }
+
+  
   // will print dynamics to file
   //if (!Settings::getInstance()->printHistoryToFile->boolValue())
   //  Settings::getInstance()->printHistoryToFile->setValue(true);
@@ -1926,17 +1940,6 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
 }
 
-
-
-void Simulation::requestProceedingToNextRun(const int _run)
-{
-  if (currentRun<nRuns-1 && currentRun == _run)
-    requestNewRun.store(true, std::memory_order_release);
-  else if (currentRun==nRuns-1 && currentRun == _run)
-    finished->setValue(true);
-}
-
-
 /*
  - return values :
  --> -1 : all runs are done, simulation is over
@@ -1958,6 +1961,18 @@ int Simulation::checkRunStatus()
     
   return status;
 }
+  
+
+
+void Simulation::requestProceedingToNextRun(const int _run)
+{
+  if (currentRun<nRuns-1 && currentRun == _run)
+    requestNewRun.store(true, std::memory_order_release);
+  else if (currentRun==nRuns-1 && currentRun == _run)
+    finished->setValue(true);
+}
+
+
   
   
 void Simulation::resetForNextRun()
@@ -1991,8 +2006,8 @@ void Simulation::resetForNextRun()
 // Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
+//void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
 {
-  
   nSteps++;
   bool isCheckForRedraw = ( (nSteps-1) % checkPoint == 0);
   
@@ -2172,7 +2187,6 @@ void Simulation::nextStep()
         return;
       }
     }
-    
     
     
     // keep this here, but loop over patches
@@ -2503,7 +2517,6 @@ void Simulation::computeRACsActivity(bool isCheck)
       
     } // end PAC loop
   } // end space grid loop
-  
 }
 
 
@@ -2550,7 +2563,7 @@ void Simulation::run()
     //cout << "retrieving rac snaps for run #" << runToDraw << " and patch #" << patchToDraw << endl;
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
-    cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
+    //cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
     
     
     /*
@@ -2598,7 +2611,7 @@ void Simulation::run()
         cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
         cout << "--- ------ ------ ---" << endl;
         */
-        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate 
+        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate
         ConcentrationSnapshot thisStepConc = dynHistory->getConcentrationSnapshotForRunAndStep(runToDraw, corrStep, kestimate);
         nextRedrawStep(thisStepConc, thisStepRACs);
         k++;
@@ -2666,7 +2679,7 @@ void Simulation::run()
   LOG("Max RAC: " << pacList->maxRAC);
   LOG("RACS:");
 
-  pacList->printRACs();
+  //pacList->printRACs();
 
   updateConcentLists();
 
@@ -2701,7 +2714,7 @@ void Simulation::writeHistory()
     string comma = ",";
     if ( c == (entities.size() - 1) && pacList->cycles.size()==0)
       comma = "";
-    historyFile << "[" << ent->name << "]" << comma;
+    historyFile << ent->name << comma;
   }
   //for (auto & cycle : pacList->cycles)
   for (int c=0; c<pacList->cycles.size(); c++)
@@ -3034,6 +3047,7 @@ void Simulation::drawConcOfPatch(int idpatch)
   startThread();
   
 }
+
 
 
 

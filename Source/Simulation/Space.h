@@ -3,6 +3,8 @@
 
 #include "JuceHeader.h"
 #define CACROB_PRECISION 5
+#include "EntityManager.h"
+#include "SimulationHelpers.h"
 
 #include "EntityManager.h"
 #include "SimulationHelpers.h"
@@ -94,7 +96,6 @@ public:
     void onContainerTriggerTriggered(Trigger *t) override;
   
     void run() override;
-    
   
     Array<Patch> spaceGrid;
 
@@ -116,6 +117,7 @@ public:
       NEWSTEP,
       FINISHED,
     };
+
 
     SpaceEvent(Type t,
       Space* space,

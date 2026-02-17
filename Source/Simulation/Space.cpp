@@ -29,6 +29,7 @@ Space::Space(Simulation * _simul) : ControllableContainer("Space"), simul(_simul
   Space();
 }
 */
+
 Space::~Space()
 {
 }
@@ -139,8 +140,6 @@ void Space::onContainerParameterChanged(Parameter *p)
 
   }
 
-  
-  
 }
 
 
@@ -171,7 +170,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    cout << "number of snapshots for replay : " << concMovie.size() << endl;
     
     // launch the replay
     startThread();
@@ -189,7 +188,6 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     }
     spaceNotifier.addMessage( new SpaceEvent(SpaceEvent::UPDATE_GRID, this, 0, {}, colours) );
   }
-  
 }
 
 

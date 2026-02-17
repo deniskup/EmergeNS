@@ -58,6 +58,16 @@ void SpaceUI::resized()
 
 void SpaceUI::paint(juce::Graphics &g)
 {
+  // should not be called while running simu, because simu needs the space grid which is overriden in this function
+  if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
+    return;
+
+  
+  // should not be called while redrawing a patch or a run
+  if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
+    return;
+  
+  
   
   // should not be called while redrawing a patch or a run
   if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
@@ -142,7 +152,6 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
     }
   }
   gridIsAlreadyDrawn = true;
-  
 }
 
 
@@ -165,6 +174,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     else
       hex->lineTo(x, y);
   }
+  
   
   hex->closeSubPath(); // Close the hexagon shape
   
@@ -421,8 +431,8 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
  
  Retrieve position of closest hexagon center on a click
  Does nothing if the click occurs outside of space grid, maybe relying on color background ?
- */
 
+ */
 void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
   
@@ -567,5 +577,4 @@ void SpaceUI::newMessage(const ContainerAsyncEvent &e)
         }
     }
 }
-
 

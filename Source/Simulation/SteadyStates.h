@@ -66,7 +66,7 @@ public:
     Array<SteadyState> arraySteadyStates; // list of steady states
     int nGlobStable = 0;
     int nPartStable = 0;
-    int nSaddle = 0; // 
+    int nSaddle = 0; //
     //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
     //Array<SteadyState> stableStates; // list of stable steady states
     //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
@@ -101,7 +101,7 @@ public:
 
     bool computeWithMSolve(); // compute steady states with msolve, returns true if call successful
 
-    void computeJacobiMatrix(); // formal calculation of jacobi matrix 
+    void computeJacobiMatrix(); // formal calculation of jacobi matrix
 
     Eigen::MatrixXd evaluateJacobiMatrix(SteadyState&); // evaluate jacobi matrix at a given concentration vector
 

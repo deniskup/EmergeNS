@@ -14,8 +14,8 @@ public:
     Settings();
     ~Settings();
 
-    StringParameter *pathToz3; 
-    StringParameter *pathToMSolve; 
+    StringParameter *pathToz3;
+    StringParameter *pathToMSolve;
 
     IntParameter *z3timeout; //timeout for z3 in ms
     
