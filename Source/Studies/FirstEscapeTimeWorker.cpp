@@ -247,10 +247,10 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   
   
   
-  //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
-  //for (auto & ent : entities)
-  //  cout << ent->concent.getUnchecked(patchid) << " ";
-  //cout << endl;
+  cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
+  for (auto & ent : entities)
+    cout << ent->concent.getUnchecked(patchid) << " ";
+  cout << endl;
   
   
   // determine in which steady state the system is
@@ -259,8 +259,8 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
   count = 0;
   for (auto & sst : simul.steadyStatesList->arraySteadyStates)
   {
-    if (!sst.isStable)
-      continue;
+    //if (!sst.isStable)
+    //  continue;
     float d = distanceFromSteadyState(sst.state);
     //cout << "candidate sst : " << endl;
     //simul.steadyStatesList->printOneSteadyState(sst);
@@ -332,7 +332,7 @@ void FirstEscapeTimeWorker::writeResultsToFile()
   outputfile << "<===== RESULTS =====>" << endl;
   outputfile << "startSST,escapeSST,time" << endl;
         
-  int c=-1;
+  //int c=-1;
   for (auto & el : escapes)
   {
     outputfile << el.startSteadyState << "," << el.escapeSteadyState << "," << el.time << endl;
