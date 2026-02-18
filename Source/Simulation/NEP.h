@@ -24,7 +24,7 @@
 #pragma once
 
 #include "JuceHeader.h"
-#include "nlopt.hpp"
+#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
 #include <random>
 //#include "Simulation.h"
