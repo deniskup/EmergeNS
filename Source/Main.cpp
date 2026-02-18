@@ -6,6 +6,7 @@
   ==============================================================================
 */
 
+#pragma warning(disable:4244 4100 4305)
 #include <JuceHeader.h>
 #include "Main.h"
 
@@ -33,5 +34,6 @@ void EmergeNSApplication::initialiseInternal(const String&)
 
 bool EmergeNSApplication::moreThanOneInstanceAllowed()
 {
-  return false;
+  //return false;
+  return true;
 }

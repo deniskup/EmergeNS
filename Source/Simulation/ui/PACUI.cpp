@@ -24,12 +24,21 @@ PACUI::~PACUI()
 
 void PACUI::paint(juce::Graphics &g)
 {
+  
+  //cout << "PACUI::paint" << endl;
+  //cout << "RACs have " << PACsHistory.size() << " steps" << endl;
+  //if (PACsHistory.size()>0)
+  //  cout << "nRACs : " << PACsHistory[0].size() << endl;
+  
   /*
-  cout << "PACUI::paint" << endl;
-  cout << "RACs have " << PACsHistory.size() << " steps" << endl;
-  if (PACsHistory.size()>0)
-    cout << "nRACs : " << PACsHistory[0].size() << endl;
+  for (int i=0; i<PACsHistory.size(); i++)
+  {
+    for (int j=0; j<PACsHistory.size(); j++)
+      cout << PACsHistory[i][j] << "  ";
+    cout << endl;
+  }
   */
+  
     PACsBounds = getLocalBounds();
     g.fillAll(Colours::black);
     g.setColour(Colours::white);
@@ -197,6 +206,7 @@ void PACUI::paint(juce::Graphics &g)
                 // to display only one color per RAC
                 valToMax = RACsHistory[i][j] * coefs[RACindex[j]] / maxPAC;
                 colIndex = RACindex[j];
+              //cout << RACsHistory[i][j] << " ; " << coefs[RACindex[j]] << " ; " << maxPAC << endl;
             }
             else
             {
@@ -257,12 +267,20 @@ void PACUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
+      if (ev.run == simul->runToDraw)
+      {
         PACsHistory.add(ev.PACsValues);
         RACList = ev.RACList;
+      }
         // shouldRepaint=simul->realTime->boolValue())
     }
     break;
-
+        
+    case Simulation::SimulationEvent::NEWRUN:
+    {
+    }
+    break;
+        
     case Simulation::SimulationEvent::FINISHED:
     {
         resized();

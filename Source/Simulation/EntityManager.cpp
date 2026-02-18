@@ -31,6 +31,46 @@ void EntityManager::addItemInternal(Entity *e, var params)
 	e->colorIsSet = true;
 }
 
+void EntityManager::setEntityToPatchID(int pid)
+{
+  /*
+  cout << "***** Sim entities status II ******" << endl;
+  for (auto & ent : Simulation::getInstance()->entities)
+  {
+    cout << ent->name << " startConc : [" << ent->startConcent[0] << " ; " << ent->startConcent[1];
+    cout << "] conc : [" << ent->concent[0] << " ; " << ent->concent[1] << "]" << endl;
+  }
+  cout << "*******************" << endl;
+  */
+  
+  for (auto & e : items)
+  {
+    SimEntity * se = Simulation::getInstance()->getSimEntityForName(e->niceName);
+    if (se)
+    {
+      e->simEnt = se;
+      e->patchid = pid;
+      
+      // I first implemented the method below to update Entity in UI without interfering with SimEntity.
+      // I suspect it is a bad practice, since I call setValue with boolean that bypasses the call of "onParameterValueChanged"
+      // but still I then call a parameter event (normally in onParameterValueChanged) to update value in UI
+      /*
+      e->startConcent->setValue(se->startConcent[pid], true); // true booleen to bypass the listener from being called
+      e->concent->setValue(se->concent[pid], true);
+      // call notifier manually to update value in UI. This way SimEntity is not updated
+      e->startConcent->queuedNotifier.addMessage(new FloatParameter::ParameterEvent(FloatParameter::ParameterEvent::VALUE_CHANGED, e->startConcent, e->startConcent->getValue()));
+      e->concent->queuedNotifier.addMessage(new FloatParameter::ParameterEvent(FloatParameter::ParameterEvent::VALUE_CHANGED, e->concent, e->concent->getValue()));
+      */
+      // other method, simply update a boolean in Entity
+      e->updateSimEntityOnValueChanged = false;
+      e->startConcent->setValue(se->startConcent[pid]);
+      e->concent->setValue(se->concent[pid]);
+      e->updateSimEntityOnValueChanged = true;
+    }
+  }
+}
+
+
 // void EntityManager::onContainerTriggerTriggered(Trigger *t)
 // {
 // 	LOG("Trigger " << t->niceName);

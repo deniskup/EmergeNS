@@ -49,11 +49,12 @@ void MainContentComponent::getCommandInfo(CommandID commandID, ApplicationComman
 		result.addDefaultKeypress(KeyPress::createFromDescription("p").getKeyCode(), ModifierKeys::commandModifier);
 		break;
 	
-
+/*
 	case NSCommandIDs::loadManual:
 		result.setInfo("Simul->Lists", "", "General", result.readOnlyInKeyEditor);
 		//result.addDefaultKeypress(KeyPress::createFromDescription("l").getKeyCode(), ModifierKeys::commandModifier);
 		break;
+      */
 	
 	case NSCommandIDs::fetchManual:
 		result.setInfo("Lists->Simul", "", "General", result.readOnlyInKeyEditor);
@@ -114,7 +115,7 @@ void MainContentComponent::getAllCommands(Array<CommandID> &commands)
 		// NSCommandIDs::PACkissat,
 		NSCommandIDs::PACwithZ3,
 		NSCommandIDs::computeCACs,
-		NSCommandIDs::loadManual,
+		//NSCommandIDs::loadManual,
 		NSCommandIDs::fetchManual,
 		NSCommandIDs::computeBarriers,
 		NSCommandIDs::clearLists,
@@ -140,7 +141,7 @@ PopupMenu MainContentComponent::getMenuForIndex(int topLevelMenuIndex, const Str
 		// menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACkissat);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::PACwithZ3);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeCACs);
-		menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
+		//menu.addCommandItem(&getCommandManager(), NSCommandIDs::loadManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::fetchManual);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::computeBarriers);
 		menu.addCommandItem(&getCommandManager(), NSCommandIDs::clearLists);
@@ -207,12 +208,13 @@ bool MainContentComponent::perform(const InvocationInfo &info)
 		Simulation::getInstance()->steadyStatesList->computeSteadyStates();
 	}
 	break;
-
+/*
 	case NSCommandIDs::loadManual:
 	{
 		Simulation::getInstance()->updateUserListFromSim();
 	}
 	break;
+*/
 
 	case NSCommandIDs::fetchManual:
 	{

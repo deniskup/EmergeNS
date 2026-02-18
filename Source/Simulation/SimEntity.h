@@ -15,6 +15,7 @@
 #include "EntityManager.h"
 
 class Entity;
+class Space;
 using namespace juce;
 
 
@@ -24,6 +25,9 @@ public:
     SimEntity(var data); // import from JSON
     SimEntity(Entity* e);
     SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
+    SimEntity(const SimEntity*);
+  
+    unique_ptr<SimEntity> clone() const; // cloning the sim entity
 
     void updateFromEntity(Entity* e);
 
@@ -40,19 +44,25 @@ public:
     bool primary;
     bool chemostat=false;
     int id = -1; // unique identifier
-    float concent;
-    float deterministicConcent;
-    float startConcent;
-    float previousConcent;
-    float creationRate;
-    float destructionRate;
+    //float concent;
+    Array<float> concent; // size = number of patches
+    //float deterministicConcent;
+    Array<float> deterministicConcent;
+    //float startConcent;
+    Array<float> startConcent;
+    //float previousConcent;
+    Array<float> previousConcent;
+    float creationRate; // could be heterogeneous in space. Left homogeneous for now
+    float destructionRate; // same
     float freeEnergy;
 
     //Array<float> concentHistory; // history of entity concentration
-    Array<std::pair<int, float>> concentHistory; // history of entity [run ;concentration].
+    // Array<std::pair<int, float>> concentHistory; // history of entity [run ;concentration].
 
-    float change = 0.f; // variation of concentration in the last dt
-    float deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
+    //float change = 0.f; // variation of concentration in the last dt
+    Array<float> change = 0.f; // variation of concentration in the last dt
+    //float deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
+    Array<float> deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
 
     bool reached; //is the entity reached from primary entities ?
 
@@ -71,10 +81,10 @@ public:
 
     int idSAT = 0; // identifier for SAT Solving
 
-    void increase(float incr); 
-    void deterministicIncrease(float incr);
-    void decrease(float decr);
-    void deterministicDecrease(float decr);
+    void increase(int patchID, float incr);
+    void deterministicIncrease(int patchID, float incr);
+    void decrease(int patchID, float decr);
+    void deterministicDecrease(int patchID, float decr);
     void refresh();
 
     void nameFromCompo();

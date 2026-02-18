@@ -20,9 +20,11 @@ public:
 
     Simulation *simul;
     bool shouldRepaint;
-    Array<Array<float>> entityHistory;
+    //Array<Array<float>> entityHistory;
+    Array<ConcentrationGrid> entityHistory;
     Array<Colour> entityColors;
-    int runID;
+  
+    
 
     // TextButton saveSimBT;
     // TextButton loadSimBT;
@@ -43,6 +45,7 @@ public:
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
     unique_ptr<BoolToggleUI> ignoreBarriersUI;
     unique_ptr<BoolToggleUI> stochasticityUI;
+    unique_ptr<BoolToggleUI> spaceUI;
     unique_ptr<BoolToggleUI> detectEqUI;
     unique_ptr<FloatParameterLabelUI> epsilonEqUI;
 

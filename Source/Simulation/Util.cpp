@@ -1,12 +1,11 @@
 #include "Util.h"
 
-
 // maybe rand functions to move to a file Util.c later
 int randInt(int i, int j)
 {
     if (j < i)
     {
-        cerr <<"Range [" << i << "," << j << "] incorrect, setting to " << i << endl;
+        cerr << "Range [" << i << "," << j << "] incorrect, setting to " << i << endl;
         return i;
     }
     if (i == j)
@@ -35,11 +34,4 @@ float randFloat(float a, float b)
 float randFloat(float a)
 {
     return randFloat(0.f, a);
-}
-
-void printMatrixToLog(const Eigen::MatrixXd& matrix)
-{
-    stringstream ss;
-    ss << matrix; // Eigen supports streaming to std::stringstream
-    LOG(juce::String(ss.str())); // Convert to juce::String and log
 }

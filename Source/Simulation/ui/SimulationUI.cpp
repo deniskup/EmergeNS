@@ -25,7 +25,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-	stochasticityUI.reset(simul->stochasticity->createToggle());
+  stochasticityUI.reset(simul->stochasticity->createToggle());
+	spaceUI.reset(simul->isSpace->createToggle());
 	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
@@ -68,7 +69,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-	addAndMakeVisible(stochasticityUI.get());
+  addAndMakeVisible(stochasticityUI.get());
+	addAndMakeVisible(spaceUI.get());
 	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
   addAndMakeVisible(setRunUI.get());
@@ -107,13 +109,14 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->shouldUpdate)
 	{
+    cout << "simul should update" << endl;
 		simul->updateParams();
 		simul->shouldUpdate = false;
 	}
 
 	if (simul->autoScale->boolValue())
 	{
-		simul->maxConcent->setValue(simul->recordDrawn * 1.01);
+		simul->maxConcent->setValue(simul->recordDrawn[simul->patchToDraw] * 1.01);
 	}
 	float maxC = simul->maxConcent->floatValue();
 	// (Our component is opaque, so we must completely fill the background with a solid colour)
@@ -155,7 +158,8 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	paramsLabel.setText(paramsToDisplay, dontSendNotification);
 
-	if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
+  //if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
+	if (!simul->finished->boolValue() && !simul->realTime->boolValue()) // si pas option realTime
 		return;
 	if (entityHistory.isEmpty())
 		return;
@@ -165,7 +169,16 @@ void SimulationUI::paint(juce::Graphics &g)
 	float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
 	// float maxConcent = 5;
 	OwnedArray<Path> paths;
-	for (auto &e : entityHistory[0])
+  
+  Array<float> firstConc;
+  for (auto & [key, val] : entityHistory[0]) // first time step
+  {
+    if (key.first == simul->patchToDraw)
+      firstConc.add(val);
+  }
+  
+  //for (auto &e : entityHistory[0])
+	for (auto &e : firstConc)
 	{
 		float v = 1 - e / maxC;
 		v = jmax(v, 0.f);
@@ -176,10 +189,24 @@ void SimulationUI::paint(juce::Graphics &g)
 		paths.add(p); // add one path per entity
 	}
   //cout << "UI ent history : " << entityHistory.size() << endl;
-	for (int i = 0; i < entityHistory.size(); i++)
+  for (int i = 0; i < entityHistory.size(); i++)
 	{
-		Array<float> values = entityHistory[i];
-    //cout << "values.size = " << values.size() << endl;
+		//Array<float> values = entityHistory[i];
+    Array<pair<int, float>> pvalues;
+    //Array<float> values(entityHistory[i].size());
+    for (auto & [key, val] : entityHistory[i]) //  time step i
+    {
+      if (key.first == simul->patchToDraw)
+        pvalues.add(make_pair(key.second, val));
+        //values.add(val);
+    }
+    
+    pvalues.sort();
+    Array<float> values;
+    for (auto & p : pvalues)
+      values.add(p.second);
+    
+    
 		for (int j = 0; j < values.size(); j++)
 		{
 			float v = 1 - values[j] / maxC;
@@ -203,11 +230,14 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
   
-  // add title = run ID
-  String title = "Run " + String(to_string(runID));
+  // add title = patchID ; run ID
+  //int runID = simul->currentRun;
+  int patchID = simul->patchToDraw;
+  int runID = simul->runToDraw;
+  String title = "Patch " + String(to_string(patchID)) +  " ; Run " + String(to_string(runID));
   int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
   int titleY = simBounds.getY() - 20;
-  Rectangle<int> titlepos(titleX, titleY, 50, 20);
+  Rectangle<int> titlepos(titleX, titleY, 100, 20);
   g.drawText(title, titlepos, Justification::centred, true);
 
   
@@ -336,8 +366,11 @@ void SimulationUI::resized()
 	// Rectangle<int> butr = br.removeFromRight(100);
 	// saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
 	// loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
+  
 
-	Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  //Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+
 
 	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
 	explore.removeFromLeft(20);
@@ -351,6 +384,9 @@ void SimulationUI::resized()
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
   explore.removeFromRight(10);
   setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
+  
+  Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
+  spaceUI->setBounds(explore2.removeFromLeft(145));
 
 	paramsLabel.setBounds(br.reduced(10));
 }
@@ -372,6 +408,7 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 			simul->cancelTrigger->trigger();
 		else
 		{
+      cout << "HERE ?" << endl;
 			entityHistory.clear();
 			entityColors.clear();
 			simul->startTrigger->trigger();
@@ -438,7 +475,6 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
 		entityColors.clear();
-    runID = ev.run;
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
 		repaint();
@@ -446,39 +482,42 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	break;
 
 	case Simulation::SimulationEvent::STARTED:
-	{
-		entityColors = ev.entityColors;
-		entityHistory.add(ev.entityValues);
-	}
+  {
+    entityColors = ev.entityColors;
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
+    cout << "SimulationEvent::STARTED in UI" << endl;
+    for (auto & [pair, conc] : ev.entityValues)
+      cout << pair.first << " : " << pair.second << " --> " << conc << endl;
+  }
 	break;
 
 	case Simulation::SimulationEvent::NEWSTEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-		entityHistory.add(ev.entityValues);
+    if (ev.run == simul->runToDraw)
+      entityHistory.add(ev.entityValues);
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 
-		if (simul->realTime->boolValue())
+		if (simul->realTime->boolValue() && ev.run == simul->runToDraw)
 			shouldRepaint = true;
 	}
 	break;
+      
+  case Simulation::SimulationEvent::NEWRUN:
+  {
+  }
+  break;
 
 	case Simulation::SimulationEvent::FINISHED:
 	{
 		shouldRepaint = true;
-		// resized();
-		// repaint();
+    resized();
+		repaint();
 	}
       
-  case Simulation::SimulationEvent::DRAWRUN:
-  {
-    shouldRepaint = true;
-    // resized();
-    // repaint();
-  }
-	break;
-	}
+	} // end switch
 }
 
 void SimulationUI::newMessage(const ContainerAsyncEvent &e)

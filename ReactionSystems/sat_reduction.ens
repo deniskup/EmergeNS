@@ -1,0 +1,319 @@
+{
+  "metaData": {
+    "version": "1.0.1",
+    "versionNumber": 65537
+  },
+  "projectSettings": {
+    "containers": {
+      "dashboardSettings": {
+        "parameters": [
+          {
+            "value": "",
+            "controlAddress": "/showDashboardOnStartup",
+            "enabled": false
+          }
+        ]
+      },
+      "customDefinitions": {
+      }
+    }
+  },
+  "dashboardManager": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "parrots": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "layout": {
+    "mainLayout": {
+      "type": 1,
+      "width": 1920,
+      "height": 1108,
+      "direction": 2,
+      "shifters": [
+        {
+          "type": 1,
+          "width": 1920,
+          "height": 1108,
+          "direction": 1,
+          "shifters": [
+            {
+              "type": 1,
+              "width": 606,
+              "height": 1108,
+              "direction": 2,
+              "shifters": [
+                {
+                  "type": 0,
+                  "width": 606,
+                  "height": 467,
+                  "currentContent": "Entities",
+                  "tabs": [
+                    {
+                      "name": "Generation"
+                    },
+                    {
+                      "name": "Entities"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 606,
+                  "height": 635,
+                  "currentContent": "Reactions",
+                  "tabs": [
+                    {
+                      "name": "Reactions"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": 1,
+              "width": 1308,
+              "height": 1108,
+              "direction": 1,
+              "shifters": [
+                {
+                  "type": 1,
+                  "width": 875,
+                  "height": 1108,
+                  "direction": 2,
+                  "shifters": [
+                    {
+                      "type": 0,
+                      "width": 875,
+                      "height": 656,
+                      "currentContent": "Simulation",
+                      "tabs": [
+                        {
+                          "name": "Simulation"
+                        }
+                      ]
+                    },
+                    {
+                      "type": 0,
+                      "width": 875,
+                      "height": 446,
+                      "currentContent": "RACs",
+                      "tabs": [
+                        {
+                          "name": "RACs"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 426,
+                  "height": 1108,
+                  "currentContent": "Inspector",
+                  "tabs": [
+                    {
+                      "name": "Logger"
+                    },
+                    {
+                      "name": "Warnings"
+                    },
+                    {
+                      "name": "Inspector"
+                    },
+                    {
+                      "name": "Settings"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "windows": null
+  },
+  "simulation": {
+    "parameters": [
+      {
+        "value": 0.0,
+        "controlAddress": "/maxConcent"
+      },
+      {
+        "value": "Run",
+        "controlAddress": "/setRun"
+      }
+    ]
+  },
+  "entities": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": [
+              0.2000000029802322,
+              1.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "A",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": [
+              0.0,
+              0.4000000059604645,
+              1.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "B",
+        "type": "Entity"
+      },
+      {
+        "parameters": [
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.6000000238418579,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "C",
+        "type": "Entity"
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "reactions": {
+    "items": [
+      {
+        "niceName": "A+B=+C",
+        "containers": {
+          "reactants": {
+            "parameters": [
+              {
+                "value": "/a",
+                "controlAddress": "/reactant1",
+                "type": "Target",
+                "niceName": "Reactant 1",
+                "customizable": false,
+                "removable": true,
+                "description": "Reactant 1",
+                "hideInEditor": false,
+                "feedbackOnly": false
+              },
+              {
+                "value": "/b",
+                "controlAddress": "/reactant2",
+                "type": "Target",
+                "niceName": "Reactant 2",
+                "customizable": false,
+                "removable": true,
+                "description": "Reactant 2",
+                "hideInEditor": false,
+                "feedbackOnly": false
+              }
+            ]
+          },
+          "products": {
+            "parameters": [
+              {
+                "value": "/c",
+                "controlAddress": "/product1",
+                "type": "Target",
+                "niceName": "Product 1",
+                "customizable": false,
+                "removable": true,
+                "description": "Product 1",
+                "hideInEditor": false,
+                "feedbackOnly": false
+              }
+            ]
+          }
+        },
+        "type": "Reaction"
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "generation": {
+  },
+  "settings": {
+  },
+  "phasePlane": {
+    "xAxis": "",
+    "yAxis": "",
+    "pathToCSV": "",
+    "nRuns": 0,
+    "runs": null
+  },
+  "space": {
+  },
+  "currentSimul": {
+    "recordConcent": [
+      {
+        "patch": 0,
+        "concent": 0.0
+      }
+    ],
+    "recordEntity": [
+      {
+        "patch": 0,
+        "name": ""
+      }
+    ],
+    "recordDrawn": [
+      {
+        "patch": 0,
+        "concent": 0.0
+      }
+    ],
+    "recordDrawnEntity": [
+      {
+        "patch": 0,
+        "name": ""
+      }
+    ],
+    "numLevels": -1,
+    "PACsGenerated": false,
+    "nRuns": 1,
+    "entities": null,
+    "reactions": null,
+    "primEnts": null,
+    "pacList": {
+      "cycles": null,
+      "CACs": null
+    },
+    "SteadyStatesList": {
+      "SteadyStates": null
+    }
+  }
+}

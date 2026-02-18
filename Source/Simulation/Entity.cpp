@@ -15,12 +15,15 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 	setHasCustomColor(true);
 	updateInterface();
 	primary->hideInEditor = true;
+  
+  startConcent->isSavable = false;
+  concent->isSavable = false;
 }
 
 void Entity::updateInterface()
 {
-	creationRate->setControllableFeedbackOnly(chemostat->boolValue());
-	creationRate->hideInEditor = chemostat->boolValue();
+	creationRate->setControllableFeedbackOnly(chemostat->boolValue() || !primary->boolValue());
+	creationRate->hideInEditor = chemostat->boolValue() || !primary->boolValue();
 	destructionRate->setControllableFeedbackOnly(chemostat->boolValue());
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
@@ -28,31 +31,50 @@ void Entity::updateInterface()
 	queuedNotifier.addMessage(new ContainerAsyncEvent(ContainerAsyncEvent::ControllableContainerNeedsRebuild, this));
 }
 
-Entity::Entity(SimEntity *e) : Entity(var())
+//Entity::Entity(SimEntity *e) : Entity(var())
+Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 {
 	setNiceName(e->name);
 	primary->setValue(e->primary);
 	creationRate->setValue(e->creationRate);
 	destructionRate->setValue(e->destructionRate);
-	startConcent->setValue(e->startConcent);
-	concent->setValue(e->concent);
+  
+	startConcent->setValue(e->startConcent[patchid]);
+	concent->setValue(e->concent[patchid]);
+  
 	freeEnergy->setValue(e->freeEnergy);
 	itemColor->setColor(e->color);
 	colorIsSet = true;
 	e->entity = this;
 	level = e->level;
 	id = e->id;
+	simEnt = e;
 	draw->setValue(e->draw);
 }
 
 void Entity::onContainerParameterChanged(Parameter *p)
 {
+  //cout << "Listener being called !" << endl;
 	if (p == chemostat)
 	{
 		updateInterface();
 	}
-	if(simEnt)
-		simEnt->updateFromEntity(this);
+  else if (p == concent || p == startConcent) // simentity is updated only o certain conditions
+  {
+    if (!Engine::mainEngine->isLoadingFile && updateSimEntityOnValueChanged)
+    {
+      //simEnt = Simulation::getInstance()->getSimEntityForName(niceName);
+      if (simEnt)
+        simEnt->updateFromEntity(this);
+    }
+  }
+  else
+  {
+    if(simEnt)
+    {
+      simEnt->updateFromEntity(this);
+    }
+  }
 }
 
 Entity::~Entity()

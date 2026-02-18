@@ -14,8 +14,8 @@ public:
     Settings();
     ~Settings();
 
-    StringParameter *pathToz3; 
-    StringParameter *pathToMSolve; 
+    StringParameter *pathToz3;
+    StringParameter *pathToMSolve;
 
     IntParameter *z3timeout; //timeout for z3 in ms
     
@@ -41,6 +41,8 @@ public:
 
 
     BoolParameter *printPACsToFile; //print PACs to file
+
+    BoolParameter *printSteadyStatesToFile; //print SteadyStates to file
 
     BoolParameter *printHistoryToFile; //print RACs to file
 

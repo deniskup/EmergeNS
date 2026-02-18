@@ -18,9 +18,7 @@ Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 	}
 }
 
-
-Reaction::Reaction(SimReaction* r) :
-	BaseItem(r->name)
+Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
 {
 	addParams();
 
@@ -43,29 +41,28 @@ Reaction::Reaction(SimReaction* r) :
 	simReac = r;
 }
 
-
 Reaction::~Reaction()
 {
-
 }
 
 void Reaction::clearItem()
 {
-	for (auto& r : getAllReactants())
+	for (auto &r : getAllReactants())
 	{
-		if (r == nullptr) continue;
+		if (r == nullptr)
+			continue;
 		unregisterLinkedInspectable(r);
 		r->enabled->removeParameterListener(this);
 		r->freeEnergy->removeParameterListener(this);
 	}
 
-	for (auto& p : getAllProducts())
+	for (auto &p : getAllProducts())
 	{
-		if (p == nullptr) continue;
+		if (p == nullptr)
+			continue;
 		unregisterLinkedInspectable(p);
 		p->enabled->removeParameterListener(this);
 		p->freeEnergy->removeParameterListener(this);
-
 	}
 }
 
@@ -95,11 +92,11 @@ void Reaction::addParams()
 	showWarningInUI = true;
 }
 
-void Reaction::controllableAdded(Controllable* c)
+void Reaction::controllableAdded(Controllable *c)
 {
 	if (c->parentContainer == reactants.get() || c->parentContainer == products.get())
 	{
-		TargetParameter* tp = (TargetParameter*)c;
+		TargetParameter *tp = (TargetParameter *)c;
 
 		String prefix = c->parentContainer == reactants.get() ? "Reactant " : "Product ";
 		tp->setNiceName(prefix + String(c->parentContainer->controllables.size()));
@@ -109,51 +106,53 @@ void Reaction::controllableAdded(Controllable* c)
 	}
 }
 
-void Reaction::controllableRemoved(Controllable* c)
+void Reaction::controllableRemoved(Controllable *c)
 {
 	String prefix = c->parentContainer == reactants.get() ? "Reactant " : "Product ";
 	int index = 1;
-	for (auto& controllable : c->parentContainer->controllables)
+	for (auto &controllable : c->parentContainer->controllables)
 	{
-		TargetParameter* tp = (TargetParameter*)controllable;
+		TargetParameter *tp = (TargetParameter *)controllable;
 		tp->setNiceName(prefix + String(index++));
 	}
 
 	updateWarnAndRates();
 }
 
-void Reaction::addReactant(Entity* e)
+void Reaction::addReactant(Entity *e)
 {
-	TargetParameter* tp = reactants->addTargetParameter("Reactant " + String(reactants->controllables.size() + 1), "Reactant " + String(reactants->controllables.size() + 1), EntityManager::getInstance());
-	if (e != nullptr) tp->setValueFromTarget(e, false);
+	TargetParameter *tp = reactants->addTargetParameter("Reactant " + String(reactants->controllables.size() + 1), "Reactant " + String(reactants->controllables.size() + 1), EntityManager::getInstance());
+	if (e != nullptr)
+		tp->setValueFromTarget(e, false);
 	tp->saveValueOnly = false;
 	tp->isRemovableByUser = true;
 }
 
-void Reaction::addProduct(Entity* e)
+void Reaction::addProduct(Entity *e)
 {
-	TargetParameter* tp = products->addTargetParameter("Product " + String(products->controllables.size() + 1), "Product " + String(products->controllables.size() + 1), EntityManager::getInstance());
-	if (e != nullptr) tp->setValueFromTarget(e, false);
+	TargetParameter *tp = products->addTargetParameter("Product " + String(products->controllables.size() + 1), "Product " + String(products->controllables.size() + 1), EntityManager::getInstance());
+	if (e != nullptr)
+		tp->setValueFromTarget(e, false);
 	tp->saveValueOnly = false;
 	tp->isRemovableByUser = true;
 }
 
-Array<Entity*> Reaction::getAllReactants()
+Array<Entity *> Reaction::getAllReactants()
 {
-	Array<Entity*> result;
-	for (auto& c : reactants->controllables)
+	Array<Entity *> result;
+	for (auto &c : reactants->controllables)
 	{
-		result.add(((TargetParameter*)c)->getTargetContainerAs<Entity>());
+		result.add(((TargetParameter *)c)->getTargetContainerAs<Entity>());
 	}
 	return result;
 }
 
-Array<Entity*> Reaction::getAllProducts()
+Array<Entity *> Reaction::getAllProducts()
 {
-	Array<Entity*> result;
-	for (auto& c : products->controllables)
+	Array<Entity *> result;
+	for (auto &c : products->controllables)
 	{
-		result.add(((TargetParameter*)c)->getTargetContainerAs<Entity>());
+		result.add(((TargetParameter *)c)->getTargetContainerAs<Entity>());
 	}
 	return result;
 }
@@ -178,14 +177,24 @@ void Reaction::autoRename()
 	{
 		if (newName.isNotEmpty())
 			newName += "+";
-		newName += c->niceName;
+		//get name of entity in c
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+		newName += e->niceName;
 	}
 	newName += "=";
+	bool firstProduct = true;
 	for (auto c : products->controllables)
 	{
-		if (newName.isNotEmpty())
+		if (firstProduct)
+		{
+			firstProduct = false;
+		}
+		else
+		{
 			newName += "+";
-		newName += c->niceName;
+		}
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
+		newName += e->niceName;
 	}
 
 	if (newName != niceName)
@@ -203,8 +212,12 @@ void Reaction::inferEntities()
 	//   return;
 	// DBG("Infering entities for reaction " + niceName);
 	String name = niceName;
-	int pos = name.indexOfChar('+');
-	int pos2 = name.indexOfChar('=');
+
+	// split the name into reactants and products, and for each one compute the list of entities
+
+	// int pos = name.indexOfChar('+');
+	// int pos2 = name.indexOfChar('=');
+	int pos = name.indexOfChar('=');
 
 	if (pos > 0)
 	{
@@ -212,19 +225,12 @@ void Reaction::inferEntities()
 		StringArray productNames;
 
 		// Parse reactants and products from name
-		if (pos2 > 0)
-		{
-			String reactantsPart = name.substring(0, pos2).trim();
-			String productsPart = name.substring(pos2 + 1).trim();
 
-			reactantNames.addTokens(reactantsPart, "+", "\"");
-			productNames.addTokens(productsPart, "+", "\"");
-		}
-		else
-		{
-			NLOG("InferEntities", "Invalid reaction name format: " + name);
-			return;
-		}
+		String reactantsPart = name.substring(0, pos).trim();
+		String productsPart = name.substring(pos + 1).trim();
+
+		reactantNames.addTokens(reactantsPart, "+", "\"");
+		productNames.addTokens(productsPart, "+", "\"");
 
 		// clear reactants and products
 		clearReactants();
@@ -234,7 +240,7 @@ void Reaction::inferEntities()
 		for (int i = 0; i < reactantNames.size(); ++i)
 		{
 			String reactantName = reactantNames[i].trim();
-			Entity* reactantEntity = EntityManager::getInstance()->getEntityFromName(reactantName);
+			Entity *reactantEntity = EntityManager::getInstance()->getEntityFromName(reactantName);
 			if (reactantEntity != nullptr)
 			{
 				addReactant(reactantEntity);
@@ -250,7 +256,7 @@ void Reaction::inferEntities()
 		for (int i = 0; i < productNames.size(); ++i)
 		{
 			String productName = productNames[i].trim();
-			Entity* productEntity = EntityManager::getInstance()->getEntityFromName(productName);
+			Entity *productEntity = EntityManager::getInstance()->getEntityFromName(productName);
 			if (productEntity != nullptr)
 			{
 				addProduct(productEntity);
@@ -286,12 +292,12 @@ void Reaction::inferEntities()
 	}
 }
 
-void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer* cc, Controllable* c)
+void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer *cc, Controllable *c)
 {
 	if (cc == reactants.get() || cc == products.get())
 	{
-		TargetParameter* tp = (TargetParameter*)c;
-		if (Entity* e = dynamic_cast<Entity*>(tp->previousTargetContainer.get()))
+		TargetParameter *tp = (TargetParameter *)c;
+		if (Entity *e = dynamic_cast<Entity *>(tp->previousTargetContainer.get()))
 		{
 
 			// unregister old one
@@ -300,7 +306,7 @@ void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer* cc, C
 			e->freeEnergy->removeParameterListener(this);
 		}
 
-		if (Entity* e = tp->getTargetContainerAs<Entity>())
+		if (Entity *e = tp->getTargetContainerAs<Entity>())
 		{
 
 			registerLinkedInspectable(e);
@@ -312,7 +318,7 @@ void Reaction::onControllableFeedbackUpdateInternal(ControllableContainer* cc, C
 	updateWarnAndRates();
 }
 
-void Reaction::onExternalParameterValueChanged(Parameter* p)
+void Reaction::onExternalParameterValueChanged(Parameter *p)
 {
 	updateWarnAndRates();
 }
@@ -333,16 +339,18 @@ void Reaction::updateWarnAndRates()
 
 	float energyLeft = 0;
 
-	Array<Entity*> reactEntities = getAllReactants();
+	Array<Entity *> reactEntities = getAllReactants();
 
 	for (auto e : reactEntities)
 	{
-		if (e == nullptr || !e->enabled->boolValue()) disabledReactants++;
-		else energyLeft += e->freeEnergy->floatValue();
+		if (e == nullptr || !e->enabled->boolValue())
+			disabledReactants++;
+		else
+			energyLeft += e->freeEnergy->floatValue();
 	}
 
 	bool isSimulating = Simulation::getInstanceWithoutCreating() != nullptr && Simulation::getInstance()->state == Simulation::Simulating;
-	if(isSimulating && disabledReactants > 0)
+	if (isSimulating && disabledReactants > 0)
 	{
 		setWarningMessage("Some reactants are disabled or null", "DisabledReactants");
 		someWarn = true;
@@ -352,11 +360,13 @@ void Reaction::updateWarnAndRates()
 
 	float energyRight = 0;
 
-	Array<Entity*> productEntities = getAllProducts();
+	Array<Entity *> productEntities = getAllProducts();
 	for (auto e : productEntities)
 	{
-		if (e == nullptr || !e->enabled->boolValue()) disabledProducts++;
-		else energyRight += e->freeEnergy->floatValue();
+		if (e == nullptr || !e->enabled->boolValue())
+			disabledProducts++;
+		else
+			energyRight += e->freeEnergy->floatValue();
 	}
 
 	if (isSimulating && disabledProducts > 0)
@@ -369,7 +379,6 @@ void Reaction::updateWarnAndRates()
 
 	if (someWarn)
 		return;
-
 
 	// total energy G* of the reaction: activation + max of GA+GB and GAB.
 	float energyStar = energy->floatValue() + jmax(energyLeft, energyRight);
@@ -387,14 +396,14 @@ bool Reaction::shouldIncludeInSimulation()
 
 	for (auto c : reactants->controllables)
 	{
-		Entity* e = ((TargetParameter*)c)->getTargetContainerAs<Entity>();
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
 		if (e == NULL || !e->enabled->boolValue())
 			return false;
 	}
 
 	for (auto c : products->controllables)
 	{
-		Entity* e = ((TargetParameter*)c)->getTargetContainerAs<Entity>();
+		Entity *e = ((TargetParameter *)c)->getTargetContainerAs<Entity>();
 		if (e == NULL || !e->enabled->boolValue())
 			return false;
 	}
@@ -402,9 +411,10 @@ bool Reaction::shouldIncludeInSimulation()
 	return true;
 }
 
-void Reaction::onContainerParameterChanged(Parameter* p)
+void Reaction::onContainerParameterChanged(Parameter *p)
 {
-	if (p == energy) updateWarnAndRates();
-	if(simReac)
+	if (p == energy)
+		updateWarnAndRates();
+	if (simReac)
 		simReac->updateFromReaction(this);
 }

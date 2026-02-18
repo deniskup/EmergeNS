@@ -45,6 +45,9 @@ public:
   State state;
   bool isBorder = false;
   bool warning = false;
+  int postiveEigenVal = 0; // number of positive eigenvalues. 0 -> stable, >0 -> unstable
+  bool isStable = true;
+  bool isPartiallyStable = false; // for border steady states only
   
   var toJSONData();
 };
@@ -63,6 +66,7 @@ public:
     Array<SteadyState> arraySteadyStates; // list of steady states
     int nGlobStable = 0;
     int nPartStable = 0;
+    int nSaddle = 0; //
     //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
     //Array<SteadyState> stableStates; // list of stable steady states
     //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
@@ -74,10 +78,14 @@ public:
     void run() override;
 
     void clear(); // clear everything
+  
+    void cleanLocalFolder();
 
     void printOneSteadyState(SteadyState&); // print one SteadyState to cout
 
     void printSteadyStates(); // print list of SteadyStates to cout
+
+    void printSteadyStatesToFile(); // print list of SteadyStates to file
 
     string z3path = ""; // path to z3 executable
     
@@ -93,7 +101,7 @@ public:
 
     bool computeWithMSolve(); // compute steady states with msolve, returns true if call successful
 
-    void computeJacobiMatrix(); // formal calculation of jacobi matrix 
+    void computeJacobiMatrix(); // formal calculation of jacobi matrix
 
     Eigen::MatrixXd evaluateJacobiMatrix(SteadyState&); // evaluate jacobi matrix at a given concentration vector
 
@@ -119,9 +127,11 @@ public:
 
     float evaluatePolynom(Polynom, SteadyState); // function to evaluate a polynom (arg1) at a given input concentration vector (arg2)
 
-    bool isStable(Eigen::MatrixXd&, SteadyState&);
+    //bool isStable(Eigen::MatrixXd&, SteadyState&);
+    void isStable(Eigen::MatrixXd&, int sst_index, bool);
     
-    bool isPartiallyStable(Eigen::MatrixXd&, SteadyState&);
+    //bool isPartiallyStable(Eigen::MatrixXd&, SteadyState&);
+    void isPartiallyStable(Eigen::MatrixXd&, int sst_index);
   
     bool isExactMSolveZero(string);
 

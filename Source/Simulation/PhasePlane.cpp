@@ -193,7 +193,8 @@ void Run::importConcentrationsFromSimu()
   for (auto & ent : Simulation::getInstance()->entities)
   {
     names.add(ent->name);
-    concentrations.add(ent->startConcent);
+    //concentrations.add(ent->startConcent);
+    concentrations.add(ent->startConcent[0]);
   }
   
   clearEntities();
@@ -646,6 +647,11 @@ void PhasePlane::importRunsFromCSVFile()
 
 void PhasePlane::startRuns()
 {
+  if (Simulation::getInstance()->isSpace->boolValue())
+  {
+    LOGWARNING("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
+    return;
+  }
   
   // loop over runs
   int count = -1;

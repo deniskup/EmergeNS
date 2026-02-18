@@ -25,10 +25,11 @@ You can also use the predefined reaction systems from ReactionSystems.zip as exa
     
    For Mac open  Projucer.xcodeproj with xcode and compile<br>
 
-
+   For Windows, you need e.g. Visual Studio. Install the Component MSVC v143 v14.44-17.14 from "Individual Components", not the default one.
+   Then use Visual Studio to open Projucer.sln, and build it with ctrl+shift+B
  
    
-5. Open Projucer (in the build folder) and load EmergeNS.jucer<br>
+5. Open Projucer (in the build folder, in Windows it can be x64/Debug/App) and load EmergeNS.jucer<br>
 
 6. Clic on the icon on the top right to sign in, and then "Enable GPL mode"<br>
 
@@ -49,6 +50,7 @@ You will need to have GMP and FLINT libraries installed on your system. For ubun
 
 11. For Linux:  ``make -j 2``` in EmergeNS/Builds/LinuxMakefile <br>
     For Mac: Compile with xcode '.../EmergeNS/Builds/MacOSX/EmergeNS.xcodeproj' 
+    For Windows: ".../EmergeNS/Builds/VisualStudio2022/"
     
 /!\ Warning: on Mac use version 14 or less of xcode
 

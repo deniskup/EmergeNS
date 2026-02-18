@@ -1,7 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
+#include <Eigen/Dense>
 #if !JUCE_WINDOWS
 #include <unistd.h>
 #endif
@@ -50,9 +50,11 @@ public:
     Array<pair<SimReaction *, bool>> reacDirs; // direction 0 is 2->1 and 1 is 1->2
     Array<pair<SimReaction *, int>> reacFlows;
 
-    float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+    //float flow; // min of reactions flows, 0 if one flow is in the wrong direction
+    Array<float> flow; // min of reactions flows, 0 if one flow is in the wrong direction
   
-    float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
+    //float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
+    Array<float> activity; // sum_{entities}( 1/[e] * d[e]/dt )
 
     float score; // score of realasability = sum{ pacwitness_i * (k+ - k-) / k- }
 
@@ -63,6 +65,21 @@ public:
     bool containsReaction(SimReaction *);
 
 	void calculateRealisableScore();
+
+    Eigen::MatrixXi stoechiometryMatrix;
+
+    void computeStoechiometryMatrix();
+
+    Eigen::MatrixXi jacobianAtZero;
+
+    void computeJacobianAtZero();
+
+    float freeLeadingEigenValue; // largest eigenvalue when the cycle is free (no destruction or creaction)
+
+    float environmentLeadingEigenvalue; // largest eigenvalue when considering destruction
+    // not used because how do you update things again ?
+    
+    void computeEigenvalues();
 
     //for CACs
 

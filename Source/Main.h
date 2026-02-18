@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "JuceHeader.h"
 #pragma warning(disable:4244 4100 4305)
+#include "JuceHeader.h"
 
 #include "MainComponent.h"
 #include "Engine/EmergeNSEngine.h"

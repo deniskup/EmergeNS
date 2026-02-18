@@ -11,8 +11,10 @@
 #pragma once
 #include <JuceHeader.h>
 using namespace juce;
+using namespace std;
 
 class SimEntity;
+class PAC;
 typedef Array<int> Compo;
 
 class SimulationHelpers
@@ -35,20 +37,50 @@ public:
 };
 
 
+
+
+
+/*
+ This type represents concentrations of entities over all the space grid at a given time
+ The map is defined as follow :
+ map< pair<patchID, entID>, concentration >
+ By default this map will be sorted first by ascending patchID, secondaly by ascending entID.
+*/
+typedef map<pair<int, int>, float> ConcentrationGrid;
+
+
+
+class ConcentrationSnapshot // concentration snapshot recorded for a single run.
+{
+public:
+  ConcentrationSnapshot() {};
+  //std::map<SimEntity*, float> conc;
+  ConcentrationGrid conc;
+  int runID = 0;
+//  int patchID = 0;
+  int step;
+};
+
+
 class RACSnapshot
 {
 public:
 	  public:
-  RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp)
+  //RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp)
+  RACSnapshot(float r, Array<float> f) : rac(r), flows(f)
     {}
+  int runID = 0;
+  int patchID = 0;
+  int racID;
+  int step;
   float rac;
   Array<float> flows;
-  Array<float> posSpecificities;
-  Array<float> negSpecificities;
-  Array<float> specificity;
+  //Array<float> posSpecificities;
+  //Array<float> negSpecificities;
+  //Array<float> specificity;
 };
 
-class RACHist
+class RACHist // RAC dynamics recorded in a single patch and for a single run
 {
 public:
 	RACHist() {}
@@ -58,12 +90,194 @@ public:
 	Array<SimEntity*> ents;
 	float pacScore = 0.;
   bool wasRAC = false;
+  //int runID = 0;
+  //int patchID = 0;
+  
 };
 
 
-class SimRun
-{
-  SimRun(){};
 
-  Array<Array<float>> concentHistory;
+class DynamicsHistory
+{
+public:
+  DynamicsHistory(){};
+  ~DynamicsHistory(){};
+
+  Array<ConcentrationSnapshot> concentHistory; // concentration history
+  //Array<ConcentrationGrid> concentHistory; // concentration history
+  Array<RACSnapshot> racHistory; // RAC history
+  std::map<PAC*, bool> wasRAC; // true if the PAC is on at some point "on" in the simulation (for drawing)
+  
+  
+  ConcentrationSnapshot getLastConcentrationSnapshot()
+  {
+    return concentHistory.getUnchecked(concentHistory.size()-1);
+  }
+  
+  ConcentrationSnapshot getConcentrationSnapshotForRunAndStep(int _run, int _step, int indexToStart)
+  {
+    int kbackward = indexToStart;
+    int ntries = 0;
+    ConcentrationSnapshot output;
+    bool success = false;
+    for (int kforward=indexToStart; kforward<concentHistory.size(); kforward++)
+    {
+      ntries++;
+      kbackward--;
+      if (concentHistory.getUnchecked(kforward).runID == _run && concentHistory.getUnchecked(kforward).step == _step)
+      {
+        output = concentHistory.getUnchecked(kforward);
+        success = true;
+        break;
+      }
+      if (kbackward>=0)
+      {
+        if (concentHistory.getUnchecked(kbackward).runID == _run && concentHistory.getUnchecked(kbackward).step == _step)
+        {
+          output = concentHistory.getUnchecked(kbackward);
+          success = true;
+          break;
+        }
+      }
+    }
+    // if this point is reached without success, return dummy snapshot with unexpected value, to control later for the success of the function
+    jassert(success); // raise a message to tell user this function failed
+    if (!success)
+    {
+      LOGWARNING("DynamicsHistory::getConcentrationSnapshotForRunAndStep() probably failed.");
+      ConcentrationSnapshot dummy; // returning dummy snapshot. Should find a better outing
+      dummy.step = -1;
+      return dummy;
+    }
+    return output;
+  }
+  
+
+  /*
+  Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
+  {
+    Array<ConcentrationSnapshot> output;
+    for (auto & cs : concentHistory)
+    {
+      for (auto & [patchent, c] : cs->conc)
+      {
+        if (patchent.first
+      }
+      if (cs.runID == _stepid)
+        output.add(cs);
+    }
+    return output;
+  }
+  */
+  
+  Array<ConcentrationSnapshot> getConcentrationDynamicsForRun(int _runid)
+  {
+    Array<ConcentrationSnapshot> output;
+    for (auto & cs : concentHistory)
+    {
+      if (cs.runID == _runid)
+        output.add(cs);
+    }
+    return output;
+  }
+  /*
+  Array<ConcentrationSnapshot> getConcentrationDynamicsForPatch(int _pid)
+  {
+    Array<ConcentrationSnapshot> output;
+    for (auto & cs : concentHistory)
+    {
+      for (auto & [patchent, c] : cs->conc)
+      {
+        if (patchent.first == _pid)
+        {
+          ConcentrationSnapshot
+          output.
+        }
+      }
+      if (cs.patchID == _pid)
+        output.add(cs);
+    }
+    return output;
+  }
+  */
+  /*
+  Array<ConcentrationSnapshot> getConcentrationDynamicsForRunAndPatch(int _runid, int _pid)
+  {
+    Array<ConcentrationSnapshot> output;
+    for (auto & cs : concentHistory)
+    {
+      //if (cs.runID == _runid && cs.patchID == _pid)
+      if (cs.runID == _runid && cs.patchID == _pid)
+        output.add(cs);
+    }
+    return output;
+  }
+  */
+  
+  
+  
+  // getter of RAC snapshots
+  
+  RACSnapshot getLastRACSnapshot()
+  {
+    return racHistory.getUnchecked(racHistory.size()-1);
+  }
+  
+  RACSnapshot getLastRACSnapshotInPatch(int pid)
+  {
+    for (int k = racHistory.size()-1; k>=0; k--)
+    {
+      if (racHistory.getUnchecked(k).patchID == pid)
+        return racHistory.getUnchecked(k);
+    }
+  }
+  
+  Array<RACSnapshot> getRACDynamicsForRun(int _runid)
+  {
+    Array<RACSnapshot> output;
+    for (auto & rs : racHistory)
+    {
+      if (rs.runID == _runid)
+        output.add(rs);
+    }
+    return output;
+  }
+  
+  Array<RACSnapshot> getRACDynamicsForPatch(int _pid)
+  {
+    Array<RACSnapshot> output;
+    for (auto & rs : racHistory)
+    {
+      if (rs.patchID == _pid)
+        output.add(rs);
+    }
+    return output;
+  }
+  
+  Array<RACSnapshot> getRACDynamicsForPatchAndStep(int _pid, int _step, int startindex)
+  {
+    Array<RACSnapshot> output;
+    //for (auto & rs : racHistory)
+    for (int k = startindex; k<racHistory.size(); k++)
+    {
+      RACSnapshot rs = racHistory.getUnchecked(k);
+      if (rs.patchID == _pid && rs.step == _step)
+        output.add(rs);
+    }
+    return output;
+  }
+  
+  Array<RACSnapshot> getRACDynamicsForRunAndPatch(int _runid, int _pid)
+  {
+    Array<RACSnapshot> output;
+    for (auto & rs : racHistory)
+    {
+      if (rs.runID == _runid && rs.patchID == _pid)
+        output.add(rs);
+    }
+    return output;
+  }
+  
+  
+
 };
