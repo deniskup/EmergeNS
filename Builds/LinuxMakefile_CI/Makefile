@@ -98,7 +98,6 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/PhasePlane_233a49aa.o \
   $(JUCE_OBJDIR)/Settings_19ffc42c.o \
   $(JUCE_OBJDIR)/Simulation_ac703710.o \
-  $(JUCE_OBJDIR)/Space_958d9267.o \
   $(JUCE_OBJDIR)/SteadyStates_3910a3d.o \
   $(JUCE_OBJDIR)/Statistics_7698d42c.o \
   $(JUCE_OBJDIR)/Space_958d9267.o \
@@ -267,11 +266,6 @@ $(JUCE_OBJDIR)/Settings_19ffc42c.o: ../../Source/Simulation/Settings.cpp
 $(JUCE_OBJDIR)/Simulation_ac703710.o: ../../Source/Simulation/Simulation.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Simulation.cpp"
-	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
-
-$(JUCE_OBJDIR)/Space_958d9267.o: ../../Source/Simulation/Space.cpp
-	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling Space.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/SteadyStates_3910a3d.o: ../../Source/Simulation/SteadyStates.cpp

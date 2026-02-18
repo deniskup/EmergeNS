@@ -163,8 +163,8 @@
     <VS2022 targetFolder="Builds/VisualStudio2022" extraCompilerFlags="/bigobj"
             smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" extraCompilerFlags="/bigobj" defines="NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
-        <CONFIGURATION isDebug="0" name="Release" extraCompilerFlags="/bigobj" defines="NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
+        <CONFIGURATION isDebug="1" name="Debug" extraCompilerFlags="/bigobj"/>
+        <CONFIGURATION isDebug="0" name="Release" extraCompilerFlags="/bigobj"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core"/>

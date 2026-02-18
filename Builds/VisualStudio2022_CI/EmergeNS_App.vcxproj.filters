@@ -676,9 +676,6 @@
     <ClCompile Include="..\..\Source\Simulation\Simulation.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Simulation\Space.cpp">
-      <Filter>EmergeNS\Source\Simulation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Simulation\SteadyStates.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
@@ -3418,9 +3415,6 @@
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\Simulation.h">
-      <Filter>EmergeNS\Source\Simulation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Simulation\Space.h">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\SteadyStates.h">
