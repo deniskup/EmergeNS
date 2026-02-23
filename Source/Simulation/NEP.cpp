@@ -99,7 +99,7 @@ double legendreTransform(const EncapsVarForNLOpt * ev, double t)
 }
 
 
-
+/*
 double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, void* f_data)
 {
   
@@ -115,14 +115,14 @@ double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, vo
     pjuce.add(val);
   *ev->p = pjuce;
   
-  /*
-  cout << "[max_p] Called with p = ";
-  for (unsigned i = 0; i < n; ++i)
-  {
-    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
-  }
-  cout << std::endl;
-  */
+  
+ // cout << "[max_p] Called with p = ";
+ // for (unsigned i = 0; i < n; ++i)
+ // {
+ //   cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
+ // }
+  //cout << std::endl;
+  
   
   
   double deltaT = 1.; // fix delta t for optimization its amplitude will be fixed later
@@ -131,7 +131,8 @@ double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, vo
 
  
  }
-
+*/
+/*
 double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* f_data)
 {
   // retrieve encapsulated  variables
@@ -145,14 +146,14 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
     pjuce.add(val);
   *ev->p = pjuce;
   
-  /*
-  cout << "[max_p] Called with p = ";
-  for (unsigned i = 0; i < n; ++i)
-  {
-    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
-  }
-  cout << std::endl;
-  */
+  
+ // cout << "[max_p] Called with p = ";
+ // for (unsigned i = 0; i < n; ++i)
+ // {
+ //   cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
+ // }
+  //cout << std::endl;
+  
   
   double sp =0.;
   for (int k=0; k<ev->deltaq->size(); k++)
@@ -160,7 +161,7 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
   
   return sp;
  }
-
+*/
 
 double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad, void* f_data)
 {
@@ -173,7 +174,7 @@ double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad
   
   return ev->nep->evalHamiltonian(*ev->qcenter, p);
 }
-
+/*
 // x size = number of entities in the system
 int residualToInitGSL_old(const gsl_vector* x, void* params, gsl_vector* f)
 {
@@ -215,7 +216,7 @@ int residualToInitGSL_old(const gsl_vector* x, void* params, gsl_vector* f)
   return GSL_SUCCESS;
 }
 
-
+*/
 
 
 
@@ -1885,7 +1886,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 
 
 
-
+/*
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
 {
   int nent = Simulation::getInstance()->entities.size();
@@ -1983,7 +1984,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
       LOGWARNING("gradient of hamiltonian in p has null norm, take results with caution.");
     }
     
-    /*
+    
     cout << "--- delta T calculation ---" << endl;
     cout << "deltaq = ";
     for (auto & dq : deltaq)
@@ -1994,8 +1995,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
       cout << gp << " ";
     cout << endl;
     cout << "deltaT = " << deltaT << endl;
-    */
-    /*
+    
+    
     cout << "--- optima found ---" << endl;
     cout << "qcenter = ";
     for (auto & qc : qcenter)
@@ -2007,7 +2008,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
       cout << pi << " ";
     cout << endl;
     cout << "--- ---" << endl;
-    */
+    
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
@@ -2067,7 +2068,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
   // TODO
   // smooth g_pcurve
   
-  /*
+  
   cout << "--- popt ---" << endl;
   for (auto & ppoint : opt_momentum)
   {
@@ -2079,8 +2080,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
   for (auto & t : opt_deltaT)
     cout << t << " ";
   cout << endl;
-  */
-/*
+  
+
   cout << "--- g_pcurve ---" << endl;
   for (auto & ppoint : g_pcurve)
   {
@@ -2094,7 +2095,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
   cout << endl;
   
   cout << "----------- END lift curve ----------" << endl;
-*/
+
 
   jassert(g_pcurve.size() == g_qcurve.size());
   jassert(g_times.size() == g_qcurve.size());
@@ -2133,6 +2134,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
   
 }
 
+
+*/
 
 void NEP::testinitConcentrationCurve()
 {
@@ -3125,7 +3128,8 @@ void NEP::heteroclinicStudy()
   initConcentrationCurve();
   //testinitConcentrationCurve();
   // lift it to full (q ; p) space
-  liftCurveToTrajectoryWithNLOPT_old();
+  //liftCurveToTrajectoryWithNLOPT_old();
+  liftCurveToTrajectoryWithGSL(g_qcurve);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();

@@ -6,14 +6,9 @@
 //  kosc.thomas@gmail.com
 // adapted from https://github.com/praful12/Descender-for-CRN-escapes/tree/main
 //
-//  nlopt library (used for optimizations) need to be installed
-// Must modify the .jucer file to add :
-// path to header files of nlopt
-// -lnlopt to link to libraries
-// TODO : modify
 
 /*
-- update read me for compilation with nlopt and gsl, indicate that user should add lib and header paths to projucer file
+- update read me for compilation with gsl, indicate that user should add lib and header paths to projucer file
 - reparametrization of qcurve
 - calculate distance from hamilton equation of motion
 - recover 2-schlogl results of gagrani and smith
@@ -24,7 +19,7 @@
 #pragma once
 
 #include "JuceHeader.h"
-#include <nlopt.hpp>
+//#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
 #include <random>
 //#include "Simulation.h"
@@ -200,7 +195,7 @@ private:
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&);
 
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
+  //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
   void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
   void updateOptimalConcentrationCurve(Curve &, double);
