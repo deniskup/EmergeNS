@@ -1121,7 +1121,15 @@ void NEP::run()
   
   // init concentration curve
   LOG("init g_qcurve");
-  initConcentrationCurve(false);
+  try
+  {
+    initConcentrationCurve(true);
+  } catch (const std::exception& e)
+  {
+    LOGWARNING(e.what());
+    return;
+  }
+  
   
   // message to async
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
@@ -1643,6 +1651,18 @@ void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
   int sstI = sst_stable->intValue();
   int sstF = sst_saddle->intValue();
   
+  // add guard if initial steady state is unstable or final steady state is stable
+  if (!simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).isStable || simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).isStable)
+  {
+    SteadyState sI = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI);
+    SteadyState sF = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF);
+    LOG("Initial steady state stability : " + to_string(sI.isStable) + ". Coordonates : ");
+    simul->steadyStatesList->printOneSteadyState(sI);
+    LOG("Final steady state stability : " + to_string(sF.isStable) + ". Coordonates : ");
+    simul->steadyStatesList->printOneSteadyState(sF);
+    throw std::runtime_error("Initial steady state should be stable, and final steady state unstable. Cannot perform descent.");
+  }
+  
   StateVec qI, qF;
   qI.insertMultiple(0, 0., simul->entities.size());
   qF.insertMultiple(0, 0., simul->entities.size());
@@ -1715,7 +1735,7 @@ void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
     jassert(entities.size() == simul->entities.size());
     jassert(reactions.size() == simul->reactions.size());
     
-    // set first point of qcurve = qF
+    // set first point of qcurve = qF (unstable state)
     g_qcurve.add(qF);
     
     // set initial concentration of entities to be very close from qF in the direction of qI
@@ -1774,6 +1794,9 @@ void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
     
     // set last point of qcurve = qI
     g_qcurve.add(qI);
+
+    // reverse the direction of concentration curve
+    std::reverse(g_qcurve.begin(), g_qcurve.end());
     
     // resample qcurve
     resampleInSpaceUniform(g_qcurve, nPoints->intValue());
