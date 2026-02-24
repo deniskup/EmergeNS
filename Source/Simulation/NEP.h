@@ -126,8 +126,11 @@ public:
   
   
   double evalHamiltonian(const StateVec q, const StateVec p);
+  
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
+  
   dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
+  
   StateVec evalHamiltonianGradientWithQ(const StateVec q, const StateVec p);
   
   //var getJSONData() override;
@@ -135,14 +138,6 @@ public:
   void loadJSONData(var data, bool createIfNotThere = false) override;
   
     
-  //void newMessage(const Simulation::SimulationEvent &e) override;
-  
-  //void newMessage(const ContainerAsyncEvent &e) override;
-  
-  
-  void checkGradH();
-  void checkGradH2();
-  
   // ASYNC
   class NEPEvent
   {
@@ -180,7 +175,6 @@ public:
 private:
   
 
-  void testinitConcentrationCurve();
   void initConcentrationCurve(bool);
   
   void writeDescentToFile();
@@ -198,16 +192,15 @@ private:
   //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
   void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
+  
   void updateOptimalConcentrationCurve(Curve &, double);
 
   double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
-  //double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
   double backTrackingMethodForStepSize(const Curve& c);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  //vector<juce::dsp::IIR::Filter<double>> makeFilters(ReferenceCountedArray<IIRCoefficients>);
   void resampleInSpaceUniform(Array<StateVec>& signal, int);
   void resampleInTimeUniform(Array<StateVec>& signal, int);
   void lowPassFiltering(Array<StateVec>&, bool);
@@ -237,8 +230,6 @@ private:
   double stepDescentThreshold = 1e-4;
   double stepDescent;
   
-  // for filtering
-  //MultiButterworthLowPass filter;
 
   // for printing history to file
   Array<double> actionDescent;
@@ -246,11 +237,7 @@ private:
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
-  
-  void debugNEPImplementation();
-
-  void debugFiltering();
-  
+    
   ofstream debugfile;
 
   
