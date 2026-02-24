@@ -455,9 +455,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   stepDescentInitVal = addFloatParameter("Step descent", "Descent will try proceeding with user indicated step, and will use backtracking method if this step is too large.", 1.);
   
   maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
-  
-  debug = addTrigger("Debug", "Debugging NEP implementation");
-  
+    
   // set options
   updateSteadyStateList();
   
@@ -520,11 +518,6 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
     heteroclinic_study = true;
     stopThread(10);
     startThread();
-  }
-  if (t == debug)
-  {
-    debugNEPImplementation();
-    //debugFiltering();
   }
 }
 

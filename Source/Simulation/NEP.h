@@ -105,8 +105,6 @@ public:
   FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
 
-  Trigger * debug;
-
 
   // update steady state list when updateParams is calle din SImulation
   void updateSteadyStateList();
