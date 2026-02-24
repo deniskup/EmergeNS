@@ -465,6 +465,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   //simul->addAsyncSimulationListener(this);
   //simul->addAsyncContainerListener(this);
   
+  kinetics = new KineticLaw(false, 0.);
+  
 
 
   
@@ -1352,8 +1354,8 @@ void NEP::run()
   
   // init concentration curve
   cout << "init g_qcurve" << endl;
-  //initConcentrationCurve();
-  testinitConcentrationCurve();
+  initConcentrationCurve(true);
+  //testinitConcentrationCurve();
   
   int count = 0;
   //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this)); // #silent
@@ -1568,7 +1570,8 @@ void NEP::run()
 // 3/ Moving average on newly built p to reduce noise in p solving
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 {
-  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  cout << "input qcurve size = " << qcurve.size() << endl;
   // dimension of the problem
   const int n = simul->entities.size() + 1; // number of entities + 1 (time)
   
@@ -2199,7 +2202,7 @@ void NEP::testinitConcentrationCurve()
 
 
 
-void NEP::initConcentrationCurve()
+void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
 {
   // read init and final curve points from enum parameters
   int sstI = sst_stable->intValue();
@@ -2229,20 +2232,130 @@ void NEP::initConcentrationCurve()
   jassert(qI.size() == simul->entities.size());
   jassert(qF.size() == simul->entities.size());
   
-  // init with straight line between qI and qF
+  // init q curve
   g_qcurve.clear();
   double NN = (double) nPoints->intValue();
   jassert(nPoints->intValue()>1);
-  for (int point=0; point<nPoints->intValue(); point++)
+  
+  if (useDeterministicTrajectory)
   {
-    StateVec vec;
-    double fpoint = (double) point;
-    for (int k=0; k<qI.size(); k++)
+    // copy the entities and reactions from simulation instance
+    OwnedArray<SimEntity> entities;
+    OwnedArray<SimReaction> reactions;
+    entities.clear();
+    reactions.clear();
+    
+    // If has not been called yet, the copy will not work properly
+    simul->affectSATIds();
+    
+    // fill entity array with copies of the ones present in the simulation instance
+    for (auto & ent : simul->entities)
+      entities.add(ent->clone().release());
+    
+    for (auto & ent : entities)
     {
-      double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
-      vec.add(qk);
+      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+      ent->concent.resize(1);
+      ent->previousConcent.resize(1);
+      ent->startConcent.resize(1);
+      ent->deterministicConcent.resize(1);
     }
-    g_qcurve.add(vec);
+    
+    for (auto & r : simul->reactions)
+    {
+      Array<SimEntity*> reactants;
+      Array<SimEntity*> products;
+      for (auto & e : r->reactants)
+      {
+        reactants.add(entities[e->idSAT]);
+      }
+      for (auto & e : r->products)
+      {
+        products.add(entities[e->idSAT]);
+      }
+      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      reactions.add(copyr);
+    }
+    
+    jassert(entities.size() == simul->entities.size());
+    jassert(reactions.size() == simul->reactions.size());
+    
+    // set first point of qcurve = qF
+    g_qcurve.add(qF);
+    
+    // set initial concentration of entities to be very close from qF in the direction of qI
+    Curve sl = {qI, qF};
+    double L = curveLength(sl);
+    jassert(L>0.);
+    for (int i=0; i<qI.size(); i++)
+    {
+      float ui = qF.getUnchecked(i) + 0.01 * ( qI.getUnchecked(i)-qF.getUnchecked(i) ) / L;
+      entities[i]->concent.setUnchecked(0, ui);
+      //entities[i]->startConcent.setUnchecked(0, ui);
+    }
+    
+    
+    // deterministic dynamics of the system until a stationnary state is reached
+    float distance = 1000.;
+    float precision = 1e-5;
+    int timeout = simul->dt->floatValue() * 50000;
+    float t = 0.;
+    int count = 0;
+    bool delay = true; // require the deterministic search to run a minimum amount of time
+    // otherwise, too close from an unstable steady state, variation might be too small
+    while (distance>precision || delay)
+    {
+      count++;
+      t += simul->dt->floatValue();
+      if (t>100.) // free the boolean delay
+        delay = false;
+      if (t>timeout)
+        break;
+      // deterministic traj
+      kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
+      kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
+      
+      // update concentration values of entities
+      for (auto & ent : entities)
+      {
+        ent->refresh();
+      }
+      
+      // add new value to global qcurve
+      StateVec qi;
+      for (int k=0; k<entities.size(); k++)
+        qi.add(entities[k]->concent.getUnchecked(0));
+      g_qcurve.add(qi);
+      
+      // calculate variation in last dt
+      distance = 0.;
+      for (auto & ent : entities)
+      {
+        float deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
+        distance += deltaC*deltaC;
+      }
+      distance = sqrt(distance);
+    } // end while
+    
+    // set last point of qcurve = qI
+    g_qcurve.add(qI);
+    
+    // resample qcurve
+    resampleInSpaceUniform(g_qcurve, nPoints->intValue());
+  }
+  else // use straightline
+  {
+    for (int point=0; point<nPoints->intValue(); point++)
+    {
+      StateVec vec;
+      double fpoint = (double) point;
+      for (int k=0; k<qI.size(); k++)
+      {
+        double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
+        vec.add(qk);
+      }
+      g_qcurve.add(vec);
+    }
   }
   
   // init sample rate
@@ -2602,11 +2715,12 @@ vector<juce::dsp::IIR::Filter<double>> NEP::makeFilters(ReferenceCountedArray<II
 
 */
 
-void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int size)
+// #HERE extremely slow, but seems to work though.
+void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int newsize)
 {
-  if (signal.size()<2)
+  if (signal.size()<2 || newsize<2)
     return;
-  
+    
   /*
 cout << "NEP::resampleInSpaceUniform()" << endl;
 cout << "input = ";
@@ -2619,61 +2733,70 @@ for (int i=0; i<signal.size(); i++)
   }
 }
 */
-  
+    
   int dim = signal.getUnchecked(0).size();
-  double dsize = (double) size;
-  double L = curveLength(g_qcurve);
+  double d_newsize = (double) newsize;
+  double L = curveLength(signal);
   
-  // init newtraj
+  // init newtraj with null vectors
   Trajectory resampled_signal;
-  resampled_signal.resize(size);
-  for (int i=0; i<resampled_signal.size(); ++i)
+  resampled_signal.resize(newsize);
+  for (int i=0; i<newsize; ++i)
   {
     StateVec nullvec;
     nullvec.insertMultiple(0, 0., dim);
     resampled_signal.setUnchecked(i, nullvec);
   }
+  
+  // cumulative lengths of input signals
+  Array<double> cumulative_lengths;
+  cumulative_lengths.insertMultiple(0, 0., signal.size());
+  for (int k=1; k<signal.size(); k++)
+  {
+    Trajectory segment({signal.getUnchecked(k-1), signal.getUnchecked(k)});
+    cumulative_lengths.setUnchecked(k, cumulative_lengths.getUnchecked(k-1) + curveLength(segment));
+  }
+  
+  //cout << "input signal length = " << L << endl;
  
   // resampling
-  for (int i=0; i<signal.size(); i++)
+  int last_closest = 0;
+  for (int i=0; i<newsize; i++)
   {
-    // linear distance between 0 and g_qcurve length
-    double l = 0. + (double)i * L/(dsize-1.);
+    // linear distance between 0 and signal length
+    double li = 0. + (double)i * L/(d_newsize-1.);
     
-    //cout << "i = " << i << endl;
+    //cout << "i = " << i << ". l_i = " << 100.*li/L << "%" << endl;
     
-    // find closest (left bound) index in space curve
-    int closest = 0;
-    Trajectory partial_curve;
-    partial_curve.add(signal.getUnchecked(0));
-    partial_curve.add(signal.getUnchecked(1));
-    //cout << "npoints : " << g_qcurve.size() << ". partial curve has " << partial_curve.size() << " points" << endl;
-    while (closest<size-1 && curveLength(partial_curve)<l)
-    {
-      closest++;
-      partial_curve.add(signal.getUnchecked(closest+1));
-    }
-    //cout << "flga A" << endl;
-    double l_pc_next = curveLength(partial_curve);
-    //cout << "flga B" << endl;
-    partial_curve.removeLast();
-    //cout << "flga C" << endl;
-    double l_pc = curveLength(partial_curve);
+    // find closest matching index in cumulative length array
+    auto it = lower_bound(cumulative_lengths.begin(), cumulative_lengths.end(), li);
+    int closest = (int) distance(cumulative_lengths.begin(), it) - 1;
+    closest = max(0, min(closest, (int)signal.size()-2)); // make sure closest is properly bounded
+    
+    // linear interpolation
+    double l_inf = cumulative_lengths.getUnchecked(closest);
+    double l_sup = cumulative_lengths.getUnchecked(closest+1);
+    double alpha = (l_sup != l_inf) ? (li - l_inf) / (l_sup - l_inf) : 0.0;
+    alpha = max(0., min(1., alpha));
+    
+    // keep track of current finding to accelerate next iteration
+    last_closest = closest;
+    
+    //cout << "closest : " << closest << ". linf = " << 100.*l_inf/L << "% & lsup = " << 100*l_sup/L << "%" << endl;
     
     if (i==0)
     {
       resampled_signal.setUnchecked(i, signal.getFirst());
     }
-    else if (i==signal.size()-1)
+    else if (i==newsize-1)
     {
       resampled_signal.setUnchecked(i, signal.getLast());
     }
     else
     {
       // interpolate between q[closest] and q[closest+1]
-      for (int m=0; m<signal.getUnchecked(0).size(); m++)
+      for (int m=0; m<dim; m++)
       {
-        double alpha = (l-l_pc) / (l_pc_next-l_pc);
         double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
         resampled_signal.getReference(i).setUnchecked(m, val);
       } // end loop over dimension of the system
@@ -2682,10 +2805,11 @@ for (int i=0; i<signal.size(); i++)
   
 
   // modify input signal
-  signal.resize(size);
-  for (int i=0; i<signal.size(); i++)
+  signal.resize(newsize);
+  for (int i=0; i<newsize; i++)
   {
-    signal.getUnchecked(i).insertMultiple(0, 0., dim);
+    signal.getReference(i).clear();
+    signal.getReference(i).insertMultiple(0, 0., dim);
     for (int j=0; j<signal.getUnchecked(i).size(); j++)
     {
       signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
@@ -2702,6 +2826,7 @@ for (int i=0; i<signal.size(); i++)
       cout << signal.getUnchecked(i).getUnchecked(j) << comma;
     }
   }
+  cout << endl;
   */
   
   
@@ -3125,7 +3250,7 @@ void NEP::heteroclinicStudy()
   reset();
 
   // init concentration curve
-  initConcentrationCurve();
+  initConcentrationCurve(false);
   //testinitConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();

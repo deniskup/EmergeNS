@@ -22,7 +22,7 @@
 //#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
 #include <random>
-//#include "Simulation.h"
+#include "KineticLaw.h"
 
 class Simulation;
 
@@ -181,7 +181,7 @@ private:
   
 
   void testinitConcentrationCurve();
-  void initConcentrationCurve();
+  void initConcentrationCurve(bool);
   
   void writeDescentToFile();
   
@@ -217,6 +217,8 @@ private:
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
   
   void heteroclinicStudy();
+  
+  KineticLaw * kinetics; // to calculate kinetics
   
   // global variable describing the state of the descent
   Curve g_qcurve;
