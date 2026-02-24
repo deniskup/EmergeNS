@@ -345,7 +345,6 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
   {
     case NEP::NEPEvent::WILL_START:
     {
-      //cout << "calling WILL START" << endl;
       iterations.clear();
       actions.clear();
       cutoffFreqs.clear();
@@ -361,7 +360,6 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
       cutoffFreqs.add(ev.cutofffreq);
       nPoints.add( (double) ev.npoints);
       metrics.add(ev.metric);
-      cout << "calling NEWSTEP. array action size : " << actions.size() << endl;
       repaint();
     }
     break;

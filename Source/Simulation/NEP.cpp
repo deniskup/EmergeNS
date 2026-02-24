@@ -1137,7 +1137,7 @@ void NEP::run()
     if (count>1)
     {
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
-      //cout << "using step = " << stepDescent << endl;
+      LOG("using step = " + to_string(stepDescent));
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
     }
     
