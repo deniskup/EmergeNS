@@ -1315,31 +1315,18 @@ void NEP::stop()
 // start thread
 void NEP::run()
 {
-  //cout << "nepnotifier size = " << nepNotifier.size() << endl;
-  
   simul->affectSATIds();
   reset();
-  
-  /*
-  //for debugging gradient calculations
-  checkGradH();
-  checkGradH2();
-  return;
-  */
-  /*
-   //for debugging the filtering step
-  debugFiltering();
-   return;
-   */
-  
+
   // has bad behavior for now, trajectory eventually diverges
   // need deeper understanding
   // see https://web.pa.msu.edu/people/dykman/pub06/jcp100_5735.pdf
   if (heteroclinic_study)
   {
-    heteroclinicStudy();
-    heteroclinic_study = false;
+    LOG("heteroclinic study not implemented yet, return.");
     return;
+    //heteroclinicStudy();
+    //heteroclinic_study = false;
   }
 
   
@@ -1353,27 +1340,25 @@ void NEP::run()
   }
   
   // init concentration curve
-  cout << "init g_qcurve" << endl;
-  initConcentrationCurve(true);
+  LOG("init g_qcurve");
+  initConcentrationCurve(false);
   //testinitConcentrationCurve();
   
+  // message to async
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+  
   int count = 0;
-  //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this)); // #silent
-  //while (count < Niterations->intValue() && !threadShouldExit())
-  //cout << descentShouldContinue(count+1) << " && " << !threadShouldExit() << endl;
   while (descentShouldContinue(count+1) && !threadShouldExit())
   {
-    
     count++;
     if (count==1)
-      cout << "initial value of action = " << action << endl;
-    cout << "\niteration #" << count << endl;
+      LOG("initial value of action = " + to_string(action));
+    LOG("\niteration #" + to_string(count));
     
     if (count>1)
     {
-      //stepDescent = backTrackingMethodForStepSize(g_qcurve, dAdq_filt);
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
-      cout << "using step = " << stepDescent << endl;
+      //cout << "using step = " << stepDescent << endl;
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
     }
     
@@ -1397,10 +1382,9 @@ void NEP::run()
     
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables g_pcurve and times
-    cout << "lifting trajectory" << endl;
+    LOG("lifting trajectory");
     //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
     LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve);
-    cout << "end lifting" << endl;
     
     // update global variable with lift results
     g_pcurve = liftoptres.pcurve;
@@ -1449,11 +1433,11 @@ void NEP::run()
   
     
     // calculate action value
-    cout << "calculating action" << endl;
+    LOG("calculating action");
     double newaction = calculateAction(g_qcurve, g_pcurve, g_times);
-    double diffAction = abs(action - newaction);
-    //actionDescent.add(diffAction);
+    double diffAction = action - newaction;
     actionDescent.add(newaction);
+    action = newaction;
     
     if (maxPrinting->boolValue())
     {
@@ -1461,33 +1445,31 @@ void NEP::run()
       debugfile << "S = " << newaction << " & deltaS = " << diffAction << endl;
     }
     
+    LOG("action = " + to_string(newaction) + ". deltaS = " + to_string(diffAction));
+    
     // message to async to monitor the descent
-    cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
-    //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric)); // #silent
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric)); 
     
     
     // check algorithm descent status
     bool shouldUpdate = descentShouldUpdateParams(diffAction);
     if (shouldUpdate && count>1)
     {
-      cout << "descentShouldUpdateParams() returned true" << endl;
+      LOG("descentUpdatesParams");
       updateDescentParams();
-      cout << "resampling in time uniform" << endl;
+      
+      // the following I do not perfor
       //resampleInTimeUniform(g_qcurve, g_qcurve.size());
-      cout << "filtering in time uniform" << endl;
       //lowPassFiltering(g_qcurve, true);
-      cout << "Resample in space uniform" << endl;
       //resampleInSpaceUniform(g_qcurve, g_qcurve.size());
-      cout << "lift to (q, p, t)" << endl;
       //liftCurveToTrajectoryWithGSL();
-      cout << "done" << endl;
+      
       // increase sampling of concentration curve is optionnal. Not implemented at the moment.
       //continue; // next iteration using the filtered g_qcurve
     }
     
     
     // dA / dq
-    cout << "--- dAdq printing ---" <<endl;
     // Array<StateVec> dAdq;
     for (int point=0; point<nPoints->intValue(); point++)
     {
@@ -1537,24 +1519,13 @@ void NEP::run()
       }
       debugfile << endl;
     }
-    
-    
-    action = newaction;
-    // keep track of action history
-    cout << "action = " << action << endl;
-    
-    //cout << "updating concentration curve" << endl;
-    // now update the concentration trajectory with functionnal gradient descent
-    // this function update global variable g_qcurve
-    //updateOptimalConcentrationCurve_old(liftoptres.opt_momentum, liftoptres.opt_deltaT);
         
-    
   } // end while
   
-  cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
+  //cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
   
   // save descent algorithm results into a file
-  cout << "writing to file" << endl;
+  LOG("writing descent to file");
   writeDescentToFile();
   
   stop();
@@ -1570,8 +1541,8 @@ void NEP::run()
 // 3/ Moving average on newly built p to reduce noise in p solving
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 {
-  cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
-  cout << "input qcurve size = " << qcurve.size() << endl;
+  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  //cout << "input qcurve size = " << qcurve.size() << endl;
   // dimension of the problem
   const int n = simul->entities.size() + 1; // number of entities + 1 (time)
   

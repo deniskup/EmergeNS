@@ -113,27 +113,44 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   jassert(data.size() == iterations.size());
   //cout << "data type : " << title << ". size = " << data.size() << " vs Niter = " << iterations.size() << endl;
   
-  // retrieve max from array data
-  float max = 0.;
-  for (auto & v : data)
-  {
-    if (v>max)
-      max = v;
-  }
-  jassert(max>0.);
+  //cout << "data " << title << " : ";
+  //for (auto & el : data)
+  //  cout << el << " ";
+  //cout << endl;
   
+  
+  // retrieve max from array data
+  /*auto max_it = max_element(data.begin(), data.end());
+  float max = (max_it != data.end() ? *max_it : 1.0);
+  cout << "title : " << title << ". max = " << max << endl;
+  jassert(max>0.);
+  */
   // draw rectagle around the box
   g.setColour(NORMAL_COLOR);
   g.drawRoundedRectangle(r.toFloat(), 4, 2.f);
   
   // find min and max of data
-  float minX = *min_element(iterations.begin(), iterations.end());
-  float maxX = *max_element(iterations.begin(), iterations.end());
-  float minY = *min_element(data.begin(), data.end());
-  float maxY = *max_element(data.begin(), data.end());
-  float rangeX = maxX - minX;
-  float rangeY = maxY - minY;
+  double minX = *min_element(iterations.begin(), iterations.end());
+  double maxX = *max_element(iterations.begin(), iterations.end());
+  double minY = *min_element(data.begin(), data.end());
+  double maxY = *max_element(data.begin(), data.end());
+  double rangeX = maxX - minX;
+  double rangeY = maxY - minY;
   
+  if (rangeX == 0.)
+  {
+    rangeX = abs(maxX);
+    minX = std::min(0., minX);
+    maxX = std::max(0., maxX);
+  }
+  if (rangeY == 0.)
+  {
+    rangeY = abs(maxY);
+    minY = std::min(0., minY);
+    maxY = std::max(0., maxY);
+  }
+  
+  /*
   if (title == "Action")
   {
     maxY += 1.1*rangeY;
@@ -144,8 +161,15 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
     minY = 0.;
     maxY *= 1.1; // little more room for esthetics
   }
+   */
+  
+  // make little more room for plots
+  maxY += 0.05*rangeY;
+  if (title == "Action")
+    minY -= 0.05*rangeY;
+  rangeY = maxY - minY;
+  //rangeY = maxY
     
-  cout << "plot " << title << ". rangeX = " << rangeX << " & rangeY = " << rangeY << endl;
   if (rangeX<0. || rangeY<0.)
     return;
   
@@ -157,6 +181,7 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
           
     float pixelX = r.getX() + normX * r.getWidth();
     float pixelY = r.getBottom() - normY * r.getHeight(); // Inversion Y
+    //float pixelY = r.getY() - normY * r.getHeight(); // Inversion Y
 
     Point<float> pixPoint = {pixelX, pixelY};
     
@@ -171,6 +196,18 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   for (int k=1; k<data.size(); k++)
   {
     path->lineTo(toPixel(iterations.getUnchecked(k), data.getUnchecked(k)));
+    if (title=="Action")
+    {
+      //cout << "rangeY : " << rangeY << endl;
+      //cout << "action array = " << endl;
+      //for (auto & el : data)
+      //  cout << el << " ";
+      //cout << endl;
+      //cout << "rectangle coords : " << endl;
+      //cout << r.getX() << " " << r.getRight() << " " << r.getBottom() << " " << r.getY() << endl;
+      //auto pixPoint = toPixel(iterations.getUnchecked(k), data.getUnchecked(k));
+      //cout << "adding point " << pixPoint.x << " " << pixPoint.y << endl;
+    }
   }
   
   // draw the data
@@ -214,13 +251,12 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
 void NEPUI::paint(juce::Graphics & g)
 {
   
-  if (nep->state != NEP::NEPState::Descending)
-    return;
-  
-  //cout << "calling paint ? NEP state : " << nep->state << endl;
-  
+  //if (nep->state != NEP::NEPState::Descending)
+   // return;
+    
   if (iterations.size()==0)
     return;
+  
   /*
   cout << "calling paint. " << endl;
   cout << "sizes are : " << iterations.size() << " " << actions.size() << " " << cutoffFreqs.size() << " " << nPoints.size();
@@ -270,11 +306,10 @@ void NEPUI::paint(juce::Graphics & g)
 
 void NEPUI::resized()
 {
-  cout << "NEPUI::resized()" << endl;
     Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     vp.setBounds(r);
-  cout << "END NEPUI::resized()" << endl;
+    repaint();
 }
 
 
@@ -321,12 +356,12 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
 
     case NEP::NEPEvent::NEWSTEP:
     {
-      //cout << "calling NEWSTEP. NEP state = " << nep->state << " vs " << NEP::NEPState::Descending << endl;
       iterations.add(ev.curStep);
       actions.add(ev.action);
       cutoffFreqs.add(ev.cutofffreq);
       nPoints.add( (double) ev.npoints);
       metrics.add(ev.metric);
+      cout << "calling NEWSTEP. array action size : " << actions.size() << endl;
       repaint();
     }
     break;
