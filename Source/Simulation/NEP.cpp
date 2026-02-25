@@ -443,6 +443,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
   nPoints = addIntParameter("Sampling points", "Number of sampling points", 100);
+  
+  initialConditions = addEnumParameter("Initial condition", "Choose how the optimal trajectory is initialized for the descent.");
 
   cutoffFreq = addFloatParameter("Cutoff frequency", "Cutoff frequency normalized to a sampling rate of 1", 0.05);
 
@@ -452,12 +454,16 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
-  stepDescentInitVal = addFloatParameter("Step descent", "Descent will try proceeding with user indicated step, and will use backtracking method if this step is too large.", 1.);
+  stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
   
   maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
     
   // set options
   updateSteadyStateList();
+  
+  initialConditions->clearOptions();
+  initialConditions->addOption("Straigth line", 0);
+  initialConditions->addOption("Deterministic trajectory", 1);
   
   // set this class as simulation listener
   //simul->addAsyncSimulationListener(this);
@@ -1123,7 +1129,7 @@ void NEP::run()
   LOG("init g_qcurve");
   try
   {
-    initConcentrationCurve(true);
+    initConcentrationCurve();
   } catch (const std::exception& e)
   {
     LOGWARNING(e.what());
@@ -1221,9 +1227,23 @@ void NEP::run()
     
     // calculate action value
     LOG("calculating action");
-    double newaction = calculateAction(g_qcurve, g_pcurve, g_times);
+    Array<double> newcumulaction = calculateAction(g_qcurve, g_pcurve, g_times);
+    double newaction = newcumulaction.getLast();
     double diffAction = action - newaction;
-    actionDescent.add(newaction);
+    
+    if (isnan(newaction)|| isnan(diffAction))
+    {
+      LOGWARNING("Action is nan. Descent probably diverged. Stopping descent.");
+      signalThreadShouldExit();
+    }
+    
+    if (newaction<0.)
+    {
+      LOGWARNING("Action is <0. Probably wrong. Stopping descent.");
+      signalThreadShouldExit();
+    }
+      
+    actionDescent.add(newcumulaction);
     action = newaction;
     
     if (maxPrinting->boolValue())
@@ -1645,7 +1665,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 }
 
 
-void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
+
+void NEP::initConcentrationCurve()
 {
   // read init and final curve points from enum parameters
   int sstI = sst_stable->intValue();
@@ -1692,7 +1713,7 @@ void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
   double NN = (double) nPoints->intValue();
   jassert(nPoints->intValue()>1);
   
-  if (useDeterministicTrajectory)
+  if (initialConditions->getValueKey() == "Deterministic trajectory")
   {
     // copy the entities and reactions from simulation instance
     OwnedArray<SimEntity> entities;
@@ -1792,6 +1813,36 @@ void NEP::initConcentrationCurve(bool useDeterministicTrajectory)
       distance = sqrt(distance);
     } // end while
     
+    // find in which steady state the system ended
+    int reachedSST = -1;
+    float dmin = 10000.;
+    count = 0;
+    for (auto & sst : simul->steadyStatesList->arraySteadyStates)
+    {
+      float d = 0.;
+      for (auto & p : sst.state)
+      {
+        int entID = p.first->idSAT;
+        SimEntity * se = entities.getUnchecked(entID);
+        float dc = se->concent.getUnchecked(0) - p.second;
+        d += dc*dc;
+      }
+      d = sqrt(d);
+  
+      if (d<dmin)
+      {
+        dmin = d;
+        reachedSST = count;
+      }
+      count++;
+    }
+    
+    if (reachedSST != sstI)
+    {
+      LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
+      throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
+    }
+    
     // set last point of qcurve = qI
     g_qcurve.add(qI);
 
@@ -1885,9 +1936,21 @@ bool NEP::descentShouldContinue(int step)
 void NEP::writeDescentToFile()
 {
   // open output file
-  String filename = "action-functionnal-descent.csv";
+  system("mkdir -p descent");
+  string filename = "descent/action-functionnal-descent_";
+  filename += to_string(sst_stable->intValue()) + "->" + to_string(sst_saddle->intValue());
+  filename += "_" + to_string(nPoints->intValue());
+  filename += ".csv";
   ofstream historyFile;
-  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+  historyFile.open(filename, ofstream::out | ofstream::trunc);
+  
+  historyFile << "Descent characteristics used :" << endl;
+  historyFile << "Number of iterations : " << Niterations->intValue() << endl;
+  historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
+  historyFile << "Action threshold : " << action_threshold->floatValue() << endl;
+  historyFile << "Timescale factor : " << timescale_factor->floatValue() << endl;
+  historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
+  historyFile << "###############" << endl;
   
   historyFile << "iteration,action,point";
   for (auto & ent : simul->entities)
@@ -1900,20 +1963,20 @@ void NEP::writeDescentToFile()
     historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",H";
   historyFile << endl;
-  cout << "action descent size :" << actionDescent.size() << endl;
-  cout << "trajDescent descent size :" << trajDescent.size() << endl;
-  cout << "grad Descent size :" << dAdqDescent.size() << endl;
-  cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
+  //cout << "action descent size :" << actionDescent.size() << endl;
+  //cout << "trajDescent descent size :" << trajDescent.size() << endl;
+  //cout << "grad Descent size :" << dAdqDescent.size() << endl;
+  //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == ham_descent.size());
   
-  for (int iter=0; iter<actionDescent.size(); iter++)
+  for (int iter=0; iter<actionDescent.size(); iter++) // loop over descent iterations
   {
-    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++)
+    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++) // loop over curve points
     {
-      historyFile << iter << "," << actionDescent.getUnchecked(iter) << "," << point;
+      historyFile << iter << "," << actionDescent.getUnchecked(iter).getUnchecked(point) << "," << point;
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
@@ -1975,8 +2038,8 @@ void NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
 
 
 
-//void NEP::calculateNewActionValue()
-double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
+//double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
+Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
 {
   //cout << "-- calculateAction() --" << endl;
   // check that pcurve, qcurve and tcurve have the same size
@@ -2010,6 +2073,8 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
   
   // use trapezoidal rule to calculate action = integral(0, T, p dq/dt - H)
   double newaction = 0.;
+  Array<double> cumul_action;
+  cumul_action.add(0.);
   for (int i=0; i<qc.size()-1; i++)
   {
     //cout << "at step " << i << endl;
@@ -2032,6 +2097,7 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
     }
     //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << endl;
     newaction += integrand;
+    cumul_action.add(newaction);
     //cout << "\tadding " << integrand << endl;
   }
   
@@ -2041,7 +2107,8 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
   // keep track of action history
   //actionDescent.add(newaction);
   
-  return newaction;
+  //return newaction;
+  return cumul_action;
   
 }
 
@@ -2055,7 +2122,8 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
   
-  double currentaction = calculateAction(qc, g_pcurve, g_times);
+  Array<double> cumulaction = calculateAction(qc, g_pcurve, g_times);
+  double currentaction = cumulaction.getLast();
   /* debugging
   cout << "current action = " << currentaction << endl;
   cout << "current q = " ;
@@ -2120,7 +2188,8 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     */
     
     // calculate action that would correspond to new concentration curve
-    double newact = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
+    Array<double> newcumulaction = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
+    double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
     if (newact>=currentaction)
     {
@@ -2708,7 +2777,7 @@ void NEP::heteroclinicStudy()
   reset();
 
   // init concentration curve
-  initConcentrationCurve(false);
+  initConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
   liftCurveToTrajectoryWithGSL(g_qcurve);

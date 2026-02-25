@@ -9,11 +9,10 @@
 
 /*
 - update read me for compilation with gsl, indicate that user should add lib and header paths to projucer file
-- reparametrization of qcurve
+- better handling of verbose
 - calculate distance from hamilton equation of motion
-- recover 2-schlogl results of gagrani and smith
 - smooth start when there exists some vortex arounf fixed points
- - regarding non linear solving, IPOPT to try if I want to stick to saddle point optimisation
+- regarding non linear solving, IPOPT to try if wish to stick to saddle point optimisation
 */
 
 #pragma once
@@ -104,6 +103,7 @@ public:
   FloatParameter * stepDescentInitVal;
   FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
+  EnumParameter* initialConditions;
 
 
   // update steady state list when updateParams is calle din SImulation
@@ -173,7 +173,7 @@ public:
 private:
   
 
-  void initConcentrationCurve(bool);
+  void initConcentrationCurve();
   
   void writeDescentToFile();
   
@@ -193,7 +193,8 @@ private:
   
   void updateOptimalConcentrationCurve(Curve &, double);
 
-  double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
+  //double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
+  Array<double> calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
   double backTrackingMethodForStepSize(const Curve& c);
   
@@ -230,7 +231,8 @@ private:
   
 
   // for printing history to file
-  Array<double> actionDescent;
+  //Array<double> actionDescent;
+  Array<Array<double>> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
