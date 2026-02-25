@@ -114,6 +114,9 @@ void FirstEscapeTime::startStudy()
   // same for entities belonging to this class
   simul->setConcToSteadyState(worker->entities, startSteadyState+1); // I should avoid this
   
+  // synchronize runs of phase plane with simul
+  PhasePlane::getInstance()->updateEntitiesFromSimu();
+  
   // just in case
   //Simulation::getInstance()->generateSimFromUserList();
   

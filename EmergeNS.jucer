@@ -116,9 +116,11 @@
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile" smallIcon="iGjYAz" bigIcon="iGjYAz">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"/>
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lnlopt -lgsl"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"/>
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lnlopt -lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core"/>
@@ -144,7 +146,8 @@
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib"
                        extraLinkerFlags="-lnlopt -lgsl"/>
         <CONFIGURATION isDebug="0" name="Release" libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib"
-                       headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include"/>
+                       headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include"
+                       extraLinkerFlags="-lnlopt -lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core"/>
@@ -166,9 +169,11 @@
             smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" extraCompilerFlags="/bigobj" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"/>
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lnlopt -lgsl"/>
         <CONFIGURATION isDebug="0" name="Release" extraCompilerFlags="/bigobj" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"/>
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lnlopt -lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core"/>
