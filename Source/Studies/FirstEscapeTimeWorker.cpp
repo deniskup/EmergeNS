@@ -175,6 +175,7 @@ void FirstEscapeTimeWorker::run()
       {
         LOG("No escape detected");
         escapes.setUnchecked(snap.run, {-1., startSteadyState, startSteadyState});
+        runsTreated.add(snap.run);
         //escapes.add({-1., startSteadyState, reachedSST});
       }
             
@@ -183,9 +184,14 @@ void FirstEscapeTimeWorker::run()
     if (runsTreated.contains(simul.nRuns-1))
     {
       writeResultsToFile();
+      signalThreadShouldExit();
     }
     
   } // outter thread while loop
+  
+  // request emergens to close
+  JUCEApplication::getInstance()->systemRequestedQuit();
+  
 }
 
 
