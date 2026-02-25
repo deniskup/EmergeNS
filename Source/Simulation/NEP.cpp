@@ -99,7 +99,7 @@ double legendreTransform(const EncapsVarForNLOpt * ev, double t)
 }
 
 
-
+/*
 double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, void* f_data)
 {
   
@@ -115,14 +115,14 @@ double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, vo
     pjuce.add(val);
   *ev->p = pjuce;
   
-  /*
-  cout << "[max_p] Called with p = ";
-  for (unsigned i = 0; i < n; ++i)
-  {
-    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
-  }
-  cout << std::endl;
-  */
+  
+ // cout << "[max_p] Called with p = ";
+ // for (unsigned i = 0; i < n; ++i)
+ // {
+ //   cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
+ // }
+  //cout << std::endl;
+  
   
   
   double deltaT = 1.; // fix delta t for optimization its amplitude will be fixed later
@@ -131,7 +131,8 @@ double objective_max_p_old(unsigned int n, const double* p_vec, double* grad, vo
 
  
  }
-
+*/
+/*
 double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* f_data)
 {
   // retrieve encapsulated  variables
@@ -145,14 +146,14 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
     pjuce.add(val);
   *ev->p = pjuce;
   
-  /*
-  cout << "[max_p] Called with p = ";
-  for (unsigned i = 0; i < n; ++i)
-  {
-    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
-  }
-  cout << std::endl;
-  */
+  
+ // cout << "[max_p] Called with p = ";
+ // for (unsigned i = 0; i < n; ++i)
+ // {
+ //   cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
+ // }
+  //cout << std::endl;
+  
   
   double sp =0.;
   for (int k=0; k<ev->deltaq->size(); k++)
@@ -160,7 +161,7 @@ double objective_max_p(unsigned int n, const double* p_vec, double* grad, void* 
   
   return sp;
  }
-
+*/
 
 double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad, void* f_data)
 {
@@ -173,7 +174,7 @@ double constraint_hamiltonian(const vector<double> & p_vec, vector<double> &grad
   
   return ev->nep->evalHamiltonian(*ev->qcenter, p);
 }
-
+/*
 // x size = number of entities in the system
 int residualToInitGSL_old(const gsl_vector* x, void* params, gsl_vector* f)
 {
@@ -215,7 +216,7 @@ int residualToInitGSL_old(const gsl_vector* x, void* params, gsl_vector* f)
   return GSL_SUCCESS;
 }
 
-
+*/
 
 
 
@@ -442,6 +443,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
   nPoints = addIntParameter("Sampling points", "Number of sampling points", 100);
+  
+  initialConditions = addEnumParameter("Initial condition", "Choose how the optimal trajectory is initialized for the descent.");
 
   cutoffFreq = addFloatParameter("Cutoff frequency", "Cutoff frequency normalized to a sampling rate of 1", 0.05);
 
@@ -451,18 +454,22 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
-  stepDescentInitVal = addFloatParameter("Step descent", "Descent will try proceeding with user indicated step, and will use backtracking method if this step is too large.", 1.);
+  stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
   
   maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
-  
-  debug = addTrigger("Debug", "Debugging NEP implementation");
-  
+    
   // set options
   updateSteadyStateList();
+  
+  initialConditions->clearOptions();
+  initialConditions->addOption("Straigth line", 0);
+  initialConditions->addOption("Deterministic trajectory", 1);
   
   // set this class as simulation listener
   //simul->addAsyncSimulationListener(this);
   //simul->addAsyncContainerListener(this);
+  
+  kinetics = new KineticLaw(false, 0.);
   
 
 
@@ -517,11 +524,6 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
     heteroclinic_study = true;
     stopThread(10);
     startThread();
-  }
-  if (t == debug)
-  {
-    debugNEPImplementation();
-    //debugFiltering();
   }
 }
 
@@ -1068,219 +1070,6 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
 }
 
 
-
-
-void NEP::checkGradH()
-{
-  
-  cout << "---- CHECKING dH / dq" << endl;
-  
-  // read init and final curve points from enum parameters
-  int sstI = sst_stable->intValue();
-  int sstF = sst_saddle->intValue();
-  
-  StateVec qI, qF;
-  qI.insertMultiple(0, 0., simul->entities.size());
-  qF.insertMultiple(0, 0., simul->entities.size());
-  for (auto & pairI : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).state)
-  {
-    qI.set(pairI.first->idSAT, pairI.second);
-  }
-  for (auto & pairF : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).state)
-  {
-    qF.set(pairF.first->idSAT, pairF.second);
-  }
-  cout << "qI : ";
-  for (auto & qi : qI)
-    cout << qi <<" ";
-  cout << endl;
-  for (auto & qf : qF)
-    cout << qf << " ";
-  cout << endl;
-  
-  StateVec qInter;
-  for (int m=0; m<qI.size(); m++)
-  {
-    //qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
-    qInter.add(qI.getUnchecked(m));
-  }
-  
-  cout << "qIntermediate = ";
-  for (auto & q : qInter)
-    cout << q << " ";
-  cout << endl;
-  
-  StateVec ptest = {0., 0.};
-  cout << "using ptest = ";
-  for (auto & p : ptest)
-    cout << p << " ";
-  cout << endl;
-  
-  double epsilon = 0.001;
-  cout << "epsilon = " << epsilon << endl;
-  
-  StateVec gradqh_anal = evalHamiltonianGradientWithQ(qInter, ptest);
-  StateVec qUp_X1, qDown_X1;
-  StateVec qUp_X2, qDown_X2;
-  for (int m=0; m<qInter.size(); m++)
-  {
-    if (m==0)
-    {
-      qUp_X1.add(qInter.getUnchecked(m) + epsilon);
-      qUp_X2.add(qInter.getUnchecked(m));
-      qDown_X1.add(qInter.getUnchecked(m) - epsilon);
-      qDown_X2.add(qInter.getUnchecked(m));
-    }
-    else
-    {
-      qUp_X1.add(qInter.getUnchecked(m));
-      qUp_X2.add(qInter.getUnchecked(m) + epsilon);
-      qDown_X1.add(qInter.getUnchecked(m));
-      qDown_X2.add(qInter.getUnchecked(m) - epsilon);
-    }
-  }
-  
-  cout << "qUp_X1 = ";
-  for (auto & q : qUp_X1)
-    cout << q << " ";
-  cout << endl;
-  cout << "qDown_X1 = ";
-  for (auto & q : qDown_X1)
-    cout << q << " ";
-  cout << endl;
-  cout << "qUp_X2 = ";
-  for (auto & q : qUp_X2)
-    cout << q << " ";
-  cout << endl;
-  cout << "qDown_X2 = ";
-  for (auto & q : qDown_X2)
-    cout << q << " ";
-  cout << endl;
-  
-  StateVec gradqh_num;
-  gradqh_num.add( (evalHamiltonian(qUp_X1, ptest) - evalHamiltonian(qDown_X1, ptest)) / (2.*epsilon) );
-  gradqh_num.add( (evalHamiltonian(qUp_X2, ptest) - evalHamiltonian(qDown_X2, ptest)) / (2.*epsilon) );
-  
-  
-  cout << "numerical grad = ";
-  for (auto & g : gradqh_num)
-    cout << g << " ";
-  cout << endl;
-  
-  cout << "analytic grad = ";
-  for (auto & g : gradqh_anal)
-    cout << g << " ";
-  cout << endl;
-  cout << endl;
-  
-  
-}
-
-
-
-
-
-void NEP::checkGradH2()
-{
-  
-  cout << "---- CHECKING dH / dp" << endl;
-  
-  // read init and final curve points from enum parameters
-  int sstI = sst_stable->intValue();
-  int sstF = sst_saddle->intValue();
-  
-  StateVec qI, qF;
-  qI.insertMultiple(0, 0., simul->entities.size());
-  qF.insertMultiple(0, 0., simul->entities.size());
-  for (auto & pairI : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).state)
-  {
-    qI.set(pairI.first->idSAT, pairI.second);
-  }
-  for (auto & pairF : simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).state)
-  {
-    qF.set(pairF.first->idSAT, pairF.second);
-  }
-  
-  StateVec qInter;
-  for (int m=0; m<qI.size(); m++)
-  {
-    //qInter.add( 0.5*(qI.getUnchecked(m)+qF.getUnchecked(m)));
-    qInter.add(qI.getUnchecked(m));
-  }
-  
-  cout << "qIntermediate = ";
-  for (auto & q : qInter)
-    cout << q << " ";
-  cout << endl;
-  
-  StateVec ptest = {0., 0.};
-  cout << "using ptest = ";
-  for (auto & p : ptest)
-    cout << p << " ";
-  cout << endl;
-  
-  double epsilon = 0.001;
-  cout << "epsilon = " << epsilon << endl;
-  
-  StateVec gradph_anal = evalHamiltonianGradientWithP(qInter, ptest);
-  StateVec pUp_X1, pDown_X1;
-  StateVec pUp_X2, pDown_X2;
-  for (int m=0; m<ptest.size(); m++)
-  {
-    if (m==0)
-    {
-      pUp_X1.add(ptest.getUnchecked(m) + epsilon);
-      pUp_X2.add(ptest.getUnchecked(m));
-      pDown_X1.add(ptest.getUnchecked(m) - epsilon);
-      pDown_X2.add(ptest.getUnchecked(m));
-    }
-    else
-    {
-      pUp_X1.add(ptest.getUnchecked(m));
-      pUp_X2.add(ptest.getUnchecked(m) + epsilon);
-      pDown_X1.add(ptest.getUnchecked(m));
-      pDown_X2.add(ptest.getUnchecked(m) - epsilon);
-    }
-  }
-  
-  cout << "pUp_X1 = ";
-  for (auto & p : pUp_X1)
-    cout << p << " ";
-  cout << endl;
-  cout << "pDown_X1 = ";
-  for (auto & p : pDown_X1)
-    cout << p << " ";
-  cout << endl;
-  cout << "pUp_X2 = ";
-  for (auto & p : pUp_X2)
-    cout << p << " ";
-  cout << endl;
-  cout << "pDown_X2 = ";
-  for (auto & p : pDown_X2)
-    cout << p << " ";
-  cout << endl;
-  
-  StateVec gradph_num;
-  gradph_num.add( (evalHamiltonian(qInter, pUp_X1) - evalHamiltonian(qInter, pDown_X1)) / (2.*epsilon) );
-  gradph_num.add( (evalHamiltonian(qInter, pUp_X2) - evalHamiltonian(qInter, pDown_X2)) / (2.*epsilon) );
-  
-  
-  cout << "numerical grad = ";
-  for (auto & g : gradph_num)
-    cout << g << " ";
-  cout << endl;
-  
-  cout << "analytic grad = ";
-  for (auto & g : gradph_anal)
-    cout << g << " ";
-  cout << endl;
-  cout << endl;
-  
-  
-}
-
-
-
 void NEP::reset()
 {
   // reset previous calculations
@@ -1312,31 +1101,18 @@ void NEP::stop()
 // start thread
 void NEP::run()
 {
-  //cout << "nepnotifier size = " << nepNotifier.size() << endl;
-  
   simul->affectSATIds();
   reset();
-  
-  /*
-  //for debugging gradient calculations
-  checkGradH();
-  checkGradH2();
-  return;
-  */
-  /*
-   //for debugging the filtering step
-  debugFiltering();
-   return;
-   */
-  
+
   // has bad behavior for now, trajectory eventually diverges
   // need deeper understanding
   // see https://web.pa.msu.edu/people/dykman/pub06/jcp100_5735.pdf
   if (heteroclinic_study)
   {
-    heteroclinicStudy();
-    heteroclinic_study = false;
+    LOG("heteroclinic study not implemented yet, return.");
     return;
+    //heteroclinicStudy();
+    //heteroclinic_study = false;
   }
 
   
@@ -1350,27 +1126,32 @@ void NEP::run()
   }
   
   // init concentration curve
-  cout << "init g_qcurve" << endl;
-  //initConcentrationCurve();
-  testinitConcentrationCurve();
+  LOG("init g_qcurve");
+  try
+  {
+    initConcentrationCurve();
+  } catch (const std::exception& e)
+  {
+    LOGWARNING(e.what());
+    return;
+  }
+  
+  
+  // message to async
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
   
   int count = 0;
-  //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this)); // #silent
-  //while (count < Niterations->intValue() && !threadShouldExit())
-  //cout << descentShouldContinue(count+1) << " && " << !threadShouldExit() << endl;
   while (descentShouldContinue(count+1) && !threadShouldExit())
   {
-    
     count++;
     if (count==1)
-      cout << "initial value of action = " << action << endl;
-    cout << "\niteration #" << count << endl;
+      LOG("initial value of action = " + to_string(action));
+    LOG("\niteration #" + to_string(count));
     
     if (count>1)
     {
-      //stepDescent = backTrackingMethodForStepSize(g_qcurve, dAdq_filt);
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
-      cout << "using step = " << stepDescent << endl;
+      LOG("using step = " + to_string(stepDescent));
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
     }
     
@@ -1394,10 +1175,9 @@ void NEP::run()
     
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables g_pcurve and times
-    cout << "lifting trajectory" << endl;
+    LOG("lifting trajectory");
     //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
     LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve);
-    cout << "end lifting" << endl;
     
     // update global variable with lift results
     g_pcurve = liftoptres.pcurve;
@@ -1446,11 +1226,25 @@ void NEP::run()
   
     
     // calculate action value
-    cout << "calculating action" << endl;
-    double newaction = calculateAction(g_qcurve, g_pcurve, g_times);
-    double diffAction = abs(action - newaction);
-    //actionDescent.add(diffAction);
-    actionDescent.add(newaction);
+    LOG("calculating action");
+    Array<double> newcumulaction = calculateAction(g_qcurve, g_pcurve, g_times);
+    double newaction = newcumulaction.getLast();
+    double diffAction = action - newaction;
+    
+    if (isnan(newaction)|| isnan(diffAction))
+    {
+      LOGWARNING("Action is nan. Descent probably diverged. Stopping descent.");
+      signalThreadShouldExit();
+    }
+    
+    if (newaction<0.)
+    {
+      LOGWARNING("Action is <0. Probably wrong. Stopping descent.");
+      signalThreadShouldExit();
+    }
+      
+    actionDescent.add(newcumulaction);
+    action = newaction;
     
     if (maxPrinting->boolValue())
     {
@@ -1458,33 +1252,31 @@ void NEP::run()
       debugfile << "S = " << newaction << " & deltaS = " << diffAction << endl;
     }
     
+    LOG("action = " + to_string(newaction) + ". deltaS = " + to_string(diffAction));
+    
     // message to async to monitor the descent
-    cout << "in NEP : " << newaction << ". abs diff = " << diffAction << endl;
-    //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric)); // #silent
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, cutoffFreq->floatValue(), nPoints->intValue(), metric)); 
     
     
     // check algorithm descent status
     bool shouldUpdate = descentShouldUpdateParams(diffAction);
     if (shouldUpdate && count>1)
     {
-      cout << "descentShouldUpdateParams() returned true" << endl;
+      LOG("descentUpdatesParams");
       updateDescentParams();
-      cout << "resampling in time uniform" << endl;
+      
+      // the following I do not perfor
       //resampleInTimeUniform(g_qcurve, g_qcurve.size());
-      cout << "filtering in time uniform" << endl;
       //lowPassFiltering(g_qcurve, true);
-      cout << "Resample in space uniform" << endl;
       //resampleInSpaceUniform(g_qcurve, g_qcurve.size());
-      cout << "lift to (q, p, t)" << endl;
       //liftCurveToTrajectoryWithGSL();
-      cout << "done" << endl;
+      
       // increase sampling of concentration curve is optionnal. Not implemented at the moment.
       //continue; // next iteration using the filtered g_qcurve
     }
     
     
     // dA / dq
-    cout << "--- dAdq printing ---" <<endl;
     // Array<StateVec> dAdq;
     for (int point=0; point<nPoints->intValue(); point++)
     {
@@ -1534,24 +1326,13 @@ void NEP::run()
       }
       debugfile << endl;
     }
-    
-    
-    action = newaction;
-    // keep track of action history
-    cout << "action = " << action << endl;
-    
-    //cout << "updating concentration curve" << endl;
-    // now update the concentration trajectory with functionnal gradient descent
-    // this function update global variable g_qcurve
-    //updateOptimalConcentrationCurve_old(liftoptres.opt_momentum, liftoptres.opt_deltaT);
         
-    
   } // end while
   
-  cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
+  //cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
   
   // save descent algorithm results into a file
-  cout << "writing to file" << endl;
+  LOG("writing descent to file");
   writeDescentToFile();
   
   stop();
@@ -1568,6 +1349,7 @@ void NEP::run()
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 {
   //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  //cout << "input qcurve size = " << qcurve.size() << endl;
   // dimension of the problem
   const int n = simul->entities.size() + 1; // number of entities + 1 (time)
   
@@ -1884,323 +1666,23 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
 
 
 
-
-
-LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithNLOPT_old()
-{
-  int nent = Simulation::getInstance()->entities.size();
-  //nlopt::opt opt(nlopt::LD_LBFGS, nent);  // momentum is nentities dimensionnal
-  nlopt::opt opt(nlopt::LN_COBYLA, nent);  // momentum is nentities dimensionnal
-  //nlopt::opt opt(nlopt::LD_MMA, nent);
-  
-
-  // lower and upper bound for optimization
-  vector<double> lowerbound_p(nent, -50.0); // #para
-  vector<double> upperboundb_p(nent, 50.0);
-  opt.set_lower_bounds(lowerbound_p);
-  opt.set_upper_bounds(upperboundb_p);
-  opt.set_maxeval(1000);    // nombre d’itérations max
-  
-  
-  Array<double> opt_deltaT; // vector of optimal time assigned between each q(i) and q(i+1)
-  Array<StateVec> opt_momentum; // vector of optimal momenta assigned between each q(i) and q(i+1)
-  
-  
-  // assign first points along curve
-  //opt_deltaT.add(0.);
-  Array<double> nullP, dummyP;
-  for (int i=0; i<Simulation::getInstance()->entities.size(); i++)
-  {
-    nullP.add(0.);
-    dummyP.add(0.);
-  }
-  //opt_momentum.add(nullP);
-  
-  // loop over points in concentration space
-  
-  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- qn
-  //for (int k=0; k<qcurve.size()-1; k++) // n - 1 iterations
-  for (int k=0; k<nPoints->intValue()-1; k++) // n - 1 iterations
-  {
-    //cout << "optimizing point #" << k << endl;
-    StateVec q = g_qcurve.getUnchecked(k);
-    StateVec qnext = g_qcurve.getUnchecked(k+1);
-    jassert(q.size() == qnext.size());
-    StateVec qcenter;
-    Array<double> deltaq;
-    for (int i=0; i<q.size(); i++)
-    {
-      deltaq.add(qnext.getUnchecked(i) - q.getUnchecked(i));
-      qcenter.add( 0.5* (q.getUnchecked(i) + qnext.getUnchecked(i)));
-    }
-    
-    // set maximization objective with respect to p variable
-    EncapsVarForNLOpt * ev = new EncapsVarForNLOpt{&qcenter, &deltaq,  &dummyP, this};
-    
-    //opt.set_max_objective(objective_max_p, (void*)& deltaq);
-    opt.set_max_objective(objective_max_p, (void*) ev);
-    opt.set_xtol_rel(1e-5);
-    
-    // add constraint to optimization
-    opt.add_equality_constraint(constraint_hamiltonian, (void*) ev, 1e-10);
-    
-    std::vector<double> p_opt(q.size(), 0.0); // init popt with null vector
-    double maxH;
-    
-    //cout << "will start optimization" << endl;
-    
-    // start optimization
-    //nlopt::result result = opt.optimize(p_opt, maxH);
-    try
-    {
-      //nlopt::result result = opt.optimize(p_opt, maxH);
-      opt.optimize(p_opt, maxH);
-      //std::cout << "Optimization success, result = " << result << std::endl;
-    } catch (std::exception &e)
-    {
-      LOGWARNING("NLopt crashed with error message : " <<  e.what());
-    }
-    
-    // better resolution of the search
-    
-    
-    // assign time interval deduced from optimisation in p
-    StateVec parr_opt;
-    for (auto & pi : p_opt)
-      parr_opt.add(pi);
-    StateVec gradpH = evalHamiltonianGradientWithP(qcenter, parr_opt);
-    double norm2 = 0.;
-    double deltaT = 0.;
-    for (int i=0; i<gradpH.size(); i++)
-    {
-      norm2 += gradpH.getUnchecked(i) * gradpH.getUnchecked(i);
-      deltaT += gradpH.getUnchecked(i) * deltaq.getUnchecked(i);
-    }
-    if (norm2>0.)
-      deltaT /= norm2;
-    else
-    {
-      LOGWARNING("gradient of hamiltonian in p has null norm, take results with caution.");
-    }
-    
-    /*
-    cout << "--- delta T calculation ---" << endl;
-    cout << "deltaq = ";
-    for (auto & dq : deltaq)
-      cout << dq << " ";
-    cout << endl;
-    cout << "dH/dp = ";
-    for (auto & gp : gradpH)
-      cout << gp << " ";
-    cout << endl;
-    cout << "deltaT = " << deltaT << endl;
-    */
-    /*
-    cout << "--- optima found ---" << endl;
-    cout << "qcenter = ";
-    for (auto & qc : qcenter)
-      cout << qc << " ";
-    cout << endl;
-    cout << "deltaT = " << deltaT << endl;
-    cout << "p = ";
-    for (auto & pi : p_opt)
-      cout << pi << " ";
-    cout << endl;
-    cout << "--- ---" << endl;
-    */
-    
-    // add optimizing time
-    //opt_deltaT.add(ev->t_opt);
-    opt_deltaT.add(deltaT);
-    
-    // add optimizing momentum vector
-    opt_momentum.add(parr_opt);
-    
-    //cout << "Optimal t = " << ev.t_opt << endl;
-    
-    //std::cout << "Optimal F(p, t*) = " << -maxf << std::endl;
-  } // end loop over current trajectory
-  
-  //cout << "finished optimizing" << endl;
-  
-  jassert(opt_deltaT.size() == opt_momentum.size());
-  jassert(opt_deltaT.size() == nPoints->intValue()-1);
-  
-  // Build full trajectory in (q ; p) space from optima found previously
-  //Array<double> tTraj;
-  //Curve pTraj;
-  g_pcurve.clear();
-  g_times.clear();
-  
-
-  // first elements are 0
-  double sumtime = 0.;
-  g_pcurve.add(nullP);
-  g_times.add(sumtime);
-  for (int k=1; k<nPoints->intValue(); k++) // nPoints-1 iterations
-  {
-    if (k==0)
-      continue;
-    
-    //cout << "k = " << k << endl;
-    
-    // handle time
-    sumtime += opt_deltaT.getUnchecked(k-1);
-    g_times.add(sumtime);
-    
-    // handle momentum, mean between current and next p
-    if (k==nPoints->intValue()-1) // force last momentum vec to be 0
-      g_pcurve.add(nullP);
-    else
-    {
-      StateVec meanP;
-      for (int m=0; m<opt_momentum.getUnchecked(k).size(); m++)
-      {
-        double pm = 0.5*(opt_momentum.getUnchecked(k-1).getUnchecked(m) + opt_momentum.getUnchecked(k).getUnchecked(m));
-        meanP.add(pm);
-      }
-      g_pcurve.add(meanP);
-    }
-  }
-  
-  
-  // TODO
-  // smooth g_pcurve
-  
-  /*
-  cout << "--- popt ---" << endl;
-  for (auto & ppoint : opt_momentum)
-  {
-    for (auto & pm : ppoint)
-      cout << pm << " ";
-    cout << endl;
-  }
-  cout << "--- deltaT opt ---" << endl;
-  for (auto & t : opt_deltaT)
-    cout << t << " ";
-  cout << endl;
-  */
-/*
-  cout << "--- g_pcurve ---" << endl;
-  for (auto & ppoint : g_pcurve)
-  {
-    for (auto & pm : ppoint)
-      cout << pm << " ";
-    cout << endl;
-  }
-  cout << "--- times ---" << endl;
-  for (auto & t : times)
-    cout << t << " ";
-  cout << endl;
-  
-  cout << "----------- END lift curve ----------" << endl;
-*/
-
-  jassert(g_pcurve.size() == g_qcurve.size());
-  jassert(g_times.size() == g_qcurve.size());
-  
-  
-  // Return optimization results
-  LiftTrajectoryOptResults output;
-  output.opt_deltaT = opt_deltaT;
-  output.opt_momentum = opt_momentum;
-  
-  if (maxPrinting->boolValue())
-  {
-    debugfile << "-- lifting optima found --" << endl;
-    debugfile << "p* = ";
-    for (auto & ppoint : opt_momentum)
-    {
-      debugfile << "(";
-      int c=0;
-      for (auto & pm : ppoint)
-      {
-        string comma = ( c==ppoint.size()-1 ? ") " : "," );
-        debugfile << pm << comma;
-        c++;
-      }
-    }
-  debugfile << endl;
-  debugfile << "deltaT = ";
-  for (auto & tpoint : opt_deltaT)
-  {
-    debugfile << tpoint << " ";
-  }
-  debugfile << endl;
-  }
-  
-  return output;
-  
-}
-
-
-void NEP::testinitConcentrationCurve()
-{
-  g_qcurve.clear();
-  g_qcurve.add({ 2.165380239 , 1.092999816 });
-  g_qcurve.add({ 2.17939 , 1.09388 });
-  g_qcurve.add({ 2.19303 , 1.09474 });
-  g_qcurve.add({ 2.20698 , 1.09563 });
-  g_qcurve.add({ 2.22067 , 1.09651 });
-  g_qcurve.add({ 2.23442 , 1.09739 });
-  g_qcurve.add({ 2.24828 , 1.09829 });
-  g_qcurve.add({ 2.26186 , 1.09918 });
-  g_qcurve.add({ 2.27587 , 1.10011 });
-  g_qcurve.add({ 2.2899 , 1.10104 });
-  g_qcurve.add({ 2.30355 , 1.10196 });
-  g_qcurve.add({ 2.31741 , 1.1029 });
-  g_qcurve.add({ 2.33128 , 1.10385 });
-  g_qcurve.add({ 2.34497 , 1.1048 });
-  g_qcurve.add({ 2.35826 , 1.10573 });
-  g_qcurve.add({ 2.37227 , 1.10673 });
-  g_qcurve.add({ 2.38561 , 1.10768 });
-  g_qcurve.add({ 2.39952 , 1.10869 });
-  g_qcurve.add({ 2.41397 , 1.10976 });
-  g_qcurve.add({ 2.42742 , 1.11076 });
-  g_qcurve.add({ 2.44125 , 1.11181 });
-  g_qcurve.add({ 2.45543 , 1.1129 });
-  g_qcurve.add({ 2.4683 , 1.1139 });
-  g_qcurve.add({ 2.48303 , 1.11507 });
-  g_qcurve.add({ 2.49631 , 1.11615 });
-  g_qcurve.add({ 2.50973 , 1.11725 });
-  g_qcurve.add({ 2.52324 , 1.11838 });
-  g_qcurve.add({ 2.53679 , 1.11954 });
-  g_qcurve.add({ 2.55034 , 1.12073 });
-  g_qcurve.add({ 2.56554 , 1.12208 });
-  g_qcurve.add({ 2.57894 , 1.12331 });
-  g_qcurve.add({ 2.59219 , 1.12455 });
-  g_qcurve.add({ 2.60524 , 1.12581 });
-  g_qcurve.add({ 2.61965 , 1.12724 });
-  g_qcurve.add({ 2.63368 , 1.12867 });
-  g_qcurve.add({ 2.6473 , 1.13011 });
-  g_qcurve.add({ 2.66045 , 1.13154 });
-  g_qcurve.add({ 2.67446 , 1.13312 });
-  g_qcurve.add({ 2.68779 , 1.13469 });
-  g_qcurve.add({ 2.70164 , 1.13639 });
-  g_qcurve.add({ 2.71572 , 1.1382 });
-  g_qcurve.add({ 2.72975 , 1.14011 });
-  g_qcurve.add({ 2.74252 , 1.14194 });
-  g_qcurve.add({ 2.75654 , 1.14409 });
-  g_qcurve.add({ 2.77021 , 1.14634 });
-  g_qcurve.add({ 2.78358 , 1.14875 });
-  g_qcurve.add({ 2.79721 , 1.15147 });
-  g_qcurve.add({ 2.81067 , 1.15454 });
-  g_qcurve.add({ 2.8241 , 1.15824 });
-  g_qcurve.add({ 2.836659908 , 1.163339972 });
-
-  cout << "qcurve size = " << g_qcurve.size() << endl;
-  nPoints->setValue(g_qcurve.size());
-
-  
-}
-
-
-
 void NEP::initConcentrationCurve()
 {
   // read init and final curve points from enum parameters
   int sstI = sst_stable->intValue();
   int sstF = sst_saddle->intValue();
+  
+  // add guard if initial steady state is unstable or final steady state is stable
+  if (!simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).isStable || simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).isStable)
+  {
+    SteadyState sI = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI);
+    SteadyState sF = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF);
+    LOG("Initial steady state stability : " + to_string(sI.isStable) + ". Coordonates : ");
+    simul->steadyStatesList->printOneSteadyState(sI);
+    LOG("Final steady state stability : " + to_string(sF.isStable) + ". Coordonates : ");
+    simul->steadyStatesList->printOneSteadyState(sF);
+    throw std::runtime_error("Initial steady state should be stable, and final steady state unstable. Cannot perform descent.");
+  }
   
   StateVec qI, qF;
   qI.insertMultiple(0, 0., simul->entities.size());
@@ -2226,20 +1708,163 @@ void NEP::initConcentrationCurve()
   jassert(qI.size() == simul->entities.size());
   jassert(qF.size() == simul->entities.size());
   
-  // init with straight line between qI and qF
+  // init q curve
   g_qcurve.clear();
   double NN = (double) nPoints->intValue();
   jassert(nPoints->intValue()>1);
-  for (int point=0; point<nPoints->intValue(); point++)
+  
+  if (initialConditions->getValueKey() == "Deterministic trajectory")
   {
-    StateVec vec;
-    double fpoint = (double) point;
-    for (int k=0; k<qI.size(); k++)
+    // copy the entities and reactions from simulation instance
+    OwnedArray<SimEntity> entities;
+    OwnedArray<SimReaction> reactions;
+    entities.clear();
+    reactions.clear();
+    
+    // If has not been called yet, the copy will not work properly
+    simul->affectSATIds();
+    
+    // fill entity array with copies of the ones present in the simulation instance
+    for (auto & ent : simul->entities)
+      entities.add(ent->clone().release());
+    
+    for (auto & ent : entities)
     {
-      double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
-      vec.add(qk);
+      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+      ent->concent.resize(1);
+      ent->previousConcent.resize(1);
+      ent->startConcent.resize(1);
+      ent->deterministicConcent.resize(1);
     }
-    g_qcurve.add(vec);
+    
+    for (auto & r : simul->reactions)
+    {
+      Array<SimEntity*> reactants;
+      Array<SimEntity*> products;
+      for (auto & e : r->reactants)
+      {
+        reactants.add(entities[e->idSAT]);
+      }
+      for (auto & e : r->products)
+      {
+        products.add(entities[e->idSAT]);
+      }
+      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      reactions.add(copyr);
+    }
+    
+    jassert(entities.size() == simul->entities.size());
+    jassert(reactions.size() == simul->reactions.size());
+    
+    // set first point of qcurve = qF (unstable state)
+    g_qcurve.add(qF);
+    
+    // set initial concentration of entities to be very close from qF in the direction of qI
+    Curve sl = {qI, qF};
+    double L = curveLength(sl);
+    jassert(L>0.);
+    for (int i=0; i<qI.size(); i++)
+    {
+      float ui = qF.getUnchecked(i) + 0.01 * ( qI.getUnchecked(i)-qF.getUnchecked(i) ) / L;
+      entities[i]->concent.setUnchecked(0, ui);
+      //entities[i]->startConcent.setUnchecked(0, ui);
+    }
+    
+    
+    // deterministic dynamics of the system until a stationnary state is reached
+    float distance = 1000.;
+    float precision = 1e-5;
+    int timeout = simul->dt->floatValue() * 50000;
+    float t = 0.;
+    int count = 0;
+    bool delay = true; // require the deterministic search to run a minimum amount of time
+    // otherwise, too close from an unstable steady state, variation might be too small
+    while (distance>precision || delay)
+    {
+      count++;
+      t += simul->dt->floatValue();
+      if (t>100.) // free the boolean delay
+        delay = false;
+      if (t>timeout)
+        break;
+      // deterministic traj
+      kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
+      kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
+      
+      // update concentration values of entities
+      for (auto & ent : entities)
+      {
+        ent->refresh();
+      }
+      
+      // add new value to global qcurve
+      StateVec qi;
+      for (int k=0; k<entities.size(); k++)
+        qi.add(entities[k]->concent.getUnchecked(0));
+      g_qcurve.add(qi);
+      
+      // calculate variation in last dt
+      distance = 0.;
+      for (auto & ent : entities)
+      {
+        float deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
+        distance += deltaC*deltaC;
+      }
+      distance = sqrt(distance);
+    } // end while
+    
+    // find in which steady state the system ended
+    int reachedSST = -1;
+    float dmin = 10000.;
+    count = 0;
+    for (auto & sst : simul->steadyStatesList->arraySteadyStates)
+    {
+      float d = 0.;
+      for (auto & p : sst.state)
+      {
+        int entID = p.first->idSAT;
+        SimEntity * se = entities.getUnchecked(entID);
+        float dc = se->concent.getUnchecked(0) - p.second;
+        d += dc*dc;
+      }
+      d = sqrt(d);
+  
+      if (d<dmin)
+      {
+        dmin = d;
+        reachedSST = count;
+      }
+      count++;
+    }
+    
+    if (reachedSST != sstI)
+    {
+      LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
+      throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
+    }
+    
+    // set last point of qcurve = qI
+    g_qcurve.add(qI);
+
+    // reverse the direction of concentration curve
+    std::reverse(g_qcurve.begin(), g_qcurve.end());
+    
+    // resample qcurve
+    resampleInSpaceUniform(g_qcurve, nPoints->intValue());
+  }
+  else // use straightline
+  {
+    for (int point=0; point<nPoints->intValue(); point++)
+    {
+      StateVec vec;
+      double fpoint = (double) point;
+      for (int k=0; k<qI.size(); k++)
+      {
+        double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
+        vec.add(qk);
+      }
+      g_qcurve.add(vec);
+    }
   }
   
   // init sample rate
@@ -2311,9 +1936,21 @@ bool NEP::descentShouldContinue(int step)
 void NEP::writeDescentToFile()
 {
   // open output file
-  String filename = "action-functionnal-descent.csv";
+  system("mkdir -p descent");
+  string filename = "descent/action-functionnal-descent_";
+  filename += to_string(sst_stable->intValue()) + "->" + to_string(sst_saddle->intValue());
+  filename += "_" + to_string(nPoints->intValue());
+  filename += ".csv";
   ofstream historyFile;
-  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
+  historyFile.open(filename, ofstream::out | ofstream::trunc);
+  
+  historyFile << "Descent characteristics used :" << endl;
+  historyFile << "Number of iterations : " << Niterations->intValue() << endl;
+  historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
+  historyFile << "Action threshold : " << action_threshold->floatValue() << endl;
+  historyFile << "Timescale factor : " << timescale_factor->floatValue() << endl;
+  historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
+  historyFile << "###############" << endl;
   
   historyFile << "iteration,action,point";
   for (auto & ent : simul->entities)
@@ -2326,20 +1963,20 @@ void NEP::writeDescentToFile()
     historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",H";
   historyFile << endl;
-  cout << "action descent size :" << actionDescent.size() << endl;
-  cout << "trajDescent descent size :" << trajDescent.size() << endl;
-  cout << "grad Descent size :" << dAdqDescent.size() << endl;
-  cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
+  //cout << "action descent size :" << actionDescent.size() << endl;
+  //cout << "trajDescent descent size :" << trajDescent.size() << endl;
+  //cout << "grad Descent size :" << dAdqDescent.size() << endl;
+  //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == ham_descent.size());
   
-  for (int iter=0; iter<actionDescent.size(); iter++)
+  for (int iter=0; iter<actionDescent.size(); iter++) // loop over descent iterations
   {
-    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++)
+    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++) // loop over curve points
     {
-      historyFile << iter << "," << actionDescent.getUnchecked(iter) << "," << point;
+      historyFile << iter << "," << actionDescent.getUnchecked(iter).getUnchecked(point) << "," << point;
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
@@ -2401,8 +2038,8 @@ void NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
 
 
 
-//void NEP::calculateNewActionValue()
-double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
+//double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
+Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
 {
   //cout << "-- calculateAction() --" << endl;
   // check that pcurve, qcurve and tcurve have the same size
@@ -2436,6 +2073,8 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
   
   // use trapezoidal rule to calculate action = integral(0, T, p dq/dt - H)
   double newaction = 0.;
+  Array<double> cumul_action;
+  cumul_action.add(0.);
   for (int i=0; i<qc.size()-1; i++)
   {
     //cout << "at step " << i << endl;
@@ -2458,6 +2097,7 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
     }
     //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << endl;
     newaction += integrand;
+    cumul_action.add(newaction);
     //cout << "\tadding " << integrand << endl;
   }
   
@@ -2467,7 +2107,8 @@ double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double
   // keep track of action history
   //actionDescent.add(newaction);
   
-  return newaction;
+  //return newaction;
+  return cumul_action;
   
 }
 
@@ -2481,7 +2122,8 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
   
-  double currentaction = calculateAction(qc, g_pcurve, g_times);
+  Array<double> cumulaction = calculateAction(qc, g_pcurve, g_times);
+  double currentaction = cumulaction.getLast();
   /* debugging
   cout << "current action = " << currentaction << endl;
   cout << "current q = " ;
@@ -2546,7 +2188,8 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     */
     
     // calculate action that would correspond to new concentration curve
-    double newact = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
+    Array<double> newcumulaction = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
+    double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
     if (newact>=currentaction)
     {
@@ -2599,11 +2242,12 @@ vector<juce::dsp::IIR::Filter<double>> NEP::makeFilters(ReferenceCountedArray<II
 
 */
 
-void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int size)
+// #HERE extremely slow, but seems to work though.
+void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int newsize)
 {
-  if (signal.size()<2)
+  if (signal.size()<2 || newsize<2)
     return;
-  
+    
   /*
 cout << "NEP::resampleInSpaceUniform()" << endl;
 cout << "input = ";
@@ -2616,61 +2260,70 @@ for (int i=0; i<signal.size(); i++)
   }
 }
 */
-  
+    
   int dim = signal.getUnchecked(0).size();
-  double dsize = (double) size;
-  double L = curveLength(g_qcurve);
+  double d_newsize = (double) newsize;
+  double L = curveLength(signal);
   
-  // init newtraj
+  // init newtraj with null vectors
   Trajectory resampled_signal;
-  resampled_signal.resize(size);
-  for (int i=0; i<resampled_signal.size(); ++i)
+  resampled_signal.resize(newsize);
+  for (int i=0; i<newsize; ++i)
   {
     StateVec nullvec;
     nullvec.insertMultiple(0, 0., dim);
     resampled_signal.setUnchecked(i, nullvec);
   }
+  
+  // cumulative lengths of input signals
+  Array<double> cumulative_lengths;
+  cumulative_lengths.insertMultiple(0, 0., signal.size());
+  for (int k=1; k<signal.size(); k++)
+  {
+    Trajectory segment({signal.getUnchecked(k-1), signal.getUnchecked(k)});
+    cumulative_lengths.setUnchecked(k, cumulative_lengths.getUnchecked(k-1) + curveLength(segment));
+  }
+  
+  //cout << "input signal length = " << L << endl;
  
   // resampling
-  for (int i=0; i<signal.size(); i++)
+  int last_closest = 0;
+  for (int i=0; i<newsize; i++)
   {
-    // linear distance between 0 and g_qcurve length
-    double l = 0. + (double)i * L/(dsize-1.);
+    // linear distance between 0 and signal length
+    double li = 0. + (double)i * L/(d_newsize-1.);
     
-    //cout << "i = " << i << endl;
+    //cout << "i = " << i << ". l_i = " << 100.*li/L << "%" << endl;
     
-    // find closest (left bound) index in space curve
-    int closest = 0;
-    Trajectory partial_curve;
-    partial_curve.add(signal.getUnchecked(0));
-    partial_curve.add(signal.getUnchecked(1));
-    //cout << "npoints : " << g_qcurve.size() << ". partial curve has " << partial_curve.size() << " points" << endl;
-    while (closest<size-1 && curveLength(partial_curve)<l)
-    {
-      closest++;
-      partial_curve.add(signal.getUnchecked(closest+1));
-    }
-    //cout << "flga A" << endl;
-    double l_pc_next = curveLength(partial_curve);
-    //cout << "flga B" << endl;
-    partial_curve.removeLast();
-    //cout << "flga C" << endl;
-    double l_pc = curveLength(partial_curve);
+    // find closest matching index in cumulative length array
+    auto it = lower_bound(cumulative_lengths.begin(), cumulative_lengths.end(), li);
+    int closest = (int) distance(cumulative_lengths.begin(), it) - 1;
+    closest = max(0, min(closest, (int)signal.size()-2)); // make sure closest is properly bounded
+    
+    // linear interpolation
+    double l_inf = cumulative_lengths.getUnchecked(closest);
+    double l_sup = cumulative_lengths.getUnchecked(closest+1);
+    double alpha = (l_sup != l_inf) ? (li - l_inf) / (l_sup - l_inf) : 0.0;
+    alpha = max(0., min(1., alpha));
+    
+    // keep track of current finding to accelerate next iteration
+    last_closest = closest;
+    
+    //cout << "closest : " << closest << ". linf = " << 100.*l_inf/L << "% & lsup = " << 100*l_sup/L << "%" << endl;
     
     if (i==0)
     {
       resampled_signal.setUnchecked(i, signal.getFirst());
     }
-    else if (i==signal.size()-1)
+    else if (i==newsize-1)
     {
       resampled_signal.setUnchecked(i, signal.getLast());
     }
     else
     {
       // interpolate between q[closest] and q[closest+1]
-      for (int m=0; m<signal.getUnchecked(0).size(); m++)
+      for (int m=0; m<dim; m++)
       {
-        double alpha = (l-l_pc) / (l_pc_next-l_pc);
         double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
         resampled_signal.getReference(i).setUnchecked(m, val);
       } // end loop over dimension of the system
@@ -2679,10 +2332,11 @@ for (int i=0; i<signal.size(); i++)
   
 
   // modify input signal
-  signal.resize(size);
-  for (int i=0; i<signal.size(); i++)
+  signal.resize(newsize);
+  for (int i=0; i<newsize; i++)
   {
-    signal.getUnchecked(i).insertMultiple(0, 0., dim);
+    signal.getReference(i).clear();
+    signal.getReference(i).insertMultiple(0, 0., dim);
     for (int j=0; j<signal.getUnchecked(i).size(); j++)
     {
       signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
@@ -2699,6 +2353,7 @@ for (int i=0; i<signal.size(); i++)
       cout << signal.getUnchecked(i).getUnchecked(j) << comma;
     }
   }
+  cout << endl;
   */
   
   
@@ -3123,9 +2778,9 @@ void NEP::heteroclinicStudy()
 
   // init concentration curve
   initConcentrationCurve();
-  //testinitConcentrationCurve();
   // lift it to full (q ; p) space
-  liftCurveToTrajectoryWithNLOPT_old();
+  //liftCurveToTrajectoryWithNLOPT_old();
+  liftCurveToTrajectoryWithGSL(g_qcurve);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();
@@ -3204,698 +2859,4 @@ void NEP::loadJSONData(var data, bool createIfNotThere)
   updateSteadyStateList();
   // call mother class
   ControllableContainer::loadJSONData(data);
-}
-
-
-/*
-void NEP::newMessage(const Simulation::SimulationEvent &ev)
-{
-  switch (ev.type)
-  {
-    case Simulation::SimulationEvent::UPDATEPARAMS:
-    {
-      updateSteadyStateList();
-    }
-      break;
-      
-    case Simulation::SimulationEvent::WILL_START:
-    {
-    }
-      break;
-      
-    case Simulation::SimulationEvent::STARTED:
-    {
-    }
-      break;
-      
-    case Simulation::SimulationEvent::NEWSTEP:
-    {
-    }
-      break;
-      
-    case Simulation::SimulationEvent::FINISHED:
-    {
-    }
-      break;
-  }
-}
-
-
-void NEP::newMessage(const ContainerAsyncEvent &e)
-{
-
-}
-*/
-
-
-
-double objective_max_p_debug(unsigned int n, const double* p_vec, double* grad, void* f_data)
-{
-  // retrieve encapsulated  variables
-  EncapsVarForNLOpt * ev = static_cast<EncapsVarForNLOpt*>(f_data);
-  
-  // deltaq * p - H(p, q)
-  double p = p_vec[0];
-  //double lambda = p_vec[1];
-  //double val = 1.*p - lambda*( 0.5*(p-1.)*(p-1.) -1.);
-  double val = p * 1.;
-  return val;
-  /*
-  // set momentum to its current value in optimization
-  std::vector<double> p(p_vec, p_vec + n);
-  // convert it to an Array<double> for legendre tranform calculation
-  Array<double> pjuce;
-  for (auto & val : p)
-    pjuce.add(val);
-  *ev->p = pjuce;
-  
-  
-  cout << "[max_p] Called with p = ";
-  for (unsigned i = 0; i < n; ++i)
-  {
-    cout << p[i] << " " << p_vec[i] << "  " << ev->p->getUnchecked(i) << "  ||  ";
-  }
-  cout << std::endl;
-  
-  
-  
-  double deltaT = 1.; // fix delta t for optimization its amplitude will be fixed later
-  double lt = legendreTransform(ev, deltaT);
-  return lt;
-*/
- 
- }
-
-double constraint_debug(const vector<double> &x, vector<double> &grad, void* f_data)
-{
-  double p = x[0];
-  double q = 1.;
-  return 0.5*(p-1.)*(p-1.) + (q-2.)*(q-2.)*(q-2.);
-}
-
-
-struct Params
-{
-  double q;
-  double dq;
-};
-
-int debugGSLresidual(const gsl_vector* x, void* params, gsl_vector* f)
-{
-    Params* param = static_cast<Params*>(params);
-
-    double p = gsl_vector_get(x, 0);
-    double dt = gsl_vector_get(x, 1);
-
-    double H = 0.5 * (p-1.) * (p-1.) + (param->q - 2.0) * (param->q - 2.0) * (param->q - 2.0);
-    double dHdp = (p-1.);
-
-    gsl_vector_set(f, 0, H);
-    gsl_vector_set(f, 1, param->dq - dt * dHdp);
-
-    return GSL_SUCCESS;
-}
-/*
-int debugGSL_fdf (gsl_vector * x, void * _p, gsl_matrix * f, gsl_matrix * J)
-{
-   Params * params = (Params*) _p;
-   const double q = (params->q);
-   const double dq = (params->dq);
-   const double p = gsl_vector_get(x,0);
-   const double dt = gsl_vector_get(x,1);
-
-   const double u0 = exp(-x0);
-   const double u1 = exp(-x1);
-
-   gsl_vector_set (f, 0, A * x0 * x1 - 1);
-   gsl_vector_set (f, 1, u0 + u1 - (1 + 1/A));
-
-   gsl_matrix_set (J, 0, 0, A * x1);
-   gsl_matrix_set (J, 0, 1, A * x0);
-   gsl_matrix_set (J, 1, 0, -u0);
-   gsl_matrix_set (J, 1, 1, -u1);
-   return GSL_SUCCESS
-}
-*/
-
-
-int ftest(const gsl_vector*, void*, gsl_vector*)
-{
-    return GSL_SUCCESS;
-}
-
-
-void NEP::debugNEPImplementation()
-{
-  
-  cout << "NEP::debugNEPImplementation()" << endl;
-  simul->affectSATIds();
-  
-  Trajectory qdebug;
-  Trajectory pdebug;
-  
-  qdebug.add({1.00115, 1.00115});
-  qdebug.add({1.12912, 1.01141});
-  qdebug.add({1.25709, 1.02168});
-  qdebug.add({1.38506, 1.03194});
-  qdebug.add({1.51303, 1.04221});
-  qdebug.add({1.64101, 1.05247});
-  qdebug.add({1.76898, 1.06274});
-  qdebug.add({1.89695, 1.07300});
-  qdebug.add({2.02492, 1.08327});
-  qdebug.add({2.15289, 1.09353});
-  
-  pdebug.add({0.00000, 0.00000});
-  pdebug.add({0.00997, 0.00072});
-  pdebug.add({0.00882, 0.00064});
-  pdebug.add({0.00767, 0.00056});
-  pdebug.add({0.00651, 0.00048});
-  pdebug.add({0.00534, 0.00039});
-  pdebug.add({0.00417, 0.00031});
-  pdebug.add({0.00298, 0.00022});
-  pdebug.add({0.00179, 0.00013});
-  pdebug.add({0.00000, 0.00000});
-  
-  Array<double> tdebug;
-  tdebug.add(0.00000);
-  tdebug.add(86.60799);
-  tdebug.add(163.59456);
-  tdebug.add(230.95916);
-  tdebug.add(288.70159);
-  tdebug.add(336.82139);
-  tdebug.add(375.31808);
-  tdebug.add(404.19119);
-  tdebug.add(423.44023);
-  tdebug.add(433.06503);
-  
-  double act = calculateAction(qdebug, pdebug, tdebug);
-  
-  cout << "action debug = " << act << endl;
-  
-  return;
-  
-  /*
-   
-  // NLOPT BASIC IMPLEMETATION
-   
-  int n = 1;
-  int nent = n;
-  //nlopt::opt opt(nlopt::GN_DIRECT_L, nent);  // no gradient. #para. User could choose between different optimizers
-  //nlopt::opt opt(nlopt::LN_COBYLA, nent);  //
-  // apparently I should use cobyla
-  // nlopt::LN_COBYLA
-  
-  // lower and upper bound for optimization
-  vector<double> lowerbound_p(nent, -50.0); // #para
-  vector<double> upperboundb_p(nent, 50.0);
-  opt.set_lower_bounds(lowerbound_p);
-  opt.set_upper_bounds(upperboundb_p);
-  opt.set_maxeval(1000);    // nombre d’itérations max
-  
-  Array<double> opt_deltaT; // vector of optimal time assigned between each q(i) and q(i+1)
-  Array<StateVec> opt_momentum; // vector of optimal momenta assigned between each q(i) and q(i+1)
-  
-  
-  // assign first points along curve
-  Array<double> nullP, dummyP;
-  for (int i=0; i<Simulation::getInstance()->entities.size(); i++)
-  {
-    nullP.add(0.);
-    dummyP.add(0.);
-  }
-  //opt_momentum.add(nullP);
-  
-  // loop over points in concentration space
-  StateVec q0 = {0.5};
-  StateVec q1 = {1.5};
-  Curve qdebug;
-  qdebug.add(q0);
-  qdebug.add(q1);
-  
-  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- qn
-  //for (int k=0; k<g_qcurve.size()-1; k++) // n - 1 iterations
-  for (int k=0; k<1; k++) // n - 1 iterations
-  {
-    //cout << "optimizing point #" << k << endl;
-    StateVec q = qdebug.getUnchecked(k);
-    StateVec qnext = qdebug.getUnchecked(k+1);
-    jassert(q.size() == qnext.size());
-    StateVec qcenter;
-    Array<double> deltaq;
-    for (int i=0; i<q.size(); i++)
-    {
-      deltaq.add(qnext.getUnchecked(i) - q.getUnchecked(i));
-      qcenter.add( 0.5* (q.getUnchecked(i) + qnext.getUnchecked(i)));
-    }
-    
-    // set maximization objective with respect to p variable
-    EncapsVarForNLOpt * ev = new EncapsVarForNLOpt{&qcenter, &deltaq,  &dummyP, this};
-    
-    //opt.set_max_objective(objective_max_p, (void*)& deltaq);
-    opt.set_max_objective(objective_max_p_debug, (void*) ev);
-    opt.set_xtol_rel(1e-5);
-    
-    opt.add_equality_constraint(constraint_debug, (void*) ev, 1e-5);
-    
-    std::vector<double> p_opt(q.size(), 0.0); // init popt with null vector
-    double maxH;
-    
-    cout << "will start optimization" << endl;
-    
-    // start optimization
-    //nlopt::result result = opt.optimize(p_opt, maxH);
-    try
-    {
-      //nlopt::result result = opt.optimize(p_opt, maxH);
-      opt.optimize(p_opt, maxH);
-      //std::cout << "Optimization success, result = " << result << std::endl;
-    } catch (std::exception &e)
-    {
-      LOGWARNING("NLopt crashed with error message : " <<  e.what());
-    }
-    
-    cout << "-- opt result --" << endl;
-    cout << "p* = " << p_opt[0] << endl;
-    //cout << "lambda* = " << p_opt[1] << endl;
-    
-    // assign time interval deduced from optimisation in p
-    StateVec parr_opt;
-    for (auto & pi : p_opt)
-      parr_opt.add(pi);
-    //StateVec gradpH = evalHamiltonianGradientWithP(qcenter, parr_opt);
-    StateVec gradpH = {parr_opt[0]-1.};
-    double norm2 = 0.;
-    double deltaT = 0.;
-    for (int i=0; i<gradpH.size(); i++)
-    {
-      norm2 += gradpH.getUnchecked(i) * gradpH.getUnchecked(i);
-      deltaT += gradpH.getUnchecked(i) * deltaq.getUnchecked(i);
-    }
-    if (norm2>0.)
-      deltaT /= norm2;
-    else
-    {
-      LOGWARNING("gradient of hamiltonian in p has null norm, take results with caution.");
-    }
-  
-    
-    // add optimizing time
-    //opt_deltaT.add(ev->t_opt);
-    opt_deltaT.add(deltaT);
-    
-    // add optimizing momentum vector
-    opt_momentum.add(parr_opt);
-    
-    cout << "p* = " << parr_opt[0] << endl;
-    cout << "deltaT = " << deltaT << endl;
-    
-    //std::cout << "Optimal F(p, t*) = " << -maxf << std::endl;
-  } // end loop over current trajectory
-  
-  cout << "finished optimizing" << endl;
-  
-  jassert(opt_deltaT.size() == opt_momentum.size());
-  jassert(opt_deltaT.size() == nPoints->intValue()-1);
-  
-  // Build full trajectory in (q ; p) space from optima found previously
-  //Array<double> tTraj;
-  //Curve pTraj;
-  //g_pcurve.clear();
-  //g_times.clear();
-  
-  return;
-  
-*/
-  /*
-  const size_t n = 2;
-
-  gsl_multiroot_function f;
-  f.f = ftest;
-  f.n = n;
-  f.params = nullptr;
-
-  gsl_vector* x = gsl_vector_alloc(n);
-  gsl_vector_set_all(x, 0.0);
-
-  const gsl_multiroot_fsolver_type* T = gsl_multiroot_fsolver_hybrids;
-
-  gsl_multiroot_fsolver* s = gsl_multiroot_fsolver_alloc(T, n);
-
-  gsl_multiroot_fsolver_set(s, &f, x);
-  
-  */
-  /*
-  StateVec qc = {0.5, 0.6};
-  StateVec pc = {0.5, 0.6};
-  //cout << "H(qc, pc) = " << evalHamiltonian(qc, pc) << endl;
-  StateVec dHdp = evalHamiltonianGradientWithP(qc, pc);
-  cout << "dH/dp = ";
-  for (auto & el : dHdp)
-    cout << el << " ";
-  cout << endl;
-  
-  StateVec dHdq = evalHamiltonianGradientWithQ(qc, pc);
-  cout << "dH/dq = ";
-  for (auto & el : dHdq)
-    cout << el << " ";
-  cout << endl;
-  
-  dsp::Matrix<double> hess = evalHamiltonianHessianWithP(qc, pc);
-  cout << "d^2H/dp2 = \n";
-  for (int i=0; i<hess.getSize().getUnchecked(0); i++)
-  {
-    for (int j=0; j<hess.getSize().getUnchecked(1); j++)
-    {
-      cout << hess(i,j) << " ";
-    }
-    cout << endl;
-  }
-  cout << endl;
-  
-  */
-  /*
-  // create curve to filter = straight line with noise around it.
-  StateVec firstpoint = {1.00115,1.00115};
-  StateVec lastpoint = {2.15525,1.09354};
-  Trajectory traj;
-  int N = 5; double NN = (double) N;
-  double stepX = (lastpoint.getUnchecked(0) - firstpoint.getUnchecked(0)) / NN;
-  double stepY = (lastpoint.getUnchecked(1) - firstpoint.getUnchecked(1)) / NN;
-  StateVec step; step.add(stepX); step.add(stepY);
-  Trajectory straightline;
-  for (int i=0; i<=50; i++)
-  {
-    StateVec slpoint;
-    for (int m=0; m<2; m++)
-    {
-      double c = firstpoint.getUnchecked(m) + (double) i / NN * (lastpoint.getUnchecked(m) - firstpoint.getUnchecked(m));
-      //double crand = c;
-      slpoint.add(c);
-    }
-    straightline.add(slpoint);
-  }
-  
-  for (int i=0; i<straightline.size(); i++)
-  {
-    StateVec q = stri
-    
-  }
-  */
-  
-}
-
-
-
-void applyButterworthDebug(juce::Array<double>& data, std::vector<juce::dsp::IIR::Filter<double>>& filters)
-{
-    for (int i = 0; i < data.size(); ++i)
-    {
-        double x = data[i];
-        for (auto& f : filters)
-            x = f.processSample(x);
-
-        data.set(i, x);
-    }
-}
-
-void NEP::debugFiltering()
-{
-  state = Idle;
-  cout << "debugFiltering" << endl;
-  
-  g_times = {0,0.919079,1.25637,1.47272,1.63751,1.77431,1.89395,2.00241,2.10337,2.19929,2.29196,2.38276,2.47283,2.56318,2.65477,2.74857,2.84562,2.9471,3.05441,3.16926,3.29379,3.43083,3.5842,3.75937,3.96456,4.21306,4.52856,4.95972,5.63383,7.21447};
-  
-  Array<Array<double>> signal;
-  signal.add({1.00115,1.00115});
-  signal.add({1.01176,1.00263});
-  signal.add({1.02236,1.0041});
-  signal.add({1.03296,1.00558});
-  signal.add({1.04917,1.00777});
-  signal.add({1.0781,1.01159});
-  signal.add({1.12364,1.01714});
-  signal.add({1.18835,1.02384});
-  signal.add({1.2729,1.03017});
-  signal.add({1.37455,1.03435});
-  signal.add({1.48443,1.03664});
-  signal.add({1.593,1.03929});
-  signal.add({1.69222,1.04406});
-  signal.add({1.7782,1.0506});
-  signal.add({1.85011,1.05768});
-  signal.add({1.90931,1.06434});
-  signal.add({1.95735,1.07011});
-  signal.add({1.99611,1.07489});
-  signal.add({2.02706,1.07873});
-  signal.add({2.05139,1.08173});
-  signal.add({2.07352,1.08445});
-  signal.add({2.08801,1.08621});
-  signal.add({2.1025,1.08796});
-  signal.add({2.11415,1.08934});
-  signal.add({2.12061,1.09004});
-  signal.add({2.12706,1.09074});
-  signal.add({2.13352,1.09143});
-  signal.add({2.13997,1.09213});
-  signal.add({2.14643,1.09283});
-  signal.add({2.15289,1.09353});
-  
-  // open output file
-  String fn = "./debug/debug-time-uniform-filtering.csv";
-  ofstream hF;
-  hF.open(fn.toStdString(), ofstream::out | ofstream::trunc);
-  
-  // print input signal to file
-  hF << "isFilt,point,time,q_X1,q_X2" << endl;
-  for (int i=0; i<signal.size(); i++)
-  {
-    hF << false << "," << i << "," << g_times.getUnchecked(i) << "," << signal.getUnchecked(i).getUnchecked(0) << "," << signal.getUnchecked(i).getUnchecked(1) << endl;
-  }
-  
-  // filter
-  lowPassFiltering(signal, 1);
-  
-  // print output signal to file
-  for (int i=0; i<signal.size(); i++)
-  {
-    hF << true << "," << i << "," << g_times.getUnchecked(i) << "," << signal.getUnchecked(i).getUnchecked(0) << "," << signal.getUnchecked(i).getUnchecked(1) << endl;
-  }
-  
-  
-  return;
-  
-  
-  
-
-  mt19937 rng(std::random_device{}()); // moteur Mersenne Twister
-  
-  cout << "NEP::debugFilering() -- create curve" << endl;
-
-  // create curve to filter = straight line with noise around it.
-  StateVec firstpoint = {1.00115,1.00115};
-  StateVec lastpoint = {2.15525,1.09354};
-  Trajectory traj;
-  int N = 50; double NN = (double) N;
-  double stepX = (lastpoint.getUnchecked(0) - firstpoint.getUnchecked(0)) / NN;
-  double stepY = (lastpoint.getUnchecked(1) - firstpoint.getUnchecked(1)) / NN;
-  StateVec step; step.add(stepX); step.add(stepY);
-  Trajectory straightline;
-  for (int i=0; i<=50; i++)
-  {
-    StateVec point;
-    StateVec slpoint;
-    for (int m=0; m<2; m++)
-    {
-      double c = firstpoint.getUnchecked(m) + (double) i / NN * (lastpoint.getUnchecked(m) - firstpoint.getUnchecked(m));
-      double interval = 0.5*step.getUnchecked(m);
-      if (m==1)
-        interval *= 1.;
-      uniform_real_distribution<double> dist(c-interval, c+interval);
-      double crand = dist(rng);
-      //double crand = c;
-      point.add(crand);
-      slpoint.add(c);
-    }
-    traj.add(point);
-    straightline.add(slpoint);
-  }
-  
-  cout << "NEP::debugFilering() -- remove straight line" << endl;
-  
-  // remove straightline to signal.
-  Trajectory traj2;
-  for (int i=0; i<=50; i++)
-  {
-    StateVec point;
-    for (int m=0; m<2; m++)
-    {
-      point.add(traj.getUnchecked(i).getUnchecked(m) - straightline.getUnchecked(i).getUnchecked(m));
-    }
-    traj2.add(point);
-  }
-  
-  cout << "NEP::debugFilering() -- symmetrize" << endl;
-  
-  // symmetrise signal
-  Trajectory traj_sym;
-  int Nprime = 2*N-1;
-  for (int u=0; u<Nprime; u++)
-  {
-    StateVec point;
-    for (int m=0; m<2; m++)
-    {
-      if (u<N-1)
-        point.add(-1. * traj2.getUnchecked(N-u-1).getUnchecked(m));
-      else
-        point.add(traj2.getUnchecked(u-N+1).getUnchecked(m));
-    }
-    traj_sym.add(point);
-  }
-  
-  cout << "NEP::debugFilering() -- filter" << endl;
-  
-   
-  // filtered trajectory init to be the symmetrized signal
-  Trajectory traj2filter;
-  for (auto & el : traj_sym)
-    traj2filter.add(el);
-  
-  // actual filter
-  
-  //float sr = (float) curveLength(traj2filter) / float(traj2filter.size());
-  float sr = 1.;
-
-  float jucefreq = cutoffFreq->floatValue() / (float) N; // wrong, should be sampling rate / minPeriodInSample
-  // careful ! cutoff freq cannot exceed fqnyst. 0 < cutofffreq < samplingrate/2
-  auto coeffs = juce::dsp::FilterDesign<double>::designIIRLowpassHighOrderButterworthMethod(jucefreq, sr, 4);
-  
-  auto makeFilters = [&]() {
-          std::vector<juce::dsp::IIR::Filter<double>> fs;
-          for (auto& c : coeffs) {
-              juce::dsp::IIR::Filter<double> f;
-              f.coefficients = c;
-              fs.push_back(std::move(f));
-          }
-          return fs;
-      };
-  
-  cout << "Setting filter with cutoff Freq : " << jucefreq << ". and sampling rate : " << sr << endl;
-  /*
-  vector<juce::dsp::IIR::Filter<double>> filters;
-  for (auto& c : coeffs)
-  {
-      juce::dsp::IIR::Filter<double> f;
-      f.coefficients = c;
-      filters.push_back(std::move(f));
-  }
-  */
-  
-  for (int m=0; m<2; m++)
-  {
-    Array<double> data;
-    for (int i=0; i<traj2filter.size(); i++)
-      data.add(traj2filter.getUnchecked(i).getUnchecked(m));
-    
-    // forward filter
-    auto filters = makeFilters();
-    applyButterworthDebug(data, filters);
-    
-    // reverse signal
-    reverse(data.begin(), data.end());
-    
-    // backward filter
-    filters = makeFilters();
-    applyButterworthDebug(data, filters);
-    
-    // re-reverse signal
-    std::reverse(data.begin(), data.end());
-    /*
-    for (int i=0; i<data.size(); ++i)
-    {
-      double x = data[i];
-      for (auto& f : filters)
-        x = f.processSample(x);
-      data.set(i, x);
-    }
-    */
-    
-    // update original array
-    for (int i=0; i<traj2filter.size(); i++)
-      traj2filter.getReference(i).setUnchecked(m, data.getUnchecked(i));
-      
-  }
-  
-  
-  
-  cout << "NEP::debugFilering() -- retrieve" << endl;
-  
-  // retrieve original signal filtered
-  Trajectory filtered_traj;
-  for (int i=0; i<N; i++)
-  {
-    StateVec point;
-    for (int m=0; m<2; m++)
-    {
-      point.add( traj2filter.getUnchecked(i+N-1).getUnchecked(m) + straightline.getUnchecked(i).getUnchecked(m) );
-      //point.add( straightline.getUnchecked(i).getUnchecked(m) );
-    }
-    filtered_traj.add(point);
-  }
-  
-  cout << "NEP::debugFilering() -- write file 1" << endl;
-  
-  // open output file
-  String filename = "./debug/debug-filtering.csv";
-  ofstream historyFile;
-  historyFile.open(filename.toStdString(), ofstream::out | ofstream::trunc);
-  
-  historyFile << "point";
-  for (auto & ent : simul->entities)
-    historyFile << ",q_" << ent->name << ",qprime_" << ent->name << ",qfilt_" << ent->name;
-  historyFile << endl;
-
-
-    for (int point=0; point<N; point++)
-    {
-      historyFile << point;
-      StateVec q = traj.getUnchecked(point);
-      StateVec q2 = traj2.getUnchecked(point);
-      StateVec qfilt = filtered_traj.getUnchecked(point);
-      
-      for (int m=0; m<q.size(); m++)
-      {
-        historyFile << "," << q.getUnchecked(m) << "," << q2.getUnchecked(m) << "," << qfilt.getUnchecked(m);
-      }
-      historyFile << endl;
-    } // end loop over points in current iteration
-    //historyFile << endl;
-  
-  // also save symmetrized signal
-  cout << "NEP::debugFilering() -- write file 2" << endl;
-  
-  String filename2 = "./debug/debug-filtering2.csv";
-  ofstream historyFile2;
-  historyFile2.open(filename2.toStdString(), ofstream::out | ofstream::trunc);
-  
-  historyFile2 << "point";
-  for (auto & ent : simul->entities)
-    historyFile2 << ",qsym_" << ent->name << ",qsymfilt_" << ent->name;
-  historyFile2 << endl;
-  
-  
-  for (int point=0; point<Nprime; point++)
-  {
-    historyFile2 << point;
-    StateVec q = traj_sym.getUnchecked(point);
-    StateVec q2 = traj2filter.getUnchecked(point);
-    
-    for (int m=0; m<q.size(); m++)
-    {
-      historyFile2 << "," << q.getUnchecked(m) << "," << q2.getUnchecked(m);
-    }
-    historyFile2 << endl;
-  } // end loop over points in current iteration
-  
-  
-  
-  cout << "END debugFiltering" << endl;
-  state = Idle;
-  
 }

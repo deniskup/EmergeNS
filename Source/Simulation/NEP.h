@@ -6,28 +6,22 @@
 //  kosc.thomas@gmail.com
 // adapted from https://github.com/praful12/Descender-for-CRN-escapes/tree/main
 //
-//  nlopt library (used for optimizations) need to be installed
-// Must modify the .jucer file to add :
-// path to header files of nlopt
-// -lnlopt to link to libraries
-// TODO : modify
 
 /*
-- update read me for compilation with nlopt and gsl, indicate that user should add lib and header paths to projucer file
-- reparametrization of qcurve
+- update read me for compilation with gsl, indicate that user should add lib and header paths to projucer file
+- better handling of verbose
 - calculate distance from hamilton equation of motion
-- recover 2-schlogl results of gagrani and smith
 - smooth start when there exists some vortex arounf fixed points
- - regarding non linear solving, IPOPT to try if I want to stick to saddle point optimisation
+- regarding non linear solving, IPOPT to try if wish to stick to saddle point optimisation
 */
 
 #pragma once
 
 #include "JuceHeader.h"
-#include <nlopt.hpp>
+//#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
 #include <random>
-//#include "Simulation.h"
+#include "KineticLaw.h"
 
 class Simulation;
 
@@ -109,8 +103,7 @@ public:
   FloatParameter * stepDescentInitVal;
   FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
-
-  Trigger * debug;
+  EnumParameter* initialConditions;
 
 
   // update steady state list when updateParams is calle din SImulation
@@ -131,8 +124,11 @@ public:
   
   
   double evalHamiltonian(const StateVec q, const StateVec p);
+  
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
+  
   dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
+  
   StateVec evalHamiltonianGradientWithQ(const StateVec q, const StateVec p);
   
   //var getJSONData() override;
@@ -140,14 +136,6 @@ public:
   void loadJSONData(var data, bool createIfNotThere = false) override;
   
     
-  //void newMessage(const Simulation::SimulationEvent &e) override;
-  
-  //void newMessage(const ContainerAsyncEvent &e) override;
-  
-  
-  void checkGradH();
-  void checkGradH2();
-  
   // ASYNC
   class NEPEvent
   {
@@ -185,7 +173,6 @@ public:
 private:
   
 
-  void testinitConcentrationCurve();
   void initConcentrationCurve();
   
   void writeDescentToFile();
@@ -200,19 +187,19 @@ private:
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&);
 
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
+  //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
   void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
+  
   void updateOptimalConcentrationCurve(Curve &, double);
 
-  double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
+  //double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
+  Array<double> calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
   
-  //double backTrackingMethodForStepSize(const Curve& c, const Curve& deltac);
   double backTrackingMethodForStepSize(const Curve& c);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  //vector<juce::dsp::IIR::Filter<double>> makeFilters(ReferenceCountedArray<IIRCoefficients>);
   void resampleInSpaceUniform(Array<StateVec>& signal, int);
   void resampleInTimeUniform(Array<StateVec>& signal, int);
   void lowPassFiltering(Array<StateVec>&, bool);
@@ -222,6 +209,8 @@ private:
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
   
   void heteroclinicStudy();
+  
+  KineticLaw * kinetics; // to calculate kinetics
   
   // global variable describing the state of the descent
   Curve g_qcurve;
@@ -240,20 +229,15 @@ private:
   double stepDescentThreshold = 1e-4;
   double stepDescent;
   
-  // for filtering
-  //MultiButterworthLowPass filter;
 
   // for printing history to file
-  Array<double> actionDescent;
+  //Array<double> actionDescent;
+  Array<Array<double>> actionDescent;
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
-  
-  void debugNEPImplementation();
-
-  void debugFiltering();
-  
+    
   ofstream debugfile;
 
   

@@ -35,6 +35,9 @@ You can also use the predefined reaction systems from ReactionSystems.zip as exa
 
 7. In File>Global path, add the Path to Juce.For Windows add "/bigobj" in "Extra Compiler Flags" of Exporters>Visual Studio Code if it's not there already.<br>
 
+Make sure to have the gsl library installed on your system, and that the paths indicated in the projucer files are correct. Go to "Linux Makefile", "Xcode (macOS)" or Visual Studio 2022 depending on your OS, and add the header and library paths respectively into "Header Search Paths" and "Extra Library Search Paths" windows, both for the debug and release options.
+If you have a package manager, you should be able to install the gsl library "libgsl-dev" (linux), and for macOS using homebrew you could use "brew install gsl". For windows users, the gsl package should be found using MSYS2 or Cygwin.
+
 8. Save the project<br>
 
 9. Make sure you have z3 installed and that the command "z3" works in your terminal (you can also specify a path to the exectuable in the software settings).<br>

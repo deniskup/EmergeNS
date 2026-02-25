@@ -9,7 +9,7 @@
 namespace BinaryData
 {
     extern const char*   default_nslayout;
-    const int            default_nslayoutSize = 2547;
+    const int            default_nslayoutSize = 2447;
 
     // Number of elements in the namedResourceList and originalFileNames arrays.
     const int namedResourceListSize = 1;
