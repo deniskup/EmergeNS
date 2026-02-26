@@ -1153,7 +1153,7 @@ void NEP::run()
     count++;
     if (count==1)
       LOG("initial value of action = " + to_string(action));
-    LOG("\niteration #" + to_string(count));
+    LOG("\niteration #" + to_string(count-1));
     
     if (count>1)
     {
