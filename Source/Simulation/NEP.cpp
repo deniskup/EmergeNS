@@ -2204,7 +2204,6 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
       step *= 0.5; // hardcoded (1/2)^17 = 7.6e-6, should be enough
       //cout << "new step val = " << step << endl;
     }
-    else if (newact<0.)
     else
     {
       //cout << "exiting loop" << endl;
