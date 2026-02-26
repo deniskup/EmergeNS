@@ -2198,12 +2198,13 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     Array<double> newcumulaction = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
     double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
-    if (newact>=currentaction)
+    if (newact>=currentaction || newact<0.)
     {
       //cout << "decreasing step" << endl;
       step *= 0.5; // hardcoded (1/2)^17 = 7.6e-6, should be enough
       //cout << "new step val = " << step << endl;
     }
+    else if (newact<0.)
     else
     {
       //cout << "exiting loop" << endl;
