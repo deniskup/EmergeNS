@@ -91,6 +91,7 @@ public:
   
   // adjustable parameters
   Trigger * startDescent;
+  Trigger * stopDescent;
   Trigger * start_heteroclinic_study;
   bool heteroclinic_study = false;
   EnumParameter* sst_stable;
@@ -185,7 +186,7 @@ private:
   
   bool descentShouldContinue(int);
     
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&);
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&, bool);
 
   //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   

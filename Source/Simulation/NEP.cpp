@@ -434,7 +434,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   startDescent = addTrigger("Start Descent", "Start action functionnal descent algorithm");
   
-  start_heteroclinic_study = addTrigger("Heteroclinic study", "Produces most probable trajectories between two fixed points");
+  stopDescent = addTrigger("Stop Descent", "Manually stop the descent algorithm");
+  
+  //start_heteroclinic_study = addTrigger("Heteroclinic study", "Produces most probable trajectories between two fixed points");
     
   // enum parameters = steady states
   sst_stable = addEnumParameter("Stable steady state", "Choose stable fixed point to start the NEP algorithm from");
@@ -519,11 +521,15 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
     state = Descending;
     startThread();
   }
-  if (t == start_heteroclinic_study)
+  else if (t == start_heteroclinic_study)
   {
     heteroclinic_study = true;
     stopThread(10);
     startThread();
+  }
+  else if (t == stopDescent)
+  {
+    stop();
   }
 }
 
@@ -1093,7 +1099,8 @@ void NEP::reset()
 void NEP::stop()
 {
   state = Idle;
-  cout << "[DEBUG] stop() NEP state = " << toString(state) << endl;
+  LOG("Descent algorithm stops");
+  signalThreadShouldExit();
 }
 
 
@@ -1177,7 +1184,7 @@ void NEP::run()
     // this function updates global variables g_pcurve and times
     LOG("lifting trajectory");
     //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
-    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve);
+    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve, true);
     
     // update global variable with lift results
     g_pcurve = liftoptres.pcurve;
@@ -1335,7 +1342,7 @@ void NEP::run()
   LOG("writing descent to file");
   writeDescentToFile();
   
-  stop();
+  //stop();
   
   
 }
@@ -1346,7 +1353,7 @@ void NEP::run()
 // 1/ GSL implementation that returns p_star and dt
 // 2/ lift operation, i.e. build p from q and p_star
 // 3/ Moving average on newly built p to reduce noise in p solving
-LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
+LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool maxPrintingAllowed)
 {
   //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
   //cout << "input qcurve size = " << qcurve.size() << endl;
@@ -1619,7 +1626,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve)
   //cout << "average pcurve size : " << av_pcurve.size() << endl;
   
   // for debugging
-  if (maxPrinting->boolValue())
+  if (maxPrinting->boolValue() && maxPrintingAllowed)
   {
     debugfile << "-- lifting optima found --" << endl;
     debugfile << "p* = ";
@@ -2158,7 +2165,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     updateOptimalConcentrationCurve(newcurve, step);
     
     // find the corresponding lifted full trajectory, without updating global variables
-    LiftTrajectoryOptResults liftResults = liftCurveToTrajectoryWithGSL(newcurve);
+    LiftTrajectoryOptResults liftResults = liftCurveToTrajectoryWithGSL(newcurve, false);
     
     /* debugging
     cout << "new q = ";
@@ -2549,7 +2556,7 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
   for (int u=0; u<nprime; u++)
   {
     StateVec point;
-    for (int m=0; m<2; m++)
+    for (int m=0; m<dim; m++)
     {
       if (u<npoints-1)
         point.add(-1. * signal2.getUnchecked(npoints-u-1).getUnchecked(m));
@@ -2780,7 +2787,7 @@ void NEP::heteroclinicStudy()
   initConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
-  liftCurveToTrajectoryWithGSL(g_qcurve);
+  liftCurveToTrajectoryWithGSL(g_qcurve, true);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();
