@@ -24,7 +24,7 @@ struct EncapsVarForNLOpt {
 struct EncapsVarForGSL {
   const Array<double>* qcenter; // current concentration point
   const Array<double>* deltaq; // current concentration point
-  NEP * nep; // nep class for hamiltonian class
+  NEP * nep; // nep class for hamiltonian calculations
   double scale = 1.;
 };
 
@@ -1387,8 +1387,12 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
   Array<double> vec_dt; // vector of optimal time assigned between each q(i) and q(i+1)
   Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
   
+  // keep track if GSL converged or not.
+  bool gslSucceeded = true;
+  vector<string> errors;
+  
   // loop over points in concentration space
-  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- qn
+  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- q
   for (int k=0; k<nPoints-1; k++) // n - 1 iterations
   {
     //cout << "qcurve point #" << k << endl;
@@ -1519,7 +1523,11 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     
     // some printing
     //std::cout << "FINAL status = " << gsl_strerror(status) << "\n";
-    
+    if (status != GSL_SUCCESS)
+    {
+      gslSucceeded = false;
+      errors.push_back(string(gsl_strerror(status)));
+    }
   
 
     //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
@@ -1578,6 +1586,16 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     gsl_vector_free(x);
     
   } // end loop over points in concentration curve
+  
+  
+  if (!gslSucceeded && maxPrintingAllowed)
+  {
+    LOGWARNING("GSL unsuccessful at converging, lifting operation possibly is incorrect.");
+    LOG("Following errors were encountered: ");
+    unordered_set<string> uniqueErrors(errors.begin(), errors.end());
+    for (auto & s : uniqueErrors)
+      LOG(s);
+  }
   
   // for debugging
   if (maxPrinting->boolValue() && maxPrintingAllowed)
