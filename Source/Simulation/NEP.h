@@ -97,7 +97,8 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints;
+  IntParameter * nPoints_start;
+  IntParameter * nPoints_max;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   FloatParameter * action_threshold ;
@@ -222,6 +223,12 @@ private:
   double metric = 1.; // distance from hamilton's equation of motion
   Array<StateVec> dAdq, dAdq_filt;
 
+  // number of sampling points
+  int nPoints;
+  int nPoints_increment = 10;
+  
+  // decides whether concentration curve cab be update q^{i+1} = q^{i} - dA/dq
+  bool canUpdateConcentrationCurve = true;
   
   // sample rate, calculated from current qcurve
   double sampleRate;
