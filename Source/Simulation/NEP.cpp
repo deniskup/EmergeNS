@@ -1126,6 +1126,7 @@ void NEP::run()
   if (maxPrinting->boolValue())
   {
     system("mkdir -p debug");
+    cout << "WILL DO MAX PRINTINGS" << endl;
     debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
@@ -1166,18 +1167,20 @@ void NEP::run()
     {
       debugfile << "\nIteration " << count << endl;
       debugfile << "-- concentration curve --" << endl;
+      debugfile << "[ ";
       for (int p=0; p<nPoints->intValue(); p++)
       {
         debugfile << "(";
         int c=0;
         for (auto & qm : g_qcurve.getUnchecked(p))
         {
-          string comma = (c == g_qcurve.getUnchecked(p).size()-1 ? ") " : ",");
+          string closebracket = (p == nPoints->intValue()-1 ? ") " : "), ");
+          string comma = (c == g_qcurve.getUnchecked(p).size()-1 ? closebracket : ",");
           debugfile << qm << comma ;
           c++;
         }
       }
-      debugfile << endl;
+      debugfile << " ]" << endl;
     }
     
     // lift current trajectory to full (q ; p; t) space
@@ -1210,25 +1213,29 @@ void NEP::run()
     if (maxPrinting->boolValue())
     {
       debugfile << "-- momentum curve --" << endl;
+      debugfile << "[ ";
       for (int p=0; p<nPoints->intValue(); p++)
       {
         debugfile << "(";
         int c=0;
         for (auto & pm : g_pcurve.getUnchecked(p))
         {
-          string comma = (c == g_pcurve.getUnchecked(p).size()-1 ? ") " : ",");
+          string closebracket = (p == nPoints->intValue()-1 ? ") " : "), ");
+          string comma = (c == g_pcurve.getUnchecked(p).size()-1 ? closebracket : ",");
           debugfile << pm << comma ;
           c++;
         }
       }
-      debugfile << endl;
+      debugfile << " ]" << endl;
       debugfile << "-- time sampling --" << endl;
+      debugfile << "[ ";
       //cout << "times.size = " << g_times.size() << endl;
       for (int p=0; p<nPoints->intValue(); p++)
       {
-        debugfile << g_times.getUnchecked(p) << " " ;
+        string comma = (p == nPoints->intValue()-1 ? "" : ", ");
+        debugfile << g_times.getUnchecked(p) << comma ;
       }
-      debugfile << endl;
+      debugfile << " ]" << endl;
     }
   
     
@@ -1319,6 +1326,7 @@ void NEP::run()
     if (maxPrinting->boolValue())
     {
       debugfile << "-- dAdq --" << endl;
+      debugfile << "[ ";
       for (int p=0; p<nPoints->intValue(); p++)
       {
         debugfile << "(";
@@ -1326,17 +1334,23 @@ void NEP::run()
         int c=0;
         for (auto & coord : dAdqk)
         {
-          string comma = ( c==dAdqk.size()-1 ? ")" : "," );
+          string closebracket = (p == nPoints->intValue()-1 ? ") " : "), ");
+          string comma = ( c==dAdqk.size()-1 ? closebracket : "," );
           debugfile << coord << comma;
           c++;
         }
       }
-      debugfile << endl;
+      debugfile << " ]" << endl;
     }
         
   } // end while
   
   //cout << actionDescent.size() << " --- " << trajDescent.size() << endl;
+  
+  if (maxPrinting)
+  {
+    debugfile.close();
+  }
   
   // save descent algorithm results into a file
   LOG("writing descent to file");
@@ -1629,25 +1643,31 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
   if (maxPrinting->boolValue() && maxPrintingAllowed)
   {
     debugfile << "-- lifting optima found --" << endl;
-    debugfile << "p* = ";
+    debugfile << "p* = [ ";
+    int p=0;
     for (auto & ppoint : vec_pstar)
     {
       debugfile << "(";
       int c=0;
       for (auto & pm : ppoint)
       {
-        string comma = ( c==ppoint.size()-1 ? ") " : "," );
+        string closebracket = (p == vec_pstar.size()-1 ? ") " : "), ");
+        string comma = ( c==ppoint.size()-1 ? closebracket : "," );
         debugfile << pm << comma;
         c++;
       }
+      p++;
     }
-  debugfile << endl;
-  debugfile << "dt = ";
+  debugfile << " ]" << endl;
+  debugfile << "dt = [ ";
+  p=0;
   for (auto & tpoint : vec_dt)
   {
-    debugfile << tpoint << " ";
+    string comma = (p == vec_dt.size()-1 ? "" : ", ");
+    debugfile << tpoint << comma;
+    p++;
   }
-  debugfile << endl;
+  debugfile << " ]" << endl;
   }
   /*
   // update global variables or not
