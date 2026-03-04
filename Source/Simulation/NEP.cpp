@@ -1393,13 +1393,13 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
   
   // loop over points in concentration space
   // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- q
-  for (int k=0; k<nPoints-1; k++) // n - 1 iterations
+  for (int point=0; point<nPoints-1; point++) // n - 1 iterations
   {
     //cout << "qcurve point #" << k << endl;
     
     // calculate q, dq of current concentration curve
-    StateVec q = qcurve.getUnchecked(k);
-    StateVec qnext = qcurve.getUnchecked(k+1);
+    StateVec q = qcurve.getUnchecked(point);
+    StateVec qnext = qcurve.getUnchecked(point+1);
     jassert(q.size() == qnext.size());
     StateVec qcenter;
     Array<double> deltaq;
@@ -1488,7 +1488,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     int status = GSL_CONTINUE;
     int iter = 0;
     int maxiter = 20;
-    double tolerance = 1e-10;
+    double tolerance = 1e-6;
     
     for (int e=0; e<10; e++)
     {
@@ -1508,7 +1508,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
         //cout << "\titer" << iter << endl;
         //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
         status = gsl_multiroot_fdfsolver_iterate(s);
-        if (status)
+        if (status != GSL_SUCCESS)
           break;
         status = gsl_multiroot_test_residual(s->f, tolerance);
         double norm2 = 0.;
@@ -1543,36 +1543,45 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     double tau = gsl_vector_get(s->x, n-1);
     double dt = exp(tau);
     
-    /*
+    
     double Hscale = evalHamiltonian(qcenter, pstar);
     StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
     dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
     
-    cout << "-- Scaling of the problem --" << endl;
-    cout << "f0 = " << Hscale << endl;
-    for (int k=0; k<dHdpscale.size(); k++)
+    if (maxPrintingAllowed)
     {
-      cout << "f" << k+1 << " = " << dHdpscale.getUnchecked(k)*dt - deltaq.getUnchecked(k) << endl;
-    }
-    
-    
-    cout << "J = ";
-    for (int i=0; i<n; i++)
-    {
-      for (int j=0; j<n; j++)
+      cout << "Point #" << point << endl;
+      cout << "-- Scaling of the problem --" << endl;
+      cout << "f0 = " << Hscale << endl;
+      for (int k=0; k<dHdpscale.size(); k++)
       {
-        if (i==0 && j<n-1)
-          cout << dHdpscale.getUnchecked(j) << " ";
-        else if (i==0 && j==n-1)
-          cout << "0";
-        else if (i>0 && j<n-1)
-          cout << hessian(i-1, j) << " ";
-        else if (i>0 && j==n-1)
-          cout << dHdpscale.getUnchecked(i-1);
+        cout << "f" << k+1 << " = " << dHdpscale.getUnchecked(k)*dt - deltaq.getUnchecked(k) << endl;
       }
-      cout << endl;
+      
+      
+      cout << "J = ";
+      for (int i=0; i<n; i++)
+      {
+        for (int j=0; j<n; j++)
+        {
+          if (i==0 && j<n-1)
+            cout << dHdpscale.getUnchecked(j) << " ";
+          else if (i==0 && j==n-1)
+            cout << "0";
+          else if (i>0 && j<n-1)
+            cout << hessian(i-1, j) << " ";
+          else if (i>0 && j==n-1)
+            cout << dHdpscale.getUnchecked(i-1);
+        }
+        cout << endl;
+      }
+      
+      cout << "solutions : ";
+      for (auto & el : pstar)
+        cout << el << " ";
+      cout << dt << endl;
+      
     }
-     */
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
