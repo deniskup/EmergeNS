@@ -381,7 +381,7 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
   for (int k=1; k<=n-1; k++)
   {
     double u = (dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1));
-    gsl_vector_set(f, k, u);
+    gsl_vector_set(f, k, u * ev->epsilon);
   }
   
   // set the jacobian elements associated to equations
@@ -1478,13 +1478,15 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
         
     // scale of the system
     // solve H(p, q) = 0 and epsilon * { dH(p,q)/dq - dp/dt } = 0 for increasing values of epsilon
-    double epsilon = 0.;
+    double epsilon = 0.1;
     int status = GSL_CONTINUE;
     int iter = 0;
-    int maxiter = 20;
+    int maxiter = 100;
     double tolerance = 1e-6;
     
-    for (int e=0; e<10; e++)
+    //epsilon = 1.;
+    
+    for (int e=0; e<9; e++)
     {
       ev.epsilon = epsilon;
       fdf.params = &ev;
@@ -1559,16 +1561,13 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
       gsl_status_previous_point = false;
     }
     
-    //gsl_multiroot_fsolver_free(s);
-    gsl_multiroot_fdfsolver_free(s);
-    gsl_vector_free(x);
-    
-    if (maxPrinting->boolValue())
+    if (maxPrintingAllowed)
     {
       double Hscale = evalHamiltonian(qcenter, pstar);
       StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
       dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
       cout << "Point #" << point << endl;
+      cout << "gsl status : " << gsl_strerror(status) << endl;
       cout << "-- Scaling of the problem --" << endl;
       cout << "f0 = " << Hscale << endl;
       for (int k=0; k<dHdpscale.size(); k++)
@@ -1599,10 +1598,21 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
         cout << el << " ";
       cout << dt << endl;
       
-      cout << "gsl descent step norm :" << endl;
-      gsl_blas_dnrm2(s->dx);
+      
+      cout << "gsl step descent norm : " << endl;
+      cout << gsl_blas_dnrm2(s->dx);
+      cout << endl;
+      //StateVec gsl_step;
+      //for (int k=0; k<n; k++)
+      //  gsl_step.add(gsl_vector_get(s->dx, k));
+      //double gsl_step_nrm2 = norm2(gsl_step);
+      //cout << "gsl descent step norm : " << gsl_step_nrm2 << endl;
       
     }
+    
+    //gsl_multiroot_fsolver_free(s);
+    gsl_multiroot_fdfsolver_free(s);
+    gsl_vector_free(x);
     
   } // end loop over points in concentration curve
   
