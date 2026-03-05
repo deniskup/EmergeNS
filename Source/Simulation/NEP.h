@@ -20,6 +20,7 @@
 #include "JuceHeader.h"
 //#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_blas.h>
 #include <random>
 #include "KineticLaw.h"
 
@@ -55,6 +56,7 @@ class LiftTrajectoryOptResults
     Array<double> opt_deltaT;
     pCurve pcurve;
     Array<double> times;
+    vector<int> gslStatus;
 };
 
 
@@ -186,8 +188,10 @@ private:
   bool descentShouldUpdateParams(double);
   
   bool descentShouldContinue(int);
+  
+  LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
     
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&, bool);
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
 
   //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   

@@ -25,7 +25,7 @@ struct EncapsVarForGSL {
   const Array<double>* qcenter; // current concentration point
   const Array<double>* deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
-  double scale = 1.;
+  double epsilon = 1.;
 };
 
 
@@ -263,7 +263,7 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
   for (int k=1; k<=n-1; k++)
   {
     double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
-    gsl_vector_set(f, k, u * ev->scale);
+    gsl_vector_set(f, k, u * ev->epsilon);
   }
   
   return GSL_SUCCESS;
@@ -324,9 +324,9 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1)*dt);
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1) * dt * ev->epsilon);
         else
-          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
+          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt * ev->epsilon);
       }
     }
   }
@@ -401,9 +401,9 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1)*dt);
+          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1) * dt * ev->epsilon);
         else
-          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt);
+          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt * ev->epsilon);
       }
     }
   }
@@ -1371,28 +1371,19 @@ void NEP::run()
   
 }
 
-
-// #TODO
-// Split this method into several :
-// 1/ GSL implementation that returns p_star and dt
-// 2/ lift operation, i.e. build p from q and p_star
-// 3/ Moving average on newly built p to reduce noise in p solving
-LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool maxPrintingAllowed)
+// argument n : dimension of the non-linear equations to resolve
+LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, const int n, bool maxPrintingAllowed)
 {
-  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
-  //cout << "input qcurve size = " << qcurve.size() << endl;
-  // dimension of the problem
-  const int n = simul->entities.size() + 1; // number of entities + 1 (time)
-  
   Array<double> vec_dt; // vector of optimal time assigned between each q(i) and q(i+1)
   Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
   
   // keep track if GSL converged or not.
-  bool gslSucceeded = true;
-  vector<string> errors;
+  vector<int> gslStatus;
   
+  bool gsl_status_previous_point = false;
+  vector<float> previous_gsl_result(n, 0.1);
   // loop over points in concentration space
-  // q : q0 -- p0 -- q1 -- p1 --  .. -- qi -- pi -- q(i+1) -- pi -- ... qn(-1) -- p(n-1) -- q
+  // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
   for (int point=0; point<nPoints-1; point++) // n - 1 iterations
   {
     //cout << "qcurve point #" << k << endl;
@@ -1409,14 +1400,12 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
       qcenter.add( 0.5* (q.getUnchecked(m) + qnext.getUnchecked(m)));
     }
     
-    
-    
     // encaps useful variables to pass to GSL
     EncapsVarForGSL ev;
     ev.qcenter = &qcenter;
     ev.deltaq = &deltaq;
     ev.nep = this;
-    ev.scale = 1.;
+    ev.epsilon = 1.;
     
     
     // function to solve
@@ -1425,38 +1414,44 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     //f0.n = n;
     //f0.params = &ev;
     
-    // initial value for p and dt
-    // p
+    // x = (p, t)
     gsl_vector* x = gsl_vector_alloc(n);
-    StateVec pinit;
-    for (int m=0; m<n-1; m++)
+    
+    // initial value for p and dt
+    
+    if (gsl_status_previous_point)
     {
-      double pm = 0.1;
-      gsl_vector_set(x, m, pm);
-      pinit.add(pm);
+      // p
+      StateVec pinit;
+      for (int m=0; m<n-1; m++)
+      {
+        double pm = 0.1;
+        gsl_vector_set(x, m, pm);
+        pinit.add(pm);
+      }
+      // dt = (dq•dH/dp) / || dH/dp ||^2
+      StateVec dHdp = evalHamiltonianGradientWithP(qcenter, pinit);
+      double norm2 = 0.;
+      double sp = 0.;
+      for (int m=0; m<pinit.size(); m++)
+      {
+        norm2 += dHdp.getUnchecked(m)*dHdp.getUnchecked(m);
+        sp += qcenter.getUnchecked(m)*dHdp.getUnchecked(m);
+      }
+      norm2 = sqrt(norm2);
+      double dtinit = 1.;
+      if (norm2>0.)
+        dtinit = abs(sp) / norm2;
+      else
+        
+        gsl_vector_set(x, n-1, dtinit);
     }
-    // dt = (dq•dH/dp) / || dH/dp ||^2
-    StateVec dHdp = evalHamiltonianGradientWithP(qcenter, pinit);
-    double norm2 = 0.;
-    double sp = 0.;
-    for (int m=0; m<pinit.size(); m++)
-    {
-      norm2 += dHdp.getUnchecked(m)*dHdp.getUnchecked(m);
-      sp += qcenter.getUnchecked(m)*dHdp.getUnchecked(m);
-    }
-    norm2 = sqrt(norm2);
-    double dtinit = 1.;
-    if (norm2>0.)
-      dtinit = abs(sp) / norm2;
     else
     {
-      //LOGWARNING("|| dH/dp || = 0, dt initialized to 1");
-      //cout << "dH/dp = ";
-      //for (int k=0; k<dHdp.size(); k++)
-      //  cout << dHdp.getUnchecked(k) << " ";
-      //cout << endl;
+      // use results of previous optimization point
+      for (int k=0; k<n; k++)
+        gsl_vector_set(x, k, previous_gsl_result[k]);
     }
-    gsl_vector_set(x, n-1, dtinit);
     
     /*
     // init the solver to solve for dt at p held fixed
@@ -1465,9 +1460,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     gsl_multiroot_fsolver_set(s0, &f, x);
     */
     
-    //gslSolve();
     
-    
+    // init the gsl solver
     gsl_multiroot_function_fdf fdf; // using jacobian
     fdf.f = residual4GSL;
     fdf.df = residual4GSL_df;
@@ -1482,8 +1476,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     
     
         
-    // iterate to solve
-    // set scale of the system
+    // scale of the system
+    // solve H(p, q) = 0 and epsilon * { dH(p,q)/dq - dp/dt } = 0 for increasing values of epsilon
     double epsilon = 0.;
     int status = GSL_CONTINUE;
     int iter = 0;
@@ -1492,7 +1486,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     
     for (int e=0; e<10; e++)
     {
-      ev.scale = epsilon;
+      ev.epsilon = epsilon;
       fdf.params = &ev;
       iter = 0;
       status = GSL_CONTINUE;
@@ -1507,10 +1501,10 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
         iter++;
         //cout << "\titer" << iter << endl;
         //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
-        status = gsl_multiroot_fdfsolver_iterate(s);
+        status = gsl_multiroot_fdfsolver_iterate(s); // returns GSL_SUCCESS if the iteration went good
         if (status != GSL_SUCCESS)
           break;
-        status = gsl_multiroot_test_residual(s->f, tolerance);
+        status = gsl_multiroot_test_residual(s->f, tolerance); // returns GSL_SUCCESS if converged, GSL_CONTINUE otherwise
         double norm2 = 0.;
         for (int k=0; k<s->f->size; k++)
           norm2 += gsl_vector_get(s->f, k)*gsl_vector_get(s->f, k);
@@ -1523,11 +1517,14 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     
     // some printing
     //std::cout << "FINAL status = " << gsl_strerror(status) << "\n";
-    if (status != GSL_SUCCESS)
-    {
-      gslSucceeded = false;
-      errors.push_back(string(gsl_strerror(status)));
-    }
+    //if (status != GSL_SUCCESS)
+    //{
+    //  gslSucceeded = false;
+    //  errors.push_back(string(gsl_strerror(status)));
+    //}
+    
+    // keep track of gsl status for current point
+    gslStatus.push_back(status);
   
 
     //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
@@ -1543,13 +1540,34 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     double tau = gsl_vector_get(s->x, n-1);
     double dt = exp(tau);
     
+    // add optimizing time
+    //opt_deltaT.add(ev->t_opt);
+    vec_dt.add(dt);
     
-    double Hscale = evalHamiltonian(qcenter, pstar);
-    StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
-    dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
-    
-    if (maxPrintingAllowed)
+    // add optimizing momentum vector
+    vec_pstar.add(pstar);
+  
+    // if success, keep track of gsl result as a starting point for next point in qcurve
+    if (status == GSL_SUCCESS)
     {
+      for (int k=0; k<n; k++)
+        previous_gsl_result[k] = gsl_vector_get(s->x, k);
+      gsl_status_previous_point = true;
+    }
+    else
+    {
+      gsl_status_previous_point = false;
+    }
+    
+    //gsl_multiroot_fsolver_free(s);
+    gsl_multiroot_fdfsolver_free(s);
+    gsl_vector_free(x);
+    
+    if (maxPrinting->boolValue())
+    {
+      double Hscale = evalHamiltonian(qcenter, pstar);
+      StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
+      dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
       cout << "Point #" << point << endl;
       cout << "-- Scaling of the problem --" << endl;
       cout << "f0 = " << Hscale << endl;
@@ -1581,21 +1599,59 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
         cout << el << " ";
       cout << dt << endl;
       
+      cout << "gsl descent step norm :" << endl;
+      gsl_blas_dnrm2(s->dx);
+      
     }
-    
-    // add optimizing time
-    //opt_deltaT.add(ev->t_opt);
-    vec_dt.add(dt);
-    
-    // add optimizing momentum vector
-    vec_pstar.add(pstar);
-    
-    //gsl_multiroot_fsolver_free(s);
-    gsl_multiroot_fdfsolver_free(s);
-    gsl_vector_free(x);
     
   } // end loop over points in concentration curve
   
+  
+  
+  // returning results of the
+  LiftTrajectoryOptResults output;
+  output.opt_momentum = vec_pstar;
+  output.opt_deltaT = vec_dt;
+  output.gslStatus = gslStatus;
+  
+  return output;
+  
+}
+
+
+// #TODO
+// Split this method into several :
+// 1/ GSL implementation that returns p_star and dt
+// 1'/ Check on the convergence
+// 2/ lift operation, i.e. build p from q and p_star
+// 3/ Moving average on newly built p to reduce noise in p solving
+LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
+{
+  
+  
+  
+  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  //cout << "input qcurve size = " << qcurve.size() << endl;
+  // dimension of the problem
+  const int n = simul->entities.size() + 1; // number of entities + 1 (time)
+  
+  // GSL to find optimal momentum and dt associated to qcurve
+  LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime(qcurve, n, maxPrintingAllowed);
+  
+  // test for gsl success in liftResults->gslStatus (vector of size nPoints), and work again on points for which there's no convergence ?
+  // hints : re-scaling of the problem
+  
+  
+  bool gslSucceeded = true;
+  vector<string> errors;
+  for (auto & st : liftResults.gslStatus)
+  {
+    if (st != GSL_SUCCESS)
+    {
+      gslSucceeded = false;
+      errors.push_back(gsl_strerror(st));
+    }
+  }
   
   if (!gslSucceeded && maxPrintingAllowed)
   {
@@ -1612,13 +1668,13 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     debugfile << "-- lifting optima found --" << endl;
     debugfile << "p* = [ ";
     int p=0;
-    for (auto & ppoint : vec_pstar)
+    for (auto & ppoint : liftResults.opt_momentum)
     {
       debugfile << "(";
       int c=0;
       for (auto & pm : ppoint)
       {
-        string closebracket = (p == vec_pstar.size()-1 ? ") " : "), ");
+        string closebracket = (p == liftResults.opt_momentum.size()-1 ? ") " : "), ");
         string comma = ( c==ppoint.size()-1 ? closebracket : "," );
         debugfile << pm << comma;
         c++;
@@ -1628,9 +1684,9 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
   debugfile << " ]" << endl;
   debugfile << "dt = [ ";
   p=0;
-  for (auto & tpoint : vec_dt)
+  for (auto & tpoint : liftResults.opt_deltaT)
   {
-    string comma = (p == vec_dt.size()-1 ? "" : ", ");
+    string comma = (p == liftResults.opt_deltaT.size()-1 ? "" : ", ");
     debugfile << tpoint << comma;
     p++;
   }
@@ -1659,7 +1715,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
       continue;
         
     // handle time
-    sumtime += vec_dt.getUnchecked(k-1);
+    sumtime += liftResults.opt_deltaT.getUnchecked(k-1);
     times.add(sumtime);
     
     // handle momentum, mean between current and next p
@@ -1668,9 +1724,9 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
     else
     {
       StateVec meanP;
-      for (int m=0; m<vec_pstar.getUnchecked(k).size(); m++)
+      for (int m=0; m<liftResults.opt_momentum.getUnchecked(k).size(); m++)
       {
-        double pm = 0.5*(vec_pstar.getUnchecked(k-1).getUnchecked(m) + vec_pstar.getUnchecked(k).getUnchecked(m));
+        double pm = 0.5*(liftResults.opt_momentum.getUnchecked(k-1).getUnchecked(m) + liftResults.opt_momentum.getUnchecked(k).getUnchecked(m));
         meanP.add(pm);
       }
       pcurve.add(meanP);
@@ -1762,15 +1818,18 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(Curve& qcurve, bool m
   */
   
   // Return optimization results
-  LiftTrajectoryOptResults output;
-  output.opt_deltaT = vec_dt;
-  output.opt_momentum = vec_pstar;
-  output.pcurve = pcurve;
-  output.times = times;
+  //LiftTrajectoryOptResults output;
+  //output.opt_deltaT = vec_dt;
+  //output.opt_momentum = vec_pstar;
+  //output.pcurve = pcurve;
+  //output.times = times;
+  
+  liftResults.pcurve = pcurve;
+  liftResults.times = times;
   
   
   
-  return output;
+  return liftResults;
   
 }
 
