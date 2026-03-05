@@ -193,8 +193,12 @@
     </VS2022>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile_CI" smallIcon="iGjYAz" bigIcon="iGjYAz">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug"/>
-        <CONFIGURATION isDebug="0" name="Release"/>
+        <CONFIGURATION isDebug="1" name="Debug" headerPath="/usr/local&#10;/usr/local/gsl/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lgsl"/>
+        <CONFIGURATION isDebug="0" name="Release" headerPath="/usr/local&#10;/usr/local/gsl/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraLinkerFlags="-lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
@@ -215,8 +219,12 @@
     <XCODE_MAC targetFolder="Builds/MacOSX_CI" customPList="&lt;plist&gt;&#10;&lt;dict&gt;&#10;&lt;key&gt;NSAppTransportSecurity&lt;/key&gt;&#10;&#9;&lt;dict&gt;&#10;&#9;&#9;&lt;key&gt;NSAllowsArbitraryLoads&lt;/key&gt;&#10;&#9;&#9;&lt;true/&gt;&#10;&#9;&lt;/dict&gt;&#10;&lt;/dict&gt;&#10;&lt;/plist&gt;"
                smallIcon="iGjYAz" bigIcon="iGjYAz" xcodeValidArchs="arm64,x86_64">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release"/>
-        <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release"/>
+        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include&#10;/opt/homebrew/Cellar/gsl/2.8/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib&#10;/opt/homebrew/Cellar/gsl/2.8/lib"
+                       extraLinkerFlags=" -lgsl"/>
+        <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release" extraLinkerFlags=" -lgsl"
+                       headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include&#10;/opt/homebrew/Cellar/gsl/2.8/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib&#10;/opt/homebrew/Cellar/gsl/2.8/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
@@ -237,8 +245,12 @@
     <VS2022 targetFolder="Builds/VisualStudio2022_CI" extraCompilerFlags="/bigobj"
             smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI"/>
-        <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI"/>
+        <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraCompilerFlags="/bigobj" extraLinkerFlags=" -lgsl"/>
+        <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
+                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
+                       extraCompilerFlags="/bigobj" extraLinkerFlags=" -lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>

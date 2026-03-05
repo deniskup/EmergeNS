@@ -695,6 +695,9 @@
 					"$(SRCROOT)/../../../JUCE/modules",
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
+					"/usr/local",
+					"/usr/local/Cellar/gsl/2.8/include",
+					"/opt/homebrew/Cellar/gsl/2.8/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
 					"$(inherited)",
@@ -702,9 +705,17 @@
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/usr/local/lib\"",
+					"\"/usr/local\"",
+					"\"/usr/local/Cellar/gsl/2.8/lib\"",
+					"\"/opt/homebrew/Cellar/gsl/2.8/lib\"",
+				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules /usr/local /usr/local/Cellar/gsl/2.8/include /opt/homebrew/Cellar/gsl/2.8/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				OTHER_LDFLAGS = "-lgsl";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
 				USE_HEADERMAP = NO;
@@ -820,6 +831,9 @@
 					"$(SRCROOT)/../../../JUCE/modules",
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
+					"/usr/local",
+					"/usr/local/Cellar/gsl/2.8/include",
+					"/opt/homebrew/Cellar/gsl/2.8/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
 					"$(inherited)",
@@ -827,9 +841,17 @@
 				INFOPLIST_FILE = Info-App.plist;
 				INFOPLIST_PREPROCESS = NO;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"/usr/local/lib\"",
+					"\"/usr/local\"",
+					"\"/usr/local/Cellar/gsl/2.8/lib\"",
+					"\"/opt/homebrew/Cellar/gsl/2.8/lib\"",
+				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules /usr/local /usr/local/Cellar/gsl/2.8/include /opt/homebrew/Cellar/gsl/2.8/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				OTHER_LDFLAGS = "-lgsl";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
 				USE_HEADERMAP = NO;
