@@ -235,6 +235,8 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
   }
   StateVec q = *ev->qcenter;
   StateVec dq = *ev->deltaq;
+  double norm2_dq = norm2(dq);
+  assert(norm2_dq > 0.);
   
   const unsigned long n = x->size;
 
@@ -245,13 +247,12 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
     double pk = gsl_vector_get(x, k);
     p.add(pk);
   }
-  //double dt = gsl_vector_get(x, n-1);
   double s = gsl_vector_get(x, n-1);
-  double dt = exp(s);
+  double mu = exp(s);
+  //double dt = exp(s); // force parameter to be strictly positive
   
   // calculate hamiltonian
   double H = ev->nep->evalHamiltonian(q, p);
-
   // calculate dH/dp
   StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
   
@@ -259,10 +260,10 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
   assert(dq.size() == n-1);
   
   // set the non-linear equalitites to solve by gsl
-  gsl_vector_set(f, 0, H);
+  gsl_vector_set(f, 0., H);
   for (int k=1; k<=n-1; k++)
   {
-    double u = dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1);
+    double u = dHdp.getUnchecked(k-1) - mu * dq.getUnchecked(k-1) / norm2_dq;
     gsl_vector_set(f, k, u * ev->epsilon);
   }
   
@@ -283,6 +284,8 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
   }
   StateVec q = *ev->qcenter;
   StateVec dq = *ev->deltaq;
+  double norm2_dq = norm2(dq);
+  assert(norm2_dq > 0.);
   
   const unsigned long n = x->size;
 
@@ -295,7 +298,8 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
   }
   //double dt = gsl_vector_get(x, n-1);
   double s = gsl_vector_get(x, n-1);
-  double dt = exp(s);
+  double mu = exp(s);
+  //double dt = exp(s);
   
   // calculate dH/dp
   StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
@@ -309,7 +313,7 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
   
   // set the jacobian elements associated to equations
   // H = 0
-  // dH/dp * dt - dq = 0
+  // dH/dp - mu * dq / ||dq|| = 0
   for (int i=0; i<n; i++)
   {
     for (int j=0; j<n; j++)
@@ -324,9 +328,9 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1) * dt * ev->epsilon);
+          gsl_matrix_set(J, i, j, -1. * ev->epsilon * mu * dq.getUnchecked(i-1) / norm2_dq);
         else
-          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt * ev->epsilon);
+          gsl_matrix_set(J, i, j, ev->epsilon * d2Hd2p(i-1, j));
       }
     }
   }
@@ -349,6 +353,8 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
   }
   StateVec q = *ev->qcenter;
   StateVec dq = *ev->deltaq;
+  double norm2_dq = norm2(dq);
+  assert(norm2_dq > 0.);
   
   const unsigned long n = x->size;
 
@@ -361,14 +367,12 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
   }
   //double dt = gsl_vector_get(x, n-1);
   double s = gsl_vector_get(x, n-1);
-  double dt = exp(s);
+  double mu = exp(s);
   
   // calculate hamiltonian
   double H = ev->nep->evalHamiltonian(q, p);
-
   // calculate dH/dp
   StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
-
   // calculate d^2H/dp2 (hessian matrix w.r.t to p)
   dsp::Matrix<double> d2Hd2p = ev->nep->evalHamiltonianHessianWithP(q, p);
   
@@ -377,16 +381,16 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
   assert(d2Hd2p.getSize().getUnchecked(1) == n-1);
   
   // set the non-linear equalitites to solve by gsl
-  gsl_vector_set(f, 0, H);
+  gsl_vector_set(f, 0., H);
   for (int k=1; k<=n-1; k++)
   {
-    double u = (dHdp.getUnchecked(k-1) * dt - dq.getUnchecked(k-1));
+    double u = dHdp.getUnchecked(k-1) - mu * dq.getUnchecked(k-1) / norm2_dq;
     gsl_vector_set(f, k, u * ev->epsilon);
   }
   
   // set the jacobian elements associated to equations
   // H = 0
-  // dH/dp * dt - dq = 0
+  // dH/dp - mu * dq / ||dq|| = 0
   for (int i=0; i<n; i++)
   {
     for (int j=0; j<n; j++)
@@ -401,9 +405,9 @@ int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matri
       else
       {
         if (j==n-1)
-          gsl_matrix_set(J, i, j, dHdp.getUnchecked(i-1) * dt * ev->epsilon);
+          gsl_matrix_set(J, i, j, -1. * ev->epsilon * mu * dq.getUnchecked(i-1) / norm2_dq);
         else
-          gsl_matrix_set(J, i, j, d2Hd2p(i-1, j) * dt * ev->epsilon);
+          gsl_matrix_set(J, i, j, ev->epsilon * d2Hd2p(i-1, j));
       }
     }
   }
@@ -1476,7 +1480,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     
     
         
-    // scale of the system
+    // continuation of the system
     // solve H(p, q) = 0 and epsilon * { dH(p,q)/dq - dp/dt } = 0 for increasing values of epsilon
     double epsilon = 0.1;
     int status = GSL_CONTINUE;
@@ -1539,8 +1543,13 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     for (int m=0; m<n-1; m++)
       pstar.add(gsl_vector_get(s->x, m));
     //double dt = gsl_vector_get(s->x, n-1);
-    double tau = gsl_vector_get(s->x, n-1);
-    double dt = exp(tau);
+    double last = gsl_vector_get(s->x, n-1);
+    double mu = exp(last);
+    //assert(mu != 0.);
+    double deltaq_norm2 = norm2(deltaq);
+    assert(deltaq_norm2 > 0.);
+    double dt = deltaq_norm2 / mu;
+    
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
@@ -1567,6 +1576,9 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
       StateVec dHdpscale = evalHamiltonianGradientWithP(qcenter, pstar);
       dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pstar);
       cout << "Point #" << point << endl;
+      for (auto & el : qcenter)
+        cout << el << " ";
+      cout << endl;
       cout << "gsl status : " << gsl_strerror(status) << endl;
       cout << "-- Scaling of the problem --" << endl;
       cout << "f0 = " << Hscale << endl;
