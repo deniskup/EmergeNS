@@ -47,6 +47,8 @@ typedef Array<StateVec> pCurve;
 typedef Array<PhaseSpaceVec> Trajectory;
 
 
+
+
 class LiftTrajectoryOptResults
 {
   public:
@@ -58,6 +60,26 @@ class LiftTrajectoryOptResults
     Array<double> times;
     vector<int> gslStatus;
 };
+
+class NEP;
+
+struct EncapsVarForNLOpt {
+  const Array<double>* qcenter; // current concentration point
+  const Array<double>* deltaq; // current concentration point
+  Array<double>* p; // p variable to pass to t optimisation
+  NEP * nep; // nep class for hamiltonian class
+  double t_opt; // t variable that optimizes the lagrangian
+  //Array<double> p_opt; // t variable that optimizes the lagrangian
+};
+
+
+struct EncapsVarForGSL {
+  const Array<double>* qcenter; // current concentration point
+  const Array<double>* deltaq; // current concentration point
+  NEP * nep; // nep class for hamiltonian calculations
+  double epsilon = 1.;
+};
+
 
 
 
@@ -190,6 +212,10 @@ private:
   
   bool descentShouldContinue(int);
   
+  gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
+  
+  int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &);
+  
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
@@ -260,4 +286,5 @@ private:
 
    
 };
+
 
