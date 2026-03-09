@@ -105,7 +105,7 @@ public:
   FloatParameter * maxcutoffFreq;
   FloatParameter * action_threshold ;
   FloatParameter * stepDescentInitVal;
-  FloatParameter * timescale_factor;
+  //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
   EnumParameter* initialConditions;
 
@@ -176,6 +176,7 @@ public:
   
 private:
   
+  void setTimeNormalizationFactor();
 
   void initConcentrationCurve();
   
@@ -240,6 +241,9 @@ private:
   // #para
   double stepDescentThreshold = 1e-4;
   double stepDescent;
+  
+  // normalization parameters
+  double timescale_factor = 1.;
   
 
   // for printing history to file

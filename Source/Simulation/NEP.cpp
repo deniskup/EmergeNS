@@ -618,7 +618,7 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
   cout << "Htot = " << H << endl;
   */
   
-  return timescale_factor->floatValue()*H;
+  return timescale_factor * H;
 }
 
 
@@ -751,7 +751,7 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
   
   
   for (int m=0; m<gradpH.size(); m++)
-    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*timescale_factor->floatValue());
+    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*timescale_factor);
   
   return gradpH;
 }
@@ -891,7 +891,7 @@ dsp::Matrix<double> NEP::evalHamiltonianHessianWithP(const StateVec q, const Sta
     {
       for (int j=0; j<hess.getSize().getUnchecked(0); j++)
       {
-        hess(i, j) *= timescale_factor->floatValue();
+        hess(i, j) *= timescale_factor;
       }
     }
     
@@ -1075,7 +1075,7 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
   */
   
   for (int m=0; m<gradqH.size(); m++)
-    gradqH.setUnchecked(m, gradqH.getUnchecked(m)*timescale_factor->floatValue());
+    gradqH.setUnchecked(m, gradqH.getUnchecked(m)*timescale_factor);
 
   return gradqH;
   
@@ -1152,9 +1152,12 @@ void NEP::run()
     return;
   }
   
-  
   // message to async
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+  
+  // set normalisation factor in order to have all kinetic constants of order 1
+  setTimeNormalizationFactor();
+  LOG("Using time normalization factor : " + to_string(timescale_factor));
   
   int count = 0;
   while (descentShouldContinue(count+1) && !threadShouldExit())
@@ -1856,6 +1859,51 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
 }
 
 
+void NEP::setTimeNormalizationFactor()
+{
+  double meanK = 0.;
+  double nreac = 0.;
+  // loop over reactions
+  for (auto & reaction : simul->reactions)
+  {
+    nreac++;
+    meanK += reaction->assocRate;
+    
+    if (reaction->isReversible)
+    {
+      nreac++;
+      meanK += reaction->dissocRate;
+    }
+  }
+  
+  // loop over entities
+  for (auto & ent : simul->entities)
+  {
+    // destruction
+    nreac++;
+    meanK += ent->destructionRate;
+    
+    // creation
+    if (ent->creationRate > 0.)
+    {
+      nreac++;
+      meanK += ent->creationRate;
+    }
+  }
+  
+  if (nreac > 0. && meanK > 0.)
+  {
+    meanK /= nreac;
+    timescale_factor = 1. / meanK;
+  }
+  else
+  {
+    timescale_factor = 1.;
+  }
+}
+
+
+
 
 void NEP::initConcentrationCurve()
 {
@@ -2258,7 +2306,7 @@ Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array
   Array<double> hamilt;
   for (int i=0; i<qc.size(); i++)
   {
-    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)));
+    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) / timescale_factor);
     //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
   }
   
