@@ -460,7 +460,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   action_threshold = addFloatParameter("Action threshold", "Descent will stop when action threshold is reached", 0.01);
   
-  timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
+  //timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
   stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
   
@@ -1388,7 +1388,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
   vector<int> gslStatus;
   
   bool gsl_status_previous_point = false;
-  vector<float> previous_gsl_result(n, 0.1);
+  vector<double> previous_gsl_result(n, 0.1);
   // loop over points in concentration space
   // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
   for (int point=0; point<nPoints-1; point++) // n - 1 iterations
@@ -2004,24 +2004,24 @@ void NEP::initConcentrationCurve()
     jassert(L>0.);
     for (int i=0; i<qI.size(); i++)
     {
-      float ui = qF.getUnchecked(i) + 0.01 * ( qI.getUnchecked(i)-qF.getUnchecked(i) ) / L;
+      double ui = qF.getUnchecked(i) + 0.01 * ( qI.getUnchecked(i)-qF.getUnchecked(i) ) / L;
       entities[i]->concent.setUnchecked(0, ui);
       //entities[i]->startConcent.setUnchecked(0, ui);
     }
     
     
     // deterministic dynamics of the system until a stationnary state is reached
-    float distance = 1000.;
-    float precision = 1e-5;
-    int timeout = simul->dt->floatValue() * 50000;
-    float t = 0.;
+    double distance = 1000.;
+    double precision = 1e-5;
+    double timeout = (double) simul->dt->floatValue() * 50000;
+    double t = 0.;
     int count = 0;
     bool delay = true; // require the deterministic search to run a minimum amount of time
     // otherwise, too close from an unstable steady state, variation might be too small
     while (distance>precision || delay)
     {
       count++;
-      t += simul->dt->floatValue();
+      t += (double) simul->dt->floatValue();
       if (t>100.) // free the boolean delay
         delay = false;
       if (t>timeout)
@@ -2046,7 +2046,7 @@ void NEP::initConcentrationCurve()
       distance = 0.;
       for (auto & ent : entities)
       {
-        float deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
+        double deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
         distance += deltaC*deltaC;
       }
       distance = sqrt(distance);
@@ -2054,16 +2054,16 @@ void NEP::initConcentrationCurve()
     
     // find in which steady state the system ended
     int reachedSST = -1;
-    float dmin = 10000.;
+    double dmin = 10000.;
     count = 0;
     for (auto & sst : simul->steadyStatesList->arraySteadyStates)
     {
-      float d = 0.;
+      double d = 0.;
       for (auto & p : sst.state)
       {
         int entID = p.first->idSAT;
         SimEntity * se = entities.getUnchecked(entID);
-        float dc = se->concent.getUnchecked(0) - p.second;
+        double dc = se->concent.getUnchecked(0) - p.second;
         d += dc*dc;
       }
       d = sqrt(d);
@@ -2187,7 +2187,7 @@ void NEP::writeDescentToFile()
   historyFile << "Number of iterations : " << Niterations->intValue() << endl;
   historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
   historyFile << "Action threshold : " << action_threshold->floatValue() << endl;
-  historyFile << "Timescale factor : " << timescale_factor->floatValue() << endl;
+  historyFile << "Timescale factor : " << timescale_factor << endl;
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
@@ -2356,7 +2356,7 @@ Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array
 double NEP::backTrackingMethodForStepSize(const Curve& qc)
 {
   // init step with large value #para ?
-  double step = stepDescentInitVal->floatValue();
+  double step = (double) stepDescentInitVal->floatValue();
   int timeout = 17; // (1/2)^17 < 1e-5, will trigger the loop to break
   
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
