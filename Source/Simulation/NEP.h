@@ -78,6 +78,8 @@ struct EncapsVarForGSL {
   const Array<double>* deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
+  Array<double>* pnorm;
+  Array<double>* equation_norm;
 };
 
 
@@ -214,7 +216,7 @@ private:
   
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
-  int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &);
+  int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
     
