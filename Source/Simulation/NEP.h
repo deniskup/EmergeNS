@@ -74,12 +74,12 @@ struct EncapsVarForNLOpt {
 
 
 struct EncapsVarForGSL {
-  const Array<double>* qcenter; // current concentration point
-  const Array<double>* deltaq; // current concentration point
+  Array<double> qcenter; // current concentration point
+  Array<double> deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
-  Array<double>* pnorm;
-  Array<double>* equation_norm;
+  Array<double> pnorm;
+  Array<double> equation_norm;
 };
 
 
