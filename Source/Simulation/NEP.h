@@ -214,10 +214,14 @@ private:
   
   bool descentShouldContinue(int);
   
+  dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
+  
+  gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
