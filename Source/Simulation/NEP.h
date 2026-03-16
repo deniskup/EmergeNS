@@ -80,6 +80,7 @@ struct EncapsVarForGSL {
   double epsilon = 1.;
   Array<double> pnorm;
   Array<double> equation_norm;
+  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
 };
 
 
@@ -119,6 +120,7 @@ public:
   Trigger * startDescent;
   Trigger * stopDescent;
   Trigger * start_heteroclinic_study;
+  Trigger * test;
   bool heteroclinic_study = false;
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
@@ -219,6 +221,7 @@ private:
   gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
+  int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
