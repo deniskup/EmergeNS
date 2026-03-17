@@ -74,7 +74,7 @@ bool areParallel(StateVec v1, StateVec v2, double tolerance, bool maxPrintingAll
   
   double ratio = sp / (n1*n2);
   double epsilon = 1. - ratio;
-  
+  /*
   if (maxPrintingAllowed)
   {
     cout << "areCollinear function()" << endl;
@@ -91,6 +91,7 @@ bool areParallel(StateVec v1, StateVec v2, double tolerance, bool maxPrintingAll
     cout << "||v1|| x ||v2|| = " << n1*n2 << endl;
     cout << "epsilon = " << epsilon << endl;
   }
+  */
     
   return (epsilon < tolerance);
   
@@ -1388,6 +1389,10 @@ void NEP::run()
     trajDescent.add(newtraj);
     ham_descent.add(hams);
     
+    // keep track of gsl convergence status
+    gslStatus_descent.add(liftoptres.gslStatus);
+    collinearityStatus_descent.add(liftoptres.collinearity);
+    
     /*
     if (maxPrinting->boolValue())
     {
@@ -1796,6 +1801,124 @@ int NEP::gslMultirootSolving_old(gsl_multiroot_fdfsolver * s, gsl_multiroot_func
   return status;
 }
 
+
+// make sure to have dHdp parallel to dq, not anti-parallel.
+// If antiparallel, apply p = p* + dp with dp = Hess-1 ( (v • dHdp) v - dHdp(p*) )
+// and v = dq / ||dq||
+// argument :
+// gsl_vector s->x : current vector state within gsl solver
+// EncapsVarForGSL& ev
+void NEP::correctMomentumDirectionIfFollowingWrongBranch(gsl_vector& x, StateVec q, StateVec dq)
+{
+  //cout << "NEP::correctMomentumDirectionIfFollowingWrongBranch()" << endl;
+  
+  // Retrieve momentum
+  StateVec p;
+  for (int k=0; k<x.size; k++)
+    p.add(gsl_vector_get(&x, k));
+  // calculate dHdp
+  StateVec dHdp = evalHamiltonianGradientWithP(q, p);
+  
+  //cout << "current p = ";
+  //for (auto & el : p)
+  //  cout << el << " ";
+  //cout << endl;
+  
+  double norm2_dq = norm2(dq);
+  if (norm2_dq == 0.)
+    return;
+  
+  // calculate dHdp • v
+  double sp = 0.;
+  for (int k=0; k<dq.size(); k++)
+    sp += dq.getUnchecked(k) * dHdp.getUnchecked(k);
+  sp /= norm2_dq;
+  
+  //cout << "dHdp • v = " << sp << endl;;
+  
+  if (sp < 0.)
+  {
+    // calculate Hessian and invert it
+    dsp::Matrix<double> hessian =evalHamiltonianHessianWithP(q, p);
+    // copy matrix into eigen oriented matrix
+    Eigen::MatrixXd eig_hessian(hessian.getNumRows(), hessian.getNumColumns());
+    for (int i=0; i<eig_hessian.rows(); i++)
+    {
+      for (int j=0; j<eig_hessian.cols(); j++)
+      {
+        eig_hessian(i, j) = hessian(i, j);
+      }
+    }
+    // invert
+    Eigen::MatrixXd eig_inv_hessian = eig_hessian.inverse();
+    
+    // check if some elements of the inverse are nan or inf, in this case the inversion did not work
+    bool isValid = true;
+    for (int i=0; i<eig_inv_hessian.rows(); i++)
+    {
+      for (int j=0; j<eig_inv_hessian.cols(); j++)
+      {
+        if (isinf(eig_inv_hessian(i,j)) || isnan(eig_inv_hessian(i,j)))
+        {
+          isValid = false;
+          break;
+        }
+      }
+    }
+    if (!isValid)
+      return;
+    /*
+    cout << "hess = " << endl;
+    for (int i=0; i<eig_hessian.rows(); i++)
+    {
+      for (int j=0; j<eig_hessian.cols(); j++)
+      {
+        cout << eig_hessian(i, j) << " ";
+      }
+      cout << endl;
+    }
+    
+    cout << "hess^(-1) = " << endl;
+    for (int i=0; i<eig_inv_hessian.rows(); i++)
+    {
+      for (int j=0; j<eig_inv_hessian.cols(); j++)
+      {
+        cout << eig_inv_hessian(i, j) << " ";
+      }
+      cout << endl;
+    }
+    */
+    
+    // calculate dp component wise
+    StateVec dp;
+    dp.insertMultiple(0, 0., p.size());
+    for (int i=0; i<p.size(); i++)
+    {
+      double pi = 0.;
+      for (int j=0; j<p.size(); j++)
+      {
+        pi += eig_inv_hessian(i, j) * ( abs(sp)*dq.getUnchecked(j)/norm2_dq - dHdp.getUnchecked(j));
+      }
+      dp.setUnchecked(i, pi);
+    }
+    
+    //cout << "dp = ";
+    //for (auto & el : dp)
+    //  cout << el << " ";
+    //cout << endl;
+    
+    // update gsl_vector
+    for (int i=0; i<x.size; i++)
+    {
+      gsl_vector_set(&x, i, p.getUnchecked(i) + dp.getUnchecked(i));
+    }
+    
+  } // end if sp < 0
+  
+  return;
+}
+
+
 // Performs the actual multivariate solving. Arguments :
 // s : the gsl multiroot solver used
 // fdf : the multivariate vector function for which gsl will attempt to find roots
@@ -1834,6 +1957,7 @@ int NEP::gslMultirootSolving(gsl_multiroot_fdfsolver * s, gsl_multiroot_function
     {
       iter++;
       
+      correctMomentumDirectionIfFollowingWrongBranch(*s->x, ev.qcenter, ev.deltaq);
       /*
       // make sure to have dHdp parallel to dq
       StateVec p;
@@ -1855,10 +1979,10 @@ int NEP::gslMultirootSolving(gsl_multiroot_fdfsolver * s, gsl_multiroot_function
       if (status != GSL_SUCCESS)
         break;
       status = gsl_multiroot_test_residual(s->f, tolerance); // returns GSL_SUCCESS if converged, GSL_CONTINUE otherwise
-      double norm2 = 0.;
-      for (int k=0; k<s->f->size; k++)
-        norm2 += gsl_vector_get(s->f, k)*gsl_vector_get(s->f, k);
-      norm2 = sqrt(norm2);
+      //double norm2 = 0.;
+      //for (int k=0; k<s->f->size; k++)
+      //  norm2 += gsl_vector_get(s->f, k)*gsl_vector_get(s->f, k);
+      //norm2 = sqrt(norm2);
       //cout << "\tresidual : " << norm2 << endl;
     }
     //std::cout << "\tstatus = " << gsl_strerror(status) << "\n";
@@ -1892,6 +2016,31 @@ void printLiftingJacobian_old(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, i
     }
     cout << endl;
   }
+}
+
+void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
+{
+  StateVec p;
+  for (int i=0; i<n; i++)
+  {
+    p.add(gsl_vector_get(s->x, i));
+  }
+  
+  StateVec q = ev.qcenter;
+  StateVec dHdp = ev.nep->evalHamiltonianGradientWithP(q, p);
+  dsp::Matrix<double> hessian = ev.nep->evalHamiltonianHessianWithP(q, p);
+  
+  dsp::Matrix<double> jaco = calculateLiftingJacobian(dHdp, hessian, ev.B, ev.pnorm, ev.equation_norm, n);
+  
+  cout << "J = " << endl;
+  for (int i=0; i<jaco.getNumRows(); i++)
+  {
+    for (int j=0; j<jaco.getNumColumns(); j++)
+    {
+      cout << jaco(i, j) << " ";
+    }
+    cout << endl;
+  }
   
 }
 
@@ -1903,7 +2052,8 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
   Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
   
   // keep track if GSL converged or not.
-  vector<int> gslStatus;
+  Array<int> gslStatus;
+  Array<int> convergenceSanityCheck;
   
   bool gsl_status_previous_point = false;
   vector<double> previous_gsl_result(n, 0.1);
@@ -1971,7 +2121,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
     
     // actual solving
     bool useContinuation = true;
-    int status = gslMultirootSolving(s, fdf, ev, useContinuation);
+    int status = gslMultirootSolving_old(s, fdf, ev, useContinuation);
         
     // if not successful, try again normalizing the momenta variable with current state of the solver
     if (status != GSL_SUCCESS)
@@ -2051,7 +2201,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
       
       // calling again the multiroot solver
       useContinuation = false;
-      status = gslMultirootSolving(s, fdf, ev, useContinuation);
+      status = gslMultirootSolving_old(s, fdf, ev, useContinuation);
     }
     
     /*
@@ -2109,13 +2259,13 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
       
       // calling again the multiroot solver
       useContinuation = false;
-      status = gslMultirootSolving(s, fdf, ev, useContinuation);
+      status = gslMultirootSolving_old(s, fdf, ev, useContinuation);
     }
       
     */
     
     // keep track of gsl status for current point
-    gslStatus.push_back(status);
+    gslStatus.add(status);
   
 
     //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
@@ -2139,6 +2289,11 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
     assert(deltaq_norm2 > 0.);
     double dt = deltaq_norm2 / mu;
     
+    // dHdp and dq should be colinear, use this as a convergence criteria
+    StateVec dHdp_opt = evalHamiltonianGradientWithP(qcenter, pstar);
+    bool bc = areParallel(dHdp_opt, deltaq, 1e-8, maxPrintingAllowed);
+    convergenceSanityCheck.add(bc);
+    
     
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
@@ -2158,7 +2313,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
     {
       gsl_status_previous_point = false;
     }
-    
+    /*
     if (maxPrintingAllowed)
     {
       cout << "GSL final status : " << gsl_strerror(status) << endl;
@@ -2197,6 +2352,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
       //cout << "gsl descent step norm : " << gsl_step_nrm2 << endl;
       
     }
+    */
     
     //gsl_multiroot_fsolver_free(s);
     gsl_multiroot_fdfsolver_free(s);
@@ -2204,13 +2360,16 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_old(const Curve& qcurve
     
   } // end loop over points in concentration curve
   
-  
+  // add a dummy element to gslStatus and collinear Status to make array match the number of points
+  gslStatus.add(GSL_POSINF);
+  convergenceSanityCheck.add(-999);
   
   // returning results of the
   LiftTrajectoryOptResults output;
   output.opt_momentum = vec_pstar;
   output.opt_deltaT = vec_dt;
   output.gslStatus = gslStatus;
+  output.collinearity = convergenceSanityCheck;
   
   return output;
   
@@ -2227,8 +2386,8 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
   Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
   
   // keep track if GSL converged or not for each point of the concentration curve.
-  vector<int> gslStatus;
-  vector<bool> convergenceSanityCheck;
+  Array<int> gslStatus;
+  Array<int> convergenceSanityCheck;
   
   bool gsl_status_previous_point = false;
   vector<double> previous_gsl_result(n, 0.1);
@@ -2236,8 +2395,8 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
   // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
   for (int point=0; point<nPoints-1; point++) // n - 1 iterations
   {
-    if (maxPrintingAllowed)
-      cout << "Point #" << point << endl;
+    //if (maxPrintingAllowed)
+      //cout << "Point #" << point << endl;
     
     // calculate q, dq of current concentration curve
     StateVec q = qcurve.getUnchecked(point);
@@ -2276,9 +2435,22 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     eqnorm.insertMultiple(0, 1., n);
     ev.equation_norm = eqnorm;
     
-    // initial value for p and dt = || dq || / exp(s)
+    // initial value for p
     // x = (p, s)
     gsl_vector* x = initialOptimalGuess(n, gsl_status_previous_point, previous_gsl_result, qcenter);
+    
+    StateVec pinit;
+    for (int k=0; k<x->size; k++)
+    {
+      pinit.add(gsl_vector_get(x, k));
+    }
+    StateVec dHdp_init = evalHamiltonianGradientWithP(qcenter, pinit);
+    double sp_init = 0.;
+    for (int k=0; k<pinit.size(); k++)
+    {
+      sp_init += dHdp_init.getUnchecked(k) * deltaq.getUnchecked(k);
+    }
+    //cout << "dH/dp • dq at initial condition = " << sp_init << endl;
     
     
     // build orthogonal basis of space orthogonal to dq
@@ -2315,30 +2487,32 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     
     //printLiftingJacobian(s, ev, n);
         
-    /*
+    
     // if not successful, try again normalizing the momenta variable with current state of the solver
     if (status != GSL_SUCCESS)
     {
-      LOG("Renormalizing momentum variables and equations !!");
+      
       
       if (maxPrintingAllowed)
       {
-        cout << "current state : ";
-        for (int i=0; i<n; i++)
-          cout << gsl_vector_get(s->x, i) << " ";
-        cout << endl;
+        LOG("Renormalizing momentum variables and equations for point " + to_string(point)  + " !!");
         
-        cout << "residual : ";
-        for (int i=0; i<n; i++)
-          cout << gsl_vector_get(s->f, i) << " ";
-        cout << endl;
+        //cout << "current state : ";
+        //for (int i=0; i<n; i++)
+        //  cout << gsl_vector_get(s->x, i) << " ";
+        //cout << endl;
         
-        printLiftingJacobian(s, ev, n);
+        //cout << "residual : ";
+        //for (int i=0; i<n; i++)
+        //  cout << gsl_vector_get(s->f, i) << " ";
+        //cout << endl;
+        
+        //printLiftingJacobian(s, ev, n);
       }
       
-      // update momentum normalization
+      // update momentum normalization with current values of p in gsl
       StateVec pprime;
-      for (int m=0; m<n-1; m++)
+      for (int m=0; m<n; m++)
       {
         double pm = gsl_vector_get(s->x, m);
         if (pm != 0.)
@@ -2347,42 +2521,53 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
           ev.pnorm.setUnchecked(m, 1e-5);
         
         pprime.add(pm/ev.pnorm.getUnchecked(m));
-        gsl_vector_set(s->x, m, pm/ev.pnorm.getUnchecked(m));
+        //gsl_vector_set(s->x, m, pm/ev.pnorm.getUnchecked(m));
+        gsl_vector_set(s->x, m, 0.1);
       }
-      cout << "pnorm = ";
-      for (auto & pm : ev.pnorm)
-        cout << pm << " ";
-      cout << endl;
+      //cout << "pnorm = ";
+      //for (auto & pm : ev.pnorm)
+      //  cout << pm << " ";
+      //cout << endl;
       
       
-      printLiftingJacobian(s, ev, n);
+      //printLiftingJacobian(s, ev, n);
       
       // to normalize equations
       StateVec equation_norm;
       
-      //StateVec dHdp = evalHamiltonianGradientWithP(qcenter, pprime);
-      //dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pprime);
-      double mu = exp(gsl_vector_get(s->x, n-1));
+      // calculate jacobian in renormalized momentum
+      StateVec dHdp = evalHamiltonianGradientWithP(qcenter, pprime);
+      dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(qcenter, pprime);
+      dsp::Matrix<double> jaco = calculateLiftingJacobian(dHdp, hessian, ev.B, ev.pnorm,  ev.equation_norm, n);
 
-      // use jacobian norm2 of matrix line vector 'i' to normalize equation 'i'.
-      dsp::Matrix<double> jaco = calculateLiftingJacobian(ev, pprime, mu, n);
-      for (int i=0; i<n; i++)
+      
+      // use jacobian median of vector elements (matrix line 'i') to normalize equation 'i'.
+      equation_norm.clear();
+      equation_norm.insertMultiple(0, 1., n);
+      jassert(jaco.getNumRows() == n);
+      jassert(jaco.getNumColumns() == n);
+      for (int i=0; i<jaco.getNumRows(); i++)
       {
         StateVec line;
-        for (int j=0; j<n; j++)
-        {
-          line.add(jaco(i,j));
-        }
-        double si = norm2(line);
+        for (int j=0; j<jaco.getNumColumns(); j++)
+          line.add(abs(jaco(i,j)));
+        
+        
+        double si = 0.;
+        for (auto & el : line)
+          si += el;
+        double NN = (double) line.size();
+        si /= NN;
+        
         if (si==0.)
           si = 1e-5;
-        equation_norm.add(si);
+        equation_norm.setUnchecked(i, si);
       }
       
-      cout << "eq norm : ";
-      for (auto & e : equation_norm)
-        cout << e << " ";
-      cout << endl;
+      //cout << "eq norm : ";
+      //for (auto & e : equation_norm)
+      //  cout << e << " ";
+      //cout << endl;
       
       // pass equation normalization to encapsulating variable
       ev.equation_norm = equation_norm;
@@ -2392,70 +2577,10 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
       useContinuation = false;
       status = gslMultirootSolving(s, fdf, ev, useContinuation);
     }
-     */
-    
-    /*
-    
-    // if still not successful, I could try to renormalize the equations themselves
-    if (status != GSL_SUCCESS)
-    {
-      LOG("Renormalizing equations !!");
-      
-      if (maxPrintingAllowed)
-      {
-        cout << "residual : ";
-        for (int i=0; i<n; i++)
-          cout << gsl_vector_get(s->f, i) << " ";
-        cout << endl;
-        
-        cout << "J = " << endl;
-        for (int i=0; i<n; i++)
-        {
-          for (int j=0; j<n; j++)
-          {
-            cout << gsl_matrix_get(s->J, i, j) << " ";
-          }
-          cout << endl;
-        }
-      }
-      
-      // to normaliza equations
-      StateVec equation_norm;
-
-      // use jacobian norm2 of matrix line vector 'i' to normalize equation 'i'.
-      for (int i=0; i<n; i++)
-      {
-        StateVec line;
-        for (int j=0; j<n; j++)
-        {
-          if (i==0 && j == n-1)
-            continue;
-          double jaco_ij = gsl_matrix_get(s->J, i, j);
-          line.add(jaco_ij);
-        }
-        double si = norm2(line);
-        if (si==0.)
-          si = 1e-5;
-        equation_norm.add(si);
-      }
-      
-      cout << "eq norm : ";
-      for (auto & e : equation_norm)
-        cout << e << " ";
-      cout << endl;
-      
-      // pass equation normalization to encapsulating variable
-      ev.equation_norm = &equation_norm;
-      
-      // calling again the multiroot solver
-      useContinuation = false;
-      status = gslMultirootSolving(s, fdf, ev, useContinuation);
-    }
-      
-    */
+     
     
     // keep track of gsl status for current point
-    gslStatus.push_back(status);
+    gslStatus.add(status);
   
 
     //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
@@ -2475,18 +2600,18 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     // dHdp and dq should be colinear, use this as a convergence criteria
     StateVec dHdp_opt = evalHamiltonianGradientWithP(qcenter, pstar);
     bool bc = areParallel(dHdp_opt, deltaq, 1e-8, maxPrintingAllowed);
-    convergenceSanityCheck.push_back(bc);
+    convergenceSanityCheck.add(bc);
     
     // deduce dt
     double norm2_dHdp_opt = norm2(dHdp_opt);
-    double dt = 0.;
+    double dt = 1.;
     if (norm2_dHdp_opt>0.)
     {
-      dt = norm2(deltaq) / norm2_dHdp_opt;
+      dt = scalarProduct(dHdp_opt, deltaq) / (norm2_dHdp_opt*norm2_dHdp_opt);
     }
     else
     {
-      LOGWARNING("Cannot assign dt to current point. || dHdp || = 0. Setting to 0.");
+      LOGWARNING("Cannot assign dt to current point. || dHdp || = 0. Setting to 1.");
     }
     
     // add optimizing time
@@ -2510,35 +2635,30 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
     
     if (maxPrintingAllowed)
     {
-      cout << "GSL final status : " << gsl_strerror(status) << endl;
-      cout << "Collinear sanity check : " << bc << endl;
-
+      //cout << "GSL final status : " << gsl_strerror(status) << endl;
+      //cout << "Collinear sanity check : " << bc << endl;
       
-      cout << "residuals : ";
+      string residuals;
       for (int i=0; i<n; i++)
       {
-        cout << gsl_vector_get(s->f, i) << " ";
+       // cout << gsl_vector_get(s->f, i) << " ";
+        residuals += " " + to_string(gsl_vector_get(s->f, i));
       }
-      cout << endl;
+      //cout << endl;
+      //LOG("residuals : " + residuals);
+      
+      //if (status != GSL_SUCCESS)
+      //  printLiftingJacobian(s, ev, n);
+      
+      //cout << "solutions p : ";
+      //for (auto & el : ptild)
+      //  cout << el << " ";
+      //cout << "dt = " << dt << endl;
       
       
-      //printLiftingJacobian(s, ev, n);
-      
-      cout << "solutions p : ";
-      for (auto & el : ptild)
-        cout << el << " ";
-      cout << "dt = " << dt << endl;
-      
-      
-      cout << "gsl step descent norm : " << endl;
-      cout << gsl_blas_dnrm2(s->dx);
-      cout << endl << endl;
-      //StateVec gsl_step;
-      //for (int k=0; k<n; k++)
-      //  gsl_step.add(gsl_vector_get(s->dx, k));
-      //double gsl_step_nrm2 = norm2(gsl_step);
-      //cout << "gsl descent step norm : " << gsl_step_nrm2 << endl;
-      
+      //cout << "gsl step descent norm : " << endl;
+      //cout << gsl_blas_dnrm2(s->dx);
+      //cout << endl << endl;
     }
     
     //gsl_multiroot_fsolver_free(s);
@@ -2548,12 +2668,16 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
   } // end loop over points in concentration curve
   
   
+  // add a dummy element to gslStatus and collinear Status to make array match the number of points
+  gslStatus.add(GSL_POSINF);
+  convergenceSanityCheck.add(-999);
   
   // returning results of the
   LiftTrajectoryOptResults output;
   output.opt_momentum = vec_pstar;
   output.opt_deltaT = vec_dt;
   output.gslStatus = gslStatus;
+  output.collinearity = convergenceSanityCheck;
   
   return output;
   
@@ -2586,8 +2710,10 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
   
   bool gslSucceeded = true;
   vector<string> errors;
-  for (auto & st : liftResults.gslStatus)
+  //for (auto & st : liftResults.gslStatus)
+  for (int k=0; k<liftResults.gslStatus.size()-1; k++)
   {
+    int st = liftResults.gslStatus.getUnchecked(k);
     if (st != GSL_SUCCESS)
     {
       gslSucceeded = false;
@@ -3108,7 +3234,7 @@ void NEP::writeDescentToFile()
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
-  historyFile << "iteration,action,point";
+  historyFile << "iteration,action,point,gslStatus,collinearStatus";
   for (auto & ent : simul->entities)
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
@@ -3127,12 +3253,18 @@ void NEP::writeDescentToFile()
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == ham_descent.size());
+  jassert(actionDescent.size() == gslStatus_descent.size());
+  jassert(actionDescent.size() == collinearityStatus_descent.size());
   
-  for (int iter=0; iter<actionDescent.size(); iter++) // loop over descent iterations
+  int nPoints_descent = actionDescent.size();
+  
+  for (int iter=0; iter<nPoints_descent; iter++) // loop over descent iterations
   {
     for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++) // loop over curve points
     {
       historyFile << iter << "," << actionDescent.getUnchecked(iter).getUnchecked(point) << "," << point;
+      historyFile << "," << gslStatus_descent.getUnchecked(iter).getUnchecked(point) << "," << collinearityStatus_descent.getUnchecked(iter).getUnchecked(point);
+      
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
@@ -3177,9 +3309,8 @@ void NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
     {
       for (int m=0; m<_qcurve.getUnchecked(k).size(); m++)
       {
-        newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq_filt.getUnchecked(k).getUnchecked(m) );
-        //newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - stepDescent * dAdq_filt.getUnchecked(k).getUnchecked(m) );
-        //newqk.add( qcurve.getUnchecked(k).getUnchecked(m) - stepDescent * dAdq.getUnchecked(k).getUnchecked(m) );
+        //newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq_filt.getUnchecked(k).getUnchecked(m) );
+        newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq.getUnchecked(k).getUnchecked(m) );
       }
     }
     _qcurve.setUnchecked(k, newqk);
@@ -3223,11 +3354,11 @@ Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array
   Array<double> hamilt;
   for (int i=0; i<qc.size(); i++)
   {
-    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) / timescale_factor);
+    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)));
     //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
   }
   
-  // use trapezoidal rule to calculate action = integral(0, T, p dq/dt - H)
+  // use trapezoidal rule to calculate action = integral(0, T, p•dq - H*dt)
   double newaction = 0.;
   Array<double> cumul_action;
   cumul_action.add(0.);

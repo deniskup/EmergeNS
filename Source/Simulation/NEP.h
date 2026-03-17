@@ -58,7 +58,8 @@ class LiftTrajectoryOptResults
     Array<double> opt_deltaT;
     pCurve pcurve;
     Array<double> times;
-    vector<int> gslStatus;
+    Array<int> gslStatus;
+    Array<int> collinearity;
 };
 
 class NEP;
@@ -222,6 +223,7 @@ private:
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
   int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
@@ -288,6 +290,8 @@ private:
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
+  Array<Array<int>> gslStatus_descent;
+  Array<Array<int>> collinearityStatus_descent;
     
   ofstream debugfile;
 
