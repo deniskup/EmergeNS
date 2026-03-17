@@ -20,6 +20,7 @@
 #include "JuceHeader.h"
 //#include <nlopt.hpp>
 #include <gsl/gsl_multiroots.h>
+#include <gsl/gsl_blas.h>
 #include <random>
 #include "KineticLaw.h"
 
@@ -46,6 +47,8 @@ typedef Array<StateVec> pCurve;
 typedef Array<PhaseSpaceVec> Trajectory;
 
 
+
+
 class LiftTrajectoryOptResults
 {
   public:
@@ -55,7 +58,32 @@ class LiftTrajectoryOptResults
     Array<double> opt_deltaT;
     pCurve pcurve;
     Array<double> times;
+    Array<int> gslStatus;
+    Array<int> collinearity;
 };
+
+class NEP;
+
+struct EncapsVarForNLOpt {
+  const Array<double>* qcenter; // current concentration point
+  const Array<double>* deltaq; // current concentration point
+  Array<double>* p; // p variable to pass to t optimisation
+  NEP * nep; // nep class for hamiltonian class
+  double t_opt; // t variable that optimizes the lagrangian
+  //Array<double> p_opt; // t variable that optimizes the lagrangian
+};
+
+
+struct EncapsVarForGSL {
+  Array<double> qcenter; // current concentration point
+  Array<double> deltaq; // current concentration point
+  NEP * nep; // nep class for hamiltonian calculations
+  double epsilon = 1.;
+  Array<double> pnorm;
+  Array<double> equation_norm;
+  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+};
+
 
 
 
@@ -93,16 +121,18 @@ public:
   Trigger * startDescent;
   Trigger * stopDescent;
   Trigger * start_heteroclinic_study;
+  Trigger * test;
   bool heteroclinic_study = false;
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints;
+  IntParameter * nPoints_start;
+  IntParameter * nPoints_max;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   FloatParameter * action_threshold ;
   FloatParameter * stepDescentInitVal;
-  FloatParameter * timescale_factor;
+  //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
   EnumParameter* initialConditions;
 
@@ -173,6 +203,7 @@ public:
   
 private:
   
+  void setTimeNormalizationFactor();
 
   void initConcentrationCurve();
   
@@ -185,8 +216,20 @@ private:
   bool descentShouldUpdateParams(double);
   
   bool descentShouldContinue(int);
+  
+  dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
+  
+  gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
+  gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
+  
+  int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
+  int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
     
-  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(Curve&, bool);
+  LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
 
   //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
@@ -222,6 +265,12 @@ private:
   double metric = 1.; // distance from hamilton's equation of motion
   Array<StateVec> dAdq, dAdq_filt;
 
+  // number of sampling points
+  int nPoints;
+  int nPoints_increment = 10;
+  
+  // decides whether concentration curve cab be update q^{i+1} = q^{i} - dA/dq
+  bool canUpdateConcentrationCurve = true;
   
   // sample rate, calculated from current qcurve
   double sampleRate;
@@ -229,6 +278,9 @@ private:
   // #para
   double stepDescentThreshold = 1e-4;
   double stepDescent;
+  
+  // normalization parameters
+  double timescale_factor = 1.;
   
 
   // for printing history to file
@@ -238,6 +290,8 @@ private:
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
+  Array<Array<int>> gslStatus_descent;
+  Array<Array<int>> collinearityStatus_descent;
     
   ofstream debugfile;
 
@@ -245,4 +299,5 @@ private:
 
    
 };
+
 
