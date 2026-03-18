@@ -236,7 +236,7 @@ void Simulation::updateSpaceGridSizeInSimu()
   for (auto& ent : entities)
   {
     //float start0 = ent->startConcent.getUnchecked(0);
-    cout << ent->name << endl;
+    //cout << ent->name << endl;
     ent->startConcent.resize(Space::getInstance()->tilingSize->intValue());
     ent->concent.resize(Space::getInstance()->tilingSize->intValue());
     ent->deterministicConcent.resize(Space::getInstance()->tilingSize->intValue());
