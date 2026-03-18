@@ -19,6 +19,7 @@
 
 #include "JuceHeader.h"
 //#include <nlopt.hpp>
+#include <gsl/gsl_roots.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_blas.h>
 #include <random>
@@ -74,14 +75,23 @@ struct EncapsVarForNLOpt {
 };
 
 
+
+
 struct EncapsVarForGSL {
   juce::Array<double> qcenter; // current concentration point
   juce::Array<double> deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
-  juce::Array<double> pnorm;
-  juce::Array<double> equation_norm;
-  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  Array<double> pnorm;
+  Array<double> equation_norm;
+  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  double mu;
+};
+
+struct EncapsVarForGSL_MU {
+  Array<double> q; // current concentration point
+  Array<double> p; // current concentration point
+  NEP * nep; // nep class for hamiltonian calculations
 };
 
 
@@ -225,9 +235,11 @@ private:
   int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_opt(const Curve&, const int n, bool);
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
 
