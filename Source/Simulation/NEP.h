@@ -85,12 +85,15 @@ struct EncapsVarForGSL {
   Array<double> pnorm;
   Array<double> equation_norm;
   dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
-  double mu;
+  //double mu;
+  double s;
 };
 
 struct EncapsVarForGSL_MU {
   Array<double> q; // current concentration point
   Array<double> p; // current concentration point
+  Array<double> dq;
+  double dq_norm2;
   NEP * nep; // nep class for hamiltonian calculations
 };
 
@@ -235,7 +238,7 @@ private:
   int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
-  int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
