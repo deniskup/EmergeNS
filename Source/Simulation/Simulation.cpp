@@ -221,6 +221,8 @@ void Simulation::updateParams()
   //simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATENEPPARAMS, this));
   NEP::getInstance()->updateSteadyStateList();
   
+  affectSATIds();
+  
   //}
   // update the parameters of the simulation in the UI
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
@@ -1659,6 +1661,11 @@ void Simulation::resetBeforeRunning()
     string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
     kinetics->fixedSeedMode(strSeed);
   }
+  else
+  {
+    kinetics->shakeSeedValue();
+  }
+
   
   // clear space grid
   //spaceGrid.clear();
@@ -1901,7 +1908,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
       entityValues[pr] = ent->concent[p.id];
     }
   }
-  cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
+  //cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
   
@@ -1996,6 +2003,10 @@ void Simulation::resetForNextRun()
     recordConcent.set(k, 0.);
     recordDrawn.set(k, 0.);
   }
+  
+  // reset the seed
+  if (!Settings::getInstance()->fixedSeed->boolValue() && stochasticity->boolValue())
+    kinetics->shakeSeedValue();
   
   // message to listeners
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this));

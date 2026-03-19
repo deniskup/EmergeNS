@@ -30,12 +30,18 @@ void KineticLaw::fixedSeedMode(const string strSeed)
   if (!correctFormat)
   {
     LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
+    rgg->setFixedSeed(1234);
   }
   else
   {
     unsigned int seed = atoi(strSeed.c_str());
     rgg->setFixedSeed(seed);
   }
+}
+
+void KineticLaw::shakeSeedValue()
+{
+  rgg->shakeSeedValue();
 }
 
 

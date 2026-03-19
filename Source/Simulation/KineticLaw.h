@@ -31,6 +31,7 @@ class RandomGausGenerator
   };
   
   // attributes
+  random_device rd;
   default_random_engine * generator;
   normal_distribution<float> * gausDist;
   float mu = 0.;
@@ -46,6 +47,11 @@ class RandomGausGenerator
   void setFixedSeed(unsigned int _seed)
   {
     generator->seed(_seed);
+  }
+  
+  void shakeSeedValue()
+  {
+    generator->seed(rd());
   }
   
 };
@@ -65,6 +71,7 @@ public:
   ~KineticLaw();
   
   void fixedSeedMode(const string);
+  void shakeSeedValue();
   
   void SteppingReactionRates(OwnedArray<SimReaction>&, float, int, bool);
   void SteppingInflowOutflowRates(OwnedArray<SimEntity>&, float, int);
