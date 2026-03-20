@@ -185,7 +185,7 @@ jobs:
           # apt-get update && apt-get install ...
 
           cd $GITHUB_WORKSPACE
-          wget "https://github.com/AppImage/appimagetool/releases/tag/continuous/appimagetool-x86_64.AppImage"
+          wget "https://github.com/AppImage/appimagetool/releases/TAAAAAAAG/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
 
       # - name: Start SSH via ngrok
