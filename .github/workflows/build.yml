@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - dix-CI-compile
+      - fix-CI-compile
   workflow_dispatch
 
 on:
