@@ -172,8 +172,8 @@ jobs:
         id: install_deps
         #shell: bash {0} # Opt out of fail-fast behavior (necessary to ignore fetch errors)
         run: |
-          #apt-get update
-          apt-get install -y libgsl-dev build-essential 
+          sudo apt-get update
+          sudo apt-get install -y libgsl-dev build-essential 
         
           # Most dependencies are already installed in the Docker image. Uncomment the following lines if you need more
           # apt-get update && apt-get install ...
