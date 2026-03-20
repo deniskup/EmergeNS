@@ -2,7 +2,7 @@ on:
   push:
     tags:
       - fix-CI-compile
-  workflow_dispatch
+  workflow_dispatch:
 
 on:
   push:
