@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-      - '*' # Matches any tag
+      - 'fix-CI-compil' # Matches any tag
   workflow_dispatch:
 
 env:
