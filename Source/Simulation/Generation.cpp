@@ -1,5 +1,5 @@
 #include "Generation.h"
-
+using namespace juce;
 juce_ImplementSingleton(Generation);
 
 Generation::Generation() : ControllableContainer("Generation")

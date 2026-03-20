@@ -8,7 +8,7 @@
 #include <Eigen/Dense>
 #pragma warning(pop)
 
-using namespace juce;
+//using namespace juce;
 using namespace std;
 
 class SimEntity;
@@ -27,19 +27,19 @@ class Interval{
 class Monom{ // represent a polynomial term such as k*c_1*c_3
  public:
      float coef; // here coef = k in the example above
-     Array<std::pair<int, int>> variables; // variables = {1, 3} in the example above
+     juce::Array<std::pair<int, int>> variables; // variables = {1, 3} in the example above
  };
 
-typedef Array<Monom> Polynom; // a polynom is a sum of monom
+typedef juce::Array<Monom> Polynom; // a polynom is a sum of monom
 
 //typedef Array<float> State; // a witness is a vector of concentrations
-typedef Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
+typedef juce::Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
 
 class SteadyState
 {
 public:
   SteadyState(){};
-  SteadyState(var vsst);
+  SteadyState(juce::var vsst);
   ~SteadyState(){};
   
   State state;
@@ -49,10 +49,10 @@ public:
   bool isStable = true;
   bool isPartiallyStable = false; // for border steady states only
   
-  var toJSONData();
+  juce::var toJSONData();
 };
 
-class SteadyStateslist : public Thread
+class SteadyStateslist : public juce::Thread
 {
 public:
     juce_DeclareSingleton(SteadyStateslist, true);
@@ -63,15 +63,15 @@ public:
 
     Simulation *simul;
 
-    Array<SteadyState> arraySteadyStates; // list of steady states
+    juce::Array<SteadyState> arraySteadyStates; // list of steady states
     int nGlobStable = 0;
     int nPartStable = 0;
     int nSaddle = 0; //
-    //Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
-    //Array<SteadyState> stableStates; // list of stable steady states
-    //Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
+    //juce::Array<SteadyState> borderSteadyStates; // list of steady states with at least one entity concentration equal to 0
+    //juce::Array<SteadyState> stableStates; // list of stable steady states
+    //juce::Array<SteadyState> partiallyStableStates; // list of stable steady states with at least one entity concentration equal to exactly 0
 
-    Array<Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
+    juce::Array<juce::Array<Polynom>> jacobiMatrix; // formal Jacobi Matrix
 
 
     // the thread function
@@ -113,9 +113,9 @@ public:
 
     // save/load to JSON
 
-    var toJSONData();
+    juce::var toJSONData();
 
-    void fromJSONData(var data);
+    void fromJSONData(juce::var data);
 
 
 

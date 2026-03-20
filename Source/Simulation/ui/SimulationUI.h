@@ -10,7 +10,7 @@ inline int rightMargin = 40; // previous 40
 
 class SimulationUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,
-                     public Timer,
+                     public juce::Timer,
                      public ContainerAsyncListener
                      //public Button::Listener
 {
@@ -21,8 +21,8 @@ public:
     Simulation *simul;
     bool shouldRepaint;
     //Array<Array<float>> entityHistory;
-    Array<ConcentrationGrid> entityHistory;
-    Array<Colour> entityColors;
+    juce::Array<ConcentrationGrid> entityHistory;
+    juce::Array<juce::Colour> entityColors;
   
     
 
@@ -54,10 +54,10 @@ public:
     unique_ptr<EnumParameterUI> setRunUI;
 
     //for diplaying paramaters
-    Label paramsLabel;
+    juce::Label paramsLabel;
 
     // int uiStep;
-    Rectangle<int> simBounds;
+    juce::Rectangle<int> simBounds;
   
     // to draw axis of concentration VS time
     int nticks = 3;
@@ -74,7 +74,7 @@ public:
     void paint(juce::Graphics &) override;
     void resized() override;
     void timerCallback() override;
-    bool keyPressed(const KeyPress &e) override;
+    bool keyPressed(const juce::KeyPress &e) override;
 
     // void newStep(Simulation *) override;
     // void simulationWillStart(Simulation *) override;
@@ -87,5 +87,5 @@ public:
 
     //void buttonClicked(Button* b) override;
 
-    static SimulationUI *create(const String &name) { return new SimulationUI(); }
+    static SimulationUI *create(const juce::String &name) { return new SimulationUI(); }
 };

@@ -1,5 +1,5 @@
 #include "KineticLaw.h"
-
+using namespace juce;
 
 
 KineticLaw::KineticLaw(bool _useStochasticity, float _noiseEpsilon)

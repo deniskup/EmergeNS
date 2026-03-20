@@ -3,7 +3,7 @@
 #include "ReactionManager.h"
 
 #include "Simulation.h"
-
+using namespace juce;
 juce_ImplementSingleton(ReactionManager);
 
 ReactionManager::ReactionManager() : BaseManager("Reactions")

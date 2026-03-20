@@ -9,7 +9,7 @@
 #include "EntityManager.h"
 #include "SimulationHelpers.h"
 
-using namespace juce;
+//using namespace juce;
 using namespace std;
 
 class Simulation;
@@ -50,8 +50,8 @@ class Patch
     neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, 1, tilSize), moduloSum(colIndex, 1, tilSize)));
   }
   
-  Array<int> neighbours;
-  Point<float> center;
+  juce::Array<int> neighbours;
+  juce::Point<float> center;
   int id;
   int rowIndex;
   int colIndex;
@@ -59,7 +59,7 @@ class Patch
 
 
 
-class Space : public ControllableContainer, public Thread
+class Space : public ControllableContainer, public juce::Thread
 {
 public:
     juce_DeclareSingleton(Space, true);
@@ -97,11 +97,11 @@ public:
   
     void run() override;
   
-    Array<Patch> spaceGrid;
+    juce::Array<Patch> spaceGrid;
 
   private:
     
-  Array<ConcentrationGrid> concMovie;
+  juce::Array<ConcentrationGrid> concMovie;
   
   
   public:
@@ -123,7 +123,7 @@ public:
       Space* space,
       int curStep = 0,
       ConcentrationGrid entityValues = {},
-      Array<Colour> entityColors = Array<Colour>())
+      juce::Array<juce::Colour> entityColors = juce::Array<juce::Colour>())
       : type(t), space(space), curStep(curStep), entityValues(entityValues), entityColors(entityColors)
     {
     }
@@ -132,7 +132,7 @@ public:
     Space* space;
     int curStep;
     ConcentrationGrid entityValues;
-    Array<Colour> entityColors;
+    juce::Array<juce::Colour> entityColors;
   };
 
   QueuedNotifier<SpaceEvent> spaceNotifier;

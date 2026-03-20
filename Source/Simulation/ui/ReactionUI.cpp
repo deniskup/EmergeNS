@@ -11,7 +11,7 @@ ReactionUI::~ReactionUI()
 {
 }
 
-void ReactionUI::resizedInternalHeader(Rectangle<int> &r)
+void ReactionUI::resizedInternalHeader(juce::Rectangle<int> &r)
 {
    
 }

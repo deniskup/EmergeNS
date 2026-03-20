@@ -22,7 +22,7 @@ public:
   FirstEscapeTime();
   ~FirstEscapeTime();
     
-  void setSimulationConfig(std::map<String, String>);
+  void setSimulationConfig(std::map<juce::String, juce::String>);
   
   void startStudy();
     
@@ -43,9 +43,9 @@ private:
 
 
   // to store escape times during this study
-  Array<float> escapeTimes;
+  juce::Array<float> escapeTimes;
   
-  String networkfile = "./nextwork.txt";
+  juce::String networkfile = "./nextwork.txt";
 //  String outputfilename = "./firstExitStudy.txt";
   float precision = 1e-5; // precision up to which the steady state is determined
   float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is

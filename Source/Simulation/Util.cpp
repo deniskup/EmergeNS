@@ -1,5 +1,5 @@
 #include "Util.h"
-
+using namespace juce;
 // maybe rand functions to move to a file Util.c later
 int randInt(int i, int j)
 {

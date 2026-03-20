@@ -1,9 +1,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-using namespace juce;
-ApplicationProperties &getAppProperties();
-ApplicationCommandManager &getCommandManager();
+//using namespace juce;
+juce::ApplicationProperties &getAppProperties();
+juce::ApplicationCommandManager &getCommandManager();
 
 class MainContentComponent : public OrganicMainContentComponent
 {
@@ -17,9 +17,9 @@ public:
 private:
 	//==============================================================================
 	// Your private member variables go here...
-	void getAllCommands(Array<CommandID> &commands) override;
-	virtual void getCommandInfo(CommandID commandID, ApplicationCommandInfo &result) override;
+	void getAllCommands(juce::Array<juce::CommandID> &commands) override;
+	virtual void getCommandInfo(juce::CommandID commandID, juce::ApplicationCommandInfo &result) override;
 	virtual bool perform(const InvocationInfo &info) override;
-	StringArray getMenuBarNames() override;
-	virtual PopupMenu getMenuForIndex(int topLevelMenuIndex, const String &menuName) override;
+	juce::StringArray getMenuBarNames() override;
+	virtual juce::PopupMenu getMenuForIndex(int topLevelMenuIndex, const juce::String &menuName) override;
 };

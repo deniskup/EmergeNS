@@ -1,5 +1,6 @@
 
 #include "SpaceUI.h"
+using namespace juce;
 
 SpaceUI::SpaceUI() : ShapeShifterContentComponent(Space::getInstance()->niceName),
                            space(Space::getInstance()), simul(Simulation::getInstance())
@@ -34,7 +35,7 @@ SpaceUI::~SpaceUI()
 
 void SpaceUI::resized()
 {
-    Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     replayProgressUI->setBounds(r.removeFromBottom(40).reduced(10));
     // r.removeFromTop(10);

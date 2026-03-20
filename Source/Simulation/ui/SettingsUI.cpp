@@ -16,7 +16,7 @@ SettingsUI::~SettingsUI()
 
 void SettingsUI::resized()
 {
-    Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     // r.removeFromTop(10);
     // Rectangle<int> hr = r.removeFromTop(27).reduced(2);

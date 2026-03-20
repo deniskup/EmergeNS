@@ -1,5 +1,5 @@
 #include "PACUI.h"
-
+using namespace juce;
 PACUI::PACUI() : ShapeShifterContentComponent("RACs"),
                  simul(Simulation::getInstance())
 {

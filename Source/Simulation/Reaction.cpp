@@ -4,7 +4,7 @@
 #include "Simulation.h"
 
 #define CONSTANTS_PRECISION 7
-
+using namespace juce;
 Reaction::Reaction(var params) : BaseItem(getTypeString() + " 1")
 {
 	addParams();

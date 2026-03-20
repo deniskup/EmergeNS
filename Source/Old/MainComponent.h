@@ -3,7 +3,7 @@
 #include <JuceHeader.h>
 #include "Data.h"
 
-using namespace juce;
+//using namespace juce;
 
 //==============================================================================
 /*
@@ -11,9 +11,9 @@ using namespace juce;
     your controls and content.
 */
 class MainComponent : public juce::Component,
-                      public Slider::Listener,
+                      public juce::Slider::Listener,
                       public Simulation::SimulationListener,
-                      public Timer
+                      public juce::Timer
 
 {
 public:
@@ -25,9 +25,9 @@ public:
     //==============================================================================
     void paint(juce::Graphics &) override;
     void resized() override;
-    void sliderValueChanged(Slider *slider) override;
+    void sliderValueChanged(juce::Slider *slider) override;
     void timerCallback() override;
-    bool keyPressed(const KeyPress& e) override;
+    bool keyPressed(const juce::KeyPress& e) override;
 
     void newStep(Simulation*);
     void simulationFinished(Simulation*);
@@ -39,6 +39,6 @@ private:
     juce::Label maxStepsLabel;
     Simulation *simul;
     bool shouldRepaint;
-    Array<Array<float>> entityHistory;
+    juce::Array<juce::Array<float>> entityHistory;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent)
 };

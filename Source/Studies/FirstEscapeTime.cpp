@@ -1,5 +1,5 @@
 #include "FirstEscapeTime.h"
-
+using namespace juce;
 // constructor
 FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
 {

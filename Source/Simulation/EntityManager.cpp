@@ -7,6 +7,8 @@
 #include <sstream>
 #include <unordered_map>
 
+using namespace juce;
+
 #define DBOOL(V) (V ? "true" : "false")
 juce_ImplementSingleton(EntityManager);
 

@@ -11,6 +11,6 @@ public:
     ReactionManagerUI();
     ~ReactionManagerUI();
 
-    static ReactionManagerUI* create(const String& name) { return new ReactionManagerUI(); }
+    static ReactionManagerUI* create(const juce::String& name) { return new ReactionManagerUI(); }
 
 };

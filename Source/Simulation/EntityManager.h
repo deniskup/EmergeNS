@@ -14,7 +14,7 @@ public:
 
 	//Trigger *generateTrigger;
 
-	void addItemInternal(Entity *e, var params) override;
+	void addItemInternal(Entity *e, juce::var params) override;
 
 	//void onContainerTriggerTriggered(Trigger *t) override;
 
@@ -26,7 +26,7 @@ public:
 	// normalise energies by setting primary entities to zero and propogating to composite ones
 	//void normEnergies();
 
-	Entity *getEntityFromName(String name);
+	Entity *getEntityFromName(juce::String name);
   
   void setEntityToPatchID(int);
 

@@ -25,7 +25,7 @@ public:
 	~EmergeNSApplication();
 
 	//==============================================================================
-	void initialiseInternal(const String& /*commandLine*/) override;
+	void initialiseInternal(const juce::String& /*commandLine*/) override;
 
 	bool moreThanOneInstanceAllowed() override;
 };

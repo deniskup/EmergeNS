@@ -10,19 +10,19 @@
 
 #pragma once
 #include <JuceHeader.h>
-using namespace juce;
+//using namespace juce;
 using namespace std;
 
 class SimEntity;
 class PAC;
-typedef Array<int> Compo;
+typedef juce::Array<int> Compo;
 
 class SimulationHelpers
 {
 public:
-	static var color2JSON(Colour col)
+	static juce::var color2JSON(juce::Colour col)
 	{
-		var data = new DynamicObject();
+		juce::var data = new juce::DynamicObject();
 		data.getDynamicObject()->setProperty("H", col.getHue());
 		data.getDynamicObject()->setProperty("S", col.getSaturation());
 		data.getDynamicObject()->setProperty("B", col.getBrightness());
@@ -30,9 +30,9 @@ public:
 		return data;
 	}
 
-	static Colour JSON2Color(var data)
+	static juce::Colour JSON2Color(juce::var data)
 	{
-		return Colour::fromHSV(data["H"], data["S"], data["B"], data["A"]);
+		return juce::Colour::fromHSV(data["H"], data["S"], data["B"], data["A"]);
 	}
 };
 
@@ -66,28 +66,28 @@ class RACSnapshot
 {
 public:
 	  public:
-  //RACSnapshot(float r, Array<float> f, Array<float> pp, Array<float> pm, Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp)
-  RACSnapshot(float r, Array<float> f) : rac(r), flows(f)
+  //RACSnapshot(float r, juce::Array<float> f, juce::Array<float> pp, juce::Array<float> pm, juce::Array<float> sp) : rac(r), flows(f), posSpecificities(pp), negSpecificities(pm), specificity(sp)
+  RACSnapshot(float r, juce::Array<float> f) : rac(r), flows(f)
     {}
   int runID = 0;
   int patchID = 0;
   int racID;
   int step;
   float rac;
-  Array<float> flows;
-  //Array<float> posSpecificities;
-  //Array<float> negSpecificities;
-  //Array<float> specificity;
+  juce::Array<float> flows;
+  //juce::Array<float> posSpecificities;
+  //juce::Array<float> negSpecificities;
+  //juce::Array<float> specificity;
 };
 
 class RACHist // RAC dynamics recorded in a single patch and for a single run
 {
 public:
 	RACHist() {}
-	RACHist(Array<SimEntity*> e) { ents = e; }
-	RACHist(Array<SimEntity*> e, float s) { ents = e; pacScore = s; }
-	OwnedArray<RACSnapshot> hist;
-	Array<SimEntity*> ents;
+	RACHist(juce::Array<SimEntity*> e) { ents = e; }
+	RACHist(juce::Array<SimEntity*> e, float s) { ents = e; pacScore = s; }
+	juce::OwnedArray<RACSnapshot> hist;
+	juce::Array<SimEntity*> ents;
 	float pacScore = 0.;
   bool wasRAC = false;
   //int runID = 0;
@@ -103,9 +103,9 @@ public:
   DynamicsHistory(){};
   ~DynamicsHistory(){};
 
-  Array<ConcentrationSnapshot> concentHistory; // concentration history
-  //Array<ConcentrationGrid> concentHistory; // concentration history
-  Array<RACSnapshot> racHistory; // RAC history
+  juce::Array<ConcentrationSnapshot> concentHistory; // concentration history
+  //juce::Array<ConcentrationGrid> concentHistory; // concentration history
+  juce::Array<RACSnapshot> racHistory; // RAC history
   std::map<PAC*, bool> wasRAC; // true if the PAC is on at some point "on" in the simulation (for drawing)
   
   
@@ -154,9 +154,9 @@ public:
   
 
   /*
-  Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
+  juce::Array<ConcentrationSnapshot> getConcentrationDynamicsForStep(int _stepid)
   {
-    Array<ConcentrationSnapshot> output;
+    juce::Array<ConcentrationSnapshot> output;
     for (auto & cs : concentHistory)
     {
       for (auto & [patchent, c] : cs->conc)
@@ -170,9 +170,9 @@ public:
   }
   */
   
-  Array<ConcentrationSnapshot> getConcentrationDynamicsForRun(int _runid)
+  juce::Array<ConcentrationSnapshot> getConcentrationDynamicsForRun(int _runid)
   {
-    Array<ConcentrationSnapshot> output;
+    juce::Array<ConcentrationSnapshot> output;
     for (auto & cs : concentHistory)
     {
       if (cs.runID == _runid)
@@ -232,9 +232,9 @@ public:
     }
   }
   
-  Array<RACSnapshot> getRACDynamicsForRun(int _runid)
+  juce::Array<RACSnapshot> getRACDynamicsForRun(int _runid)
   {
-    Array<RACSnapshot> output;
+    juce::Array<RACSnapshot> output;
     for (auto & rs : racHistory)
     {
       if (rs.runID == _runid)
@@ -243,9 +243,9 @@ public:
     return output;
   }
   
-  Array<RACSnapshot> getRACDynamicsForPatch(int _pid)
+  juce::Array<RACSnapshot> getRACDynamicsForPatch(int _pid)
   {
-    Array<RACSnapshot> output;
+    juce::Array<RACSnapshot> output;
     for (auto & rs : racHistory)
     {
       if (rs.patchID == _pid)
@@ -254,9 +254,9 @@ public:
     return output;
   }
   
-  Array<RACSnapshot> getRACDynamicsForPatchAndStep(int _pid, int _step, int startindex)
+  juce::Array<RACSnapshot> getRACDynamicsForPatchAndStep(int _pid, int _step, int startindex)
   {
-    Array<RACSnapshot> output;
+    juce::Array<RACSnapshot> output;
     //for (auto & rs : racHistory)
     for (int k = startindex; k<racHistory.size(); k++)
     {
@@ -267,9 +267,9 @@ public:
     return output;
   }
   
-  Array<RACSnapshot> getRACDynamicsForRunAndPatch(int _runid, int _pid)
+  juce::Array<RACSnapshot> getRACDynamicsForRunAndPatch(int _runid, int _pid)
   {
-    Array<RACSnapshot> output;
+    juce::Array<RACSnapshot> output;
     for (auto & rs : racHistory)
     {
       if (rs.runID == _runid && rs.patchID == _pid)

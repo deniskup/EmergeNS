@@ -11,7 +11,7 @@
 #include <random>
 
 
-using namespace juce;
+//using namespace juce;
 using namespace std;
 
 class Entity;
@@ -44,7 +44,7 @@ typedef unordered_map<pair<int, SimEntity*>, float, PairHash> ConcentrationGrid;
 
 
 class Simulation : public ControllableContainer,
-	public Thread
+	public juce::Thread
 
 {
 public:
@@ -93,7 +93,7 @@ public:
 	//REARRANGER POUR QUE CE SOIT LISIBLE ET LOGIQUE
 
   //OwnedArray<RACHist> RAChistory; // to store RAC activity at each step
-  OwnedArray<OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
+  juce::OwnedArray<juce::OwnedArray<RACHist>> RAChistory; // to store RAC activity at each step for each run. x-axis : rundID. y axis : pacID
   //unique_ptr<DynamicsHistory> dynHistory; // to store simulation dynamics
 	DynamicsHistory * dynHistory; // to store simulation dynamics
 	bool express = false; // express mode : no graphics, just find equilibrium
@@ -116,29 +116,29 @@ public:
   int currentRun = 0;
   int nRuns = 1;
   bool isMultipleRun = false;
-  Array<map<String, float>> initialConcentrations;
+  juce::Array<map<juce::String, float>> initialConcentrations;
   bool shouldStartNewRun = false;
 
 	//bool toImport = false; // to know if we have to import from manual changes
 	//bool ready;            // to know if ready to be launched, ie parameters generated
-  //float recordConcent;   // record the higher concentration reached #TODO --> should become an Array float of size nPatch
-	Array<float> recordConcent;   // record the higher concentration reached #TODO --> should become an Array float of size nPatch
+  //float recordConcent;   // record the higher concentration reached #TODO --> should become an juce::Array float of size nPatch
+	juce::Array<float> recordConcent;   // record the higher concentration reached #TODO --> should become an juce::Array float of size nPatch
   //String recordEntity;
-	Array<String> recordEntity;
+	juce::Array<juce::String> recordEntity;
   //float recordDrawn; // same but only for drawn entities for autoscale
-	Array<float> recordDrawn; // same but only for drawn entities for autoscale
+	juce::Array<float> recordDrawn; // same but only for drawn entities for autoscale
   //String recordDrawnEntity;
-	Array<String> recordDrawnEntity;
+	juce::Array<juce::String> recordDrawnEntity;
   //float maxVarSpeed; // maximal variation speed in the last dt among entities
-	Array<float> maxVarSpeed; // maximal variation speed in the last dt among entities
+	juce::Array<float> maxVarSpeed; // maximal variation speed in the last dt among entities
 
 	int checkPoint; // every checkPoint steps, wait and log
 	bool displayLog = false;
-	Array<SimEntity*> entitiesDrawn;
+	juce::Array<SimEntity*> entitiesDrawn;
 
-	OwnedArray<SimEntity> entities;    // all entities
-	OwnedArray<SimReaction> reactions; // all reactions
-	Array<SimEntity*> primEnts;       // primary entities, useful to recover the number i
+	juce::OwnedArray<SimEntity> entities;    // all entities
+	juce::OwnedArray<SimReaction> reactions; // all reactions
+	juce::Array<SimEntity*> primEnts;       // primary entities, useful to recover the number i
 
 	int numLevels = -1;
 
@@ -191,15 +191,15 @@ public:
 	void computeBarriers(); // compute barriers from rates and energy of entities
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
-	void setConcToSteadyState(OwnedArray<SimEntity>&, int idSS); // set concentrations to Steady State
+	void setConcToSteadyState(juce::OwnedArray<SimEntity>&, int idSS); // set concentrations to Steady State
   void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
   void drawConcOfPatch(int idpatch); // draw concentration dynamics associated to idpatch
 
 	// todo search and replace cycles to pacList->cycles etc in relevant files
 
 	// different from the default getJSONData and loadJSONData which only saves parameters.
-	var toJSONData();
-	void importJSONData(var data);
+	juce::var toJSONData();
+	void importJSONData(juce::var data);
 
 	struct tempReaction // TO REMOVE, only temporary
 	{
@@ -207,7 +207,7 @@ public:
 		vector<std::pair<SimEntity*, int>> products;
 	};
 
-	void importCsvData(String); 
+	void importCsvData(juce::String); 
 	void SearchReversibleReactionsInCsvFile(); // to be called only in importCsvData
 
 	bool getUserListMode(); // to know if we are in user list mode
@@ -216,7 +216,7 @@ public:
 	void PrintSimuToFile(string);
 
 	void writeJSONConcents(string filename = "");
-	var concent2JSON(); // save start concentrations and current concentrations of entities
+	juce::var concent2JSON(); // save start concentrations and current concentrations of entities
 
 	void writeHistory();
 
@@ -235,11 +235,11 @@ public:
 	void updateUserListFromSim(int);
   void resetBeforeRunning();
 	void start(bool restart = true);
-  void startMultipleRuns(Array<map<String, float>> initConc);
+  void startMultipleRuns(juce::Array<map<juce::String, float>> initConc);
   void requestProceedingToNextRun(const int);
   int checkRunStatus();
   void resetForNextRun();
-  void nextRedrawStep(ConcentrationSnapshot, Array<RACSnapshot>);
+  void nextRedrawStep(ConcentrationSnapshot, juce::Array<RACSnapshot>);
   void nextStep();
   void updateSinglePatchRates(Patch&, bool);
   //void SteppingReactionRates(OwnedArray<SimReaction>&, int, bool);
@@ -254,9 +254,9 @@ public:
 	void run() override;
 
 
-	SimEntity* getSimEntityForName(const String& name);
+	SimEntity* getSimEntityForName(const juce::String& name);
   SimEntity* getSimEntityForID(const size_t id);
-  SimReaction* getSimReactionForName(const String& name);
+  SimReaction* getSimReactionForName(const juce::String& name);
 
 	void onContainerTriggerTriggered(Trigger* t) override;
 	void onContainerParameterChanged(Parameter* p) override;
@@ -282,9 +282,9 @@ public:
 			int nStep = 0,
       //Array<float> entityValues = Array<float>(),
       ConcentrationGrid entityValues = {},
-			Array<Colour> entityColors = Array<Colour>(),
-			Array<float> PACsValues = Array<float>(),
-			Array<bool> RACList = Array<bool>())
+			juce::Array<juce::Colour> entityColors = juce::Array<juce::Colour>(),
+			juce::Array<float> PACsValues = juce::Array<float>(),
+			juce::Array<bool> RACList = juce::Array<bool>())
 			: type(t), sim(sim), run(_run), nStep(nStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
 		{
 		}
@@ -309,9 +309,9 @@ public:
 		int nStep;
     //Array<float> entityValues;
 		ConcentrationGrid entityValues;
-		Array<Colour> entityColors;
-		Array<float> PACsValues;
-    Array<bool> RACList;
+		juce::Array<juce::Colour> entityColors;
+		juce::Array<float> PACsValues;
+    juce::Array<bool> RACList;
     //map<PAC*, bool> RACList;
 	};
   

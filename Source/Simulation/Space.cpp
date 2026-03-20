@@ -1,6 +1,6 @@
 #include "Space.h"
 #include "Simulation.h"
-
+using namespace juce;
 
 juce_ImplementSingleton(Space);
 

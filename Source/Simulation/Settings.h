@@ -5,7 +5,7 @@
 // #include <unordered_map>
 #define CACROB_PRECISION 5
 
-using namespace juce;
+//using namespace juce;
 
 class Settings : public ControllableContainer
 {

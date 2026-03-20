@@ -17,7 +17,7 @@ public:
     int nbSim = 0;
     int maxNbSim = 10;
 
-    Array<Array<float>> steadyStates;
+    juce::Array<juce::Array<float>> steadyStates;
 
     void genStartConcents();
     void launchSim();

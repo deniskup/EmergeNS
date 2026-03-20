@@ -9,6 +9,7 @@
 #include "PAC.h" //for ParseModel
 
 using namespace std;
+using namespace juce;
 // using Eigen::MatrixXd;
 
 ///////////////////////////////////////////////////////////

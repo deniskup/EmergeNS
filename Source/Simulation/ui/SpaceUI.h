@@ -9,7 +9,7 @@
 class SpaceUI : public ShapeShifterContentComponent,
                 public Simulation::AsyncSimListener,
                 public Space::AsyncSpaceListener,
-                public Timer,
+                public juce::Timer,
                 public ContainerAsyncListener
 {
 public:
@@ -30,7 +30,7 @@ public:
   
     void paintOneHexagon(juce::Graphics &, float startX, float startY, float width);
 
-    static SpaceUI *create(const String &name) { return new SpaceUI(); }
+    static SpaceUI *create(const juce::String &name) { return new SpaceUI(); }
   
     int getPatchIDAtPosition(const juce::Point<int>&);
   
@@ -48,9 +48,9 @@ public:
 
 private:
   
-    unordered_map<int, Path> hexagons; // map drawn hexagons (paths) to their patch id
+    std::unordered_map<int, juce::Path> hexagons; // map drawn hexagons (paths) to their patch id
   
-    Rectangle<int> spaceBounds;
+    juce::Rectangle<int> spaceBounds;
   
     int previousTil;
   
@@ -69,8 +69,8 @@ private:
   
   
     //Array<Array<float>> entityHistory;
-    Array<ConcentrationGrid> entityHistory;
-    Array<Colour> entityColors;
+    juce::Array<ConcentrationGrid> entityHistory;
+    juce::Array<juce::Colour> entityColors;
   
 
 };

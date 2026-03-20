@@ -1,5 +1,5 @@
 #include "FirstEscapeTimeWorker.h"
-
+using namespace juce;
 
 void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
 {

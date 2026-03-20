@@ -32,7 +32,7 @@ using namespace std;
 //class Simulation::SimulationEvent;
 //class Simulation::AsyncSimListener;
 
-using namespace juce;
+//using namespace juce;
 
 // some typedef for readability
 typedef Array<double> StateVec;

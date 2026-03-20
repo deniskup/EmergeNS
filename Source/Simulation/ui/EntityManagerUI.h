@@ -11,6 +11,6 @@ public:
     EntityManagerUI();
     ~EntityManagerUI();
 
-    static EntityManagerUI* create(const String& name) { return new EntityManagerUI(); }
+    static EntityManagerUI* create(const juce::String& name) { return new EntityManagerUI(); }
 
 };

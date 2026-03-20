@@ -3,7 +3,7 @@
 
 #include "JuceHeader.h"
 // #include <unordered_map>
-using namespace juce;
+//using namespace juce;
 
 class Generation : public ControllableContainer
 {
@@ -72,7 +72,7 @@ public:
     virtual void updateGenUI(Generation *){};
   };
 
-  ListenerList<GenerationListener> listeners;
+  juce::ListenerList<GenerationListener> listeners;
   void addGenerationListener(GenerationListener *newListener) { listeners.add(newListener); }
   void removeGenerationListener(GenerationListener *listener) { listeners.remove(listener); }
 };
