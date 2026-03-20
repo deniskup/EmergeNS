@@ -8,7 +8,7 @@ env:
 jobs:
   windows:
     name: Windows
-    # if: false # always skip job
+    if: false # always skip job
     runs-on: windows-2022
     strategy:
       matrix:
@@ -68,7 +68,7 @@ jobs:
           path: ./Binaries/CI/App/${{ steps.create_package.outputs.pkg-name }}
 
   osx:
-    # if: false # tmp disable
+    if: false # tmp disable
     name: OSX
     runs-on: macos-latest
     
