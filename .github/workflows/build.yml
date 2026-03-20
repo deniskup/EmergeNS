@@ -1,13 +1,4 @@
 on:
-  push:
-    tags:
-      - fix-CI-compile
-  workflow_dispatch:
-
-on:
-  push:
-    tags:
-      - '*' # Matches any tag
   workflow_dispatch:
 
 env:
