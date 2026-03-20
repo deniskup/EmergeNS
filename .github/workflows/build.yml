@@ -146,8 +146,8 @@ jobs:
     # if: false # tmp disable
 
     name: Linux
-    runs-on: ubuntu-22.04
-    container: tommagnier/chataigne-linux-x64-build:debian9
+    runs-on: ubuntu-latest
+    #container: tommagnier/chataigne-linux-x64-build:debian9
 
     steps:
       - name: Checkout repo
