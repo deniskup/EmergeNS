@@ -1,6 +1,12 @@
 on:
   push:
     tags:
+      - dix-CI-compile
+  workflow_dispatch
+
+on:
+  push:
+    tags:
       - '*' # Matches any tag
   workflow_dispatch:
 
