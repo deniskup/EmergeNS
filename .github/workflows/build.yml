@@ -179,6 +179,9 @@ jobs:
           wget "https://github.com/AppImage/appimagetool/releases/tag/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
 
+          sudo apt-get update
+          sudo apt-get install -y libgsl-dev build-essential 
+
       # - name: Start SSH via ngrok
       #   uses: P3TERX/ssh2actions@main
       #   with:
