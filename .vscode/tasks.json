@@ -30,5 +30,24 @@
             "group": "build",
             "problemMatcher": []
         }
-    ]
+
+        ,
+    {
+      "label": "Build Release (x64) - EmergeNS",
+      "type": "shell",
+      "command": "cmd.exe",
+      "args": [
+        "/d",
+        "/c",
+        "for /f \"usebackq tokens=*\" %i in (`\"%ProgramFiles(x86)%\\Microsoft Visual Studio\\Installer\\vswhere.exe\" -latest -property installationPath`) do (call \"%i\\VC\\Auxiliary\\Build\\vcvars64.bat\" && \"%i\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"${workspaceFolder}\\Builds\\VisualStudio2022\\EmergeNS.sln\" /t:Build /m /p:Configuration=Release /p:Platform=x64 /p:WindowsTargetPlatformVersion=10.0.26100.0)"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "cmd.exe"
+        }
+      },
+      "problemMatcher": "$msCompile"
+    }
+  ]
 }
