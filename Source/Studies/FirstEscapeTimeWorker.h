@@ -53,7 +53,7 @@ public:
     void clearSnapshots(const int);
   
     //Array<float> escapeTimes;
-    juce::Array<Escape> escapes;
+    juce::Array<struct Escape> escapes;
     juce::OwnedArray<SimEntity> entities;
     juce::OwnedArray<SimReaction> reactions;
 

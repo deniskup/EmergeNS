@@ -33,7 +33,7 @@ void MainComponent::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(Colours::black.brighter(.2f));
 
-    Rectangle<int> r = getLocalBounds().withTop(maxStepsSlider.getBottom() + 10);
+    juce::Rectangle<int> r = getLocalBounds().withTop(maxStepsSlider.getBottom() + 10);
 
     g.setFont(12);
     int index = 0;
@@ -70,7 +70,7 @@ void MainComponent::paint(juce::Graphics &g)
             for (int j = 0; j < values.size(); j++)
             {
                 Point<float> ep = r.getRelativePoint(i * stepX, 1 - values[j] / maxConcent).toFloat();
-                // g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
+                // g.drawEllipse(juce::Rectangle<float>(10,10).withCentre(ep), 2.f);
                 paths[j]->lineTo(ep);
             }
         }
@@ -81,7 +81,7 @@ void MainComponent::paint(juce::Graphics &g)
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(Colours::black.brighter(.2f));
 
-    Rectangle<int> r = getLocalBounds().withTop(maxStepsSlider.getBottom() + 10);
+    juce::Rectangle<int> r = getLocalBounds().withTop(maxStepsSlider.getBottom() + 10);
 
     g.setFont(12);
     int index = 0;

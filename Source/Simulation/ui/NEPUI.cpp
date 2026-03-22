@@ -1,6 +1,6 @@
 #include "NEPUI.h"
 
-
+using namespace juce;
 
 
 NEPUI::NEPUI() : ShapeShifterContentComponent(NEP::getInstance()->niceName),
@@ -33,7 +33,7 @@ NEPUI::~NEPUI()
 
 // #HERE
 // tick marks as well as labels do not display correctly in UI
-void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int nticks, float max, int ndigits)
+void NEPUI::paintAxis(juce::Graphics &g, juce::Rectangle<int> r, String type, int nticks, float max, int ndigits)
 {
   g.setColour(NORMAL_COLOR);
   g.setFont(10.);
@@ -60,14 +60,14 @@ void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int ntic
         markX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks);
         markY = r.getY() + r.getHeight();
         //cout << "tick #" << i << ". xpos : " << markX << ". ypos : " << markY << endl;
-        Rectangle<int> m(markX, markY - markwidth / 2, markheight, markwidth);
+        juce::Rectangle<int> m(markX, markY - markwidth / 2, markheight, markwidth);
         g.drawRect(m, markheight);
       }
       else
       {
         markX = r.getX();
         markY = r.getY() + round((float)r.getHeight() * (float) i / (float)nticks);
-        Rectangle<int> m(markX - markwidth / 2, markY, markwidth, markheight);
+        juce::Rectangle<int> m(markX - markwidth / 2, markY, markwidth, markheight);
         g.drawRect(m, markheight);
       }
     }
@@ -83,7 +83,7 @@ void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int ntic
         label = String(iterations.getLast());
       int labelX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks) - textboxwidth/2;
       int labelY = r.getY() + r.getHeight() + shiftXaxisLabels;
-      Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
+      juce::Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
       if (i==0 || i==nticks) // only display first and last values for x axis
         g.drawText(label, labelpos, Justification::centred, true);
     }
@@ -92,7 +92,7 @@ void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int ntic
       // x position of ticks labels
       int labelX = r.getX() - shiftYaxisLabels;
       int labelY = r.getY() + round( (float) r.getHeight() * (1. - (float) i / (float) nticks) );
-      Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
+      juce::Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
       //float val = max * (1. - (float) i / (float) nticks);
       float val = max * ( (float) i / (float) nticks);
       stringstream ssval;
@@ -106,7 +106,7 @@ void NEPUI::paintAxis(juce::Graphics &g, Rectangle<int> r, String type, int ntic
 }
 
 
-void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, String title, Array<double> data)
+void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, juce::Rectangle<int> r, String title, Array<double> data)
 {
   if (data.size() == 0)
     return;
@@ -239,7 +239,7 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, Rectangle<int> r, Strin
   int titleboxwidth = 150;
   int titleX = r.getX() + r.getWidth()/2 - titleboxwidth/2;
   int titleY = r.getY() - 20;
-  Rectangle<int> titlepos(titleX, titleY, titleboxwidth, 20);
+  juce::Rectangle<int> titlepos(titleX, titleY, titleboxwidth, 20);
   g.drawText(title, titlepos, Justification::centred, true);
 
 
@@ -268,9 +268,9 @@ void NEPUI::paint(juce::Graphics & g)
   */
   //cout << "action size : " << actions.size() << endl;
   // retrieve bounds
-  Rectangle<int> bounds = getLocalBounds();
+  juce::Rectangle<int> bounds = getLocalBounds();
   // lower part for monitoring
-  Rectangle<int> lowerHalf = bounds.removeFromBottom(bounds.getHeight() / 2);
+  juce::Rectangle<int> lowerHalf = bounds.removeFromBottom(bounds.getHeight() / 2);
   // remove a bit of margin
   int borderMargin = 35;
   lowerHalf = lowerHalf.reduced(borderMargin);
@@ -282,10 +282,10 @@ void NEPUI::paint(juce::Graphics & g)
   int h = (lowerHalf.getHeight()-innerMargin) / 2;
   int x0 = lowerHalf.getX();
   int y0 = lowerHalf.getY();
-  Rectangle<int> r1(x0, y0, w, h);
-  Rectangle<int> r2(x0 + 1*w + innerMargin, y0, w, h);
-  Rectangle<int> r3(x0, y0 + 1*h + innerMargin, w, h);
-  Rectangle<int> r4(x0 + 1*w+innerMargin, y0 + 1*h + innerMargin, w, h);
+  juce::Rectangle<int> r1(x0, y0, w, h);
+  juce::Rectangle<int> r2(x0 + 1*w + innerMargin, y0, w, h);
+  juce::Rectangle<int> r3(x0, y0 + 1*h + innerMargin, w, h);
+  juce::Rectangle<int> r4(x0 + 1*w+innerMargin, y0 + 1*h + innerMargin, w, h);
   
   // draw action evolution in first recangle
   paintOneMonitoredQuantity(g, r1, "Action", actions);
@@ -306,7 +306,7 @@ void NEPUI::paint(juce::Graphics & g)
 
 void NEPUI::resized()
 {
-    Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     vp.setBounds(r);
     repaint();

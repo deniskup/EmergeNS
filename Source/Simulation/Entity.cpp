@@ -1,6 +1,7 @@
 #include "Settings.h"
 #include "Entity.h"
 #include "Simulation.h"
+using namespace juce;
 
 Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 {

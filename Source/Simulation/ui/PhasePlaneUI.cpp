@@ -23,7 +23,7 @@ void RunUI::resized()
 }
 
 /*
-void RunUI::resizedInternalHeader(Rectangle<int> &r)
+void RunUI::resizedInternalHeader(juce::Rectangle<int> &r)
 {
    
 }
@@ -92,7 +92,7 @@ void PhasePlaneUI::resized()
     vp.setBounds(r);
 /*
     r.removeFromTop(8);
-    Rectangle<int> hr = r.removeFromTop(20);
+    juce::Rectangle<int> hr = r.removeFromTop(20);
    
 
   

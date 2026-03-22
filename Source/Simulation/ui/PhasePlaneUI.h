@@ -14,7 +14,7 @@ public:
     RunUI();
     ~RunUI();
 
-    //void resizedInternalHeader(Rectangle<int> &r) override;
+    //void resizedInternalHeader(juce::Rectangle<int> &r) override;
   
   Run *run;
   

@@ -14,7 +14,7 @@ using namespace std;
 class NEPUI : public ShapeShifterContentComponent,
               public NEP::AsyncNEPListener,
               public ContainerAsyncListener,
-              public Timer
+              public juce::Timer
 {
 public:
     NEPUI();
@@ -26,16 +26,16 @@ public:
   
     juce::Viewport vp; // scrollable window
 
-    // Action array
-    Array<int> iterations;
-    Array<double> actions;
-    Array<double> cutoffFreqs;
-    Array<double> nPoints;
-    Array<double> metrics;
+    // Action juce::array
+    juce::Array<int> iterations;
+    juce::Array<double> actions;
+    juce::Array<double> cutoffFreqs;
+    juce::Array<double> nPoints;
+    juce::Array<double> metrics;
   
-    void paintAxis(juce::Graphics &g, Rectangle<int> bounds, String type, int nticks, float max, int ndigits);
+    void paintAxis(juce::Graphics &g, juce::Rectangle<int> bounds, juce::String type, int nticks, float max, int ndigits);
   
-    void paintOneMonitoredQuantity(juce::Graphics &, Rectangle<int>, String, Array<double>);
+    void paintOneMonitoredQuantity(juce::Graphics &, juce::Rectangle<int>, juce::String, juce::Array<double>);
 
     void paint(juce::Graphics &) override;
   
@@ -43,13 +43,13 @@ public:
   
     void timerCallback() override;
   
-    bool keyPressed(const KeyPress &e) override;
+    bool keyPressed(const juce::KeyPress &e) override;
 
     void newMessage(const NEP::NEPEvent &e) override;
 
     void newMessage(const ContainerAsyncEvent &e) override;
 
-    static NEPUI *create(const String &name) { return new NEPUI(); }
+    static NEPUI *create(const juce::String &name) { return new NEPUI(); }
 
     //void updateNEPUI(NEP *);
 

@@ -9,6 +9,7 @@
 #include "Simulation/Statistics.h"
 #include "Simulation/Space.h"
 #include "Simulation/NEP.h"
+using namespace juce;
 
 EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 

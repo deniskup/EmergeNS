@@ -9,6 +9,7 @@
 #include "Simulation/ui/SpaceUI.h"
 #include "Simulation/ui/NEPUI.h"
 
+using namespace juce;
 String getAppVersion();
 
 //==============================================================================

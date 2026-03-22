@@ -212,7 +212,7 @@ void SimulationUI::paint(juce::Graphics &g)
 			float v = 1 - values[j] / maxC;
 			v = jmax(v, 0.f);
 			Point<float> ep = simBounds.getRelativePoint(i * stepX, v).toFloat();
-			// g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
+			// g.drawEllipse(juce::Rectangle<float>(10,10).withCentre(ep), 2.f);
 			// optimisation possible: ne pas rajouter si c'est le meme x
 			paths[j]->lineTo(ep);
 		}
@@ -363,12 +363,12 @@ void SimulationUI::resized()
 	perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
 	juce::Rectangle<int> br = r.removeFromBottom(150);
-	// Rectangle<int> butr = br.removeFromRight(100);
+	// juce::Rectangle<int> butr = br.removeFromRight(100);
 	// saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
 	// loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
   
 
-  //Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  //juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
   juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
 

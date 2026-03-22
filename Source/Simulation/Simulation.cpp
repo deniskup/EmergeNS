@@ -10,6 +10,7 @@
 // #include <SimpleXlsxWriter.hpp> // Inclure la bibliothèque C++ Excel
 
 using namespace std;
+using namespace juce;
 
 #define DT_PRECISION 5
 
