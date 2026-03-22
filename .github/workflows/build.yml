@@ -173,7 +173,7 @@ jobs:
         #shell: bash {0} # Opt out of fail-fast behavior (necessary to ignore fetch errors)
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgsl-dev build-essential libx11-dev libcurl4-openssl-dev libx11-dev libfreetype-dev libfreetype2-dev libfreetype6-dev libxrandr-dev libxinerama-dev libxcursor-dev
+          sudo apt-get install -y libgsl-dev build-essential libx11-dev libcurl4-openssl-dev libx11-dev libfreetype-dev libxrandr-dev libxinerama-dev libxcursor-dev
         
           # Most dependencies are already installed in the Docker image. Uncomment the following lines if you need more
           # apt-get update && apt-get install ...
