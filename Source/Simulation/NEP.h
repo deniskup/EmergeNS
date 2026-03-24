@@ -269,6 +269,8 @@ private:
   
   void heteroclinicStudy();
   
+  void debuggingFunction();
+  
   KineticLaw * kinetics; // to calculate kinetics
   
   // global variable describing the state of the descent

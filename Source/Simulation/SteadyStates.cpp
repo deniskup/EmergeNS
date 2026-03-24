@@ -1174,7 +1174,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
     // cout << "entity #" << ir << " : " << simul->entities[ir]->name << endl;
     // cout << "kc = " << simul->entities[ir]->creationRate << "\tkd = " << simul->entities[ir]->destructionRate << endl;
     //  creation rate
-    if (simul->entities[ir]->creationRate > 0 && simul->entities[ir]->primary)
+    if (simul->entities[ir]->creationRate > 0 /*&& simul->entities[ir]->primary*/)
     {
       Monom creat;
       creat.coef = simul->entities[ir]->creationRate;

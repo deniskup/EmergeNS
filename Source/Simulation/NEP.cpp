@@ -988,8 +988,9 @@ void NEP::onContainerTriggerTriggered(Trigger* t)
   }
   else if (t == test)
   {
-    StateVec v = {1., 1., 1.};
-    dsp::Matrix<double> hh = buildOrthogonalBasis(v);
+    //StateVec v = {1., 1., 1.};
+    //dsp::Matrix<double> hh = buildOrthogonalBasis(v);
+    debuggingFunction();
   }
 }
 
@@ -1005,9 +1006,16 @@ double NEP::evalHamiltonian(const StateVec q, const StateVec p)
 {
   //cout << "--- hamiltonian calculation --- " << endl;
   double H = 0.;
+    
+  jassert(p.size() == q.size());
+  if (p.size() != q.size())
+    return H;
+  
   Array<double> vecH;
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
+    if (!reaction->enabled)
+      continue;
     //cout << reaction->name << endl;
     // forward reaction
     double forward = reaction->assocRate;
@@ -1092,8 +1100,13 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
   cout << endl;
   */
   // init output and intermediate vectors
+  int dim = simul->entities.size();
   StateVec gradpH;
-  gradpH.insertMultiple(0, 0., q.size());
+  gradpH.insertMultiple(0, 0., dim);
+  
+  jassert(p.size() == dim && q.size() == dim);
+  if (p.size() != q.size())
+    return gradpH;
   /*
   cout << "dH/dp init = ";
   for (auto & f : gradpH)
@@ -1103,7 +1116,9 @@ StateVec NEP::evalHamiltonianGradientWithP(const StateVec q, const StateVec p)
   // loop over reactions
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
-    //cout << reaction->name << endl;
+    if (!reaction->enabled)
+      continue;
+    //cout << endl << reaction->name << endl;
     // forward reaction
     double forward = reaction->assocRate;
     double sp1 = 0.;
@@ -1228,14 +1243,23 @@ dsp::Matrix<double> NEP::evalHamiltonianHessianWithP(const StateVec q, const Sta
     */
   
   // init hessian as null matrix
-  dsp::Matrix<double> nullmatrix(p.size(), p.size());
-  nullmatrix.clear();
+  int dim = simul->entities.size();
+  dsp::Matrix<double> nullmatrix(dim, dim);
+  nullmatrix.clear(); // Fills the contents of the matrix with zeroes.
   dsp::Matrix hess(nullmatrix);
+  
+  
+  jassert(p.size() == q.size());
+  if (p.size() != q.size())
+    return nullmatrix;
     
   
     // loop over reactions
     for (auto & reaction : Simulation::getInstance()->reactions)
     {
+      if (!reaction->enabled)
+        continue;
+      
       //cout << reaction->name << endl;
       // forward reaction
       double forward = reaction->assocRate;
@@ -1360,8 +1384,7 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
 {
   
   //cout << "--- evalHamiltonianGradientWithQ() ---" << endl;
-  jassert(q.size() == p.size());
-  jassert(q.size() == simul->entities.size());
+
   /*
   cout << "q = ";
   for (auto & qm : q)
@@ -1375,8 +1398,14 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
   
   // output gradient vector
   //StateVec gradqH(q.size(), 0.);
+  int dim = simul->entities.size();
   StateVec gradqH;
-  gradqH.insertMultiple(0, 0., q.size());
+  gradqH.insertMultiple(0, 0., dim);
+  
+  jassert(p.size() == dim && q.size() == dim);
+  if (p.size() != q.size())
+    return gradqH;
+  
   /*
   cout << "dH/dq init = ";
   for (auto & g : gradqH)
@@ -1386,6 +1415,8 @@ StateVec NEP::evalHamiltonianGradientWithQ(const StateVec q, const StateVec p)
   // loop over reactions
   for (auto & reaction : Simulation::getInstance()->reactions)
   {
+    if (!reaction->enabled)
+      continue;
     //cout << reaction->name << endl;
     
     // set stoechiometric vector of reactants and product
@@ -2284,8 +2315,6 @@ int NEP::gslMultirootSolving(gsl_multiroot_fdfsolver * s, gsl_multiroot_function
 
 
 
- // #HERE
-
 // Performs the actual multivariate solving. Arguments :
 // s : the gsl multiroot solver used
 // fdf : the multivariate vector function for which gsl will attempt to find roots
@@ -2332,7 +2361,7 @@ int NEP::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolv
     
     if (gslstatus_p != GSL_SUCCESS)
     {
-      LOGWARNING("gsl not able to solve momentum problem. Stopping here.");
+      //LOGWARNING("gsl not able to solve momentum problem. Stopping here.");
       break;
     }
     
@@ -2361,7 +2390,7 @@ int NEP::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolv
     
     if (gslstatus_mu != GSL_SUCCESS)
     {
-      LOGWARNING("Iteration on mu variable went wrong. Quit.");
+      //LOGWARNING("Iteration on mu variable went wrong. Quit.");
       break;
     }
     
@@ -2399,6 +2428,11 @@ int NEP::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolv
   //for (int k=0; k<s_p->f->size; k++)
   //  cout << gsl_vector_get(s_p->f, k) << " ";
   //cout << "\nmu_res = " << residual_mu << endl;
+  
+  //if (gslstatus_p != GSL_SUCCESS)
+  //  LOGWARNING("multiroot solving in p has unsuccesful status");
+  //if (gslstatus_mu != GSL_SUCCESS)
+  //  LOGWARNING("root solving in mu has unsuccesful status");
     
   int globalStatus = ( gslstatus_p == GSL_SUCCESS && gslstatus_mu == 0 ? 0 : 1 );
 
@@ -4841,6 +4875,39 @@ void NEP::heteroclinicStudy()
   
 }
 
+
+void NEP::debuggingFunction()
+{
+  simul->affectSATIds();
+  
+  cout << "entity ordering:" << endl;
+  int c=0;
+  for (auto & ent : simul->entities)
+  {
+    cout << c << " --> " << ent->name << endl;
+    c++;
+  }
+    
+  //StateVec p = {-0.22216,-0.69937,-1.13313,-1.2904,-1.22887,-5.46028,-5.34574,-4.0164,-4.57388,-3.00375};
+  StateVec pnull;
+  pnull.insertMultiple(0, 0., 10);
+  StateVec q = {0.55945, 0.55945, 2.22339, 9.08863, 0.13355, 0.19846, 0.19846, 2.22339, 9.08863, 0.13355};
+  
+  
+  StateVec dHdq = evalHamiltonianGradientWithQ(q, pnull);
+  StateVec dHdp = evalHamiltonianGradientWithP(q, pnull);
+  
+  cout << "dHdp = (";
+  for (auto & el : dHdp)
+    cout << " " << el;
+  cout << ")" << endl;
+  
+  cout << "dHdq = (";
+  for (auto & el : dHdq)
+    cout << " " << el;
+  cout << ")" << endl;
+  
+}
 
 
 void NEP::loadJSONData(var data, bool createIfNotThere)
