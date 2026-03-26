@@ -22,6 +22,7 @@
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_blas.h>
+#include "gsl/gsl_multimin.h"
 #include <random>
 #include "KineticLaw.h"
 
@@ -239,10 +240,12 @@ private:
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime_opt(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_LF(const Curve&, const int n, bool);
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
 

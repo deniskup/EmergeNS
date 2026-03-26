@@ -863,6 +863,131 @@ void residual4GSL_mu_fdf_opt(double x, void * params, double * y, double * dy)
 
 
 
+// using legendre fetchel inpired method
+double residual4GSL_LF(const gsl_vector *x, void *params)
+{
+  
+  // retrieve encapsulated variables
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter.size() == 0 || ev->deltaq.size() == 0)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return std::numeric_limits<double>::infinity();;
+  }
+  const unsigned long nvar = x->size;
+  
+  
+  // retrieve q, dq and pborm for more readability
+  StateVec q = ev->qcenter;
+  StateVec dq = ev->deltaq;
+  double dq_norm2 = norm2(dq);
+  Array<double> pnorm = ev->pnorm;
+  
+
+  
+  // some sanity checks
+  jassert(dq_norm2>0.);
+  jassert(q.size() == nvar);
+  jassert(pnorm.size() == nvar);
+  for (int k=0; k<nvar; k++)
+  {
+    assert(pnorm.getUnchecked(k)>0.);
+  }
+  
+
+
+  // retrieve momentum and normalize it
+  StateVec p;
+  for (int k=0; k<nvar; k++)
+  {
+    double pk = gsl_vector_get(x, k);// * ev->pnorm.getUnchecked(k);
+    p.add(pk);
+  }
+  
+  double mu = exp(ev->s);
+  
+  // calculate dH/dp
+  double H = ev->nep->evalHamiltonian(q, p);
+
+  // set the non-linear equalitites to solve by gsl
+  double sp = 0.;
+  for (int k=0; k<nvar ; k++)
+  {
+    sp +=  ev->deltaq.getUnchecked(k) * p.getUnchecked(k);
+  }
+  sp *= mu / dq_norm2;
+  
+  
+  return  (H - sp);
+}
+
+
+// x size = number of entities in the system
+void residual4GSL_df_LF(const gsl_vector* x, void* params, gsl_vector *df)
+{
+
+  
+  // retrieve encapsulated variables
+  EncapsVarForGSL * ev = static_cast<EncapsVarForGSL*>(params);
+  if (ev->qcenter.size() == 0 || ev->deltaq.size() == 0)
+  {
+    LOGWARNING("null vector passed to GSL residual function, concentration curve not lifted properly to p-space.");
+    return;
+  }
+  const unsigned long nvar = x->size;
+  
+  // retrieve q, dq and pborm for more readability
+  StateVec q = ev->qcenter;
+  StateVec dq = ev->deltaq;
+  double dq_norm2 = norm2(dq);
+  Array<double> pnorm = ev->pnorm;
+  
+  // some sanity checks
+  jassert(dq_norm2>0.);
+  jassert(q.size() == nvar);
+  jassert(pnorm.size() == nvar);
+  for (int k=0; k<nvar; k++)
+  {
+    assert(pnorm.getUnchecked(k)>0.);
+  }
+
+  // retrieve momentum
+  StateVec p;
+  for (int k=0; k<nvar; k++)
+  {
+    double pk = gsl_vector_get(x, k);// * ev->pnorm.getUnchecked(k);
+    p.add(pk);
+  }
+  double mu = exp(ev->s);
+  
+  // calculate dH/dp
+  StateVec dHdp = ev->nep->evalHamiltonianGradientWithP(q, p);
+  jassert(dHdp.size() == nvar);
+  
+  // set derivative
+  for (int k=0; k<nvar; k++)
+  {
+    double dk = dHdp.getUnchecked(k) - mu * dq.getUnchecked(k) / dq_norm2;
+    gsl_vector_set(df, k, dk);
+  }
+  
+  
+  return;
+}
+
+
+
+// x size = number of entities in the system
+void residual4GSL_fdf_LF(const gsl_vector *x, void *params, double *f, gsl_vector *df)
+{
+  
+  *f = residual4GSL_LF(x, params);
+  residual4GSL_df_LF(x, params, df);
+}
+
+
+
+
  
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2464,6 +2589,163 @@ int NEP::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolv
 }
 
 
+// Performs the actual multivariate solving. Arguments :
+// s : the gsl multiroot solver used
+// fdf : the multivariate vector function for which gsl will attempt to find roots
+// ev : home-made encapsulated variables to pass to gsl for the solving
+int NEP::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsolver* s_mu, gsl_multimin_function_fdf & fdf_p, gsl_function_fdf& fdf_mu, EncapsVarForGSL & ev_p, EncapsVarForGSL_MU & ev_mu)
+{
+  // continuation of the system
+  int iter_mu = 0;
+  int iter_p = 0;
+  int maxiter = 100;
+  double tolerance = 1e-6;
+  double tolerance_mu = 1e-8;
+  double residual_mu = 1000.;
+  
+  int gslstatus_p = GSL_CONTINUE;
+  int gslstatus_mu = GSL_CONTINUE;
+  
+  // iteration on mu
+  while (gslstatus_mu == GSL_CONTINUE && iter_mu <= maxiter)
+  {
+    iter_mu++;
+    gslstatus_p = GSL_CONTINUE;
+    
+    // set initial guess to output of previous iteration
+    //gsl_vector * xprev = s_p->x;
+    //gsl_multiroot_fdfsolver_set(s_p, &fdf, xprev);
+    
+    iter_p = 0;
+    
+    // iteration on p, solve dH/dp = mu * dq / ||dq||
+    while (gslstatus_p == GSL_CONTINUE && iter_p <= maxiter)
+    {
+      iter_p++;
+      gslstatus_p = gsl_multimin_fdfminimizer_iterate(s_p);
+      
+      if (gslstatus_p != GSL_SUCCESS)
+        break;
+      
+      gslstatus_p = gsl_multimin_test_gradient(s_p->gradient, 1e-3);
+    }
+    
+    if (gslstatus_p != GSL_SUCCESS)
+    {
+      //LOGWARNING("gsl not able to solve momentum problem. Stopping here.");
+      break;
+    }
+    
+    // retrieve current momentum
+    StateVec currentP;
+    currentP.insertMultiple(0, 0., (int)s_p->x->size);
+    for (int k=0; k<s_p->x->size; k++)
+      currentP.setUnchecked(k, gsl_vector_get(s_p->x, k));
+    
+    // pass its value to solver in mu
+    ev_mu.p = currentP;
+    fdf_mu.params = &ev_mu;
+    gsl_root_fdfsolver_set(s_mu, &fdf_mu, s_mu->root);
+    
+    
+    // calculate H
+    //double H = evalHamiltonian(ev.qcenter, currentP);
+    
+    // hessian
+    //dsp::Matrix<double> hessian = evalHamiltonianHessianWithP(ev.qcenter, currentP);
+    
+    // update mu value with a single iteration
+    //newtonUpdateOnMu(H, hessian, ev);
+    gslstatus_mu = gsl_root_fdfsolver_iterate(s_mu);
+    
+    if (gslstatus_mu != GSL_SUCCESS)
+    {
+      //LOGWARNING("Iteration on mu variable went wrong. Quit.");
+      break;
+    }
+    
+    // pass mu value to solver in p
+    double root_estimate = s_mu->root;
+    ev_p.s = root_estimate;
+    fdf_p.params = &ev_p;
+    gsl_multimin_fdfminimizer_set(s_p, &fdf_p, s_p->x, 0.01, 1e-4);
+
+    // residual on mu
+    residual_mu = GSL_FN_FDF_EVAL_F(s_mu->fdf, root_estimate);
+    gslstatus_mu = gsl_root_test_residual(residual_mu, tolerance_mu);
+    
+    //cout << "\niter_mu : " << iter_mu << ". mu = " << exp(root_estimate) << ". residual_mu = " << residual_mu << endl;
+    //cout << "p = ";
+    //for (auto& el : currentP)
+    //  cout << el << " ";
+    //cout << endl;
+    
+    // update residual on mu
+    //residual_mu = H;
+    
+    //if (residual_mu > tolerance_mu)
+    //  newtonstatus = 0;
+    
+  }
+  
+  cout << "\n--- Convergence status --- " << endl;
+  cout << "Niterations (p, mu) = (" << iter_p << " , " << iter_mu << ")" << endl;
+  cout << "on P : " << gsl_strerror(gslstatus_p) << endl;
+  cout << "on mu : " << gsl_strerror(gslstatus_mu) << endl;
+  
+  cout << "--- roots ---" << endl;
+  cout << "p = ";
+  for (int k=0; k<s_p->x->size; k++)
+    cout << gsl_vector_get(s_p->x, k) << " ";
+  cout << endl << "mu = " << s_mu->root << endl;
+  
+  cout << "--- Residuals --- " << endl;
+  cout << "\nmu_res = " << residual_mu << endl;
+  cout << "grad_p = ";
+  for (int k=0; k<s_p->gradient->size; k++)
+    cout << " " << gsl_vector_get(s_p->gradient, k);
+  /*
+  cout << "--- Jacobian --- " << endl;
+  cout << "J = ";
+  StateVec currentP;
+  for (int k=0; k<s_p->x->size; k++)
+    currentP.add(gsl_vector_get(s_p->x, k));
+  dsp::Matrix<double> hess = evalHamiltonianHessianWithP(ev_p.qcenter, currentP);
+  for (int i=0; i<hess.getNumRows(); i++)
+  {
+    for (int j=0; j<hess.getNumColumns(); j++)
+    {
+      cout << hess(i, j) << "\t";
+    }
+    cout << endl;
+  }
+  */
+  
+  //if (gslstatus_p != GSL_SUCCESS)
+  //  LOGWARNING("multiroot solving in p has unsuccesful status");
+  //if (gslstatus_mu != GSL_SUCCESS)
+  //  LOGWARNING("root solving in mu has unsuccesful status");
+    
+  int globalStatus = ( gslstatus_p == GSL_SUCCESS && gslstatus_mu == 0 ? 0 : 1 );
+
+
+  return globalStatus;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void printLiftingJacobian_old(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
 {
@@ -3370,7 +3652,7 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_opt(const Curve& qcurve
     convergenceSanityCheck.add(bc);
     
     // deduce dt
-    double norm2_dHdp_opt = norm2(dHdp_opt);
+    //double norm2_dHdp_opt = norm2(dHdp_opt);
     double mu = exp(s_mu->root);
     double dt = norm2(deltaq) / mu;
     jassert( !isnan(dt) && !isinf(dt));
@@ -3446,12 +3728,249 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_opt(const Curve& qcurve
 
 
 
-// #TODO
-// Split this method into several :
-// 1/ GSL implementation that returns p_star and dt
-// 1'/ Check on the convergence
-// 2/ lift operation, i.e. build p from q and p_star
-// 3/ Moving average on newly built p to reduce noise in p solving
+
+
+
+// argument n : dimension of the non-linear equations to resolve = number of entities
+LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve, const int n, bool maxPrintingAllowed)
+{
+  Array<double> vec_dt; // vector of optimal time assigned between each q(i) and q(i+1)
+  Array<StateVec> vec_pstar; // vector of optimal momenta assigned between each q(i) and q(i+1)
+  
+  // keep track if GSL converged or not for each point of the concentration curve.
+  Array<int> gslStatus;
+  Array<int> convergenceSanityCheck;
+  
+  bool gsl_status_previous_point = false;
+  vector<double> previous_gsl_result(n, 0.1);
+  // loop over points in concentration space
+  // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
+  for (int point=0; point<nPoints-1; point++) // n - 1 iterations
+  {
+    //if (maxPrintingAllowed)
+     // cout << "Point #" << point << endl;
+    
+    // calculate q, dq of current concentration curve
+    StateVec q = qcurve.getUnchecked(point);
+    StateVec qnext = qcurve.getUnchecked(point+1);
+    jassert(q.size() == qnext.size());
+    StateVec qcenter;
+    Array<double> deltaq;
+    for (int m=0; m<q.size(); m++)
+    {
+      deltaq.add(qnext.getUnchecked(m) - q.getUnchecked(m));
+      qcenter.add( 0.5* (q.getUnchecked(m) + qnext.getUnchecked(m)));
+    }
+    
+    // encaps useful variables to pass to GSL
+    EncapsVarForGSL ev;
+    ev.qcenter = qcenter;
+    ev.deltaq = deltaq;
+    ev.nep = this;
+    ev.epsilon = 1.;
+    
+    // momentum normalization initialized to unity
+    Array<double> pnorm;
+    pnorm.insertMultiple(0, 1., n);
+    ev.pnorm = pnorm;
+        
+    // initial value for p
+    // x = (p, s)
+    gsl_vector* p = initialOptimalGuess(n, gsl_status_previous_point, previous_gsl_result, qcenter);
+    
+    
+    // init the gsl function and its derivatives for non-linear problem in p
+    gsl_multimin_function_fdf fdf; // using jacobian
+    fdf.f = residual4GSL_LF;
+    fdf.df = residual4GSL_df_LF;
+    fdf.fdf = residual4GSL_fdf_LF; // combines function to evaluate and the jacobian
+    fdf.n = n;
+    fdf.params = &ev;
+    
+    
+    // init gsl minimizer with derivative
+    //const gsl_multimin_fdfminimizer_type * T = gsl_multimin_fdfminimizer_conjugate_fr; //gsl_multimin_fdfminimizer_vector_bfgs2;
+    const gsl_multimin_fdfminimizer_type * T = gsl_multimin_fdfminimizer_vector_bfgs2; //gsl_multimin_fdfminimizer_vector_bfgs2;
+    gsl_multimin_fdfminimizer * s_p = gsl_multimin_fdfminimizer_alloc (T, n);
+    gsl_multimin_fdfminimizer_set(s_p, &fdf, p, 1., 1e-3);
+    
+    
+    // encaps useful variables to pass to GSL
+    StateVec pinit;
+    for (int k=0; k<p->size; k++)
+      pinit.add(gsl_vector_get(p, k));
+    
+    
+    EncapsVarForGSL_MU evmu;
+    evmu.q = qcenter;
+    evmu.p = pinit;
+    evmu.dq = deltaq;
+    evmu.dq_norm2 = norm2(deltaq);
+    evmu.nep = this;
+    
+    // init the gsl function for problem in mu
+    gsl_function_fdf fdf_mu; // using jacobian
+    fdf_mu.f = residual4GSL_mu_opt;
+    fdf_mu.df = residual4GSL_mu_df_opt;
+    fdf_mu.fdf = residual4GSL_mu_fdf_opt; // combines function to evaluate and the jacobian
+    fdf_mu.params = &evmu;
+    
+    
+    // init gsl solver with derivative
+    const gsl_root_fdfsolver_type * T_mu = gsl_root_fdfsolver_newton;
+    gsl_root_fdfsolver * s_mu = gsl_root_fdfsolver_alloc(T_mu);
+    gsl_root_fdfsolver_set(s_mu, &fdf_mu, 1.);
+    
+    
+    // actual solving
+    int status = gslMultirootSolving_LF(s_p, s_mu, fdf, fdf_mu, ev, evmu);
+    
+    
+    /*
+    // if not successful, try again normalizing the momenta variable with current state of the solver
+    if (status != 0)
+    {
+      if (maxPrintingAllowed)
+      {
+        LOG("Renormalizing momentum variables and equations for point " + to_string(point)  + " !!");
+      }
+      
+      // update momentum normalization with norm2 of jacobian columns
+      StateVec pnorm;
+      for (int j=0; j<s_p->J->size2; j++) // columns loop
+      {
+        StateVec pcol;
+        for (int i=0; i<s_p->J->size1; i++) // lines loop
+          pcol.add(gsl_matrix_get(s_p->J, i, j));
+        
+        double pj = norm2(pcol);
+        if (pj>0.)
+          pnorm.add(pj);
+        else
+          pnorm.add(1e-6);
+      }
+      ev.pnorm = pnorm;
+      
+      cout << "pnorm = ";
+      for (auto & pm : ev.pnorm)
+        cout << pm << " ";
+      cout << endl;
+      
+      
+      
+      // reset momentum to dummy value
+      for (int i=0; i<s_p->x->size; i++)
+        gsl_vector_set(s_p->x, i, 0.1);
+      
+      
+      // calling again the multiroot solver
+      status = gslMultirootSolving_opt(s_p, s_mu, fdf, fdf_mu, ev, evmu);
+
+    }
+    */
+     
+    
+    // keep track of gsl status for current point
+    gslStatus.add(status);
+  
+
+    //std::cout << "p0 = " << gsl_vector_get(s->x, 0) << "\n";
+    //std::cout << "p1 = " << gsl_vector_get(s->x, 1) << "\n";
+    //std::cout << "dt = " << gsl_vector_get(s->x, 1) << "\n";
+    //cout << "used " << iter << " iterations" << endl;
+    
+    // retrieve results in a non-GSL form
+    StateVec pstar;
+    StateVec ptild;
+    for (int m=0; m<n; m++)
+    {
+      pstar.add(gsl_vector_get(s_p->x, m)); //* ev.pnorm.getUnchecked(m));
+      ptild.add(gsl_vector_get(s_p->x, m));
+    }
+    
+    // dHdp and dq should be colinear, use this as a convergence criteria
+    StateVec dHdp_opt = evalHamiltonianGradientWithP(qcenter, pstar);
+    bool bc = areParallel(dHdp_opt, deltaq, 1e-8, maxPrintingAllowed);
+    convergenceSanityCheck.add(bc);
+    
+    // deduce dt from mu
+    double mu = exp(s_mu->root);
+    double dt = norm2(deltaq) / mu;
+    jassert( !isnan(dt) && !isinf(dt));
+    
+    // add optimizing time
+    //opt_deltaT.add(ev->t_opt);
+    vec_dt.add(dt);
+    
+    // add optimizing momentum vector
+    vec_pstar.add(pstar);
+  
+    // if success, keep track of gsl result as a starting point for next point in qcurve
+    if (status == GSL_SUCCESS)
+    {
+      for (int k=0; k<n; k++)
+        previous_gsl_result[k] = gsl_vector_get(s_p->x, k);
+      gsl_status_previous_point = true;
+    }
+    else
+    {
+      gsl_status_previous_point = false;
+    }
+    
+    if (maxPrintingAllowed)
+    {
+      //cout << "GSL final status : " << gsl_strerror(status) << endl;
+      //cout << "Collinear sanity check : " << bc << endl;
+      
+      //string residuals;
+      //for (int i=0; i<n; i++)
+      //{
+       // cout << gsl_vector_get(s->f, i) << " ";
+      //  residuals += " " + to_string(gsl_vector_get(s_p->f, i));
+      //}
+      //cout << endl;
+      //LOG("residuals : " + residuals);
+      
+      //if (status != GSL_SUCCESS)
+      //  printLiftingJacobian(s, ev, n);
+      
+      //cout << "solutions p : ";
+      //for (auto & el : ptild)
+      //  cout << el << " ";
+      //cout << "dt = " << dt << endl;
+      
+      
+      //cout << "gsl step descent norm : " << endl;
+      //cout << gsl_blas_dnrm2(s->dx);
+      //cout << endl << endl;
+    }
+    
+    gsl_multimin_fdfminimizer_free(s_p);
+    gsl_root_fdfsolver_free(s_mu);
+    gsl_vector_free(p);
+    
+  } // end loop over points in concentration curve
+  
+  
+  // add a dummy element to gslStatus and collinear Status to make array match the number of points
+  gslStatus.add(-999);
+  convergenceSanityCheck.add(-999);
+  
+  // returning results of the
+  LiftTrajectoryOptResults output;
+  output.opt_momentum = vec_pstar;
+  output.opt_deltaT = vec_dt;
+  output.gslStatus = gslStatus;
+  output.collinearity = convergenceSanityCheck;
+  
+  return output;
+  
+}
+
+
+
+
+
 LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
 {
   
@@ -3465,11 +3984,8 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
   // GSL to find optimal momentum and dt associated to qcurve
   //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_old(qcurve, n, maxPrintingAllowed);
   //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime(qcurve, n-1, maxPrintingAllowed);
-  LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_opt(qcurve, n-1, maxPrintingAllowed);
-  
-  // test for gsl success in liftResults->gslStatus (vector of size nPoints), and work again on points for which there's no convergence ?
-  // hints : re-scaling of the problem
-  
+  //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_opt(qcurve, n-1, maxPrintingAllowed);
+  LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_LF(qcurve, n-1, maxPrintingAllowed);
   
   bool gslSucceeded = true;
   vector<string> errors;
