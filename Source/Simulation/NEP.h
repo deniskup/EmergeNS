@@ -140,7 +140,7 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints_start;
+  IntParameter * nPoints_UI;
   IntParameter * nPoints_max;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
@@ -191,8 +191,8 @@ public:
       NEWSTEP,
     };
 
-    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0.)
-      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric)
+    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0., double _convergenceFraction = 0.)
+      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric), convergenceFraction(_convergenceFraction)
     {
     }
 
@@ -203,6 +203,7 @@ public:
     double cutofffreq;
     int npoints;
     double metric;
+    double convergenceFraction;
   };
   
   QueuedNotifier<NEPEvent> nepNotifier;
@@ -253,7 +254,8 @@ private:
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
-  void updateOptimalConcentrationCurve(Curve &, double);
+  //void updateOptimalConcentrationCurve(Curve &, double);
+  bool updateOptimalConcentrationCurve(Curve &, double);
 
   //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);

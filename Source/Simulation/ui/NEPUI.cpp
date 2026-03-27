@@ -216,6 +216,8 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, juce::Rectangle<int> r,
     col = juce::Colours::yellow;
   else if (title == "Cutoff frequency")
     col = juce::Colours::pink;
+  else if (title == "Convergence")
+    col = juce::Colours::pink;
   else if (title == "nPoints")
     col = juce::Colours::powderblue;
   else if (title == "Metric")
@@ -289,7 +291,8 @@ void NEPUI::paint(juce::Graphics & g)
   
   // draw action evolution in first recangle
   paintOneMonitoredQuantity(g, r1, "Action", actions);
-  paintOneMonitoredQuantity(g, r2, "Cutoff frequency", cutoffFreqs);
+  //paintOneMonitoredQuantity(g, r2, "Cutoff frequency", cutoffFreqs);
+  paintOneMonitoredQuantity(g, r2, "Convergence", convergence);
   paintOneMonitoredQuantity(g, r3, "nPoints", nPoints);
   paintOneMonitoredQuantity(g, r4, "Metric", metrics);
   
@@ -350,6 +353,7 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
       cutoffFreqs.clear();
       nPoints.clear();
       metrics.clear();
+      convergence.clear();
     }
     break;
 
@@ -360,6 +364,7 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
       cutoffFreqs.add(ev.cutofffreq);
       nPoints.add( (double) ev.npoints);
       metrics.add(ev.metric);
+      convergence.add(ev.convergenceFraction);
       repaint();
     }
     break;
