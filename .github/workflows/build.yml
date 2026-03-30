@@ -71,7 +71,7 @@ jobs:
   macos-intel:
   #if: false # tmp disable
     name: macOS x86-64
-    runs-on: macos-13
+    runs-on: macos-13-large
 
     steps:
       - name: Checkout repo
@@ -120,7 +120,7 @@ jobs:
           destination: platform=macOS
           action: build
           arch: x86_64
-          configuration: ${{ matrix.config }}
+          configuration: Release
           use-xcpretty: false
 
       - name: Create Package
@@ -190,7 +190,7 @@ jobs:
           destination: platform=macOS
           action: build
           arch: arm64
-          configuration: ${{ matrix.config }}
+          configuration: ReleaseSilicon
           use-xcpretty: false
         
 
