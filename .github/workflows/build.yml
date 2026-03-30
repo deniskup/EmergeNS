@@ -209,9 +209,9 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/Builds/LinuxMakefile_CI
           gcc --version
-          export CFLAGS="$(pkg-config --cflags freetype2 gl libcurl webkit2gtk-4.0 gtk+-x11-3.0)"
-          export LDFLAGS="$(pkg-config --libs freetype2 gl libcurl)"
-          make -j2 CONFIG=Release $(CFLAGS) $(LDFLAGS)
+          #export CFLAGS="$(pkg-config --cflags freetype2 gl libcurl webkit2gtk-4.0 gtk+-x11-3.0)"
+          #export LDFLAGS="$(pkg-config --libs freetype2 gl libcurl)"
+          make -n -j2 CONFIG=Release #$(CFLAGS) $(LDFLAGS)
 
       - name: Create AppImage
         id: create_package
