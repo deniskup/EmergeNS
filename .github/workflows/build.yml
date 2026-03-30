@@ -118,6 +118,13 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Install GSL
+        run: |
+          brew install gsl
+          echo "PKG_CONFIG_PATH=$(brew --prefix gsl)/lib/pkgconfig" >> $GITHUB_ENV
+          echo "LDFLAGS=-L$(brew --prefix gsl)/lib" >> $GITHUB_ENV
+          echo "CPPFLAGS=-I$(brew --prefix gsl)/include" >> $GITHUB_ENV
+
       - name: Build
         uses: sersoft-gmbh/xcodebuild-action@v2.0.1
         with:
