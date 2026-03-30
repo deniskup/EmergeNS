@@ -695,6 +695,7 @@
 					"$(SRCROOT)/../../../JUCE/modules",
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
+					"$(inherited)",
 					"/usr/local/opt/gsl/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
@@ -705,11 +706,12 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(inherited)\"",
 					"\"/usr/local/opt/gsl/lib\"",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules /usr/local/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /usr/local/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
 				OTHER_LDFLAGS = "-lgsl";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
@@ -826,6 +828,7 @@
 					"$(SRCROOT)/../../../JUCE/modules",
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
+					"$(inherited)",
 					"/opt/homebrew/opt/gsl/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
@@ -836,11 +839,12 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
+					"\"$(inherited)\"",
 					"\"/opt/homebrew/opt/gsl/lib\"",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
 				OTHER_LDFLAGS = "-lgsl";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";

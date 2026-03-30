@@ -215,10 +215,11 @@
     <XCODE_MAC targetFolder="Builds/MacOSX_CI" customPList="&lt;plist&gt;&#10;&lt;dict&gt;&#10;&lt;key&gt;NSAppTransportSecurity&lt;/key&gt;&#10;&#9;&lt;dict&gt;&#10;&#9;&#9;&lt;key&gt;NSAllowsArbitraryLoads&lt;/key&gt;&#10;&#9;&#9;&lt;true/&gt;&#10;&#9;&lt;/dict&gt;&#10;&lt;/dict&gt;&#10;&lt;/plist&gt;"
                smallIcon="iGjYAz" bigIcon="iGjYAz" xcodeValidArchs="arm64,x86_64">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="/usr/local/opt/gsl/include"
-                       libraryPath="/usr/local/opt/gsl/lib" extraLinkerFlags=" -lgsl"/>
+        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="$(inherited)&#10;/usr/local/opt/gsl/include"
+                       libraryPath="$(inherited)&#10;/usr/local/opt/gsl/lib" extraLinkerFlags=" -lgsl"/>
         <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release" extraLinkerFlags=" -lgsl"
-                       headerPath="/opt/homebrew/opt/gsl/include&#10;" libraryPath="/opt/homebrew/opt/gsl/lib&#10;"/>
+                       headerPath="$(inherited)&#10;/opt/homebrew/opt/gsl/include&#10;"
+                       libraryPath="$(inherited)&#10;/opt/homebrew/opt/gsl/lib&#10;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
