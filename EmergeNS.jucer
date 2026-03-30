@@ -191,10 +191,10 @@
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraLinkerFlags="-lgsl"/>
+                       extraLinkerFlags="-lgsl" extraCompilerFlags="$(shell $(PKG_CONFIG) --cflags freetype2 gl libcurl webkit2gtk-4.0 gtk+-x11-3.0)"/>
         <CONFIGURATION isDebug="0" name="Release" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraLinkerFlags="-lgsl"/>
+                       extraLinkerFlags="-lgsl" extraCompilerFlags="$(shell $(PKG_CONFIG) --cflags freetype2 gl libcurl webkit2gtk-4.0 gtk+-x11-3.0)"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
