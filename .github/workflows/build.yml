@@ -204,6 +204,10 @@ jobs:
         run: |
           which pkg-config
           pkg-config --cflags freetype2
+          pkg-config --cflags gl
+          pkg-config --cflags libcurl
+          pkg-config --cflags gtk+-x11-3.0
+          pkg-config --cflags webkit2gtk-4.0
 
       - name: Build
         run: |
