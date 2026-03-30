@@ -181,7 +181,7 @@ jobs:
           # apt-get update && apt-get install ...
 
           cd $GITHUB_WORKSPACE
-          wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/appimagetool/releases/tag/continuous/appimagetool-x86_64.AppImage"
+          wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
 
           
