@@ -145,9 +145,9 @@ jobs:
           configuration: ${{ matrix.config }}
           use-xcpretty: false
           build-settings: |
-            HEADER_SEARCH_PATHS=$(brew --prefix gsl)/include
-            LIBRARY_SEARCH_PATHS=$(brew --prefix gsl)/lib
-            OTHER_LDFLAGS=-lgsl #-lgslcblas
+            HEADER_SEARCH_PATHS=${{ env.GSL_PREFIX }}/include
+            LIBRARY_SEARCH_PATHS=${{ env.GSL_PREFIX }}/lib
+            OTHER_LDFLAGS=-lgsl 
 
       - name: Create Package
         id: create_package
