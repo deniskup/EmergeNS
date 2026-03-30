@@ -696,7 +696,10 @@
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
 					"$(inherited)",
+					"/usr/local/include",
+					"/opt/homebrew/include",
 					"/usr/local/opt/gsl/include",
+					"/opt/homebrew/opt/gsl/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
 					"$(inherited)",
@@ -707,11 +710,14 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(inherited)\"",
+					"\"/usr/local/lib\"",
+					"\"/opt/homebrew/lib\"",
 					"\"/usr/local/opt/gsl/lib\"",
+					"\"/opt/homebrew/opt/gsl/lib\"",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /usr/local/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /usr/local/include /opt/homebrew/include /usr/local/opt/gsl/include /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
 				OTHER_LDFLAGS = "-lgsl -gslcblas";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
@@ -829,6 +835,9 @@
 					"$(SRCROOT)/../../JUCE/modules",
 					"$(SRCROOT)/../../Modules",
 					"$(inherited)",
+					"/usr/local/include",
+					"/opt/homebrew/include",
+					"/usr/local/opt/gsl/include",
 					"/opt/homebrew/opt/gsl/include",
 					"$(SRCROOT)/../../Source",
 					"$(SRCROOT)/../../External/Eigen/include",
@@ -840,11 +849,14 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(inherited)\"",
+					"\"/usr/local/lib\"",
+					"\"/opt/homebrew/lib\"",
+					"\"/usr/local/opt/gsl/lib\"",
 					"\"/opt/homebrew/opt/gsl/lib\"",
 				);
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
+				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /usr/local/include /opt/homebrew/include /usr/local/opt/gsl/include /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
 				OTHER_LDFLAGS = "-lgsl -gslcblas";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
