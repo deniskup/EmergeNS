@@ -71,7 +71,7 @@ jobs:
   macos-intel:
   #if: false # tmp disable
     name: macOS x86-64
-    runs-on: macos-13-large
+    runs-on: macos-12
 
     steps:
       - name: Checkout repo
