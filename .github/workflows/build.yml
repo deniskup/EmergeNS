@@ -144,7 +144,7 @@ jobs:
           arch: ${{ matrix.arch }}
           configuration: ${{ matrix.config }}
           use-xcpretty: false
-          build-settings: |
+          xcargs: |
             OTHER_CFLAGS=-I${{ env.GSL_PREFIX }}/include
             OTHER_LDFLAGS=-L${{ env.GSL_PREFIX }}/lib
 
