@@ -200,7 +200,7 @@ jobs:
       #     # This password you will use when authorizing via SSH
       #     SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
 
-       - name: Debug pkg-config
+      - name: Debug pkg-config
         run: |
           which pkg-config
           pkg-config --cflags freetype2
