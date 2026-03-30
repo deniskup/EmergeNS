@@ -118,9 +118,18 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Setup Homebrew (arch-aware)
+        run: |
+          if [ "${{ matrix.arch }}" = "x86_64" ]; then
+            eval "$(/usr/local/bin/brew shellenv)"
+          else
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+          fi
+
       - name: Install GSL
         run: |
           brew install gsl
+          echo "GSL_PREFIX=$(brew --prefix gsl)" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=$(brew --prefix gsl)/lib/pkgconfig" >> $GITHUB_ENV
           echo "LDFLAGS=-L$(brew --prefix gsl)/lib" >> $GITHUB_ENV
           echo "CPPFLAGS=-I$(brew --prefix gsl)/include" >> $GITHUB_ENV
@@ -135,6 +144,10 @@ jobs:
           arch: ${{ matrix.arch }}
           configuration: ${{ matrix.config }}
           use-xcpretty: false
+          build-settings: |
+            HEADER_SEARCH_PATHS=$(brew --prefix gsl)/include
+            LIBRARY_SEARCH_PATHS=$(brew --prefix gsl)/lib
+            OTHER_LDFLAGS=-lgsl #-lgslcblas
 
       - name: Create Package
         id: create_package
