@@ -200,6 +200,11 @@ jobs:
       #     # This password you will use when authorizing via SSH
       #     SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
 
+       - name: Debug pkg-config
+        run: |
+          which pkg-config
+          pkg-config --cflags freetype2
+
       - name: Build
         run: |
           cd $GITHUB_WORKSPACE/Builds/LinuxMakefile_CI
