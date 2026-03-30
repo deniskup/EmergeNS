@@ -69,7 +69,7 @@ jobs:
 
 
   macos-intel:
-  #if: false # tmp disable
+  if: false # tmp disable
     name: macOS x86-64
     runs-on: macos-12
 
