@@ -181,7 +181,7 @@ jobs:
           # apt-get update && apt-get install ...
 
           cd $GITHUB_WORKSPACE
-          wget "https://github.com/AppImage/appimagetool/releases/tag/continuous/appimagetool-x86_64.AppImage"
+          wget -O appimagetool-x86_64.AppImage "https://github.com/AppImage/appimagetool/releases/tag/continuous/appimagetool-x86_64.AppImage"
           chmod a+x appimagetool-x86_64.AppImage
 
           
@@ -201,15 +201,6 @@ jobs:
 
       #     # This password you will use when authorizing via SSH
       #     SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
-
-      - name: Debug pkg-config
-        run: |
-          which pkg-config
-          pkg-config --cflags freetype2
-          pkg-config --cflags gl
-          pkg-config --cflags libcurl
-          pkg-config --cflags gtk+-x11-3.0
-          pkg-config --cflags webkit2gtk-4.0
 
       - name: Build
         run: |
