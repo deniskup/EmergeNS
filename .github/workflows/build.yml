@@ -146,7 +146,7 @@ jobs:
           use-xcpretty: false
           build-settings: |
             OTHER_CFLAGS=-I${{ env.GSL_PREFIX }}/include
-            OTHER_LDFLAGS=-L${{ env.GSL_PREFIX }}/lib -lgsl
+            OTHER_LDFLAGS="-L${{ env.GSL_PREFIX }}/lib -lgsl"
 
       - name: Create Package
         id: create_package
