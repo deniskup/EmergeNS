@@ -217,8 +217,8 @@
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="$(inherited)&#10;/usr/local/include&#10;/opt/homebrew/include&#10;/usr/local/opt/gsl/include&#10;/opt/homebrew/opt/gsl/include"
                        libraryPath="$(inherited)&#10;/usr/local/lib&#10;/opt/homebrew/lib&#10;/usr/local/opt/gsl/lib&#10;/opt/homebrew/opt/gsl/lib"
-                       extraLinkerFlags=" -lgsl -gslcblas"/>
-        <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release" extraLinkerFlags=" -lgsl -gslcblas"
+                       extraLinkerFlags=" -lgsl "/>
+        <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release" extraLinkerFlags=" -lgsl "
                        headerPath="$(inherited)&#10;/usr/local/include&#10;/opt/homebrew/include&#10;/usr/local/opt/gsl/include&#10;/opt/homebrew/opt/gsl/include"
                        libraryPath="$(inherited)&#10;/usr/local/lib&#10;/opt/homebrew/lib&#10;/usr/local/opt/gsl/lib&#10;/opt/homebrew/opt/gsl/lib"/>
       </CONFIGURATIONS>
