@@ -215,12 +215,10 @@
     <XCODE_MAC targetFolder="Builds/MacOSX_CI" customPList="&lt;plist&gt;&#10;&lt;dict&gt;&#10;&lt;key&gt;NSAppTransportSecurity&lt;/key&gt;&#10;&#9;&lt;dict&gt;&#10;&#9;&#9;&lt;key&gt;NSAllowsArbitraryLoads&lt;/key&gt;&#10;&#9;&#9;&lt;true/&gt;&#10;&#9;&lt;/dict&gt;&#10;&lt;/dict&gt;&#10;&lt;/plist&gt;"
                smallIcon="iGjYAz" bigIcon="iGjYAz" xcodeValidArchs="arm64,x86_64">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include&#10;/opt/homebrew/Cellar/gsl/2.8/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib&#10;/opt/homebrew/Cellar/gsl/2.8/lib"
-                       extraLinkerFlags=" -lgsl"/>
+        <CONFIGURATION isDebug="0" name="Release" binaryPath="Release" headerPath="$(brew --prefix gsl)/include"
+                       libraryPath="$(brew --prefix gsl)/lib" extraLinkerFlags=" -lgsl"/>
         <CONFIGURATION isDebug="0" name="ReleaseSilicon" binaryPath="Release" extraLinkerFlags=" -lgsl"
-                       headerPath="/usr/local&#10;/usr/local/Cellar/gsl/2.8/include&#10;/opt/homebrew/Cellar/gsl/2.8/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/Cellar/gsl/2.8/lib&#10;/opt/homebrew/Cellar/gsl/2.8/lib"/>
+                       headerPath="$(brew --prefix gsl)/include" libraryPath="$(brew --prefix gsl)/lib"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
