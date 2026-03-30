@@ -712,7 +712,7 @@
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /usr/local/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
-				OTHER_LDFLAGS = "-lgsl";
+				OTHER_LDFLAGS = "-lgsl -gslcblas";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
 				USE_HEADERMAP = NO;
@@ -845,7 +845,7 @@
 				LLVM_LTO = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../JuceLibraryCode $(SRCROOT)/../../../JUCE/modules $(SRCROOT)/../../JUCE/modules $(SRCROOT)/../../Modules $(inherited) /opt/homebrew/opt/gsl/include $(SRCROOT)/../../Source $(SRCROOT)/../../External/Eigen/include";
-				OTHER_LDFLAGS = "-lgsl";
+				OTHER_LDFLAGS = "-lgsl -gslcblas";
 				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.EmergeNS;
 				PRODUCT_NAME = "EmergeNS";
 				USE_HEADERMAP = NO;
