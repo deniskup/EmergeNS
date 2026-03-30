@@ -108,9 +108,11 @@ jobs:
         run: |
           curl -L -o Packages.dmg 'http://s.sudre.free.fr/Software/files/Packages.dmg'
           hdiutil mount Packages.dmg
-          sudo installer -pkg "/Volumes/Packages ${{ env.PackagesVersion }}/Install Packages.pkg" -target /
-          hdiutil detach "/Volumes/Packages ${{ env.PackagesVersion }}/"
-          
+          VOLUME=$(ls /Volumes | grep "Packages")
+          ls /Volumes
+          sudo installer -pkg "/Volumes/$VOLUME/Install Packages.pkg" -target /
+          hdiutil detach "/Volumes/$VOLUME"
+                    
       - name: Setup XCode
         uses: maxim-lobanov/setup-xcode@v1
         with:
