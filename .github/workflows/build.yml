@@ -47,9 +47,21 @@ jobs:
         run: |
           cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
           Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] }}
+
+      - name: Install vcpkg & GSL
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+          .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\vcpkg install gsl:x64-windows
+          .\vcpkg\vcpkg integrate install
      
       - name: Build
-        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }}
+        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" ^
+                /p:PreferredToolArchitecture=x64 /m /verbosity:normal ^
+                /p:Configuration=${{ steps.set_variables.outputs.config }}
+                /p:VcpkgEnableManifest=true ^
+                /p:VcpkgTriplet=x64-windows ^
+                /m /verbosity:normal
 
       - name: Create Package
         id: create_package
