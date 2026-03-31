@@ -1,6 +1,19 @@
 #pragma once
 
 #include <JuceHeader.h>
+
+#if JUCE_WINDOWS
+ #ifndef NOMINMAX
+  #define NOMINMAX
+ #endif
+
+ #ifndef WIN32_LEAN_AND_MEAN
+  #define WIN32_LEAN_AND_MEAN
+ #endif
+
+#include <windows.h>
+#endif
+
 //using namespace juce;
 juce::ApplicationProperties &getAppProperties();
 juce::ApplicationCommandManager &getCommandManager();
