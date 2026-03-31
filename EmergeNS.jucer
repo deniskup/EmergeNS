@@ -244,11 +244,11 @@
         <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
                        extraCompilerFlags="/bigobj&#10;/FIwindows.h" extraLinkerFlags=" -lgsl"
-                       defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
+                       defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX"/>
         <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
                        extraCompilerFlags="/bigobj&#10;/FIwindows.h" extraLinkerFlags=" -lgsl"
-                       defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
+                       defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
