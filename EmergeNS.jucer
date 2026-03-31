@@ -243,11 +243,11 @@
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraCompilerFlags="/bigobj&#10;/include windows.h" extraLinkerFlags=" -lgsl"
+                       extraCompilerFlags="/bigobj&#10;/FIwindows.h" extraLinkerFlags=" -lgsl"
                        defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
         <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
                        libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraCompilerFlags="/bigobj&#10;/include windows.h" extraLinkerFlags=" -lgsl"
+                       extraCompilerFlags="/bigobj&#10;/FIwindows.h" extraLinkerFlags=" -lgsl"
                        defines="$(inherited)&#10;JUCE_USE_WINRT=0&#10;NOMINMAX&#10;WIN32_LEAN_AND_MEAN"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
