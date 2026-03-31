@@ -56,7 +56,8 @@ jobs:
           .\vcpkg\vcpkg integrate install
      
       - name: Build
-        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }} /p:VcpkgEnableManifest=false /p:VcpkgTriplet=x64-windows /p:VcpkgInstalledDir=.\vcpkg\installed
+        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }} /p:VcpkgEnableManifest=false /p:VcpkgTriplet=x64-windows /p:VcpkgRoot=.\vcpkg /p:VcpkgInstalledDir=.\vcpkg\installed
+msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" ^
 
       - name: Create Package
         id: create_package
