@@ -65,6 +65,7 @@ jobs:
           /p:AdditionalIncludeDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\include" 
           /p:AdditionalLibraryDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\lib"  
           /p:AdditionalDependencies="gsl.lib"
+          /p:PreprocessorDefinitions="NOMINMAX;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)"
 
 
       - name: Create Package
