@@ -54,9 +54,11 @@ jobs:
           .\vcpkg\bootstrap-vcpkg.bat
           .\vcpkg\vcpkg install gsl:x64-windows
           .\vcpkg\vcpkg integrate install
+          dir vcpkg\installed\x64-windows\include\gsl
      
       - name: Build
-        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }} /p:VcpkgEnableManifest=false /p:VcpkgTriplet=x64-windows /p:VcpkgRoot=.\vcpkg /p:VcpkgInstalledDir=.\vcpkg\installed
+        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }} /p:Configuration=${{ steps.set_variables.outputs.config }} /p:AdditionalIncludeDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\include" /p:AdditionalLibraryDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\lib"  /p:AdditionalDependencies="gsl.lib;cblas.lib"
+
 
       - name: Create Package
         id: create_package
