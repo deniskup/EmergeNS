@@ -57,7 +57,14 @@ jobs:
           dir vcpkg\installed\x64-windows\include\gsl
      
       - name: Build
-        run:  msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" /p:PreferredToolArchitecture=x64 /m /verbosity:normal /p:Configuration=${{ steps.set_variables.outputs.config }} /p:Configuration=${{ steps.set_variables.outputs.config }} /p:AdditionalIncludeDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\include" /p:AdditionalLibraryDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\lib"  /p:AdditionalDependencies="gsl.lib"
+        run: >
+          msbuild "Builds/${{ matrix.buildFolder }}/${{ env.ProjectName }}.sln" 
+          /p:PreferredToolArchitecture=x64 /m /verbosity:normal 
+          /p:Configuration=${{ steps.set_variables.outputs.config }} 
+          /p:Configuration=${{ steps.set_variables.outputs.config }} 
+          /p:AdditionalIncludeDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\include" 
+          /p:AdditionalLibraryDirectories="D:\a\EmergeNS\EmergeNS\vcpkg\installed\x64-windows\lib"  
+          /p:AdditionalDependencies="gsl.lib"
 
 
       - name: Create Package
