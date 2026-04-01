@@ -59,9 +59,11 @@ class LiftTrajectoryOptResults
     juce::Array<StateVec> opt_momentum;
     juce::Array<double> opt_deltaT;
     pCurve pcurve;
-    juce::Array<double> times;
-    juce::Array<int> gslStatus;
-    juce::Array<int> collinearity;
+    Array<double> times;
+    Array<int> gslStatus;
+    Array<int> collinearity;
+    juce::Array<double> residuals_H;
+    juce::Array<juce::Array<double>> residuals_p;
 };
 
 class NEP;
@@ -241,6 +243,8 @@ private:
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  
+  int solveForMomentumAtFixedMu(gsl_multimin_fdfminimizer *, EncapsVarForGSL&, double);
   int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
   LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
@@ -306,14 +310,16 @@ private:
   
 
   // for printing history to file
-  //juce::Array<double> actionDescent;
-  juce::Array<juce::Array<double>> actionDescent;
-  juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
-  juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
-  juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  juce::Array<juce::Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
-  juce::Array<juce::Array<int>> gslStatus_descent;
-  juce::Array<juce::Array<int>> collinearityStatus_descent;
+  //Array<double> actionDescent;
+  Array<Array<double>> actionDescent;
+  Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  Array<Trajectory> dAdqDescent; // keep track of gradient history
+  Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
+  Array<Array<int>> gslStatus_descent;
+  Array<Array<int>> collinearityStatus_descent;
+  juce::Array<juce::Array<double>> residuals_H_descent;
+  juce::Array<Trajectory> residuals_p_descent;
     
   ofstream debugfile;
 

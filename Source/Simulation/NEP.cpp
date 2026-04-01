@@ -1852,6 +1852,10 @@ void NEP::run()
     gslStatus_descent.add(liftoptres.gslStatus);
     collinearityStatus_descent.add(liftoptres.collinearity);
     
+    // Keep track of residuals
+    residuals_H_descent.add(liftoptres.residuals_H);
+    residuals_p_descent.add(liftoptres.residuals_p);
+    
     /*
     if (maxPrinting->boolValue())
     {
@@ -2606,6 +2610,42 @@ int NEP::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolv
 }
 
 
+
+int NEP::solveForMomentumAtFixedMu(gsl_multimin_fdfminimizer * s_p, EncapsVarForGSL& ev_p, double tolerance_p)
+{
+  int iter_p = 0;
+  int maxiter_p = 100;
+  int gslstatus_p = GSL_CONTINUE;
+
+  while (gslstatus_p == GSL_CONTINUE && iter_p <= maxiter_p)
+  {
+    iter_p++;
+    gslstatus_p = gsl_multimin_fdfminimizer_iterate(s_p);
+    
+    if (gslstatus_p != GSL_SUCCESS)
+      break;
+    
+    //gslstatus_p = gsl_multimin_test_gradient(s_p->gradient, 1e-3);
+    //gslstatus_p = test_convergence_colinear_method();
+    
+    // dHdp and dq should be colinear, use this as a convergence criteria
+    StateVec currentP;
+    currentP.insertMultiple(0, 0., (int) s_p->x->size);
+    for (int k=0; k<s_p->x->size; k++)
+      currentP.setUnchecked(k,  gsl_vector_get(s_p->x, k));
+    StateVec dHdp_opt = evalHamiltonianGradientWithP(ev_p.qcenter, currentP);
+    bool bc = areParallel(dHdp_opt, ev_p.deltaq, tolerance_p, false);
+    
+    if (bc)
+      gslstatus_p = GSL_SUCCESS;
+    else
+      gslstatus_p = GSL_CONTINUE;
+  }
+  
+  return gslstatus_p;
+}
+
+
 // Performs the actual multivariate solving. Arguments :
 // s : the gsl multiroot solver used
 // fdf : the multivariate vector function for which gsl will attempt to find roots
@@ -2617,9 +2657,7 @@ int NEP::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsol
   
   // continuation of the system
   int iter_mu = 0;
-  int iter_p = 0;
   int maxiter_mu = 100;
-  int maxiter_p = 100;
   double tolerance_mu = 1e-7;
     
   int gslstatus_p = GSL_CONTINUE;
@@ -2644,49 +2682,9 @@ int NEP::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsol
     // set initial guess to output of previous iteration
     //gsl_vector * xprev = s_p->x;
     //gsl_multiroot_fdfsolver_set(s_p, &fdf, xprev);
-    
-    iter_p = 0;
-    
+        
     // iteration on p, solve dH/dp = mu * dq / ||dq||
-    while (gslstatus_p == GSL_CONTINUE && iter_p <= maxiter_p)
-    {
-      iter_p++;
-      gslstatus_p = gsl_multimin_fdfminimizer_iterate(s_p);
-      
-      if (gslstatus_p != GSL_SUCCESS)
-        break;
-      
-      //gslstatus_p = gsl_multimin_test_gradient(s_p->gradient, 1e-3);
-      //gslstatus_p = test_convergence_colinear_method();
-      
-      // dHdp and dq should be colinear, use this as a convergence criteria
-      StateVec currentP;
-      currentP.insertMultiple(0, 0., (int) s_p->x->size);
-      for (int k=0; k<s_p->x->size; k++)
-        currentP.setUnchecked(k,  gsl_vector_get(s_p->x, k));
-      StateVec dHdp_opt = evalHamiltonianGradientWithP(ev_p.qcenter, currentP);
-      bool bc = areParallel(dHdp_opt, ev_p.deltaq, tolerance_p, false);
-      
-      if (bc)
-        gslstatus_p = GSL_SUCCESS;
-      else
-        gslstatus_p = GSL_CONTINUE;
-    }
-    /*
-    // printing
-    // retrieve current momentum
-    StateVec currentP_temp;
-    currentP_temp.insertMultiple(0, 0., (int)s_p->x->size);
-    for (int k=0; k<s_p->x->size; k++)
-      currentP_temp.setUnchecked(k, gsl_vector_get(s_p->x, k));
-    StateVec v1_temp = evalHamiltonianGradientWithP(ev_p.qcenter, currentP_temp);
-    StateVec v2_temp = ev_p.deltaq;
-    double sp_temp = scalarProduct(v1_temp, v2_temp);
-    double ratio_temp = sp_temp / (norm2(v1_temp)*norm2(v2_temp));
-    double epsilon_temp = 1. - ratio_temp;
-    cout << "used : " << iter_p << " it. epsilon = " << epsilon_temp << ". statusP : " << gsl_strerror(gslstatus_p) << endl;
-    */
-    
+    gslstatus_p = solveForMomentumAtFixedMu(s_p, ev_p, tolerance_p);
     
     if (gslstatus_p != GSL_SUCCESS) // smooth update on mu
     {
@@ -2771,6 +2769,7 @@ int NEP::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsol
     else
       gslstatus_mu = GSL_CONTINUE;
     
+    
     // decrease tolerance in p
     if (abs(residual_mu) <tolerance_p)
       tolerance_p = abs(residual_mu);
@@ -2815,6 +2814,8 @@ int NEP::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsol
   cout << endl;
   */
   
+  // last resolution on p
+  gslstatus_p = solveForMomentumAtFixedMu(s_p, ev_p, tolerance_p);
     
   int globalStatus = ( gslstatus_p == GSL_SUCCESS && gslstatus_mu == GSL_SUCCESS ? 1 : 0);
 
@@ -3510,9 +3511,10 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime(const Curve& qcurve, co
   } // end loop over points in concentration curve
   
   
-  // add a dummy element to gslStatus and collinear Status to make array match the number of points
+  // Npoints and nPoints - 1 non linear problem solved --> add a dummy final element
   gslStatus.add(GSL_POSINF);
   convergenceSanityCheck.add(-999);
+  
   
   // returning results of the
   LiftTrajectoryOptResults output;
@@ -3833,6 +3835,10 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve,
   Array<int> gslStatus;
   Array<int> convergenceSanityCheck;
   
+  // residuals
+  juce::Array<double> residuals_H;
+  juce::Array<juce::Array<double>> residuals_p;
+  
   bool gsl_status_previous_point = false;
   vector<double> previous_gsl_result(n, 0.1);
   // loop over points in concentration space
@@ -3950,6 +3956,16 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve,
     double dt = norm2(deltaq) / mu;
     jassert( !isnan(dt) && !isinf(dt));
     
+    // residuals
+    residuals_H.add(evalHamiltonian(qcenter, pstar));
+    juce::Array<double> rp;
+    for (int k=0; k<dHdp_opt.size(); k++)
+    {
+      double r = dHdp_opt.getUnchecked(k) - mu * deltaq.getUnchecked(k) / norm2(deltaq);
+      rp.add(abs(r));
+    }
+    residuals_p.add(rp);
+    
     // add optimizing time
     //opt_deltaT.add(ev->t_opt);
     vec_dt.add(dt);
@@ -3968,6 +3984,15 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve,
     {
       gsl_status_previous_point = false;
     }
+    
+    // keep track of residuals
+    
+    // equation H(p,q) = 0
+    double residualH = GSL_FN_FDF_EVAL_F(s_mu->fdf, s_mu->root);
+    residuals_H.add(residualH);
+    
+    // equation dH/dp = mu v
+    //s_p->
     
     if (maxPrintingAllowed)
     {
@@ -4004,9 +4029,13 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve,
   } // end loop over points in concentration curve
   
   
-  // add a dummy element to gslStatus and collinear Status to make array match the number of points
+  // Npoints and nPoints - 1 non linear problem solved --> add a dummy final element
   gslStatus.add(-999);
   convergenceSanityCheck.add(-999);
+  residuals_H.add(-999.);
+  StateVec dummy_residual_p;
+  dummy_residual_p.insertMultiple(0, -999., simul->entities.size());
+  residuals_p.add(dummy_residual_p);
   
   // returning results of the
   LiftTrajectoryOptResults output;
@@ -4014,6 +4043,8 @@ LiftTrajectoryOptResults NEP::findOptimalMomentumAndTime_LF(const Curve& qcurve,
   output.opt_deltaT = vec_dt;
   output.gslStatus = gslStatus;
   output.collinearity = convergenceSanityCheck;
+  output.residuals_H = residuals_H;
+  output.residuals_p = residuals_p;
   
   return output;
   
@@ -4235,6 +4266,10 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
 
 void NEP::setTimeNormalizationFactor()
 {
+  LOGWARNING("timescale always set to 1.");
+  timescale_factor = 1.;
+  return;
+  
   double meanK = 0.;
   double nreac = 0.;
   // loop over reactions
@@ -4565,7 +4600,7 @@ void NEP::writeDescentToFile()
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
-  historyFile << "iteration,action,point,gslStatus,collinearStatus";
+  historyFile << "iteration,point,gslStatus,collinearStatus,action";
   for (auto & ent : simul->entities)
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
@@ -4574,8 +4609,11 @@ void NEP::writeDescentToFile()
     historyFile << ",dAdq_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",dAdq_filt_" << ent->name;
-  historyFile << ",H";
+  historyFile << ",res_H";
+  for (auto & ent : simul->entities)
+    historyFile << ",res_p_" << ent->name;
   historyFile << endl;
+  
   //cout << "action descent size :" << actionDescent.size() << endl;
   //cout << "trajDescent descent size :" << trajDescent.size() << endl;
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
@@ -4586,19 +4624,30 @@ void NEP::writeDescentToFile()
   jassert(actionDescent.size() == ham_descent.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
   jassert(actionDescent.size() == collinearityStatus_descent.size());
+  jassert(actionDescent.size() == residuals_H_descent.size());
+  jassert(actionDescent.size() == residuals_p_descent.size());
   
   int nPoints_descent = actionDescent.size();
   
   for (int iter=0; iter<nPoints_descent; iter++) // loop over descent iterations
   {
-    for (int point=0; point<trajDescent.getUnchecked(iter).size(); point++) // loop over curve points
+    int npoint_local = trajDescent.getUnchecked(iter).size();
+    for (int point=0; point<npoint_local; point++) // loop over curve points
     {
-      historyFile << iter << "," << actionDescent.getUnchecked(iter).getUnchecked(point) << "," << point;
+      historyFile << iter << "," << point;
       historyFile << "," << gslStatus_descent.getUnchecked(iter).getUnchecked(point) << "," << collinearityStatus_descent.getUnchecked(iter).getUnchecked(point);
+      historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
       
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
+      double resH = residuals_H_descent.getUnchecked(iter).getUnchecked(point);
+      Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
+      
+      jassert(resP.size() == simul->entities.size());
+      if (resP.size() != simul->entities.size())
+        cout << resP.size() << " " << simul->entities.size() << endl;
+      
       //cout << "trajectory size : " << trajpq.size() << endl;
       for (int m=0; m<trajpq.size()/2; m++)
         historyFile << "," << trajpq.getUnchecked(m);
@@ -4608,8 +4657,11 @@ void NEP::writeDescentToFile()
         historyFile << "," << dAdq_local.getUnchecked(m);
       for (int m=0; m<dAdq_filt_local.size(); m++)
         historyFile << "," << dAdq_filt_local.getUnchecked(m);
-      historyFile << "," << ham_descent.getUnchecked(iter).getUnchecked(point);
-      historyFile << endl;
+      //historyFile << "," << ham_descent.getUnchecked(iter).getUnchecked(point);
+      historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
+      for (int m=0; m<resP.size(); m++)
+        historyFile << "," << resP.getUnchecked(m);
+      historyFile << std::defaultfloat << endl;
     } // end loop over points in current iteration
     //historyFile << endl;
   } // end loop over iterations
