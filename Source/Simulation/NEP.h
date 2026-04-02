@@ -151,6 +151,7 @@ public:
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
   EnumParameter* initialConditions;
+  EnumParameter* solverType;
 
 
   // update steady state list when updateParams is calle din SImulation
@@ -268,9 +269,9 @@ private:
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int);
-  void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
-  void lowPassFiltering(juce::Array<StateVec>&, bool);
+  void resampleInSpaceUniform(Array<StateVec>& signal, int);
+  void resampleInTimeUniform(Array<StateVec>& signal, int);
+  //void lowPassFiltering(Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
@@ -304,6 +305,9 @@ private:
   // #para
   double stepDescentThreshold = 1e-4;
   double stepDescent;
+  double tolerance_mu_init = 1e-5;
+  double tolerance_mu_min = 1e-10;
+  double tolerance_mu;
   
   // normalization parameters
   double timescale_factor = 1.;
