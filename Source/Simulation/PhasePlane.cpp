@@ -6,7 +6,7 @@
 //
 
 #include "PhasePlane.h"
-
+using namespace juce;
 juce_ImplementSingleton(PhasePlane);
 
 

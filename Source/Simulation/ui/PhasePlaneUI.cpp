@@ -18,12 +18,12 @@ RunUI::~RunUI()
 
 void RunUI::resized()
 {
-  Rectangle<int> r = getLocalBounds();
+  juce::Rectangle<int> r = getLocalBounds();
   editorUI->setBounds(r.reduced(10));
 }
 
 /*
-void RunUI::resizedInternalHeader(Rectangle<int> &r)
+void RunUI::resizedInternalHeader(juce::Rectangle<int> &r)
 {
    
 }
@@ -87,12 +87,12 @@ PhasePlaneUI::~PhasePlaneUI()
 void PhasePlaneUI::resized()
 {
   
-    Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     vp.setBounds(r);
 /*
     r.removeFromTop(8);
-    Rectangle<int> hr = r.removeFromTop(20);
+    juce::Rectangle<int> hr = r.removeFromTop(20);
    
 
   

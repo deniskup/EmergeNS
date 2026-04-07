@@ -17,20 +17,20 @@
 
 class Reaction;
 class SimEntity;
-using namespace juce;
+//using namespace juce;
 
 class SimReaction
 {
 public:
 	SimReaction(Reaction*);
 	SimReaction(SimEntity* r1, SimEntity* r2, SimEntity* p, float assocRate, float dissocRate, float barrier = 0.f);
-	SimReaction(Array<SimEntity*> r, Array<SimEntity*> p, float assocRate, float dissocRate, float barrier = 0.f);
+	SimReaction(juce::Array<SimEntity*> r, juce::Array<SimEntity*> p, float assocRate, float dissocRate, float barrier = 0.f);
 
 	void updateFromReaction(Reaction* r);
 
 
-	SimReaction(var data); // import from JSON
-	var toJSONData();      // save to JSON
+	SimReaction(juce::var data); // import from JSON
+	juce::var toJSONData();      // save to JSON
 
 	~SimReaction(); //delete and remove pointers to it
 
@@ -38,8 +38,8 @@ public:
 
 	Reaction* reaction; // sourceReaction
 
-	Array<SimEntity*> reactants;
-	Array<SimEntity*> products;
+	juce::Array<SimEntity*> reactants;
+	juce::Array<SimEntity*> products;
 
 	bool isReversible = true; //can the reaction go the other way ?
 	bool enabled = true; // to know if the reaction is enabled or not
@@ -48,7 +48,7 @@ public:
 
 	bool reached; //is the reaction reached from primary entities ?
 
-	String name; //by default a+b=c, but not forced
+	juce::String name; //by default a+b=c, but not forced
 
 	void autoSetName();
 
@@ -64,11 +64,11 @@ public:
 
 	int idSAT = 0; // identifier for SAT Solving
   //float flow;    // flow = dProduct/dt due to the reaction
-  Array<float> flow;    // flow = dProduct/dt due to the reaction
+  juce::Array<float> flow;    // flow = dProduct/dt due to the reaction
   //float deterministicFlow;    // same but not taking into account stochastic contribution
-	Array<float> deterministicFlow;    // same but not taking into account stochastic contribution
+	juce::Array<float> deterministicFlow;    // same but not taking into account stochastic contribution
   //bool flowdir;  // direction of the flow, same convention as in PAC
-	Array<bool> flowdir;  // direction of the flow, same convention as in PAC
+	juce::Array<bool> flowdir;  // direction of the flow, same convention as in PAC
 
 	
 	bool containsReactant(SimEntity* e);

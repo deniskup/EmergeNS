@@ -14,7 +14,7 @@ public:
     std::unique_ptr<FloatParameterLabelUI> startConcentUI;
 
     void updateTextColor();
-    void resizedInternalHeader(Rectangle<int> &r) override;
+    void resizedInternalHeader(juce::Rectangle<int> &r) override;
     void controllableFeedbackUpdateInternal(Controllable* c) override;
     
 };

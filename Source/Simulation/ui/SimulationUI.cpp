@@ -1,6 +1,6 @@
 
 #include "SimulationUI.h"
-
+using namespace juce;
 SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
 							   simul(Simulation::getInstance())
 //    saveSimBT("Save"),
@@ -138,7 +138,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	g.setColour(Colours::white);
 	g.setFont(14);
-	Rectangle<int> botBounds = getLocalBounds().removeFromBottom(50);
+	juce::Rectangle<int> botBounds = getLocalBounds().removeFromBottom(50);
 	String paramsToDisplay;
 
 	if (simul->entities.isEmpty())
@@ -212,7 +212,7 @@ void SimulationUI::paint(juce::Graphics &g)
 			float v = 1 - values[j] / maxC;
 			v = jmax(v, 0.f);
 			Point<float> ep = simBounds.getRelativePoint(i * stepX, v).toFloat();
-			// g.drawEllipse(Rectangle<float>(10,10).withCentre(ep), 2.f);
+			// g.drawEllipse(juce::Rectangle<float>(10,10).withCentre(ep), 2.f);
 			// optimisation possible: ne pas rajouter si c'est le meme x
 			paths[j]->lineTo(ep);
 		}
@@ -237,7 +237,7 @@ void SimulationUI::paint(juce::Graphics &g)
   String title = "Patch " + String(to_string(patchID)) +  " ; Run " + String(to_string(runID));
   int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
   int titleY = simBounds.getY() - 20;
-  Rectangle<int> titlepos(titleX, titleY, 100, 20);
+  juce::Rectangle<int> titlepos(titleX, titleY, 100, 20);
   g.drawText(title, titlepos, Justification::centred, true);
 
   
@@ -255,7 +255,7 @@ void SimulationUI::paint(juce::Graphics &g)
 		float step = (float)simBounds.getHeight() * ii / (float)ncorr;
 		int y = simBounds.getY() + round(step);
 		// draw the tick
-		Rectangle<int> m1(x - markwidth / 2, y, markwidth, markheight);
+		juce::Rectangle<int> m1(x - markwidth / 2, y, markwidth, markheight);
 		if (i != ncorr & i != 0)
 			g.drawRect(m1, markheight);
 
@@ -268,7 +268,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
     // x position of ticks labels
     int xx = simBounds.getX() - 50;
-		Rectangle<int> tpos(xx, y, 50, 5);
+		juce::Rectangle<int> tpos(xx, y, 50, 5);
 		float conc = maxC * (1. - ii / ncorr);
 		stringstream ssconc;
 		ssconc << fixed << setprecision(ndigits) << conc;
@@ -283,7 +283,7 @@ void SimulationUI::paint(juce::Graphics &g)
 		step = (float)simBounds.getWidth() * ii / (float)ncorr;
 		x = simBounds.getX() + round(step);
 		// draw the tick
-		Rectangle<int> m2(x, y - markwidth / 2, markheight, markwidth);
+		juce::Rectangle<int> m2(x, y - markwidth / 2, markheight, markwidth);
 		if (i != ncorr & i != 0)
 			g.drawRect(m2, markheight);
 
@@ -295,7 +295,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 		//x -= 3 * pow;
     int boxwidth = 100;
-		Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
+		juce::Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
 		float time = simul->totalTime->floatValue() * ii / ncorr;
 		stringstream sstime;
 		sstime << fixed << setprecision(ndigits) << time;
@@ -312,8 +312,8 @@ void SimulationUI::paint(juce::Graphics &g)
 
 void SimulationUI::resized()
 {
-	Rectangle<int> r = getLocalBounds();
-	Rectangle<int> hr = r.removeFromTop(firstLineHeight);
+	juce::Rectangle<int> r = getLocalBounds();
+	juce::Rectangle<int> hr = r.removeFromTop(firstLineHeight);
 
 	int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth() + 15 + epsilonEqUI->getWidth() + 15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
 
@@ -362,14 +362,14 @@ void SimulationUI::resized()
 	r.removeFromTop(8);
 	perCentUI->setBounds(r.removeFromTop(25).reduced(4));
 
-	Rectangle<int> br = r.removeFromBottom(150);
-	// Rectangle<int> butr = br.removeFromRight(100);
+	juce::Rectangle<int> br = r.removeFromBottom(150);
+	// juce::Rectangle<int> butr = br.removeFromRight(100);
 	// saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
 	// loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
   
 
-  //Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
-  Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  //juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+  juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
 
 	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
@@ -385,7 +385,7 @@ void SimulationUI::resized()
   explore.removeFromRight(10);
   setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
   
-  Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
+  juce::Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
   spaceUI->setBounds(explore2.removeFromLeft(145));
 
 	paramsLabel.setBounds(br.reduced(10));

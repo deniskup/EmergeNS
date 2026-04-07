@@ -16,7 +16,7 @@ public:
 
     void resized() override;
 
-    static SettingsUI *create(const String &name) { return new SettingsUI(); }
+    static SettingsUI *create(const juce::String &name) { return new SettingsUI(); }
 
     //void updateSettingsUI(Settings *) override;
 

@@ -13,7 +13,7 @@
 #include "Entity.h"
 #include "SimEntity.h"
 #include "Simulation.h"
-
+using namespace juce;
 SimReaction::SimReaction(Reaction *r)
 {
 	updateFromReaction(r);

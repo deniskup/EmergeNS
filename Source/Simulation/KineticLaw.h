@@ -13,7 +13,7 @@
 #include "SimEntity.h"
 #include "SimReaction.h"
 #include "Space.h"
-using namespace juce;
+//using namespace juce;
 using namespace std;
 
 
@@ -73,9 +73,9 @@ public:
   void fixedSeedMode(const string);
   void shakeSeedValue();
   
-  void SteppingReactionRates(OwnedArray<SimReaction>&, float, int, bool);
-  void SteppingInflowOutflowRates(OwnedArray<SimEntity>&, float, int);
-  void SteppingDiffusionRates(OwnedArray<SimEntity>&, Patch&);
+  void SteppingReactionRates(juce::OwnedArray<SimReaction>&, float, int, bool);
+  void SteppingInflowOutflowRates(juce::OwnedArray<SimEntity>&, float, int);
+  void SteppingDiffusionRates(juce::OwnedArray<SimEntity>&, Patch&);
   
   bool useStochasticity;
   float noiseEpsilon;

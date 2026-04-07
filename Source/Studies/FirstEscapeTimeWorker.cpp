@@ -1,5 +1,5 @@
 #include "FirstEscapeTimeWorker.h"
-
+using namespace juce;
 
 void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
 {
@@ -66,7 +66,7 @@ void FirstEscapeTimeWorker::reset()
   //escapeTimes.clear();
   //escapeTimes.insertMultiple(0, 0., simul.nRuns);
   escapes.clear();
-  Escape defaultEscape = {0., -1, -1};
+  struct Escape defaultEscape = {0., -1, -1};
   escapes.insertMultiple(0, defaultEscape, PhasePlane::getInstance()->nRuns->intValue());
   
   runsTreated.clear();

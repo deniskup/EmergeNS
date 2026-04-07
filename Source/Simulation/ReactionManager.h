@@ -17,6 +17,6 @@ public:
 	void autoRename();
 	void inferAllReacs();
 
-	Reaction *getReactionFromName(const String &searchName);
+	Reaction *getReactionFromName(const juce::String &searchName);
 
 };

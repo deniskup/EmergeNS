@@ -12,6 +12,7 @@
 #include "Entity.h"
 #include "SimReaction.h"
 #include "Space.h"
+using namespace juce;
 
 SimEntity::SimEntity(var data)
 {

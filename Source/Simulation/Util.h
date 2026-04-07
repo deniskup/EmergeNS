@@ -2,7 +2,7 @@
 #include "JuceHeader.h"
 #include <Eigen/Dense>
 using namespace std;
-using namespace juce;
+//using namespace juce;
 
 int randInt(int i, int j);
 

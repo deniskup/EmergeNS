@@ -1,5 +1,6 @@
 
 #include "EntityUI.h"
+using namespace juce;
 
 EntityUI::EntityUI(Entity* entity) : BaseItemUI(entity)
 {
@@ -30,7 +31,7 @@ void EntityUI::updateTextColor()
 	itemLabel.setColour(itemLabel.textColourId, tc);
 }
 
-void EntityUI::resizedInternalHeader(Rectangle<int>& r)
+void EntityUI::resizedInternalHeader(juce::Rectangle<int>& r)
 {
 	// position the slider
 	concentUI->setBounds(r.removeFromRight(100).reduced(1));

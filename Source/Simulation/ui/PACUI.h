@@ -5,7 +5,7 @@
 
 class PACUI : public ShapeShifterContentComponent,
                      public Simulation::AsyncSimListener,
-                     public Timer,
+                     public juce::Timer,
                      public ContainerAsyncListener
                      //public Button::Listener
 {
@@ -15,13 +15,13 @@ public:
 
     Simulation *simul;
     bool shouldRepaint;
-    Array<Array<float>> PACsHistory;
+    juce::Array<juce::Array<float>> PACsHistory;
 
-    Array<bool> RACList;
+    juce::Array<bool> RACList;
     //map<PAC*, bool> RACList;
 
 
-    Rectangle<int> PACsBounds;
+    juce::Rectangle<int> PACsBounds;
 
     //oneColor setting
 
@@ -37,5 +37,5 @@ public:
 
     void newMessage(const ContainerAsyncEvent &e) override;
 
-    static PACUI *create(const String &name) { return new PACUI(); }
+    static PACUI *create(const juce::String &name) { return new PACUI(); }
 };

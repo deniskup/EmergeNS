@@ -10,5 +10,5 @@ public:
     ReactionUI(Reaction* reaction);
     ~ReactionUI();
 
-    void resizedInternalHeader(Rectangle<int> &r) override;
+    void resizedInternalHeader(juce::Rectangle<int> &r) override;
 };

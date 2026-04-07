@@ -16,13 +16,13 @@
 
 class Entity;
 class Space;
-using namespace juce;
+//using namespace juce;
 
 
 class SimEntity
 {
 public:
-    SimEntity(var data); // import from JSON
+    SimEntity(juce::var data); // import from JSON
     SimEntity(Entity* e);
     SimEntity(bool isPrimary, float concent, float cRate, float dRate, float freeEnergy);
     SimEntity(const SimEntity*);
@@ -31,38 +31,38 @@ public:
 
     void updateFromEntity(Entity* e);
 
-    var toJSONData();    // save to JSON
+    juce::var toJSONData();    // save to JSON
 
     ~SimEntity(); //delete and remove pointers to it
 
     bool constructionFailed = false;
 
-    String name;
+    juce::String name;
     Entity* entity = nullptr; // sourceEntity
 
-    Colour color;
+    juce::Colour color;
     bool primary;
     bool chemostat=false;
     int id = -1; // unique identifier
     //float concent;
-    Array<float> concent; // size = number of patches
+    juce::Array<float> concent; // size = number of patches
     //float deterministicConcent;
-    Array<float> deterministicConcent;
+    juce::Array<float> deterministicConcent;
     //float startConcent;
-    Array<float> startConcent;
+    juce::Array<float> startConcent;
     //float previousConcent;
-    Array<float> previousConcent;
+    juce::Array<float> previousConcent;
     float creationRate; // could be heterogeneous in space. Left homogeneous for now
     float destructionRate; // same
     float freeEnergy;
 
-    //Array<float> concentHistory; // history of entity concentration
-    // Array<std::pair<int, float>> concentHistory; // history of entity [run ;concentration].
+    //juce::Array<float> concentHistory; // history of entity concentration
+    // juce::Array<std::pair<int, float>> concentHistory; // history of entity [run ;concentration].
 
     //float change = 0.f; // variation of concentration in the last dt
-    Array<float> change = 0.f; // variation of concentration in the last dt
+    juce::Array<float> change = 0.f; // variation of concentration in the last dt
     //float deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
-    Array<float> deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
+    juce::Array<float> deterministicChange = 0.f; // variation of concentration in the last dt (deterministic part only)
 
     bool reached; //is the entity reached from primary entities ?
 
@@ -89,7 +89,7 @@ public:
 
     void nameFromCompo();
 
-    String toString() const;
+    juce::String toString() const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };
@@ -100,13 +100,13 @@ typedef std::pair<SimEntity*, SimEntity*> Decomp;
 class CompoDecomps
 {
 public:
-    CompoDecomps(Compo comp, Array<Decomp> ar) : compo(comp), decomps(ar) {}
+    CompoDecomps(Compo comp, juce::Array<Decomp> ar) : compo(comp), decomps(ar) {}
     ~CompoDecomps()
     {
         decomps.clear();
     }
     Compo compo;
-    Array<Decomp> decomps;
+    juce::Array<Decomp> decomps;
     void add(SimEntity* e1, SimEntity* e2)
     {
         decomps.add(std::make_pair(e1, e2));

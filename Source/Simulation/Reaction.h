@@ -2,7 +2,7 @@
 #pragma once
 
 #include "JuceHeader.h"
-using namespace juce;
+//using namespace juce;
 
 class SimReaction;
 class Entity;
@@ -10,7 +10,7 @@ class Entity;
 class Reaction : public BaseItem
 {
 public:
-    Reaction(var params = var());
+    Reaction(juce::var params = juce::var());
     Reaction(SimReaction*);
 
     ~Reaction();
@@ -36,8 +36,8 @@ public:
     void addReactant(Entity *e);
     void addProduct(Entity *e);
 
-    Array<Entity*> getAllReactants();
-    Array<Entity*> getAllProducts();
+    juce::Array<Entity*> getAllReactants();
+    juce::Array<Entity*> getAllProducts();
 
     void clearReactants();
     void clearProducts();

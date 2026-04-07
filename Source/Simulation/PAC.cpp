@@ -10,6 +10,7 @@
 #pragma warning(disable : 4267) // on d�sactive les erreur de loss of data (du aux conversion size_t > int) -> mais ca serait compl�tement �vit� en utilisant les types de Juce plut�t que les types c++ natifs (ostringstream >> String)
 
 using namespace std;
+using namespace juce;
 
 string scientificStringFormat(float number)
 {

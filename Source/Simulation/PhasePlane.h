@@ -20,7 +20,7 @@ TODO list
 #include "Settings.h"
 
 //class Simulation;
-using namespace juce;
+//using namespace juce;
 
 //class Simulation;
 
@@ -30,19 +30,19 @@ class Run : public ControllableContainer
 {
   public:
   Run();
-  Run(String _name);
-  Run(var data);
-  Run(String, Array<String>, Array<float>); // entity names, entity concentrations
-  Run(OwnedArray<SimEntity*>, String _name);
+  Run(juce::String _name);
+  Run(juce::var data);
+  Run(juce::String, juce::Array<juce::String>, juce::Array<float>); // entity names, entity concentrations
+  Run(juce::OwnedArray<SimEntity*>, juce::String _name);
   virtual ~Run(){};
   
-  //String name = "";
-  Array<Point3DParameter*> p3d;
+  //juce::String name = "";
+  juce::Array<Point3DParameter*> p3d;
   Point2DParameter * p2d = nullptr;
   FloatParameter * fp = nullptr;
   
     
-  void addEntitiesToRun(Array<String>, Array<float>);
+  void addEntitiesToRun(juce::Array<juce::String>, juce::Array<float>);
   
   void clearEntities();
   
@@ -53,10 +53,10 @@ class Run : public ControllableContainer
 
 
   
-  var getJSONData(bool includeNonOverriden = false) override; // à coder, voir  var toJSONData() de Simulation.h
+  juce::var getJSONData(bool includeNonOverriden = false) override; // à coder, voir  var toJSONData() de Simulation.h
   //var toJSONData(); // à coder, voir  var toJSONData() de Simulation.h
   
-  void loadJSONData(var data, bool createIfNotThere = false) override; //
+  void loadJSONData(juce::var data, bool createIfNotThere = false) override; //
   
   void afterLoadJSONDataInternal() override;
   
@@ -78,19 +78,19 @@ public:
   
   void addItemInternal(Run * r, var params) override;
 
-  //Run * getRunFromName(const String &searchName);
+  //Run * getRunFromName(const juce::String &searchName);
 
 };
 */
 
 
 
-class PhasePlane : public ControllableContainer, public Thread
+class PhasePlane : public ControllableContainer, public juce::Thread
 {
 public:
     juce_DeclareSingleton(PhasePlane, true);
     PhasePlane();
-    PhasePlane(var data); // import from JSON
+    PhasePlane(juce::var data); // import from JSON
 
     ~PhasePlane();
   
@@ -98,7 +98,7 @@ public:
   Trigger * draw;
   //Trigger * startDraw;
   
-  String pathToEmergens;
+  juce::String pathToEmergens;
   
   TargetParameter * xAxis;
   TargetParameter * yAxis;
@@ -110,7 +110,7 @@ public:
 
 
   IntParameter * nRuns;
-  Array<Run*> runs;
+  juce::Array<Run*> runs;
   
   bool isRemoving = false;
   
@@ -136,8 +136,8 @@ public:
 
   
   
-  void loadJSONData(var data, bool createIfNotThere = false) override;
-  var getJSONData(bool includeNonOverriden = true) override;
+  void loadJSONData(juce::var data, bool createIfNotThere = false) override;
+  juce::var getJSONData(bool includeNonOverriden = true) override;
   
  
   
@@ -157,7 +157,7 @@ public:
   };
   
   
-  ListenerList<PhasePlaneListener> listeners;
+  juce::ListenerList<PhasePlaneListener> listeners;
   void addPhasePlaneListener(PhasePlaneListener *newListener) { listeners.add(newListener); }
   void removePhasePlaneListener(PhasePlaneListener *listener) { listeners.remove(listener); }
 

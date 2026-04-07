@@ -3,6 +3,8 @@
 #include "Simulation/ReactionManager.h"
 #include "Simulation/Simulation.h"
 
+using namespace juce;
+
 namespace NSCommandIDs
 {
 	//static const int computeCompositions = 0x60000;

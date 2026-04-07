@@ -6,7 +6,7 @@
 
 #include "NEP.h"
 #include "Simulation.h"
-
+using namespace juce;
 
 juce_ImplementSingleton(NEP);
 

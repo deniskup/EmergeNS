@@ -2,7 +2,7 @@
 #include "Statistics.h"
 #include "Generation.h"
 #include "Util.h"
-
+using namespace juce;
 juce_ImplementSingleton(Statistics)
 
     Statistics::Statistics() : simul(Simulation::getInstance())

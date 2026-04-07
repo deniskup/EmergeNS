@@ -30,10 +30,10 @@ GenerationUI::~GenerationUI()
 
 void GenerationUI::resized()
 {
-    Rectangle<int> r = getLocalBounds();
+    juce::Rectangle<int> r = getLocalBounds();
     editorUI->setBounds(r.reduced(10));
     // r.removeFromTop(10);
-    // Rectangle<int> hr = r.removeFromTop(27).reduced(2);
+    // juce::Rectangle<int> hr = r.removeFromTop(27).reduced(2);
     // // maxStepsUI->setBounds(hr.removeFromLeft(200));
     // numLevelsUI->setBounds(hr);
     // r.removeFromTop(10);

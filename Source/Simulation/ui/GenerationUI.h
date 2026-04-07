@@ -26,7 +26,7 @@ public:
     //void paint(juce::Graphics &) override;
     void resized() override;
 
-    static GenerationUI *create(const String &name) { return new GenerationUI(); }
+    static GenerationUI *create(const juce::String &name) { return new GenerationUI(); }
 
     void updateGenUI(Generation *) override;
 

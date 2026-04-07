@@ -32,19 +32,19 @@ using namespace std;
 //class Simulation::SimulationEvent;
 //class Simulation::AsyncSimListener;
 
-using namespace juce;
+//using namespace juce;
 
 // some typedef for readability
-typedef Array<double> StateVec;
-typedef Array<double> PhaseSpaceVec;
-//typedef Array<Array<double>> Matrix;
+typedef juce::Array<double> StateVec;
+typedef juce::Array<double> PhaseSpaceVec;
+//typedef juce::Array<juce::Array<double>> Matrix;
 
 // represent a curve in the concentration space
-typedef Array<StateVec> Curve;
+typedef juce::Array<StateVec> Curve;
 // represent a curve in the momentum space
-typedef Array<StateVec> pCurve;
+typedef juce::Array<StateVec> pCurve;
 // represent a trajectory in the {concentration; momentum} space
-typedef Array<PhaseSpaceVec> Trajectory;
+typedef juce::Array<PhaseSpaceVec> Trajectory;
 
 
 
@@ -54,47 +54,47 @@ class LiftTrajectoryOptResults
   public:
     LiftTrajectoryOptResults(){};
     ~LiftTrajectoryOptResults(){};
-    Array<StateVec> opt_momentum;
-    Array<double> opt_deltaT;
+    juce::Array<StateVec> opt_momentum;
+    juce::Array<double> opt_deltaT;
     pCurve pcurve;
-    Array<double> times;
-    Array<int> gslStatus;
-    Array<int> collinearity;
+    juce::Array<double> times;
+    juce::Array<int> gslStatus;
+    juce::Array<int> collinearity;
 };
 
 class NEP;
 
 struct EncapsVarForNLOpt {
-  const Array<double>* qcenter; // current concentration point
-  const Array<double>* deltaq; // current concentration point
-  Array<double>* p; // p variable to pass to t optimisation
+  const juce::Array<double>* qcenter; // current concentration point
+  const juce::Array<double>* deltaq; // current concentration point
+  juce::Array<double>* p; // p variable to pass to t optimisation
   NEP * nep; // nep class for hamiltonian class
   double t_opt; // t variable that optimizes the lagrangian
-  //Array<double> p_opt; // t variable that optimizes the lagrangian
+  //juce::Array<double> p_opt; // t variable that optimizes the lagrangian
 };
 
 
 struct EncapsVarForGSL {
-  Array<double> qcenter; // current concentration point
-  Array<double> deltaq; // current concentration point
+  juce::Array<double> qcenter; // current concentration point
+  juce::Array<double> deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
-  Array<double> pnorm;
-  Array<double> equation_norm;
-  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  juce::Array<double> pnorm;
+  juce::Array<double> equation_norm;
+  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
 };
 
 
 
 
-class NEP : public ControllableContainer, public Thread/*, public Simulation::AsyncSimListener, public ContainerAsyncListener*/
+class NEP : public ControllableContainer, public juce::Thread/*, public Simulation::AsyncSimListener, public ContainerAsyncListener*/
 
 {
 public:
   juce_DeclareSingleton(NEP, true);
   NEP();
 
-  NEP(var data); // import from JSON
+  NEP(juce::var data); // import from JSON
   ~NEP();
   
   Simulation * simul;
@@ -158,13 +158,13 @@ public:
   
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
   
-  dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
+  juce::dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
   
   StateVec evalHamiltonianGradientWithQ(const StateVec q, const StateVec p);
   
   //var getJSONData() override;
 
-  void loadJSONData(var data, bool createIfNotThere = false) override;
+  void loadJSONData(juce::var data, bool createIfNotThere = false) override;
   
     
   // ASYNC
@@ -217,7 +217,7 @@ private:
   
   bool descentShouldContinue(int);
   
-  dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
+  juce::dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
   
   gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
@@ -233,20 +233,20 @@ private:
 
   //LiftTrajectoryOptResults liftCurveToTrajectoryWithNLOPT_old();
   
-  void updateOptimalConcentrationCurve_old(const Array<StateVec> popt, const Array<double> deltaTopt);
+  void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
   void updateOptimalConcentrationCurve(Curve &, double);
 
-  //double calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
-  Array<double> calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t);
+  //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
+  juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
   double backTrackingMethodForStepSize(const Curve& c);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  void resampleInSpaceUniform(Array<StateVec>& signal, int);
-  void resampleInTimeUniform(Array<StateVec>& signal, int);
-  void lowPassFiltering(Array<StateVec>&, bool);
+  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int);
+  void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
+  void lowPassFiltering(juce::Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
@@ -260,10 +260,10 @@ private:
   Curve g_qcurve;
   pCurve g_pcurve;
   double length_qcurve = 0.;
-  Array<double> g_times;
+  juce::Array<double> g_times;
   double action;
   double metric = 1.; // distance from hamilton's equation of motion
-  Array<StateVec> dAdq, dAdq_filt;
+  juce::Array<StateVec> dAdq, dAdq_filt;
 
   // number of sampling points
   int nPoints;
@@ -284,14 +284,14 @@ private:
   
 
   // for printing history to file
-  //Array<double> actionDescent;
-  Array<Array<double>> actionDescent;
-  Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
-  Array<Trajectory> dAdqDescent; // keep track of gradient history
-  Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
-  Array<Array<int>> gslStatus_descent;
-  Array<Array<int>> collinearityStatus_descent;
+  //juce::Array<double> actionDescent;
+  juce::Array<juce::Array<double>> actionDescent;
+  juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
+  juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  juce::Array<juce::Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
+  juce::Array<juce::Array<int>> gslStatus_descent;
+  juce::Array<juce::Array<int>> collinearityStatus_descent;
     
   ofstream debugfile;
 

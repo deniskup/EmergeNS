@@ -9,6 +9,7 @@
 #pragma warning(disable:4244 4100 4305)
 #include <JuceHeader.h>
 #include "Main.h"
+using namespace juce;
 
 String getAppVersion();
 

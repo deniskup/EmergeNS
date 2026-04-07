@@ -44,7 +44,7 @@ public:
         stopThread(2000);
     }
   
-    void setConfig(map<String, String>);
+    void setConfig(map<juce::String, juce::String>);
   
     void reset();
 
@@ -53,9 +53,9 @@ public:
     void clearSnapshots(const int);
   
     //Array<float> escapeTimes;
-    Array<Escape> escapes;
-    OwnedArray<SimEntity> entities;
-    OwnedArray<SimReaction> reactions;
+    juce::Array<struct Escape> escapes;
+    juce::OwnedArray<SimEntity> entities;
+    juce::OwnedArray<SimReaction> reactions;
 
 private:
   
@@ -93,13 +93,13 @@ private:
     // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
     float dt_study = 0.1; // time step used to identify in which attraction basin the system is
     bool debug = false; // if true, will request thread simulation to proceed to next run as soon as an escape is detected
-    String network = "./network.ens";
-    String outputfilename = "./output_escapeTimeStudy.csv";
+    juce::String network = "./network.ens";
+    juce::String outputfilename = "./output_escapeTimeStudy.csv";
     int superRun = 0;
 
 
   
-    Array<int> runsTreated;
+    juce::Array<int> runsTreated;
 
 };
 

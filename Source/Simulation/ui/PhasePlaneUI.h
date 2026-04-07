@@ -14,7 +14,7 @@ public:
     RunUI();
     ~RunUI();
 
-    //void resizedInternalHeader(Rectangle<int> &r) override;
+    //void resizedInternalHeader(juce::Rectangle<int> &r) override;
   
   Run *run;
   
@@ -22,7 +22,7 @@ public:
 
   void resized() override;
 
-  static RunUI *create(const String &name) { return new RunUI(); }
+  static RunUI *create(const juce::String &name) { return new RunUI(); }
 };
 
 
@@ -72,7 +72,7 @@ public:
     //void paint(juce::Graphics &) override;
     void resized() override;
 
-    static PhasePlaneUI *create(const String &name) { return new PhasePlaneUI(); }
+    static PhasePlaneUI *create(const juce::String &name) { return new PhasePlaneUI(); }
 
     void updatePhasePlaneUI(PhasePlane *) override;
 

@@ -5,7 +5,7 @@
 #include "JuceHeader.h"
 #include "Studies/FirstEscapeTime.h"
 
-using namespace juce;
+//using namespace juce;
 
 class EmergeNSEngine :
   public Engine
@@ -18,17 +18,17 @@ public:
 
   void clearInternal() override;
   
-  std::map<String, String> parseConfigFile(String);
+  std::map<juce::String, juce::String> parseConfigFile(juce::String);
 
-  bool parseCommandline(const String &) override;
+  bool parseCommandline(const juce::String &) override;
   
-  void firstEscapeTimeStudy(map<String, String>);
+  void firstEscapeTimeStudy(map<juce::String, juce::String>);
 
-  var getJSONData(bool includeNonOverriden = false) override;
-  void loadJSONDataInternalEngine(var data, ProgressTask* loadingTask) override;
+  juce::var getJSONData(bool includeNonOverriden = false) override;
+  void loadJSONDataInternalEngine(juce::var data, ProgressTask* loadingTask) override;
 
-  String getMinimumRequiredFileVersion() override;
+  juce::String getMinimumRequiredFileVersion() override;
     
-  String study = "";
+  juce::String study = "";
   
 };
