@@ -164,6 +164,7 @@ public:
 	{
 		Generating,
 		Simulating,
+    Updating,
 		Idle
 	};
 

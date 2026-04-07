@@ -158,6 +158,8 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
+  state = Updating;
+  
   // set entities drawn and primary
   entitiesDrawn.clear();
   primEnts.clear();
@@ -222,6 +224,8 @@ void Simulation::updateParams()
   NEP::getInstance()->updateSteadyStateList();
   
   affectSATIds();
+  
+  state = Idle;
   
   //}
   // update the parameters of the simulation in the UI
@@ -3094,7 +3098,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     if (setRun->intValue() < 0)
       return;
-    if (state!=Simulating && !Engine::mainEngine->isLoadingFile) 
+    if (state!=Simulating && state!=Updating && !Engine::mainEngine->isLoadingFile) 
       drawConcOfRun(setRun->intValue());
   }
   if (p == isSpace)
