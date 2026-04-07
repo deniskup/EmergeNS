@@ -396,7 +396,7 @@ void SteadyStateslist::cleanLocalFolder()
       command += " " + file;
     }
   }
-  //system(command.c_str());
+  system(command.c_str());
   
 }
 
