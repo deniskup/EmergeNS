@@ -396,7 +396,7 @@ void SteadyStateslist::cleanLocalFolder()
       command += " " + file;
     }
   }
-  system(command.c_str());
+  //system(command.c_str());
   
 }
 
@@ -887,7 +887,6 @@ bool SteadyStateslist::computeWithMSolve()
   clauses << "0\n";
 
   // set digit precision for polynoms writing
-  int ndigits = 6;
   double factor = pow(10, ndigits);
   double epsilon = 1./factor;
   clauses << fixed << setprecision(ndigits);
@@ -1098,6 +1097,11 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
       stoec[product->idSAT]++;
     }
     
+    if ((double) r->assocRate < std::pow(10., -1.*ndigits))
+      LOGWARNING("Reaction " + r->name + " k+ is very small, user should expect complications with msolve.");
+    if ((double) r->dissocRate < std::pow(10., -1.*ndigits))
+      LOGWARNING("Reaction " + r->name + " k- is very small, user should expect complications with msolve.");
+    
     // build forward and backward monom of current reaction
     Monom forwardRate, backwardRate;
     forwardRate.coef = r->assocRate;
@@ -1112,6 +1116,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
       backwardRate.variables.add(make_pair(id, abs(st)));
     }
     
+    cout << "k+ = " << r->assocRate << ". k- = " << r->dissocRate << endl;
     
     /*
     // add forward monoms for each entity involved in the reaction

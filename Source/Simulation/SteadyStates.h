@@ -137,4 +137,8 @@ public:
 
 
     double epsilon = 1e-7; // arbitrary small quantity
+  
+    int ndigits = 7; // number of digits to use when writing polynoms in msolve format.
+                      // N.B terms smaller than 10^(-ndigits) will be set to 0.
+
 };
