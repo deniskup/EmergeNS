@@ -237,10 +237,10 @@ private:
   
   juce::dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
   
-  gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
+  gsl_vector * initialOptimalGuess_brutforce(const int, bool, const vector<double>, const StateVec);
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
-  int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  int gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
@@ -248,7 +248,7 @@ private:
   int solveForMomentumAtFixedMu(gsl_multimin_fdfminimizer *, EncapsVarForGSL&, double);
   int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
-  LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_brutforce(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime_opt(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime_LF(const Curve&, const int n, bool);
@@ -303,8 +303,9 @@ private:
   double sampleRate;
   
   // #para
-  double stepDescentThreshold = 1e-4;
+  double stepDescentThreshold = 1e-6;
   double stepDescent;
+  double stepDescentInit_dynamic;
   double tolerance_mu_init = 1e-5;
   double tolerance_mu_min = 1e-10;
   double tolerance_mu;
@@ -319,7 +320,6 @@ private:
   Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   Array<Trajectory> dAdqDescent; // keep track of gradient history
   Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  Array<Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
   Array<Array<int>> gslStatus_descent;
   Array<Array<int>> collinearityStatus_descent;
   juce::Array<juce::Array<double>> residuals_H_descent;
