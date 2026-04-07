@@ -860,7 +860,7 @@ bool SteadyStateslist::computeWithMSolve()
   string outputFile = "msolveSteadyOutput.ms";
   // string steadyFile= "SteadyStates.txt";
 
-  string msolveCommand = msolvepath + " -p 64 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+  string msolveCommand = msolvepath + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
 
   // std::cout << inputFile << std::endl;  // #erase
   // std::cout << outputFile << std::endl; // #erase
@@ -1116,7 +1116,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
       backwardRate.variables.add(make_pair(id, abs(st)));
     }
     
-    cout << "k+ = " << r->assocRate << ". k- = " << r->dissocRate << endl;
+    //cout << "k+ = " << r->assocRate << ". k- = " << r->dissocRate << endl;
     
     /*
     // add forward monoms for each entity involved in the reaction
