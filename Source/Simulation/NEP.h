@@ -19,8 +19,10 @@
 
 #include "JuceHeader.h"
 //#include <nlopt.hpp>
+#include <gsl/gsl_roots.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_blas.h>
+#include "gsl/gsl_multimin.h"
 #include <random>
 #include "KineticLaw.h"
 
@@ -57,9 +59,11 @@ class LiftTrajectoryOptResults
     juce::Array<StateVec> opt_momentum;
     juce::Array<double> opt_deltaT;
     pCurve pcurve;
-    juce::Array<double> times;
-    juce::Array<int> gslStatus;
-    juce::Array<int> collinearity;
+    Array<double> times;
+    Array<int> gslStatus;
+    Array<int> collinearity;
+    juce::Array<double> residuals_H;
+    juce::Array<juce::Array<double>> residuals_p;
 };
 
 class NEP;
@@ -74,14 +78,26 @@ struct EncapsVarForNLOpt {
 };
 
 
+
+
 struct EncapsVarForGSL {
   juce::Array<double> qcenter; // current concentration point
   juce::Array<double> deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
-  juce::Array<double> pnorm;
-  juce::Array<double> equation_norm;
-  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  Array<double> pnorm;
+  Array<double> equation_norm;
+  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  //double mu;
+  double s;
+};
+
+struct EncapsVarForGSL_MU {
+  Array<double> q; // current concentration point
+  Array<double> p; // current concentration point
+  Array<double> dq;
+  double dq_norm2;
+  NEP * nep; // nep class for hamiltonian calculations
 };
 
 
@@ -126,7 +142,7 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints_start;
+  IntParameter * nPoints_UI;
   IntParameter * nPoints_max;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
@@ -135,6 +151,7 @@ public:
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
   EnumParameter* initialConditions;
+  EnumParameter* solverType;
 
 
   // update steady state list when updateParams is calle din SImulation
@@ -177,8 +194,8 @@ public:
       NEWSTEP,
     };
 
-    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0.)
-      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric)
+    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0., double _convergenceFraction = 0.)
+      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric), convergenceFraction(_convergenceFraction)
     {
     }
 
@@ -189,6 +206,7 @@ public:
     double cutofffreq;
     int npoints;
     double metric;
+    double convergenceFraction;
   };
   
   QueuedNotifier<NEPEvent> nepNotifier;
@@ -219,15 +237,21 @@ private:
   
   juce::dsp::Matrix<double> buildOrthogonalBasis(StateVec v);
   
-  gsl_vector * initialOptimalGuess_old(const int, bool, const vector<double>, const StateVec);
+  gsl_vector * initialOptimalGuess_brutforce(const int, bool, const vector<double>, const StateVec);
   gsl_vector * initialOptimalGuess(const int, bool, const vector<double>, const StateVec);
   
-  int gslMultirootSolving_old(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  int gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
-  LiftTrajectoryOptResults findOptimalMomentumAndTime_old(const Curve&, const int n, bool);
+  int solveForMomentumAtFixedMu(gsl_multimin_fdfminimizer *, EncapsVarForGSL&, double);
+  int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_brutforce(const Curve&, const int n, bool);
   LiftTrajectoryOptResults findOptimalMomentumAndTime(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_opt(const Curve&, const int n, bool);
+  LiftTrajectoryOptResults findOptimalMomentumAndTime_LF(const Curve&, const int n, bool);
     
   LiftTrajectoryOptResults liftCurveToTrajectoryWithGSL(const Curve&, bool);
 
@@ -235,7 +259,8 @@ private:
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
-  void updateOptimalConcentrationCurve(Curve &, double);
+  //void updateOptimalConcentrationCurve(Curve &, double);
+  bool updateOptimalConcentrationCurve(Curve &, double);
 
   //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
@@ -244,15 +269,17 @@ private:
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int);
-  void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
-  void lowPassFiltering(juce::Array<StateVec>&, bool);
+  void resampleInSpaceUniform(Array<StateVec>& signal, int);
+  void resampleInTimeUniform(Array<StateVec>& signal, int);
+  //void lowPassFiltering(Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
   
   void heteroclinicStudy();
+  
+  void debuggingFunction();
   
   KineticLaw * kinetics; // to calculate kinetics
   
@@ -276,22 +303,27 @@ private:
   double sampleRate;
   
   // #para
-  double stepDescentThreshold = 1e-4;
+  double stepDescentThreshold = 1e-6;
   double stepDescent;
+  double stepDescentInit_dynamic;
+  double tolerance_mu_init = 1e-5;
+  double tolerance_mu_min = 1e-10;
+  double tolerance_mu;
   
   // normalization parameters
   double timescale_factor = 1.;
   
 
   // for printing history to file
-  //juce::Array<double> actionDescent;
-  juce::Array<juce::Array<double>> actionDescent;
-  juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
-  juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
-  juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  juce::Array<juce::Array<double>> ham_descent; // keep track of hamiltonian evaluated along qcurve in the descent
-  juce::Array<juce::Array<int>> gslStatus_descent;
-  juce::Array<juce::Array<int>> collinearityStatus_descent;
+  //Array<double> actionDescent;
+  Array<Array<double>> actionDescent;
+  Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  Array<Trajectory> dAdqDescent; // keep track of gradient history
+  Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  Array<Array<int>> gslStatus_descent;
+  Array<Array<int>> collinearityStatus_descent;
+  juce::Array<juce::Array<double>> residuals_H_descent;
+  juce::Array<Trajectory> residuals_p_descent;
     
   ofstream debugfile;
 
