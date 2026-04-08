@@ -28,12 +28,12 @@ public:
 
     
     // Action array
-    Array<int> iterations;
-    Array<double> actions;
-    Array<double> cutoffFreqs;
-    Array<double> nPoints;
-    Array<double> metrics;
-    Array<double> convergence;
+    juce::Array<int> iterations;
+    juce::Array<double> actions;
+    juce::Array<double> cutoffFreqs;
+    juce::Array<double> nPoints;
+    juce::Array<double> metrics;
+    juce::Array<double> convergence;
   
     void paintAxis(juce::Graphics &g, juce::Rectangle<int> bounds, juce::String type, int nticks, float max, int ndigits);
   

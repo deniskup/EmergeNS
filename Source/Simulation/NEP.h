@@ -59,9 +59,9 @@ class LiftTrajectoryOptResults
     juce::Array<StateVec> opt_momentum;
     juce::Array<double> opt_deltaT;
     pCurve pcurve;
-    Array<double> times;
-    Array<int> gslStatus;
-    Array<int> collinearity;
+    juce::Array<double> times;
+    juce::Array<int> gslStatus;
+    juce::Array<int> collinearity;
     juce::Array<double> residuals_H;
     juce::Array<juce::Array<double>> residuals_p;
 };
@@ -85,17 +85,17 @@ struct EncapsVarForGSL {
   juce::Array<double> deltaq; // current concentration point
   NEP * nep; // nep class for hamiltonian calculations
   double epsilon = 1.;
-  Array<double> pnorm;
-  Array<double> equation_norm;
-  dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  juce::Array<double> pnorm;
+  juce::Array<double> equation_norm;
+  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
   //double mu;
   double s;
 };
 
 struct EncapsVarForGSL_MU {
-  Array<double> q; // current concentration point
-  Array<double> p; // current concentration point
-  Array<double> dq;
+  juce::Array<double> q; // current concentration point
+  juce::Array<double> p; // current concentration point
+  juce::Array<double> dq;
   double dq_norm2;
   NEP * nep; // nep class for hamiltonian calculations
 };
@@ -269,8 +269,8 @@ private:
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  void resampleInSpaceUniform(Array<StateVec>& signal, int);
-  void resampleInTimeUniform(Array<StateVec>& signal, int);
+  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int);
+  void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
   //void lowPassFiltering(Array<StateVec>&, bool);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
@@ -316,12 +316,12 @@ private:
 
   // for printing history to file
   //Array<double> actionDescent;
-  Array<Array<double>> actionDescent;
-  Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
-  Array<Trajectory> dAdqDescent; // keep track of gradient history
-  Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
-  Array<Array<int>> gslStatus_descent;
-  Array<Array<int>> collinearityStatus_descent;
+  juce::Array<juce::Array<double>> actionDescent;
+  juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
+  juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  juce::Array<juce::Array<int>> gslStatus_descent;
+  juce::Array<juce::Array<int>> collinearityStatus_descent;
   juce::Array<juce::Array<double>> residuals_H_descent;
   juce::Array<Trajectory> residuals_p_descent;
     
