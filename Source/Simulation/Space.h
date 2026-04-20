@@ -83,6 +83,10 @@ public:
   
     IntParameter* replayProgress;
   
+    Trigger * cancelPatchSelection;
+  
+    StringParameter * strPatchSelected;
+  
     int previousTiling;
   
     int nPatch;
@@ -98,10 +102,14 @@ public:
     void run() override;
   
     juce::Array<Patch> spaceGrid;
+  
+    juce::Array<int> patchSelected;
 
   private:
     
   juce::Array<ConcentrationGrid> concMovie;
+  
+  
   
   
   public:

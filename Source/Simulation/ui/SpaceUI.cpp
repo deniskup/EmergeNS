@@ -437,12 +437,39 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
 void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
   
-  int locatepatch = getPatchIDAtPosition(event.getPosition());
-  if (locatepatch>=0)
+  int i_locatepatch = getPatchIDAtPosition(event.getPosition());
+  
+  //if (event.mods.isLeftButtonDown())
+  //{
+   // if (i_locatepatch>=0)
+  //  {
+  EntityManager::getInstance()->setEntityToPatchID(i_locatepatch);
+  if (event.mods.isLeftButtonDown())
+    simul->drawConcOfPatch(i_locatepatch);
+  //  }
+  //}
+  //else if (event.mods.isRightButtonDown())
+  if (event.mods.isRightButtonDown())
   {
-    EntityManager::getInstance()->setEntityToPatchID(locatepatch);
-    simul->drawConcOfPatch(locatepatch);
+    if (i_locatepatch >= 0)
+    {
+      jassert(i_locatepatch < space->spaceGrid.size());
+      
+      if (!space->patchSelected.contains(i_locatepatch))
+      {
+        space->patchSelected.add(i_locatepatch);
+        space->patchSelected.sort();
+        String newstr("");
+        for (auto & k : space->patchSelected)
+        {
+          newstr += String(k);
+          newstr += " ";
+        }
+        space->strPatchSelected->setValue(newstr);
+      }
+    }
   }
+  
   
 }
 
