@@ -337,6 +337,7 @@ void FirstEscapeTimeWorker::writeResultsToFile()
   
   outputfile << "Network " << network << "\n" << endl;
   outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << "\n" << endl;
+  outputfile << "Dynamics history in simu thread =  " << Simulation::getInstance()->dynHistory->concentHistory.size() << "\n" << endl;
   outputfile << "<===== RESULTS =====>" << endl;
   outputfile << "startSST,escapeSST,time" << endl;
         
