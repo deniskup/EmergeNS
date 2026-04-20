@@ -237,28 +237,16 @@ void Simulation::updateParams()
 
 void Simulation::updateSpaceGridSizeInSimu()
 {
-  //cout << "Current simul  has " << entities.size() << " entities." << endl;
-  //if (entities.size() == 0)
-  //  return;
+  int n_newspacegrid = Space::getInstance()->nPatch;
+  
   for (auto& ent : entities)
   {
     //float start0 = ent->startConcent.getUnchecked(0);
     //cout << ent->name << endl;
-    ent->startConcent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->concent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->deterministicConcent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->previousConcent.resize(Space::getInstance()->tilingSize->intValue());
-    
-    // for start concentrations, I duplicate the values of the first patch
-    // for others, I init with null values // #BUG
-   /* for (int k=0; k<ent->startConcent.size(); k++)
-    {
-      ent->startConcent.set(k, start0);
-      ent->concent.set(k, 0.);
-      ent->deterministicConcent.set(k, 0.);
-      ent->previousConcent.set(k, 0.);
-    }
-    */
+    ent->startConcent.resize(n_newspacegrid);
+    ent->concent.resize(n_newspacegrid);
+    ent->deterministicConcent.resize(n_newspacegrid);
+    ent->previousConcent.resize(n_newspacegrid);
   }
 }
 

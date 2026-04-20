@@ -441,7 +441,7 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
   if (locatepatch>=0)
   {
     EntityManager::getInstance()->setEntityToPatchID(locatepatch);
-    Simulation::getInstance()->drawConcOfPatch(locatepatch);
+    simul->drawConcOfPatch(locatepatch);
   }
   
 }
@@ -449,7 +449,7 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
 
 void SpaceUI::timerCallback()
 {
-    if (shouldRepaint)
+    if (shouldRepaint || !gridIsAlreadyDrawn)
     {
         repaint();
         shouldRepaint = false;
@@ -499,8 +499,10 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
         {
           useStartConcentrationValues = false;
           entityHistory.add(ev.entityValues);
+          shouldRepaint = true;
           if (space->realTime->boolValue())
-            shouldRepaint = true;
+            repaint();
+          shouldRepaint = false;
         }
       }
        
@@ -516,6 +518,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
       useStartConcentrationValues = false;
       //resized();
+      shouldRepaint = false;
       repaint();
     }
     break;
@@ -535,6 +538,7 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
       gridIsAlreadyDrawn = false;
       shouldRepaint = true;
       repaint();
+      shouldRepaint = false;
     }
     break;
       
@@ -548,18 +552,19 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
 
     case Space::SpaceEvent::NEWSTEP:
     {
-      cout << "new space event at step " << ev.curStep << endl;
+      //cout << "new space event at step " << ev.curStep << endl;
       useStartConcentrationValues = false;
       entityHistory.add(ev.entityValues);
       entityColors = ev.entityColors;
+      shouldRepaint = true;
       repaint();
-      
+      shouldRepaint = false;
     }
     break;
 
     case Space::SpaceEvent::FINISHED:
     {
-      useStartConcentrationValues = true;
+      //useStartConcentrationValues = true;
       //resized();
       //repaint();
     }
