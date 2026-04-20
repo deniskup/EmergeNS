@@ -84,6 +84,8 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   worker->reset(); // will copy some simulation thread parameters
   worker->setConfig(configs); // will copy some input config file parameters
   
+  // force simulation thread to not store dynamics 
+  simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
 }
 
 

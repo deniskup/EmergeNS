@@ -99,6 +99,7 @@ public:
 	bool express = false; // express mode : no graphics, just find equilibrium
   bool redrawRun = false; // redraw mode : just graphics, no simulation
   bool redrawPatch = false; // redraw mode : just graphics, no simulation
+  std::atomic<bool> lightMemory {false}; // nothing stored, maybe collides with express mode ?
   
   // kinetics
   KineticLaw * kinetics;

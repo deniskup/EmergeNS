@@ -2145,7 +2145,8 @@ void Simulation::nextStep()
           dynHistory->racHistory.add(rs);
         }
       }
-      dynHistory->concentHistory.add(concsnap);
+      if (!lightMemory)
+        dynHistory->concentHistory.add(concsnap);
     }
   }
   
@@ -2266,7 +2267,8 @@ void Simulation::nextStep()
   
   if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
   {
-    dynHistory->concentHistory.add(concsnap);
+    if (!lightMemory)
+      dynHistory->concentHistory.add(concsnap);
   }
   
   
