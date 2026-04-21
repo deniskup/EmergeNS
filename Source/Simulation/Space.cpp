@@ -57,25 +57,42 @@ Patch Space::getPatchForRowCol(int row, int col)
 
 void Space::initNewSpaceGrid()
 {
-  // loop over number of rows to draw
-  for (int r=0; r<tilingSize->intValue(); r++)
+  spaceGrid.clear();
+  if (tilingSize->intValue() != 2)
   {
-    //float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
-    // loop over columns
-    for (int c=0; c<tilingSize->intValue(); c++)
-    //for (int r=0; r<1; r++)
+    // loop over number of rows to draw
+    for (int r=0; r<tilingSize->intValue(); r++)
     {
-      // update grid in Space instance
+      //float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
+      // loop over columns
+      for (int c=0; c<tilingSize->intValue(); c++)
+        //for (int r=0; r<1; r++)
+      {
+        Patch patch;
+        patch.id = r*tilingSize->intValue() + c;
+        patch.rowIndex = r;
+        patch.colIndex = c;
+        patch.setNeighbours(tilingSize->intValue());
+        //Point p(cX, cY);
+        //patch.center = p;
+        spaceGrid.add(patch);
+      }
+    }
+  }
+  else // special treatment to the case tiling size = 2
+  {
+    int r=0;
+    for (int c=0; c<2; c++)
+    {
       Patch patch;
       patch.id = r*tilingSize->intValue() + c;
       patch.rowIndex = r;
       patch.colIndex = c;
       patch.setNeighbours(tilingSize->intValue());
-      //Point p(cX, cY);
-      //patch.center = p;
       spaceGrid.add(patch);
     }
   }
+  
 }
 
 
@@ -98,7 +115,7 @@ void Space::onContainerParameterChanged(Parameter *p)
       return;
     }
     int newtiling = p->intValue();
-    if (newtiling%2==0) // if new tiling is even number, change it to closest odd number
+    if (newtiling%2==0 && newtiling!=2) // if new tiling is even number different than 2, change it to closest odd number
     {
       if (newtiling>previousTiling)
       {
@@ -111,10 +128,13 @@ void Space::onContainerParameterChanged(Parameter *p)
         tilingSize->setValue(var(newtiling-1));
       }
     }
-    nPatch = p->intValue() * p->intValue();
+    
+    if (newtiling != 2)
+      nPatch = p->intValue() * p->intValue();
+    else
+      nPatch = 2;
     
     // clear the already existing grid
-    spaceGrid.clear();
     // init a new one
     initNewSpaceGrid();
     

@@ -80,7 +80,7 @@ void SpaceUI::paint(juce::Graphics &g)
   
   //spaceBounds = getLocalBounds();
   //spaceBounds = getLocalBounds().withTop(50).withTrimmedBottom(10).withLeft(20).reduced(20);
-  spaceBounds = getLocalBounds().withTop(50).withLeft(20).reduced(30);
+  spaceBounds = getLocalBounds().withTop(100).withLeft(20).reduced(30);
   
   int til = space->tilingSize->intValue();
   if (til != previousTil)
@@ -126,8 +126,9 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
   //cout << "drawing a space grid with tiling size : " << til << endl;
  // cout << "spacegid in space instance has size : " << space->spaceGrid.size() << endl;
   // loop over number of rows to draw
-  for (int r=0; r<til; r++)
-  //for (int c=0; c<2; c++)
+  int nrows = (til == 2 ? 1 : til);
+    
+  for (int r=0; r<nrows; r++)
   {
     float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
     // loop over columns
@@ -139,13 +140,6 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
       //float cX = centerX + std::sqrt(3)*width* (c + (float)r/2);
       float cY = centerY + 1.5*width*r;
       paintOneHexagon(g, cX, cY, width);
-     // cout << "row, col = (" << r << ", " << c << ") --> [" << cX << " , " << cY << "]" << endl;
-      // update grid in Space instance
-      //Patch patch;
-      //patch.id = r*til + c;
-      //patch.rowIndex = r;
-      //patch.colIndex = c;
-      //patch.setNeighbours(til);
       Point p(cX, cY);
       Patch patch = space->getPatchForRowCol(r, c);
       patch.center = p;
@@ -198,6 +192,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
        {
          continue;
        }
+       cout << "pid : " << pid << " vs " << ent->startConcent.size() << endl;
        float c = ent->startConcent.getUnchecked(pid);
        conc.add(c);
        for (auto & cp : ent->startConcent)
@@ -386,7 +381,7 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
   int ry = round(y);
   int rz = round(z);
   
-  // Correction pour guarantee x + y + z = 0
+  // Correction pour guarantir x + y + z = 0
   float dx = std::abs(rx - x);
   float dy = std::abs(ry - y);
   float dz = std::abs(rz - z);
@@ -408,8 +403,9 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
   col += (int) row/2;
   
   
-  //cout << "click at : " << pos.getX() << ", " << pos.getY() << " with width " << width << endl;
-  //cout << "frow, fcol : " << frow << " ; " << fcol << endl;
+  cout << "click at : " << pos.getX() << ", " << pos.getY() << " with width " << width << endl;
+  cout << "frow, fcol : " << frow << " ; " << fcol << endl;
+  cout << "row, col : " << row << " ; " << col << endl;
   
   if (row<0 || col<0)
   {
