@@ -192,7 +192,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
        {
          continue;
        }
-       cout << "pid : " << pid << " vs " << ent->startConcent.size() << endl;
+       //cout << "pid : " << pid << " vs " << ent->startConcent.size() << endl;
        float c = ent->startConcent.getUnchecked(pid);
        conc.add(c);
        for (auto & cp : ent->startConcent)
@@ -403,9 +403,9 @@ int SpaceUI::getPatchIDAtPosition(const juce::Point<int>& pos)
   col += (int) row/2;
   
   
-  cout << "click at : " << pos.getX() << ", " << pos.getY() << " with width " << width << endl;
-  cout << "frow, fcol : " << frow << " ; " << fcol << endl;
-  cout << "row, col : " << row << " ; " << col << endl;
+  //cout << "click at : " << pos.getX() << ", " << pos.getY() << " with width " << width << endl;
+  //cout << "frow, fcol : " << frow << " ; " << fcol << endl;
+  //cout << "row, col : " << row << " ; " << col << endl;
   
   if (row<0 || col<0)
   {
