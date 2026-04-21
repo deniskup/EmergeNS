@@ -127,6 +127,51 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
  // cout << "spacegid in space instance has size : " << space->spaceGrid.size() << endl;
   // loop over number of rows to draw
   int nrows = (til == 2 ? 1 : til);
+  
+  /* HERE
+  // retrieve max Abondance in spacegrid
+  for (int patchid=0; patchid<space->nPatch; patchid++)
+  {
+    if (useStartConcentrationValues)
+    {
+      int ie = -1;
+     for (auto & ent : simul->entities)
+     {
+       ie++;
+       if (!ent->draw)
+       {
+         continue;
+       }
+       //cout << "pid : " << pid << " vs " << ent->startConcent.size() << endl;
+       float c = ent->startConcent.getUnchecked(pid);
+       conc.add(c);
+       for (auto & cp : ent->startConcent)
+       {
+         if (cp>maxConcInGrid.getUnchecked(ie))
+           maxConcInGrid.setUnchecked(ie, cp);
+       }
+     }
+    }
+    else
+    {
+      if (entityHistory.size() > 0)
+      {
+        ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
+        for (auto & [patchent, val] : last)
+        {
+          if (val>maxConcInGrid.getUnchecked(patchent.second))
+            maxConcInGrid.setUnchecked(patchent.second, val);
+          if (patchent.first!=pid)
+            continue;
+          if (!simul->getSimEntityForID(patchent.second)->draw)
+            continue;
+          conc.add(val);
+        }
+      }
+    }
+    
+  }
+  */
     
   for (int r=0; r<nrows; r++)
   {
@@ -180,8 +225,8 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
   if (pid>=0)
   {
     Array<float> conc; // concentration in current patch only
-    Array<float> maxConcInGrid;
-    maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
+    if (maxConcInGrid.size() == 0)
+      maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
     if (useStartConcentrationValues /*&& !space->isThreadRunning()*/)
     {
       int ie = -1;
@@ -256,11 +301,14 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     float tot = 0.;
     for (auto & c : conc)
       tot += c;
+    
+    Array<float> weight = conc;
     if (tot>0.)
     {
-      for (int k=0; k<conc.size(); k++)
-        conc.setUnchecked(k, conc[k]/tot);
+      for (int k=0; k<weight.size(); k++)
+        weight.setUnchecked(k, weight[k]/tot);
     }
+    
     
     /*
     cout << "-- conc noramilzed to unity, using tot = " << tot << endl;
@@ -286,21 +334,18 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     float green = 0.;
     float blue = 0.;
     //float totWeight = 0.;
-    for (int k=0; k<conc.size(); k++)
+    for (int k=0; k<weight.size(); k++)
     {
-      red += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatRed();
-      green += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatGreen();
-      blue += conc.getUnchecked(k) * entityColors.getUnchecked(k).getFloatBlue();
-      //totWeight += conc.getUnchecked(k);
+      red += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatRed();
+      green += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatGreen();
+      blue += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatBlue();
     }
-    /*
-    if (totWeight>0.f)
-    {
-        red /= totWeight;
-        green /= totWeight;
-        blue /= totWeight;
-    }
-    */
+    
+    float intensity = tot / maxTotal;
+    red *= intensity;
+    green *= intensity;
+    blue *= intensity;
+    
     Colour patchcol = Colour::fromFloatRGBA(red, green, blue, 1.);
     //if (totWeight==0.)
     if (tot==0.)
@@ -495,6 +540,8 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
         useStartConcentrationValues = true;
         entityHistory.clear();
         entityColors.clear();
+        maxConcInGrid.clear();
+        maxAbondanceInGrid = 0.;
         //repaint();
       }
     }
