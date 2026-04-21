@@ -210,6 +210,7 @@ void SimEntity::updateFromEntity(Entity *e)
     startConcent.set(pid, e->startConcent->floatValue());
     concent.set(pid, e->concent->floatValue());
   }
+  Space::getInstance()->initGridAtStartValues->trigger();
   //startConcent.set(e->patchid, e->startConcent->floatValue());
   //concent.set(e->patchid, e->concent->floatValue());
   

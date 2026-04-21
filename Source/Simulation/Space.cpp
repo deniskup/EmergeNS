@@ -18,6 +18,7 @@ Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(
   timeOfReplay = addFloatParameter("Replay Time (s)", "Replay Time in seconds", 5., 1.f, 100.f);
   
   initGridAtStartValues = addTrigger("Draw grid at start values", "Init. grid at start values");
+  initGridAtStartValues->hideInEditor = true;
   
   replay = addTrigger("Replay", "Replay", 0.01, 0.f);
   

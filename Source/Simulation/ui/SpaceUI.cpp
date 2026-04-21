@@ -232,7 +232,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     
     // normalize vector of concentrations of current patch w.r.t to max of all patches
     // this method does not take into account maxima that would be found later in simulation or that have been found previously.
-    // for instance, in a single patch simulation, if X1 = 0.1 and X2 = 0.2 but later W1 = 1 and X2 = 2, they would be shown with the same colour
+    // for instance, in a single patch simulation, if X1 = 0.1 and X2 = 0.2 but later X1 = 1 and X2 = 2, they would be shown with the same colour
     // also it should not be done in the case of s single patch, since it will always set the colour to be the same
     if (space->spaceGrid.size()>1)
     {
