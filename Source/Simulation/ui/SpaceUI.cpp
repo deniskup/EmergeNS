@@ -128,50 +128,50 @@ void SpaceUI::drawSpaceGrid(juce::Graphics & g)
   // loop over number of rows to draw
   int nrows = (til == 2 ? 1 : til);
   
-  /* HERE
-  // retrieve max Abondance in spacegrid
-  for (int patchid=0; patchid<space->nPatch; patchid++)
+  
+  // following block : update max abondance (sum of all concentrations in a given patch) value
+  if (useStartConcentrationValues)
   {
-    if (useStartConcentrationValues)
+    maxAbondanceInGrid = 0.;
+    // loop over patches and calculate for each the total abundance, keep the max
+    for (int patchid=0; patchid<space->nPatch; patchid++)
     {
-      int ie = -1;
-     for (auto & ent : simul->entities)
-     {
-       ie++;
-       if (!ent->draw)
-       {
-         continue;
-       }
-       //cout << "pid : " << pid << " vs " << ent->startConcent.size() << endl;
-       float c = ent->startConcent.getUnchecked(pid);
-       conc.add(c);
-       for (auto & cp : ent->startConcent)
-       {
-         if (cp>maxConcInGrid.getUnchecked(ie))
-           maxConcInGrid.setUnchecked(ie, cp);
-       }
-     }
-    }
-    else
-    {
-      if (entityHistory.size() > 0)
+      float totpatch = 0.;
+      for (auto & ent : simul->entities)
       {
-        ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
-        for (auto & [patchent, val] : last)
+        if (!ent->draw)
+          continue;
+        totpatch += ent->startConcent.getUnchecked(patchid);
+      }
+      if (totpatch > maxAbondanceInGrid)
+        maxAbondanceInGrid = totpatch;
+    }
+  }
+  else
+  {
+    // loop over patches of last concentration snapshot
+    // and retrieve max Abondance in spacegrid
+    if (entityHistory.size() > 0)
+    {
+      ConcentrationGrid last = entityHistory.getUnchecked(entityHistory.size()-1); // get last concentration grid
+      
+      for (int patchid=0; patchid<space->nPatch; patchid++)
+      {
+        float totpatch = 0.;
+        for (auto & ent : simul->entities)
         {
-          if (val>maxConcInGrid.getUnchecked(patchent.second))
-            maxConcInGrid.setUnchecked(patchent.second, val);
-          if (patchent.first!=pid)
+          if (!ent->draw)
             continue;
-          if (!simul->getSimEntityForID(patchent.second)->draw)
-            continue;
-          conc.add(val);
+          pair<int, int> p = std::make_pair(patchid, ent->idSAT);
+          totpatch += last[p];
         }
+        if (totpatch > maxAbondanceInGrid)
+          maxAbondanceInGrid = totpatch;
       }
     }
-    
   }
-  */
+  
+  
     
   for (int r=0; r<nrows; r++)
   {
@@ -279,6 +279,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     // this method does not take into account maxima that would be found later in simulation or that have been found previously.
     // for instance, in a single patch simulation, if X1 = 0.1 and X2 = 0.2 but later X1 = 1 and X2 = 2, they would be shown with the same colour
     // also it should not be done in the case of s single patch, since it will always set the colour to be the same
+    /*
     if (space->spaceGrid.size()>1)
     {
       for (int k=0; k<conc.size(); k++)
@@ -290,6 +291,8 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
         conc.setUnchecked(k, conc.getUnchecked(k)/max);
       }
     }
+    */
+    
     /*
     cout << "-- vector of conc norm. to max in space grid -- " << endl;
     for (auto & c : conc)
@@ -323,75 +326,41 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       for (auto & ent : Simulation::getInstance()->entitiesDrawn)
         entityColors.add(ent->color);
     }
-    if (conc.size() != entityColors.size())
+    if (weight.size() != entityColors.size())
     {
-      LOG("conc size : " + to_string(conc.size()) + " VS entitycolors size : " + to_string(entityColors.size()));
+      LOGWARNING("conc size : " + to_string(weight.size()) + " VS entitycolors size : " + to_string(entityColors.size()));
     }
-    jassert(conc.size() == entityColors.size());
+    jassert(weight.size() == entityColors.size());
     
-    
+    // RGB of patch : defined in relation to the relative composition of the patch
     float red = 0.;
     float green = 0.;
     float blue = 0.;
-    //float totWeight = 0.;
     for (int k=0; k<weight.size(); k++)
     {
       red += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatRed();
       green += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatGreen();
       blue += weight.getUnchecked(k) * entityColors.getUnchecked(k).getFloatBlue();
     }
-    
-    float intensity = tot / maxTotal;
+    // intensity of the patch defined in relation to the total abundance of the patch w.r.t. to most abundant patch.
+    float intensity = 1.;
+    if (maxAbondanceInGrid>0.)
+    {
+      intensity = tot / maxAbondanceInGrid;
+      intensity = 0.5 * (intensity + 1.);
+    }
     red *= intensity;
     green *= intensity;
     blue *= intensity;
     
+    // fill the patch
     Colour patchcol = Colour::fromFloatRGBA(red, green, blue, 1.);
     //if (totWeight==0.)
     if (tot==0.)
       patchcol = BG_COLOR;
     g.setColour(patchcol);
     g.fillPath(*hex);
-      
-    
- /*
-    // calculate weighted red, green and blue
-    uint8_t red = 0;
-    uint8_t green = 0;
-    uint8_t blue = 0;
-    //cout << conc.size() << " vs " << entityColors.size() << endl;
-    if (conc.size() != entityColors.size())
-    {
-      cout << "issue at step " << entityHistory.size()-1 << " and patch id " << pid << endl;
-      cout << "conc vector has wrong size : " << conc.size() << endl;
-    }
-    jassert(conc.size() == entityColors.size());
-    for (int k=0; k<conc.size(); k++)
-    {
-      red += conc[k] * entityColors[k].getRed();
-      green += conc[k] * entityColors[k].getGreen();
-      blue += conc[k] * entityColors[k].getBlue();
-    }
-    juce::Colour patchcol(red, green, blue);
-    
-    
-    //g.setColour(juce::Colours::lightgreen);
-    float tot = 0.;
-    for (auto & c : conc)
-      tot += c;
-    
-    if (tot==0.)
-    {
-      cout << "found tot = 0" << endl;
-      patchcol = BG_COLOR;
-    }
-     
-    g.setColour(patchcol);
-    g.fillPath(*hex);
-  */
-  
   } // end if pid>=0
-  
   
   
   // draw a line around the hexagon
@@ -617,6 +586,8 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
         useStartConcentrationValues = true;
         entityHistory.clear();
         entityColors.clear();
+        maxConcInGrid.clear();
+        maxAbondanceInGrid = 0.;
     }
     break;
 
