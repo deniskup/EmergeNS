@@ -90,6 +90,32 @@ public:
     void nameFromCompo();
 
     juce::String toString() const;
+  
+ /*
+    // ASYNC
+    class SimEntityEvent
+    {
+    public:
+      enum Type
+      {
+        UPDATE_SIMENTITY,
+      };
+
+      SimEntityEvent(Type t) : type(t){};
+
+      Type type;
+      
+    }; // end class SimEntityEvent
+
+
+    QueuedNotifier<SimEntityEvent> simEntityNotifier;
+    typedef QueuedNotifier<SimEntityEvent>::Listener AsyncSimEntityListener;
+
+    void addAsyncSimEntityListener(AsyncSimEntityListener* newListener) { simEntityNotifier.addListener(newListener); }
+    void addAsyncCoalescedSimEntityListener(AsyncSimEntityListener* newListener) { simEntityNotifier.addAsyncCoalescedListener(newListener); }
+    void removeAsyncSimEntityListener(AsyncSimEntityListener* listener) { simEntityNotifier.removeListener(listener); }
+*/
+  
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SimEntity);
 };

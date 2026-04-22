@@ -159,6 +159,10 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
+  // in principle, we should stack the update params calls and treat them once the simulation state reaches idle
+  if (state != SimulationState::Idle)
+    return;
+  
   state = Updating;
   
   // set entities drawn and primary
@@ -237,7 +241,15 @@ void Simulation::updateParams()
 
 void Simulation::updateSpaceGridSizeInSimu()
 {
+  int n_currentspacegrid = 0;
+  if (entities.size() == 0)
+    return;
+  else
+    n_currentspacegrid = entities.getUnchecked(0)->concent.size();
   int n_newspacegrid = Space::getInstance()->nPatch;
+  
+  if (n_newspacegrid == n_currentspacegrid)
+    return;
   
   for (auto& ent : entities)
   {

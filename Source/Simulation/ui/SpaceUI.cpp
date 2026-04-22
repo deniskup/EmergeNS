@@ -91,6 +91,27 @@ void SpaceUI::paint(juce::Graphics &g)
   
   //std::cout << "Will paint space window with tiling value : " << til << std::endl;
   
+  // make sure entity colors matches in size array of entities to be drawn
+  // if not, update entity colors
+  int correctEntityDrawn = 0;
+  for (auto & ent : simul->entities)
+  {
+    if (ent->draw)
+      correctEntityDrawn++;
+  }
+  
+  if (entityColors.size() != correctEntityDrawn)
+  {
+    LOG(String(entityColors.size()) + String(" ") + String(simul->entitiesDrawn.size()));
+    entityColors.clear();
+    for (auto & ent : simul->entities)
+    {
+      if (ent->draw)
+        entityColors.add(ent->color);
+    }
+    LOG("ENTITY COLORS UPDATED AND HAS SIZE " + String(entityColors.size()));
+  }
+  
 
   drawSpaceGrid(g);
   
@@ -321,11 +342,11 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     */
     
     // if entity colors is empty, retrieve entity colors here
-    if (entityColors.size()==0)
-    {
-      for (auto & ent : Simulation::getInstance()->entitiesDrawn)
-        entityColors.add(ent->color);
-    }
+    //if (entityColors.size()==0)
+    //{
+    //  for (auto & ent : Simulation::getInstance()->entitiesDrawn)
+    //    entityColors.add(ent->color);
+    //}
     if (weight.size() != entityColors.size())
     {
       LOGWARNING("conc size : " + to_string(weight.size()) + " VS entitycolors size : " + to_string(entityColors.size()));
@@ -500,7 +521,16 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
     case Simulation::SimulationEvent::UPDATEPARAMS:
     {
-      //shouldRepaint = true;
+      if (!simul->redrawPatch && !simul->redrawRun)
+      {
+        //useStartConcentrationValues = true;
+        entityHistory.clear();
+        entityColors.clear();
+        maxConcInGrid.clear();
+        maxAbondanceInGrid = 0.;
+        repaint();
+        //useStartConcentrationValues = false;
+      }
     }
     case Simulation::SimulationEvent::WILL_START:
     {
