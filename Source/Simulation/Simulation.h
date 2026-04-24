@@ -279,6 +279,8 @@ public:
 
 		SimulationEvent(Type t,
 			Simulation* sim,
+      bool _redrawPatch = false,
+      bool _redrawRun = false,
       int _run = 0,
       //int _patch = 0,
 			int nStep = 0,
@@ -287,7 +289,7 @@ public:
 			juce::Array<juce::Colour> entityColors = juce::Array<juce::Colour>(),
 			juce::Array<float> PACsValues = juce::Array<float>(),
 			juce::Array<bool> RACList = juce::Array<bool>())
-			: type(t), sim(sim), run(_run), nStep(nStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
+			: type(t),  sim(sim), redrawPatch(_redrawPatch), redrawRun(_redrawRun), run(_run), nStep(nStep), entityValues(entityValues), entityColors(entityColors), PACsValues(PACsValues), RACList(RACList)
 		{
 		}
 
@@ -306,15 +308,14 @@ public:
     */
 		Type type;
 		Simulation* sim;
+    bool redrawPatch;
+    bool redrawRun;
     int run;
-    //int patch;
 		int nStep;
-    //Array<float> entityValues;
 		ConcentrationGrid entityValues;
 		juce::Array<juce::Colour> entityColors;
 		juce::Array<float> PACsValues;
     juce::Array<bool> RACList;
-    //map<PAC*, bool> RACList;
 	};
   
   

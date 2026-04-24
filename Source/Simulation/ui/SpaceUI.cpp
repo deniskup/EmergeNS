@@ -250,7 +250,7 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
       maxConcInGrid.insertMultiple(0, 0., simul->entities.size());
     if (useStartConcentrationValues /*&& !space->isThreadRunning()*/)
     {
-      int ie = -1;
+    int ie = -1;
      for (auto & ent : simul->entities)
      {
        ie++;
@@ -287,14 +287,14 @@ void SpaceUI::paintOneHexagon(juce::Graphics & g, float centerX, float centerY, 
     }
     
     
-    /*
-    cout << "In patch #" << pid << endl;
     
-    cout << "-- vector of conc -- " << endl;
-    for (auto & c : conc)
-      cout << c << " ";
-    cout << endl;
-    */
+    //cout << "In patch #" << pid << endl;
+    
+    //cout << "-- vector of conc -- " << endl;
+    //for (auto & c : conc)
+    //  cout << c << " ";
+    //cout << endl;
+    
     
     // normalize vector of concentrations of current patch w.r.t to max of all patches
     // this method does not take into account maxima that would be found later in simulation or that have been found previously.
@@ -469,6 +469,8 @@ void SpaceUI::mouseDown(const juce::MouseEvent& event)
 {
   
   int i_locatepatch = getPatchIDAtPosition(event.getPosition());
+  if (i_locatepatch<0 || i_locatepatch>=space->nPatch) // second condition to enforce the case nPatch = 2 ( getPatchIDAtPosition() assumes odd till number))
+    return;
   
   //if (event.mods.isLeftButtonDown())
   //{
@@ -521,7 +523,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
     case Simulation::SimulationEvent::UPDATEPARAMS:
     {
-      if (!simul->redrawPatch && !simul->redrawRun)
+      if (!ev.redrawPatch && !ev.redrawRun)
       {
         //useStartConcentrationValues = true;
         entityHistory.clear();
@@ -534,7 +536,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     }
     case Simulation::SimulationEvent::WILL_START:
     {
-      if (!simul->redrawPatch && !simul->redrawRun)
+      if (!ev.redrawPatch && !ev.redrawRun)
       {
         useStartConcentrationValues = true;
         entityHistory.clear();
@@ -548,7 +550,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::STARTED:
     {
-      if (!simul->redrawPatch && !simul->redrawRun)
+      if (!ev.redrawPatch && !ev.redrawRun)
       {
         if (ev.run == simul->runToDraw)
         {
@@ -562,7 +564,7 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
-      if (!simul->redrawPatch && !simul->redrawRun)
+      if (!ev.redrawPatch && !ev.redrawRun)
       {
         if (ev.run == simul->runToDraw)
         {
@@ -585,10 +587,12 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::FINISHED:
     {
-      useStartConcentrationValues = false;
-      //resized();
-      shouldRepaint = false;
-      repaint();
+      if (!ev.redrawPatch && !ev.redrawRun)
+      {
+        useStartConcentrationValues = false;
+        shouldRepaint = false;
+        repaint();
+      }
     }
     break;
     }
