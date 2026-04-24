@@ -8,14 +8,27 @@ Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(
 {
   //cout << "simul(1)->isSpace : " << simul->isSpace->boolValue() << endl;
   tilingSize = addIntParameter("Tiling size", "Tiling size", 1, 1);
+  
   previousTiling = tilingSize->intValue();
+  
   diffConstant = addFloatParameter("Diffusion constant", "Diffusion Constant", 0.01, 0.f);
+  
   realTime = addBoolParameter("Real time", "Show time dynamics in real time", false);
-  timeOfReplay = addFloatParameter("Replay Time", "Replay Time", 5., 1.f, 100.f);
-  initGridAtStartValues = addTrigger("Init. grid at start values", "Init. grid at start values", 0.01, 0.f);
+  
+  timeOfReplay = addFloatParameter("Replay Time (s)", "Replay Time in seconds", 5., 1.f, 100.f);
+  
+  initGridAtStartValues = addTrigger("Draw grid at start values", "Init. grid at start values");
+  initGridAtStartValues->hideInEditor = true;
+  
   replay = addTrigger("Replay", "Replay", 0.01, 0.f);
+  
   replayProgress = addIntParameter("Replay progress", "Replay progress", 0, 0, 100);
   replayProgress->setControllableFeedbackOnly(true);
+  
+  cancelPatchSelection = addTrigger("Cancel patch selection", "Cancel current patch selection");
+  
+  strPatchSelected = addStringParameter("Patch Selection", "Patch Selection", "");
+  
   nPatch = 1;
   initNewSpaceGrid();
 }
@@ -45,25 +58,42 @@ Patch Space::getPatchForRowCol(int row, int col)
 
 void Space::initNewSpaceGrid()
 {
-  // loop over number of rows to draw
-  for (int r=0; r<tilingSize->intValue(); r++)
+  spaceGrid.clear();
+  if (tilingSize->intValue() != 2)
   {
-    //float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
-    // loop over columns
-    for (int c=0; c<tilingSize->intValue(); c++)
-    //for (int r=0; r<1; r++)
+    // loop over number of rows to draw
+    for (int r=0; r<tilingSize->intValue(); r++)
     {
-      // update grid in Space instance
+      //float shiftX = (r%2==0 ? 0. : 0.5*width*std::sqrt(3));
+      // loop over columns
+      for (int c=0; c<tilingSize->intValue(); c++)
+        //for (int r=0; r<1; r++)
+      {
+        Patch patch;
+        patch.id = r*tilingSize->intValue() + c;
+        patch.rowIndex = r;
+        patch.colIndex = c;
+        patch.setNeighbours(tilingSize->intValue());
+        //Point p(cX, cY);
+        //patch.center = p;
+        spaceGrid.add(patch);
+      }
+    }
+  }
+  else // special treatment to the case tiling size = 2
+  {
+    int r=0;
+    for (int c=0; c<2; c++)
+    {
       Patch patch;
       patch.id = r*tilingSize->intValue() + c;
       patch.rowIndex = r;
       patch.colIndex = c;
       patch.setNeighbours(tilingSize->intValue());
-      //Point p(cX, cY);
-      //patch.center = p;
       spaceGrid.add(patch);
     }
   }
+  
 }
 
 
@@ -86,7 +116,7 @@ void Space::onContainerParameterChanged(Parameter *p)
       return;
     }
     int newtiling = p->intValue();
-    if (newtiling%2==0) // if new tiling is even number, change it to closest odd number
+    if (newtiling%2==0 && newtiling!=2) // if new tiling is even number different than 2, change it to closest odd number
     {
       if (newtiling>previousTiling)
       {
@@ -99,10 +129,13 @@ void Space::onContainerParameterChanged(Parameter *p)
         tilingSize->setValue(var(newtiling-1));
       }
     }
-    nPatch = p->intValue() * p->intValue();
+    
+    if (newtiling != 2)
+      nPatch = p->intValue() * p->intValue();
+    else
+      nPatch = 2;
     
     // clear the already existing grid
-    spaceGrid.clear();
     // init a new one
     initNewSpaceGrid();
     
@@ -158,8 +191,8 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     int checkPoint = timeframe * (float) Simulation::getInstance()->dynHistory->concentHistory.size() / timeOfReplay->floatValue();
     checkPoint = jmax(1, checkPoint);
     
-    cout << "Npoints total = " << Simulation::getInstance()->dynHistory->concentHistory.size() << endl;
-    cout << "checkpoint = " << checkPoint << endl;
+    //cout << "Npoints total = " << Simulation::getInstance()->dynHistory->concentHistory.size() << endl;
+    //cout << "checkpoint = " << checkPoint << endl;
     
     // only keep concentration snapshots consistent with checkpoints calculated
     for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.size(); k++)
@@ -170,7 +203,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
-    cout << "number of snapshots for replay : " << concMovie.size() << endl;
+    //cout << "number of snapshots for replay : " << concMovie.size() << endl;
     
     // launch the replay
     startThread();
@@ -187,6 +220,12 @@ void Space::onContainerTriggerTriggered(Trigger *t)
       colours.add(ent->color);
     }
     spaceNotifier.addMessage( new SpaceEvent(SpaceEvent::UPDATE_GRID, this, 0, {}, colours) );
+  }
+  
+  else if (t == cancelPatchSelection)
+  {
+    strPatchSelected->setValue("");
+    patchSelected.clear();
   }
 }
 

@@ -42,12 +42,22 @@ class Patch
     neighbours.clear();
     if (tilSize==1)
       return;
-    neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, -1, tilSize), colIndex));
-    neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, -1, tilSize), moduloSum(colIndex, -1, tilSize)));
-    neighbours.add(getGlobalIndex(tilSize, rowIndex, moduloSum(colIndex, -1, tilSize)));
-    neighbours.add(getGlobalIndex(tilSize, rowIndex, moduloSum(colIndex, 1, tilSize)));
-    neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, 1, tilSize), colIndex));
-    neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, 1, tilSize), moduloSum(colIndex, 1, tilSize)));
+    if (tilSize != 2)
+    {
+      neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, -1, tilSize), colIndex));
+      neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, -1, tilSize), moduloSum(colIndex, -1, tilSize)));
+      neighbours.add(getGlobalIndex(tilSize, rowIndex, moduloSum(colIndex, -1, tilSize)));
+      neighbours.add(getGlobalIndex(tilSize, rowIndex, moduloSum(colIndex, 1, tilSize)));
+      neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, 1, tilSize), colIndex));
+      neighbours.add(getGlobalIndex(tilSize, moduloSum(rowIndex, 1, tilSize), moduloSum(colIndex, 1, tilSize)));
+    }
+    else
+    {
+      if (id == 0)
+        neighbours.add(1);
+      else
+        neighbours.add(0);
+    }
   }
   
   juce::Array<int> neighbours;
@@ -83,6 +93,10 @@ public:
   
     IntParameter* replayProgress;
   
+    Trigger * cancelPatchSelection;
+  
+    StringParameter * strPatchSelected;
+  
     int previousTiling;
   
     int nPatch;
@@ -98,10 +112,14 @@ public:
     void run() override;
   
     juce::Array<Patch> spaceGrid;
+  
+    juce::Array<int> patchSelected;
 
   private:
     
   juce::Array<ConcentrationGrid> concMovie;
+  
+  
   
   
   public:

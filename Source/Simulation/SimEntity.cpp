@@ -204,10 +204,17 @@ void SimEntity::updateFromEntity(Entity *e)
 	}
 	entity = e;
 	e->simEnt=this;
-	//startConcent = e->startConcent->floatValue();
-	//concent = e->concent->floatValue();
-  startConcent.set(e->patchid, e->startConcent->floatValue());
-  concent.set(e->patchid, e->concent->floatValue());
+  
+  for (auto& pid : Space::getInstance()->patchSelected)
+  {
+    startConcent.set(pid, e->startConcent->floatValue());
+    concent.set(pid, e->concent->floatValue());
+  }
+  
+  //startConcent.set(e->patchid, e->startConcent->floatValue());
+  //concent.set(e->patchid, e->concent->floatValue());
+  
+  
 	creationRate = e->creationRate->floatValue();
 	destructionRate = e->destructionRate->floatValue();
 	freeEnergy = e->freeEnergy->floatValue();
@@ -221,10 +228,10 @@ void SimEntity::updateFromEntity(Entity *e)
 	name = e->niceName;
 	enabled = e->enabled->boolValue();
 	generatedFromUserList = true;
-  // synchronize space grid with entity change
-  // in an ugly way by manually calling the trigger button of space instance
-  // better way would be use listeners instead ?
-  // Space::getInstance()->initGridAtStartValues->trigger(); // #TODO find another solution
+  
+  // trigger space grid
+  Space::getInstance()->initGridAtStartValues->trigger();
+  //Simulation::getInstance()->updateParams();
 }
 
 var SimEntity::toJSONData()

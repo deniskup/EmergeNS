@@ -67,6 +67,10 @@ private:
   
     unique_ptr<IntSliderUI> replayProgressUI;
   
+    juce::Array<float> maxConcInGrid;
+    float maxAbondanceInGrid;
+
+  
   
     //Array<Array<float>> entityHistory;
     juce::Array<ConcentrationGrid> entityHistory;

@@ -159,6 +159,10 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
+  // in principle, we should stack the update params calls and treat them once the simulation state reaches idle
+  if (state != SimulationState::Idle)
+    return;
+  
   state = Updating;
   
   // set entities drawn and primary
@@ -221,7 +225,6 @@ void Simulation::updateParams()
   updateSpaceGridSizeInSimu();
   
   // update steady state list in NEP class
-  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATENEPPARAMS, this));
   NEP::getInstance()->updateSteadyStateList();
   
   affectSATIds();
@@ -230,35 +233,31 @@ void Simulation::updateParams()
   
   //}
   // update the parameters of the simulation in the UI
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::UPDATEPARAMS, this, redrawPatch, redrawRun));
   
 }
 
 
 void Simulation::updateSpaceGridSizeInSimu()
 {
-  //cout << "Current simul  has " << entities.size() << " entities." << endl;
-  //if (entities.size() == 0)
-  //  return;
+  int n_currentspacegrid = 0;
+  if (entities.size() == 0)
+    return;
+  else
+    n_currentspacegrid = entities.getUnchecked(0)->concent.size();
+  int n_newspacegrid = Space::getInstance()->nPatch;
+  
+  if (n_newspacegrid == n_currentspacegrid)
+    return;
+  
   for (auto& ent : entities)
   {
     //float start0 = ent->startConcent.getUnchecked(0);
     //cout << ent->name << endl;
-    ent->startConcent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->concent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->deterministicConcent.resize(Space::getInstance()->tilingSize->intValue());
-    ent->previousConcent.resize(Space::getInstance()->tilingSize->intValue());
-    
-    // for start concentrations, I duplicate the values of the first patch
-    // for others, I init with null values // #BUG
-   /* for (int k=0; k<ent->startConcent.size(); k++)
-    {
-      ent->startConcent.set(k, start0);
-      ent->concent.set(k, 0.);
-      ent->deterministicConcent.set(k, 0.);
-      ent->previousConcent.set(k, 0.);
-    }
-    */
+    ent->startConcent.resize(n_newspacegrid);
+    ent->concent.resize(n_newspacegrid);
+    ent->deterministicConcent.resize(n_newspacegrid);
+    ent->previousConcent.resize(n_newspacegrid);
   }
 }
 
@@ -1770,7 +1769,7 @@ void Simulation::start(bool restart)
 
   // 1st call of simulation event
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, redrawPatch, redrawRun));
   // init simulation event
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1789,7 +1788,7 @@ void Simulation::start(bool restart)
     entityColors.add(ent->color);
   
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, 0, entityValues, entityColors));
   // listeners.call(&SimulationListener::simulationStarted, this);
   
     /*
@@ -1897,7 +1896,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
   // 1st call of simulation event
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, redrawPatch, redrawRun));
   // Init simulation event with initial conditions of the last run
   //Array<float> entityValues;
   ConcentrationGrid entityValues;
@@ -1915,7 +1914,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   }
   //cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, 0, entityValues, entityColors));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, 0, entityValues, entityColors));
   
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size()-1];
@@ -2014,7 +2013,7 @@ void Simulation::resetForNextRun()
     kinetics->shakeSeedValue();
   
   // message to listeners
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun));
 
   
 }
@@ -2097,13 +2096,13 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     
     if (curStep==0)
     {
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, currentRun, nSteps, drawnConcGrid, entityColours, racarray, raclist));
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, nSteps, drawnConcGrid, entityColours, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
     }
     else
     {
       //cout << "Calling new SimNotifier in redraw" << endl;
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
+      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, drawnConcGrid, {}, racarray, raclist));
     }
   
   
@@ -2342,13 +2341,7 @@ void Simulation::nextStep()
     }
     
     //cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
-    /*
-    if (isMultipleRun && currentRun==nRuns-1)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
-    if (!isMultipleRun)
-      simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
-    */
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, entityValues, {}, PACsValues, RACList));
   }
 
   
@@ -2582,7 +2575,6 @@ void Simulation::run()
     //cout << "retrieving rac snaps for run #" << runToDraw << " and patch #" << patchToDraw << endl;
     Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
     
-    //cout << "Retrieved for this run and this patch " << racDyn.size() << " rac snapshots" << endl;
     
     
     /*
@@ -2672,9 +2664,9 @@ void Simulation::run()
       }
     }
   }
-  cout << "Simulation::run() : sending message FINISHED to listeners" << endl;
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, currentRun, nSteps, entityValues, {}, {}, {}));
   
+  
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, redrawPatch, redrawRun, currentRun, nSteps, entityValues, {}, {}, {}));
   
   if (redrawRun || redrawPatch)
   {
@@ -2709,9 +2701,7 @@ void Simulation::run()
 
   // listeners.call(&SimulationListener::simulationFinished, this);
   startTrigger->setEnabled(true);
-  
-  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, curStep, entityValues, {}, {}, {}));
-  
+    
 }
 
 ///////////////////////////////////////////////////////////////////:
@@ -3021,7 +3011,7 @@ void Simulation::drawConcOfRun(int idrun)
   for (int k=0; k<recordDrawn.size(); k++)
     recordDrawn.set(k, 0);
   currentRun = setRun->intValue();
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, redrawPatch, redrawRun));
   startThread();
   
 }
@@ -3062,7 +3052,7 @@ void Simulation::drawConcOfPatch(int idpatch)
   for (int k=0; k<recordDrawn.size(); k++)
     recordDrawn.set(k, 0);
   currentRun = setRun->intValue();
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::WILL_START, this, redrawPatch, redrawRun));
   startThread();
   
 }

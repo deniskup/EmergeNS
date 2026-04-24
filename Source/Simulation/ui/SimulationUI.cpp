@@ -486,9 +486,9 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
     entityColors = ev.entityColors;
     if (ev.run == simul->runToDraw)
       entityHistory.add(ev.entityValues);
-    cout << "SimulationEvent::STARTED in UI" << endl;
-    for (auto & [pair, conc] : ev.entityValues)
-      cout << pair.first << " : " << pair.second << " --> " << conc << endl;
+    //cout << "SimulationEvent::STARTED in UI" << endl;
+    //for (auto & [pair, conc] : ev.entityValues)
+    //  cout << pair.first << " : " << pair.second << " --> " << conc << endl;
   }
 	break;
 
