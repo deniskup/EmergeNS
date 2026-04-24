@@ -60,21 +60,13 @@ void SpaceUI::resized()
 void SpaceUI::paint(juce::Graphics &g)
 {
   // should not be called while running simu, because simu needs the space grid which is overriden in this function
-  if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
-    return;
+  //if (Simulation::getInstance()->state != Simulation::SimulationState::Idle)
+  //  return;
 
   
   // should not be called while redrawing a patch or a run
   if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
     return;
-  
-  
-  
-  // should not be called while redrawing a patch or a run
-  if (Simulation::getInstance()->redrawPatch || Simulation::getInstance()->redrawRun)
-    return;
-  
-  
   
   g.fillAll(BG_COLOR);
   
@@ -116,10 +108,8 @@ void SpaceUI::paint(juce::Graphics &g)
   drawSpaceGrid(g);
   
   // reset bool to true by default
-  if (!useStartConcentrationValues && !space->isThreadRunning())
+  if (!useStartConcentrationValues && !space->isThreadRunning() && entityHistory.size()==0)
     useStartConcentrationValues = true;
-  //if (useStartConcentrationValues)
-   // useStartConcentrationValues = false;
 
 }
 
@@ -525,13 +515,11 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
     {
       if (!ev.redrawPatch && !ev.redrawRun)
       {
-        //useStartConcentrationValues = true;
         entityHistory.clear();
         entityColors.clear();
         maxConcInGrid.clear();
         maxAbondanceInGrid = 0.;
         repaint();
-        //useStartConcentrationValues = false;
       }
     }
     case Simulation::SimulationEvent::WILL_START:
@@ -572,7 +560,9 @@ void SpaceUI::newMessage(const Simulation::SimulationEvent &ev)
           entityHistory.add(ev.entityValues);
           shouldRepaint = true;
           if (space->realTime->boolValue())
+          {
             repaint();
+          }
           shouldRepaint = false;
         }
       }
@@ -639,7 +629,6 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
 
     case Space::SpaceEvent::FINISHED:
     {
-      //useStartConcentrationValues = true;
       //resized();
       //repaint();
     }
