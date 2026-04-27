@@ -4121,19 +4121,13 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
   const int n = simul->entities.size() + 1; // number of entities + 1
   
   // GSL to find optimal momentum and dt associated to qcurve
-  //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_brutforce(qcurve, n, maxPrintingAllowed);
-  //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime(qcurve, n-1, maxPrintingAllowed);
-  //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_opt(qcurve, n-1, maxPrintingAllowed);
-  //LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_LF(qcurve, n-1, maxPrintingAllowed);
-  
   LiftTrajectoryOptResults liftResults;
   if (solverType->getValueDataAsEnum<int>() == 0)
     liftResults = findOptimalMomentumAndTime_brutforce(qcurve, n, maxPrintingAllowed);
-    //liftResults = findOptimalMomentumAndTime(qcurve, n-1, maxPrintingAllowed);
   else if (solverType->getValueDataAsEnum<int>() == 1)
     liftResults = findOptimalMomentumAndTime_opt(qcurve, n-1, maxPrintingAllowed);
   else if (solverType->getValueDataAsEnum<int>() == 2)
-    LiftTrajectoryOptResults liftResults = findOptimalMomentumAndTime_LF(qcurve, n-1, maxPrintingAllowed);
+    liftResults = findOptimalMomentumAndTime_LF(qcurve, n-1, maxPrintingAllowed);
   else
     liftResults = findOptimalMomentumAndTime_brutforce(qcurve, n, maxPrintingAllowed);
   
