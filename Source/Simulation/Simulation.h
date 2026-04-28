@@ -193,6 +193,7 @@ public:
 	void computeBarriers(); // compute barriers from rates and energy of entities
 
 	void setConcToCAC(int idCAC); // set concentrations to CAC witness
+  void setStartConcToSteadyState(juce::OwnedArray<SimEntity>&, int idSS); // set concentrations to Steady State
 	void setConcToSteadyState(juce::OwnedArray<SimEntity>&, int idSS); // set concentrations to Steady State
   void drawConcOfRun(int idrun); // draw concentration dynamics associated to idrun
   void drawConcOfPatch(int idpatch); // draw concentration dynamics associated to idpatch

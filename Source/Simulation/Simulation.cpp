@@ -2955,13 +2955,34 @@ void Simulation::setConcToCAC(int idCAC)
   {
     auto ent = entConc.first;
     float conc = entConc.second;
-    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size());
+    for (int k=0; k<arrconc.size(); k++)
+      arrconc.setUnchecked(k, conc);
     ent->concent = arrconc;
     if (ent->entity != nullptr)
       ent->entity->startConcent->setValue(conc);
       //ent->entity->concent->setValue(conc);
     else
       LOGWARNING("SetCAC: No entity for SimEntity"+ent->name);
+  }
+}
+
+void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS)
+{
+  if (idSS < 1)
+    return;
+  SteadyState ss = steadyStatesList->arraySteadyStates[idSS - 1];
+  for (auto & ent : _entities)
+  {
+    float conc = ss.state[ent->idSAT].second;
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size());
+    for (int k=0; k<arrconc.size(); k++)
+      arrconc.setUnchecked(k, conc);
+    ent->startConcent = arrconc;
+    if (ent->entity != nullptr)
+    {
+      ent->entity->startConcent->setValue(conc);
+    }
   }
 }
 
@@ -2973,7 +2994,9 @@ void Simulation::setConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS
   for (auto & ent : _entities)
   {
     float conc = ss.state[ent->idSAT].second;
-    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size(), conc);
+    juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size());
+    for (int k=0; k<arrconc.size(); k++)
+      arrconc.setUnchecked(k, conc);
     ent->concent = arrconc;
     if (ent->entity != nullptr)
     {

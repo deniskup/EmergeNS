@@ -112,9 +112,9 @@ void FirstEscapeTime::startStudy()
   }
   
   // set concentration of entities in simul to the one of initial steady state
-  simul->setConcToSteadyState(simul->entities, startSteadyState+1); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
+  simul->setStartConcToSteadyState(simul->entities, startSteadyState+1); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
-  simul->setConcToSteadyState(worker->entities, startSteadyState+1); // I should avoid this
+  simul->setStartConcToSteadyState(worker->entities, startSteadyState+1); // I should avoid this
   
   // synchronize runs of phase plane with simul
   PhasePlane::getInstance()->updateEntitiesFromSimu();
