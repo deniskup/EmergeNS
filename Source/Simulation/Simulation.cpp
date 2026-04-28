@@ -1867,7 +1867,6 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   
   nRuns = PhasePlane::getInstance()->nRuns->intValue();
   updateParams();
-  updateParams();
   resetBeforeRunning();
   initialConcentrations = initConc;
   isMultipleRun = true;

@@ -101,7 +101,7 @@ void SpaceUI::paint(juce::Graphics &g)
       if (ent->draw)
         entityColors.add(ent->color);
     }
-    LOG("ENTITY COLORS UPDATED AND HAS SIZE " + String(entityColors.size()));
+    //LOG("ENTITY COLORS UPDATED AND HAS SIZE " + String(entityColors.size()));
   }
   
 

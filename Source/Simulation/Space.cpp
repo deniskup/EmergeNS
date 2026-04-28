@@ -31,6 +31,7 @@ Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(
   
   nPatch = 1;
   initNewSpaceGrid();
+  strPatchSelected->setValue("");
 }
 
 /*
@@ -304,6 +305,12 @@ void Space::run()
 
 
 
+void Space::loadJSONData(juce::var data, bool createIfNotThere)
+{
+  ControllableContainer::loadJSONData(data, createIfNotThere);
+  strPatchSelected->setValue("");
+  patchSelected.clear();
+}
 
 
 

@@ -111,6 +111,8 @@ public:
   
     void run() override;
   
+    void loadJSONData(juce::var data, bool createIfNotThere = false) override;
+  
     juce::Array<Patch> spaceGrid;
   
     juce::Array<int> patchSelected;

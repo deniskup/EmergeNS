@@ -524,7 +524,7 @@ void PhasePlane::onChildContainerRemoved(ControllableContainer* cc)
 
 void PhasePlane::itemRemoved(ControllableContainer* cc)
 {
-  cout << "PhasePlane::itemRemoved : niceName of what's being removed : " << cc->niceName << endl;
+  //cout << "PhasePlane::itemRemoved : niceName of what's being removed : " << cc->niceName << endl;
 }
 
 
