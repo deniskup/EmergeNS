@@ -142,11 +142,11 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints_UI;
+  IntParameter * nPoints_start;
   IntParameter * nPoints_max;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
-  FloatParameter * action_threshold ;
+  StringParameter * action_threshold ;
   FloatParameter * stepDescentInitVal;
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
@@ -309,6 +309,7 @@ private:
   double tolerance_mu_init = 1e-5;
   double tolerance_mu_min = 1e-10;
   double tolerance_mu;
+  double d_action_threshold = 1e-5;
   
   // normalization parameters
   double timescale_factor = 1.;

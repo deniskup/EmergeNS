@@ -1022,9 +1022,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
-  nPoints_UI = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
+  nPoints_start = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
   
-  //nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 50);
+  nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
   
   initialConditions = addEnumParameter("Initial condition", "Choose how the optimal trajectory is initialized for the descent.");
 
@@ -1034,7 +1034,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   solverType = addEnumParameter("Solver type", "Solver lib. and method to use for the descent");
   
-  action_threshold = addFloatParameter("Action threshold", "Descent will stop when action threshold is reached", 0.01);
+  action_threshold = addStringParameter("Action threshold", "Descent will stop when action threshold is reached", "1e-5");
   
   //timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
@@ -1061,7 +1061,21 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   kinetics = new KineticLaw(false, 0.);
   
-
+  try
+  {
+    size_t pos;
+    d_action_threshold = std::stod(action_threshold->stringValue().toStdString(), &pos);
+    if (pos != action_threshold->stringValue().toStdString().size())
+    {
+      LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
+      d_action_threshold = 1e-5;
+    }
+    
+  } catch (const std::invalid_argument& s) {
+    LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
+    d_action_threshold = 1e-5;
+  }
+ 
 
   
 }
@@ -1097,6 +1111,24 @@ void NEP::updateSteadyStateList()
 
 void NEP::onContainerParameterChanged(Parameter *p)
 {
+  if (p == action_threshold)
+  {
+    try
+    {
+      size_t pos;
+      d_action_threshold = std::stod(action_threshold->stringValue().toStdString(), &pos);
+      if (pos != action_threshold->stringValue().toStdString().size())
+      {
+        LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
+        d_action_threshold = 1e-5;
+      }
+      
+    } catch (const std::invalid_argument& s) {
+      LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
+      d_action_threshold = 1e-5;
+    }
+    cout << "NEW ACTION THRESHOLD = " << d_action_threshold << endl;
+  }
   
 }
 
@@ -1722,7 +1754,7 @@ void NEP::reset()
   stepDescent = stepDescentInitVal->floatValue();
   stepDescentInit_dynamic = stepDescentInitVal->floatValue();
   //cutoffFreq->setValue(0.05);
-  nPoints = nPoints_UI->intValue();
+  nPoints = nPoints_start->intValue();
   tolerance_mu = tolerance_mu_init;
 }
 
@@ -1761,7 +1793,7 @@ void NEP::run()
     debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
-    debugfile << "Sampling points : " << nPoints_UI->intValue() << endl;
+    debugfile << "Sampling points : " << nPoints_max->intValue() << endl;
     //debugfile << "Max. sampling : " << nPoints_max->intValue() << endl;
   }
   
@@ -4632,7 +4664,7 @@ void NEP::writeDescentToFile()
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
   filename += to_string(sst_stable->intValue()) + "->" + to_string(sst_saddle->intValue());
-  filename += "_" + to_string(nPoints_UI->intValue());
+  filename += "_" + to_string(nPoints_max->intValue());
   filename += ".csv";
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
@@ -4640,7 +4672,7 @@ void NEP::writeDescentToFile()
   historyFile << "Descent characteristics used :" << endl;
   historyFile << "Number of iterations : " << Niterations->intValue() << endl;
   historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
-  historyFile << "Action threshold : " << action_threshold->floatValue() << endl;
+  historyFile << "Action threshold : " << action_threshold->stringValue() << endl;
   historyFile << "Timescale factor : " << timescale_factor << endl;
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
