@@ -3000,7 +3000,7 @@ void Simulation::setConcToSteadyState(OwnedArray<SimEntity>& _entities, int idSS
     ent->concent = arrconc;
     if (ent->entity != nullptr)
     {
-      ent->entity->startConcent->setValue(conc);
+      ent->entity->concent->setValue(conc);
     }
   }
 }
