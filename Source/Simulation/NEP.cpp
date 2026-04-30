@@ -1034,7 +1034,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   solverType = addEnumParameter("Solver type", "Solver lib. and method to use for the descent");
   
-  action_threshold = addStringParameter("Action threshold", "Descent will stop when action threshold is reached", "1e-5");
+  action_threshold = addStringParameter("Action threshold", "Descent will update parameters when action threshold is reached", "1e-5");
+  
+  stepDescentThreshold = addStringParameter("Step descent threshold", "Descent will update update parameters when step gets below threshold.", "1e-5");
   
   //timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
@@ -1061,20 +1063,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   kinetics = new KineticLaw(false, 0.);
   
-  try
-  {
-    size_t pos;
-    d_action_threshold = std::stod(action_threshold->stringValue().toStdString(), &pos);
-    if (pos != action_threshold->stringValue().toStdString().size())
-    {
-      LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
-      d_action_threshold = 1e-5;
-    }
-    
-  } catch (const std::invalid_argument& s) {
-    LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
-    d_action_threshold = 1e-5;
-  }
+  d_action_threshold = convertStringToDouble(action_threshold->stringValue());
+  d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
+  
  
 
   
@@ -1113,21 +1104,11 @@ void NEP::onContainerParameterChanged(Parameter *p)
 {
   if (p == action_threshold)
   {
-    try
-    {
-      size_t pos;
-      d_action_threshold = std::stod(action_threshold->stringValue().toStdString(), &pos);
-      if (pos != action_threshold->stringValue().toStdString().size())
-      {
-        LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
-        d_action_threshold = 1e-5;
-      }
-      
-    } catch (const std::invalid_argument& s) {
-      LOGWARNING("action_threshold invalid double, setting to 1e-5 by default");
-      d_action_threshold = 1e-5;
-    }
-    cout << "NEW ACTION THRESHOLD = " << d_action_threshold << endl;
+    d_action_threshold = convertStringToDouble(action_threshold->stringValue());
+  }
+  else if (p == stepDescentThreshold)
+  {
+    d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
   }
   
 }
@@ -1825,7 +1806,7 @@ void NEP::run()
     
     if (count>1)
     {
-      LOG("Using backtracking method...");
+      LOG("Using backtracking method with initial step " + to_string(stepDescentInit_dynamic));
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
       LOG("using step = " + to_string(stepDescent));
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
@@ -1856,6 +1837,8 @@ void NEP::run()
     LOG("lifting trajectory");
     //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
     LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve, true);
+    
+    
     
     // for NEPUI
     double successFrac = 0.;
@@ -1936,6 +1919,7 @@ void NEP::run()
     double newaction = newcumulaction.getLast();
     double diffAction = action - newaction;
     LOG("action = " + to_string(newaction));
+    //LOG("delta action = " + to_string(diffAction));
     
     if (isnan(newaction)|| isnan(diffAction))
     {
@@ -1969,23 +1953,27 @@ void NEP::run()
     bool shouldUpdate = descentShouldUpdateParams(diffAction);
     if (shouldUpdate && count>1)
     {
-      LOG("descentUpdatesParams");
-      updateDescentParams();
+      //LOG("descentUpdatesParams");
+      //updateDescentParams();
       
       // resample the concentration and momentum curves
+      //LOG("Resampling in time uniform with " + to_string(nPoints) + " points.");
+      //resampleInTimeUniform(g_qcurve, nPoints);
+      //cout << "sizes of (q, p) : " << g_qcurve.size() << " " << g_pcurve.size() << endl;
       //resampleInSpaceUniform(g_qcurve, nPoints);
-      //canUpdateConcentrationCurve = false;
       
-      // problem if I just continue : the descent will not save same size elements (actions, dAdq...)
+     
+      
+      // must move directly to next iteration
       //continue;
       
-      // the following I do not perfor
+      // the following I do not perform
       //resampleInTimeUniform(g_qcurve, g_qcurve.size());
       //lowPassFiltering(g_qcurve, true);
       //resampleInSpaceUniform(g_qcurve, g_qcurve.size());
       //liftCurveToTrajectoryWithGSL();
-      
     }
+    
     
     
     // functional gradient dA / dq
@@ -2013,7 +2001,7 @@ void NEP::run()
       
       dAdq.add(dAdqk);
     }
-    dAdqDescent.add(dAdq);
+    //dAdqDescent.add(dAdq);
     
     // filter gradient
     dAdq_filt = dAdq;
@@ -4334,6 +4322,27 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
   
 }
 
+double NEP::convertStringToDouble(const juce::String text)
+{
+  std::string stdtext = text.toStdString();
+  double output = 1.;
+  try
+  {
+    size_t pos;
+    d_action_threshold = std::stod(stdtext, &pos);
+    if (pos != stdtext.size())
+    {
+      LOGWARNING("invalid double, setting to 1 by default");
+      return output;
+    }
+    
+  } catch (const std::invalid_argument& s) {
+    LOGWARNING("action_threshold invalid double, setting to 1 by default");
+    return output;
+  }
+  return output;
+}
+
 
 void NEP::setTimeNormalizationFactor()
 {
@@ -4628,33 +4637,29 @@ void NEP::updateDescentParams()
 {
   //cout << "updating descent params" << endl;
   //cutoffFreq->setValue(cutoffFreq->floatValue() + 0.01);
-  //nPoints += nPoints_increment;
+  //nPoints += 20;
+  //nPoints = std::min(nPoints, nPoints_max->intValue());
   tolerance_mu /= 10.;
   
-  std::ostringstream oss;
-  oss << std::scientific << std::setprecision(4) << tolerance_mu;
+  //std::ostringstream oss;
+  //oss << std::scientific << std::setprecision(4) << tolerance_mu;
   //LOG("tolerance on H(p,q)=0 residual is : " + oss.str());
 }
 
 
 bool NEP::descentShouldUpdateParams(double diffAction)
 {
-  //if ((diffAction<action_threshold->floatValue() || stepDescent<stepDescentThreshold))
-  //{
-    //bool b1 = diffAction<action_threshold->floatValue();
-    //bool b2 = stepDescent<stepDescentThreshold;
-    //cout << "Will update descent params. action criteria : " << b1;
-    //cout << ". step descent criteria : " << b2 << endl;
-  //}
-  return ((diffAction<action_threshold->floatValue() || stepDescent<stepDescentThreshold));
+  //cout << diffAction << " " << d_action_threshold << " || " << stepDescent << " " << d_stepDescentThreshold << endl;
+  bool b1 = (diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold);
+  bool b2 = nPoints < nPoints_max->intValue();
+  return (b1 && b2);
+  //return ((diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold));
 }
 
 bool NEP::descentShouldContinue(int step)
 {
-  //bool b = step<=Niterations->intValue();
-  //bool b2 = cutoffFreq->floatValue()<maxcutoffFreq->floatValue();
-  //return (step<=Niterations->intValue() && cutoffFreq->floatValue()<maxcutoffFreq->floatValue());
-  return (step<=Niterations->intValue() && tolerance_mu > tolerance_mu_min);
+  //return (step<=Niterations->intValue() && tolerance_mu > tolerance_mu_min);
+  return (step<=Niterations->intValue());
 }
 
 
@@ -4682,8 +4687,8 @@ void NEP::writeDescentToFile()
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",dAdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_" << ent->name;
   //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",res_H";
@@ -4696,7 +4701,7 @@ void NEP::writeDescentToFile()
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
-  jassert(actionDescent.size() == dAdqDescent.size());
+  //jassert(actionDescent.size() == dAdqDescent.size());
   //jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
   jassert(actionDescent.size() == collinearityStatus_descent.size());
@@ -4718,9 +4723,8 @@ void NEP::writeDescentToFile()
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
       
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
-      StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
+      //StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
-      double resH = residuals_H_descent.getUnchecked(iter).getUnchecked(point);
       Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
       
       jassert(resP.size() == simul->entities.size());
@@ -4732,8 +4736,8 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
-      for (int m=0; m<dAdq_local.size(); m++)
-        historyFile << "," << dAdq_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_local.size(); m++)
+      //  historyFile << "," << dAdq_local.getUnchecked(m);
       //for (int m=0; m<dAdq_filt_local.size(); m++)
       //  historyFile << "," << dAdq_filt_local.getUnchecked(m);
       historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
@@ -4806,7 +4810,7 @@ Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array
   jassert(qc.size() == pc.size());
   jassert(qc.size() == t.size());
   
-  //cout << "--- calculate action along following curves ---" << endl;
+  //cout << "--- calculate action ---" << endl;
   
   /*
   for (int point=0; point<nPoints; point++)
@@ -4855,7 +4859,7 @@ Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array
       //cout << "\t(sp)_" << m << " = 1/2 * (" << pc.getUnchecked(i+1).getUnchecked(m) << "+" << pc.getUnchecked(i).getUnchecked(m);
       //cout << " * (" << qc.getUnchecked(i+1).getUnchecked(m) << "-" << qc.getUnchecked(i).getUnchecked(m) << ")" << " = " << sp << endl;
     }
-    //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << endl;
+    //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << ". dt = " << deltaTi << ". integrand = " << integrand << endl;
     newaction += integrand;
     cumul_action.add(newaction);
     //cout << "\tadding " << integrand << endl;
@@ -4878,7 +4882,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
 {
   // init step with previous value of stepDescent
   double step = stepDescentInit_dynamic;
-  double minstep = 0.99*stepDescentThreshold;
+  double minstep = 0.99*d_stepDescentThreshold;
   
   // time is such that minstep would be reached at last iteration
   int timeout = round(log(step/minstep) / log(2)) + 1;
@@ -4978,12 +4982,12 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   }
   //cout << "used = " << count << " iterations in backtracking method" << endl;
 
-  if (step<stepDescentThreshold)
+  if (step<d_stepDescentThreshold)
   {
     step = 0.;
     stepDescentInit_dynamic *= 0.5;
   }
-  if (step == stepDescentInitVal->floatValue())
+  if (step == stepDescentInit_dynamic)
   {
     stepDescentInit_dynamic *= 2.;
   }
@@ -5068,7 +5072,6 @@ for (int i=0; i<signal.size(); i++)
   //cout << "input signal length = " << L << endl;
  
   // resampling
-  int last_closest = 0;
   for (int i=0; i<newsize; i++)
   {
     // linear distance between 0 and signal length
@@ -5086,9 +5089,6 @@ for (int i=0; i<signal.size(); i++)
     double l_sup = cumulative_lengths.getUnchecked(closest+1);
     double alpha = (l_sup != l_inf) ? (li - l_inf) / (l_sup - l_inf) : 0.0;
     alpha = max(0., min(1., alpha));
-    
-    // keep track of current finding to accelerate next iteration
-    last_closest = closest;
     
     //cout << "closest : " << closest << ". linf = " << 100.*l_inf/L << "% & lsup = " << 100*l_sup/L << "%" << endl;
     
@@ -5141,7 +5141,7 @@ for (int i=0; i<signal.size(); i++)
 }
 
 
-void NEP::resampleInTimeUniform(Array<StateVec>& signal, int size)
+void NEP::resampleInTimeUniform(Array<StateVec>& signal, int newsize)
 {
   if (signal.size()<2)
     return;
@@ -5151,76 +5151,102 @@ void NEP::resampleInTimeUniform(Array<StateVec>& signal, int size)
     LOGWARNING("Cannot resample in time uniform, array sizes do not match.");
     return;
   }
-    /*
-  cout << "NEP::resampleInTimeUniform()" << endl;
-  cout << "input = ";
-  for (int i=0; i<signal.size(); i++)
+  
+  if (newsize < 2)
   {
-    for (int j=0; j<signal.getUnchecked(i).size(); j++)
-    {
-      string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
-      cout << signal.getUnchecked(i).getUnchecked(j) << comma;
-    }
+    LOGWARNING("Cannot perform resampling with only 2 points. Exit.");
+    return;
   }
-  */
+  
+  if (newsize == signal.size())
+    return;
+  
+  //cout << "NEP::resampleInTimeUniform()" << endl;
+  //cout << "input = ";
+  //for (int i=0; i<signal.size(); i++)
+  //{
+   // for (int j=0; j<signal.getUnchecked(i).size(); j++)
+   // {
+   //   string comma = (j==signal.getUnchecked(i).size()-1 ? "\n" : " , ");
+   //   cout << signal.getUnchecked(i).getUnchecked(j) << comma;
+   // }
+  //}
+  
   
   //int N = signal.size();
   int dim = signal.getUnchecked(0).size();
-  double dsize =  (double) size;
+  double d_newsize =  (double) newsize;
   double ti = g_times.getFirst();
   double tf = g_times.getLast();
   
-  // init newtraj
+  
+  // init newtraj with null vectors
   Trajectory resampled_signal;
-  resampled_signal.resize(size);
-  for (int i = 0; i<resampled_signal.size(); ++i)
-    resampled_signal.getReference(i).resize(dim);
+  resampled_signal.resize(newsize);
+  for (int i=0; i<newsize; ++i)
+  {
+    StateVec nullvec;
+    nullvec.insertMultiple(0, 0., dim);
+    resampled_signal.setUnchecked(i, nullvec);
+  }
   
-  /*
-  cout << "tvec : ";
-  for (auto & el : g_times)
-    cout << el << " ";
-  cout << endl;
-  */
+  // cumulative times of input signals
+  Array<double> cumulative_times(g_times);
   
-  for (int i=0; i<signal.size(); i++)
+  //cout << "tvec : ";
+  //for (auto & el : g_times)
+   // cout << el << " ";
+  //cout << endl;
+  
+  for (int k=0; k<newsize; k++)
   {
     // linear timing between ti and tf
-    double t = ti + (double)i * (tf-ti)/(dsize-1.);
+    double tk = ti + (double)k * (tf-ti)/(d_newsize-1.);
+        
+    // find closest matching index in cumulative length array
+    auto it = lower_bound(cumulative_times.begin(), cumulative_times.end(), tk);
+    int closest = (int) distance(cumulative_times.begin(), it) - 1;
+    closest = max(0, min(closest, (int)cumulative_times.size()-2)); // make sure closest is properly bounded
     
-    // find closest index in time
-    int closest = 0;
-    while (closest < signal.size()-1 && g_times.getUnchecked(closest+1)<t)
-      closest++;
+    //cout << "k : " << k << ". tk = " << tk << ". closest = " << closest << " & signal.size = " << signal.size() << endl;
+    // linear interpolation
+    double t_inf = cumulative_times.getUnchecked(closest);
+    double t_sup = cumulative_times.getUnchecked(closest+1);
+    double alpha = (t_sup != t_inf) ? (tk - t_inf) / (t_sup - t_inf) : 0.0;
+    alpha = max(0., min(1., alpha));
     
-   // cout << "closest = " << closest << " & signal.size = " << signal.size() << endl;
-    
-    if (i==0)
+    if (k==0)
     {
-      resampled_signal.setUnchecked(i, signal.getFirst());
+      resampled_signal.setUnchecked(k, signal.getFirst());
     }
-    else if (i==signal.size()-1)
+    else if (k==newsize-1)
     {
-      resampled_signal.setUnchecked(i, signal.getLast());
+      resampled_signal.setUnchecked(k, signal.getLast());
     }
     else
     {
       // interpolate between q[closest] and q[closest+1]
-      double alpha = (t-g_times.getUnchecked(closest)) / (g_times.getUnchecked(closest+1)-g_times.getUnchecked(closest));
       for (int m=0; m<signal.getUnchecked(0).size(); m++)
       {
         double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
-        resampled_signal.getReference(i).setUnchecked(m, val);
+        resampled_signal.getReference(k).setUnchecked(m, val);
       } // end loop over dimension of the system
     } // end if
-  }
+  } // end loop over new size
+  
+
   
 
   // modify input signal
+  signal.resize(newsize);
   for (int i=0; i<signal.size(); i++)
   {
+    signal.getReference(i).clear();
+    signal.getReference(i).insertMultiple(0, 0., dim);
     for (int j=0; j<signal.getUnchecked(i).size(); j++)
+    {
       signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
+    }
   }
   
   /*

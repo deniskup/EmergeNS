@@ -147,6 +147,7 @@ public:
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   StringParameter * action_threshold ;
+  StringParameter * stepDescentThreshold ;
   FloatParameter * stepDescentInitVal;
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
@@ -220,6 +221,8 @@ public:
 
   
 private:
+  
+  double convertStringToDouble(const juce::String);
   
   void setTimeNormalizationFactor();
 
@@ -303,13 +306,13 @@ private:
   double sampleRate;
   
   // #para
-  double stepDescentThreshold = 1e-6;
   double stepDescent;
   double stepDescentInit_dynamic;
   double tolerance_mu_init = 1e-5;
   double tolerance_mu_min = 1e-10;
   double tolerance_mu;
   double d_action_threshold = 1e-5;
+  double d_stepDescentThreshold = 1e-5;
   
   // normalization parameters
   double timescale_factor = 1.;
