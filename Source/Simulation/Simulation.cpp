@@ -3107,7 +3107,8 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     if (setSteadyState->intValue() < 1)
       return;
-    setConcToSteadyState(entities, setSteadyState->intValue());
+    //setConcToSteadyState(entities, setSteadyState->intValue());
+    setStartConcToSteadyState(entities, setSteadyState->intValue());
   }
   if (p == setRun)
   {
