@@ -205,8 +205,22 @@ void SimEntity::updateFromEntity(Entity *e)
 	entity = e;
 	e->simEnt=this;
   
-  for (auto& pid : Space::getInstance()->patchSelected)
+  // below is a bad way to update correctly simEnt when entity is modified.
+  // Simulation::isSpace should be more globally accessible than it is right now.
+  bool isSpace = (concent.size() == 0 ? true : false);
+  if (isSpace)
   {
+    for (auto& pid : Space::getInstance()->patchSelected)
+    {
+      startConcent.set(pid, e->startConcent->floatValue());
+      concent.set(pid, e->concent->floatValue());
+    }
+  }
+  else
+  {
+    int pid = 0;
+    jassert(startConcent.size() > 0);
+    jassert(concent.size() > 0);
     startConcent.set(pid, e->startConcent->floatValue());
     concent.set(pid, e->concent->floatValue());
   }
