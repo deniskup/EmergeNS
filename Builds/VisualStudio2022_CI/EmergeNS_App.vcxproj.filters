@@ -691,6 +691,12 @@
     <ClCompile Include="..\..\Source\Simulation\NEP.cpp">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\NEPSolver.cpp">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Simulation\NEPWorker.cpp">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>EmergeNS\Source</Filter>
     </ClCompile>
@@ -3430,6 +3436,15 @@
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Simulation\NEP.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\NEPHelper.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\NEPSolver.h">
+      <Filter>EmergeNS\Source\Simulation</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Simulation\NEPWorker.h">
       <Filter>EmergeNS\Source\Simulation</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Main.h">

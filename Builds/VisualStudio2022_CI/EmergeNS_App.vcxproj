@@ -176,6 +176,8 @@
     <ClCompile Include="..\..\Source\Simulation\Space.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\Util.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\NEP.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\NEPSolver.cpp"/>
+    <ClCompile Include="..\..\Source\Simulation\NEPWorker.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
     <ClCompile Include="..\..\Source\MainComponent.cpp"/>
     <ClCompile Include="..\..\Source\MainComponentCommands.cpp"/>
@@ -2653,6 +2655,9 @@
     <ClInclude Include="..\..\Source\Simulation\Space.h"/>
     <ClInclude Include="..\..\Source\Simulation\Util.h"/>
     <ClInclude Include="..\..\Source\Simulation\NEP.h"/>
+    <ClInclude Include="..\..\Source\Simulation\NEPHelper.h"/>
+    <ClInclude Include="..\..\Source\Simulation\NEPSolver.h"/>
+    <ClInclude Include="..\..\Source\Simulation\NEPWorker.h"/>
     <ClInclude Include="..\..\Source\Main.h"/>
     <ClInclude Include="..\..\Source\MainComponent.h"/>
     <ClInclude Include="..\..\..\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
