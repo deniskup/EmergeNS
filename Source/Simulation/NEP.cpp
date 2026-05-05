@@ -56,6 +56,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   stepDescentThreshold = addStringParameter("Step descent threshold", "Descent will update update parameters when step gets below threshold.", "1e-5");
   
+  toleranceUI = addStringParameter("Tolerance for residuals", "Non-linear equations are solved up to this residual value.", "1e-8");
+  
   //timescale_factor = addFloatParameter("Time scale factor", "Descent behaves badly when kinetics rate constants are too low. A solution consists in scaling up those constants.", 100.);
   
   stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
@@ -83,7 +85,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   d_action_threshold = convertStringToDouble(action_threshold->stringValue());
   d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
-  
+  tolerance = convertStringToDouble(toleranceUI->stringValue());
  
 
   
@@ -127,6 +129,10 @@ void NEP::onContainerParameterChanged(Parameter *p)
   else if (p == stepDescentThreshold)
   {
     d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
+  }
+  else if (p == toleranceUI)
+  {
+    tolerance = convertStringToDouble(toleranceUI->stringValue());
   }
   
 }
@@ -190,7 +196,8 @@ void NEP::reset()
   stepDescentInit_dynamic = stepDescentInitVal->floatValue();
   //cutoffFreq->setValue(0.05);
   nPoints = nPoints_start->intValue();
-  tolerance_mu = tolerance_mu_init;
+  //tolerance_mu = tolerance_mu_init;
+  tolerance =
 }
 
 
@@ -289,8 +296,8 @@ void NEP::run()
     // lift current trajectory to full (q ; p; t) space
     // this function updates global variables g_pcurve and times
     LOG("lifting trajectory");
-    //LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithNLOPT();
-    LiftTrajectoryOptResults liftoptres = liftCurveToTrajectoryWithGSL(g_qcurve, true);
+    //LiftResults liftoptres = liftCurveToTrajectoryWithNLOPT();
+    LiftResults liftoptres = liftCurveWithGSL(g_qcurve, true);
     
     
     
@@ -425,7 +432,7 @@ void NEP::run()
       //resampleInTimeUniform(g_qcurve, g_qcurve.size());
       //lowPassFiltering(g_qcurve, true);
       //resampleInSpaceUniform(g_qcurve, g_qcurve.size());
-      //liftCurveToTrajectoryWithGSL();
+      //liftCurveWithGSL();
     }
     
     
@@ -559,11 +566,16 @@ void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n
 }
 
 
-LiftTrajectoryResults NEP::nonLinearEquationSolving(int nls)
+LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed)
 {
-  juce::Array<LiftTrajectoryResults> liftResults;
-  liftResults.resize(nPoints-1);
+  juce::Array<NLSresults> nlsResults;
+  nlsResults.resize(nPoints-1);
   
+  // dimension of the non-linear system
+  const int n = simul->entities.size() + 1; // number of entities + 1
+
+  // loop over points in concentration space
+  // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
   for (int point=0; point<nPoints-1; point++) // n - 1 iterations
   {
     // calculate q, dq of current concentration curve
@@ -583,6 +595,7 @@ LiftTrajectoryResults NEP::nonLinearEquationSolving(int nls)
     ev.q = qcenter;
     ev.dq = deltaq;
     ev.epsilon = 1.;
+    ev.n = n;
     // momentum normalization initialized to unity
     Array<double> pnorm;
     pnorm.insertMultiple(0, 1., n-1);
@@ -592,36 +605,66 @@ LiftTrajectoryResults NEP::nonLinearEquationSolving(int nls)
     eqnorm.insertMultiple(0, 1., n);
     ev.equation_norm = eqnorm;
     
-    pool.addJob(new NEPWorker(crn, liftResults.getReference(point), nls, point), true);
+    
+    double dt_prev = 1.;
+    StateVec pstar_prev;
+    pstar_prev.insertMultiple(0, 0.1, n);
+    // use results from previous iteration if succeeded
+    if (!justUpdatedSampling) // #TODO add check on previous GSL status
+    {
+      dt_prev = g_times.getUnchecked(point+1) - g_times.getUnchecked(point);
+      //jassert(pstar_prev.size() == g_pcurve.size());
+      for (int m=0; m<g_pcurve.size(); m++)
+      {
+        double pm_center = 0.5*(g_pcurve.getUnchecked(point).getUnchecked(m) + g_pcurve.getUnchecked(point+1).getUnchecked(m));
+        pstar_prev.setUnchecked(m, pm_center);
+      }
+    }
+    ev.dt_prev = dt_prev;
+    ev.pstar_prev = pstar_prev;
+    
+    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), nls, point, maxPrintingAllowed), true);
   }
-  
-  pool.waitForJobToFinish();
-  
-  
-  
-  
+
+  // wait until job pool is empty
+  while (pool.getNumJobs() > 0)
+    sleep(100);
   
   
   
-  LiftTrajectoryOptResults output;
+  
+  
+  
+  
+  LiftResults output;
   // build it from array liftResults
+  
+  /*
+   /*
+   gslStatus.add(-999);
+   convergenceSanityCheck.add(-999);
+   residuals_H.add(-999.);
+   StateVec dummy_residual_p;
+   dummy_residual_p.insertMultiple(0, -999., simul->entities.size());
+   residuals_p.add(dummy_residual_p);
+   */
+   
 
   return output;
   
 }
 
-LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
+LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
 {
   
   
   
-  //cout << "--- NEP::liftCurveToTrajectoryWithGSL() ---" << endl;
+  //cout << "--- NEP::liftCurveWithGSL() ---" << endl;
   //cout << "input qcurve size = " << qcurve.size() << endl;
-  // dimension of the problem
-  const int n = simul->entities.size() + 1; // number of entities + 1
+  
   
   // GSL to find optimal momentum and dt associated to qcurve
-  LiftTrajectoryOptResults liftResults = nonLinearEquationSolving(solverType->getValueDataAsEnum<int>());
+  LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed);
   
   /*
   if (solverType->getValueDataAsEnum<int>() == 0)
@@ -789,7 +832,7 @@ LiftTrajectoryOptResults NEP::liftCurveToTrajectoryWithGSL(const Curve& qcurve, 
   */
   
   // Return optimization results
-  //LiftTrajectoryOptResults output;
+  //LiftResults output;
   //output.opt_deltaT = vec_dt;
   //output.opt_momentum = vec_pstar;
   //output.pcurve = pcurve;
@@ -1397,7 +1440,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     }
     
     // find the corresponding lifted full trajectory, without updating global variables
-    LiftTrajectoryOptResults liftResults = liftCurveToTrajectoryWithGSL(newcurve, false);
+    LiftResults liftResults = liftCurveWithGSL(newcurve, false);
     
     /* debugging
     cout << "new q = ";
@@ -2049,7 +2092,7 @@ void NEP::heteroclinicStudy()
   initConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
-  liftCurveToTrajectoryWithGSL(g_qcurve, true);
+  liftCurveWithGSL(g_qcurve, true);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();

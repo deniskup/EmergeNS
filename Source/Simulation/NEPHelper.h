@@ -36,7 +36,7 @@ struct NLSresults
   juce::Array<double> residuals_p;
 };
 
-struct LiftTrajectoryResults
+struct LiftResults
 {
     juce::Array<StateVec> pstar;
     juce::Array<double> dt;
@@ -46,34 +46,6 @@ struct LiftTrajectoryResults
     juce::Array<int> collinearity;
     juce::Array<double> residuals_H;
     juce::Array<juce::Array<double>> residuals_p;
-};
-
-
-struct EncapsVarForNLOpt {
-  const juce::Array<double>* q; // current concentration point
-  const juce::Array<double>* dq;
-  juce::Array<double>* p; // p variable to pass to t optimisation
-  double t_opt; // t variable that optimizes the lagrangian
-  //juce::Array<double> p_opt; // t variable that optimizes the lagrangian
-};
-
-
-struct EncapsVarForGSL {
-  juce::Array<double> q; // current concentration point
-  juce::Array<double> dq; /
-  double epsilon = 1.;
-  juce::Array<double> pnorm;
-  juce::Array<double> equation_norm;
-  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
-  //double mu;
-  double s;
-};
-
-struct EncapsVarForGSL_MU {
-  juce::Array<double> q; // current concentration point
-  juce::Array<double> p;
-  juce::Array<double> dq;
-  double dq_norm2;
 };
 
 

@@ -90,6 +90,7 @@ public:
   FloatParameter * maxcutoffFreq;
   StringParameter * action_threshold ;
   StringParameter * stepDescentThreshold ;
+  StringParameter * toleranceUI;
   FloatParameter * stepDescentInitVal;
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
@@ -170,7 +171,9 @@ private:
   
   bool descentShouldContinue(int);
   
-  LiftTrajectoryOptResults nonLinearEquationSolving(int nls);
+  LiftResults nonLinearEquationSolving(const Curve&, int nls, bool);
+  
+  LiftResults LiftCurveWithGSL(const Curve&, bool);
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
@@ -216,6 +219,7 @@ private:
   // number of sampling points
   int nPoints;
   int nPoints_increment = 10;
+  bool justUpdatedSampling = false;
   
   // decides whether concentration curve cab be update q^{i+1} = q^{i} - dA/dq
   bool canUpdateConcentrationCurve = true;
@@ -226,9 +230,10 @@ private:
   // #para
   double stepDescent;
   double stepDescentInit_dynamic;
-  double tolerance_mu_init = 1e-5;
-  double tolerance_mu_min = 1e-10;
-  double tolerance_mu;
+  double tolerance = 1e-5;
+  //double tolerance_mu_init = 1e-5;
+  //double tolerance_mu_min = 1e-10;
+  //double tolerance_mu;
   double d_action_threshold = 1e-5;
   double d_stepDescentThreshold = 1e-5;
   
