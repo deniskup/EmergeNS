@@ -241,12 +241,10 @@
     <VS2022 targetFolder="Builds/VisualStudio2022_CI" extraCompilerFlags="/bigobj"
             smallIcon="iGjYAz" bigIcon="iGjYAz" extraDefs="NOGDI">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraCompilerFlags="/bigobj" extraLinkerFlags=" -lgsl" defines="$(inherited)&#10;WIN32_LEAN_AND_MEAN=1&#10;NOMINMAX=1&#10;JUCE_USE_WINRT=0&#10;UNICODE=1&#10;_UNICODE=1&#10;_WMSDKIDL_H"/>
-        <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI" headerPath="/usr/local&#10;/usr/local/gsl/include"
-                       libraryPath="/usr/local/lib&#10;/usr/local&#10;/usr/local/gsl/lib"
-                       extraCompilerFlags="/bigobj" extraLinkerFlags=" -lgsl" defines="$(inherited)&#10;WIN32_LEAN_AND_MEAN=1&#10;NOMINMAX=1&#10;JUCE_USE_WINRT=0&#10;UNICODE=1&#10;_UNICODE=1&#10;_WMSDKIDL_H"/>
+        <CONFIGURATION isDebug="1" name="Debug" binaryPath="Binaries/CI" extraCompilerFlags="/bigobj"
+                       extraLinkerFlags=" -lgsl"/>
+        <CONFIGURATION isDebug="0" name="Release" binaryPath="Binaries/CI" extraCompilerFlags="/bigobj"
+                       extraLinkerFlags=" -lgsl"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_core" path="JUCE/modules"/>
