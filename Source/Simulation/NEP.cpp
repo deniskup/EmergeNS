@@ -87,7 +87,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
   tolerance = convertStringToDouble(toleranceUI->stringValue());
  
-
+  nepsolver = new NEPSolver();
   
 }
 
@@ -197,7 +197,7 @@ void NEP::reset()
   //cutoffFreq->setValue(0.05);
   nPoints = nPoints_start->intValue();
   //tolerance_mu = tolerance_mu_init;
-  tolerance =
+  tolerance = convertStringToDouble(toleranceUI->stringValue());
 }
 
 
@@ -255,7 +255,7 @@ void NEP::run()
   
   // set normalisation factor in order to have all kinetic constants of order 1
   setTimeNormalizationFactor();
-  LOG("Using time normalization factor : " + to_string(timescale_factor));
+  LOG("Using time normalization factor : " + to_string(crn.timescale_factor));
   
   
   // start descent
@@ -330,7 +330,7 @@ void NEP::run()
       for (auto & pm : g_pcurve.getUnchecked(point))
         psv.add(pm);
       newtraj.add(psv);
-      hams.add(evalHamiltonian(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point))); 
+      hams.add(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point)));
     }
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << g_qcurve.size() << " + " << g_pcurve.size() << endl;
     trajDescent.add(newtraj);
@@ -376,7 +376,7 @@ void NEP::run()
     
     // calculate action value
     LOG("calculating action");
-    Array<double> newcumulaction = calculateAction(g_qcurve, g_pcurve, g_times);
+    Array<double> newcumulaction = nepsolver->calculateAction(g_qcurve, g_pcurve, g_times);
     double newaction = newcumulaction.getLast();
     double diffAction = action - newaction;
     LOG("action = " + to_string(newaction));
@@ -440,15 +440,15 @@ void NEP::run()
     // functional gradient dA / dq
     for (int point=0; point<nPoints; point++)
     {
-      StateVec dHdqk = evalHamiltonianGradientWithQ(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
+      StateVec dHdqk = nepsolver->evalHamiltonianGradientWithQ(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
       StateVec dpdtk;
       dpdtk.insertMultiple(0, 0., nPoints);
       if (point>0 && point<(nPoints-1))
       {
         for (int m=0; m<dHdqk.size(); m++)
         {
-          double dpm = liftoptres.opt_momentum.getUnchecked(point).getUnchecked(m) - liftoptres.opt_momentum.getUnchecked(point-1.).getUnchecked(m);
-          double dtm = 0.5*(liftoptres.opt_deltaT.getUnchecked(point) + liftoptres.opt_deltaT.getUnchecked(point-1));
+          double dpm = liftoptres.pstar.getUnchecked(point).getUnchecked(m) - liftoptres.pstar.getUnchecked(point-1.).getUnchecked(m);
+          double dtm = 0.5*(liftoptres.dt.getUnchecked(point) + liftoptres.dt.getUnchecked(point-1));
           dpdtk.setUnchecked(m, dpm/dtm);
         }
       }
@@ -516,54 +516,9 @@ void NEP::run()
 
 
 
-void printLiftingJacobian_brutforce(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
-{
-  StateVec p;
-  for (int i=0; i<n-1; i++)
-  {
-    p.add(gsl_vector_get(s->x, i));
-  }
-  double mu = exp(gsl_vector_get(s->x, n-1));
-  
-  dsp::Matrix<double> jaco = calculateLiftingJacobian_brutforce(ev, p, mu, n);
-  
-  cout << "J = " << endl;
-  for (int i=0; i<n; i++)
-  {
-    for (int j=0; j<n; j++)
-    {
-      cout << jaco(i, j) << " ";
-    }
-    cout << endl;
-  }
-}
 
-void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
-{
-  StateVec p;
-  for (int i=0; i<n; i++)
-  {
-    p.add(gsl_vector_get(s->x, i));
-  }
-  
-  StateVec q = ev.qcenter;
-  StateVec dHdp = ev.nep->evalHamiltonianGradientWithP(q, p);
-  dsp::Matrix<double> hessian = ev.nep->evalHamiltonianHessianWithP(q, p);
-  
-  dsp::Matrix<double> jaco = calculateLiftingJacobian(dHdp, hessian, ev.B, ev.pnorm, ev.equation_norm, n);
-  
-  cout << "--- Jacobian ---" << endl;
-  cout << "J = " << endl;
-  for (int i=0; i<jaco.getNumRows(); i++)
-  {
-    for (int j=0; j<jaco.getNumColumns(); j++)
-    {
-      cout << jaco(i, j) << " ";
-    }
-    cout << endl;
-  }
-  
-}
+
+
 
 
 LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed)
@@ -594,6 +549,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     EncapsVarForGSL ev;
     ev.q = qcenter;
     ev.dq = deltaq;
+    ev.dq_norm2 = norm2(deltaq);
     ev.epsilon = 1.;
     ev.n = n;
     // momentum normalization initialized to unity
@@ -623,7 +579,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     ev.dt_prev = dt_prev;
     ev.pstar_prev = pstar_prev;
     
-    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), nls, point, maxPrintingAllowed), true);
+    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed), true);
   }
 
   // wait until job pool is empty
@@ -640,7 +596,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   // build it from array liftResults
   
   /*
-   /*
+   
    gslStatus.add(-999);
    convergenceSanityCheck.add(-999);
    residuals_H.add(-999.);
@@ -654,7 +610,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   
 }
 
-LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
+LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
 {
   
   
@@ -682,13 +638,13 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     debugfile << "-- lifting optima found --" << endl;
     debugfile << "p* = [ ";
     int p=0;
-    for (auto & ppoint : liftResults.opt_momentum)
+    for (auto & ppoint : liftResults.pstar)
     {
       debugfile << "(";
       int c=0;
       for (auto & pm : ppoint)
       {
-        string closebracket = (p == liftResults.opt_momentum.size()-1 ? ") " : "), ");
+        string closebracket = (p == liftResults.pstar.size()-1 ? ") " : "), ");
         string comma = ( c==ppoint.size()-1 ? closebracket : "," );
         debugfile << pm << comma;
         c++;
@@ -698,9 +654,9 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
   debugfile << " ]" << endl;
   debugfile << "dt = [ ";
   p=0;
-  for (auto & tpoint : liftResults.opt_deltaT)
+  for (auto & tpoint : liftResults.dt)
   {
-    string comma = (p == liftResults.opt_deltaT.size()-1 ? "" : ", ");
+    string comma = (p == liftResults.dt.size()-1 ? "" : ", ");
     debugfile << tpoint << comma;
     p++;
   }
@@ -729,7 +685,7 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
       continue;
         
     // handle time
-    sumtime += liftResults.opt_deltaT.getUnchecked(k-1);
+    sumtime += liftResults.dt.getUnchecked(k-1);
     times.add(sumtime);
     
     // handle momentum, mean between current and next p
@@ -738,9 +694,9 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     else
     {
       StateVec meanP;
-      for (int m=0; m<liftResults.opt_momentum.getUnchecked(k).size(); m++)
+      for (int m=0; m<liftResults.pstar.getUnchecked(k).size(); m++)
       {
-        double pm = 0.5*(liftResults.opt_momentum.getUnchecked(k-1).getUnchecked(m) + liftResults.opt_momentum.getUnchecked(k).getUnchecked(m));
+        double pm = 0.5*(liftResults.pstar.getUnchecked(k-1).getUnchecked(m) + liftResults.pstar.getUnchecked(k).getUnchecked(m));
         meanP.add(pm);
       }
       pcurve.add(meanP);
@@ -771,7 +727,7 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     }
   debugfile << " ]" << endl;
   }
-  
+  /*
   // moving average on pcurve (execpt first and last point that must remain 0)
   int window = 3;
   Trajectory av_pcurve;
@@ -796,9 +752,12 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     av_pcurve.add(avp);
   }
   
+  
   jassert(av_pcurve.size() == pcurve.size());
   //cout << "average pcurve size : " << av_pcurve.size() << endl;
   
+   */
+  /*
   // for debugging
   if (maxPrinting->boolValue() && maxPrintingAllowed)
   {
@@ -820,7 +779,7 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     }
   debugfile << " ]" << endl;
   }
-  
+  */
   
   /*
   // update global variables or not
@@ -852,7 +811,7 @@ LiftResults NEP::LiftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
 void NEP::setTimeNormalizationFactor()
 {
   //LOGWARNING("timescale always set to 1.");
-  //timescale_factor = 1.;
+  double tsfac = 1.;
   //return;
   
   double meanK = 0.;
@@ -888,12 +847,13 @@ void NEP::setTimeNormalizationFactor()
   if (nreac > 0. && meanK > 0.)
   {
     meanK /= nreac;
-    timescale_factor = 1. / meanK;
+    tsfac = 1. / meanK;
   }
   else
   {
-    timescale_factor = 1.;
+    tsfac = 1.;
   }
+  crn.timescale_factor = tsfac;
 }
 
 
@@ -1144,7 +1104,6 @@ void NEP::updateDescentParams()
   //cutoffFreq->setValue(cutoffFreq->floatValue() + 0.01);
   //nPoints += 20;
   //nPoints = std::min(nPoints, nPoints_max->intValue());
-  tolerance_mu /= 10.;
   
   //std::ostringstream oss;
   //oss << std::scientific << std::setprecision(4) << tolerance_mu;
@@ -1183,7 +1142,7 @@ void NEP::writeDescentToFile()
   historyFile << "Number of iterations : " << Niterations->intValue() << endl;
   historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
   historyFile << "Action threshold : " << action_threshold->stringValue() << endl;
-  historyFile << "Timescale factor : " << timescale_factor << endl;
+  historyFile << "Timescale factor : " << crn.timescale_factor << endl;
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
@@ -1307,80 +1266,6 @@ bool NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
 
 
 
-//double NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
-Array<double> NEP::calculateAction(const Curve& qc, const Curve& pc, const Array<double>& t)
-{
-  //cout << "-- calculateAction() --" << endl;
-  // check that pcurve, qcurve and tcurve have the same size
-  jassert(qc.size() == pc.size());
-  jassert(qc.size() == t.size());
-  
-  //cout << "--- calculate action ---" << endl;
-  
-  /*
-  for (int point=0; point<nPoints; point++)
-  {
-    cout << "\npoint #" << point << endl;
-    cout << "t = " << t.getUnchecked(point) << endl;
-    cout << "q = ";
-    for (auto & q : qc.getUnchecked(point))
-      cout << q << " ";
-    cout << endl;
-    cout << "p = ";
-    for (auto p  : pc.getUnchecked(point))
-      cout << p << " ";
-    cout << endl;
-  }
-  */
-    
-  Array<double> hamilt;
-  for (int i=0; i<qc.size(); i++)
-  {
-    hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)));
-    //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
-  }
-  
-  // use trapezoidal rule to calculate action = integral(0, T, p•dq - H*dt)
-  double newaction = 0.;
-  Array<double> cumul_action;
-  cumul_action.add(0.);
-  for (int i=0; i<qc.size()-1; i++)
-  {
-    //cout << "at step " << i << endl;
-    double deltaTi = t.getUnchecked(i+1) - t.getUnchecked(i);
-    //cout << "\tdelta Ti = " << deltaTi << endl;
-    // integrad at i
-    double integrand = -0.5 * (hamilt.getUnchecked(i) + hamilt.getUnchecked(i+1)) * deltaTi;
-    //integrand = 0.;
-    
-    jassert(pc.getUnchecked(i).size() == pc.getUnchecked(i+1).size()); // safety check
-    jassert(qc.getUnchecked(i).size() == qc.getUnchecked(i+1).size());
-    double spdebug = 0.;
-    for (int m=0; m<qc.getUnchecked(i).size(); m++)
-    {
-      spdebug = pc.getUnchecked(i).getUnchecked(m)*(qc.getUnchecked(i+1).getUnchecked(m)-qc.getUnchecked(i).getUnchecked(m));
-      double sp = 0.5 * (pc.getUnchecked(i).getUnchecked(m) + pc.getUnchecked(i+1).getUnchecked(m)) * (qc.getUnchecked(i+1).getUnchecked(m)-qc.getUnchecked(i).getUnchecked(m));
-      integrand += sp;
-      //cout << "\t(sp)_" << m << " = 1/2 * (" << pc.getUnchecked(i+1).getUnchecked(m) << "+" << pc.getUnchecked(i).getUnchecked(m);
-      //cout << " * (" << qc.getUnchecked(i+1).getUnchecked(m) << "-" << qc.getUnchecked(i).getUnchecked(m) << ")" << " = " << sp << endl;
-    }
-    //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << ". dt = " << deltaTi << ". integrand = " << integrand << endl;
-    newaction += integrand;
-    cumul_action.add(newaction);
-    //cout << "\tadding " << integrand << endl;
-  }
-  
-  //cout << "action = " << newaction << endl;
-  // update action value
-  //action = newaction;
-  // keep track of action history
-  //actionDescent.add(newaction);
-  
-  //return newaction;
-  return cumul_action;
-  
-}
-
 
 //double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& dAdq)
 double NEP::backTrackingMethodForStepSize(const Curve& qc)
@@ -1395,7 +1280,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
   //cout << "Init guess : " << step << endl;
   
-  Array<double> cumulaction = calculateAction(qc, g_pcurve, g_times);
+  Array<double> cumulaction = nepsolver->calculateAction(qc, g_pcurve, g_times);
   double currentaction = cumulaction.getLast();
   /* debugging
   cout << "current action = " << currentaction << endl;
@@ -1470,7 +1355,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     */
     
     // calculate action that would correspond to new concentration curve
-    Array<double> newcumulaction = calculateAction(newcurve, liftResults.pcurve, liftResults.times);
+    Array<double> newcumulaction = nepsolver->calculateAction(newcurve, liftResults.pcurve, liftResults.times);
     double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
     if (newact>=currentaction || newact<0.)
@@ -1782,7 +1667,7 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
   // substract straight signal from input signal
   StateVec firstpoint = signal.getFirst();
   StateVec lastpoint = signal.getLast();
-  /*
+  
   //cout << "NEP::lowPassFiltering() 1st point : ";
   //for (auto & p : firstpoint)
   //  cout << p << " ";
@@ -1980,75 +1865,6 @@ void NEP::lowPassFiltering(Array<StateVec>& signal, bool isTimeUniform)
 
 
 
-// using Méthod of Leapfrog / Störmer–Verlet instead of Euler Method
-void NEP::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, const bool forward, bool& shouldStop, Trajectory & traj)
-{
-  if (shouldStop)
-    return;
-  
-  double thrshold = 1000.;
-  double dt = (forward ? dt_in : -1.*dt_in);
-  
-  // save initial q and p in case that next step should not occur
-  StateVec qi = q;
-  StateVec pi = p;
-  
-  StateVec gradqH = evalHamiltonianGradientWithQ(q, p);
-  if (norm2(gradqH)>thrshold) // cancel this step, reset to initial conditions
-  {
-    q = qi;
-    p = pi;
-    shouldStop = true;
-    return;
-  }
-  // update p
-  for (int m=0; m<q.size(); m++)
-    p.setUnchecked(m, p.getUnchecked(m) - 0.5*dt*gradqH.getUnchecked(m));
-  
-  // calculate gradients w.r.t to p
-  StateVec gradpH = evalHamiltonianGradientWithP(q, p);
-  
-  if (norm2(gradpH)>thrshold)
-  {
-    q = qi;
-    p = pi;
-    shouldStop = true;
-    return;
-  }
-  
-  // update q
-  for (int m=0; m<q.size(); m++)
-    q.setUnchecked(m, q.getUnchecked(m) + dt*gradpH.getUnchecked(m));
-  
-  // update gradients w.r.t to q
-  gradqH = evalHamiltonianGradientWithQ(q, p);
-  if (norm2(gradqH)>thrshold)
-  {
-    q = qi;
-    p = pi;
-    shouldStop = true;
-    return;
-  }
-  
-  // update p once more
-  for (int m=0; m<q.size(); m++)
-    p.setUnchecked(m, p.getUnchecked(m) - 0.5*dt*gradqH.getUnchecked(m));
-  
-  // add new (q ; p) point to the trajectory
-  PhaseSpaceVec psv;
-  for (int m=0; m<q.size(); m++)
-  {
-    psv.add(q.getUnchecked(m));
-  }
-  for (int m=0; m<p.size(); m++)
-  {
-    psv.add(p.getUnchecked(m));
-  }
-  traj.add(psv);
-  
-}
-
-
 pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, StateVec pi)
 {
  // dq/dt = dH/dp
@@ -2072,8 +1888,8 @@ pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, State
     if (break_forward && break_backward)
       break;
     
-    nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, dt, true, break_forward, traj_forward);
-    nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, dt, false, break_backward, traj_backward);
+    nepsolver->nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, dt, true, break_forward, traj_forward);
+    nepsolver->nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, dt, false, break_backward, traj_backward);
     
   }
   

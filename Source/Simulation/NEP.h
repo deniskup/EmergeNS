@@ -173,7 +173,7 @@ private:
   
   LiftResults nonLinearEquationSolving(const Curve&, int nls, bool);
   
-  LiftResults LiftCurveWithGSL(const Curve&, bool);
+  LiftResults liftCurveWithGSL(const Curve&, bool);
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
@@ -181,7 +181,7 @@ private:
   bool updateOptimalConcentrationCurve(Curve &, double);
 
   //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
-  juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
+  //juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
   double backTrackingMethodForStepSize(const Curve& c);
   
@@ -191,7 +191,7 @@ private:
   void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
   //void lowPassFiltering(Array<StateVec>&, bool);
   
-  void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
+  //void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
   
@@ -206,6 +206,9 @@ private:
   
   // NEP worker jobs
   juce::ThreadPool pool;
+  
+  // NEP solver for calculations
+  NEPSolver * nepsolver;
   
   // global variable describing the state of the descent
   Curve g_qcurve;
@@ -238,7 +241,7 @@ private:
   double d_stepDescentThreshold = 1e-5;
   
   // normalization parameters
-  double timescale_factor = 1.;
+  //double timescale_factor = 1.;
   
 
   // for printing history to file

@@ -51,7 +51,7 @@ struct LiftResults
 
 
 
-double convertStringToDouble(const juce::String text)
+inline double convertStringToDouble(const juce::String text)
 {
   std::string stdtext = text.toStdString();
   double output = 1.;
@@ -74,7 +74,7 @@ double convertStringToDouble(const juce::String text)
 
 
 
-double cartesianDistance(StateVec v1, StateVec v2)
+inline double cartesianDistance(StateVec v1, StateVec v2)
 {
   jassert(v1.size() == v2.size());
   double d = 0.;
@@ -86,7 +86,7 @@ double cartesianDistance(StateVec v1, StateVec v2)
   return d;
 }
 
-double norm2(StateVec v)
+inline double norm2(StateVec v)
 {
   double norm = 0.;
   for (int k=0; k<v.size(); k++)
@@ -97,7 +97,7 @@ double norm2(StateVec v)
   return norm;
 }
 
-double scalarProduct(StateVec v1, StateVec v2)
+inline double scalarProduct(StateVec v1, StateVec v2)
 {
   jassert(v1.size() == v2.size());
   int n = v1.size();
@@ -108,7 +108,7 @@ double scalarProduct(StateVec v1, StateVec v2)
 }
 
 
-double curveLength(const Curve c)
+inline double curveLength(const Curve c)
 {
   double d = 0.;
   for (int k=0; k<c.size()-1; k++)
@@ -120,7 +120,9 @@ double curveLength(const Curve c)
   return d;
 }
 
-bool areParallel(StateVec v1, StateVec v2, double tolerance, bool maxPrintingAllowed)
+// returns true or 1 if v1 // v2 up to tolerance
+// return false or 0 elsewhise
+inline bool areParallel(StateVec v1, StateVec v2, double tolerance, bool maxPrintingAllowed)
 {
   if (v1.size() != v2.size())
     return false;
