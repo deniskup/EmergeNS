@@ -1827,7 +1827,11 @@ if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHisto
   ///  }
   ///  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   ///  checkPoint = jmax(1, checkPoint);
-
+  if(concentrationMode->intValue() == 2 && gillespieMode->boolValue() == false)
+  {
+    LOGWARNING("Concentration and Gillespie both desactivited, aborting.");
+    return;
+  }
   startThread();
 }
 
@@ -2643,11 +2647,7 @@ void Simulation::run()
   currentTime = 0.;
   nextGillespieStep = 0.;
   nextConcStep = dt->floatValue();
-  if(concentrationMode->intValue() == 2 && gillespieMode->boolValue() == false)
-  {
-    LOGWARNING("Concentration and Gillespie both desactivited, aborting.");
-    cancel();
-  }
+
   if (!express)
     LOG("--------- Start thread ---------");
   finished->setValue(false);
