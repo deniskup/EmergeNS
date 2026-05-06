@@ -7,7 +7,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 //    loadSimBT("Load")
 // uiStep(1)
 {
-volumeUI.reset(simul->volume->createLabelParameter());
+	volumeUI.reset(simul->volume->createLabelParameter());
 	volumeUI->setSuffix(" L");
 	dtUI.reset(simul->dt->createLabelParameter());
 	dtUI->setSuffix(" s");
@@ -26,19 +26,19 @@ volumeUI.reset(simul->volume->createLabelParameter());
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-  concentrationModeUI.reset(simul->concentrationMode->createUI());
+	concentrationModeUI.reset(simul->concentrationMode->createUI());
 	gillespieModeUI.reset(simul->gillespieMode->createToggle());
 	spaceUI.reset(simul->isSpace->createToggle());
 	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
 	setCACUI.reset(simul->setCAC->createUI());
-  setSteadyStateUI.reset(simul->setSteadyState->createUI());
+	setSteadyStateUI.reset(simul->setSteadyState->createUI());
 	setRunUI.reset(simul->setRun->createUI());
 
 	// local parameter, won't be saved in the file.
 	// maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
 	// maxCUI.reset(maxC->createLabelParameter())
-volumeUI->setSize(150, 20);
+	volumeUI->setSize(150, 20);
 	dtUI->setSize(150, 20);
 	totalTimeUI->setSize(200, 20);
 	perCentUI->setSize(100, 20);
@@ -53,11 +53,11 @@ volumeUI->setSize(150, 20);
 	pointsDrawnUI->setSize(150, 20);
 	detectEqUI->setSize(120, 20);
 	epsilonEqUI->setSize(100, 20);
-  setRunUI->setSize(70, 20);
+	setRunUI->setSize(70, 20);
 	setCACUI->setSize(70, 20);
 	setSteadyStateUI->setSize(100, 20);
 
-addAndMakeVisible(volumeUI.get());
+	addAndMakeVisible(volumeUI.get());
 	addAndMakeVisible(dtUI.get());
 	addAndMakeVisible(totalTimeUI.get());
 	addAndMakeVisible(maxConcentUI.get());
@@ -72,12 +72,12 @@ addAndMakeVisible(volumeUI.get());
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-  addAndMakeVisible(concentrationModeUI.get());
+	addAndMakeVisible(concentrationModeUI.get());
 	addAndMakeVisible(gillespieModeUI.get());
 	addAndMakeVisible(spaceUI.get());
 	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
-  addAndMakeVisible(setRunUI.get());
+	addAndMakeVisible(setRunUI.get());
 	addAndMakeVisible(setCACUI.get());
 	addAndMakeVisible(setSteadyStateUI.get());
 
@@ -113,7 +113,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	if (simul->shouldUpdate)
 	{
-    //cout << "simul should update" << endl;
+		// cout << "simul should update" << endl;
 		simul->updateParams();
 		simul->shouldUpdate = false;
 	}
@@ -127,12 +127,12 @@ void SimulationUI::paint(juce::Graphics &g)
 	g.fillAll(BG_COLOR);
 
 	// for alignment of simulation and RACs
-//	int leftMargin = 50;
-//	int rightMargin = 40;
+	//	int leftMargin = 50;
+	//	int rightMargin = 40;
 
 	int extraMargin = leftMargin - rightMargin;
-  simBounds = getLocalBounds().withTop(80).withTrimmedBottom(120).withLeft(extraMargin).reduced(rightMargin);
-  simBounds.setWidth(simBounds.getWidth()); 
+	simBounds = getLocalBounds().withTop(80).withTrimmedBottom(120).withLeft(extraMargin).reduced(rightMargin);
+	simBounds.setWidth(simBounds.getWidth());
 
 	// g.setFont(12);
 	g.setColour(NORMAL_COLOR);
@@ -162,7 +162,7 @@ void SimulationUI::paint(juce::Graphics &g)
 
 	paramsLabel.setText(paramsToDisplay, dontSendNotification);
 
-  //if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
+	// if (simul->isThreadRunning() && !simul->realTime->boolValue()) // si pas option realTime
 	if (!simul->finished->boolValue() && !simul->realTime->boolValue()) // si pas option realTime
 		return;
 	if (entityHistory.isEmpty())
@@ -173,15 +173,16 @@ void SimulationUI::paint(juce::Graphics &g)
 	float stepX = 1.0f / jmax(entityHistory.size() - 1, 1);
 	// float maxConcent = 5;
 	OwnedArray<Path> paths;
-  
-  Array<float> firstConc;
-  for (auto & [key, val] : entityHistory[0]) // first time step
-  {
-    if (key.first == simul->patchToDraw)
-      firstConc.add(val);
-  }
-  
-  //for (auto &e : entityHistory[0])
+	OwnedArray<Path> gillespiePaths;
+
+	Array<float> firstConc;
+	for (auto &[key, val] : entityHistory[0]) // first time step
+	{
+		if (key.first == simul->patchToDraw)
+			firstConc.add(val);
+	}
+
+	// for (auto &e : entityHistory[0])
 	for (auto &e : firstConc)
 	{
 		float v = 1 - e / maxC;
@@ -191,26 +192,30 @@ void SimulationUI::paint(juce::Graphics &g)
 		Point<float> ep = simBounds.getRelativePoint(0.f, v).toFloat();
 		p->startNewSubPath(ep);
 		paths.add(p); // add one path per entity
+		// add gillespie path
+		Path *gillespiePath = new Path();
+		gillespiePath->startNewSubPath(ep);
+		gillespiePaths.add(gillespiePath);
 	}
-  //cout << "UI ent history : " << entityHistory.size() << endl;
-  for (int i = 0; i < entityHistory.size(); i++)
+	// cout << "UI ent history : " << entityHistory.size() << endl;
+
+	for (int i = 0; i < entityHistory.size(); i++)
 	{
-		//Array<float> values = entityHistory[i];
-    Array<pair<int, float>> pvalues;
-    //Array<float> values(entityHistory[i].size());
-    for (auto & [key, val] : entityHistory[i]) //  time step i
-    {
-      if (key.first == simul->patchToDraw)
-        pvalues.add(make_pair(key.second, val));
-        //values.add(val);
-    }
-    
-    pvalues.sort();
-    Array<float> values;
-    for (auto & p : pvalues)
-      values.add(p.second);
-    
-    
+		// Array<float> values = entityHistory[i];
+		Array<pair<int, float>> pvalues;
+		// Array<float> values(entityHistory[i].size());
+		for (auto &[key, val] : entityHistory[i]) //  time step i
+		{
+			if (key.first == simul->patchToDraw)
+				pvalues.add(make_pair(key.second, val));
+			// values.add(val);
+		}
+
+		pvalues.sort();
+		Array<float> values;
+		for (auto &p : pvalues)
+			values.add(p.second);
+
 		for (int j = 0; j < values.size(); j++)
 		{
 			float v = 1 - values[j] / maxC;
@@ -221,7 +226,7 @@ void SimulationUI::paint(juce::Graphics &g)
 			paths[j]->lineTo(ep);
 		}
 	}
-  //cout << entityColors.size() << " | " << entityHistory.size() <<  " VS " << paths.size() << endl;
+	// cout << entityColors.size() << " | " << entityHistory.size() <<  " VS " << paths.size() << endl;
 	jassert(entityColors.size() >= paths.size());
 	for (int i = 0; i < paths.size(); i++)
 	{
@@ -229,22 +234,64 @@ void SimulationUI::paint(juce::Graphics &g)
 		g.strokePath(*paths[i], PathStrokeType(1.2));
 	}
 
+	//-------------- begin Gillespie ----------------------
+
+	// drawing the Gillespie curves
+
+	if (simul->gillespieMode->boolValue())
+	{
+
+		// computing tmax;
+		float tmax = 0;
+		for (int i = 0; i < times.size(); i++)
+		{
+			tmax = jmax(tmax, times[i]);
+		}
+		 cout << "Gillespie tmax : " << tmax << endl;
+
+		for (int i = 0; i < entityGillespieHistory.size(); i++)
+		{
+			// Array<float> values = entityHistory[i];
+
+			// Array<float> values(entityHistory[i].size());
+			for (int j = 0; j < entityGillespieHistory[i].size(); j++)
+			{
+				float val = entityGillespieHistory[i][j];
+				float v = 1 - val / maxC;
+				v = jmax(v, 0.f);
+				Point<float> ep = simBounds.getRelativePoint(times[i] / tmax, v).toFloat();
+				// g.drawEllipse(juce::Rectangle<float>(10,10).withCentre(ep), 2.f);
+				// optimisation possible: ne pas rajouter si c'est le meme x
+				gillespiePaths[j]->lineTo(ep);
+			}
+		}
+		// cout << entityColors.size() << " | " << entityHistory.size() <<  " VS " << gillespiePaths.size() << endl;
+		jassert(entityColors.size() >= gillespiePaths.size());
+		for (int i = 0; i < gillespiePaths.size(); i++)
+		{
+			// make entityColors[i] a bit more transparent and wall it newcol
+			auto newcol = entityColors[i].withAlpha(0.5f);
+			g.setColour(newcol);
+			g.strokePath(*gillespiePaths[i], PathStrokeType(1.2));
+		}
+	}
+
+	//----------end Gillespie -----------
+
 	g.setColour(BG_COLOR);
 	g.drawRect(simBounds.toFloat(), 1);
 	g.setColour(NORMAL_COLOR);
 	g.drawRoundedRectangle(simBounds.toFloat(), 4, 3.f);
-  
-  // add title = patchID ; run ID
-  //int runID = simul->currentRun;
-  int patchID = simul->patchToDraw;
-  int runID = simul->runToDraw;
-  String title = "Patch " + String(to_string(patchID)) +  " ; Run " + String(to_string(runID));
-  int titleX = simBounds.getX() + simBounds.getWidth()/2 - leftMargin/2;
-  int titleY = simBounds.getY() - 20;
-  juce::Rectangle<int> titlepos(titleX, titleY, 100, 20);
-  g.drawText(title, titlepos, Justification::centred, true);
 
-  
+	// add title = patchID ; run ID
+	// int runID = simul->currentRun;
+	int patchID = simul->patchToDraw;
+	int runID = simul->runToDraw;
+	String title = "Patch " + String(to_string(patchID)) + " ; Run " + String(to_string(runID));
+	int titleX = simBounds.getX() + simBounds.getWidth() / 2 - leftMargin / 2;
+	int titleY = simBounds.getY() - 20;
+	juce::Rectangle<int> titlepos(titleX, titleY, 100, 20);
+	g.drawText(title, titlepos, Justification::centred, true);
 
 	// draw X and Y axis ticks with numerical labels
 	int ncorr = nticks + 1;
@@ -265,13 +312,14 @@ void SimulationUI::paint(juce::Graphics &g)
 
 		// add corresponding concentration value
 
-    // decide number of digits to print to labels
-    int ndigits = 0;
-    int pow = round(log10(maxC)); //
-    if (pow<=2) ndigits = -pow + 2;
+		// decide number of digits to print to labels
+		int ndigits = 0;
+		int pow = round(log10(maxC)); //
+		if (pow <= 2)
+			ndigits = -pow + 2;
 
-    // x position of ticks labels
-    int xx = simBounds.getX() - 50;
+		// x position of ticks labels
+		int xx = simBounds.getX() - 50;
 		juce::Rectangle<int> tpos(xx, y, 50, 5);
 		float conc = maxC * (1. - ii / ncorr);
 		stringstream ssconc;
@@ -292,14 +340,15 @@ void SimulationUI::paint(juce::Graphics &g)
 			g.drawRect(m2, markheight);
 
 		// add corresponding time value
-    // here decide the number of gigits to display
+		// here decide the number of gigits to display
 		pow = round(log10(simul->totalTime->floatValue()));
-    ndigits = 0;
-    if (pow<=2) ndigits = -pow + 2;
+		ndigits = 0;
+		if (pow <= 2)
+			ndigits = -pow + 2;
 
-		//x -= 3 * pow;
-    int boxwidth = 100;
-		juce::Rectangle<int> tpos2(x-boxwidth/2, y + 10, boxwidth, 5);
+		// x -= 3 * pow;
+		int boxwidth = 100;
+		juce::Rectangle<int> tpos2(x - boxwidth / 2, y + 10, boxwidth, 5);
 		float time = simul->totalTime->floatValue() * ii / ncorr;
 		stringstream sstime;
 		sstime << fixed << setprecision(ndigits) << time;
@@ -310,8 +359,6 @@ void SimulationUI::paint(juce::Graphics &g)
 			g.drawText(text, tpos2, Justification::centred, true);
 	} // end loop over ticks
 
-  
-  
 } // end method paint
 
 void SimulationUI::resized()
@@ -319,11 +366,11 @@ void SimulationUI::resized()
 	juce::Rectangle<int> r = getLocalBounds();
 	juce::Rectangle<int> hr = r.removeFromTop(firstLineHeight);
 
-	int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth() + 15 + epsilonEqUI->getWidth() + 15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
+	int width1 = volumeUI->getWidth() + 20 + dtUI->getWidth() + 20 + detectEqUI->getWidth() + 15 + epsilonEqUI->getWidth() + 15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
 
 	hr.reduce((hr.getWidth() - width1) / 2, 0);
-volumeUI->setBounds(hr.removeFromLeft(volumeUI->getWidth()));
-hr.removeFromLeft(20);	
+	volumeUI->setBounds(hr.removeFromLeft(volumeUI->getWidth()));
+	hr.removeFromLeft(20);
 	dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
 	hr.removeFromLeft(20);
 	detectEqUI->setBounds(hr.removeFromLeft(detectEqUI->getWidth()));
@@ -371,11 +418,9 @@ hr.removeFromLeft(20);
 	// juce::Rectangle<int> butr = br.removeFromRight(100);
 	// saveSimBT.setBounds(butr.removeFromTop(50).reduced(10));
 	// loadSimBT.setBounds(butr.removeFromBottom(50).reduced(10));
-  
 
-  //juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
-  juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
-
+	// juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
+	juce::Rectangle<int> explore = br.removeFromBottom(40).reduced(5);
 
 	ignoreFreeEnergyUI->setBounds(explore.removeFromLeft(145));
 	explore.removeFromLeft(20);
@@ -383,17 +428,16 @@ hr.removeFromLeft(20);
 	explore.removeFromLeft(20);
 	concentrationModeUI->setBounds(explore.removeFromLeft(110));
 	explore.removeFromLeft(20);
-	gillespieModeUI->setBounds(explore.removeFromLeft(110));	
+	gillespieModeUI->setBounds(explore.removeFromLeft(110));
 
-  
 	setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));
 	explore.removeFromRight(10);
 	setSteadyStateUI->setBounds(explore.removeFromRight(setSteadyStateUI->getWidth()));
-  explore.removeFromRight(10);
-  setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
-  
-  juce::Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
-  spaceUI->setBounds(explore2.removeFromLeft(145));
+	explore.removeFromRight(10);
+	setRunUI->setBounds(explore.removeFromRight(setRunUI->getWidth()));
+
+	juce::Rectangle<int> explore2 = br.removeFromBottom(40).reduced(5);
+	spaceUI->setBounds(explore2.removeFromLeft(145));
 
 	paramsLabel.setBounds(br.reduced(10));
 }
@@ -415,8 +459,10 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 			simul->cancelTrigger->trigger();
 		else
 		{
-      cout << "HERE ?" << endl;
+			cout << "HERE ?" << endl;
 			entityHistory.clear();
+			entityGillespieHistory.clear();
+			times.clear();
 			entityColors.clear();
 			simul->startTrigger->trigger();
 		}
@@ -481,6 +527,8 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	{
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
+		entityGillespieHistory.clear();
+		times.clear();
 		entityColors.clear();
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
@@ -489,41 +537,50 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	break;
 
 	case Simulation::SimulationEvent::STARTED:
-  {
-    entityColors = ev.entityColors;
-    if (ev.run == simul->runToDraw)
-      entityHistory.add(ev.entityValues);
-    //cout << "SimulationEvent::STARTED in UI" << endl;
-    //for (auto & [pair, conc] : ev.entityValues)
-    //  cout << pair.first << " : " << pair.second << " --> " << conc << endl;
-  }
+	{
+		entityColors = ev.entityColors;
+		if (ev.run == simul->runToDraw)
+			entityHistory.add(ev.entityValues);
+		// cout << "SimulationEvent::STARTED in UI" << endl;
+		// for (auto & [pair, conc] : ev.entityValues)
+		//   cout << pair.first << " : " << pair.second << " --> " << conc << endl;
+	}
 	break;
 
 	case Simulation::SimulationEvent::NEWSTEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-    if (ev.run == simul->runToDraw)
-      entityHistory.add(ev.entityValues);
+		if (ev.run == simul->runToDraw)
+			entityHistory.add(ev.entityValues);
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 
 		if (simul->realTime->boolValue() && ev.run == simul->runToDraw)
 			shouldRepaint = true;
 	}
+	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
+	{
+		// if (ev.curStep % uiStep == 0)
+		if (ev.run == simul->runToDraw)
+			entityGillespieHistory.add(ev.entityGillespievalues);
+		times.add(ev.currentTime);
+		// print for debug
+		//   NLOG("Value", ev.entityValues[0]);
+	}
 	break;
-      
-  case Simulation::SimulationEvent::NEWRUN:
-  {
-  }
-  break;
+
+	case Simulation::SimulationEvent::NEWRUN:
+	{
+	}
+	break;
 
 	case Simulation::SimulationEvent::FINISHED:
 	{
 		shouldRepaint = true;
-    resized();
+		resized();
 		repaint();
 	}
-      
+
 	} // end switch
 }
 

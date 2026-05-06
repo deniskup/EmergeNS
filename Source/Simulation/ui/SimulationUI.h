@@ -22,7 +22,9 @@ public:
     bool shouldRepaint;
     //Array<Array<float>> entityHistory;
     juce::Array<ConcentrationGrid> entityHistory;
+    juce::Array<juce::Array<float>> entityGillespieHistory;
     juce::Array<juce::Colour> entityColors;
+    juce::Array<float> times;
   
     
 

@@ -346,6 +346,34 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
   
 }
 
+//for Gillespie
+double SimReaction::speed(bool isForward, double V){
+    double s = isForward?assocRate:dissocRate;
+    juce::Array<SimEntity *> vecEnt=isForward?reactants:products; // Si réaction forward, vecteur *vecEnt devient le vecteur des réactifs, sinon dans celui des produits
+
+    SimEntity* lastreac = NULL;
+    int compteur =0;
+    
+    // pourquoi *vecEnt et pas simplement vecEnt
+    for (const auto& er : vecEnt){
+        
+            if (er==lastreac){ // we assume that identical reactants are consecutive
+                compteur++;}
+            else {
+                compteur=0;
+            }
+            
+            if (er->number[0] <=0){
+                s*=0;
+            }
+            else {
+                s*= (er->number[0] - compteur)/V;
+            }
+			lastreac=er;
+        }
+    return s*V;
+    }
+
 
 void SimReaction::computeBarrier()
 {

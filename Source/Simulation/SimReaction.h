@@ -54,9 +54,11 @@ public:
 
 	float assocRate;
 	float dissocRate;
+
   float energy = -1.0f; // energy of the reaction, -1 if not set
   
 	void computeRate(bool noBarrier = false, bool noFreeEnergy = false); // #tkosc TODO should rename this function it calculates the kinetic constant rates and not the reaction rates. I suggest computeConstantRates(***)
+	double speed(bool isForward, double V);
   
   void computeBarrier();
 
