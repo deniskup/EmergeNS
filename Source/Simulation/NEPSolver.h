@@ -26,6 +26,8 @@ public:
     crn = _crn;
   };
   ~NEPSolver();
+  
+  void setReactionNetwork(CRNSnapshot _crn){crn = _crn;};
     
   double evalHamiltonian(const StateVec q, const StateVec p);
   

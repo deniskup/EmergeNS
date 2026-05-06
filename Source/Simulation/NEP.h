@@ -107,7 +107,7 @@ public:
   void onContainerTriggerTriggered(Trigger* t) override;
   void onChildContainerRemoved(ControllableContainer*) override;
   
-  
+  void buildReactionNetworkSnapshot();
   void reset();
   void stop();
   void run() override; // thread function

@@ -88,7 +88,6 @@ NEP::NEP() : ControllableContainer("NEP"),
   tolerance = convertStringToDouble(toleranceUI->stringValue());
  
   nepsolver = new NEPSolver();
-  
 }
 
 
@@ -172,6 +171,39 @@ void NEP::onChildContainerRemoved(ControllableContainer* cc)
 }
 
 
+// CRN snapshots
+// will have to update this when integrating heterogeneous space
+void NEP::buildReactionNetworkSnapshot()
+{
+  crn.entities.clear();
+  crn.reactions.clear();
+  // clone entities
+  for (auto & ent : simul->entities)
+  {
+    crn.entities.add(ent->clone().release());
+  }
+  
+  for (auto & ent : crn.entities)
+      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+  
+  // clone reactions
+  for (auto & r : simul->reactions)
+    {
+      Array<SimEntity*> reactants;
+      Array<SimEntity*> products;
+      for (auto & e : r->reactants)
+      {
+        reactants.add(crn.entities[e->idSAT]);
+      }
+      for (auto & e : r->products)
+      {
+        products.add(crn.entities[e->idSAT]);
+      }
+      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      crn.reactions.add(copyr);
+    }
+}
+
 
 void NEP::reset()
 {
@@ -198,6 +230,9 @@ void NEP::reset()
   nPoints = nPoints_start->intValue();
   //tolerance_mu = tolerance_mu_init;
   tolerance = convertStringToDouble(toleranceUI->stringValue());
+  
+  buildReactionNetworkSnapshot();
+  nepsolver->setReactionNetwork(crn);
 }
 
 
@@ -566,11 +601,13 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     StateVec pstar_prev;
     pstar_prev.insertMultiple(0, 0.1, n);
     // use results from previous iteration if succeeded
-    if (!justUpdatedSampling) // #TODO add check on previous GSL status
+    //jassert(g_times.size() == nPoints-1);
+    //jassert(g_pcurve.size() == nPoints-1);
+    if (!justUpdatedSampling && g_times.size()==nPoints & g_pcurve.size() == nPoints) // #TODO add check on previous GSL status
     {
       dt_prev = g_times.getUnchecked(point+1) - g_times.getUnchecked(point);
       //jassert(pstar_prev.size() == g_pcurve.size());
-      for (int m=0; m<g_pcurve.size(); m++)
+      for (int m=0; m<g_pcurve.getUnchecked(point).size(); m++)
       {
         double pm_center = 0.5*(g_pcurve.getUnchecked(point).getUnchecked(m) + g_pcurve.getUnchecked(point+1).getUnchecked(m));
         pstar_prev.setUnchecked(m, pm_center);
@@ -590,20 +627,46 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   
   
   
-  
-  
-  LiftResults output;
-  // build it from array liftResults
-  
   /*
+   struct LiftResults
+   {
+       pCurve pcurve;
+       juce::Array<double> times;
+       juce::Array<double> residuals_H;
+       juce::Array<juce::Array<double>> residuals_p;
+   };
    
-   gslStatus.add(-999);
-   convergenceSanityCheck.add(-999);
-   residuals_H.add(-999.);
+   struct NLSresults
+   {
+     int gslStatus;
+     int collinearTest;
+     double residual_H;
+     juce::Array<double> residuals_p;
+   };
+
+   */
+  
+  // build global lifting results
+  LiftResults output;
+  for (auto & res : nlsResults)
+  {
+    output.dt.add(res.dt);
+    output.pstar.add(res.pstar);
+    output.gslStatus.add(res.gslStatus);
+    output.collinearity.add(res.collinearTest);
+    output.residuals_H.add(res.residual_H);
+    output.residuals_p.add(res.residuals_p);
+  }
+  
+  
+   // add dummy values at the end so that output array sizes matches nPoints
+   output.gslStatus.add(-999);
+   output.collinearity.add(-999);
+   output.residuals_H.add(-999.);
    StateVec dummy_residual_p;
    dummy_residual_p.insertMultiple(0, -999., simul->entities.size());
-   residuals_p.add(dummy_residual_p);
-   */
+   output.residuals_p.add(dummy_residual_p);
+   
    
 
   return output;
@@ -854,6 +917,7 @@ void NEP::setTimeNormalizationFactor()
     tsfac = 1.;
   }
   crn.timescale_factor = tsfac;
+  nepsolver->setReactionNetwork(crn);
 }
 
 
