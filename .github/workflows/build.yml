@@ -155,7 +155,7 @@ jobs:
           path: ./Package/${{ steps.create_package.outputs.pkg-name }}
 
   osx-arm:
-    if: false # tmp disable
+    #if: false # tmp disable
     name: macOS ARM64
     runs-on: macos-latest
 
@@ -226,7 +226,7 @@ jobs:
           path: ./Package/${{ steps.create_package.outputs.pkg-name }}
 
   linux:
-    if: false # tmp disable
+    #if: false # tmp disable
 
     name: Linux
     runs-on: ubuntu-latest
