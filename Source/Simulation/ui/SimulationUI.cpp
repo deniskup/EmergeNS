@@ -7,7 +7,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 //    loadSimBT("Load")
 // uiStep(1)
 {
-
+volumeUI.reset(simul->volume->createLabelParameter());
+	volumeUI->setSuffix(" L");
 	dtUI.reset(simul->dt->createLabelParameter());
 	dtUI->setSuffix(" s");
 	totalTimeUI.reset(simul->totalTime->createLabelParameter());
@@ -25,7 +26,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	autoScaleUI.reset(simul->autoScale->createToggle());
 	ignoreFreeEnergyUI.reset(simul->ignoreFreeEnergy->createToggle());
 	ignoreBarriersUI.reset(simul->ignoreBarriers->createToggle());
-  stochasticityUI.reset(simul->stochasticity->createToggle());
+  concentrationModeUI.reset(simul->concentrationMode->createUI());
+	gillespieModeUI.reset(simul->gillespieMode->createToggle());
 	spaceUI.reset(simul->isSpace->createToggle());
 	detectEqUI.reset(simul->detectEquilibrium->createToggle());
 	epsilonEqUI.reset(simul->epsilonEq->createLabelParameter());
@@ -36,7 +38,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	// local parameter, won't be saved in the file.
 	// maxC.reset(new FloatParameter("MaxC","descr",5.f,0));
 	// maxCUI.reset(maxC->createLabelParameter())
-
+volumeUI->setSize(150, 20);
 	dtUI->setSize(150, 20);
 	totalTimeUI->setSize(200, 20);
 	perCentUI->setSize(100, 20);
@@ -55,6 +57,7 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	setCACUI->setSize(70, 20);
 	setSteadyStateUI->setSize(100, 20);
 
+addAndMakeVisible(volumeUI.get());
 	addAndMakeVisible(dtUI.get());
 	addAndMakeVisible(totalTimeUI.get());
 	addAndMakeVisible(maxConcentUI.get());
@@ -69,7 +72,8 @@ SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInsta
 	addAndMakeVisible(pointsDrawnUI.get());
 	addAndMakeVisible(ignoreFreeEnergyUI.get());
 	addAndMakeVisible(ignoreBarriersUI.get());
-  addAndMakeVisible(stochasticityUI.get());
+  addAndMakeVisible(concentrationModeUI.get());
+	addAndMakeVisible(gillespieModeUI.get());
 	addAndMakeVisible(spaceUI.get());
 	addAndMakeVisible(detectEqUI.get());
 	addAndMakeVisible(epsilonEqUI.get());
@@ -318,7 +322,8 @@ void SimulationUI::resized()
 	int width1 = dtUI->getWidth() + 20 + detectEqUI->getWidth() + 15 + epsilonEqUI->getWidth() + 15 + totalTimeUI->getWidth() + 20 + pointsDrawnUI->getWidth();
 
 	hr.reduce((hr.getWidth() - width1) / 2, 0);
-
+volumeUI->setBounds(hr.removeFromLeft(volumeUI->getWidth()));
+hr.removeFromLeft(20);	
 	dtUI->setBounds(hr.removeFromLeft(dtUI->getWidth()));
 	hr.removeFromLeft(20);
 	detectEqUI->setBounds(hr.removeFromLeft(detectEqUI->getWidth()));
@@ -376,7 +381,9 @@ void SimulationUI::resized()
 	explore.removeFromLeft(20);
 	ignoreBarriersUI->setBounds(explore.removeFromLeft(120));
 	explore.removeFromLeft(20);
-	stochasticityUI->setBounds(explore.removeFromLeft(110));
+	concentrationModeUI->setBounds(explore.removeFromLeft(110));
+	explore.removeFromLeft(20);
+	gillespieModeUI->setBounds(explore.removeFromLeft(110));	
 
   
 	setCACUI->setBounds(explore.removeFromRight(setCACUI->getWidth()));

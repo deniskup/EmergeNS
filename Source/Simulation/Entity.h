@@ -25,6 +25,10 @@ public:
 	FloatParameter* destructionRate; // proportional to concentration
 	FloatParameter* freeEnergy;
 	BoolParameter* draw;
+	
+	//for Gillespie
+    int startNumber; //start number of entities for Gillespie mode
+	int number; //current number of entities for Gillespie mode
 
 	SimEntity* simEnt = nullptr; // corresponding simEntity
 

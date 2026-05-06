@@ -71,7 +71,7 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   
   // additionnal configurations
   simul->autoScale->setValue(true);
-  simul->stochasticity->setValue(true);
+  simul->concentrationMode->setValue(1); // Stochastic
   GlobalSettings::getInstance()->logAutosave->setValue(false); // autosave pretty annoying in the case of this study
   Settings::getInstance()->printHistoryToFile->setValue(printDynamics2File);
   

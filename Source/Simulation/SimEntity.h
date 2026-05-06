@@ -47,9 +47,12 @@ public:
     //float concent;
     juce::Array<float> concent; // size = number of patches
     //float deterministicConcent;
+
     juce::Array<float> deterministicConcent;
     //float startConcent;
     juce::Array<float> startConcent;
+    juce::Array<int> number; //number of entities for Gillespie
+    juce::Array<int> startNumber; //for Gillespie
     //float previousConcent;
     juce::Array<float> previousConcent;
     float creationRate; // could be heterogeneous in space. Left homogeneous for now

@@ -54,6 +54,7 @@ public:
 
 	IntParameter* perCent;
 	BoolParameter* finished;
+	FloatParameter* volume;
 	FloatParameter* dt;
 	FloatParameter* totalTime;
 	//BoolParameter *loadToManualByDefault;
@@ -66,8 +67,11 @@ public:
 	BoolParameter* ignoreFreeEnergy;
 	BoolParameter* ignoreBarriers;
   
-  // demographic noise
-  BoolParameter* stochasticity;
+  // concentration mode (deterministic/stochastic/off)
+  EnumParameter* concentrationMode;
+
+  //Gillespie mode
+  BoolParameter* gillespieMode;
   
   // simulation in space
   BoolParameter * isSpace;

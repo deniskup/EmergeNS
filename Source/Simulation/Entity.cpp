@@ -16,9 +16,10 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 	setHasCustomColor(true);
 	updateInterface();
 	primary->hideInEditor = true;
-  
-  startConcent->isSavable = false;
-  concent->isSavable = false;
+//don't know why it was false
+//   startConcent->isSavable = false;
+//   concent->isSavable = false;
+
 }
 
 void Entity::updateInterface()
@@ -29,9 +30,7 @@ void Entity::updateInterface()
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
 	concent->hideInEditor = chemostat->boolValue();
-	queuedNotifier.addMessage(new ContainerAsyncEvent(ContainerAsyncEvent::ControllableContainerNeedsRebuild, this));
 }
-
 //Entity::Entity(SimEntity *e) : Entity(var())
 Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 {
@@ -42,9 +41,14 @@ Entity::Entity(SimEntity *e, int patchid) : Entity(var())
   
 	startConcent->setValue(e->startConcent[patchid]);
 	concent->setValue(e->concent[patchid]);
-  
+
+
 	freeEnergy->setValue(e->freeEnergy);
 	itemColor->setColor(e->color);
+
+	number = e->number[patchid];
+	startNumber = e->startNumber[patchid];
+
 	colorIsSet = true;
 	e->entity = this;
 	level = e->level;

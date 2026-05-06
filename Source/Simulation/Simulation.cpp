@@ -25,7 +25,7 @@ juce_ImplementSingleton(Simulation)
   //                             space(new Space(this))
 {
   simNotifier.dropMessageOnOverflow = false;
-
+  volume = addFloatParameter("Volume", "Volume of the simulation", 1.f, 0.001f); 
   dt = addFloatParameter("dt", "time step in ms", .01, 0.f);
   totalTime = addFloatParameter("Total Time", "Total simulated time in seconds", 1.f, 0.f);
   pointsDrawn = addIntParameter("Checkpoints", "Number of checkpoints to draw points and observe RACs", 100, 1);
@@ -53,7 +53,11 @@ juce_ImplementSingleton(Simulation)
   setRun = addEnumParameter("Set Run", "Draw concentration dynamics associated to chosen run");
   ignoreFreeEnergy = addBoolParameter("Ignore Free Energy", "Ignore free energy of entities in the simulation", false);
   ignoreBarriers = addBoolParameter("Ignore Barriers", "Ignore barrier energy of reactions in the simulation", false);
-  stochasticity = addBoolParameter("Stochasticity", "Add stochasticity in the simulation dynamics", false);
+  concentrationMode = addEnumParameter("Concentration Mode", "Select concentration mode for the simulation");
+  concentrationMode->addOption("Deterministic", 0, true);
+  concentrationMode->addOption("Stochastic", 1);
+  concentrationMode->addOption("Off", 2);
+  gillespieMode = addBoolParameter("Gillespie Mode", "Enable Gillespie stochastic simulation", false);
   isSpace = addBoolParameter("Heterogeneous space", "Is heterogeneous space included in the simulation", false);
 
   
@@ -1659,7 +1663,8 @@ void Simulation::resetBeforeRunning()
   
   // init kinetic law class
   float noiseEpsilon = Settings::getInstance()->epsilonNoise->floatValue();
-  kinetics = new KineticLaw(stochasticity->boolValue(), noiseEpsilon);
+  bool stochasticity = concentrationMode->intValue() == 1;
+  kinetics = new KineticLaw(stochasticity, noiseEpsilon);
   if (Settings::getInstance()->fixedSeed->boolValue()==true)
   {
     string strSeed = string(Settings::getInstance()->randomSeed->stringValue().toUTF8());
@@ -2008,7 +2013,8 @@ void Simulation::resetForNextRun()
   }
   
   // reset the seed
-  if (!Settings::getInstance()->fixedSeed->boolValue() && stochasticity->boolValue())
+  bool stochasticity = concentrationMode->intValue() == 1;
+  if (!Settings::getInstance()->fixedSeed->boolValue() && stochasticity)
     kinetics->shakeSeedValue();
   
   // message to listeners

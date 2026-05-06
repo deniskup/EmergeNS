@@ -30,6 +30,7 @@ public:
     // TextButton loadSimBT;
 
     // std::unique_ptr<IntStepperUI> maxStepsUI;
+    unique_ptr<FloatParameterLabelUI> volumeUI;
     unique_ptr<FloatParameterLabelUI> dtUI;
     unique_ptr<FloatParameterLabelUI> totalTimeUI;
     unique_ptr<IntSliderUI> perCentUI;
@@ -44,7 +45,8 @@ public:
     unique_ptr<IntParameterLabelUI> pointsDrawnUI;
     unique_ptr<BoolToggleUI> ignoreFreeEnergyUI;
     unique_ptr<BoolToggleUI> ignoreBarriersUI;
-    unique_ptr<BoolToggleUI> stochasticityUI;
+    unique_ptr<EnumParameterUI> concentrationModeUI;
+    unique_ptr<BoolToggleUI> gillespieModeUI;
     unique_ptr<BoolToggleUI> spaceUI;
     unique_ptr<BoolToggleUI> detectEqUI;
     unique_ptr<FloatParameterLabelUI> epsilonEqUI;
