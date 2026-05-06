@@ -558,6 +558,8 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		if (simul->realTime->boolValue() && ev.run == simul->runToDraw)
 			shouldRepaint = true;
 	}
+	break;
+	
 	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
 	{
 		// if (ev.curStep % uiStep == 0)

@@ -2069,10 +2069,16 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
+  if (currentTime > totalTime->floatValue())
+  {
+    stop();
+    return;
+  }
  
 
- if( !gillespieMode->boolValue() || nextConcStep < nextGillespieStep)
+ if( (!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
  {
+  cout << "conc step: "<< currentTime <<endl;
   currentTime+=nextConcStep;
   if(gillespieMode->boolValue()) nextGillespieStep-=nextConcStep;
   nextConcStep=dt->floatValue();
@@ -2080,10 +2086,14 @@ void Simulation::masterStep()
  }
  else
  {
-  if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
-  currentTime+=nextGillespieStep;
-  nextGillespieStep=gillespieStep();
+  cout << "gillespie step: "<< currentTime <<endl;
 
+  currentTime+=nextGillespieStep;
+    if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
+  else{
+    perCent->setValue((int)((currentTime * 100) / (totalTime->floatValue())));
+  }
+  nextGillespieStep=gillespieStep();
   if(nextGillespieStep < 0)
   {
    cancel();
@@ -2202,6 +2212,7 @@ simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, t
 
 return tau;
 }
+
 void Simulation::nextStep()
 {
   if (nSteps == 0) // keep track of first step ( = initial state)
@@ -2272,7 +2283,6 @@ void Simulation::nextStep()
   {
     updateSinglePatchRates(patch, isCheck);
   }
-  if(gillespieMode->boolValue()) tau=gillespieStep(); //we just do gillespie in the first patch
 
   // refresh entity concentrations
   float maxVar = 0.;
