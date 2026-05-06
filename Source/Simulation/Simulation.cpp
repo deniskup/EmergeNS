@@ -2069,17 +2069,19 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
- float mindt= min(nextConcStep, nextGillespieStep);
- currentTime+=mindt;
- if(mindt==nextConcStep || gillespieMode->boolValue()==false)
+ 
+
+ if( !gillespieMode->boolValue() || nextConcStep < nextGillespieStep)
  {
-  if(gillespieMode->boolValue()) nextGillespieStep-=mindt;
+  currentTime+=nextConcStep;
+  if(gillespieMode->boolValue()) nextGillespieStep-=nextConcStep;
   nextConcStep=dt->floatValue();
   nextStep();
  }
  else
  {
-  if(concentrationMode->intValue() != 2) nextConcStep-=mindt;
+  if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
+  currentTime+=nextGillespieStep;
   nextGillespieStep=gillespieStep();
 
   if(nextGillespieStep < 0)
