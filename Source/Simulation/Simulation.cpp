@@ -1633,6 +1633,11 @@ void Simulation::resetBeforeRunning()
   {
     e->concent = e->startConcent;
     e->deterministicConcent = e->startConcent;
+    // reset number of entities to their start value, in each patch, for Gillespie
+    for (int patchIndex = 0; patchIndex < Space::getInstance()->nPatch; ++patchIndex)
+    {
+      e->number.set(patchIndex, (int)(e->startConcent[patchIndex] * volume->floatValue()));
+    }
   }
 
 

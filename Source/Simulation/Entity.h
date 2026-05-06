@@ -26,9 +26,9 @@ public:
 	FloatParameter* freeEnergy;
 	BoolParameter* draw;
 	
-	//for Gillespie
-    int startNumber; //start number of entities for Gillespie mode
-	int number; //current number of entities for Gillespie mode
+	//for Gillespie (probably unnecessary)
+    // int startNumber; //start number of entities for Gillespie mode
+	// int number; //current number of entities for Gillespie mode
 
 	SimEntity* simEnt = nullptr; // corresponding simEntity
 

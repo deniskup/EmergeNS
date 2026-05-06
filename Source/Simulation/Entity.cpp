@@ -46,8 +46,8 @@ Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 	freeEnergy->setValue(e->freeEnergy);
 	itemColor->setColor(e->color);
 
-	number = e->number[patchid];
-	startNumber = e->startNumber[patchid];
+	// number = e->number[patchid];
+	// startNumber = e->startNumber[patchid];
 
 	colorIsSet = true;
 	e->entity = this;

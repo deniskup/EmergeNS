@@ -51,8 +51,7 @@ public:
     juce::Array<float> deterministicConcent;
     //float startConcent;
     juce::Array<float> startConcent;
-    juce::Array<int> number; //number of entities for Gillespie
-    juce::Array<int> startNumber; //for Gillespie
+    juce::Array<int> number; //number of entities for GillespieF
     //float previousConcent;
     juce::Array<float> previousConcent;
     float creationRate; // could be heterogeneous in space. Left homogeneous for now
