@@ -1063,9 +1063,13 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
   double residual_mu = ev_p.solver->evalHamiltonian(ev_p.q, p_initial);
   
   // iteration on mu
-  while (!converged && iter_mu <= maxiteration)
+  //while (!converged && iter_mu <= maxiteration)
+  while (!converged && iter_mu <= 10)
   {
-    //cout << "iter_mu = " << iter_mu << endl;
+    if (idx==5)
+    {
+      cout << "iter_mu = " << iter_mu << ". mu : " << std::exp(s_mu->root) << ". ev_p.mu : " << std::exp(ev_p.s) << endl;
+    }
     
     iter_mu++;
     //gslstatus_p = GSL_CONTINUE;
@@ -1081,6 +1085,7 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
       maxiter_p = 5;
     else if (abs(residual_mu) > 100*tolerance)
       maxiter_p = 10;
+    maxiter_p = maxiteration;
     converged_p = solveForMomentumAtFixedMu_LF(s_p, ev_p, tolerance, maxiter_p);
     
     // retrieve current momentum
@@ -1089,12 +1094,38 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
     for (int k=0; k<s_p->x->size; k++)
       currentP.setUnchecked(k, gsl_vector_get(s_p->x, k));
     
+    // debugging
+    if (idx==5)
+    {
+      cout << "p : ";
+      for (auto pk : currentP)
+        cout << pk << " ";
+      cout << endl;
+      cout << "residuals on p:" << endl;
+      StateVec dHdp = ev_p.solver->evalHamiltonianGradientWithP(ev_p.q, currentP);
+      for (int k=0; k<dHdp.size(); k++)
+      {
+        cout << dHdp.getUnchecked(k) - std::exp(ev_p.s) * ev_p.dq.getUnchecked(k) / ev_p.dq_norm2 << endl;
+      }
+    }
+    
     // pass momentum value to solver in mu
     ev_mu.p = currentP;
     fdf_mu.params = &ev_mu;
     
+    if (idx==5)
+    {
+      cout << "ev_mu.p : ";
+      for (auto pk : ev_mu.p)
+        cout << pk << " ";
+      cout << endl;
+    }
+    
     // residual in mu
     residual_mu = ev_p.solver->evalHamiltonian(ev_p.q, currentP);
+    
+    if (idx==5)
+      cout << "residuals on mu: " <<  residual_mu<< endl;
     
     // global convergence status
     if (abs(residual_mu) < tolerance && converged_p)
@@ -1106,20 +1137,20 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
     
     // update on mu with a single iteration
     double mu_new;
+    converged_p = true;
     if (!converged_p) // smooth update on mu and proceed to next iteration
     {
       StateVec dHdp = ev_p.solver->evalHamiltonianGradientWithP(ev_p.q, currentP);
       mu_new = smoothUpdateOnMu(dHdp, ev_p.dq, ev_p.dq_norm2);
       s_mu->root = mu_new;
       //cout << "smooth update on mu as failed in p : " << mu << " and s = " << ev_p.s << endl;
-      continue;
     }
     else
     {
       gslstatus_mu = gsl_root_fdfsolver_iterate(s_mu);
       mu_new = s_mu->root;
     }
-    
+      
     // check that mu_new value is valid
     if (isnan(mu_new) || isinf(mu_new) || mu_new<=0.)
     {
@@ -1129,9 +1160,10 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
     
     // safety guard
     mu_new = std::max(mu_new, 1e-12);
-      
+    double s_new = std::log(mu_new);
+    s_mu->root = s_new;
     // update mu in p solver
-    ev_p.s = log(mu_new);
+    ev_p.s = s_new;
     
     // printing
     //StateVec v1 = evalHamiltonianGradientWithP(ev_p.qcenter, currentP);
@@ -1360,6 +1392,15 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     for (int i=0; i<n_local; i++)
       gsl_vector_set(p, i, ev.pstar_prev.getUnchecked(i));
     
+    // init s0 value, mu = ||dq|| / dt = exp(s)
+    double s0 = 0.;
+    if (ev.dt_prev>0. && ev.dq_norm2>0.)
+      s0 = std::log(ev.dq_norm2 / ev.dt_prev);
+    
+    // pass s0 value to params of solver in p
+    ev.s = s0;
+    fdf_min.params = &ev;
+    
     // init gsl minimizer with derivative
     //const gsl_multimin_fdfminimizer_type * T = gsl_multimin_fdfminimizer_conjugate_fr; //gsl_multimin_fdfminimizer_vector_bfgs2;
     const gsl_multimin_fdfminimizer_type * T = gsl_multimin_fdfminimizer_vector_bfgs2; //gsl_multimin_fdfminimizer_vector_bfgs2;
@@ -1386,10 +1427,13 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     fdf_mu.fdf = residual4GSL_mu_fdf_opt; // combines function to evaluate and the jacobian
     fdf_mu.params = &evmu;
     
+    
+    
+    
     // init gsl solver with derivative
     const gsl_root_fdfsolver_type * T_mu = gsl_root_fdfsolver_steffenson; //gsl_root_fdfsolver_newton;
     gsl_root_fdfsolver * s_mu = gsl_root_fdfsolver_alloc(T_mu);
-    gsl_root_fdfsolver_set(s_mu, &fdf_mu, ev.dt_prev);
+    gsl_root_fdfsolver_set(s_mu, &fdf_mu, s0);
     
     // actual solving
     gslStatus = gslMultirootSolving_LF(s_p, s_mu, fdf_min, fdf_mu, ev, evmu);

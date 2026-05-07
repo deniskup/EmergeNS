@@ -599,7 +599,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     
     double dt_prev = 1.;
     StateVec pstar_prev;
-    pstar_prev.insertMultiple(0, 0.1, n);
+    pstar_prev.insertMultiple(0, 0.1, n-1);
     // use results from previous iteration if succeeded
     //jassert(g_times.size() == nPoints-1);
     //jassert(g_pcurve.size() == nPoints-1);
