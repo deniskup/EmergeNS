@@ -35,6 +35,12 @@ typedef juce::Array<Monom> Polynom; // a polynom is a sum of monom
 //typedef Array<float> State; // a witness is a vector of concentrations
 typedef juce::Array<pair<SimEntity*, float>> State; // a witness is a vector of concentrations
 
+struct Eigenvalue
+{
+  float real;
+  float imag;
+};
+
 class SteadyState
 {
 public:
@@ -48,7 +54,7 @@ public:
   int postiveEigenVal = 0; // number of positive eigenvalues. 0 -> stable, >0 -> unstable
   bool isStable = true;
   bool isPartiallyStable = false; // for border steady states only
-  
+  juce::Array<Eigenvalue> eigenvalues; 
   juce::var toJSONData();
 };
 

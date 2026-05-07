@@ -2051,7 +2051,7 @@ void NEP::debuggingFunction()
   
   //StateVec qi = {1.58916000, 1.03974000};
   //StateVec pi = {0.01967720, 0.00082215};
-  
+  /*
   StateVec qi = {1.58310479, 1.04183355};
   StateVec pi = {0.01985969, 0.00110143};
   
@@ -2090,6 +2090,7 @@ void NEP::debuggingFunction()
   }
   
   output.close();
+  */
   
 }
 
