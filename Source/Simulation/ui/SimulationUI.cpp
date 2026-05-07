@@ -247,7 +247,6 @@ void SimulationUI::paint(juce::Graphics &g)
 		{
 			tmax = jmax(tmax, times[i]);
 		}
-		 cout << "Gillespie tmax : " << tmax << endl;
 
 		for (int i = 0; i < entityGillespieHistory.size(); i++)
 		{

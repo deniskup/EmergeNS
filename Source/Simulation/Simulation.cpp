@@ -2082,7 +2082,7 @@ void Simulation::masterStep()
 
  if( (!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
  {
-  cout << "conc step: "<< currentTime <<endl;
+  //cout << "conc step: "<< currentTime <<endl;
   currentTime+=nextConcStep;
   if(gillespieMode->boolValue()) nextGillespieStep-=nextConcStep;
   nextConcStep=dt->floatValue();
@@ -2090,8 +2090,7 @@ void Simulation::masterStep()
  }
  else
  {
-  cout << "gillespie step: "<< currentTime <<endl;
-
+  //cout << "gillespie step: "<< currentTime <<endl;
   currentTime+=nextGillespieStep;
     if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
   else{
