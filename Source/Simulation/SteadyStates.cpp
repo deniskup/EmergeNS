@@ -363,8 +363,14 @@ void SteadyStateslist::printSteadyStatesToFile()
     {
       out << "\t\t[" << c.first->name << "] = " << c.second << endl;
     }
-    out << endl;
+    out.precision(5);
+    out << "\t-- eigenvalues -- " << sst.eigenvalues.size() << endl;
+    for (auto& ev : sst.eigenvalues)
+    {
+      out << ev.real << "\t+ " << ev.imag << " i" << endl;
+    }
     c++;
+    out << endl;
   }
 }
 
@@ -822,7 +828,6 @@ bool SteadyStateslist::computeWithMSolve()
 
   //cout << "setting msolve path" << endl;
   // compute steady states
-  setMSolvepath();
   // msolvepath = "/home/thomas/Modèles/msolve-0.6.5/msolve";
   
 
@@ -845,16 +850,43 @@ bool SteadyStateslist::computeWithMSolve()
   }
   */
 
-	// test msolve with dummy command
-	system("msolve -h > dummy.txt");
-	ifstream dummy("dummy.txt", ios::binary | ios::ate);
-	// Check if the command was executed successfully, ie if file exists
+  bool testPassed = false;
+
+  // test if msolve command is accessible
+  system("msolve -h > dummy.txt");
+  ifstream dummy("dummy.txt", ios::binary | ios::ate);
+  // Check if the command was executed successfully, ie if file exists
 	if (!dummy || dummy.tellg() == 0)
 	{
-		LOGWARNING("msolve not found, aborting.");
-    cleanLocalFolder();
-		return false;
+		LOG("msolve not directly accessible, trying with absolute path in Settings.");
+    setMSolvepath();
+    string msolvedummy = msolvepath + " -h > dummy.txt ";
+    system(msolvedummy.c_str());
+    ifstream dummy2("dummy.txt", ios::binary | ios::ate);
+    if (!dummy2 || dummy2.tellg() == 0)
+    {
+      LOGWARNING("msolve not accessible with path specified");
+      testPassed = false;
+    }
+    else
+    {
+      LOG("msolve path in Settings is correct.");
+      testPassed = true;
+    }
 	}
+  else
+  {
+    msolvepath = "./";
+    testPassed = true;
+  }
+
+  if (!testPassed)
+  {
+    LOGWARNING("msolve command not accessible, exit.");
+    cleanLocalFolder();
+    return false;
+  }
+
 
   
   string inputFile = "msolveSteadyConstraints.ms";
@@ -1453,7 +1485,7 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 	Eigen::ComplexSchur<Eigen::MatrixXd> cs;
 	cs.compute(jm);
   
-  SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
+  SteadyState & witness = arraySteadyStates.getReference(sst_index);
 
 	// just in case it failed, print a warning
 	if (cs.info() != Eigen::Success)
@@ -1478,13 +1510,18 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 	// sparse signs of real part of diagonal elements
 	//bool isCertain = true;
   int nPositiveEig = 0; // numer of eigenvalues with positive real parts
+  arraySteadyStates.getReference(sst_index).eigenvalues.clear();
 	for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
 	{
     //cout << "\t" << triang(i, i).real() << endl;
     if (triang(i, i).real() > 0.) // maybe use epsilon instead of 0 to be more safe ?
       nPositiveEig++;
+    Eigenvalue ev;
+    ev.real = triang(i, i).real();
+    ev.imag = triang(i, i).imag();
+    arraySteadyStates.getReference(sst_index).eigenvalues.add(ev);
 	}
-  //cout << "Npositive eigenvalues = " << nPositiveEig << endl;
+  cout << "added Neigenvalues = " << arraySteadyStates.getReference(sst_index).eigenvalues.size() << endl;
   witness.postiveEigenVal = nPositiveEig;
   if (nPositiveEig == 0)
   {
@@ -1514,7 +1551,7 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 //bool SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, SteadyState &witness)
 void SteadyStateslist::isPartiallyStable(Eigen::MatrixXd &jm, int sst_index)
 {
-  SteadyState witness = arraySteadyStates.getUnchecked(sst_index);
+  SteadyState & witness = arraySteadyStates.getReference(sst_index);
   
 	// retrieve index where witness elements are 0
 	Array<int> zeroindex;
@@ -1608,6 +1645,10 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     // is steady state globally stable ?
     //bool stable = isStable(jm, witness);
     isStable(jm, iw, true);
+
+    
+    cout << "sst n eigenvalues : " << arraySteadyStates.getUnchecked(iw).eigenvalues.size() << endl;
+    
 
     
     //if (stable) cout << " Steady State #" << iw << " --> stable !" << endl;

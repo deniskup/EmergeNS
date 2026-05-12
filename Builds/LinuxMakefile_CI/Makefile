@@ -103,6 +103,8 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/Space_958d9267.o \
   $(JUCE_OBJDIR)/Util_9d757a8b.o \
   $(JUCE_OBJDIR)/NEP_c53a407a.o \
+  $(JUCE_OBJDIR)/NEPSolver_c8ac136d.o \
+  $(JUCE_OBJDIR)/NEPWorker_c3345958.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
   $(JUCE_OBJDIR)/MainComponent_a6ffb4a5.o \
   $(JUCE_OBJDIR)/MainComponentCommands_b1179f4d.o \
@@ -291,6 +293,16 @@ $(JUCE_OBJDIR)/Util_9d757a8b.o: ../../Source/Simulation/Util.cpp
 $(JUCE_OBJDIR)/NEP_c53a407a.o: ../../Source/Simulation/NEP.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling NEP.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/NEPSolver_c8ac136d.o: ../../Source/Simulation/NEPSolver.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling NEPSolver.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/NEPWorker_c3345958.o: ../../Source/Simulation/NEPWorker.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling NEPWorker.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp

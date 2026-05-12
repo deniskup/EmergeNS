@@ -99,6 +99,11 @@
         <FILE id="jLnPVN" name="Util.h" compile="0" resource="0" file="Source/Simulation/Util.h"/>
         <FILE id="Ut1fOp" name="NEP.cpp" compile="1" resource="0" file="Source/Simulation/NEP.cpp"/>
         <FILE id="k7jp4d" name="NEP.h" compile="0" resource="0" file="Source/Simulation/NEP.h"/>
+        <FILE id="lPACVG" name="NEPHelper.h" compile="0" resource="0" file="Source/Simulation/NEPHelper.h"/>
+        <FILE id="FB7JMC" name="NEPSolver.cpp" compile="1" resource="0" file="Source/Simulation/NEPSolver.cpp"/>
+        <FILE id="fXTAOE" name="NEPSolver.h" compile="0" resource="0" file="Source/Simulation/NEPSolver.h"/>
+        <FILE id="TTCXfU" name="NEPWorker.cpp" compile="1" resource="0" file="Source/Simulation/NEPWorker.cpp"/>
+        <FILE id="IScgQ8" name="NEPWorker.h" compile="0" resource="0" file="Source/Simulation/NEPWorker.h"/>
       </GROUP>
       <FILE id="DhDFEv" name="Main.h" compile="0" resource="0" file="Source/Main.h"/>
       <FILE id="aTodaX" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

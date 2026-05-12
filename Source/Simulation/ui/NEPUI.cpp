@@ -148,6 +148,12 @@ void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, juce::Rectangle<int> r,
     rangeY = abs(maxY);
     minY = std::min(0., minY);
     maxY = std::max(0., maxY);
+    if (rangeY == 0.)
+    {
+      minY = 0.;
+      minY = 1.;
+      rangeY = 1.;
+    }
   }
   
   /*
