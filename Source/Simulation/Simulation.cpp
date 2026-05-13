@@ -60,7 +60,10 @@ juce_ImplementSingleton(Simulation)
   gillespieMode = addBoolParameter("Gillespie Mode", "Enable Gillespie stochastic simulation", false);
   isSpace = addBoolParameter("Heterogeneous space", "Is heterogeneous space included in the simulation", false);
 
-  dt->setAttributeInternal("stringDecimals", DT_PRECISION);
+  int digitDt = Settings::getInstance()->digitsDt->intValue();
+  int digitVol = Settings::getInstance()->digitsVol->intValue();
+  dt->setAttributeInternal("stringDecimals", digitDt);
+  volume->setAttributeInternal("stringDecimals", digitVol);
   maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
   maxSteps = jmax(1, maxSteps);
 

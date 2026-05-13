@@ -1,10 +1,15 @@
 #include "Settings.h"
+#include "Simulation.h"
 using namespace juce;
 
 juce_ImplementSingleton(Settings);
 
 Settings::Settings() : ControllableContainer("Settings")
 {
+
+   digitsConc = addIntParameter("Digits Conc./Rates", "Number of digits for concentrations and rates", 3, 0,10);
+   digitsVol = addIntParameter("Digits Vol.", "Number of digits for volume", 3, 0,10);
+   digitsDt = addIntParameter("Digits dt", "Number of digits for dt", 5, 0, 10);
 
     minDiameterPACs = addIntParameter("Min PAC size", "Minimal size in PAC searching", 1, 1);
 
@@ -78,6 +83,34 @@ void Settings::onContainerParameterChanged(Parameter *p)
   else if (p == fixedSeed)
   {
     randomSeed->setControllableFeedbackOnly(!fixedSeed->boolValue());
+  }
+  else if (p==digitsConc)
+  {
+    //for all entities of EntityManager, update the stringDecimals attribute of their parameters 
+    for (auto e : EntityManager::getInstance()->items)
+    {
+      e->updateInterface(); //to apply the new precision
+      //update the text in the UI with the new precision
+      e->startConcent->notifyValueChanged();
+      e->concent->notifyValueChanged();
+      e->creationRate->notifyValueChanged();
+      e->destructionRate->notifyValueChanged();
+    }
+    // refresh the EntityManager UI to reflect updated decimal settings
+    //EntityManager::getInstance()->refreshUI();
+    
+  }
+  else if (p==digitsDt)
+  {
+    int timeDec = digitsDt->intValue();
+    Simulation::getInstance()->dt->setAttributeInternal("stringDecimals", timeDec);
+    Simulation::getInstance()->dt->notifyValueChanged();
+  }
+  else if (p==digitsVol)
+  {
+    int volDec = digitsVol->intValue();
+    Simulation::getInstance()->volume->setAttributeInternal("stringDecimals", volDec);
+    Simulation::getInstance()->volume->notifyValueChanged();
   }
 }
 

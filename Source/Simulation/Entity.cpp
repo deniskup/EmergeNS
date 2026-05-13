@@ -19,7 +19,6 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 //don't know why it was false
 //   startConcent->isSavable = false;
 //   concent->isSavable = false;
-
 }
 
 void Entity::updateInterface()
@@ -30,6 +29,12 @@ void Entity::updateInterface()
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
 	concent->hideInEditor = chemostat->boolValue();
+	//precision
+	int digitsConc = Settings::getInstance()->digitsConc->intValue();
+	startConcent->setAttributeInternal("stringDecimals", digitsConc);
+	concent->setAttributeInternal("stringDecimals", digitsConc);
+	creationRate->setAttributeInternal("stringDecimals", digitsConc);
+	destructionRate->setAttributeInternal("stringDecimals", digitsConc);
 }
 //Entity::Entity(SimEntity *e) : Entity(var())
 Entity::Entity(SimEntity *e, int patchid) : Entity(var())

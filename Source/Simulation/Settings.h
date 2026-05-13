@@ -14,6 +14,10 @@ public:
     Settings();
     ~Settings();
 
+    IntParameter *digitsConc; //number of digits for concentrations
+    IntParameter *digitsDt; //number of digits for dt
+    IntParameter *digitsVol; //number of digits for volume
+
     StringParameter *pathToz3;
     StringParameter *pathToMSolve;
 
