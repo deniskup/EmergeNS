@@ -244,8 +244,8 @@ void KineticLaw::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, fl
     ent->previousConcent.set(patchid, ent->concent[patchid]); // save concent in previousConcent to compute var speed
     
     // creation
-    if (ent->primary)
-    {
+   // if (ent->primary)
+    //{
       float incr = ent->creationRate * dt;
       float deterministicIncr = ent->creationRate * dt;
       
@@ -260,26 +260,26 @@ void KineticLaw::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, fl
       
       ent->increase(patchid, incr);
       ent->deterministicIncrease(patchid, deterministicIncr);
-    }
+   // }
     
     //destruction
     float rate = ent->concent[patchid] * ent->destructionRate;
-    float incr = rate * dt;
+    float decr = rate * dt;
     float deterministicRate = ent->deterministicConcent[patchid] * ent->destructionRate;
-    float deterministicIncr = deterministicRate * dt;
+    float deterministicDecr = deterministicRate * dt;
 
 
     // demographic noise
     if (useStochasticity)
     {
-      double stocIncr = sqrt(rate) * noiseEpsilon;
+      double stocDecr = sqrt(rate) * noiseEpsilon;
       float wiener = rgg->randomNumber() * sqrt(dt);
-      stocIncr *= wiener;
-      incr -= stocIncr;
+      stocDecr *= wiener;
+      decr -= stocDecr;
     } // end if stochasticity
     
-    ent->decrease(patchid, incr);
-    ent->deterministicDecrease(patchid, deterministicIncr);
+    ent->decrease(patchid, decr);
+    ent->deterministicDecrease(patchid, deterministicDecr);
     
 
   } // end loop over entities

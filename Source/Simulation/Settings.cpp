@@ -21,7 +21,7 @@ Settings::Settings() : ControllableContainer("Settings")
 
     multiPACs =  addBoolParameter("MultiPACs","Look for MultiPACs", false);
 
-    primFood = addBoolParameter("Primary food", "Only primary can be food", false);
+    //primFood = addBoolParameter("Primary food", "Only primary can be food", false);
 
     CACSetMax = addIntParameter("Max Set CACs", "Maximal simultaneous CACs to test", 6, 1);
 

@@ -1611,34 +1611,34 @@ void PAClist::PACsWithZ3()
 		}
 
 		// checking that foods are primary if this option is activated
-		if (Settings::getInstance()->primFood->boolValue())
-		{
-			for (auto &r : simul->reactions)
-			{
-				// if dir false, all non-food reactants must be true
+		// if (Settings::getInstance()->primFood->boolValue())
+		// {
+		// 	for (auto &r : simul->reactions)
+		// 	{
+		// 		// if dir false, all non-food reactants must be true
 
-				clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
-				for (auto &e : r->reactants)
-				{
-					if (!e->primary)
-					{
-						clauses << " ent" << e->idSAT;
-					}
-				}
-				clauses << ")))\n";
+		// 		clauses << "(assert (=> (and reac" << r->idSAT << " (not dir" << r->idSAT << ")) (and true";
+		// 		for (auto &e : r->reactants)
+		// 		{
+		// 			if (!e->primary)
+		// 			{
+		// 				clauses << " ent" << e->idSAT;
+		// 			}
+		// 		}
+		// 		clauses << ")))\n";
 
-				// same if dir is true with products
-				clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
-				for (auto &e : r->products)
-				{
-					if (!e->primary)
-					{
-						clauses << " ent" << e->idSAT;
-					}
-				}
-				clauses << ")))\n";
-			}
-		}
+		// 		// same if dir is true with products
+		// 		clauses << "(assert (=> (and reac" << r->idSAT << " dir" << r->idSAT << ") (and true";
+		// 		for (auto &e : r->products)
+		// 		{
+		// 			if (!e->primary)
+		// 			{
+		// 				clauses << " ent" << e->idSAT;
+		// 			}
+		// 		}
+		// 		clauses << ")))\n";
+		// 	}
+		// }
 	}
 
 	// if PACmustContain is a valid entity, then it must be in the PAC

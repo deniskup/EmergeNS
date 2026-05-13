@@ -31,7 +31,7 @@ public:
 
     BoolParameter *multiPACs; //look for multiPACs
 
-    BoolParameter *primFood; //only primary can be food
+    //BoolParameter *primFood; //only primary can be food
 
     IntParameter *CACSetMax; //maximal number of PACs to look for
     //IntParameter *maxDoubleReacPACs; //maximal number of double reactions to look for
