@@ -1503,6 +1503,18 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     gsl_root_fdfsolver_free(s_mu);
     gsl_vector_free(p);
   }
+  else if (nlsolverType == 3)
+  {
+
+    Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
+    app->Options()->SetNumericValue("tol", tolerance);
+    app->Options()->SetStringValue("mu_strategy", "adaptive");
+    app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+
+    // proble to solve
+    Ipopt::SmartPtr<TNLP> problem = new IPOPTProblem(ev, idx);
+    
+  }
   else
   {
     LOGWARNING("Non-linear solver to use not properly selected.");

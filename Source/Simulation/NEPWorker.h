@@ -18,9 +18,15 @@
 #include <gsl/gsl_blas.h>
 #include "gsl/gsl_multimin.h"
 
+#include "IpoptConfig.h"
+#include "IpIpoptApplication.hpp"
+#include "IpTNLP.hpp"
+
+
 #include <Eigen/Dense>
 
 using namespace std;
+using namespace Ipopt;
 
 
 struct EncapsVarForNLOpt {
@@ -56,6 +62,222 @@ struct EncapsVarForGSL_MU {
   double dq_norm2;
   NEPSolver * solver;
 };
+
+
+class IPOPTProblem : public TNLP
+{
+public:
+
+  IPOPTProblem(const EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
+
+
+    virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, IndexStyleEnum& index_style)
+    {
+        n = ev.n; // number of variables (p, mu)
+        m = 1; // number of constraints (H = 0)
+
+        nnz_jac_g = n*m -1; // non-zeros entries of the jacobian ! n*m -1
+        nnz_h_lag = 2; // Storage for the number of nonzero entries in the Hessian 
+
+        index_style = TNLP::C_STYLE;
+        return true;
+    }
+
+    virtual bool get_bounds_info(
+        Index n,
+        Number* x_l,
+        Number* x_u,
+        Index m,
+        Number* g_l,
+        Number* g_u)
+    {
+        for(int i=0;i<n;i++)
+        {
+            x_l[i] = -1e20;
+            x_u[i] =  1e20;
+        }
+
+        // equality constraints
+        for(int i=0;i<m;i++)
+        {
+            g_l[i] = 0.0;
+            g_u[i] = 0.0;
+        }
+
+        return true;
+    }
+
+    virtual bool get_starting_point(
+        Index n,
+        bool init_x,
+        Number* x,
+        bool init_z,
+        Number* z_L,
+        Number* z_U,
+        Index m,
+        bool init_lambda,
+        Number* lambda)
+    {
+        assert(init_x == true);
+
+        x[0] = 1.0;
+        x[1] = 1.0;
+        x[2] = 1.0;
+
+        return true;
+    }
+
+    // objective = 0
+    virtual bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
+    {
+        // extract p and mu from x
+        StateVec sv_p;
+        sv_p.insertMultiple(0, 0., n=1);
+        for (int i=0;i<n-1;i++)
+            sv_p.setUnchecked(i, x[i]);
+        Number mu = x[n-1];
+
+        // calculate hamiltonian
+        double H = ev.solver->evalHamiltonian(sv_p, ev.q);
+
+        // calcule scalar product p.v
+        Number pv = scalarProduct(sv_p, ev.dq)/ev.dq_norm2;
+   
+        obj_value = H - mu*pv;
+        return true;
+    }
+
+    virtual bool eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
+    {
+        // extract p and mu from x
+        StateVec sv_p;
+        sv_p.insertMultiple(0, 0., n=1);
+        for (int i=0;i<n-1;i++)
+            sv_p.setUnchecked(i, x[i]);
+        Number mu = x[n-1];
+
+        // calculate hamiltonian gradient with p
+        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
+
+        //f(p, mu) = H(p,q) - mu * p.v
+        for (int k=0;k<n-2;k++)
+        {
+            grad_f[k] = dHdp.getUnchecked(k) - mu*ev.dq.getUnchecked(k)/ev.dq_norm2;
+        }
+        grad_f[n-1] = scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
+
+
+        return true;
+    }
+
+    // constraints
+    virtual bool eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
+    {
+        // extract p from x
+        StateVec sv_p;
+        sv_p.insertMultiple(0, 0., n=1);
+        for (int i=0;i<n-1;i++)
+            sv_p.setUnchecked(i, x[i]);
+
+        Number h = ev.solver->evalHamiltonian(sv_p, ev.q);
+        g[0] = h; // H(p,q) = 0
+
+        return true;
+    }
+
+    // Jacobian of constraints
+    virtual bool eval_jac_g(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Index m,
+        Index nele_jac,
+        Index* iRow,
+        Index *jCol,
+        Number* values)
+    {
+        if (values == nullptr)
+        {
+            for (int j=0; j<n-1; j++)
+            {
+                iRow[j] = 0;   // just one constraint
+                jCol[j] = j;   // derivative with respect to p_j
+            }
+            // mu derivative is zero, so we skip it in the jacobian
+            return true;
+        }
+        else
+        {
+            // extract p and mu from x
+            StateVec sv_p;
+            sv_p.insertMultiple(0, 0., n=1);
+            for (int i=0;i<n-1;i++)
+                sv_p.setUnchecked(i, x[i]);
+            Number mu = x[n-1];
+
+            // calculate hamiltonian gradient w.r.t p
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
+
+            for (int j=0; j<n-1; j++)
+            {
+                values[j] = dHdp.getUnchecked(j); // dH/dp_j
+            }
+
+        }
+
+        return true;
+    }
+/*
+    // Hessian of Lagrangian
+    virtual bool eval_h(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number obj_factor,
+        Index m,
+        const Number* lambda,
+        bool new_lambda,
+        Index nele_hess,
+        Index* iRow,
+        Index* jCol,
+        Number* values)
+    {
+        if(values == nullptr)
+        {
+        }
+        else
+        {
+        }
+
+        return true;
+    }
+    */
+
+    virtual void finalize_solution(
+        SolverReturn status,
+        Index n,
+        const Number* x,
+        const Number* z_L,
+        const Number* z_U,
+        Index m,
+        const Number* g,
+        const Number* lambda,
+        Number obj_value,
+        const IpoptData* ip_data,
+        IpoptCalculatedQuantities* ip_cq)
+    {
+        std::cout << "\nSolution for point " << idx << ":\n";
+        for (int i=0; i<n-1; i++)
+        {
+            std::cout << "p[" << i << "] = " << x[i] << "\n";
+        }
+        cout << "mu = " << x[n-1] << "\n";
+    }
+
+  private:
+    EncapsVarForGSL ev;
+    int idx;
+}; // end class IPOPTProblem
 
 
 

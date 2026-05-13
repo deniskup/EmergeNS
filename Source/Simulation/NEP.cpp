@@ -75,6 +75,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   solverType->addOption("GSL Brut force - NLS", 0);
   solverType->addOption("GSL Decouple t/p - NLS", 1);
   solverType->addOption("GSL Decouple t/p - Minimizer", 2);
+  solverType->addOption("IPOPT", 3);
+
 
   
   // set this class as simulation listener
