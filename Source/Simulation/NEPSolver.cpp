@@ -35,7 +35,10 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
     
   jassert(p.size() == q.size());
   if (p.size() != q.size())
+  {
+    cout << "p, q sizes : " << p.size() << " " << q.size() << endl; 
     return H;
+  }
   
   juce::Array<double> vecH;
   for (auto & reaction : crn.reactions)

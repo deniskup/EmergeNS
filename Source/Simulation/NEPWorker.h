@@ -18,61 +18,97 @@
 #include <gsl/gsl_blas.h>
 #include "gsl/gsl_multimin.h"
 
+#include <IpIpoptApplication.hpp>
 #include "IpoptConfig.h"
-#include "IpIpoptApplication.hpp"
 #include "IpTNLP.hpp"
-
 
 #include <Eigen/Dense>
 
 using namespace std;
 using namespace Ipopt;
 
+static std::string ipoptStatusToString(Ipopt::ApplicationReturnStatus status)
+{
 
-struct EncapsVarForNLOpt {
-  const juce::Array<double>* q; // current concentration point
-  const juce::Array<double>* dq;
-  juce::Array<double>* p; // p variable to pass to t optimisation
-  double t_opt; // t variable that optimizes the lagrangian
-  //juce::Array<double> p_opt; // t variable that optimizes the lagrangian
-};
+    switch (status)
+    {
+        case Solve_Succeeded:
+            return "Solve_Succeeded";
 
+        case Solved_To_Acceptable_Level:
+            return "Solved_To_Acceptable_Level";
 
-struct EncapsVarForGSL {
-  juce::Array<double> q; // current concentration point
-  juce::Array<double> dq;
-  double dq_norm2;
-  double epsilon = 1.;
-  juce::Array<double> pnorm;
-  juce::Array<double> equation_norm;
-  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
-  //double mu;
-  double s;
-  int n;
-  StateVec pstar_prev;
-  double dt_prev;
-  NEPSolver * solver;
-};
+        case Infeasible_Problem_Detected:
+            return "Infeasible_Problem_Detected";
 
+        case Search_Direction_Becomes_Too_Small:
+            return "Search_Direction_Becomes_Too_Small";
 
-struct EncapsVarForGSL_MU {
-  juce::Array<double> q; // current concentration point
-  juce::Array<double> p;
-  juce::Array<double> dq;
-  double dq_norm2;
-  NEPSolver * solver;
-};
+        case Diverging_Iterates:
+            return "Diverging_Iterates";
+
+        case User_Requested_Stop:
+            return "User_Requested_Stop";
+
+        case Feasible_Point_Found:
+            return "Feasible_Point_Found";
+
+        case Maximum_Iterations_Exceeded:
+            return "Maximum_Iterations_Exceeded";
+
+        case Restoration_Failed:
+            return "Restoration_Failed";
+
+        case Error_In_Step_Computation:
+            return "Error_In_Step_Computation";
+
+        case Maximum_CpuTime_Exceeded:
+            return "Maximum_CpuTime_Exceeded";
+
+        case Not_Enough_Degrees_Of_Freedom:
+            return "Not_Enough_Degrees_Of_Freedom";
+
+        case Invalid_Problem_Definition:
+            return "Invalid_Problem_Definition";
+
+        case Invalid_Option:
+            return "Invalid_Option";
+
+        case Invalid_Number_Detected:
+            return "Invalid_Number_Detected";
+
+        case Unrecoverable_Exception:
+            return "Unrecoverable_Exception";
+
+        case NonIpopt_Exception_Thrown:
+            return "NonIpopt_Exception_Thrown";
+
+        case Insufficient_Memory:
+            return "Insufficient_Memory";
+
+        case Internal_Error:
+            return "Internal_Error";
+
+        default:
+            return "Unknown_Status";
+    }
+}
 
 
 class IPOPTProblem : public TNLP
 {
 public:
 
-  IPOPTProblem(const EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
+  //IPOPTProblem(const EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
+  IPOPTProblem(EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
+
+  StateVec getPstar() const { return pstar; };
+  double getS() const { return s; };
 
 
     virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, IndexStyleEnum& index_style)
     {
+        
         n = ev.n; // number of variables (p, mu)
         m = 1; // number of constraints (H = 0)
 
@@ -120,9 +156,16 @@ public:
     {
         assert(init_x == true);
 
-        x[0] = 1.0;
-        x[1] = 1.0;
-        x[2] = 1.0;
+        for (int k=0; k<n-1; k++)
+        {
+            x[k] = ev.pstar_prev.getUnchecked(k);
+        }
+        // init s0 value, mu = ||dq|| / dt = exp(s)
+        double s0 = 0.;
+        if (ev.dt_prev>0. && ev.dq_norm2>0.)
+            x[n-1] = std::log(ev.dq_norm2 / ev.dt_prev);
+        else
+            x[n-1] = 0.;
 
         return true;
     }
@@ -135,7 +178,9 @@ public:
         sv_p.insertMultiple(0, 0., n=1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
-        Number mu = x[n-1];
+        Number mu = std::exp(x[n-1]);
+
+
 
         // calculate hamiltonian
         double H = ev.solver->evalHamiltonian(sv_p, ev.q);
@@ -154,17 +199,19 @@ public:
         sv_p.insertMultiple(0, 0., n=1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
-        Number mu = x[n-1];
+        Number mu = std::exp(x[n-1]);
+
 
         // calculate hamiltonian gradient with p
         StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
 
         //f(p, mu) = H(p,q) - mu * p.v
-        for (int k=0;k<n-2;k++)
+        for (int k=0;k<n-1;k++)
         {
             grad_f[k] = dHdp.getUnchecked(k) - mu*ev.dq.getUnchecked(k)/ev.dq_norm2;
         }
-        grad_f[n-1] = scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
+        grad_f[n-1] = -1. *
+         scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
 
 
         return true;
@@ -178,6 +225,7 @@ public:
         sv_p.insertMultiple(0, 0., n=1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
+
 
         Number h = ev.solver->evalHamiltonian(sv_p, ev.q);
         g[0] = h; // H(p,q) = 0
@@ -213,7 +261,8 @@ public:
             sv_p.insertMultiple(0, 0., n=1);
             for (int i=0;i<n-1;i++)
                 sv_p.setUnchecked(i, x[i]);
-            Number mu = x[n-1];
+            Number mu = std::exp(x[n-1]);
+
 
             // calculate hamiltonian gradient w.r.t p
             StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
@@ -227,6 +276,7 @@ public:
 
         return true;
     }
+    
 /*
     // Hessian of Lagrangian
     virtual bool eval_h(
@@ -267,17 +317,26 @@ public:
         IpoptCalculatedQuantities* ip_cq)
     {
         std::cout << "\nSolution for point " << idx << ":\n";
+        pstar.clear();
         for (int i=0; i<n-1; i++)
         {
-            std::cout << "p[" << i << "] = " << x[i] << "\n";
+            //std::cout << "p[" << i << "] = " << x[i] << "\n";
+            pstar.add(x[i]);
         }
-        cout << "mu = " << x[n-1] << "\n";
+        //cout << "mu = " << std::exp(x[n-1]) << "\n";
+        s = x[n-1]; 
     }
 
   private:
     EncapsVarForGSL ev;
     int idx;
+    StateVec pstar;
+    double s;
 }; // end class IPOPTProblem
+
+
+
+
 
 
 

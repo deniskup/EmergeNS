@@ -8,6 +8,8 @@
 
 
 
+
+
 juce::dsp::Matrix<double> calculateLiftingJacobian_brutforce(EncapsVarForGSL& ev, StateVec p, double mu, const long int dim)
 {
   juce::dsp::Matrix<double> jaco(dim, dim);
@@ -1506,20 +1508,63 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   else if (nlsolverType == 3)
   {
 
+    // proble to solve
+    Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx);
+
+    cout << "Passing q vector of size " << ev.q.size() << " to IPOPT" << endl;
+
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
+    app->Options()->SetIntegerValue("print_level", 12);
+
     app->Options()->SetNumericValue("tol", tolerance);
     app->Options()->SetStringValue("mu_strategy", "adaptive");
+    app->Options()->SetStringValue("output_file", "ipopt.out");
+    // The following overwrites the default name (ipopt.opt) of the options file
+    // app->Options()->SetStringValue("option_file_name", "hs071.opt");
     app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+    app->Options()->SetStringValue("linear_solver", "mumps");
+    app->Options()->SetIntegerValue("print_level", 0);
 
-    // proble to solve
-    Ipopt::SmartPtr<TNLP> problem = new IPOPTProblem(ev, idx);
+    // Initialize the IpoptApplication and process the options
+    ApplicationReturnStatus status;
+    status = app->Initialize();
+    if( status != Solve_Succeeded)
+    {
+      std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+      //return (int) status;
+      
+    }
+ 
+    // Ask Ipopt to solve the problem
+    status = app->OptimizeTNLP(problem);
+
+    // retrieve results
+    pstar = problem->getPstar();
+    double mu = std::exp(problem->getS());
+    dt = mu / ev.dq_norm2;
+
+    // residuals
+    // H(p,q) = 0
+    residuals_H = std::abs(ev.solver->evalHamiltonian(ev.q, pstar));
+    // dH/dp = mu • v
+    StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
+    for (int k=0; k<dHdp.size(); k++)
+    {
+      double r = dHdp.getUnchecked(k) - mu * ev.dq.getUnchecked(k) / ev.dq_norm2;
+      residuals_p.add(std::abs(r));
+    }
     
+    cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+
+  
   }
   else
   {
     LOGWARNING("Non-linear solver to use not properly selected.");
     gslStatus = -2;
   }
+
+
   
   // Handle case where residuals are above tolerance :
   // - renormalization & rescaling
