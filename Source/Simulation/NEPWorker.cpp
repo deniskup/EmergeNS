@@ -1522,9 +1522,9 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // app->Options()->SetStringValue("option_file_name", "hs071.opt");
     app->Options()->SetStringValue("hessian_approximation", "limited-memory");
     app->Options()->SetStringValue("linear_solver", "mumps");
-    app->Options()->SetIntegerValue("print_level", 5);
-    app->Options()->SetStringValue("derivative_test","first-order");
-    app->Options()->SetIntegerValue("maxiter",10);
+    app->Options()->SetIntegerValue("print_level", 0);
+    //app->Options()->SetStringValue("derivative_test","first-order");
+    //app->Options()->SetIntegerValue("maxiter",10);
 
     // Initialize the IpoptApplication and process the options
     ApplicationReturnStatus status;

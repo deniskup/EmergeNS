@@ -182,12 +182,19 @@ public:
 
 
         // calculate hamiltonian
-        double H = ev.solver->evalHamiltonian(ev.q, sv_p);
+        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
 
         // calcule scalar product p.v
-        Number pv = scalarProduct(sv_p, ev.dq)/ev.dq_norm2;
-   
-        obj_value = H - mu*pv;
+        double value = 0.;
+        jassert(dHdp.size() == n-1);
+        for (int k=0; k<dHdp.size(); k++)
+        {
+            double valuek = dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k);
+            value += valuek * valuek;
+        }
+        value *= 0.5;
+
+        obj_value = value;
         return true;
     }
 
@@ -200,16 +207,32 @@ public:
             sv_p.setUnchecked(i, x[i]);
         Number mu = std::exp(x[n-1]);
 
-
         // calculate hamiltonian gradient with p
         StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
 
-        //f(p, mu) = H(p,q) - mu * p.v
-        for (int k=0;k<n-1;k++)
+        // calculate hamiltonian hessain w.r.t p
+        juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_p);
+
+        // useful vector
+        StateVec vectorToMultiply;
+        vectorToMultiply.insertMultiple(0, 0., n-1);
+        for (int k=0; k<n-1; k++)        
+            vectorToMultiply.setUnchecked(k, dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k));
+        
+
+        //f(p, mu) = || dH(p,q)/dp - mu * v ||^2
+        for (int i=0; i<n-1; i++)
         {
-            grad_f[k] = dHdp.getUnchecked(k) - mu*ev.dq.getUnchecked(k)/ev.dq_norm2;
+            double gradi = 0;
+            for (int k=0; k<n-1; k++)
+            {
+                gradi += hess(i, k) * vectorToMultiply.getUnchecked(k);
+            }
+            grad_f[i] = gradi;
         }
-        grad_f[n-1] = -1. * mu * scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
+
+        
+        grad_f[n-1] = -1. * scalarProduct(vectorToMultiply, ev.v) * mu; 
 
 
         return true;

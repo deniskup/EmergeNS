@@ -64,6 +64,7 @@ struct EncapsVarForNLOpt {
 struct EncapsVarForGSL {
   juce::Array<double> q; // current concentration point
   juce::Array<double> dq;
+  juce::Array<double> v; // = dq / || dq ||
   double dq_norm2;
   double epsilon = 1.;
   juce::Array<double> pnorm;

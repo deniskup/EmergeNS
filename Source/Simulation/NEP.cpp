@@ -597,8 +597,18 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     Array<double> eqnorm;
     eqnorm.insertMultiple(0, 1., n);
     ev.equation_norm = eqnorm;
-    
-    
+
+    jassert(ev.dq_norm2 > 0.);
+  
+    // define v = dq / || dq ||
+    StateVec v;
+    for (int m=0; m<deltaq.size(); m++)
+    {
+      double vm = deltaq.getUnchecked(m) / ev.dq_norm2;
+      v.add(vm);
+    }
+    ev.v = v;
+
     double dt_prev = 1.;
     StateVec pstar_prev;
     pstar_prev.insertMultiple(0, 0.1, n-1);
