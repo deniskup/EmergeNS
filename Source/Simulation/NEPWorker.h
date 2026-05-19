@@ -108,12 +108,12 @@ public:
 
     virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, IndexStyleEnum& index_style)
     {
-        
         n = ev.n; // number of variables (p, mu)
         m = 1; // number of constraints (H = 0)
 
-        nnz_jac_g = n*m -1; // non-zeros entries of the jacobian ! n*m -1
-        nnz_h_lag = 2; // Storage for the number of nonzero entries in the Hessian 
+        nnz_jac_g = n-1; // non-zeros entries of the constraint jacobian g(p,mu) = H(p)
+        //nnz_h_lag = n*n - 1; // Storage for the number of nonzero entries in the Hessian 
+
 
         index_style = TNLP::C_STYLE;
         return true;
@@ -156,6 +156,7 @@ public:
     {
         assert(init_x == true);
 
+
         for (int k=0; k<n-1; k++)
         {
             x[k] = ev.pstar_prev.getUnchecked(k);
@@ -170,20 +171,18 @@ public:
         return true;
     }
 
-    // objective = 0
     virtual bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
     {
         // extract p and mu from x
         StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n=1);
+        sv_p.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
         Number mu = std::exp(x[n-1]);
 
 
-
         // calculate hamiltonian
-        double H = ev.solver->evalHamiltonian(sv_p, ev.q);
+        double H = ev.solver->evalHamiltonian(ev.q, sv_p);
 
         // calcule scalar product p.v
         Number pv = scalarProduct(sv_p, ev.dq)/ev.dq_norm2;
@@ -196,22 +195,21 @@ public:
     {
         // extract p and mu from x
         StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n=1);
+        sv_p.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
         Number mu = std::exp(x[n-1]);
 
 
         // calculate hamiltonian gradient with p
-        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
+        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
 
         //f(p, mu) = H(p,q) - mu * p.v
         for (int k=0;k<n-1;k++)
         {
             grad_f[k] = dHdp.getUnchecked(k) - mu*ev.dq.getUnchecked(k)/ev.dq_norm2;
         }
-        grad_f[n-1] = -1. *
-         scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
+        grad_f[n-1] = -1. * mu * scalarProduct(sv_p, ev.dq)/ev.dq_norm2; 
 
 
         return true;
@@ -222,12 +220,11 @@ public:
     {
         // extract p from x
         StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n=1);
+        sv_p.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
             sv_p.setUnchecked(i, x[i]);
 
-
-        Number h = ev.solver->evalHamiltonian(sv_p, ev.q);
+        Number h = ev.solver->evalHamiltonian(ev.q, sv_p);
         g[0] = h; // H(p,q) = 0
 
         return true;
@@ -251,21 +248,19 @@ public:
                 iRow[j] = 0;   // just one constraint
                 jCol[j] = j;   // derivative with respect to p_j
             }
-            // mu derivative is zero, so we skip it in the jacobian
             return true;
         }
         else
         {
             // extract p and mu from x
             StateVec sv_p;
-            sv_p.insertMultiple(0, 0., n=1);
+            sv_p.insertMultiple(0, 0., n-1);
             for (int i=0;i<n-1;i++)
                 sv_p.setUnchecked(i, x[i]);
-            Number mu = std::exp(x[n-1]);
 
 
             // calculate hamiltonian gradient w.r.t p
-            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(sv_p, ev.q);
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
 
             for (int j=0; j<n-1; j++)
             {
@@ -318,12 +313,13 @@ public:
     {
         std::cout << "\nSolution for point " << idx << ":\n";
         pstar.clear();
+        std::cout << "p, mu = ";
         for (int i=0; i<n-1; i++)
         {
-            //std::cout << "p[" << i << "] = " << x[i] << "\n";
+            std::cout << " " << x[i];
             pstar.add(x[i]);
         }
-        //cout << "mu = " << std::exp(x[n-1]) << "\n";
+        cout << " " << std::exp(x[n-1]) << "\n";
         s = x[n-1]; 
     }
 

@@ -1511,7 +1511,6 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // proble to solve
     Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx);
 
-    cout << "Passing q vector of size " << ev.q.size() << " to IPOPT" << endl;
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
     app->Options()->SetIntegerValue("print_level", 12);
@@ -1523,7 +1522,9 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // app->Options()->SetStringValue("option_file_name", "hs071.opt");
     app->Options()->SetStringValue("hessian_approximation", "limited-memory");
     app->Options()->SetStringValue("linear_solver", "mumps");
-    app->Options()->SetIntegerValue("print_level", 0);
+    app->Options()->SetIntegerValue("print_level", 5);
+    app->Options()->SetStringValue("derivative_test","first-order");
+    app->Options()->SetIntegerValue("maxiter",10);
 
     // Initialize the IpoptApplication and process the options
     ApplicationReturnStatus status;
