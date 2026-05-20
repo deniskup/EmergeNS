@@ -860,7 +860,8 @@ bool SteadyStateslist::computeWithMSolve()
 	{
 		LOG("msolve not directly accessible, trying with absolute path in Settings.");
     setMSolvepath();
-    string msolvedummy = msolvepath + " -h > dummy.txt ";
+    LOG("msolve path set to : " + msolvepath);
+    string msolvedummy = msolvepath + "/msolve -h > dummy.txt ";
     system(msolvedummy.c_str());
     ifstream dummy2("dummy.txt", ios::binary | ios::ate);
     if (!dummy2 || dummy2.tellg() == 0)
@@ -893,7 +894,7 @@ bool SteadyStateslist::computeWithMSolve()
   string outputFile = "msolveSteadyOutput.ms";
   // string steadyFile= "SteadyStates.txt";
 
-  string msolveCommand = msolvepath + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+  string msolveCommand = msolvepath + "/msolve" + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
 
   // std::cout << inputFile << std::endl;  // #erase
   // std::cout << outputFile << std::endl; // #erase
@@ -1647,7 +1648,7 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     isStable(jm, iw, true);
 
     
-    cout << "sst n eigenvalues : " << arraySteadyStates.getUnchecked(iw).eigenvalues.size() << endl;
+    //cout << "sst n eigenvalues : " << arraySteadyStates.getUnchecked(iw).eigenvalues.size() << endl;
     
 
     
