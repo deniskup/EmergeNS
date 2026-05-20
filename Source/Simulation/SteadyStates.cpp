@@ -877,7 +877,7 @@ bool SteadyStateslist::computeWithMSolve()
 	}
   else
   {
-    msolvepath = "./";
+    msolvepath = "";
     testPassed = true;
   }
 
