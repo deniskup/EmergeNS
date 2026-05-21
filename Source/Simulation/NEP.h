@@ -86,6 +86,7 @@ public:
   IntParameter * Niterations;
   IntParameter * nPoints_start;
   IntParameter * nPoints_max;
+  BoolParameter * useChangeOfVariable;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   StringParameter * action_threshold ;

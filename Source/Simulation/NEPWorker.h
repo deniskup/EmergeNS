@@ -100,10 +100,11 @@ class IPOPTProblem : public TNLP
 public:
 
   //IPOPTProblem(const EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
-  IPOPTProblem(EncapsVarForGSL _ev, const int _idx): ev(_ev), idx(_idx){};
+  IPOPTProblem(EncapsVarForGSL _ev, const int _idx, const bool _useChangeOfVariable): ev(_ev), idx(_idx), useChangeOfVariable(_useChangeOfVariable){};
 
   StateVec getPstar() const { return pstar; };
   double getS() const { return s; };
+  double getMu() const { return mu; };
 
 
     virtual bool get_nlp_info(Index& n, Index& m, Index& nnz_jac_g, Index& nnz_h_lag, IndexStyleEnum& index_style)
@@ -129,8 +130,16 @@ public:
     {
         for(int i=0;i<n;i++)
         {
-            x_l[i] = -1e20;
-            x_u[i] =  1e20;
+            if (useChangeOfVariable) // use (u, mu) with u = exp(p) and mu = exp(s)
+            {
+                x_l[i] = 1e-20;
+                x_u[i] = 1e20;
+            }
+            else // use (p,s) as variables with mu = exp(s)
+            {
+                x_l[i] = -1e20;
+                x_u[i] =  1e20;
+            }
         }
 
         // equality constraints
@@ -159,39 +168,68 @@ public:
 
         for (int k=0; k<n-1; k++)
         {
-            x[k] = ev.pstar_prev.getUnchecked(k);
+            if (useChangeOfVariable)
+            {
+                x[k] = std::exp(ev.pstar_prev.getUnchecked(k)); 
+            }
+            else
+            {
+                x[k] = ev.pstar_prev.getUnchecked(k);
+            }
         }
-        // init s0 value, mu = ||dq|| / dt = exp(s)
-        double s0 = 0.;
+        // init s0 value, mu0 = ||dq|| / dt = exp(s)
+        double mu0 = 1.;
         if (ev.dt_prev>0. && ev.dq_norm2>0.)
-            x[n-1] = std::log(ev.dq_norm2 / ev.dt_prev);
-        else
-            x[n-1] = 0.;
+            mu0 = std::log(ev.dq_norm2 / ev.dt_prev);
+
+        if (useChangeOfVariable) // use mu as a variable
+        {            
+            x[n-1] = mu0;
+        }
+        else // use s = log(mu)
+        {
+            x[n-1] = std::log(mu0);
+        }
 
         return true;
     }
 
     virtual bool eval_f(Index n, const Number* x, bool new_x, Number& obj_value)
     {
-        // extract p and mu from x
-        StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n-1);
+        // extract p/u and mu/s from x
+        StateVec sv_pu;
+        sv_pu.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
-            sv_p.setUnchecked(i, x[i]);
-        Number mu = std::exp(x[n-1]);
+            sv_pu.setUnchecked(i, x[i]);
+        Number last = x[n-1];
 
-
-        // calculate hamiltonian
-        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
-
-        // calcule scalar product p.v
         double value = 0.;
-        jassert(dHdp.size() == n-1);
-        for (int k=0; k<dHdp.size(); k++)
+        if (useChangeOfVariable) // use (u, mu) as variables
         {
-            double valuek = dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k);
-            value += valuek * valuek;
+            // calculate hamiltonian gradient with u
+            StateVec uxdHdu = ev.solver->evalUtimesHamiltonianGradientWithU(ev.q, sv_pu);
+
+            for (int k=0; k<uxdHdu.size(); k++)
+            {
+                double valuek = uxdHdu.getUnchecked(k) - last * ev.v.getUnchecked(k);
+                value += valuek * valuek;
+            }
+
         }
+        else
+        {
+            // calculate hamiltonian gradient with p
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_pu);
+
+            // calcule scalar product p.v
+            jassert(dHdp.size() == n-1);
+            for (int k=0; k<dHdp.size(); k++)
+            {
+                double valuek = dHdp.getUnchecked(k) - std::exp(last) * ev.v.getUnchecked(k);
+                value += valuek * valuek;
+            }
+        }
+
         value *= 0.5;
 
         obj_value = value;
@@ -201,39 +239,92 @@ public:
     virtual bool eval_grad_f(Index n, const Number* x, bool new_x, Number* grad_f)
     {
         // extract p and mu from x
-        StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n-1);
+        StateVec sv_pu;
+        sv_pu.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
-            sv_p.setUnchecked(i, x[i]);
+            sv_pu.setUnchecked(i, x[i]);
         Number mu = std::exp(x[n-1]);
 
-        // calculate hamiltonian gradient with p
-        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
-
-        // calculate hamiltonian hessain w.r.t p
-        juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_p);
-
-        // useful vector
-        StateVec vectorToMultiply;
-        vectorToMultiply.insertMultiple(0, 0., n-1);
-        for (int k=0; k<n-1; k++)        
-            vectorToMultiply.setUnchecked(k, dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k));
-        
-
-        //f(p, mu) = || dH(p,q)/dp - mu * v ||^2
-        for (int i=0; i<n-1; i++)
+        if (useChangeOfVariable)
         {
-            double gradi = 0;
-            for (int k=0; k<n-1; k++)
+            // calculate hamiltonian gradient with u
+            StateVec dHdu = ev.solver->evalHamiltonianGradientWithU(ev.q, sv_pu);
+
+            // calculate hamiltonian hessian with u
+            juce::dsp::Matrix<double> d2Hdu2 = ev.solver->evalHamiltonianHessianWithU(ev.q, sv_pu);
+
+            jassert(d2Hdu2.getNumRows() == n-1);
+            jassert(d2Hdu2.getNumColumns() == n-1);
+
+            // build useful vector and matrix to calculate the gradient
+            juce::dsp::Matrix<double> M(n-1, n-1);
+            StateVec w;
+
+            // Init them to 0
+            M.clear();
+            w.insertMultiple(0, 0., n-1);
+
+            // fill them
+            for (int i=0; i<n-1; i++)
             {
-                gradi += hess(i, k) * vectorToMultiply.getUnchecked(k);
+                for (int j=0; j<n-1; j++)
+                {
+                    if (i==j)
+                        M(i, j) += dHdu.getUnchecked(i);
+                    M(i, j) = sv_pu.getUnchecked(j) * d2Hdu2(i, j);
+                }
+                w.setUnchecked(i, sv_pu.getUnchecked(i) * dHdu.getUnchecked(i) - mu * ev.v.getUnchecked(i));
             }
-            grad_f[i] = gradi;
+
+            // actual gradient calculation for first n-1 coordinates
+            for (int i=0; i<n-1; i++)
+            {
+                double gradi = 0.;
+                for (int j=0; j<n-1; j++)
+                {
+                    gradi += M(i, j) * w.getUnchecked(j);
+                }
+                grad_f[i] = gradi;
+            }
+
+            // last coordinates
+            double grad_mu = 0.;
+            for (int i=0; i<n-1; i++)
+            {
+                grad_mu += w.getUnchecked(i) * ev.v.getUnchecked(i);
+            }
+            grad_f[n-1] = -1. * grad_mu;
+
         }
+        else
+        {
+            // calculate hamiltonian gradient with p
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_pu);
+
+            // calculate hamiltonian hessain w.r.t p
+            juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_pu);
+
+            // useful vector
+            StateVec vectorToMultiply;
+            vectorToMultiply.insertMultiple(0, 0., n-1);
+            for (int k=0; k<n-1; k++)        
+                vectorToMultiply.setUnchecked(k, dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k));
+        
+
+            //f(p, mu) = || dH(p,q)/dp - mu * v ||^2
+            for (int i=0; i<n-1; i++)
+            {
+                double gradi = 0;
+                for (int k=0; k<n-1; k++)
+                {
+                    gradi += hess(i, k) * vectorToMultiply.getUnchecked(k);
+                }
+                grad_f[i] = gradi;
+            }
 
         
-        grad_f[n-1] = -1. * scalarProduct(vectorToMultiply, ev.v) * mu; 
-
+            grad_f[n-1] = -1. * scalarProduct(vectorToMultiply, ev.v) * mu; 
+        }
 
         return true;
     }
@@ -241,13 +332,13 @@ public:
     // constraints
     virtual bool eval_g(Index n, const Number* x, bool new_x, Index m, Number* g)
     {
-        // extract p from x
-        StateVec sv_p;
-        sv_p.insertMultiple(0, 0., n-1);
+        // extract pu from x
+        StateVec sv_pu;
+        sv_pu.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
-            sv_p.setUnchecked(i, x[i]);
+            sv_pu.setUnchecked(i, x[i]);
 
-        Number h = ev.solver->evalHamiltonian(ev.q, sv_p);
+        Number h = ev.solver->evalHamiltonian(ev.q, sv_pu, useChangeOfVariable);
         g[0] = h; // H(p,q) = 0
 
         return true;
@@ -276,18 +367,30 @@ public:
         else
         {
             // extract p and mu from x
-            StateVec sv_p;
-            sv_p.insertMultiple(0, 0., n-1);
+            StateVec sv_pu;
+            sv_pu.insertMultiple(0, 0., n-1);
             for (int i=0;i<n-1;i++)
-                sv_p.setUnchecked(i, x[i]);
+                sv_pu.setUnchecked(i, x[i]);
 
-
-            // calculate hamiltonian gradient w.r.t p
-            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
-
-            for (int j=0; j<n-1; j++)
+            if (useChangeOfVariable)
             {
-                values[j] = dHdp.getUnchecked(j); // dH/dp_j
+                // calculate hamiltonian gradient w.r.t p
+                StateVec dHdu = ev.solver->evalHamiltonianGradientWithU(ev.q, sv_pu);
+
+                for (int j=0; j<n-1; j++)
+                {
+                    values[j] = dHdu.getUnchecked(j); // dH/du_j
+                }
+            }
+            else
+            {
+                // calculate hamiltonian gradient w.r.t p
+                StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_pu);
+
+                for (int j=0; j<n-1; j++)
+                {
+                    values[j] = dHdp.getUnchecked(j); // dH/dp_j
+                }
             }
 
         }
@@ -334,16 +437,42 @@ public:
         const IpoptData* ip_data,
         IpoptCalculatedQuantities* ip_cq)
     {
-        std::cout << "\nSolution for point " << idx << ":\n";
+        //std::cout << "\nSolution for point " << idx << ":\n";
         pstar.clear();
-        std::cout << "p, mu = ";
+        //std::cout << "p, mu = ";
         for (int i=0; i<n-1; i++)
         {
-            std::cout << " " << x[i];
-            pstar.add(x[i]);
+            //std::cout << " " << x[i];
+            if (useChangeOfVariable)
+            {
+                if (x[i]>0.)
+                    pstar.add(std::log(x[i]));
+                else
+                {
+                    pstar.add(0.);
+                    hasIssue = true;
+                }
+            }
+            else
+                pstar.add(x[i]);
         }
-        cout << " " << std::exp(x[n-1]) << "\n";
-        s = x[n-1]; 
+
+        if (useChangeOfVariable)
+        {
+            mu = x[n-1];
+            if (mu>0.)
+                s = std::log(mu);
+            else
+            {
+                s = 0.;
+                hasIssue = true;
+            }
+        }
+        else
+        {
+            s = x[n-1];
+            mu = std::exp(x[n-1]); 
+        }
     }
 
   private:
@@ -351,8 +480,10 @@ public:
     int idx;
     StateVec pstar;
     double s;
+    double mu;
+    bool useChangeOfVariable = false;
+    bool hasIssue = false;
 }; // end class IPOPTProblem
-
 
 
 
@@ -362,8 +493,9 @@ public:
 class NEPWorker : public juce::ThreadPoolJob
 {
 public:
-  NEPWorker(const CRNSnapshot & _crn, const EncapsVarForGSL _ev,  NLSresults & _results, double _tolerance, int _solverType, int _index, bool _maxPrintingAllowed)
-  : juce::ThreadPoolJob("NEPWorker"), crn(_crn), ev(_ev), results(_results), tolerance(_tolerance), nlsolverType(_solverType), idx(_index), maxPrintingAllowed(_maxPrintingAllowed)
+  NEPWorker(const CRNSnapshot & _crn, const EncapsVarForGSL _ev,  NLSresults & _results, double _tolerance, int _solverType, int _index, bool _maxPrintingAllowed, bool _useChangeOfVariable)
+  : juce::ThreadPoolJob("NEPWorker"), crn(_crn), ev(_ev), results(_results), tolerance(_tolerance), 
+  nlsolverType(_solverType), idx(_index), maxPrintingAllowed(_maxPrintingAllowed), useChangeOfVariable(_useChangeOfVariable)
   {
     solver = new NEPSolver(crn);
   }
@@ -410,6 +542,8 @@ private:
   double tolerance;
   
   int maxiteration = 100;
+
+  bool useChangeOfVariable;
 };
 
 /*

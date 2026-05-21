@@ -1509,13 +1509,15 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   {
 
     // proble to solve
-    Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx);
+    Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx, useChangeOfVariable);
 
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
     app->Options()->SetIntegerValue("print_level", 12);
 
-    app->Options()->SetNumericValue("tol", tolerance);
+    long double tol4ipopt = tolerance*tolerance * (long double) ev.n;
+
+    app->Options()->SetNumericValue("tol", tol4ipopt);
     app->Options()->SetStringValue("mu_strategy", "adaptive");
     app->Options()->SetStringValue("output_file", "ipopt.out");
     // The following overwrites the default name (ipopt.opt) of the options file
@@ -1541,7 +1543,8 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     // retrieve results
     pstar = problem->getPstar();
-    double mu = std::exp(problem->getS());
+    //double mu = std::exp(problem->getS());
+    double mu = problem->getMu();
     dt = mu / ev.dq_norm2;
 
     // residuals
@@ -1554,8 +1557,10 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       double r = dHdp.getUnchecked(k) - mu * ev.dq.getUnchecked(k) / ev.dq_norm2;
       residuals_p.add(std::abs(r));
     }
+
+    gslStatus = status;
     
-    cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+    //cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
 
   
   }

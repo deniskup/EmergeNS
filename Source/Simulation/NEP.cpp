@@ -43,6 +43,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   nPoints_start = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
   
   nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
+
+  useChangeOfVariable = addBoolParameter("Use change of variable", "Change variable (p, s) --> (u, mu) with u = exp(p) and mu = exp(s) for the optimization.", false);
   
   initialConditions = addEnumParameter("Initial condition", "Choose how the optimal trajectory is initialized for the descent.");
 
@@ -342,9 +344,9 @@ void NEP::run()
     double successFrac = 0.;
     double d_npoints = (double) nPoints - 1.;
     jassert(d_npoints>0.);
-    for (int k=0; k<liftoptres.gslStatus.size()-1; k++)
+    for (int k=0; k<liftoptres.collinearity.size()-1; k++)
     {
-     if (liftoptres.gslStatus.getUnchecked(k) == 1)
+     if (liftoptres.collinearity.getUnchecked(k) == 1)
        successFrac += 1. / d_npoints;
     }
     if (isinf(successFrac) || isnan(successFrac))
@@ -628,8 +630,10 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     ev.dt_prev = dt_prev;
     ev.pstar_prev = pstar_prev;
     
-    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed), true);
+    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed ,useChangeOfVariable->boolValue()), true);
   }
+
+  
 
   // wait until job pool is empty
   while (pool.getNumJobs() > 0)

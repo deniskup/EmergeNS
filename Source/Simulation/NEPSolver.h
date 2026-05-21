@@ -29,9 +29,15 @@ public:
   
   void setReactionNetwork(CRNSnapshot _crn){crn = _crn;};
     
-  double evalHamiltonian(const StateVec q, const StateVec p);
+  double evalHamiltonian(const StateVec q, const StateVec p, bool useChangeOfVariable = false);
   
   StateVec evalHamiltonianGradientWithP(const StateVec q, const StateVec p);
+
+  StateVec evalUtimesHamiltonianGradientWithU(const StateVec q, const StateVec u);
+
+  juce::dsp::Matrix<double>  evalHamiltonianHessianWithU(const StateVec q, const StateVec u);
+
+  StateVec evalHamiltonianGradientWithU(const StateVec q, const StateVec u);
   
   juce::dsp::Matrix<double> evalHamiltonianHessianWithP(const StateVec q, const StateVec p);
   
