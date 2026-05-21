@@ -2065,8 +2065,16 @@ void NEP::debuggingFunction()
 {
   simul->affectSATIds();
   
-  //StateVec qi = {1.58916000, 1.03974000};
-  //StateVec pi = {0.01967720, 0.00082215};
+  StateVec q = {1.58916000, 1.03974000};
+  StateVec p = {0.01967720, 0.00082215};
+  StateVec u = {std::exp(0.01967720), std::exp(0.00082215)};
+
+double Hp = nepsolver->evalHamiltonian(q, p);
+double Hu = nepsolver->evalHamiltonian(q, u, true);
+
+cout << "Hp = " << Hp << endl;
+cout << "Hu = " << Hu << endl;
+
   /*
   StateVec qi = {1.58310479, 1.04183355};
   StateVec pi = {0.01985969, 0.00110143};
