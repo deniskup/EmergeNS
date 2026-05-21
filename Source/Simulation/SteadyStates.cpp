@@ -816,6 +816,7 @@ void SteadyStateslist::setMSolvepath()
     return;
 
   msolvepath = Settings::getInstance()->pathToMSolve->stringValue().toStdString();
+  msolvepath += "/";
 }
 
 /////////////////////////////////////////////////////////////////////////:
@@ -894,7 +895,7 @@ bool SteadyStateslist::computeWithMSolve()
   string outputFile = "msolveSteadyOutput.ms";
   // string steadyFile= "SteadyStates.txt";
 
-  string msolveCommand = msolvepath + "/msolve" + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+  string msolveCommand = msolvepath + "msolve" + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
 
   // std::cout << inputFile << std::endl;  // #erase
   // std::cout << outputFile << std::endl; // #erase
