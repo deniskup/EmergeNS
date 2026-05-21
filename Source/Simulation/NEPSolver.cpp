@@ -30,7 +30,7 @@ NEPSolver::~NEPSolver()
 
 double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useChangeOfVariable)
 {
-  //cout << "--- hamiltonian calculation --- " << endl;
+  cout << "--- hamiltonian calculation --- " << endl;
   double H = 0.;
     
   jassert(pu.size() == q.size());
@@ -121,6 +121,7 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useC
     //cout << "current H = " << H << endl;
     
   } // end loop over reactions
+
   
   // loop over creation/destruction reactions,
   // formally treated as 0 <--> entity
@@ -305,7 +306,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
 StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const StateVec u)
 {
   
-  //cout << "--- evalHamiltonianGradientWithU() ---" << endl;
+  cout << "--- evalUtimesHamiltonianGradientWithU() ---" << endl;
 
   /*
   cout << "q = ";
@@ -387,6 +388,11 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
     }
     
   } // end reaction loop
+
+  cout << "u x dH'/du after reactions = ";
+  for (auto & ele : graduH)
+    cout << ele << " ";
+  cout << endl;
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
@@ -413,6 +419,12 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
     cout << endl;
      */
   }
+
+  cout << "u x dH'/du after all = ";
+  for (auto & ele : graduH)
+    cout << ele << " ";
+  cout << endl;
+  
   
   /*
   cout << "total gradient = " ;
@@ -434,7 +446,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
 StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVec u)
 {
   
-  //cout << "--- evalHamiltonianGradientWithU() ---" << endl;
+  cout << "--- evalHamiltonianGradientWithU() ---" << endl;
 
   /*
   cout << "q = ";
@@ -539,6 +551,12 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
     }
   } // end reaction loop
   
+  cout << "u x dH'/du after reactions = ";
+  for (int i=0; i<graduH.size(); i++)
+  {
+    cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
+  }
+  cout << endl;
   
   // creation / destruction reactions, formally treated as 0 <--> entity
   for (auto & ent : crn.entities)
@@ -566,6 +584,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
     cout << endl;
      */
   }
+
+  cout << "u x dH'/du after all = ";
+  for (int i=0; i<graduH.size(); i++)
+  {
+    cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
+  }
+  cout << endl;
   
   /*
   cout << "total gradient = " ;

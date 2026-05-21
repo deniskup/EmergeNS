@@ -2064,16 +2064,35 @@ void NEP::heteroclinicStudy()
 void NEP::debuggingFunction()
 {
   simul->affectSATIds();
+  buildReactionNetworkSnapshot();
+  crn.timescale_factor = 10.;
+  nepsolver->setReactionNetwork(crn);
   
   StateVec q = {1.58916000, 1.03974000};
   StateVec p = {0.01967720, 0.00082215};
   StateVec u = {std::exp(0.01967720), std::exp(0.00082215)};
 
-double Hp = nepsolver->evalHamiltonian(q, p);
-double Hu = nepsolver->evalHamiltonian(q, u, true);
+//double Hp = nepsolver->evalHamiltonian(q, p);
+//double Hu = nepsolver->evalHamiltonian(q, u, true);
 
-cout << "Hp = " << Hp << endl;
-cout << "Hu = " << Hu << endl;
+StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
+StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
+StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
+
+cout << "dH/dp = ";
+for (auto& el : dHdp)
+  cout << el << " ";
+cout << endl;
+
+cout << "u x dH'/du [1] = ";
+for (auto& el : uxdHdu)
+  cout << el << " ";
+cout << endl;
+
+cout << "u x dH'/du [2] = ";
+for (int i=0; i<u.size(); i++)
+  cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
+cout << endl;
 
   /*
   StateVec qi = {1.58310479, 1.04183355};
