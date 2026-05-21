@@ -306,7 +306,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
 StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const StateVec u)
 {
   
-  cout << "--- evalUtimesHamiltonianGradientWithU() ---" << endl;
+  //cout << "--- evalUtimesHamiltonianGradientWithU() ---" << endl;
 
   /*
   cout << "q = ";
@@ -388,12 +388,12 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
     }
     
   } // end reaction loop
-
+/*
   cout << "u x dH'/du after reactions = ";
   for (auto & ele : graduH)
     cout << ele << " ";
   cout << endl;
-  
+  */
   
   // creation / destruction reactions, formally treated as 0 <--> entity
   for (auto & ent : crn.entities)
@@ -419,12 +419,12 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
     cout << endl;
      */
   }
-
+/*
   cout << "u x dH'/du after all = ";
   for (auto & ele : graduH)
     cout << ele << " ";
   cout << endl;
-  
+  */
   
   /*
   cout << "total gradient = " ;
@@ -446,7 +446,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
 StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVec u)
 {
   
-  cout << "--- evalHamiltonianGradientWithU() ---" << endl;
+  //cout << "--- evalHamiltonianGradientWithU() ---" << endl;
 
   /*
   cout << "q = ";
@@ -551,13 +551,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
     }
   } // end reaction loop
   
-  cout << "u x dH'/du after reactions = ";
+  /*cout << "u x dH'/du after reactions = ";
   for (int i=0; i<graduH.size(); i++)
   {
     cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
   }
   cout << endl;
-  
+  */
   // creation / destruction reactions, formally treated as 0 <--> entity
   for (auto & ent : crn.entities)
   {
@@ -572,7 +572,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
     // destruction flow prop to qent
     //cout << "backward" << endl;
     jassert(u.getUnchecked(ent->idSAT) > 0.);
-    double destfact = ent->destructionRate *-1. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)) * q.getUnchecked(ent->idSAT);
+    double destfact = ent->destructionRate * 1. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)) * q.getUnchecked(ent->idSAT);
     graduH.setUnchecked(ent->idSAT, graduH.getUnchecked(ent->idSAT) - destfact);
     //cout << "kd = " << ent->destructionRate << endl;
     //cout << "exp factor = " << exp(-1.*p.getUnchecked(ent->idSAT)) - 1. << endl;
@@ -585,12 +585,12 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
      */
   }
 
-  cout << "u x dH'/du after all = ";
+  /*cout << "u x dH'/du after all = ";
   for (int i=0; i<graduH.size(); i++)
   {
     cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
   }
-  cout << endl;
+  cout << endl;*/
   
   /*
   cout << "total gradient = " ;

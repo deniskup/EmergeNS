@@ -2075,24 +2075,25 @@ void NEP::debuggingFunction()
 //double Hp = nepsolver->evalHamiltonian(q, p);
 //double Hu = nepsolver->evalHamiltonian(q, u, true);
 
-StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
-StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
-StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
+//StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
+//StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
+//StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
 
-cout << "dH/dp = ";
-for (auto& el : dHdp)
-  cout << el << " ";
-cout << endl;
 
-cout << "u x dH'/du [1] = ";
-for (auto& el : uxdHdu)
-  cout << el << " ";
-cout << endl;
+//cout << "dH/dp = ";
+//for (auto& el : dHdp)
+//  cout << el << " ";
+//cout << endl;
 
-cout << "u x dH'/du [2] = ";
-for (int i=0; i<u.size(); i++)
-  cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
-cout << endl;
+//cout << "u x dH'/du [1] = ";
+//for (auto& el : uxdHdu)
+//  cout << el << " ";
+//cout << endl;
+
+//cout << "u x dH'/du [2] = ";
+//for (int i=0; i<u.size(); i++)
+ // cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
+//cout << endl;
 
   /*
   StateVec qi = {1.58310479, 1.04183355};
