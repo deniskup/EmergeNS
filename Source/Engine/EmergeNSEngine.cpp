@@ -170,6 +170,11 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     {
       firstEscapeTimeStudy(configs);
     }
+    else if (study == "steadystates")
+    {
+      Settings::getInstance()->printSteadyStatesToFile->setValue(true);
+      Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+    }
 /*
     // Generate a reaction network
     //Simulation::Simulation * simu = new Simulation::Simulation();
