@@ -20,7 +20,7 @@ You can also use the predefined reaction systems from ReactionSystems.zip as exa
 
 3. In the Juce folder, go in extras/Projucer/Builds/[YourOS] <br>
    For Linux :<br>
-    - install all necessary dependencies: ```sudo apt install g++ pkg-config libfreetype6-dev libcurl4-openssl-dev libx11-dev libxrand-dev libxinerama-dev libxcursos-dev```<br>
+    - install all necessary dependencies: ```sudo apt install g++ pkg-config libfreetype6-dev libcurl4-openssl-dev libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev```<br>
     - compile with ```make -j 4```<br>
     
    For Mac open  Projucer.xcodeproj with xcode and compile<br>
