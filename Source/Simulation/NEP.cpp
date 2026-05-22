@@ -2065,35 +2065,64 @@ void NEP::debuggingFunction()
 {
   simul->affectSATIds();
   buildReactionNetworkSnapshot();
-  crn.timescale_factor = 10.;
+  crn.timescale_factor = 1.;
   nepsolver->setReactionNetwork(crn);
   
   StateVec q = {1.58916000, 1.03974000};
   StateVec p = {0.01967720, 0.00082215};
   StateVec u = {std::exp(0.01967720), std::exp(0.00082215)};
 
+// debug hamiltonian calculation in new variables
+
 //double Hp = nepsolver->evalHamiltonian(q, p);
 //double Hu = nepsolver->evalHamiltonian(q, u, true);
 
-//StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
-//StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
-//StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
+StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
+StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
+StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
+
+juce::dsp::Matrix<double> hessp = nepsolver->evalHamiltonianHessianWithP(q, p);
+juce::dsp::Matrix<double> hessu = nepsolver->evalHamiltonianHessianWithU(q, u);
 
 
-//cout << "dH/dp = ";
-//for (auto& el : dHdp)
-//  cout << el << " ";
-//cout << endl;
+cout << endl;
+cout << "dH/dp = ";
+for (auto& el : dHdp)
+  cout << el << " ";
+cout << endl << endl;
 
-//cout << "u x dH'/du [1] = ";
-//for (auto& el : uxdHdu)
-//  cout << el << " ";
-//cout << endl;
+cout << "u x dH'/du [1] = ";
+for (auto& el : uxdHdu)
+  cout << el << " ";
+cout << endl << endl;
 
-//cout << "u x dH'/du [2] = ";
-//for (int i=0; i<u.size(); i++)
- // cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
-//cout << endl;
+cout << "u x dH'/du [2] = ";
+for (int i=0; i<u.size(); i++)
+  cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
+cout << endl << endl;
+
+cout << "hess_p = " << endl;
+for (int i=0; i<hessp.getNumRows(); i++)
+{
+  for (int j=0; j<hessp.getNumColumns(); j++)  
+    cout << hessp(i, j) << " ";
+  cout << endl;
+}
+cout << endl;
+
+cout << "hess_u = " << endl;
+for (int i=0; i<hessu.getNumRows(); i++)
+{
+  for (int j=0; j<hessu.getNumColumns(); j++)  
+  {
+    //double ij = hessu(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    double ij = hessu(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? uxdHdu.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+
 
   /*
   StateVec qi = {1.58310479, 1.04183355};
