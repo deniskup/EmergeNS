@@ -263,6 +263,8 @@ void NEP::run()
       return;
     }
     //return;
+    cout << "CRN has " << crn.entities.size() << " entities " << endl;
+    cout << "CRN has " << crn.reactions.size() << " reactions " << endl;
     heteroclinicStudy();
     //heteroclinic_study = false;
     return;
@@ -1112,10 +1114,63 @@ void NEP::initConcentrationCurve()
     g_qcurve.add(qI);
 
     // reverse the direction of concentration curve
-    std::reverse(g_qcurve.begin(), g_qcurve.end());
-    
-    // resample qcurve
-    resampleInSpaceUniform(g_qcurve, nPoints);
+    if (!heteroclinic_study)
+      std::reverse(g_qcurve.begin(), g_qcurve.end());
+
+    if (heteroclinic_study)
+    {
+      // spare time and concentration curves
+      Trajectory qcurve_spare = g_qcurve;
+      juce::Array<double> times_spare = g_times;
+
+      // cumulative lengths of original deterministic trajectory
+      juce::Array<double> cumulative_lengths_spare;
+      cumulative_lengths_spare.insertMultiple(0, 0., qcurve_spare.size());
+      for (int k=1; k<qcurve_spare.size(); k++)
+      {
+        Trajectory segment({qcurve_spare.getUnchecked(k-1), qcurve_spare.getUnchecked(k)});
+        cumulative_lengths_spare.setUnchecked(k, cumulative_lengths_spare.getUnchecked(k-1) + curveLength(segment));
+      }
+
+      // resample concentration curve
+      resampleInSpaceUniform(g_qcurve, nPoints);
+
+       // cumulative lengths of resampled deterministic trajectory
+      juce::Array<double> cumulative_lengths_resamp;
+      cumulative_lengths_resamp.insertMultiple(0, 0., g_qcurve.size());
+      for (int k=1; k<g_qcurve.size(); k++)
+      {
+        Trajectory segment({g_qcurve.getUnchecked(k-1), g_qcurve.getUnchecked(k)});
+        cumulative_lengths_resamp.setUnchecked(k, cumulative_lengths_resamp.getUnchecked(k-1) 
+        + curveLength(segment));
+      }
+
+      // build corresponding time
+      juce::Array<double> times_resamp;
+      for (int point=0; point<g_qcurve.size(); point++)
+      {
+        double lpoint = cumulative_lengths_resamp.getUnchecked(point);
+
+        // find closest matching index in cumulative length array
+        auto it = lower_bound(cumulative_lengths_spare.begin(), cumulative_lengths_spare.end(), lpoint);
+        int closest = (int) std::distance(cumulative_lengths_spare.begin(), it) - 1;
+
+        jassert(closest < times_spare.size());
+        //closest = max(0, min(closest, (int)times_spare.size()-2)); // make sure closest is properly bounded
+
+        times_resamp.add(times_spare.getUnchecked(closest));
+
+      }
+
+      g_times = times_resamp;
+
+    }
+    else
+    {
+      // resample qcurve
+      resampleInSpaceUniform(g_qcurve, nPoints);
+      g_times.clear();
+    }
   }
   else // use straightline
   {
@@ -1995,7 +2050,7 @@ void NEP::heteroclinicStudy()
 
   // p curve = null vector
   StateVec pnull;
-  pnull.insertMultiple(0, 0., g_qcurve.size());
+  pnull.insertMultiple(0, 0., simul->entities.size());
 
   Trajectory qcurve = g_qcurve;
   Trajectory pcurve;
@@ -2008,6 +2063,12 @@ void NEP::heteroclinicStudy()
   cout << "q size : " << qcurve.size() << endl;
   cout << "p size : " << pcurve.size() << endl;
   cout << "time size : "<< g_times.size() << endl;
+
+  cout << "times = ";
+  for (auto & t : g_times)
+    cout << t << " ";
+  cout << endl;
+
 
   StateVec action = nepsolver->calculateAction(qcurve, pcurve, g_times);
 

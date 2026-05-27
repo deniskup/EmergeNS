@@ -85,6 +85,8 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
     
   } // end loop over reactions
   
+//cout << "H after reactions : " << H << endl;
+
   // loop over creation/destruction reactions,
   // formally treated as 0 <--> entity
   for (auto & ent : crn.entities)
@@ -97,14 +99,15 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
   }
   
   
-  /*
-  cout << "--- hamiltonian check --- " << endl;
+  
+  /*cout << "--- hamiltonian check --- " << endl;
   for (int k=0; k<vecH.size(); k++)
   {
     cout << "H" << k << " = " << vecH.getUnchecked(k) << endl;
   }
-  cout << "Htot = " << H << endl;
   */
+  //cout << "Htot = " << H << endl;
+  
   
   return crn.timescale_factor * H;
 }
@@ -627,7 +630,7 @@ juce::Array<double> NEPSolver::calculateAction(const Curve& qc, const Curve& pc,
   for (int i=0; i<qc.size(); i++)
   {
     hamilt.add(evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)));
-    //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
+    cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
   }
   
   // use trapezoidal rule to calculate action = integral(0, T, p•dq - H*dt)
@@ -660,7 +663,10 @@ juce::Array<double> NEPSolver::calculateAction(const Curve& qc, const Curve& pc,
     //cout << "\tadding " << integrand << endl;
   }
   
-  //cout << "action = " << newaction << endl;
+  //cout << "action = " << endl;
+  //for (auto & a : cumul_action)
+  //  cout << a << " ";
+  //cout << endl;
   // update action value
   //action = newaction;
   // keep track of action history
