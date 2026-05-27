@@ -32,7 +32,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   stopDescent = addTrigger("Stop Descent", "Manually stop the descent algorithm");
   test = addTrigger("test", "");
   
-  //start_heteroclinic_study = addTrigger("Heteroclinic study", "Produces most probable trajectories between two fixed points");
+  start_heteroclinic_study = addTrigger("Heteroclinic study", "NEP proxy using action along the deterministic trajectory.");
     
   // enum parameters = steady states
   sst_stable = addEnumParameter("Stable steady state", "Choose stable fixed point to start the NEP algorithm from");
@@ -256,10 +256,16 @@ void NEP::run()
   // see https://web.pa.msu.edu/people/dykman/pub06/jcp100_5735.pdf
   if (heteroclinic_study)
   {
-    LOG("heteroclinic study not implemented yet, return.");
-    return;
-    //heteroclinicStudy();
+    LOG("heteroclinic study.");
+    if (initialConditions->getValueKey() != "Deterministic trajectory")
+    {
+      LOGWARNING("Please select 'Deterministic trajectory' as initial condition for heteroclinic study.");
+      return;
+    }
+    //return;
+    heteroclinicStudy();
     //heteroclinic_study = false;
+    return;
   }
 
   
@@ -1968,6 +1974,7 @@ pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, State
 
 void NEP::heteroclinicStudy()
 {
+  cout << "--- heteroclinicStudy() ---" << endl;
   reset();
 
   simul->affectSATIds();
@@ -1998,9 +2005,16 @@ void NEP::heteroclinicStudy()
     pcurve.add(pnull);
   }
 
+  cout << "q size : " << qcurve.size() << endl;
+  cout << "p size : " << pcurve.size() << endl;
+  cout << "time size : "<< g_times.size() << endl;
+
   StateVec action = nepsolver->calculateAction(qcurve, pcurve, g_times);
 
   LOG("Action proxy = " + String(action.getLast()));
+
+    cout << "--- END heteroclinicStudy() ---" << endl;
+
 
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
