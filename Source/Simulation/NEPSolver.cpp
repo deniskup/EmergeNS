@@ -8,8 +8,22 @@
 
 
 
-
-
+double nep_power(double x, int pow)
+{
+  jassert(x > 0.);
+  double result = 1.;
+  if (pow > 0)
+  {
+    for (int i=0; i<pow; i++)
+      result *= x;
+  }
+  else if (pow < 0)
+  {
+    for (int i=0; i<std::abs(pow); i++)
+      result /= x;
+  }
+  return result;
+}
 
  
 
@@ -30,12 +44,13 @@ NEPSolver::~NEPSolver()
 
 double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useChangeOfVariable)
 {
-  cout << "--- hamiltonian calculation --- " << endl;
+  //cout << "--- hamiltonian calculation --- " << endl;
   double H = 0.;
     
   jassert(pu.size() == q.size());
   if (pu.size() != q.size())
   {
+    cout << pu.getUnchecked(1) << endl;
     cout << "pu, q sizes : " << pu.size() << " " << q.size() << endl; 
     return H;
   }
@@ -529,15 +544,15 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
     for (auto & [id, exponent] : ytotal) 
     {
       //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
-      double monom_forward = exponent * pow(u.getUnchecked(id), exponent-1.); // derivative of q_id
-      double monom_backward = (-1. * exponent) * pow(u.getUnchecked(id), (-1.*exponent)-1.); // derivative of q_id
+      double monom_forward = exponent * nep_power(u.getUnchecked(id), exponent-1.); // derivative of q_id
+      double monom_backward = (-1. * exponent) * nep_power(u.getUnchecked(id), (-1.*exponent)-1.); // derivative of q_id
       for (auto & [id2, exponent2] : ytotal) // multiply by other u_j different from u_id
       {
         if (id2==id)
           continue;
         //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
-        monom_forward *= pow(u.getUnchecked(id2), exponent2);
-        monom_backward *= pow(u.getUnchecked(id2), -1*exponent2);
+        monom_forward *= nep_power(u.getUnchecked(id2), exponent2);
+        monom_backward *= nep_power(u.getUnchecked(id2), -1*exponent2);
       }
       //cout << endl;
       //cout << "gradH_" << id << " += " << forward_prefactor*monom << endl;
@@ -614,9 +629,9 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
 juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec q, const StateVec u)
 {
   
-  cout << "--- evalHamiltonianHessianWithU() ---" << endl;
+  //cout << "--- evalHamiltonianHessianWithU() ---" << endl;
 
-  
+  /*
   cout << "q = ";
   for (auto & qm : q)
     cout << qm << " ";
@@ -625,7 +640,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
   for (auto & um : u)
     cout << um << " ";
   cout << endl;
-  
+  */
   
    // init hessian as null matrix
   int dim = crn.entities.size();
@@ -635,6 +650,11 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
   
   StateVec dHdu = evalHamiltonianGradientWithU(q, u);
   StateVec uxdHdu = evalUtimesHamiltonianGradientWithU(q, u);
+
+  //cout << "u x dH'/du [1] = ";
+  //for (auto& el : uxdHdu)
+  //  cout << el << " ";
+  //cout << endl << endl;
 
   
   jassert(u.size() == q.size());
@@ -652,9 +672,9 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
   {
     if (!reaction->enabled)
       continue;
-    cout << reaction->name << endl;
-    cout << "k+ = " << reaction->assocRate << endl;
-    cout << "k- = " << reaction->dissocRate << endl << endl;
+    //cout << reaction->name << endl;
+    //cout << "k+ = " << reaction->assocRate << endl;
+    //cout << "k- = " << reaction->dissocRate << endl << endl;
     
      // stoichiometric vector
     std::map<int, int> ytotal; // <int, int> --> <idSAT, power>
@@ -677,28 +697,24 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
           // forward reaction
           if (powi != 1 && powi != 0) // contribution to hessian for forward reaction
           {
-            double forward = reaction->assocRate * (double) powi * (double) (powi-1.) * pow(u.getUnchecked(i), powi-2.);
-            cout << "check : " << forward << endl;
-            cout << "powi = " << powi << endl;
-            cout << "chelou term : " << pow(u.getUnchecked(i), powi-2.) << endl;
+            double forward = reaction->assocRate * (double) powi * (double) (powi-1.) * nep_power(u.getUnchecked(i), powi-2.);
             for (auto& reactant : reaction->reactants)
               forward *= q.getUnchecked(reactant->idSAT);
             for (auto & [k, powk] : ytotal)
             {
               if (k==i)
                 continue;
-              forward *= pow(u.getUnchecked(k), powk);
-              cout << "non ui : " << pow(u.getUnchecked(k), powk) << endl;
+              forward *= nep_power(u.getUnchecked(k), powk);
             }
             hess(i, i) += forward;
-            cout << "(" << i << "," << j << ") hess = " << forward << endl;
-            cout << "(" << i << "," << j << ") forward = " << forward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
+            //cout << "(" << i << "," << j << ") hess_forward = " << forward << endl;
+            //cout << "(" << i << "," << j << ") forward = " << forward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
           }
           // backward reaction
           if (powi != -1 && powi != 0) // contribution to hessian for backward reaction
           {
             double minuspowi = -1. * powi;
-            double backward = reaction->dissocRate * minuspowi * (minuspowi-1.) * pow(u.getUnchecked(i), (int) minuspowi-2);
+            double backward = reaction->dissocRate * minuspowi * (minuspowi-1.) * nep_power(u.getUnchecked(i), (int) minuspowi-2);
             for (auto& product : reaction->products)
               backward *= q.getUnchecked(product->idSAT);
             for (auto & [k, powk] : ytotal)
@@ -706,10 +722,11 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
               if (k==i)
                 continue;
               int negpowk = -1 * powk;
-              backward *= pow(u.getUnchecked(k), negpowk);
+              backward *= nep_power(u.getUnchecked(k), negpowk);
             }
             hess(i, i) += backward;
-            cout << "(" << i << "," << j << ") backward = " << backward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
+            //cout << "(" << i << "," << j << ") hess_backward = " << backward << endl;
+            //cout << "(" << i << "," << j << ") backward = " << backward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
           }
 
         }
@@ -718,14 +735,14 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
           // forward reaction
           if (powi != 0 && powj != 0) // contribution to hessian for forward reaction
           {
-            double forward = reaction->assocRate * (double) powi * (double) powj * pow(u.getUnchecked(i), powi-1) * pow(u.getUnchecked(j), powj-1);
+            double forward = reaction->assocRate * (double) powi * (double) powj * nep_power(u.getUnchecked(i), powi-1) * nep_power(u.getUnchecked(j), powj-1);
             for (auto& reactant : reaction->reactants)
               forward *= q.getUnchecked(reactant->idSAT);
             for (auto & [k, powk] : ytotal)
             {
               if (k==i || k==j)
                 continue;
-              forward *= pow(u.getUnchecked(k), powk);
+              forward *= nep_power(u.getUnchecked(k), powk);
             }
             hess(i, j) += forward;
           }
@@ -734,7 +751,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
           {
             int negpowi = -1 * powi;
             int negpowj = -1 * powj;
-            double backward = reaction->dissocRate * (double) negpowi * (double) negpowj * pow(u.getUnchecked(i), negpowi-1) * pow(u.getUnchecked(j), negpowj-1);
+            double backward = reaction->dissocRate * (double) negpowi * (double) negpowj * nep_power(u.getUnchecked(i), negpowi-1) * nep_power(u.getUnchecked(j), negpowj-1);
             for (auto& product : reaction->products)
               backward *= q.getUnchecked(product->idSAT);
             for (auto & [k, powk] : ytotal)
@@ -742,7 +759,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
               if (k==i || k==j)
                 continue;
               int negpowk = -1 * powk;
-              backward *= pow(u.getUnchecked(k), negpowk);
+              backward *= nep_power(u.getUnchecked(k), negpowk);
             }
             hess(i, j) += backward;
           }
@@ -753,7 +770,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
 
 
 
-cout << "hess_u = after reactions " << endl;
+/*cout << "hess_u_full = after reactions " << endl;
 for (int i=0; i<hess.getNumRows(); i++)
 {
   for (int j=0; j<hess.getNumColumns(); j++)  
@@ -765,6 +782,20 @@ for (int i=0; i<hess.getNumRows(); i++)
   cout << endl;
 }
 cout << endl;
+
+cout << "hess_u = after reactions " << endl;
+for (int i=0; i<hess.getNumRows(); i++)
+{
+  for (int j=0; j<hess.getNumColumns(); j++)  
+  {
+    double ij = hess(i, j);
+    //double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+*/
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
@@ -777,7 +808,7 @@ cout << endl;
     //cout << "backward" << endl;
     jassert(u.getUnchecked(ent->idSAT) > 0.);
     double destfact = ent->destructionRate;
-    destfact *= 2. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT*u.getUnchecked(ent->idSAT))); 
+    destfact *= 2. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)); 
     destfact *= q.getUnchecked(ent->idSAT);
     hess(ent->idSAT, ent->idSAT) += destfact;
     //cout << "kd = " << ent->destructionRate << endl;
@@ -798,7 +829,7 @@ cout << endl;
   cout << endl << endl;
   */
 
-  cout << "hess_u = after all " << endl;
+  /*cout << "hess_u = after all " << endl;
 for (int i=0; i<hess.getNumRows(); i++)
 {
   for (int j=0; j<hess.getNumColumns(); j++)  
@@ -810,6 +841,7 @@ for (int i=0; i<hess.getNumRows(); i++)
   cout << endl;
 }
 cout << endl;
+*/
   
   // multiply by timescale factor
   for (int i=0; i<hess.getSize().getUnchecked(0); i++)
@@ -829,7 +861,7 @@ cout << endl;
 juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec q, const StateVec p)
 {
   
-    cout << "--- evalHamiltonianHessianWithP() ---" << endl;
+    //cout << "--- evalHamiltonianHessianWithP() ---" << endl;
     /*cout << setprecision(8) << endl;
     cout << "q = ";
     for (auto & f : q)
@@ -859,7 +891,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       if (!reaction->enabled)
         continue;
       
-      cout << reaction->name << endl;
+      //cout << reaction->name << endl;
       // forward reaction
       double forward = reaction->assocRate;
       double sp1 = 0.;
@@ -932,11 +964,11 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
         {
           double el = prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward + prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward;
           //cout << "modyfing element (" << i << "," << j << ") by " << el << endl;
-          if (i==j)
-          {
-            cout << "(" << i << "," << j << ") forward = " << prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward << endl;
-            cout << "(" << i << "," << j << ") backward = " << prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward << endl;
-          }
+          //if (i==j)
+         // {
+          //  cout << "(" << i << "," << j << ") forward = " << prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward << endl;
+          //  cout << "(" << i << "," << j << ") backward = " << prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward << endl;
+          //}
 
           hess(i, j) += el;
         }
@@ -949,7 +981,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
   */
     } // end loop over reactions
 
-    cout << "hess after reactions : " << endl;
+    /*cout << "hess after reactions : " << endl;
     for (int i=0; i<hess.getNumRows(); i++)
     {
       for (int j=0; j<hess.getNumColumns();  j++)
@@ -959,7 +991,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       cout << endl;
     }
     cout << endl;
-    
+    */
     
     // creation / destruction reactions, formally treated as 0 <--> entity
     for (auto & ent : crn.entities)
@@ -981,7 +1013,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       */
     }
 
-    cout << "hess after all : " << endl;
+    /*cout << "hess after all : " << endl;
     for (int i=0; i<hess.getNumRows(); i++)
     {
       for (int j=0; j<hess.getNumColumns();  j++)
@@ -991,7 +1023,8 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       cout << endl;
     }
     cout << endl;
-    
+    */
+
     // multiply by timescale factor
     for (int i=0; i<hess.getSize().getUnchecked(0); i++)
     {
@@ -1102,13 +1135,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
     for (auto & [id, exponent] : makforward)
     {
       //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
-      double monom = exponent * pow(q.getUnchecked(id), exponent-1.); // derivative of q_id
+      double monom = exponent * nep_power(q.getUnchecked(id), exponent-1.); // derivative of q_id
       for (auto & [id2, exponent2] : makforward) // multiply by other q_j different from q_id
       {
         if (id2==id)
           continue;
         //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
-        monom *= pow(q.getUnchecked(id2), exponent2);
+        monom *= nep_power(q.getUnchecked(id2), exponent2);
       }
       //cout << endl;
       //cout << "gradH_" << id << " += " << forward_prefactor*monom << endl;
@@ -1137,13 +1170,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
     for (auto & [id, exponent] : makbackward)
     {
       //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
-      double monom = exponent * pow(q.getUnchecked(id), exponent-1.);
+      double monom = exponent * nep_power(q.getUnchecked(id), exponent-1.);
       for (auto & [id2, exponent2] : makbackward)
       {
         if (id2==id)
           continue;
         //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
-        monom *= pow(q.getUnchecked(id2), exponent2);
+        monom *= nep_power(q.getUnchecked(id2), exponent2);
       }
       //cout << endl;
       //cout << "gradH_" << id << " += " << backward_prefactor*monom << endl;
@@ -1329,6 +1362,16 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, cons
   // update p once more
   for (int m=0; m<q.size(); m++)
     p.setUnchecked(m, p.getUnchecked(m) - 0.5*dt*gradqH.getUnchecked(m));
+
+  // sanity check on q
+  for (auto & qi : q)
+  {
+    if (qi < 0.)
+    {
+      shouldStop = true;
+      return;
+    }
+  }
   
   // add new (q ; p) point to the trajectory
   PhaseSpaceVec psv;

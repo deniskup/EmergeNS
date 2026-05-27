@@ -206,7 +206,7 @@ private:
   KineticLaw * kinetics; // to calculate kinetics
   
   // NEP worker jobs
-  juce::ThreadPool pool;
+  //juce::ThreadPool pool;
   
   // NEP solver for calculations
   NEPSolver * nepsolver;

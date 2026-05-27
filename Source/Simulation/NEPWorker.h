@@ -203,6 +203,20 @@ public:
             sv_pu.setUnchecked(i, x[i]);
         Number last = x[n-1];
 
+        // check validity of extracted variables
+        if (useChangeOfVariable)
+        {
+            for (auto& val : sv_pu)
+            {
+                if (val <= 0.)
+                {
+                    return false;
+                }
+            }
+            if (last <= 0.)
+                return false;
+        }
+
         double value = 0.;
         if (useChangeOfVariable) // use (u, mu) as variables
         {
@@ -243,7 +257,23 @@ public:
         sv_pu.insertMultiple(0, 0., n-1);
         for (int i=0;i<n-1;i++)
             sv_pu.setUnchecked(i, x[i]);
-        Number mu = std::exp(x[n-1]);
+        Number mu;
+        if (useChangeOfVariable)
+            mu = x[n-1];
+        else
+             mu = std::exp(x[n-1]);
+
+        // check validity of extracted variables
+        if (useChangeOfVariable)
+        {
+            for (auto& val : sv_pu)
+            {
+                if (val <= 0.)
+                    return false;
+            }
+            if (mu <= 0.)
+                return false;
+        }
 
         if (useChangeOfVariable)
         {
@@ -269,9 +299,7 @@ public:
             {
                 for (int j=0; j<n-1; j++)
                 {
-                    if (i==j)
-                        M(i, j) += dHdu.getUnchecked(i);
-                    M(i, j) = sv_pu.getUnchecked(j) * d2Hdu2(i, j);
+                    M(i, j) = sv_pu.getUnchecked(j) * d2Hdu2(i, j) + (i==j ? dHdu.getUnchecked(i) : 0.);
                 }
                 w.setUnchecked(i, sv_pu.getUnchecked(i) * dHdu.getUnchecked(i) - mu * ev.v.getUnchecked(i));
             }
@@ -338,6 +366,16 @@ public:
         for (int i=0;i<n-1;i++)
             sv_pu.setUnchecked(i, x[i]);
 
+        // check validity of extracted variables
+        if (useChangeOfVariable)
+        {
+            for (auto& val : sv_pu)
+            {
+                if (val <= 0.)
+                    return false;
+            }
+        }
+
         Number h = ev.solver->evalHamiltonian(ev.q, sv_pu, useChangeOfVariable);
         g[0] = h; // H(p,q) = 0
 
@@ -371,6 +409,16 @@ public:
             sv_pu.insertMultiple(0, 0., n-1);
             for (int i=0;i<n-1;i++)
                 sv_pu.setUnchecked(i, x[i]);
+
+            // check validity of extracted variables
+            if (useChangeOfVariable)
+            {
+                for (auto& val : sv_pu)
+                {
+                    if (val <= 0.)
+                        return false;
+                }
+            }
 
             if (useChangeOfVariable)
             {
@@ -484,6 +532,277 @@ public:
     bool useChangeOfVariable = false;
     bool hasIssue = false;
 }; // end class IPOPTProblem
+
+
+
+
+
+/////////////////////////
+
+class HamiltonProblem_falseMin : public TNLP
+{
+public:
+
+  HamiltonProblem_falseMin(EncapsVarForGSL _ev, const int _idx): 
+  ev(_ev), idx(_idx){};
+
+  StateVec getPstar() const { return pstar; };
+  double getS() const { return s; };
+  double getMu() const { return mu; };
+
+    virtual bool get_nlp_info(
+        Index& n,
+        Index& m,
+        Index& nnz_jac_g,
+        Index& nnz_h_lag,
+        IndexStyleEnum& index_style)
+    {
+        n = ev.n; // number of variables (p, mu)
+        m = ev.n; // number of constraints
+
+        nnz_jac_g = n*n-1; // non-zeros entries of the constraint jacobian g(p,mu)
+        //nnz_h_lag = n*n - 1; // Storage for the number of nonzero entries in the Hessian 
+
+
+        index_style = TNLP::C_STYLE;
+        return true;
+    }
+
+    virtual bool get_bounds_info(
+        Index n,
+        Number* x_l,
+        Number* x_u,
+        Index m,
+        Number* g_l,
+        Number* g_u)
+    {
+        for(int i=0;i<n;i++)
+        {
+            x_l[i] = -1e20;
+            x_u[i] =  1e20;
+        }
+
+        // equality constraints
+        for(int i=0;i<m;i++)
+        {
+            g_l[i] = 0.0;
+            g_u[i] = 0.0;
+        }
+
+        return true;
+    }
+
+    virtual bool get_starting_point(
+        Index n,
+        bool init_x,
+        Number* x,
+        bool init_z,
+        Number* z_L,
+        Number* z_U,
+        Index m,
+        bool init_lambda,
+        Number* lambda)
+    {
+        assert(init_x == true);
+
+        for (int i=0;i<n-1;i++)
+        {
+            x[i] = ev.pstar_prev.getUnchecked(i);
+        }
+
+        double mu0 = 1.;
+        if (ev.dt_prev>0. && ev.dq_norm2>0.)
+            mu0 = std::log(ev.dq_norm2 / ev.dt_prev);
+        x[n-1] = mu0;
+
+        return true;
+    }
+
+    // objective = 0
+    virtual bool eval_f(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number& obj_value)
+    {
+        obj_value = 0.0;
+        return true;
+    }
+
+    virtual bool eval_grad_f(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number* grad_f)
+    {
+        for (int i=0; i<n; i++)
+        {
+            grad_f[i] = 0.0;
+        }
+
+        return true;
+    }
+
+    // constraints
+    virtual bool eval_g(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Index m,
+        Number* g)
+    {
+        StateVec sv_p;
+        sv_p.insertMultiple(0, 0., n-1);
+        for (int i=0; i<n-1; i++)
+            sv_p.setUnchecked(i, x[i]);
+        double mu = std::exp(x[n-1]);
+
+        // useful quantites
+        double H = ev.solver->evalHamiltonian(ev.q, sv_p);
+        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
+
+        // dH/dp - mu v = 0
+        for (int i=0; i<m-1; i++)
+        {
+            g[i] = dHdp.getUnchecked(i) - mu * ev.v.getUnchecked(i);
+        }
+
+        // H = 0
+        g[m-1] = H;
+
+        return true;
+    }
+
+    // Jacobian of constraints
+    virtual bool eval_jac_g(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Index m,
+        Index nele_jac,
+        Index* iRow,
+        Index *jCol,
+        Number* values)
+    {
+
+        if (m != n)
+        {
+            cout << "Error in eval_jac_g : m should be equal to n" << endl;
+            return false;
+        }
+
+        if(values == nullptr)
+        {
+            int idx = 0;
+            for (int i=0; i<n; i++)
+            {
+                for (int j=0; j<n; j++)
+                {
+                    if (i == n-1 && j == n-1) // dH/dmu = 0
+                        continue;
+                    iRow[idx]=i; jCol[idx]=j; idx++;
+                }
+            }
+        }
+        else
+        {
+            StateVec sv_p;
+            sv_p.insertMultiple(0, 0., n-1);
+            for (int i=0; i<n-1; i++)
+                sv_p.setUnchecked(i, x[i]);
+            double mu = std::exp(x[n-1]);
+
+            // useful quantites
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
+            juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_p);
+
+            int idx = 0;
+            for (int i=0; i<n; i++)
+            {
+                for (int j=0; j<n; j++)
+                {
+                    if (i < n-1 && j < n-1) // d2H/dp2 
+                    {
+                        values[idx] = hess(i, j);
+                    }
+                    else if (i < n-1 &&j == n-1) // -v
+                    {
+                        values[idx] = -1. * ev.v.getUnchecked(i);
+                    }
+                    else if (i == n-1 && j < n-1) // (dH/dp)^T = 0
+                    {
+                        values[idx] = dHdp.getUnchecked(j);
+                    }
+                    idx++;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // Hessian of Lagrangian
+    /*virtual bool eval_h(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number obj_factor,
+        Index m,
+        const Number* lambda,
+        bool new_lambda,
+        Index nele_hess,
+        Index* iRow,
+        Index* jCol,
+        Number* values)
+    {
+        if(values == nullptr)
+        {
+            iRow[0]=0; jCol[0]=0;
+            iRow[1]=1; jCol[1]=1;
+        }
+        else
+        {
+            // only constraint #2 contributes
+            values[0] = lambda[2];
+            values[1] = lambda[2];
+        }
+
+        return true;
+    }
+    */
+
+    virtual void finalize_solution(
+        SolverReturn status,
+        Index n,
+        const Number* x,
+        const Number* z_L,
+        const Number* z_U,
+        Index m,
+        const Number* g,
+        const Number* lambda,
+        Number obj_value,
+        const IpoptData* ip_data,
+        IpoptCalculatedQuantities* ip_cq)
+    {
+        pstar.clear();
+        for (int i=0; i<n-1; i++)
+        {
+            pstar.add(x[i]);
+        }
+        s = x[n-1];
+        mu = std::exp(x[n-1]);
+    }
+
+private:
+    EncapsVarForGSL ev;
+    int idx;
+    StateVec pstar;
+    double s;
+    double mu;
+};
+
+
+
 
 
 

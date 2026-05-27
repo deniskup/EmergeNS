@@ -568,6 +568,10 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   // dimension of the non-linear system
   const int n = simul->entities.size() + 1; // number of entities + 1
 
+
+  int nThreads = juce::SystemStats::getNumCpus()-1;
+  juce::ThreadPool pool(nThreads);
+
   // loop over points in concentration space
   // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
   for (int point=0; point<nPoints-1; point++) // n - 1 iterations
@@ -636,8 +640,19 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   
 
   // wait until job pool is empty
-  while (pool.getNumJobs() > 0)
-    sleep(100);
+  while (pool.getNumJobs() > 0 && !threadShouldExit())
+  {
+    double jobFinished = 0.;
+    for (int k=0; k<nPoints-1; k++)
+    {
+      if (nlsResults.getUnchecked(k).pstar.size() > 0.)
+        jobFinished ++;
+    }
+    double percent = 100. * jobFinished / (double) (nPoints-1);
+    std::cout << "\rProgress : " << percent << "%" << std::flush;
+    sleep(1000);
+  }
+  std::cout << "\rend NLS." << std::endl;
   
   
   
@@ -1452,11 +1467,14 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   }
   //cout << "used = " << count << " iterations in backtracking method" << endl;
 
+  // if step is below threshold, set it to 0
   if (step<d_stepDescentThreshold)
-  {
     step = 0.;
-    stepDescentInit_dynamic *= 0.5;
-  }
+
+  // if step too small, diminish start step value using current step value
+  if (step<d_stepDescentThreshold || step<stepDescentInit_dynamic)
+    stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, step);
+  
   if (step == stepDescentInit_dynamic)
   {
     stepDescentInit_dynamic *= 2.;
@@ -2067,7 +2085,7 @@ void NEP::debuggingFunction()
   buildReactionNetworkSnapshot();
   crn.timescale_factor = 1.;
   nepsolver->setReactionNetwork(crn);
-  
+  /*
   StateVec q = {1.58916000, 1.03974000};
   StateVec p = {0.01967720, 0.00082215};
   StateVec u = {std::exp(0.01967720), std::exp(0.00082215)};
@@ -2122,12 +2140,12 @@ for (int i=0; i<hessu.getNumRows(); i++)
   cout << endl;
 }
 cout << endl;
+*/
 
 
-  /*
-  StateVec qi = {1.58310479, 1.04183355};
-  StateVec pi = {0.01985969, 0.00110143};
   
+  StateVec qi = {1.62699, 1.04512};
+  StateVec pi = {0.0183207, 0.00130771};
   
   
   pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(qi, pi);
@@ -2135,7 +2153,7 @@ cout << endl;
   std::system("mkdir -p ./hamilton-eq-of-motion");
   
   ofstream output;
-  output.open("./hamilton-eq-of-motion/hamilton_EoM_gagrani.csv", ofstream::out | ofstream::trunc);
+  output.open("./hamilton-eq-of-motion/hamilton_EoM_2000.csv", ofstream::out | ofstream::trunc);
   
   output << "point,isForward,q_X1,q_X2,p_X1,p_X2" << endl;
   
@@ -2163,7 +2181,7 @@ cout << endl;
   }
   
   output.close();
-  */
+  
   
 }
 

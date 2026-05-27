@@ -1509,7 +1509,8 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   {
 
     // proble to solve
-    Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx, useChangeOfVariable);
+    //Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx, useChangeOfVariable);
+    Ipopt::SmartPtr<HamiltonProblem_falseMin> problem = new HamiltonProblem_falseMin(ev, idx);
 
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
@@ -1517,7 +1518,10 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     long double tol4ipopt = tolerance*tolerance * (long double) ev.n;
 
-    app->Options()->SetNumericValue("tol", tol4ipopt);
+    app->Options()->SetNumericValue("tol", tolerance);
+    app->Options()->SetNumericValue("constr_viol_tol", tolerance);
+    app->Options()->SetNumericValue("acceptable_constr_viol_tol", 1000.*tolerance);
+
     app->Options()->SetStringValue("mu_strategy", "adaptive");
     app->Options()->SetStringValue("output_file", "ipopt.out");
     // The following overwrites the default name (ipopt.opt) of the options file
@@ -1554,13 +1558,14 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
     for (int k=0; k<dHdp.size(); k++)
     {
-      double r = dHdp.getUnchecked(k) - mu * ev.dq.getUnchecked(k) / ev.dq_norm2;
+      double r = dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k);
       residuals_p.add(std::abs(r));
     }
 
     gslStatus = status;
     
-    //cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+    //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
+    //  cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
 
   
   }
