@@ -804,6 +804,284 @@ private:
 
 
 
+/////////////////////////
+
+class HamiltonProblem_3 : public TNLP
+{
+public:
+
+  HamiltonProblem_3(EncapsVarForGSL _ev, const int _idx): 
+  ev(_ev), idx(_idx){};
+
+  StateVec getPstar() const { return pstar; };
+  //double getS() const { return s; };
+  double getMu() const { return mu; };
+
+    virtual bool get_nlp_info(
+        Index& n,
+        Index& m,
+        Index& nnz_jac_g,
+        Index& nnz_h_lag,
+        IndexStyleEnum& index_style)
+    {
+        int dim = ev.n - 1;
+
+        n = dim; // number of variables (p)
+        m = 1; // number of constraints
+
+        nnz_jac_g = dim; // non-zeros entries of the constraint jacobian g(p,mu)
+        nnz_h_lag = dim*dim; // Storage for the number of nonzero entries in the Hessian of the lagrangian
+
+
+        index_style = TNLP::C_STYLE;
+        return true;
+    }
+
+    virtual bool get_bounds_info(
+        Index n,
+        Number* x_l,
+        Number* x_u,
+        Index m,
+        Number* g_l,
+        Number* g_u)
+    {
+        for(int i=0;i<n;i++)
+        {
+            x_l[i] = -1e20;
+            x_u[i] =  1e20;
+        }
+
+        // equality constraints
+        for(int i=0;i<m;i++)
+        {
+            g_l[i] = 0.0;
+            g_u[i] = 0.0;
+        }
+
+        return true;
+    }
+
+    virtual bool get_starting_point(
+        Index n,
+        bool init_x,
+        Number* x,
+        bool init_z,
+        Number* z_L,
+        Number* z_U,
+        Index m,
+        bool init_lambda,
+        Number* lambda)
+    {
+        assert(init_x == true);
+
+        for (int i=0;i<n;i++)
+        {
+            x[i] = ev.pstar_prev.getUnchecked(i);
+        }
+
+        return true;
+    }
+
+    // objective = 0
+    virtual bool eval_f( // = -p.v
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number& obj_value)
+    {
+        obj_value = 0.0;
+        if (ev.v.size() != n)
+        {
+            return false;
+        }
+        for (int i=0; i<n; i++)
+        {
+        obj_value -= ev.v.getUnchecked(i) * x[i];
+        }
+
+        return true;
+    }
+
+    virtual bool eval_grad_f(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number* grad_f)
+    {
+        for (int i=0; i<n; i++)
+        {
+            grad_f[i] = -1. * ev.v.getUnchecked(i);
+        }
+
+        return true;
+    }
+
+    // constraints
+    virtual bool eval_g(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Index m,
+        Number* g)
+    {
+        StateVec sv_p;
+        sv_p.insertMultiple(0, 0., n);
+        for (int i=0; i<n; i++)
+            sv_p.setUnchecked(i, x[i]);
+    
+
+        // useful quantites
+        double H = ev.solver->evalHamiltonian(ev.q, sv_p);
+
+        g[0] = H;
+
+        return true;
+    }
+
+    // Jacobian of constraints
+    virtual bool eval_jac_g(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Index m,
+        Index nele_jac,
+        Index* iRow,
+        Index *jCol,
+        Number* values)
+    {
+
+        
+
+        if(values == nullptr)
+        {
+            int idx = 0;
+            for (int i=0; i<n; i++)
+            {
+                iRow[idx] = 0;   // just one constraint
+                jCol[idx] = i;   // derivative with respect to p_i
+                idx++;
+            }
+        }
+        else
+        {
+            StateVec sv_p;
+            sv_p.insertMultiple(0, 0., n);
+            for (int i=0; i<n; i++)
+                sv_p.setUnchecked(i, x[i]);
+
+            // useful quantites
+            StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
+
+            if (dHdp.size() != n)
+            {
+                return false;
+            }
+
+            for (int i=0; i<n; i++)
+            {
+                values[i] = dHdp.getUnchecked(i); // dH/dp_i
+            }
+        }
+
+        return true;
+    }
+
+    // Hessian of Lagrangian
+    virtual bool eval_h(
+        Index n,
+        const Number* x,
+        bool new_x,
+        Number obj_factor,
+        Index m,
+        const Number* lambda,
+        bool new_lambda,
+        Index nele_hess,
+        Index* iRow,
+        Index* jCol,
+        Number* values)
+    {
+        if(values == nullptr)
+        {
+            int idx = 0;
+            for (int i=0; i<n; i++)
+            {
+                for (int j=0; j<n; j++)
+                {
+                    iRow[idx] = i;
+                    jCol[idx] = j;
+                    idx++;
+                }
+            }
+        }
+        else
+        {
+
+            // retrieve p
+            StateVec sv_p;
+            sv_p.insertMultiple(0, 0., n);
+            for (int i=0; i<n; i++)
+                sv_p.setUnchecked(i, x[i]);
+
+            juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_p);
+
+            // hessian of the lagrangian = lambda * hessian of H
+            int idx = 0;
+            for (int i=0; i<n; i++)
+            {
+                for (int j=0; j<n; j++)
+                {
+                    values[idx] = lambda[0] * hess(i, j);
+                    idx++;
+                }
+            }
+
+        }
+
+        return true;
+    }
+    
+
+    virtual void finalize_solution(
+        SolverReturn status,
+        Index n,
+        const Number* x,
+        const Number* z_L,
+        const Number* z_U,
+        Index m,
+        const Number* g,
+        const Number* lambda,
+        Number obj_value,
+        const IpoptData* ip_data,
+        IpoptCalculatedQuantities* ip_cq)
+    {
+        pstar.clear();
+        for (int i=0; i<n; i++)
+        {
+            pstar.add(x[i]);
+        }
+        if (lambda[0]<=0.)
+        {
+            //s = 0.;
+            mu = 1.;
+        }
+        else
+        {
+            //s = std::log(lambda[0]);
+            mu = 1. / lambda[0];
+        }
+    }
+
+private:
+    EncapsVarForGSL ev;
+    int idx;
+    StateVec pstar;
+    //double s;
+    double mu;
+};
+
+
+
+
 
 
 

@@ -248,6 +248,7 @@ private:
   // for printing history to file
   //Array<double> actionDescent;
   juce::Array<juce::Array<double>> actionDescent;
+  juce::Array<juce::Array<double>> timeDescent;
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
   juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history

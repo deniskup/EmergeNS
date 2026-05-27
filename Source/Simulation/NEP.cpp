@@ -309,6 +309,7 @@ void NEP::run()
       LOG("Using backtracking method with initial step " + to_string(stepDescentInit_dynamic));
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
       LOG("using step = " + to_string(stepDescent));
+      stepDescent = stepDescentInitVal->floatValue();
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
     }
     
@@ -373,6 +374,9 @@ void NEP::run()
     }
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << g_qcurve.size() << " + " << g_pcurve.size() << endl;
     trajDescent.add(newtraj);
+
+    // keep track of times
+    timeDescent.add(g_times);
     
     // keep track of gsl convergence status
     gslStatus_descent.add(liftoptres.gslStatus);
@@ -1227,7 +1231,7 @@ void NEP::writeDescentToFile()
   // open output file
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
-  filename += to_string(sst_stable->intValue()) + "->" + to_string(sst_saddle->intValue());
+  filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_saddle->intValue());
   filename += "_" + to_string(nPoints_max->intValue());
   filename += ".csv";
   ofstream historyFile;
@@ -1241,7 +1245,7 @@ void NEP::writeDescentToFile()
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
-  historyFile << "iteration,point,gslStatus,collinearStatus,action";
+  historyFile << "iteration,point,gslStatus,collinearStatus,action,time";
   for (auto & ent : simul->entities)
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
@@ -1260,6 +1264,7 @@ void NEP::writeDescentToFile()
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
+  jassert(actionDescent.size() == timeDescent.size());
   //jassert(actionDescent.size() == dAdqDescent.size());
   //jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
@@ -1280,7 +1285,7 @@ void NEP::writeDescentToFile()
       historyFile << iter << "," << point;
       historyFile << "," << gslStatus_descent.getUnchecked(iter).getUnchecked(point) << "," << collinearityStatus_descent.getUnchecked(iter).getUnchecked(point);
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
-      
+      historyFile << "," << timeDescent.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);

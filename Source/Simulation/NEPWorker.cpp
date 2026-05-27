@@ -1510,7 +1510,8 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     // proble to solve
     //Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx, useChangeOfVariable);
-    Ipopt::SmartPtr<HamiltonProblem_falseMin> problem = new HamiltonProblem_falseMin(ev, idx);
+    //Ipopt::SmartPtr<HamiltonProblem_falseMin> problem = new HamiltonProblem_falseMin(ev, idx);
+    Ipopt::SmartPtr<HamiltonProblem_3> problem = new HamiltonProblem_3(ev, idx);
 
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
