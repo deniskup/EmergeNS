@@ -1015,6 +1015,7 @@ void NEP::initConcentrationCurve()
     
     // set first point of qcurve = qF (unstable state)
     g_qcurve.add(qF);
+    g_times.add(0.);
     
     // set initial concentration of entities to be very close from qF in the direction of qI
     Curve sl = {qI, qF};
@@ -1059,6 +1060,7 @@ void NEP::initConcentrationCurve()
       for (int k=0; k<entities.size(); k++)
         qi.add(entities[k]->concent.getUnchecked(0));
       g_qcurve.add(qi);
+      g_times.add(t);
       
       // calculate variation in last dt
       distance = 0.;
@@ -1968,11 +1970,41 @@ void NEP::heteroclinicStudy()
 {
   reset();
 
+  simul->affectSATIds();
+
+
   // init concentration curve
-  initConcentrationCurve();
+  LOG("init g_qcurve");
+  try
+  {
+    initConcentrationCurve();
+  } catch (const std::exception& e)
+  {
+    LOGWARNING(e.what());
+    return;
+  }
+
+
+
+  // p curve = null vector
+  StateVec pnull;
+  pnull.insertMultiple(0, 0., g_qcurve.size());
+
+  Trajectory qcurve = g_qcurve;
+  Trajectory pcurve;
+
+  for (int i=0; i<qcurve.size(); i++)
+  {
+    pcurve.add(pnull);
+  }
+
+  StateVec action = nepsolver->calculateAction(qcurve, pcurve, g_times);
+
+  LOG("Action proxy = " + String(action.getLast()));
+
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
-  liftCurveWithGSL(g_qcurve, true);
+  //liftCurveWithGSL(g_qcurve, true);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();
@@ -1989,6 +2021,7 @@ void NEP::heteroclinicStudy()
     qF.set(pairF.first->idSAT, pairF.second);
   }
   */
+  /*
   // define starting point for integrating hamilton equation of motion
   StateVec q_init;
   StateVec p_init;
@@ -2041,7 +2074,7 @@ void NEP::heteroclinicStudy()
         historyFile << trajback.getUnchecked(k).getUnchecked(m) << ",";
       historyFile << endl;
   }
-  
+  */
 }
 
 
