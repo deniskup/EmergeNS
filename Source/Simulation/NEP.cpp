@@ -214,6 +214,7 @@ void NEP::reset()
   // reset previous calculations
   actionDescent.clear();
   trajDescent.clear();
+  timeDescent.clear();
   dAdqDescent.clear();
   dAdqDescent_filt.clear();
   gslStatus_descent.clear();
@@ -309,7 +310,7 @@ void NEP::run()
       LOG("Using backtracking method with initial step " + to_string(stepDescentInit_dynamic));
       stepDescent = backTrackingMethodForStepSize(g_qcurve);
       LOG("using step = " + to_string(stepDescent));
-      stepDescent = stepDescentInitVal->floatValue();
+      //stepDescent = stepDescentInitVal->floatValue();
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
     }
     
@@ -481,6 +482,9 @@ void NEP::run()
     
     
     // functional gradient dA / dq
+    dAdq.clear();
+    dAdq_filt.clear();
+    juce::Array<StateVec> dAdq_H, dAdq_qt;
     for (int point=0; point<nPoints; point++)
     {
       StateVec dHdqk = nepsolver->evalHamiltonianGradientWithQ(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
@@ -497,15 +501,20 @@ void NEP::run()
       }
       //cout << "point " << point << endl;
       StateVec dAdqk;
+      StateVec dAdqk_H, dAdqk_qt;
       for (int m=0; m<dHdqk.size(); m++)
       {
-        dAdqk.add(-dHdqk.getUnchecked(m) - dpdtk.getUnchecked(m));
+        dAdqk.add(dHdqk.getUnchecked(m) + dpdtk.getUnchecked(m));
+        dAdqk_H.add(dHdqk.getUnchecked(m));
+        dAdqk_qt.add(dpdtk.getUnchecked(m));
         //cout << "\t" << -dHdqk.getUnchecked(m) << " " << - dpdtk.getUnchecked(m) << endl;
       }
       
       dAdq.add(dAdqk);
+      dAdq_H.add(dAdqk_H);
+      dAdq_qt.add(dAdqk_qt);
     }
-    //dAdqDescent.add(dAdq);
+    dAdqDescent.add(dAdq);
     
     // filter gradient
     dAdq_filt = dAdq;
@@ -514,6 +523,41 @@ void NEP::run()
    
     if (maxPrinting->boolValue())
     {
+      debugfile << "-- dAdq_H --" << endl;
+      debugfile << "[ ";
+      for (int p=0; p<nPoints; p++)
+      {
+        debugfile << "(";
+        StateVec dAdqk = dAdq_H.getUnchecked(p);
+        int c=0;
+        for (auto & coord : dAdqk)
+        {
+          string closebracket = (p == nPoints-1 ? ") " : "), ");
+          string comma = ( c==dAdqk.size()-1 ? closebracket : "," );
+          debugfile << coord << comma;
+          c++;
+        }
+      }
+      debugfile << " ]" << endl;
+
+      debugfile << "-- dAdq_qt --" << endl;
+      debugfile << "[ ";
+      for (int p=0; p<nPoints; p++)
+      {
+        debugfile << "(";
+        StateVec dAdqk = dAdq_qt.getUnchecked(p);
+        int c=0;
+        for (auto & coord : dAdqk)
+        {
+          string closebracket = (p == nPoints-1 ? ") " : "), ");
+          string comma = ( c==dAdqk.size()-1 ? closebracket : "," );
+          debugfile << coord << comma;
+          c++;
+        }
+      }
+      debugfile << " ]" << endl;
+
+
       debugfile << "-- dAdq --" << endl;
       debugfile << "[ ";
       for (int p=0; p<nPoints; p++)
@@ -656,7 +700,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     std::cout << "\rProgress : " << percent << "%" << std::flush;
     sleep(1000);
   }
-  std::cout << "\rend NLS." << std::endl;
+  std::cout << "\rProgress : " << 100 << "%" << std::endl;
   
   
   
@@ -1250,8 +1294,8 @@ void NEP::writeDescentToFile()
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
-  //for (auto & ent : simul->entities)
-  //  historyFile << ",dAdq_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",dAdq_" << ent->name;
   //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",res_H";
@@ -1265,7 +1309,8 @@ void NEP::writeDescentToFile()
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
   jassert(actionDescent.size() == timeDescent.size());
-  //jassert(actionDescent.size() == dAdqDescent.size());
+  cout << "action descent : " << actionDescent.size() << " vs time descent " << timeDescent.size() << endl;
+  jassert(actionDescent.size() == dAdqDescent.size());
   //jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
   jassert(actionDescent.size() == collinearityStatus_descent.size());
@@ -1287,7 +1332,7 @@ void NEP::writeDescentToFile()
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
       historyFile << "," << timeDescent.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
-      //StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
       Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
       
@@ -1300,8 +1345,8 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
-      //for (int m=0; m<dAdq_local.size(); m++)
-      //  historyFile << "," << dAdq_local.getUnchecked(m);
+      for (int m=0; m<dAdq_local.size(); m++)
+        historyFile << "," << dAdq_local.getUnchecked(m);
       //for (int m=0; m<dAdq_filt_local.size(); m++)
       //  historyFile << "," << dAdq_filt_local.getUnchecked(m);
       historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
@@ -1342,7 +1387,7 @@ bool NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
       for (int m=0; m<newqcurve.getUnchecked(k).size(); m++)
       {
         //newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq_filt.getUnchecked(k).getUnchecked(m) );
-        double q = newqcurve.getUnchecked(k).getUnchecked(m) - step * dAdq.getUnchecked(k).getUnchecked(m);
+        double q = newqcurve.getUnchecked(k).getUnchecked(m) + step * dAdq.getUnchecked(k).getUnchecked(m);
         if (q<0. && updateAllowed)
           updateAllowed = false;
         newqk.add(q);
@@ -1374,30 +1419,13 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
   double step = stepDescentInit_dynamic;
   double minstep = 0.99*d_stepDescentThreshold;
   
-  // time is such that minstep would be reached at last iteration
+  // timeout is such that minstep would be reached at last iteration
   int timeout = round(log(step/minstep) / log(2)) + 1;
   
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
-  //cout << "Init guess : " << step << endl;
   
   Array<double> cumulaction = nepsolver->calculateAction(qc, g_pcurve, g_times);
   double currentaction = cumulaction.getLast();
-  /* debugging
-  cout << "current action = " << currentaction << endl;
-  cout << "current q = " ;
-  for (auto & qm : qc.getUnchecked(nPoints/2))
-    cout << qm << " ";
-  cout << endl;
-  cout << "deltaq = " ;
-  for (auto & qm : deltaqc.getUnchecked(nPoints/2))
-    cout << qm << " ";
-  cout << endl;
-  cout << "p = " ;
-  for (auto & pm : g_pcurve.getUnchecked(nPoints/2))
-    cout << pm << " ";
-  cout << endl;
-  cout << "t = " << g_times.getUnchecked(nPoints/2) << endl;
-  */
   
   StateVec nullvec;
   nullvec.insertMultiple(0, 0., simul->entities.size());
@@ -1405,7 +1433,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
  
   for (int iter=0; iter<timeout; iter++)
   {
-    if (step<1e-5)
+    if (step<d_stepDescentThreshold)
     {
       break;
     }
@@ -1413,7 +1441,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     
     //cout << "trying step = " << step << endl;
     
-    // update concentration curve corresponding to current step
+    // Try to update concentration curve with current step (returns false typically if concentrations would reach negative values)
     Curve newcurve = qc;
     bool updateIsValid = updateOptimalConcentrationCurve(newcurve, step);
     //cout << "update is Valid : " << updateIsValid << endl;
@@ -1427,50 +1455,21 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     // find the corresponding lifted full trajectory, without updating global variables
     LiftResults liftResults = liftCurveWithGSL(newcurve, false);
     
-    /* debugging
-    cout << "new q = ";
-    for (auto & qm : newcurve.getUnchecked(nPoints/2))
-      cout << qm << " ";
-    cout << endl;
-    cout << "new p = " ;
-    for (auto & pm : g_pcurve.getUnchecked(nPoints/2))
-      cout << pm << " ";
-    cout << endl;
-    cout << "new t = " << times.getUnchecked(nPoints/2) << endl;
-    */
-    
-    /*
-    // sanity check
-    for (int point=0; point<nPoints; point++)
-    {
-      StateVec q = qc.getUnchecked(point);
-      StateVec dq = deltaqc.getUnchecked(point);
-      StateVec diff = newcurve.getUnchecked(point);
-      cout << "step = " << step << endl;
-      for (int m=0; m<q.size(); m++)
-      {
-        cout << q.getUnchecked(m) << " - " << dq.getUnchecked(m) << " = " << diff.getUnchecked(m) << endl;
-      }
-    }
-    */
     
     // calculate action that would correspond to new concentration curve
     Array<double> newcumulaction = nepsolver->calculateAction(newcurve, liftResults.pcurve, liftResults.times);
     double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
-    if (newact>=currentaction || newact<0.)
+    if (newact>=currentaction || newact<0.) // invalid step
     {
-      //cout << "decreasing step" << endl;
       step *= 0.5; // hardcoded (1/2)^17 = 7.6e-6, should be enough
-      //cout << "new step val = " << step << endl;
     }
     else
     {
       //cout << "exiting loop" << endl;
       break;
     }
-  }
-  //cout << "used = " << count << " iterations in backtracking method" << endl;
+  } // end backtracking loop 
 
   // if step is below threshold, set it to 0
   if (step<d_stepDescentThreshold)

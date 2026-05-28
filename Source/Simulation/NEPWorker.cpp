@@ -1251,6 +1251,7 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
 NLSresults NEPWorker::findOptimalMomentumAndTime()
 {
   double dt = 1.; // optimal time assigned between each q(i) and q(i+1)
+  double mu = 1.; // optimal time assigned between each q(i) and q(i+1)
   StateVec pstar; // optimal momentum assigned between each q(i) and q(i+1)
   pstar.insertMultiple(0, 0., crn.entities.size());
   
@@ -1315,7 +1316,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     }
     // dt
     double last = gsl_vector_get(s->x, n_local-1);
-    double mu = exp(last);
+    mu = exp(last);
     dt = ev.dq_norm2 / mu;
     if (isnan(dt) || isinf(dt) || dt==0.)
       gslStatus = -1;
@@ -1391,7 +1392,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       pstar.add(gsl_vector_get(s_p->x, m) * ev.pnorm.getUnchecked(m));
     }
     // dt
-    double mu = exp(s_mu->root);
+    mu = exp(s_mu->root);
     double dt = ev.dq_norm2 / mu;
     jassert(!isnan(dt) && !isinf(dt));
     if (isnan(dt) || isinf(dt) || dt==0.)
@@ -1483,7 +1484,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       pstar.add(gsl_vector_get(s_p->x, m)); //* ev.pnorm.getUnchecked(m));
     }
     // deduce dt from mu
-    double mu = exp(s_mu->root);
+    mu = exp(s_mu->root);
     dt = ev.dq_norm2 / mu;
     jassert( !isnan(dt) && !isinf(dt));
     if (isnan(dt) || isinf(dt) || dt==0.)
@@ -1549,8 +1550,12 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // retrieve results
     pstar = problem->getPstar();
     //double mu = std::exp(problem->getS());
-    double mu = problem->getMu();
-    dt = mu / ev.dq_norm2;
+    mu = problem->getMu();
+    jassert(mu > 0.);
+    if (mu > 0.)
+      dt = ev.dq_norm2 / mu;
+    else
+      dt = 1.;
 
     // residuals
     // H(p,q) = 0
@@ -1590,6 +1595,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   // returning results of the
   NLSresults output;
   output.dt = dt;
+  output.mu = mu;
   output.pstar = pstar;
   output.gslStatus = gslStatus;
   output.collinearTest = convergenceSanityCheck;

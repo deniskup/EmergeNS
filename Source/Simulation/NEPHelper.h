@@ -33,6 +33,7 @@ struct CRNSnapshot
 struct NLSresults
 {
   double dt;
+  double mu;
   StateVec pstar;
   int gslStatus;
   int collinearTest;
@@ -44,6 +45,7 @@ struct LiftResults
 {
     juce::Array<StateVec> pstar;
     juce::Array<double> dt;
+    juce::Array<double> mu;
     pCurve pcurve;
     juce::Array<double> times;
     juce::Array<int> gslStatus;
