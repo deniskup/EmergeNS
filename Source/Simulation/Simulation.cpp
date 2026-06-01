@@ -2076,7 +2076,7 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
-  if (currentTime > totalTime->floatValue())
+  if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
   {
     stop();
     return;
