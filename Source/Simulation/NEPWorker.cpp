@@ -1531,6 +1531,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     app->Options()->SetStringValue("hessian_approximation", "limited-memory");
     app->Options()->SetStringValue("linear_solver", "mumps");
     app->Options()->SetIntegerValue("print_level", 0);
+    app->Options()->SetIntegerValue("max_iter", 500);
     //app->Options()->SetStringValue("derivative_test","first-order");
     //app->Options()->SetIntegerValue("maxiter",10);
 
@@ -1569,9 +1570,12 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     }
 
     gslStatus = status;
+
+    StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
     //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
-    //  cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+    cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
+    cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
 
   
   }
