@@ -172,9 +172,9 @@ private:
   
   bool descentShouldContinue(int);
   
-  LiftResults nonLinearEquationSolving(const Curve&, int nls, bool);
+  LiftResults nonLinearEquationSolving(const Curve&, int nls, bool, const int);
   
-  LiftResults liftCurveWithGSL(const Curve&, bool);
+  LiftResults liftCurveWithGSL(const Curve&, bool, const int);
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
@@ -184,7 +184,7 @@ private:
   //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   //juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
-  double backTrackingMethodForStepSize(const Curve& c);
+  double backTrackingMethodForStepSize(const Curve& c, LiftResults&);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
@@ -252,6 +252,8 @@ private:
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
   juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  juce::Array<Trajectory> dAdqDescent_dHdq; 
+  juce::Array<Trajectory> dAdqDescent_dpdt; 
   juce::Array<juce::Array<int>> gslStatus_descent;
   juce::Array<juce::Array<int>> collinearityStatus_descent;
   juce::Array<juce::Array<double>> residuals_H_descent;

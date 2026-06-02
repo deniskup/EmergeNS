@@ -304,11 +304,15 @@ void NEP::run()
   {
     count++;
     LOG("\niteration #" + to_string(count-1));
-    
+
+    LiftResults liftResults;
+    bool liftSuccess = false;
+
     if (count>1)
     {
       LOG("Using backtracking method with initial step " + to_string(stepDescentInit_dynamic));
-      stepDescent = backTrackingMethodForStepSize(g_qcurve);
+      stepDescent = backTrackingMethodForStepSize(g_qcurve, liftResults);
+      liftSuccess = (stepDescent > 0.);
       LOG("using step = " + to_string(stepDescent));
       //stepDescent = stepDescentInitVal->floatValue();
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
@@ -335,10 +339,14 @@ void NEP::run()
     }
     
     // lift current trajectory to full (q ; p; t) space
-    // this function updates global variables g_pcurve and times
-    LOG("lifting trajectory");
     //LiftResults liftoptres = liftCurveToTrajectoryWithNLOPT();
-    LiftResults liftoptres = liftCurveWithGSL(g_qcurve, true);
+    LOGWARNING("Reseting lift success to false for debugging.");
+    liftSuccess = false; // just for debugging
+    if (!liftSuccess)
+    {
+      LOG("Lift curve");
+      liftResults = liftCurveWithGSL(g_qcurve, true, count); 
+    }
     
     
     
@@ -346,9 +354,9 @@ void NEP::run()
     double successFrac = 0.;
     double d_npoints = (double) nPoints - 1.;
     jassert(d_npoints>0.);
-    for (int k=0; k<liftoptres.collinearity.size()-1; k++)
+    for (int k=0; k<liftResults.collinearity.size()-1; k++)
     {
-     if (liftoptres.collinearity.getUnchecked(k) == 1)
+     if (liftResults.collinearity.getUnchecked(k) == 1)
        successFrac += 1. / d_npoints;
     }
     if (isinf(successFrac) || isnan(successFrac))
@@ -357,8 +365,8 @@ void NEP::run()
     cout << "Convergence Fraction = " << successFrac << "%" << endl;
     
     // update global variable with lift results
-    g_pcurve = liftoptres.pcurve;
-    g_times = liftoptres.times;
+    g_pcurve = liftResults.pcurve;
+    g_times = liftResults.times;
     
     // keep track of trajectory update in (q ; p) space
     Trajectory newtraj;
@@ -380,12 +388,12 @@ void NEP::run()
     timeDescent.add(g_times);
     
     // keep track of gsl convergence status
-    gslStatus_descent.add(liftoptres.gslStatus);
-    collinearityStatus_descent.add(liftoptres.collinearity);
+    gslStatus_descent.add(liftResults.gslStatus);
+    collinearityStatus_descent.add(liftResults.collinearity);
     
     // Keep track of residuals
-    residuals_H_descent.add(liftoptres.residuals_H);
-    residuals_p_descent.add(liftoptres.residuals_p);
+    residuals_H_descent.add(liftResults.residuals_H);
+    residuals_p_descent.add(liftResults.residuals_p);
     
     /*
     if (maxPrinting->boolValue())
@@ -494,8 +502,8 @@ void NEP::run()
       {
         for (int m=0; m<dHdqk.size(); m++)
         {
-          double dpm = liftoptres.pstar.getUnchecked(point).getUnchecked(m) - liftoptres.pstar.getUnchecked(point-1.).getUnchecked(m);
-          double dtm = 0.5*(liftoptres.dt.getUnchecked(point) + liftoptres.dt.getUnchecked(point-1));
+          double dpm = liftResults.pstar.getUnchecked(point).getUnchecked(m) - liftResults.pstar.getUnchecked(point-1.).getUnchecked(m);
+          double dtm = 0.5*(liftResults.dt.getUnchecked(point) + liftResults.dt.getUnchecked(point-1));
           dpdtk.setUnchecked(m, dpm/dtm);
         }
       }
@@ -515,6 +523,8 @@ void NEP::run()
       dAdq_qt.add(dAdqk_qt);
     }
     dAdqDescent.add(dAdq);
+    dAdqDescent_dHdq.add(dAdq_H);
+    dAdqDescent_dpdt.add(dAdq_qt);
     
     // filter gradient
     dAdq_filt = dAdq;
@@ -608,7 +618,7 @@ void NEP::run()
 
 
 
-LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed)
+LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed, const int iteration)
 {
   juce::Array<NLSresults> nlsResults;
   nlsResults.resize(nPoints-1);
@@ -650,9 +660,12 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     // equation normalization
     Array<double> eqnorm;
     eqnorm.insertMultiple(0, 1., n);
-    ev.equation_norm = eqnorm;
+    ev.equation_norm = eqnorm;    
 
     jassert(ev.dq_norm2 > 0.);
+
+    // verbose
+    ev.maxPrintingAllowed = maxPrintingAllowed;
   
     // define v = dq / || dq ||
     StateVec v;
@@ -681,6 +694,8 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     }
     ev.dt_prev = dt_prev;
     ev.pstar_prev = pstar_prev;
+
+    ev.iteration = iteration;
     
     pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed ,useChangeOfVariable->boolValue()), true);
   }
@@ -752,7 +767,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   
 }
 
-LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
+LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, const int iteration)
 {
   
   
@@ -762,7 +777,7 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
   
   
   // GSL to find optimal momentum and dt associated to qcurve
-  LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed);
+  LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed, iteration);
   
   /*
   if (solverType->getValueDataAsEnum<int>() == 0)
@@ -1296,6 +1311,10 @@ void NEP::writeDescentToFile()
     historyFile << ",p_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",dAdq_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",dAdq_dHdq_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",dAdq_dpdt_" << ent->name;
   //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",res_H";
@@ -1309,8 +1328,9 @@ void NEP::writeDescentToFile()
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
   jassert(actionDescent.size() == timeDescent.size());
-  cout << "action descent : " << actionDescent.size() << " vs time descent " << timeDescent.size() << endl;
   jassert(actionDescent.size() == dAdqDescent.size());
+  jassert(actionDescent.size() == dAdqDescent_dHdq.size());
+  jassert(actionDescent.size() == dAdqDescent_dpdt.size());
   //jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
   jassert(actionDescent.size() == collinearityStatus_descent.size());
@@ -1333,6 +1353,8 @@ void NEP::writeDescentToFile()
       historyFile << "," << timeDescent.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
       StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_dHdq_local = dAdqDescent_dHdq.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_dpdt_local = dAdqDescent_dpdt.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
       Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
       
@@ -1347,6 +1369,10 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=0; m<dAdq_local.size(); m++)
         historyFile << "," << dAdq_local.getUnchecked(m);
+      for (int m=0; m<dAdq_dHdq_local.size(); m++)
+        historyFile << "," << dAdq_dHdq_local.getUnchecked(m);
+      for (int m=0; m<dAdq_dpdt_local.size(); m++)
+        historyFile << "," << dAdq_dpdt_local.getUnchecked(m);
       //for (int m=0; m<dAdq_filt_local.size(); m++)
       //  historyFile << "," << dAdq_filt_local.getUnchecked(m);
       historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
@@ -1413,7 +1439,7 @@ bool NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
 
 
 //double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& dAdq)
-double NEP::backTrackingMethodForStepSize(const Curve& qc)
+double NEP::backTrackingMethodForStepSize(const Curve& qc, LiftResults & _liftResults)
 {
   // init step with previous value of stepDescent
   double step = stepDescentInit_dynamic;
@@ -1453,7 +1479,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     }
     
     // find the corresponding lifted full trajectory, without updating global variables
-    LiftResults liftResults = liftCurveWithGSL(newcurve, false);
+    LiftResults liftResults = liftCurveWithGSL(newcurve, false, 0);
     
     
     // calculate action that would correspond to new concentration curve
@@ -1467,6 +1493,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     else
     {
       //cout << "exiting loop" << endl;
+      _liftResults = liftResults;
       break;
     }
   } // end backtracking loop 
@@ -2010,7 +2037,7 @@ void NEP::heteroclinicStudy()
   initConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
-  liftCurveWithGSL(g_qcurve, true);
+  liftCurveWithGSL(g_qcurve, true, 0);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();

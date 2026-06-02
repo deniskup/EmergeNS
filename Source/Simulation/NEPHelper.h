@@ -78,6 +78,8 @@ struct EncapsVarForGSL {
   StateVec pstar_prev;
   double dt_prev;
   NEPSolver * solver;
+  bool maxPrintingAllowed = false;
+  int iteration;
 };
 
 

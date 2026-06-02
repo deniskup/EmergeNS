@@ -1516,7 +1516,13 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
-    app->Options()->SetIntegerValue("print_level", 12);
+
+    if (idx == 25 && ev.maxPrintingAllowed)
+      app->Options()->SetIntegerValue("print_level", 0);
+    else
+      app->Options()->SetIntegerValue("print_level", 0);
+    app->Options()->SetStringValue("output_file", "ipopt.out");
+    
 
     long double tol4ipopt = tolerance*tolerance * (long double) ev.n;
 
@@ -1525,12 +1531,14 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     app->Options()->SetNumericValue("acceptable_constr_viol_tol", 1000.*tolerance);
 
     app->Options()->SetStringValue("mu_strategy", "adaptive");
-    app->Options()->SetStringValue("output_file", "ipopt.out");
+
+    std::string output_file_name = "ipopt_" + std::to_string(ev.iteration) + ".out";
+
+    app->Options()->SetStringValue("output_file", output_file_name.c_str());
     // The following overwrites the default name (ipopt.opt) of the options file
     // app->Options()->SetStringValue("option_file_name", "hs071.opt");
-    app->Options()->SetStringValue("hessian_approximation", "limited-memory");
+    app->Options()->SetStringValue("hessian_approximation", "exact");
     app->Options()->SetStringValue("linear_solver", "mumps");
-    app->Options()->SetIntegerValue("print_level", 0);
     app->Options()->SetIntegerValue("max_iter", 500);
     //app->Options()->SetStringValue("derivative_test","first-order");
     //app->Options()->SetIntegerValue("maxiter",10);
@@ -1563,6 +1571,28 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     residuals_H = std::abs(ev.solver->evalHamiltonian(ev.q, pstar));
     // dH/dp = mu • v
     StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
+
+
+    juce::dsp::Matrix<double> hessian = ev.solver->evalHamiltonianHessianWithP(ev.q, pstar);
+    Eigen::MatrixXd jmp_hessian(hessian.getNumRows(), hessian.getNumColumns());
+    for (int i=0; i<jmp_hessian.rows(); i++)
+    {
+      for (int j=0; j<jmp_hessian.cols(); j++)      
+      {
+        jmp_hessian(i, j) = hessian(i, j);
+      }
+    }
+     //init eigen solver objects for current jacobi matrix
+    Eigen::EigenSolver<Eigen::MatrixXd> es(jmp_hessian);
+    if (es.info() == Eigen::Success) // if diagonalization succeeded
+    {
+    //retrieve eigenvalues :
+  // cout << es.eigenvalues() << endl;
+  // cout << es.eigenvectors() << endl;
+  //   // retrieve eigenvalues if diagonalized
+    }
+
+
     for (int k=0; k<dHdp.size(); k++)
     {
       double r = dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k);
@@ -1574,8 +1604,17 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
     //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
-    cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
-    cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
+    if (idx>10 && idx < 30 && maxPrintingAllowed)
+    {
+      cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
+      cout << "lambda = " << 1/mu << endl;
+      cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
+      cout << "dH/dp = ";
+      for (auto & el : dHdp)
+        cout << el << " ";      
+      cout << endl;
+      cout << "d2h/dp2_eigenval = \n" <<  es.eigenvalues() << endl;
+    }
 
   
   }
