@@ -15,7 +15,18 @@
 #include "FirstEscapeTimeWorker.h"
 
 
-class FirstEscapeTime : public Simulation::AsyncSimListener
+class EscapeListener
+{
+public:
+    virtual ~EscapeListener() = default;
+
+    virtual void escapeDetected(const Escape&) = 0;
+};
+
+
+
+class FirstEscapeTime : public Simulation::AsyncSimListener,
+                        public EscapeListener 
 {
 public:
   juce_DeclareSingleton(FirstEscapeTime, true);
@@ -27,22 +38,26 @@ public:
   void startStudy();
     
 private:
-  
-  int identifyAttractionBasin(ConcentrationGrid &, float);
+
+  void copyReactionNetwork();
     
   SimEntity * getSimEntityForID(const size_t);
-  
-  //void printResultsToFile();
-  
+    
   void newMessage(const Simulation::SimulationEvent &e) override;
-  
-  FirstEscapeTimeWorker * worker;
-  
+
+  void escapeDetected(const Escape&) override;
+
+  juce::ThreadPool * pool;
+    
   Simulation * simul;
   
+  CRNSimulation crn;
 
+  juce::Array<Escape> pendingEscapes;
+  juce::CriticalSection pendingEscapesLock;
 
   // to store escape times during this study
+  // unique escape time per run
   juce::Array<float> escapeTimes;
   
   juce::String networkfile = "./nextwork.txt";
@@ -56,6 +71,7 @@ private:
   // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
   float dt_study = 0.1; // time step used to identify in which attraction basin the system is
   bool printDynamics2File = false;
+  int cores = 1;
   
 
   

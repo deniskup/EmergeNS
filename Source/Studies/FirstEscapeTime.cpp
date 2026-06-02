@@ -5,8 +5,9 @@ FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
 {
   if (simul == nullptr)
     LOGWARNING("SImulation pointer init. to null pointer");
-  worker = new FirstEscapeTimeWorker(*simul);
+  //worker = new FirstEscapeTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
+  copyReactionNetwork();
 }
 
 //SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
@@ -19,6 +20,44 @@ FirstEscapeTime::~FirstEscapeTime()
   //simul->removeAsyncContainerListener(this);
 }
 
+
+void FirstEscapeTime::escapeDetected(const Escape& e)
+{
+    const juce::ScopedLock sl(pendingEscapesLock);
+    pendingEscapes.add(e);
+}
+
+
+void FirstEscapeTime::copyReactionNetwork()
+{
+  crn.entities.clear();
+  crn.reactions.clear();
+    
+  // fill entity array with copies of the ones present in the simulation instance
+  // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
+  // or make sure to update the simentity concentration value with the one
+  for (auto & ent : simul->entities)
+    crn.entities.add(ent->clone().release());
+  
+  for (auto & ent : crn.entities)
+    ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+  
+  for (auto & r : simul->reactions)
+  {
+    Array<SimEntity*> reactants;
+    Array<SimEntity*> products;
+    for (auto & e : r->reactants)
+    {
+      reactants.add(simul->entities[e->idSAT]);
+    }
+    for (auto & e : r->products)
+    {
+      products.add(simul->entities[e->idSAT]);
+    }
+    SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+    crn.reactions.add(copyr);
+  }
+}
 
 
 void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
@@ -51,6 +90,8 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
       startSteadyState = atoi(val.toUTF8());
     else if (key == "dynamics2file")
       printDynamics2File = atoi(val.toUTF8());
+    else if (key == "cores")
+      cores = atoi(val.toUTF8());
   }
   printDynamics2File = bool(printDynamics2File);
   
@@ -79,10 +120,25 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   PhasePlane::getInstance()->clearAllRuns();
   PhasePlane::getInstance()->nRuns->setValue(nruns);
   PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
+
+  // correct number of threads if they exceed that of the hardware
+  if (cores == 0)
+  {
+    LOGWARNING("Number of cores set to 0, reset its value to default value 1.");
+    cores = 1;
+  }
+  int maxCores = juce::SystemStats::getNumCpus(); 
+  cores = std::min(cores, maxCores);
+
+  // if cores is set to negative integer, it means that the user wants to use all available cores
+  if (cores < 0)
+    cores = maxCores;
   
-  // pass relevant parameters to the worker
-  worker->reset(); // will copy some simulation thread parameters
-  worker->setConfig(configs); // will copy some input config file parameters
+  // init the threadpool
+  pool = new juce::ThreadPool(cores);
+  //worker->setSimulation(*simul);
+  //worker->reset(); // will copy some simulation thread parameters
+  //worker->setConfig(configs); // will copy some input config file parameters
   
   // force simulation thread to not store dynamics 
   simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
@@ -175,7 +231,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       
     case Simulation::SimulationEvent::WILL_START:
     {
-      worker->startThread(); // start the worker thread
+      //worker->startThread(); // start the worker thread
     }
   break;
 
@@ -192,8 +248,11 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       float time = simul->dt->floatValue() * static_cast<float>(ev.nStep);
       //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
       if (!simul->redrawRun && !simul->redrawPatch)
-        worker->submitSnapshot(cg, time, ev.run);
-      //identifyAttractionBasin(cg, time);
+      {
+        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, escapes, ev.run, ev.time, exitTimePrecision, startSteadyState);
+        pool->addJob(newJob, true);
+      }
+        //worker->submitSnapshot(cg, time, ev.run);
     }
   break;
       

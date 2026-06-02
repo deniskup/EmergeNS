@@ -1,7 +1,7 @@
 #include "FirstEscapeTimeWorker.h"
 using namespace juce;
 
-void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
+/*void FirstEscapeTimeJob::setConfig(map<String, String> configs)
 {
   for (auto& [key, val] : configs)
   {
@@ -25,83 +25,10 @@ void FirstEscapeTimeWorker::setConfig(map<String, String> configs)
       superRun = atoi(val.toUTF8());
   }
 }
+*/
 
 
-
-void FirstEscapeTimeWorker::reset()
-{
-  entities.clear();
-  reactions.clear();
-  
-  // Must be called here, otherwise copy will not work properly
-  simul.affectSATIds();
-  
-  // fill entity array with copies of the ones present in the simulation instance
-  // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
-  // or make sure to update the simentity concentration value with the one
-  for (auto & ent : simul.entities)
-    entities.add(ent->clone().release());
-  
-  for (auto & ent : entities)
-    ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
-  
-  for (auto & r : simul.reactions)
-  {
-    Array<SimEntity*> reactants;
-    Array<SimEntity*> products;
-    for (auto & e : r->reactants)
-    {
-      reactants.add(entities[e->idSAT]);
-    }
-    for (auto & e : r->products)
-    {
-      products.add(entities[e->idSAT]);
-    }
-    SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
-    reactions.add(copyr);
-  }
-  
-  clearSnapshots(-1);
-  
-  //escapeTimes.clear();
-  //escapeTimes.insertMultiple(0, 0., simul.nRuns);
-  escapes.clear();
-  struct Escape defaultEscape = {0., -1, -1};
-  escapes.insertMultiple(0, defaultEscape, PhasePlane::getInstance()->nRuns->intValue());
-  
-  runsTreated.clear();
-  /*
-  cout << "--- FirstEscapeTime::reset() ---" << endl;
-  cout << "--- SimEntity list : " << endl;
-  for (auto & ent :entities)
-    cout << "\t" << ent->name << endl;
-  cout << "--- SimReaction list : " << endl;
-  for (auto & r :reactions)
-  {
-    cout << r->name << endl;
-    cout << "reactants : " << endl;
-    for (auto& e :r->reactants)
-      cout << "\t" << e->name << " : " << e->idSAT << endl;
-    cout << "products : " << endl;
-    for (auto& e :r->products)
-      cout << "\t" << e->name << " : " << e->idSAT << endl;
-  }
-  */
-  
-}
-
-
-void FirstEscapeTimeWorker::submitSnapshot(const ConcentrationGrid& cg, float time, int run)
-{
-  if (!runsTreated.contains(run)) // do not fill the queue with snapshots if an escape for this run has already been detected
-  {
-    const juce::ScopedLock sl(dataLock);
-    pendingSnapshots.push({cg, time, run});
-    
-    workAvailable.signal(); // wake up this thread
-  }
-}
-
+/*
 // clean all snapshots for a given run
 // if input argument = -1, clean all snapshots
 void FirstEscapeTimeWorker::clearSnapshots(const int run)
@@ -120,10 +47,10 @@ void FirstEscapeTimeWorker::clearSnapshots(const int run)
 
   } // free the lock
 }
+*/
 
 
-
-void FirstEscapeTimeWorker::run()
+/*void FirstEscapeTimeWorker::run()
 {
   while (!threadShouldExit())
   {
@@ -194,19 +121,75 @@ void FirstEscapeTimeWorker::run()
   
 }
 
+*/
 
 
-int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
+FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
+{
+  
+  // check if system is still in the first attraction basin
+  int reachedSST = identifyAttractionBasin();
+
+  if (reachedSST != startSteadyState)
+  {
+    float time = snap.time-0.5*escapeTimePrecision;
+    Escape e = {run, time, startSteadyState, reachedSST};
+    listener->escapeDetected(e);
+  }
+
+/*
+  // if not, request simul to proceed to next run
+      if (reachedSST != startSteadyState)
+      {
+        string strtime = to_string(snap.time-0.5*escapeTimePrecision);
+        
+        // print to user for a follow-up
+        LOG("Has Left Initial Attraction Basin at time " + strtime);
+        
+        // store escape time, taken at the bin center of interval [time - exitTimePrecision ; time]
+        if (!runsTreated.contains(snap.run)) // store just once
+        {
+          //escapeTimes.setUnchecked(snap.run, snap.time - 0.5*escapeTimePrecision);
+          float centerTime = snap.time - 0.5*escapeTimePrecision;
+          //escapes.add({centerTime, startSteadyState, reachedSST});
+          escapes.setUnchecked(snap.run, {centerTime, startSteadyState, reachedSST});
+          runsTreated.add(snap.run);
+          clearSnapshots(snap.run); // useless to treat following snapshots of current run, so clear them
+        }
+        
+        // request a new run to simulation thread
+        if (!debug) 
+          simul.requestProceedingToNextRun(snap.run);
+      }
+      
+      // if current time is greater than simulation time and still no escape is detected, keep track of it
+      if (snap.time + 2*simul.dt->floatValue() > simul.totalTime->floatValue()) // I use 2*dt just to make sure to go below totalTime, I'm scared of rounded stuff here and there.
+      {
+        LOG("No escape detected");
+        escapes.setUnchecked(snap.run, {-1., startSteadyState, startSteadyState});
+        runsTreated.add(snap.run);
+        //escapes.add({-1., startSteadyState, reachedSST});
+      }
+
+      */
+      
+  return jobHasFinished; 
+  
+}
+
+
+
+
+
+int FirstEscapeTimeJob::identifyAttractionBasin()
 {
   //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
-  ConcentrationGrid cg = snap.concgrid;
   
   // set entities to the concentration corresponding to input argument
-  for (auto & ent : entities)
+  for (auto & ent : crn.entities)
   {
     pair<int, int> p = make_pair(patchid, ent->idSAT);
-    //if (!cg.contains(p))
-    float input_conc = cg[p];
+    float input_conc = snapConc[p];
     ent->concent.setUnchecked(patchid, input_conc);
   }
   
@@ -237,14 +220,14 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
     kinetics->SteppingInflowOutflowRates(entities, dt_study, patchid);
     
     // update concentration values of entities
-    for (auto & ent : entities)
+    for (auto & ent : crn.entities)
     {
       ent->refresh();
     }
     
     // calculate variation in last dt
     distance = 0.;
-    for (auto & ent : entities)
+    for (auto & ent : crn.entities)
     {
       float deltaC = ent->concent.getUnchecked(patchid)-ent->previousConcent.getUnchecked(patchid);
       distance += deltaC*deltaC;
@@ -299,7 +282,7 @@ int FirstEscapeTimeWorker::identifyAttractionBasin(const Snapshot&  snap)
 
 
 
-float FirstEscapeTimeWorker::distanceFromSteadyState(State state)
+float FirstEscapeTimeJob::distanceFromSteadyState(State state)
 {
   float d = 0.;
   for (auto & p : state)
@@ -314,7 +297,7 @@ float FirstEscapeTimeWorker::distanceFromSteadyState(State state)
   return d;
 }
 
-SimEntity * FirstEscapeTimeWorker::getSimEntityForID(const size_t idToFind)
+SimEntity * FirstEscapeTimeJob::getSimEntityForID(const size_t idToFind)
 {
   for (auto &se : entities)
   {
@@ -326,7 +309,7 @@ SimEntity * FirstEscapeTimeWorker::getSimEntityForID(const size_t idToFind)
 }
 
 
-void FirstEscapeTimeWorker::writeResultsToFile()
+void FirstEscapeTimeJob::writeResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
   ofstream outputfile;
