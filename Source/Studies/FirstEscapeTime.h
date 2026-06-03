@@ -7,7 +7,7 @@
 
   ==============================================================================
 */
-
+#pragma once
 
 #include "JuceHeader.h"
 //#include "Simulation/Simulation.h"
@@ -18,9 +18,12 @@
 class EscapeListener
 {
 public:
-    virtual ~EscapeListener() = default;
+    EscapeListener(){};
+    virtual ~EscapeListener(){};
 
-    virtual void escapeDetected(const Escape&) = 0;
+    virtual void signalEscapeDetected(const Escape&) = 0;
+
+    virtual void signalJobFinished(int) = 0;
 };
 
 
@@ -45,7 +48,9 @@ private:
     
   void newMessage(const Simulation::SimulationEvent &e) override;
 
-  void escapeDetected(const Escape&) override;
+  void signalEscapeDetected(const Escape&) override;
+
+  void signalJobFinished(int runID) override;
 
   juce::ThreadPool * pool;
     
@@ -53,13 +58,23 @@ private:
   
   CRNSimulation crn;
 
-  juce::Array<Escape> pendingEscapes;
-  juce::CriticalSection pendingEscapesLock;
+  //juce::Array<Escape> pendingEscapes;
+  juce::CriticalSection lock;
+
+  StudyParameters studyParams;
 
   // to store escape times during this study
   // unique escape time per run
   juce::Array<float> escapeTimes;
+
+  std::atomic<int> simuRun { 0 };
+  std::atomic<int> runBeingTreated { 0 };
+  std::unordered_map<int, bool> escapeDetected;  // <runID, escapeDetected>
+  std::unordered_map<int, Escape> earliestEscape;  // <runID, escapeDetected>
+  std::unordered_map<int, int> pendingJobs;  // <runID, nJobs>
   
+
+
   juce::String networkfile = "./nextwork.txt";
 //  String outputfilename = "./firstExitStudy.txt";
   float precision = 1e-5; // precision up to which the steady state is determined

@@ -1980,11 +1980,9 @@ void Simulation::resetForNextRun()
     kinetics->shakeSeedValue();
 
   // message to listeners
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun, currentRun));
 }
 
-// #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
-// Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
 // void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)

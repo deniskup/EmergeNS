@@ -21,25 +21,49 @@ FirstEscapeTime::~FirstEscapeTime()
 }
 
 
-void FirstEscapeTime::escapeDetected(const Escape& e)
+void FirstEscapeTime::signalEscapeDetected(const Escape& e)
 {
-    const juce::ScopedLock sl(pendingEscapesLock);
-    pendingEscapes.add(e);
+    float t = e.time;
+    float t_current = earliestEscape.at(e.run).time;
+
+    if (t < t_current)
+    {
+      const juce::ScopedLock sl(lock);
+      earliestEscape[e.run] = e;
+      escapeDetected[e.run] = true;
+
+      // getActiveJobsInCurrentRun
+
+      if (pendingJobs.at(e.run)-1 == 0) // last job in current run
+      {
+        simul->requestProceedingToNextRun(e.run);
+      }
+    }
+
 }
 
+
+void FirstEscapeTime::signalJobFinished(int runID)
+{ 
+  const juce::ScopedLock sl(lock);
+  pendingJobs[runID]--; 
+}
 
 void FirstEscapeTime::copyReactionNetwork()
 {
   crn.entities.clear();
   crn.reactions.clear();
+
+  juce::Array<SimEntity*> copy_simEntities;
+  juce::Array<SimReaction*> copy_simReactions;
     
   // fill entity array with copies of the ones present in the simulation instance
   // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
   // or make sure to update the simentity concentration value with the one
   for (auto & ent : simul->entities)
-    crn.entities.add(ent->clone().release());
+    copy_simEntities.add(ent->clone().release());
   
-  for (auto & ent : crn.entities)
+  for (auto & ent : copy_simEntities)
     ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
   
   for (auto & r : simul->reactions)
@@ -55,7 +79,20 @@ void FirstEscapeTime::copyReactionNetwork()
       products.add(simul->entities[e->idSAT]);
     }
     SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
-    crn.reactions.add(copyr);
+    copy_simReactions.add(copyr);
+  }
+
+  for (auto & e : copy_simEntities)
+    crn.entities.add(e);
+  
+  for (auto & r : copy_simReactions)
+    crn.reactions.add(r);
+
+  // copy steady states
+  crn.arraySteadyStates.clear();
+  for (auto & sst : simul->steadyStatesList->arraySteadyStates)
+  {
+    crn.arraySteadyStates.add(sst);    
   }
 }
 
@@ -139,6 +176,12 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   //worker->setSimulation(*simul);
   //worker->reset(); // will copy some simulation thread parameters
   //worker->setConfig(configs); // will copy some input config file parameters
+
+  // store some parameters that will be passed to jobs
+  studyParams.precision = precision;
+  studyParams.escapeTimePrecision = exitTimePrecision;
+  studyParams.dt_study = dt_study;
+  studyParams.startSteadyState = startSteadyState;
   
   // force simulation thread to not store dynamics 
   simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
@@ -170,7 +213,6 @@ void FirstEscapeTime::startStudy()
   // set concentration of entities in simul to the one of initial steady state
   simul->setStartConcToSteadyState(simul->entities, startSteadyState+1); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
-  simul->setStartConcToSteadyState(worker->entities, startSteadyState+1); // I should avoid this
   
   // synchronize runs of phase plane with simul
   PhasePlane::getInstance()->updateEntitiesFromSimu();
@@ -231,7 +273,15 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       
     case Simulation::SimulationEvent::WILL_START:
     {
-      //worker->startThread(); // start the worker thread
+      const juce::ScopedLock sl(lock);
+      simuRun.store(0);
+      runBeingTreated.store(0);
+      escapeDetected.clear();
+      escapeDetected[0] = false;
+      earliestEscape.clear();
+      earliestEscape[0] = {0, std::numeric_limits<float>::max(), startSteadyState, -1};
+      pendingJobs.clear();
+      pendingJobs[0] = 0;
     }
   break;
 
@@ -247,10 +297,12 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       ConcentrationGrid cg = ev.entityValues;
       float time = simul->dt->floatValue() * static_cast<float>(ev.nStep);
       //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
-      if (!simul->redrawRun && !simul->redrawPatch)
+
+      if (!simul->redrawRun && !simul->redrawPatch && escapeDetected.at(ev.run) == false)
       {
-        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, escapes, ev.run, ev.time, exitTimePrecision, startSteadyState);
+        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
+        pendingJobs[ev.run]++;
       }
         //worker->submitSnapshot(cg, time, ev.run);
     }
@@ -259,6 +311,11 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::NEWRUN:
     {
       //worker->clearSnapshots(); // in principle should already be fine, but just to make sure
+      pool->removeAllJobs(true, 100); 
+      simuRun.store(ev.run);
+      escapeDetected[ev.run] = false;
+      earliestEscape[ev.run] = {ev.run, std::numeric_limits<float>::max(), startSteadyState, -1};
+      pendingJobs[ev.run] = 0;
     }
   break;
 

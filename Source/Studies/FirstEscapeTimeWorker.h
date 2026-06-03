@@ -8,6 +8,8 @@
   ==============================================================================
 */
 
+#pragma once
+
 #include "JuceHeader.h"
 #include "Simulation/Simulation.h"
 #include "Simulation/KineticLaw.h"
@@ -30,11 +32,20 @@ struct Escape
   int escapeSteadyState;
 };
 
+struct StudyParameters
+{
+  float precision;
+  float escapeTimePrecision;
+  float dt_study;
+  int startSteadyState;
+};
+
 struct CRNSimulation
 {
   // juce::Array<Patch>
-  juce::Array<SimEntity*> entities;
-  juce::Array<SimReaction*> reactions;
+  juce::OwnedArray<SimEntity> entities;
+  juce::OwnedArray<SimReaction> reactions;
+  juce::Array<SteadyState> arraySteadyStates; 
 };
 
 //class FirstEscapeTimeWorker : public juce::Thread
@@ -48,10 +59,12 @@ public:
       kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
     }*/
 
-      FirstEscapeTimeJob(EscapeListener& _listener, const CRNSimulation& _crn, ConcentrationGrid cg, juce::Array<Escape>& _escapes,
-      int _run, float _time, float _escapeTimePrecision, int _startSST) : 
-      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), snapConc(cg), escapes(_escapes), 
-      run(_run), time(_time), escapeTimePrecision(_escapeTimePrecision), startSteadyState(_startSST)
+      FirstEscapeTimeJob(EscapeListener& _listener, CRNSimulation& _crn, ConcentrationGrid cg,
+      int _run, float _time, StudyParameters _studyParams)
+       : 
+      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), snapConc(cg), 
+      run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), startSteadyState(_studyParams.startSteadyState),
+      precision(_studyParams.precision), dt(_studyParams.dt_study)
       {
         kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
         //entities = crn.entities;
@@ -76,26 +89,19 @@ public:
     void submitSnapshot(const ConcentrationGrid& cg, float time, int run);
   
     void clearSnapshots(const int);
-  
-    //Array<float> escapeTimes;
-    juce::Array<Escape> escapes;
-    //juce::OwnedArray<SimEntity> entities;
-    //juce::OwnedArray<SimReaction> reactions;
-    CRNSimulation crn;
-
 
 
 private:
   
     //void run() override; // the actual thread
   
-    int identifyAttractionBasin(ConcentrationGrid&);
+    int identifyAttractionBasin();
   
     float distanceFromSteadyState(State sst);
   
     SimEntity * getSimEntityForID(const size_t idToFind);
   
-    void writeResultsToFile();
+    //void writeResultsToFile();
   
     KineticLaw * kinetics;
     
@@ -114,11 +120,13 @@ private:
     // === Références ===
     //Simulation& simul;
 
+    CRNSimulation& crn;
+
     ConcentrationGrid snapConc;
 
     EscapeListener& listener;
   
-    //int patchid = 0; // hardcoded patch in which this study takes place.
+    int patchid = 0; // hardcoded patch in which this study takes place.
     //float precision = 1e-5; // precision up to which the steady state is determined
     //float escapeTimePrecision = 10; // every 'exitTimePrecision', check where the system is
     //int startSteadyState = 0;
@@ -133,6 +141,8 @@ private:
     float escapeTimePrecision;
     float time;
     int startSteadyState;
+    float precision;
+    float dt;
   
 
 };

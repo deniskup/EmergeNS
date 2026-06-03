@@ -1,4 +1,5 @@
 #include "FirstEscapeTimeWorker.h"
+#include "FirstEscapeTime.h"
 using namespace juce;
 
 /*void FirstEscapeTimeJob::setConfig(map<String, String> configs)
@@ -130,11 +131,11 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
   // check if system is still in the first attraction basin
   int reachedSST = identifyAttractionBasin();
 
-  if (reachedSST != startSteadyState)
+  if (reachedSST != startSteadyState && reachedSST >= 0)
   {
-    float time = snap.time-0.5*escapeTimePrecision;
-    Escape e = {run, time, startSteadyState, reachedSST};
-    listener->escapeDetected(e);
+    float midtime = time-0.5*escapeTimePrecision;
+    Escape e = {run, midtime, startSteadyState, reachedSST};
+    listener.signalEscapeDetected(e);
   }
 
 /*
@@ -172,6 +173,8 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
       }
 
       */
+
+  listener.signalJobFinished(run);
       
   return jobHasFinished; 
   
@@ -202,22 +205,23 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   
   // deterministic dynamics of the system until a stationnary state is reached
   float distance = 1000.;
-  int timeout = dt_study * 50000;
+  float timeout = dt * 50000;
+  float timedelay = std::min(timeout - 100.f, 1000.f); 
   float t = 0.;
   int count = 0;
   bool delay = true; // I require the deterministic search to run a minimum amount of time
   // otherwise, too close from an unstable steady state, variation might be too small
-  while (distance>precision || delay)
+  while ( (distance>precision || delay) && !shouldExit())
   {
     count++;
-    t += dt_study;
-    if (t>100.) // free the boolean delay
+    t += dt;
+    if (t>1000.) // free the boolean delay
       delay = false;
     if (t>timeout)
       break;
     // deterministic traj
-    kinetics->SteppingReactionRates(reactions, dt_study, patchid, false);
-    kinetics->SteppingInflowOutflowRates(entities, dt_study, patchid);
+    kinetics->SteppingReactionRates(crn.reactions, dt, patchid, false);
+    kinetics->SteppingInflowOutflowRates(crn.entities, dt, patchid);
     
     // update concentration values of entities
     for (auto & ent : crn.entities)
@@ -236,7 +240,8 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     
   } // end while
   
-  
+  if (shouldExit())
+    return -2;
   
   //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
   //for (auto & ent : entities)
@@ -248,7 +253,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   int reachedSST = -1;
   float dmin = 1000.;
   count = 0;
-  for (auto & sst : simul.steadyStatesList->arraySteadyStates)
+  for (auto & sst : crn.arraySteadyStates)
   {
     //if (!sst.isStable)
     //  continue;
@@ -299,7 +304,7 @@ float FirstEscapeTimeJob::distanceFromSteadyState(State state)
 
 SimEntity * FirstEscapeTimeJob::getSimEntityForID(const size_t idToFind)
 {
-  for (auto &se : entities)
+  for (auto &se : crn.entities)
   {
     if (se->idSAT == idToFind)
       return se;
@@ -309,6 +314,7 @@ SimEntity * FirstEscapeTimeJob::getSimEntityForID(const size_t idToFind)
 }
 
 
+/*
 void FirstEscapeTimeJob::writeResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
@@ -330,3 +336,4 @@ void FirstEscapeTimeJob::writeResultsToFile()
     outputfile << el.startSteadyState << "," << el.escapeSteadyState << "," << el.time << endl;
   }
 }
+*/
