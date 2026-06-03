@@ -214,6 +214,7 @@ private:
   // global variable describing the state of the descent
   Curve g_qcurve;
   pCurve g_pcurve;
+  pCurve g_smooth_pcurve;
   double length_qcurve = 0.;
   juce::Array<double> g_times;
   double action;
@@ -250,6 +251,7 @@ private:
   juce::Array<juce::Array<double>> actionDescent;
   juce::Array<juce::Array<double>> timeDescent;
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  juce::Array<Trajectory> smooth_pcurve_Descent; 
   juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
   juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
   juce::Array<Trajectory> dAdqDescent_dHdq; 

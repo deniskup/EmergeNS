@@ -224,6 +224,7 @@ void NEP::reset()
   
   g_qcurve.clear();
   g_pcurve.clear();
+  g_smooth_pcurve.clear();
   g_times.clear();
   dAdq.clear();
   dAdq_filt.clear();
@@ -366,6 +367,7 @@ void NEP::run()
     
     // update global variable with lift results
     g_pcurve = liftResults.pcurve;
+    g_smooth_pcurve = liftResults.smooth_pcurve;
     g_times = liftResults.times;
     
     // keep track of trajectory update in (q ; p) space
@@ -383,6 +385,7 @@ void NEP::run()
     }
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << g_qcurve.size() << " + " << g_pcurve.size() << endl;
     trajDescent.add(newtraj);
+    smooth_pcurve_Descent.add(g_smooth_pcurve);
 
     // keep track of times
     timeDescent.add(g_times);
@@ -778,6 +781,33 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
   
   // GSL to find optimal momentum and dt associated to qcurve
   LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed, iteration);
+
+  // measuring noise level in pstar and dt
+  juce::Array<double> pstar_noise;
+  double dt_noise = 0.;
+  for (int i=0; i<simul->entities.size(); i++)
+  {
+    double noise = 0.;
+    double max = 0.;
+    for (int k=0; k<liftResults.pstar.size()-1; k++)
+    {
+      double pm = liftResults.pstar.getUnchecked(k).getUnchecked(i);
+      double pm_next = liftResults.pstar.getUnchecked(k+1).getUnchecked(i);
+      double pm_diff2 = (pm_next - pm)*(pm_next - pm);
+      noise += pm_diff2;
+      max = std::max(max, std::abs(pm));
+    }
+    noise /= (max * (double) (liftResults.pstar.size()-1));
+    pstar_noise.add(noise);
+  }
+  if (maxPrintingAllowed)
+  {
+    std::cout << "noise level in pstar : " << std::endl;
+    for (auto& el : pstar_noise)    
+      std::cout << el << " ";
+    std::cout << std::endl;
+  }
+
   
   /*
   if (solverType->getValueDataAsEnum<int>() == 0)
@@ -884,7 +914,7 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
     }
   debugfile << " ]" << endl;
   }
-  /*
+  
   // moving average on pcurve (execpt first and last point that must remain 0)
   int window = 3;
   Trajectory av_pcurve;
@@ -905,15 +935,38 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
       av /= c;
       avp.add(av);
     }
-    jassert(avp.size() == n-1);
+    //jassert(avp.size() == n-1);
     av_pcurve.add(avp);
   }
   
-  
   jassert(av_pcurve.size() == pcurve.size());
+  double pmax = 0.;
+  for (int k=0; k<pcurve.size(); k++)
+  {
+    StateVec pk = pcurve.getUnchecked(k);
+    double norm_pk = norm2(pk);
+    if (norm_pk > pmax)
+      pmax = norm_pk;
+  }
+  jassert(pmax > 0.);
+
+  // normalized distance between pcurve and av_pcurve
+  double totdist = 0.;
+  for (int k=0; k<pcurve.size(); k++)
+  {
+    StateVec pk = pcurve.getUnchecked(k);
+    StateVec avpk = av_pcurve.getUnchecked(k);
+    double dist = cartesianDistance(pk, avpk);
+    totdist += dist;
+  }
+  totdist /= (pmax * (double) pcurve.size());
+  if (maxPrintingAllowed)
+  {
+    //std::cout << "distance between pcurve and av_pcurve = " << totdist << endl;
+  }
   //cout << "average pcurve size : " << av_pcurve.size() << endl;
   
-   */
+   
   /*
   // for debugging
   if (maxPrinting->boolValue() && maxPrintingAllowed)
@@ -955,6 +1008,7 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
   //output.times = times;
   
   liftResults.pcurve = pcurve;
+  liftResults.smooth_pcurve = av_pcurve;
   liftResults.times = times;
   
   
@@ -1310,6 +1364,8 @@ void NEP::writeDescentToFile()
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
   for (auto & ent : simul->entities)
+    historyFile << ",smooth_p_" << ent->name;
+  for (auto & ent : simul->entities)
     historyFile << ",dAdq_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",dAdq_dHdq_" << ent->name;
@@ -1327,6 +1383,7 @@ void NEP::writeDescentToFile()
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
+  jassert(actionDescent.size() == smooth_pcurve_Descent.size());
   jassert(actionDescent.size() == timeDescent.size());
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_dHdq.size());
@@ -1357,6 +1414,8 @@ void NEP::writeDescentToFile()
       StateVec dAdq_dpdt_local = dAdqDescent_dpdt.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
       Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
+
+      StateVec smoothp_local = smooth_pcurve_Descent.getUnchecked(iter).getUnchecked(point);
       
       jassert(resP.size() == simul->entities.size());
       if (resP.size() != simul->entities.size())
@@ -1367,6 +1426,8 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
+      for (int m=0; m<smoothp_local.size(); m++)
+        historyFile << "," << smoothp_local.getUnchecked(m);
       for (int m=0; m<dAdq_local.size(); m++)
         historyFile << "," << dAdq_local.getUnchecked(m);
       for (int m=0; m<dAdq_dHdq_local.size(); m++)

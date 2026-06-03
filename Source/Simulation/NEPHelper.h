@@ -47,6 +47,7 @@ struct LiftResults
     juce::Array<double> dt;
     juce::Array<double> mu;
     pCurve pcurve;
+    pCurve smooth_pcurve;
     juce::Array<double> times;
     juce::Array<int> gslStatus;
     juce::Array<int> collinearity;
