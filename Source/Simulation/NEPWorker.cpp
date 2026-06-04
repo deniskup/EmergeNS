@@ -1575,6 +1575,8 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     juce::dsp::Matrix<double> hessian = ev.solver->evalHamiltonianHessianWithP(ev.q, pstar);
     Eigen::MatrixXd jmp_hessian(hessian.getNumRows(), hessian.getNumColumns());
+    Eigen::MatrixXd lagrangian_hessian(hessian.getNumRows()+1, hessian.getNumColumns()+1);
+
     for (int i=0; i<jmp_hessian.rows(); i++)
     {
       for (int j=0; j<jmp_hessian.cols(); j++)      
@@ -1604,7 +1606,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
     //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
-    /*if (idx>10 && idx < 30 && maxPrintingAllowed)
+    if (idx==19 && maxPrintingAllowed)
     {
       cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
       cout << "lambda = " << 1/mu << endl;
@@ -1615,7 +1617,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       cout << endl;
       cout << "d2h/dp2_eigenval = \n" <<  es.eigenvalues() << endl;
     }
-    */
+    
 
   
   }

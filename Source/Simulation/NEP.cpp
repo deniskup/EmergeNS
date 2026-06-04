@@ -2236,10 +2236,57 @@ cout << endl;
 
 
   
-  StateVec qi = {1.62699, 1.04512};
-  StateVec pi = {0.0183207, 0.00130771};
+  StateVec qi = {0.5*(1.45199+1.4758), 0.5*(1.03513+1.03663)};
+  StateVec pi = {0.0231699, 0.00159923};
+  StateVec dq = {1.45199-1.4758, 1.03513-1.03663};
+  double dq_norm2 = norm2(dq);
+  StateVec v;
+  for (int i=0; i<dq.size(); i++)
+    v.add(dq.getUnchecked(i)/sqrt(dq_norm2));
+
+
+  double n = 100;
+  juce::Array<double> p1val; 
+  for (int i=0; i<n; i++)
+  {
+    double ii = (double) i;
+    p1val.add( 0.002 - (0.002-0.001)*ii/(n-1.) );
+  }
+
+  juce::Array<double> H;
+  juce::Array<double> pv;
+
+  for (int i=0; i<n; i++)
+  {
+    StateVec p = {0.0231699, p1val.getUnchecked(i)};
+    double h = nepsolver->evalHamiltonian(qi, p);
+    H.add(std::abs(h));
+    double sp = scalarProduct(p, v);
+    pv.add(sp);
+  }
+
+  cout << "p1 = [";
+  for (int i=0; i<p1val.size(); i++)  {
+    string comma = (i==p1val.size()-1 ? "]" : ", ");
+    cout << p1val.getUnchecked(i) << comma;
+  } 
+  cout << endl;
+
+  cout << "H = [";
+  for (int i=0; i<H.size(); i++)  {
+    string comma = (i==H.size()-1 ? "]" : ", ");
+    cout << H.getUnchecked(i) << comma;
+  } 
+  cout << endl;
+
+  cout << "p.v = [";
+  for (int i=0; i<pv.size(); i++)  {
+    string comma = (i==pv.size()-1 ? "]" : ", ");
+    cout << pv.getUnchecked(i) << comma;
+  } 
+  cout << endl;
   
-  
+  /*
   pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(qi, pi);
   
   std::system("mkdir -p ./hamilton-eq-of-motion");
@@ -2273,7 +2320,7 @@ cout << endl;
   }
   
   output.close();
-  
+  */
   
 }
 
