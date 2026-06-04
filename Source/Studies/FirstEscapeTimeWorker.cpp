@@ -174,7 +174,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 
       */
 
-  listener.signalJobFinished(run);
+  listener.signalJobFinished(run, startSteadyState);
       
   return jobHasFinished; 
   

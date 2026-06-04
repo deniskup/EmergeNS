@@ -23,7 +23,7 @@ public:
 
     virtual void signalEscapeDetected(const Escape&) = 0;
 
-    virtual void signalJobFinished(int) = 0;
+    virtual void signalJobFinished(int, int) = 0;
 };
 
 
@@ -50,7 +50,9 @@ private:
 
   void signalEscapeDetected(const Escape&) override;
 
-  void signalJobFinished(int runID) override;
+  void signalJobFinished(int runID, int startSST) override;
+
+  void printResultsToFile();
 
   juce::ThreadPool * pool;
     
@@ -65,24 +67,31 @@ private:
 
   // to store escape times during this study
   // unique escape time per run
-  juce::Array<float> escapeTimes;
+  juce::Array<Escape> escapes;
 
   std::atomic<int> simuRun { 0 };
   std::atomic<int> runBeingTreated { 0 };
   std::unordered_map<int, bool> escapeDetected;  // <runID, escapeDetected>
   std::unordered_map<int, Escape> earliestEscape;  // <runID, escapeDetected>
   std::unordered_map<int, int> pendingJobs;  // <runID, nJobs>
-  
+
+  std::atomic<bool> simuHasFinished { false };
+  std::atomic<bool> resultsWritten { false };
+
+ 
 
 
-  juce::String networkfile = "./nextwork.txt";
-//  String outputfilename = "./firstExitStudy.txt";
+
+  juce::String network = "./nextwork.ens";
+  juce::String outputfilename = "./firstEscapeStudy.csv";
   float precision = 1e-5; // precision up to which the steady state is determined
   float exitTimePrecision = 10; // every 'exitTimePrecision', check where the system is
   int nruns = 1;
   int startSteadyState = 0;
   bool fixedSeed = false;
   int seed = 1234;
+  bool debugMode = false;
+  int superRun = 0;
   // In principle not designed to perform in heterogeneous space, it will complain about it otherwise
   float dt_study = 0.1; // time step used to identify in which attraction basin the system is
   bool printDynamics2File = false;

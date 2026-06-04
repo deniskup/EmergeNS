@@ -1919,12 +1919,6 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     }
   }
 
-  cout << "concent at start in patch 0 :" << endl;
-  for (auto & ent : entities)
-  {
-    cout << ent->name << " : " << ent->concent[0] << endl;
-  }
-
   startThread();
   return;
 }

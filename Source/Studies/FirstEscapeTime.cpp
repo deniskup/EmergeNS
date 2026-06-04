@@ -26,27 +26,49 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
     float t = e.time;
     float t_current = earliestEscape.at(e.run).time;
 
-    if (t < t_current)
+    if (t < t_current) // update earliest escape for current run
     {
       const juce::ScopedLock sl(lock);
       earliestEscape[e.run] = e;
       escapeDetected[e.run] = true;
 
-      // getActiveJobsInCurrentRun
-
-      if (pendingJobs.at(e.run)-1 == 0) // last job in current run
+      if (pendingJobs.at(e.run)-1 == 0 && !debugMode && simuRun.load() != e.run) // last job in current run and simu has already started another run
       {
         simul->requestProceedingToNextRun(e.run);
+        escapes.add(e);
       }
     }
 
 }
 
 
-void FirstEscapeTime::signalJobFinished(int runID)
+void FirstEscapeTime::signalJobFinished(int runID, int startSST)
 { 
   const juce::ScopedLock sl(lock);
   pendingJobs[runID]--; 
+
+  // if no escape has been detected for current run and this was the last job of the run, store empty escape
+  if (pendingJobs.at(runID) == 0 && simuRun.load() != runID && !escapeDetected.at(runID))
+  {
+    Escape noescape = {runID, -1., startSST, startSST};
+    escapes.add(noescape);
+  }
+
+  if (!simuHasFinished.load())
+    return;
+  
+  // count total number of remaining jobs
+  int remaining = 0;
+  for (auto & [run, jobs] : pendingJobs)
+  {
+    remaining += jobs;
+  }
+  // print results to file if simu has finished and no more job is pending
+  if (remaining == 0 && !resultsWritten.exchange(true))
+  {
+    printResultsToFile();
+  }
+
 }
 
 void FirstEscapeTime::copyReactionNetwork()
@@ -103,9 +125,11 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   {
     //cout << "key, val : " << key << " " << val << endl;
     juce::var myvar(val);
-    //if (key == "output")
-    //  networkfile = val;
-    if (key == "dt")
+    if (key == "output")
+      outputfilename = val;
+    else if (key == "network")
+      network = val;
+    else if (key == "dt")
       simul->dt->setValue(atof(val.toUTF8()));
     else if (key == "dt_study")
       dt_study = atof(val.toUTF8());
@@ -127,12 +151,14 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
       startSteadyState = atoi(val.toUTF8());
     else if (key == "dynamics2file")
       printDynamics2File = atoi(val.toUTF8());
+    else if (key == "debug")
+      debugMode = atoi(val.toUTF8());
+    else if (key == "superRun")
+      superRun = atoi(val.toUTF8());
     else if (key == "cores")
       cores = atoi(val.toUTF8());
   }
   printDynamics2File = bool(printDynamics2File);
-  if (printDynamics2File)
-    LOG("Will print dynamics to file");
   
   // set simulation instance parameters according to those of config file
   
@@ -184,6 +210,8 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   studyParams.escapeTimePrecision = exitTimePrecision;
   studyParams.dt_study = dt_study;
   studyParams.startSteadyState = startSteadyState;
+
+  simuHasFinished.store(false);
   
   // force simulation thread to not store dynamics 
   simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
@@ -239,28 +267,53 @@ void FirstEscapeTime::startStudy()
   
 }
 
-/*
+
 void FirstEscapeTime::printResultsToFile()
 {
   cout << "printResultsToFile()" << endl;
+  cout << "N escapes = " << escapes.size() << endl;
   ofstream outputfile;
   String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
   outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
 
   cout << "writing to file " << out << endl;
   
-  outputfile << "Network " << networkfile << "\n" << endl;
-  outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << "\n" << endl;
+  outputfile << "Network " << network << "\n" << endl;
+  outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << endl;
+  //outputfile << "Dynamics history in simu thread =  " << Simulation::getInstance()->dynHistory->concentHistory.size() << "\n" << endl;
+  outputfile << "<===== RESULTS =====>" << endl;
+  outputfile << "startSST,escapeSST,time" << endl;
         
   int c=-1;
-  for (auto & t : escapeTimes)
+  for (auto & e : escapes)
   {
     c++;
-    string newline = ((c == (escapeTimes.size()-1) ) ? "" : "\n");
-    outputfile << t << newline;
+    string newline = ((c == (escapes.size()-1) ) ? "" : "\n");
+    outputfile << e.startSteadyState << "," << e.escapeSteadyState << "," << e.time << newline;
   }
   outputfile << endl;
 }
+
+
+/*
+cout << "printResultsToFile()" << endl;
+  ofstream outputfile;
+  String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
+  outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
+
+  cout << "writing to file " << out << endl;
+  
+  outputfile << "Network " << network << "\n" << endl;
+  outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << "\n" << endl;
+  outputfile << "Dynamics history in simu thread =  " << Simulation::getInstance()->dynHistory->concentHistory.size() << "\n" << endl;
+  outputfile << "<===== RESULTS =====>" << endl;
+  outputfile << "startSST,escapeSST,time" << endl;
+        
+  //int c=-1;
+  for (auto & el : escapes)
+  {
+    outputfile << el.startSteadyState << "," << el.escapeSteadyState << "," << el.time << endl;
+  }
 */
 
 
@@ -325,6 +378,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     {
       //worker->signalThreadShouldExit(); // tell the worker to exit thread
       //escapeTimes = worker->escapeTimes;
+      simuHasFinished.store(true);
       //printResultsToFile();
     }
       
