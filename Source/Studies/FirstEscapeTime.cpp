@@ -72,11 +72,11 @@ void FirstEscapeTime::copyReactionNetwork()
     Array<SimEntity*> products;
     for (auto & e : r->reactants)
     {
-      reactants.add(simul->entities[e->idSAT]);
+      reactants.add(copy_simEntities[e->idSAT]);
     }
     for (auto & e : r->products)
     {
-      products.add(simul->entities[e->idSAT]);
+      products.add(copy_simEntities[e->idSAT]);
     }
     SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
     copy_simReactions.add(copyr);
@@ -131,6 +131,8 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
       cores = atoi(val.toUTF8());
   }
   printDynamics2File = bool(printDynamics2File);
+  if (printDynamics2File)
+    LOG("Will print dynamics to file");
   
   // set simulation instance parameters according to those of config file
   
@@ -149,7 +151,7 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   
   // additionnal configurations
   simul->autoScale->setValue(true);
-  simul->concentrationMode->setValue(1); // Stochastic
+  simul->concentrationMode->setValueWithData(1); // Stochastic
   GlobalSettings::getInstance()->logAutosave->setValue(false); // autosave pretty annoying in the case of this study
   Settings::getInstance()->printHistoryToFile->setValue(printDynamics2File);
   
@@ -211,7 +213,7 @@ void FirstEscapeTime::startStudy()
   }
   
   // set concentration of entities in simul to the one of initial steady state
-  simul->setStartConcToSteadyState(simul->entities, startSteadyState+1); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
+  simul->setStartConcToSteadyState(simul->entities, startSteadyState+1, true); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
   
   // synchronize runs of phase plane with simul

@@ -1919,6 +1919,12 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     }
   }
 
+  cout << "concent at start in patch 0 :" << endl;
+  for (auto & ent : entities)
+  {
+    cout << ent->name << " : " << ent->concent[0] << endl;
+  }
+
   startThread();
   return;
 }
@@ -2091,7 +2097,7 @@ void Simulation::masterStep()
  }
  else
  {
-  //cout << "gillespie step: "<< currentTime <<endl;
+  cout << "gillespie step: "<< currentTime <<endl;
   currentTime+=nextGillespieStep;
     if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
   else{
@@ -2287,6 +2293,16 @@ void Simulation::nextStep()
   {
     updateSinglePatchRates(patch, isCheck);
   }
+/*
+  if (nSteps>0)
+  {
+    cout << "t = " << nSteps*dt->floatValue() << endl;
+    for (auto & ent : entities)
+    {
+      cout << ent->name << " : " << ent->concent[0] << endl;
+    }
+  }
+  */
 
   // refresh entity concentrations
   float maxVar = 0.;
@@ -2301,7 +2317,7 @@ void Simulation::nextStep()
       if (isinf(ent->concent[patch.id])) // à adapter
       {
         string coord = "(" + to_string(patch.rowIndex) + " ; " + to_string(patch.colIndex) + ")";
-        LOG("Concentration of entity " << ent->name << " exceeded capacity in patch with coordinates " + String(coord));
+        LOG("Concentration of entity " << ent->name << " exceeded capacity in patch with coordinates " + String(coord) + "c = " + String(ent->concent[patch.id]));
         finished->setValue(true);
         return;
       }
@@ -3044,7 +3060,8 @@ void Simulation::setConcToCAC(int idCAC)
   }
 }
 
-void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int idSS)
+// useEpsilonInsteadOfZero has default value = false
+void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int idSS, const bool useEpsilonInsteadOfZero)
 {
   if (idSS < 1)
     return;
@@ -3052,6 +3069,8 @@ void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int
   for (auto &ent : _entities)
   {
     float conc = ss.state[ent->idSAT].second;
+    if (useEpsilonInsteadOfZero && conc == 0.)
+      conc = 1e-3;
     juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size());
     for (int k = 0; k < arrconc.size(); k++)
       arrconc.setUnchecked(k, conc);
