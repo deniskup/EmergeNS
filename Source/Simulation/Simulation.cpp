@@ -1630,8 +1630,6 @@ void Simulation::resetBeforeRunning()
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
 
-  // cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
-
   setRun->setValue(0);
 
   // check that some space grid exists
@@ -1957,6 +1955,7 @@ void Simulation::resetForNextRun()
 {
   currentRun++;
   nSteps = 0; // re-initialize step counter
+  currentTime = 0.;
   // reset concentrations to next run initial conditions
   for (auto &[name, startconc] : initialConcentrations[currentRun])
   {
@@ -1980,11 +1979,9 @@ void Simulation::resetForNextRun()
     kinetics->shakeSeedValue();
 
   // message to listeners
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun, currentRun));
 }
 
-// #TODO : refacto ConcentrationSnapshot to ConcentrationGrid everywhere in the code !
-// Maybe refacto ConcentrationGrid as well, to make it more clear ? With a class ?
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
 // void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
@@ -2076,18 +2073,29 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
-  if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
+  if (gillespieMode->boolValue())
   {
-    stop();
-    return;
+    if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
+    {
+      stop();
+      return;
+    }
+  }
+  else
+  {
+    if (nSteps == maxSteps && currentRun == nRuns - 1)
+    {
+      stop();
+      return;
+    }
   }
  
 
  if( (!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
  {
-  //cout << "conc step: "<< currentTime <<endl;
   currentTime+=nextConcStep;
-  if(gillespieMode->boolValue()) nextGillespieStep-=nextConcStep;
+  if(gillespieMode->boolValue()) 
+    nextGillespieStep-=nextConcStep;
   nextConcStep=dt->floatValue();
   nextStep();
  }
@@ -2289,6 +2297,16 @@ void Simulation::nextStep()
   {
     updateSinglePatchRates(patch, isCheck);
   }
+/*
+  if (nSteps>0)
+  {
+    cout << "t = " << nSteps*dt->floatValue() << endl;
+    for (auto & ent : entities)
+    {
+      cout << ent->name << " : " << ent->concent[0] << endl;
+    }
+  }
+  */
 
   // refresh entity concentrations
   float maxVar = 0.;
@@ -2303,7 +2321,7 @@ void Simulation::nextStep()
       if (isinf(ent->concent[patch.id])) // à adapter
       {
         string coord = "(" + to_string(patch.rowIndex) + " ; " + to_string(patch.colIndex) + ")";
-        LOG("Concentration of entity " << ent->name << " exceeded capacity in patch with coordinates " + String(coord));
+        LOG("Concentration of entity " << ent->name << " exceeded capacity in patch with coordinates " + String(coord) + "c = " + String(ent->concent[patch.id]));
         finished->setValue(true);
         return;
       }
@@ -3046,7 +3064,8 @@ void Simulation::setConcToCAC(int idCAC)
   }
 }
 
-void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int idSS)
+// useEpsilonInsteadOfZero has default value = false
+void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int idSS, const bool useEpsilonInsteadOfZero)
 {
   if (idSS < 1)
     return;
@@ -3054,6 +3073,8 @@ void Simulation::setStartConcToSteadyState(OwnedArray<SimEntity> &_entities, int
   for (auto &ent : _entities)
   {
     float conc = ss.state[ent->idSAT].second;
+    if (useEpsilonInsteadOfZero && conc == 0.)
+      conc = 1e-3;
     juce::Array<float> arrconc(Space::getInstance()->spaceGrid.size());
     for (int k = 0; k < arrconc.size(); k++)
       arrconc.setUnchecked(k, conc);
@@ -3160,7 +3181,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
     maxSteps = jmax(1, maxSteps);
-  }
+   }
   if (p == detectEquilibrium)
   {
     epsilonEq->hideInEditor = !detectEquilibrium->boolValue();
