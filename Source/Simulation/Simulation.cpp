@@ -1630,8 +1630,6 @@ void Simulation::resetBeforeRunning()
   checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   checkPoint = jmax(1, checkPoint);
 
-  // cout << "checkpoint being reset at maxSteps / pointsdrawn = " << maxSteps << " / " << pointsDrawn->intValue() << " = " << checkPoint << endl;
-
   setRun->setValue(0);
 
   // check that some space grid exists
@@ -1957,6 +1955,7 @@ void Simulation::resetForNextRun()
 {
   currentRun++;
   nSteps = 0; // re-initialize step counter
+  currentTime = 0.;
   // reset concentrations to next run initial conditions
   for (auto &[name, startconc] : initialConcentrations[currentRun])
   {
@@ -2265,6 +2264,7 @@ void Simulation::nextStep()
   }
   else if (status == 1 || requestNewRun.exchange(false, std::memory_order_acquire)) // current run is over, but not simu. Move to next run
   {
+    cout << "simu proceeds to next run" << endl;
     resetForNextRun();
     return;
   }
@@ -3171,7 +3171,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
     maxSteps = jmax(1, maxSteps);
-  }
+   }
   if (p == detectEquilibrium)
   {
     epsilonEq->hideInEditor = !detectEquilibrium->boolValue();

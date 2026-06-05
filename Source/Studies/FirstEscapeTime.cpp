@@ -32,7 +32,8 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
       earliestEscape[e.run] = e;
       escapeDetected[e.run] = true;
 
-      if (pendingJobs.at(e.run)-1 == 0 && !debugMode && simuRun.load() != e.run) // last job in current run and simu has already started another run
+      // does not work, just like that it will never proceed to next run.
+      if (pendingJobs.at(e.run)-1 == 0 && !debugMode && !simuSendsMessages.at(e.run) ) // last job in current run and simu has already started another run
       {
         simul->requestProceedingToNextRun(e.run);
         escapes.add(e);
@@ -47,9 +48,27 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
   const juce::ScopedLock sl(lock);
   pendingJobs[runID]--; 
 
+  //cout << "signalJobFinished() for run " << runID << endl;
+  //cout << "simu finished ? -> " << simuHasFinished.load() << endl;
+  //cout << "pending jobs : " << endl;
+  //  for (auto & [key, val] : pendingJobs)
+  //    cout << "run " << key << " - " << val << " jobs." << endl;
+
+
   // if no escape has been detected for current run and this was the last job of the run, store empty escape
-  if (pendingJobs.at(runID) == 0 && simuRun.load() != runID && !escapeDetected.at(runID))
+  if (runID == 0)
   {
+    cout << "-------------" << endl;
+    cout << "pending jobs : " << pendingJobs.at(runID) << endl;
+    cout << "simu sends messages : " << simuSendsMessages.at(runID) << endl;
+    cout << "simu has finished : " << simuHasFinished.load() << endl;
+    cout << "escape detected : " << escapeDetected.at(runID) << endl;
+    cout << endl;
+    
+  }
+  if (pendingJobs.at(runID) == 0 && !simuSendsMessages.at(runID) && !escapeDetected.at(runID))
+  {
+    cout << "adding null escape for run " << runID << endl;
     Escape noescape = {runID, -1., startSST, startSST};
     escapes.add(noescape);
   }
@@ -282,14 +301,14 @@ void FirstEscapeTime::printResultsToFile()
   outputfile << "epsilon noise =  " << Settings::getInstance()->epsilonNoise->floatValue() << endl;
   //outputfile << "Dynamics history in simu thread =  " << Simulation::getInstance()->dynHistory->concentHistory.size() << "\n" << endl;
   outputfile << "<===== RESULTS =====>" << endl;
-  outputfile << "startSST,escapeSST,time" << endl;
+  outputfile << "run,startSST,escapeSST,time" << endl;
         
   int c=-1;
   for (auto & e : escapes)
   {
     c++;
     string newline = ((c == (escapes.size()-1) ) ? "" : "\n");
-    outputfile << e.startSteadyState << "," << e.escapeSteadyState << "," << e.time << newline;
+    outputfile << e.run << "," << e.startSteadyState << "," << e.escapeSteadyState << "," << e.time << newline;
   }
   outputfile << endl;
 }
@@ -329,7 +348,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::WILL_START:
     {
       const juce::ScopedLock sl(lock);
-      simuRun.store(0);
+      simuSendsMessages[0] = true;
       runBeingTreated.store(0);
       escapeDetected.clear();
       escapeDetected[0] = false;
@@ -342,32 +361,37 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::STARTED:
     {
-      // test in which attraction basin in the system
     }
   break;
 
     case Simulation::SimulationEvent::NEWSTEP:
     {
+      const juce::ScopedLock sl(lock);
       // test in which attraction basin in the system
       ConcentrationGrid cg = ev.entityValues;
       float time = simul->dt->floatValue() * static_cast<float>(ev.nStep);
       //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
+      messageCounters[ev.run]++;
 
       if (!simul->redrawRun && !simul->redrawPatch && escapeDetected.at(ev.run) == false)
       {
+
+        if (messageCounters.at(ev.run) == simul->pointsDrawn->intValue())
+        {
+          simuSendsMessages[ev.run] = false;
+        }
+
         FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
       }
-        //worker->submitSnapshot(cg, time, ev.run);
     }
   break;
       
     case Simulation::SimulationEvent::NEWRUN:
     {
-      //worker->clearSnapshots(); // in principle should already be fine, but just to make sure
-      pool->removeAllJobs(true, 100); 
-      simuRun.store(ev.run);
+      const juce::ScopedLock sl(lock);
+      simuSendsMessages[ev.run] = true;
       escapeDetected[ev.run] = false;
       earliestEscape[ev.run] = {ev.run, std::numeric_limits<float>::max(), startSteadyState, -1};
       pendingJobs[ev.run] = 0;
@@ -376,10 +400,8 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 
     case Simulation::SimulationEvent::FINISHED:
     {
-      //worker->signalThreadShouldExit(); // tell the worker to exit thread
-      //escapeTimes = worker->escapeTimes;
+      const juce::ScopedLock sl(lock);
       simuHasFinished.store(true);
-      //printResultsToFile();
     }
       
   } // end switch

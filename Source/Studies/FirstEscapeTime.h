@@ -69,7 +69,10 @@ private:
   // unique escape time per run
   juce::Array<Escape> escapes;
 
-  std::atomic<int> simuRun { 0 };
+  std::unordered_map<int, bool> simuSendsMessages; // <runID, true/false> to check whether simulation will still send messages to listeners or not.
+  std::unordered_map<int, int> messageCounters; // <runID, Nmessages> count messages received per run
+
+
   std::atomic<int> runBeingTreated { 0 };
   std::unordered_map<int, bool> escapeDetected;  // <runID, escapeDetected>
   std::unordered_map<int, Escape> earliestEscape;  // <runID, escapeDetected>
