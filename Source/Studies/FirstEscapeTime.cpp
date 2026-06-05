@@ -23,10 +23,9 @@ FirstEscapeTime::~FirstEscapeTime()
 
 void FirstEscapeTime::signalEscapeDetected(const Escape& e)
 {
-    float t = e.time;
     float t_current = earliestEscape.at(e.run).time;
 
-    if (t < t_current) // update earliest escape for current run
+    if (e.time < t_current) // update earliest escape for current run
     {
       const juce::ScopedLock sl(lock);
       earliestEscape[e.run] = e;
@@ -35,6 +34,9 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
 
       if (pendingJobs.at(e.run)-1 == 0 && !debugMode) // last job in current run
       {
+        std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(e.time);
+        LOG(juce::String(log));
+        LOG("Proceeding to next run");
         simul->requestProceedingToNextRun(e.run);
       }
     }
@@ -71,6 +73,7 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
   {
     Escape noescape = {runID, -1., startSST, startSST};
     escapes.setUnchecked(runID, noescape);
+    LOG("Run " + juce::String(runID) + ": no escape detected");
   }
 
   // following is to decide whether should print results to file (i.e. this was the last job)
