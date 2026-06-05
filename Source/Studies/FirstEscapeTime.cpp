@@ -31,12 +31,11 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
       const juce::ScopedLock sl(lock);
       earliestEscape[e.run] = e;
       escapeDetected[e.run] = true;
+      escapes.setUnchecked(e.run, e);
 
-      // does not work, just like that it will never proceed to next run.
-      if (pendingJobs.at(e.run)-1 == 0 && !debugMode && !simuSendsMessages.at(e.run) ) // last job in current run and simu has already started another run
+      if (pendingJobs.at(e.run)-1 == 0 && !debugMode) // last job in current run
       {
         simul->requestProceedingToNextRun(e.run);
-        escapes.add(e);
       }
     }
 
@@ -55,8 +54,7 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
   //    cout << "run " << key << " - " << val << " jobs." << endl;
 
 
-  // if no escape has been detected for current run and this was the last job of the run, store empty escape
-  if (runID == 0)
+ /* if (runID == 0)
   {
     cout << "-------------" << endl;
     cout << "pending jobs : " << pendingJobs.at(runID) << endl;
@@ -64,29 +62,71 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
     cout << "simu has finished : " << simuHasFinished.load() << endl;
     cout << "escape detected : " << escapeDetected.at(runID) << endl;
     cout << endl;
-    
   }
+  */
+
+  // if no escape has been detected for current run and this was the last job of the run, store empty escape
+  //cout << "in run " << runID << ". remaining jobs in run : " << pendingJobs.at(runID) << ". More messages to come : " << simuSendsMessages.at(runID) << ". escape ? " << escapeDetected.at(runID) << endl;
   if (pendingJobs.at(runID) == 0 && !simuSendsMessages.at(runID) && !escapeDetected.at(runID))
   {
-    cout << "adding null escape for run " << runID << endl;
     Escape noescape = {runID, -1., startSST, startSST};
-    escapes.add(noescape);
+    escapes.setUnchecked(runID, noescape);
   }
 
-  if (!simuHasFinished.load())
-    return;
-  
+  // following is to decide whether should print results to file (i.e. this was the last job)
+  // conditions for being the last job ever submitted
+  // - (i) belonging to the last run
+  // - (ii) an escape was detected in the last run and no more job (last run) is running
+  // - (iii) no escape detected in the last run and no more messages being sent by simulation and no more jobs remaining
+  // (i) and ((ii) or (iii))
+
   // count total number of remaining jobs
   int remaining = 0;
   for (auto & [run, jobs] : pendingJobs)
   {
     remaining += jobs;
   }
+
+
+
+  bool i = (runID == nruns-1);
+  bool ii = (escapeDetected.at(nruns-1) && remaining == 0);
+  bool iii = (!escapeDetected.at(nruns-1) && !simuSendsMessages.at(nruns-1) && remaining == 0);
+  bool lastJobEver = (i && (ii || iii));
+
+  //cout << "in run " << runID << ". remaining jobs : " << remaining << ". More messages to come (last run) : " << simuSendsMessages.at(nruns-1) << ". escape (last run) ? " << escapeDetected.at(nruns-1);
+  //cout << ". lastJobEver : " << lastJobEver << endl;
+
+  if (!lastJobEver)
+    return;
+
+  printResultsToFile();
+
+
+  // first check whether this job was the last job ever
+
+  
+
+
+  // simu no longer sends message to current run or an escape has already been detected
+  //if (simuSendsMessages.at(nruns-1) || escapeDetected.at(nruns-1))
+  //  return;
+    
+  // count total number of remaining jobs
+  //int remaining = 0;
+  //for (auto & [run, jobs] : pendingJobs)
+ // {
+ //   remaining += jobs;
+ // }
+    
+
+  
+
   // print results to file if simu has finished and no more job is pending
-  if (remaining == 0 && !resultsWritten.exchange(true))
-  {
-    printResultsToFile();
-  }
+  //if (remaining == 0 && !resultsWritten.exchange(true))
+  //{
+  //printResultsToFile();
+  //}
 
 }
 
@@ -205,12 +245,13 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   PhasePlane::getInstance()->nRuns->setValue(nruns);
   PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
 
-  // correct number of threads if they exceed that of the hardware
+  
   if (cores == 0)
   {
     LOGWARNING("Number of cores set to 0, reset its value to default value 1.");
     cores = 1;
   }
+  // correct number of threads if they exceed that of the hardware
   int maxCores = juce::SystemStats::getNumCpus(); 
   cores = std::min(cores, maxCores);
 
@@ -338,6 +379,9 @@ cout << "printResultsToFile()" << endl;
 
 void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 {
+  if (simul->redrawPatch || simul->redrawRun)
+    return;
+
   switch (ev.type)
   {
     case Simulation::SimulationEvent::UPDATEPARAMS:
@@ -348,14 +392,19 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::WILL_START:
     {
       const juce::ScopedLock sl(lock);
-      simuSendsMessages[0] = true;
+      simuSendsMessages.clear();
+      for (int r=0; r<nruns; r++)
+        simuSendsMessages[r] = true;
       runBeingTreated.store(0);
       escapeDetected.clear();
-      escapeDetected[0] = false;
+      for (int r=0; r<nruns; r++)
+        escapeDetected[r] = false;
       earliestEscape.clear();
       earliestEscape[0] = {0, std::numeric_limits<float>::max(), startSteadyState, -1};
       pendingJobs.clear();
       pendingJobs[0] = 0;
+      escapes.clear();
+      escapes.insertMultiple(0, {-1, -1., -1, -1}, nruns);
     }
   break;
 
@@ -373,14 +422,14 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       //cout << "SimulationEvent::NEWSTEP at step " << ev.nStep << " --> time = " << time << endl;
       messageCounters[ev.run]++;
 
-      if (!simul->redrawRun && !simul->redrawPatch && escapeDetected.at(ev.run) == false)
+      //cout << ev.run << " : " << messageCounters.at(ev.run) << " ; " << simul->pointsDrawn->intValue() << " : " << time << endl;
+      if (messageCounters.at(ev.run) == simul->pointsDrawn->intValue())
       {
+        simuSendsMessages[ev.run] = false;
+      }
 
-        if (messageCounters.at(ev.run) == simul->pointsDrawn->intValue())
-        {
-          simuSendsMessages[ev.run] = false;
-        }
-
+      if (escapeDetected.at(ev.run) == false) // if a previous job detected an escape, do not submit more jobs
+      {
         FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
@@ -391,7 +440,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::NEWRUN:
     {
       const juce::ScopedLock sl(lock);
-      simuSendsMessages[ev.run] = true;
+      //simuSendsMessages[ev.run] = true;
       escapeDetected[ev.run] = false;
       earliestEscape[ev.run] = {ev.run, std::numeric_limits<float>::max(), startSteadyState, -1};
       pendingJobs[ev.run] = 0;

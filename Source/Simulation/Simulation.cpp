@@ -2073,24 +2073,35 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
-  if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
+  if (gillespieMode->boolValue())
   {
-    stop();
-    return;
+    if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
+    {
+      stop();
+      return;
+    }
+  }
+  else
+  {
+    if (nSteps == maxSteps && currentRun == nRuns - 1)
+    {
+      stop();
+      return;
+    }
   }
  
 
  if( (!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
  {
-  //cout << "conc step: "<< currentTime <<endl;
   currentTime+=nextConcStep;
-  if(gillespieMode->boolValue()) nextGillespieStep-=nextConcStep;
+  if(gillespieMode->boolValue()) 
+    nextGillespieStep-=nextConcStep;
   nextConcStep=dt->floatValue();
   nextStep();
  }
  else
  {
-  cout << "gillespie step: "<< currentTime <<endl;
+  //cout << "gillespie step: "<< currentTime <<endl;
   currentTime+=nextGillespieStep;
     if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
   else{
@@ -2264,7 +2275,6 @@ void Simulation::nextStep()
   }
   else if (status == 1 || requestNewRun.exchange(false, std::memory_order_acquire)) // current run is over, but not simu. Move to next run
   {
-    cout << "simu proceeds to next run" << endl;
     resetForNextRun();
     return;
   }
