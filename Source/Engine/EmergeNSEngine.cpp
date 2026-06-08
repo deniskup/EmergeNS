@@ -52,7 +52,7 @@ void EmergeNSEngine::clearInternal()
 std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
 {
   
-  //cout << "will open file : " << fileArg << endl;
+  cout << "will open file : " << fileArg << endl;
 
   std::map<String, String> configs;
 
@@ -91,6 +91,8 @@ std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
     }
     configs[row[0]] = row[1];
   }
+
+cout << "end config file reading" << endl;
 
 return configs;
   

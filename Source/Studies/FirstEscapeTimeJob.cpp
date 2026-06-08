@@ -1,4 +1,4 @@
-#include "FirstEscapeTimeWorker.h"
+#include "FirstEscapeTimeJob.h"
 #include "FirstEscapeTime.h"
 using namespace juce;
 
