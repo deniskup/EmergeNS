@@ -341,8 +341,8 @@ void NEP::run()
     
     // lift current trajectory to full (q ; p; t) space
     //LiftResults liftoptres = liftCurveToTrajectoryWithNLOPT();
-    LOGWARNING("Reseting lift success to false for debugging.");
-    liftSuccess = false; // just for debugging
+    //LOGWARNING("Reseting lift success to false for debugging.");
+    //liftSuccess = false; // just for debugging
     if (!liftSuccess)
     {
       LOG("Lift curve");
@@ -434,8 +434,11 @@ void NEP::run()
     Array<double> newcumulaction = nepsolver->calculateAction(g_qcurve, g_pcurve, g_times);
     double newaction = newcumulaction.getLast();
     double diffAction = action - newaction;
-    LOG("action = " + to_string(newaction));
+    //LOG("action = " + to_string(newaction));
     //LOG("delta action = " + to_string(diffAction));
+    std::cout << std::scientific << std::setprecision(10) << "action = " << newaction << std::endl;
+    std::cout << "delta action = " << diffAction << endl;
+    std::cout << std::fixed << std::endl;
     
     if (isnan(newaction)|| isnan(diffAction))
     {

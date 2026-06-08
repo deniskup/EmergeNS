@@ -1608,14 +1608,14 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
     if (idx==19 && maxPrintingAllowed)
     {
-      cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
-      cout << "lambda = " << 1/mu << endl;
-      cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
-      cout << "dH/dp = ";
-      for (auto & el : dHdp)
-        cout << el << " ";      
-      cout << endl;
-      cout << "d2h/dp2_eigenval = \n" <<  es.eigenvalues() << endl;
+      //cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
+      //cout << "lambda = " << 1/mu << endl;
+      //cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
+      //cout << "dH/dp = ";
+      //for (auto & el : dHdp)
+      //  cout << el << " ";      
+      //cout << endl;
+      //cout << "d2h/dp2_eigenval = \n" <<  es.eigenvalues() << endl;
     }
     
 
