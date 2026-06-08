@@ -12,7 +12,7 @@
 #include "JuceHeader.h"
 //#include "Simulation/Simulation.h"
 //#include "Simulation/KineticLaw.h"
-#include "FirstEscapeTimeWorker.h"
+#include "FirstEscapeTimeJob.h"
 
 
 class EscapeListener
@@ -42,7 +42,7 @@ public:
     
 private:
 
-  void copyReactionNetwork();
+  void copyReactionNetworkFromSimu();
     
   SimEntity * getSimEntityForID(const size_t);
     

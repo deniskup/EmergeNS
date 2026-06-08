@@ -1838,7 +1838,6 @@ if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHisto
 
 void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
 {
-
   nRuns = PhasePlane::getInstance()->nRuns->intValue();
   updateParams();
   resetBeforeRunning();
@@ -1859,6 +1858,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
     return;
   }
+
 
   // will print dynamics to file
   // if (!Settings::getInstance()->printHistoryToFile->boolValue())
@@ -1885,6 +1885,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   // cout << "startMultipleRuns(), entityColors.size() = " << entityColors.size() << endl;
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, 0, currentTime, entityValues, {}, entityColors));
+
 
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size() - 1];
@@ -1916,7 +1917,6 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
       LOG("couldn't retrieve sim entity with name " + entname + ". Cancel multiple run thread.");
     }
   }
-
   startThread();
   return;
 }

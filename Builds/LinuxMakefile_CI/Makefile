@@ -73,7 +73,7 @@ endif
 
 OBJECTS_APP := \
   $(JUCE_OBJDIR)/FirstEscapeTime_c253b517.o \
-  $(JUCE_OBJDIR)/FirstEscapeTimeWorker_8d992435.o \
+  $(JUCE_OBJDIR)/FirstEscapeTimeJob_e7e57a30.o \
   $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o \
   $(JUCE_OBJDIR)/KineticLaw_9fe9ae12.o \
   $(JUCE_OBJDIR)/EntityManagerUI_b4e33bac.o \
@@ -145,9 +145,9 @@ $(JUCE_OBJDIR)/FirstEscapeTime_c253b517.o: ../../Source/Studies/FirstEscapeTime.
 	@echo "Compiling FirstEscapeTime.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
-$(JUCE_OBJDIR)/FirstEscapeTimeWorker_8d992435.o: ../../Source/Studies/FirstEscapeTimeWorker.cpp
+$(JUCE_OBJDIR)/FirstEscapeTimeJob_e7e57a30.o: ../../Source/Studies/FirstEscapeTimeJob.cpp
 	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling FirstEscapeTimeWorker.cpp"
+	@echo "Compiling FirstEscapeTimeJob.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/EmergeNSEngine_29b22fc8.o: ../../Source/Engine/EmergeNSEngine.cpp

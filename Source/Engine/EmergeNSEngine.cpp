@@ -92,6 +92,8 @@ std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
     configs[row[0]] = row[1];
   }
 
+//cout << "end config file reading" << endl;
+
 return configs;
   
 }

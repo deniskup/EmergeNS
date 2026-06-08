@@ -7,7 +7,7 @@ FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
     LOGWARNING("SImulation pointer init. to null pointer");
   //worker = new FirstEscapeTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
-  copyReactionNetwork();
+  copyReactionNetworkFromSimu();
 }
 
 //SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
@@ -32,12 +32,15 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
       escapeDetected[e.run] = true;
       escapes.setUnchecked(e.run, e);
 
-      if (pendingJobs.at(e.run)-1 == 0 && !debugMode) // last job in current run
+      if (pendingJobs.at(e.run)-1 == 0) // last job in current run
       {
         std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(e.time);
         LOG(juce::String(log));
-        LOG("Proceeding to next run");
-        simul->requestProceedingToNextRun(e.run);
+        if (!debugMode)
+        {
+          LOG("Proceeding to next run");
+          simul->requestProceedingToNextRun(e.run);
+        }
       }
     }
 
@@ -133,7 +136,7 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
 
 }
 
-void FirstEscapeTime::copyReactionNetwork()
+void FirstEscapeTime::copyReactionNetworkFromSimu()
 {
   crn.entities.clear();
   crn.reactions.clear();
@@ -248,7 +251,21 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   PhasePlane::getInstance()->nRuns->setValue(nruns);
   PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
 
-  
+  // set all entities in simu drawable
+  for (auto& ent : simul->entities)
+  {
+    if (ent->entity != nullptr)
+    {
+      ent->entity->draw->setValue(true);
+    }
+    else
+    {
+      LOGWARNING("Entity in SimEntity " + ent->name + " is null. Stop.");
+      return;
+    }
+  }
+
+  // cores
   if (cores == 0)
   {
     LOGWARNING("Number of cores set to 0, reset its value to default value 1.");
@@ -301,30 +318,16 @@ void FirstEscapeTime::startStudy()
   {
     LOGWARNING("Start steady state index greater than total umber of steady state. Exit.");
     return;
-  }
-  
+  }  
   // set concentration of entities in simul to the one of initial steady state
   simul->setStartConcToSteadyState(simul->entities, startSteadyState+1, true); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
   
   // synchronize runs of phase plane with simul
   PhasePlane::getInstance()->updateEntitiesFromSimu();
-  
-  // just in case
-  //Simulation::getInstance()->generateSimFromUserList();
-  
-  // debug
-  //simul->steadyStatesList->printSteadyStates();
-  
-  // initialize runs
-  //PhasePlane::getInstance()->clearAllRuns();
-  //PhasePlane::getInstance()->nRuns->setValue(nruns);
-  //PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
-  
-  // start worker thread
-  //worker->reset();
-  //worker->startThread(); // start the worker thread
-  
+
+  cout << "Nentities in simu : " << simul->entities.size() << endl;
+
   // start simulation
   PhasePlane::getInstance()->startRuns(); // start simulation thread
   
@@ -333,8 +336,8 @@ void FirstEscapeTime::startStudy()
 
 void FirstEscapeTime::printResultsToFile()
 {
-  cout << "printResultsToFile()" << endl;
-  cout << "N escapes = " << escapes.size() << endl;
+  //cout << "printResultsToFile()" << endl;
+  //cout << "N escapes = " << escapes.size() << endl;
   ofstream outputfile;
   String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
   outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
@@ -433,7 +436,8 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 
       if (escapeDetected.at(ev.run) == false) // if a previous job detected an escape, do not submit more jobs
       {
-        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, ev.run, time, studyParams);
+        CRNSimulation copyCRN(crn);
+        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, copyCRN, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
       }

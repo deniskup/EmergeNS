@@ -1,4 +1,4 @@
-#include "FirstEscapeTimeWorker.h"
+#include "FirstEscapeTimeJob.h"
 #include "FirstEscapeTime.h"
 using namespace juce;
 
@@ -127,7 +127,6 @@ void FirstEscapeTimeWorker::clearSnapshots(const int run)
 
 FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 {
-  
   // check if system is still in the first attraction basin
   int reachedSST = identifyAttractionBasin();
 
@@ -138,6 +137,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
     listener.signalEscapeDetected(e);
   }
 
+  
 /*
   // if not, request simul to proceed to next run
       if (reachedSST != startSteadyState)
@@ -186,8 +186,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 
 int FirstEscapeTimeJob::identifyAttractionBasin()
 {
-  //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
-  
+
   // set entities to the concentration corresponding to input argument
   for (auto & ent : crn.entities)
   {
@@ -198,7 +197,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   
   
   //cout << "start conc : ";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
   
@@ -244,7 +243,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     return -2;
   
   //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
   
@@ -270,18 +269,19 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     count++;
   }
   
-  //cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
+  //cout << "run = " << run << ". t_simul = " << time << endl;
   //cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
   if (reachedSST<0)
     LOGWARNING("Could not determine in which steady state the system ended.");
   
   //cout << "reached sst (";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << ")" << endl;
   
-  
+  //cout << "end identifyAttractionBasin()" << endl;
+
   return reachedSST;
 }
 

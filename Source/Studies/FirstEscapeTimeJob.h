@@ -40,13 +40,84 @@ struct StudyParameters
   int startSteadyState;
 };
 
-struct CRNSimulation
+class CRNSimulation
 {
+  public:
+
+  CRNSimulation(){}; // default
+  CRNSimulation(const CRNSimulation& _crn)  // copy
+  {
+    copyReactionNetwork(_crn);
+  };
+  ~CRNSimulation(){};
+
+  void copyReactionNetwork(const CRNSimulation& _crn)
+  {
+    entities.clear();
+    reactions.clear();
+
+    juce::Array<SimEntity*> copy_simEntities;
+    juce::Array<SimReaction*> copy_simReactions;
+    
+    // fill entity array with copies of the ones present in the simulation instance
+    // careful, they should not be modified while this study is being called, so I'll probably have to pause the Simulation thread ?
+    // or make sure to update the simentity concentration value with the one
+    for (auto & ent : _crn.entities)
+      copy_simEntities.add(ent->clone().release());
+  
+    for (auto & ent : copy_simEntities)
+      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+  
+    for (auto & r : _crn.reactions)
+    {
+      juce::Array<SimEntity*> reactants;
+      juce::Array<SimEntity*> products;
+      for (auto & e : r->reactants)
+      {
+        reactants.add(copy_simEntities[e->idSAT]);
+      }
+      for (auto & e : r->products)
+      {
+        products.add(copy_simEntities[e->idSAT]);
+     }
+      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      copy_simReactions.add(copyr);
+    }
+
+    for (auto & e : copy_simEntities)
+      entities.add(e);
+  
+    for (auto & r : copy_simReactions)
+      reactions.add(r);
+
+    // copy steady states
+    arraySteadyStates.clear();
+    for (auto & sst : _crn.arraySteadyStates)
+    {
+      arraySteadyStates.add(sst);    
+    }
+
+  };
+
   // juce::Array<Patch>
   juce::OwnedArray<SimEntity> entities;
   juce::OwnedArray<SimReaction> reactions;
   juce::Array<SteadyState> arraySteadyStates; 
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //class FirstEscapeTimeWorker : public juce::Thread
 class FirstEscapeTimeJob : public juce::ThreadPoolJob
@@ -59,25 +130,20 @@ public:
       kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
     }*/
 
-      FirstEscapeTimeJob(EscapeListener& _listener, CRNSimulation& _crn, ConcentrationGrid cg,
+      FirstEscapeTimeJob(EscapeListener& _listener, CRNSimulation _crn, ConcentrationGrid cg,
       int _run, float _time, StudyParameters _studyParams)
        : 
-      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), snapConc(cg), 
-      run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), startSteadyState(_studyParams.startSteadyState),
-      precision(_studyParams.precision), dt(_studyParams.dt_study)
+      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), 
+      snapConc(cg), run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), 
+      startSteadyState(_studyParams.startSteadyState), precision(_studyParams.precision), dt(_studyParams.dt_study)
       {
         kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
-        //entities = crn.entities;
-        //reactions = crn.reactions;
-        //snapConc = cg;
-        //escapes = _escapes;
       }
 
 
     ~FirstEscapeTimeJob() override
     {
         signalJobShouldExit();
-        //workAvailable.signal();
         //stopThread(2000);
     }
 
@@ -120,7 +186,11 @@ private:
     // === Références ===
     //Simulation& simul;
 
-    CRNSimulation& crn;
+    CRNSimulation crn;
+    //juce::OwnedArray<SimEntity> entities;
+    //juce::OwnedArray<SimReaction> reactions;
+    //juce::OwnedArray<SteadyState> arraySteadyStates; 
+
 
     ConcentrationGrid snapConc;
 

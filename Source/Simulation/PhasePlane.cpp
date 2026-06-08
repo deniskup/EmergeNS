@@ -453,7 +453,8 @@ void PhasePlane::onContainerParameterChanged(Parameter *p)
     }
     nRuns->setValue(runs.size());
   }
-   // update 
+   // update simu thread
+   
 }
 
 

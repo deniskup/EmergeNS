@@ -16,10 +16,10 @@
               file="Source/Studies/FirstEscapeTime.cpp"/>
         <FILE id="N4zD82" name="FirstEscapeTime.h" compile="0" resource="0"
               file="Source/Studies/FirstEscapeTime.h"/>
-        <FILE id="ZwdTkR" name="FirstEscapeTimeWorker.cpp" compile="1" resource="0"
-              file="Source/Studies/FirstEscapeTimeWorker.cpp"/>
-        <FILE id="xes6XP" name="FirstEscapeTimeWorker.h" compile="0" resource="0"
-              file="Source/Studies/FirstEscapeTimeWorker.h"/>
+        <FILE id="jQB1H1" name="FirstEscapeTimeJob.cpp" compile="1" resource="0"
+              file="Source/Studies/FirstEscapeTimeJob.cpp"/>
+        <FILE id="smSm7w" name="FirstEscapeTimeJob.h" compile="0" resource="0"
+              file="Source/Studies/FirstEscapeTimeJob.h"/>
       </GROUP>
       <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
         <FILE id="mDORRC" name="EmergeNSEngine.cpp" compile="1" resource="0"
