@@ -32,12 +32,15 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
       escapeDetected[e.run] = true;
       escapes.setUnchecked(e.run, e);
 
-      if (pendingJobs.at(e.run)-1 == 0 && !debugMode) // last job in current run
+      if (pendingJobs.at(e.run)-1 == 0) // last job in current run
       {
         std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(e.time);
         LOG(juce::String(log));
-        LOG("Proceeding to next run");
-        simul->requestProceedingToNextRun(e.run);
+        if (!debugMode)
+        {
+          LOG("Proceeding to next run");
+          simul->requestProceedingToNextRun(e.run);
+        }
       }
     }
 
@@ -333,8 +336,8 @@ void FirstEscapeTime::startStudy()
 
 void FirstEscapeTime::printResultsToFile()
 {
-  cout << "printResultsToFile()" << endl;
-  cout << "N escapes = " << escapes.size() << endl;
+  //cout << "printResultsToFile()" << endl;
+  //cout << "N escapes = " << escapes.size() << endl;
   ofstream outputfile;
   String out = outputfilename + "_srun" + String(to_string(superRun)) + ".csv";
   outputfile.open(out.toStdString(), ofstream::out | ofstream::trunc);
