@@ -127,7 +127,6 @@ void FirstEscapeTimeWorker::clearSnapshots(const int run)
 
 FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 {
-  
   // check if system is still in the first attraction basin
   int reachedSST = identifyAttractionBasin();
 
@@ -138,6 +137,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
     listener.signalEscapeDetected(e);
   }
 
+  
 /*
   // if not, request simul to proceed to next run
       if (reachedSST != startSteadyState)
@@ -186,8 +186,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 
 int FirstEscapeTimeJob::identifyAttractionBasin()
 {
-  //cout << "FirstEscapeTime::identifyAttractionBasin()" << endl;
-  
+
   // set entities to the concentration corresponding to input argument
   for (auto & ent : crn.entities)
   {
@@ -270,7 +269,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     count++;
   }
   
-  //cout << "run = " << snap.run << ". t_simul = " << snap.time << endl;
+  //cout << "run = " << run << ". t_simul = " << time << endl;
   //cout << "startSST = " << startSteadyState << " vs reachedSST " << reachedSST << endl;
   
   if (reachedSST<0)
@@ -281,7 +280,8 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << ")" << endl;
   
-  
+  //cout << "end identifyAttractionBasin()" << endl;
+
   return reachedSST;
 }
 

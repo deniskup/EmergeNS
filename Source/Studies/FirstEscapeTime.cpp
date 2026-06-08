@@ -7,7 +7,7 @@ FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
     LOGWARNING("SImulation pointer init. to null pointer");
   //worker = new FirstEscapeTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
-  copyReactionNetwork(crn);
+  copyReactionNetworkFromSimu();
 }
 
 //SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
@@ -133,10 +133,10 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
 
 }
 
-void FirstEscapeTime::copyReactionNetwork(CRNSimulation & _crn)
+void FirstEscapeTime::copyReactionNetworkFromSimu()
 {
-  _crn.entities.clear();
-  _crn.reactions.clear();
+  crn.entities.clear();
+  crn.reactions.clear();
 
   juce::Array<SimEntity*> copy_simEntities;
   juce::Array<SimReaction*> copy_simReactions;
@@ -167,16 +167,16 @@ void FirstEscapeTime::copyReactionNetwork(CRNSimulation & _crn)
   }
 
   for (auto & e : copy_simEntities)
-    _crn.entities.add(e);
+    crn.entities.add(e);
   
   for (auto & r : copy_simReactions)
-    _crn.reactions.add(r);
+    crn.reactions.add(r);
 
   // copy steady states
-  _crn.arraySteadyStates.clear();
+  crn.arraySteadyStates.clear();
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
-    _crn.arraySteadyStates.add(sst);    
+    crn.arraySteadyStates.add(sst);    
   }
 }
 
@@ -248,7 +248,21 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   PhasePlane::getInstance()->nRuns->setValue(nruns);
   PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
 
-  
+  // set all entities in simu drawable
+  for (auto& ent : simul->entities)
+  {
+    if (ent->entity != nullptr)
+    {
+      ent->entity->draw->setValue(true);
+    }
+    else
+    {
+      LOGWARNING("Entity in SimEntity " + ent->name + " is null. Stop.");
+      return;
+    }
+  }
+
+  // cores
   if (cores == 0)
   {
     LOGWARNING("Number of cores set to 0, reset its value to default value 1.");
@@ -301,30 +315,16 @@ void FirstEscapeTime::startStudy()
   {
     LOGWARNING("Start steady state index greater than total umber of steady state. Exit.");
     return;
-  }
-  
+  }  
   // set concentration of entities in simul to the one of initial steady state
   simul->setStartConcToSteadyState(simul->entities, startSteadyState+1, true); // startSteadyState is in [0, Nsteadystates-1], but method expects it to be in [1, Nsteadystates]
   // same for entities belonging to this class
   
   // synchronize runs of phase plane with simul
   PhasePlane::getInstance()->updateEntitiesFromSimu();
-  
-  // just in case
-  //Simulation::getInstance()->generateSimFromUserList();
-  
-  // debug
-  //simul->steadyStatesList->printSteadyStates();
-  
-  // initialize runs
-  //PhasePlane::getInstance()->clearAllRuns();
-  //PhasePlane::getInstance()->nRuns->setValue(nruns);
-  //PhasePlane::getInstance()->updateEntitiesFromSimu(); // so that all runs have correct initial conditions
-  
-  // start worker thread
-  //worker->reset();
-  //worker->startThread(); // start the worker thread
-  
+
+  cout << "Nentities in simu : " << simul->entities.size() << endl;
+
   // start simulation
   PhasePlane::getInstance()->startRuns(); // start simulation thread
   
@@ -433,8 +433,7 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 
       if (escapeDetected.at(ev.run) == false) // if a previous job detected an escape, do not submit more jobs
       {
-        CRNSimulation copyCRN;
-        copyReactionNetwork(copyCRN);
+        CRNSimulation copyCRN(crn);
         FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, copyCRN, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
