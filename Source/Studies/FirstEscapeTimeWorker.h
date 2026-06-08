@@ -62,9 +62,9 @@ public:
       FirstEscapeTimeJob(EscapeListener& _listener, CRNSimulation& _crn, ConcentrationGrid cg,
       int _run, float _time, StudyParameters _studyParams)
        : 
-      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), snapConc(cg), 
-      run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), startSteadyState(_studyParams.startSteadyState),
-      precision(_studyParams.precision), dt(_studyParams.dt_study)
+      juce::ThreadPoolJob("FirstEscapeTimeJob"), listener(_listener), crn(_crn), 
+      snapConc(cg), run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), 
+      startSteadyState(_studyParams.startSteadyState), precision(_studyParams.precision), dt(_studyParams.dt_study)
       {
         kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
         //entities = crn.entities;
@@ -120,7 +120,11 @@ private:
     // === Références ===
     //Simulation& simul;
 
-    CRNSimulation& crn;
+    CRNSimulation & crn;
+    //juce::OwnedArray<SimEntity> entities;
+    //juce::OwnedArray<SimReaction> reactions;
+    //juce::OwnedArray<SteadyState> arraySteadyStates; 
+
 
     ConcentrationGrid snapConc;
 

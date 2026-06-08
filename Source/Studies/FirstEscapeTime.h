@@ -42,7 +42,7 @@ public:
     
 private:
 
-  void copyReactionNetwork();
+  void copyReactionNetwork(CRNSimulation &);
     
   SimEntity * getSimEntityForID(const size_t);
     

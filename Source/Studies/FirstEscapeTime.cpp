@@ -7,7 +7,7 @@ FirstEscapeTime::FirstEscapeTime() : simul(Simulation::getInstance())
     LOGWARNING("SImulation pointer init. to null pointer");
   //worker = new FirstEscapeTimeWorker(*simul);
   simul->addAsyncSimulationListener(this);
-  copyReactionNetwork();
+  copyReactionNetwork(crn);
 }
 
 //SimulationUI::SimulationUI() : ShapeShifterContentComponent(Simulation::getInstance()->niceName),
@@ -133,10 +133,10 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
 
 }
 
-void FirstEscapeTime::copyReactionNetwork()
+void FirstEscapeTime::copyReactionNetwork(CRNSimulation & _crn)
 {
-  crn.entities.clear();
-  crn.reactions.clear();
+  _crn.entities.clear();
+  _crn.reactions.clear();
 
   juce::Array<SimEntity*> copy_simEntities;
   juce::Array<SimReaction*> copy_simReactions;
@@ -167,16 +167,16 @@ void FirstEscapeTime::copyReactionNetwork()
   }
 
   for (auto & e : copy_simEntities)
-    crn.entities.add(e);
+    _crn.entities.add(e);
   
   for (auto & r : copy_simReactions)
-    crn.reactions.add(r);
+    _crn.reactions.add(r);
 
   // copy steady states
-  crn.arraySteadyStates.clear();
+  _crn.arraySteadyStates.clear();
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
-    crn.arraySteadyStates.add(sst);    
+    _crn.arraySteadyStates.add(sst);    
   }
 }
 
@@ -433,7 +433,9 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 
       if (escapeDetected.at(ev.run) == false) // if a previous job detected an escape, do not submit more jobs
       {
-        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, crn, cg, ev.run, time, studyParams);
+        CRNSimulation copyCRN;
+        copyReactionNetwork(copyCRN);
+        FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, copyCRN, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
       }

@@ -198,7 +198,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   
   
   //cout << "start conc : ";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
   
@@ -244,7 +244,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     return -2;
   
   //cout << "FirstEscapeTimeWorker::identifyAttractionBasin() end conc : ";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
   
@@ -277,7 +277,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
     LOGWARNING("Could not determine in which steady state the system ended.");
   
   //cout << "reached sst (";
-  //for (auto & ent : entities)
+  //for (auto & ent : crn.entities)
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << ")" << endl;
   
