@@ -1523,7 +1523,7 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
     ev.imag = triang(i, i).imag();
     arraySteadyStates.getReference(sst_index).eigenvalues.add(ev);
 	}
-  cout << "added Neigenvalues = " << arraySteadyStates.getReference(sst_index).eigenvalues.size() << endl;
+  //cout << "added Neigenvalues = " << arraySteadyStates.getReference(sst_index).eigenvalues.size() << endl;
   witness.postiveEigenVal = nPositiveEig;
   if (nPositiveEig == 0)
   {
