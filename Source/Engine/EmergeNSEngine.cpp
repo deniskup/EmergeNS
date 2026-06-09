@@ -11,6 +11,25 @@
 #include "Simulation/NEP.h"
 using namespace juce;
 
+std::vector<float> lineSpace(float inf, float sup, float step){
+    std::vector<float> vec;
+    if (step <= 0) { vec.push_back(inf); return vec; }
+    for(float val = inf; val <= sup; val += step){
+        vec.push_back(val);
+    }
+    return vec;
+}
+
+std::string floatToFolderName(float f) {
+    float rounded = std::round(f * 100000.f) / 100000.f;
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(5) << std::abs(rounded);
+    std::string s = oss.str();
+    std::replace(s.begin(), s.end(), '.', 'p');
+    if (rounded < 0.f) s = "m" + s;
+    return s;
+}
+
 EmergeNSEngine::EmergeNSEngine() : Engine(ProjectInfo::projectName, ".ens")
 
 {
@@ -174,8 +193,107 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     }
     else if (study == "steadystates")
     {
-      Settings::getInstance()->printSteadyStatesToFile->setValue(true);
-      Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+        std::vector<float> EB1_vals, EB2_vals, FE1_vals, FE2_vals, FEFa_vals, FEWa_vals;
+
+        float default_EB1 = -1, default_EB2 = -1, default_FE1 = -1, default_FE2 = -1;
+        float default_FEFa = 0.f, default_FEWa = 0.f;
+        for (auto* sr : Simulation::getInstance()->reactions) {
+            if (sr->name == "A1+Fa=A2+Wa")      default_EB1 = sr->energy;
+            else if (sr->name == "A2+Fa=A1+A1") default_EB2 = sr->energy;
+        }
+        for (auto* se : Simulation::getInstance()->entities) {
+            if (se->name == "A1")      default_FE1  = se->freeEnergy;
+            else if (se->name == "A2") default_FE2  = se->freeEnergy;
+            else if (se->name == "Fa") default_FEFa = se->freeEnergy;
+            else if (se->name == "Wa") default_FEWa = se->freeEnergy;
+        }
+
+        for (auto& [key, val] : configs)
+        {
+            if (key != "EB1" && key != "EB2" && key != "FE1" && key != "FE2"
+                && key != "FEFa" && key != "FEWa") continue;
+
+            std::string inf, sup, nb;
+            std::stringstream ss(val.toStdString());
+            getline(ss, inf, ';');
+            getline(ss, sup, ';');
+            getline(ss, nb, ';');
+            float v_min = std::stof(inf);
+            float v_max = std::stof(sup);
+            int   v_nb  = std::stoi(nb);
+            std::vector<float> vals = lineSpace(v_min, v_max, (v_max - v_min) / v_nb);
+
+            std::cout << "  -> Parsed " << key << ": min=" << v_min << " max=" << v_max << " nb=" << v_nb
+                      << " (" << vals.size() << " valeurs)" << std::endl;
+
+            if      (key == "EB1")  EB1_vals  = vals;
+            else if (key == "EB2")  EB2_vals  = vals;
+            else if (key == "FE1")  FE1_vals  = vals;
+            else if (key == "FE2")  FE2_vals  = vals;
+            else if (key == "FEFa") FEFa_vals = vals;
+            else if (key == "FEWa") FEWa_vals = vals;
+        }
+
+        if (EB1_vals.empty())  EB1_vals  = {default_EB1};
+        if (EB2_vals.empty())  EB2_vals  = {default_EB2};
+        if (FE1_vals.empty())  FE1_vals  = {default_FE1};
+        if (FE2_vals.empty())  FE2_vals  = {default_FE2};
+        if (FEFa_vals.empty()) FEFa_vals = {default_FEFa};
+        if (FEWa_vals.empty()) FEWa_vals = {default_FEWa};
+
+        std::cout << "EB1_vals  (" << EB1_vals.size()  << "): "; for (float v : EB1_vals)  std::cout << v << " "; std::cout << std::endl;
+        std::cout << "EB2_vals  (" << EB2_vals.size()  << "): "; for (float v : EB2_vals)  std::cout << v << " "; std::cout << std::endl;
+        std::cout << "FE1_vals  (" << FE1_vals.size()  << "): "; for (float v : FE1_vals)  std::cout << v << " "; std::cout << std::endl;
+        std::cout << "FE2_vals  (" << FE2_vals.size()  << "): "; for (float v : FE2_vals)  std::cout << v << " "; std::cout << std::endl;
+        std::cout << "FEFa_vals (" << FEFa_vals.size() << "): "; for (float v : FEFa_vals) std::cout << v << " "; std::cout << std::endl;
+        std::cout << "FEWa_vals (" << FEWa_vals.size() << "): "; for (float v : FEWa_vals) std::cout << v << " "; std::cout << std::endl;
+
+        std::string networkStr = network.toStdString();
+        std::string networkDir = networkStr.substr(0, networkStr.find_last_of("/"));
+        std::string resultsDir = networkDir + "/results";
+        system(("mkdir -p " + resultsDir).c_str());
+
+        for (float EB1 : EB1_vals){
+            for (float EB2 : EB2_vals){
+                for (float FE1 : FE1_vals){
+                    for (float FE2 : FE2_vals){
+                        for (float FEFa : FEFa_vals){
+                            for (float FEWa : FEWa_vals){
+
+                                for (auto* se : Simulation::getInstance()->entities){
+                                    if (se->name == "A1")      se->freeEnergy = FE1;
+                                    else if (se->name == "A2") se->freeEnergy = FE2;
+                                    else if (se->name == "Fa") se->freeEnergy = FEFa;
+                                    else if (se->name == "Wa") se->freeEnergy = FEWa;
+                                }
+                                for (auto* sr : Simulation::getInstance()->reactions){
+                                    if (sr->name == "A1+Fa=A2+Wa") sr->energy = EB1;
+                                    else if (sr->name == "A2+Fa=A1+A1") sr->energy = EB2;
+                                    sr->computeRate(false, false);
+                                }
+
+                                juce::String outputfile = juce::String(resultsDir)
+                                    + "/EB1_"  + floatToFolderName(EB1)
+                                    + "_EB2_"  + floatToFolderName(EB2)
+                                    + "_FE1_"  + floatToFolderName(FE1)
+                                    + "_FE2_"  + floatToFolderName(FE2)
+                                    + "_FEFa_" + floatToFolderName(FEFa)
+                                    + "_FEWa_" + floatToFolderName(FEWa)
+                                    + ".txt";
+                                Simulation::getInstance()->steadyStatesList->outputfile = outputfile;
+
+                                Simulation::getInstance()->steadyStatesList->computeSteadyStates();
+                                Simulation::getInstance()->steadyStatesList->waitForThreadToExit(-1);
+
+                                juce::File networkFile(network);
+                                saveDocument(networkFile);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        JUCEApplication::getInstance()->systemRequestedQuit();
     }
 /*
     // Generate a reaction network

@@ -347,7 +347,7 @@ void SteadyStateslist::printSteadyStates()
 void SteadyStateslist::printSteadyStatesToFile()
 {
   ofstream out;
-  out.open("steadyStates.txt", ofstream::out | ofstream::trunc);
+  out.open(outputfile.toStdString(), ofstream::out | ofstream::trunc);
   out << "----- Steady States list -----\n\n";
   int c = 0;
   for (auto & sst : arraySteadyStates)

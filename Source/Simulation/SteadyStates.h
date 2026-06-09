@@ -61,6 +61,7 @@ public:
 class SteadyStateslist : public juce::Thread
 {
 public:
+    juce::String outputfile = "./steadyStates.txt"; // sortie SS configurable
     juce_DeclareSingleton(SteadyStateslist, true);
 
     SteadyStateslist() : Thread("SteadyStates"){};
