@@ -26,7 +26,7 @@ struct CRNSnapshot
   // juce::Array<Patch>
   juce::Array<SimEntity*> entities;
   juce::Array<SimReaction*> reactions;
-  double timescale_factor;
+  double timescale_factor = 1.;
 };
 
 

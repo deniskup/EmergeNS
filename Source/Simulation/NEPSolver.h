@@ -20,14 +20,14 @@ using namespace std;
 class NEPSolver
 {
 public:
-  NEPSolver();
-  NEPSolver(const CRNSnapshot & _crn)
+  //NEPSolver();
+  NEPSolver(CRNSnapshot & _crn)
   {
-    crn = _crn;
+    crn = &_crn;
   };
   ~NEPSolver();
   
-  void setReactionNetwork(CRNSnapshot _crn){crn = _crn;};
+  void setReactionNetwork(CRNSnapshot& _crn){crn = &_crn;};
     
   double evalHamiltonian(const StateVec q, const StateVec p, bool useChangeOfVariable = false);
   
@@ -46,10 +46,17 @@ public:
   juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
   void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
+
+  void setCRNNormalization(double norm)
+  {
+    if (norm <=0.)
+      norm = 1.;
+    crn->timescale_factor *= norm;
+  }
   
-private:
+//private:
   
-  CRNSnapshot crn;
+  CRNSnapshot * crn;
   
 };
 

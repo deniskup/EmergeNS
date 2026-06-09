@@ -815,7 +815,27 @@ public:
 
   StateVec getPstar() const { return pstar; };
   //double getS() const { return s; };
-  double getMu() const { return mu; };
+  double getMu() const { return mu*dHdp_norm; };
+  double getResidualH(){return residu_H;};
+  juce::Array<double> getResidualP(){return residu_p;};
+
+  void calculateResiduals()
+  {
+    // for equation H(p) = 0
+    residu_H = abs(ev.solver->evalHamiltonian(ev.q, pstar)*dHdp_norm);
+
+    // for equations dH/dp = mu v
+    residu_p.clear();
+    StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
+    for (int k=0; k<dHdp.size(); k++)
+    {
+        double r = std::abs(dHdp.getUnchecked(k)- mu*ev.v.getUnchecked(k));
+        r *= dHdp_norm;
+        residu_p.add(r);
+    }
+
+
+  }
 
     virtual bool get_nlp_info(
         Index& n,
@@ -831,6 +851,14 @@ public:
 
         nnz_jac_g = dim; // non-zeros entries of the constraint jacobian g(p,mu)
         nnz_h_lag = dim*dim; // Storage for the number of nonzero entries in the Hessian of the lagrangian
+
+        // norm of dHdp
+        StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
+        //dHdp_norm = norm2(dHdp);
+        if (dHdp_norm == 0.)
+            dHdp_norm = 1.;
+        ev.solver->setCRNNormalization(1. / dHdp_norm);
+
 
 
         index_style = TNLP::C_STYLE;
@@ -1069,6 +1097,8 @@ public:
             //s = std::log(lambda[0]);
             mu = 1. / lambda[0];
         }
+
+        calculateResiduals();
     }
 
 private:
@@ -1077,6 +1107,9 @@ private:
     StateVec pstar;
     //double s;
     double mu;
+    double dHdp_norm = 1.;
+    double residu_H = 0.;
+    juce::Array<double> residu_p = 0.;
 };
 
 
@@ -1090,7 +1123,7 @@ private:
 class NEPWorker : public juce::ThreadPoolJob
 {
 public:
-  NEPWorker(const CRNSnapshot & _crn, const EncapsVarForGSL _ev,  NLSresults & _results, double _tolerance, int _solverType, int _index, bool _maxPrintingAllowed, bool _useChangeOfVariable)
+  NEPWorker(CRNSnapshot _crn, const EncapsVarForGSL _ev,  NLSresults & _results, double _tolerance, int _solverType, int _index, bool _maxPrintingAllowed, bool _useChangeOfVariable)
   : juce::ThreadPoolJob("NEPWorker"), crn(_crn), ev(_ev), results(_results), tolerance(_tolerance), 
   nlsolverType(_solverType), idx(_index), maxPrintingAllowed(_maxPrintingAllowed), useChangeOfVariable(_useChangeOfVariable)
   {
@@ -1124,7 +1157,7 @@ private:
   
   NEPSolver * solver;
   
-  const CRNSnapshot crn;
+  CRNSnapshot crn;
   
   EncapsVarForGSL ev;
   

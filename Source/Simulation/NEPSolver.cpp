@@ -10,6 +10,8 @@
 
 double nep_power(double x, int pow)
 {
+  if (x == 0.)
+    return 1.;
   jassert(x > 0.);
   double result = 1.;
   if (pow > 0)
@@ -31,9 +33,9 @@ double nep_power(double x, int pow)
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NEPSolver::NEPSolver()
-{
-}
+//NEPSolver::NEPSolver()
+//{
+//}
 
 NEPSolver::~NEPSolver()
 {
@@ -56,7 +58,7 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useC
   }
   
   juce::Array<double> vecH;
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -140,7 +142,7 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useC
   
   // loop over creation/destruction reactions,
   // formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     if (useChangeOfVariable)
     {
@@ -171,7 +173,7 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useC
   cout << "Htot = " << H << endl;
   */
   
-  return crn.timescale_factor * H;
+  return crn->timescale_factor * H;
 }
 
 
@@ -191,7 +193,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   cout << endl;
   */
   // init output and intermediate vectors
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec gradpH;
   gradpH.insertMultiple(0, 0., dim);
   
@@ -205,7 +207,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -291,7 +293,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
@@ -311,7 +313,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   
   
   for (int m=0; m<gradpH.size(); m++)
-    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*crn.timescale_factor);
+    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*crn->timescale_factor);
   
   return gradpH;
 }
@@ -335,7 +337,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
   */
   
   // output gradient vector
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec graduH;
   graduH.insertMultiple(0, 0., dim);
   
@@ -345,7 +347,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
   
 
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -411,7 +413,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
   */
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     if (ent->creationRate > 0.)
@@ -449,7 +451,7 @@ StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const S
   */
   
   for (int m=0; m<graduH.size(); m++)
-    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn.timescale_factor);
+    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn->timescale_factor);
 
   return graduH;
   
@@ -476,7 +478,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
   
   // output gradient vector
   //StateVec gradqH(q.size(), 0.);
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec graduH;
   graduH.insertMultiple(0, 0., dim);
   
@@ -491,7 +493,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -574,7 +576,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
   cout << endl;
   */
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     // creation 
@@ -615,7 +617,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVe
   */
   
   for (int m=0; m<graduH.size(); m++)
-    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn.timescale_factor);
+    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn->timescale_factor);
 
   return graduH;
   
@@ -643,7 +645,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
   */
   
    // init hessian as null matrix
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   juce::dsp::Matrix<double> nullmatrix(dim, dim);
   nullmatrix.clear(); // Fills the contents of the matrix with zeroes.
   juce::dsp::Matrix<double> hess(nullmatrix);
@@ -668,7 +670,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec 
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -799,7 +801,7 @@ cout << endl;
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     // forward contribution is null since creation term is linear in ui
@@ -848,7 +850,7 @@ cout << endl;
   {
     for (int j=0; j<hess.getSize().getUnchecked(0); j++)
     {
-      hess(i, j) *= crn.timescale_factor;
+      hess(i, j) *= crn->timescale_factor;
     }
   }
   return hess;
@@ -874,7 +876,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     */
   
   // init hessian as null matrix
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   juce::dsp::Matrix<double> nullmatrix(dim, dim);
   nullmatrix.clear(); // Fills the contents of the matrix with zeroes.
   juce::dsp::Matrix hess(nullmatrix);
@@ -886,7 +888,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     
   
     // loop over reactions
-    for (auto & reaction : crn.reactions)
+    for (auto & reaction : crn->reactions)
     {
       if (!reaction->enabled)
         continue;
@@ -994,7 +996,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     */
     
     // creation / destruction reactions, formally treated as 0 <--> entity
-    for (auto & ent : crn.entities)
+    for (auto & ent : crn->entities)
     {
       // forward reaction = creation
       double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
@@ -1030,7 +1032,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     {
       for (int j=0; j<hess.getSize().getUnchecked(0); j++)
       {
-        hess(i, j) *= crn.timescale_factor;
+        hess(i, j) *= crn->timescale_factor;
       }
     }
     
@@ -1059,7 +1061,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   
   // output gradient vector
   //StateVec gradqH(q.size(), 0.);
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec gradqH;
   gradqH.insertMultiple(0, 0., dim);
   
@@ -1074,7 +1076,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -1193,7 +1195,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     // creation flow does not depend on q, so gradient is null
@@ -1221,7 +1223,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   */
   
   for (int m=0; m<gradqH.size(); m++)
-    gradqH.setUnchecked(m, gradqH.getUnchecked(m) * crn.timescale_factor);
+    gradqH.setUnchecked(m, gradqH.getUnchecked(m) * crn->timescale_factor);
 
   return gradqH;
   

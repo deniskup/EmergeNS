@@ -84,8 +84,8 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints_start;
-  IntParameter * nPoints_max;
+  IntParameter * nPointsUI;
+  //IntParameter * nPoints_max;
   BoolParameter * useChangeOfVariable;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;

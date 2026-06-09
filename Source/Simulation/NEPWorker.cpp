@@ -1517,7 +1517,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
 
-    if (idx == 25 && ev.maxPrintingAllowed)
+    if (idx == 13 && ev.maxPrintingAllowed)
       app->Options()->SetIntegerValue("print_level", 0);
     else
       app->Options()->SetIntegerValue("print_level", 0);
@@ -1568,15 +1568,18 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     // residuals
     // H(p,q) = 0
-    residuals_H = std::abs(ev.solver->evalHamiltonian(ev.q, pstar));
+    //residuals_H = std::abs(ev.solver->evalHamiltonian(ev.q, pstar));
+    residuals_H = problem->getResidualH();
+    residuals_p = problem->getResidualP();
     // dH/dp = mu • v
     StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
 
 
     juce::dsp::Matrix<double> hessian = ev.solver->evalHamiltonianHessianWithP(ev.q, pstar);
     Eigen::MatrixXd jmp_hessian(hessian.getNumRows(), hessian.getNumColumns());
-    Eigen::MatrixXd lagrangian_hessian(hessian.getNumRows()+1, hessian.getNumColumns()+1);
+    Eigen::MatrixXd kkt(hessian.getNumRows()+1, hessian.getNumColumns()+1);
 
+    // fill hessian d2H/dp2 and diagonalize
     for (int i=0; i<jmp_hessian.rows(); i++)
     {
       for (int j=0; j<jmp_hessian.cols(); j++)      
@@ -1594,28 +1597,67 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   //   // retrieve eigenvalues if diagonalized
     }
 
-
-    for (int k=0; k<dHdp.size(); k++)
+    // fill kkt  and diagonalize
+    int kkt_dim = kkt.rows();
+    for (int i=0; i<kkt.rows(); i++)
     {
-      double r = dHdp.getUnchecked(k) - mu * ev.v.getUnchecked(k);
-      residuals_p.add(std::abs(r));
+      for (int j=0; j<kkt.cols(); j++)      
+      {
+        if (i<kkt_dim-1 && j<kkt_dim-1)
+          kkt(i, j) = hessian(i, j);
+        else if (i==kkt_dim-1 & j<kkt_dim-1)
+          kkt(i, j) = dHdp.getUnchecked(j);
+        else if (i<kkt_dim-1 && j==kkt_dim-1)
+          kkt(i, j) = dHdp.getUnchecked(i);
+        else
+          kkt(i,j) = 0.;
+      }
+    }
+     //init eigen solver objects for current jacobi matrix
+    Eigen::EigenSolver<Eigen::MatrixXd> kkt_es(kkt);
+    if (es.info() == Eigen::Success) // if diagonalization succeeded
+    {
+    //retrieve eigenvalues :
+  // cout << es.eigenvalues() << endl;
+  // cout << es.eigenvectors() << endl;
+  //   // retrieve eigenvalues if diagonalized
     }
 
     gslStatus = status;
 
     StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
-    //if (norm2(residuals_p) > 1e-7 || residuals_H > 1e-7)
-    if (idx==19 && maxPrintingAllowed)
+    if (idx == 13 && maxPrintingAllowed)
     {
-      //cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status);
-      //cout << "lambda = " << 1/mu << endl;
-      //cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
-      //cout << "dH/dp = ";
+      cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+      cout << "lambda = " << 1./mu << endl;
+      cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
+      //cout << "dH/dp_end = ";
       //for (auto & el : dHdp)
       //  cout << el << " ";      
       //cout << endl;
-      //cout << "d2h/dp2_eigenval = \n" <<  es.eigenvalues() << endl;
+      //cout << "d2h/dp2_end_eigenval = \n" <<  es.eigenvalues() << endl;
+      //cout << "KKT_eigenval = \n" <<  kkt_es.eigenvalues() << endl;
+      double min_eigenval_hess = 1e6;
+      double min_eigenval_kkt = 1e6;
+      for (auto & ev : es.eigenvalues())
+      {
+        StateVec sv = {ev.real(), ev.imag()};
+        double norm = norm2(sv);
+        if (norm < min_eigenval_hess)
+          min_eigenval_hess = norm;
+      }
+      cout << "sigma(d2H/dp2) = " << min_eigenval_hess << endl;
+      for (auto & ev : kkt_es.eigenvalues())
+      {
+        StateVec sv = {ev.real(), ev.imag()};
+        double norm = norm2(sv);
+        if (norm < min_eigenval_kkt)
+          min_eigenval_kkt = norm;
+      }
+      cout << "sigma(kkt) = " << min_eigenval_kkt << endl;
+      cout << endl;
+
     }
     
 

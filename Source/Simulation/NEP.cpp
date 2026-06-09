@@ -40,9 +40,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
-  nPoints_start = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
+  nPointsUI = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
   
-  nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
+  //nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
 
   useChangeOfVariable = addBoolParameter("Use change of variable", "Change variable (p, s) --> (u, mu) with u = exp(p) and mu = exp(s) for the optimization.", false);
   
@@ -91,7 +91,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
   tolerance = convertStringToDouble(toleranceUI->stringValue());
  
-  nepsolver = new NEPSolver();
+  buildReactionNetworkSnapshot();
+  nepsolver = new NEPSolver(crn);
 }
 
 
@@ -233,11 +234,13 @@ void NEP::reset()
   stepDescent = stepDescentInitVal->floatValue();
   stepDescentInit_dynamic = stepDescentInitVal->floatValue();
   //cutoffFreq->setValue(0.05);
-  nPoints = nPoints_start->intValue();
+  nPoints = nPointsUI->intValue();
   //tolerance_mu = tolerance_mu_init;
   tolerance = convertStringToDouble(toleranceUI->stringValue());
   
+  cout << "buildReactionNetworkSnapshot()" << endl;
   buildReactionNetworkSnapshot();
+  cout << "setting reaction network to solver" << endl;
   nepsolver->setReactionNetwork(crn);
 }
 
@@ -255,7 +258,9 @@ void NEP::stop()
 void NEP::run()
 {
   simul->affectSATIds();
+  cout << "will reset() "<< endl;
   reset();
+  cout << "has reset" << endl;
 
   // has bad behavior for now, trajectory eventually diverges
   // need deeper understanding
@@ -276,7 +281,7 @@ void NEP::run()
     debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
-    debugfile << "Sampling points : " << nPoints_max->intValue() << endl;
+    debugfile << "Sampling points : " << nPointsUI->intValue() << endl;
     //debugfile << "Max. sampling : " << nPoints_max->intValue() << endl;
   }
   
@@ -295,6 +300,7 @@ void NEP::run()
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
   
   // set normalisation factor in order to have all kinetic constants of order 1
+  cout << "will set time normalization factor" << endl;
   setTimeNormalizationFactor();
   LOG("Using time normalization factor : " + to_string(crn.timescale_factor));
   
@@ -805,10 +811,10 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
   }
   if (maxPrintingAllowed)
   {
-    std::cout << "noise level in pstar : " << std::endl;
-    for (auto& el : pstar_noise)    
-      std::cout << el << " ";
-    std::cout << std::endl;
+    //std::cout << "noise level in pstar : " << std::endl;
+    //for (auto& el : pstar_noise)    
+    //  std::cout << el << " ";
+    //std::cout << std::endl;
   }
 
   
@@ -1330,8 +1336,8 @@ bool NEP::descentShouldUpdateParams(double diffAction)
 {
   //cout << diffAction << " " << d_action_threshold << " || " << stepDescent << " " << d_stepDescentThreshold << endl;
   bool b1 = (diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold);
-  bool b2 = nPoints < nPoints_max->intValue();
-  return (b1 && b2);
+  //bool b2 = nPoints < nPoints_max->intValue();
+  return b1;
   //return ((diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold));
 }
 
@@ -1348,7 +1354,7 @@ void NEP::writeDescentToFile()
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
   filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_saddle->intValue());
-  filename += "_" + to_string(nPoints_max->intValue());
+  filename += "_" + to_string(nPointsUI->intValue());
   filename += ".csv";
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
@@ -1366,14 +1372,14 @@ void NEP::writeDescentToFile()
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",smooth_p_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",dAdq_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",dAdq_dHdq_" << ent->name;
-  for (auto & ent : simul->entities)
-    historyFile << ",dAdq_dpdt_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",smooth_p_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dHdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dpdt_" << ent->name;
   //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",res_H";
@@ -1429,14 +1435,14 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
-      for (int m=0; m<smoothp_local.size(); m++)
-        historyFile << "," << smoothp_local.getUnchecked(m);
-      for (int m=0; m<dAdq_local.size(); m++)
-        historyFile << "," << dAdq_local.getUnchecked(m);
-      for (int m=0; m<dAdq_dHdq_local.size(); m++)
-        historyFile << "," << dAdq_dHdq_local.getUnchecked(m);
-      for (int m=0; m<dAdq_dpdt_local.size(); m++)
-        historyFile << "," << dAdq_dpdt_local.getUnchecked(m);
+      //for (int m=0; m<smoothp_local.size(); m++)
+      //  historyFile << "," << smoothp_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_local.size(); m++)
+      //  historyFile << "," << dAdq_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_dHdq_local.size(); m++)
+      //  historyFile << "," << dAdq_dHdq_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_dpdt_local.size(); m++)
+      //  historyFile << "," << dAdq_dpdt_local.getUnchecked(m);
       //for (int m=0; m<dAdq_filt_local.size(); m++)
       //  historyFile << "," << dAdq_filt_local.getUnchecked(m);
       historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
