@@ -558,13 +558,15 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 			shouldRepaint = true;
 	}
 	break;
-	
+
 	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
 	{
 		// if (ev.curStep % uiStep == 0)
 		if (ev.run == simul->runToDraw)
+		{
 			entityGillespieHistory.add(ev.entityGillespievalues);
-		times.add(ev.currentTime);
+			times.add(ev.currentTime);
+		}
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 	}

@@ -108,6 +108,7 @@ public:
 	float nextConcStep;		 // time before next step of concentration simulation
 	float nextGillespieStep; // time before next step of Gillespie simulation
 
+
 	// for drawing
 	int runToDraw = 0;
 	int patchToDraw = 0;
@@ -115,6 +116,7 @@ public:
 	// multiple runs
 	int currentRun = 0;
 	int nRuns = 1;
+	bool toNextRun = false;
 	bool isMultipleRun = false;
 	juce::Array<map<juce::String, float>> initialConcentrations;
 	bool shouldStartNewRun = false;
@@ -165,6 +167,7 @@ public:
 		Updating,
 		Idle
 	};
+
 
 	SimulationState state = Idle;
 	std::atomic<bool> requestNewRun{false}; // to request thread (outside from it) to move to next run

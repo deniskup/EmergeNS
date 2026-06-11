@@ -1758,7 +1758,8 @@ void Simulation::start(bool restart)
     }
   }
   juce::Array<float> entitiesGillespieValues;
-  for (auto &ent : entitiesDrawn){
+  for (auto &ent : entitiesDrawn)
+  {
     entityColors.add(ent->color);
     entitiesGillespieValues.add(ent->concent[0]);
   }
@@ -1828,7 +1829,7 @@ if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHisto
   ///  }
   ///  checkPoint = maxSteps / pointsDrawn->intValue(); // draw once every "chekpoints" steps
   ///  checkPoint = jmax(1, checkPoint);
-  if(concentrationMode->intValue() == 2 && gillespieMode->boolValue() == false)
+  if (concentrationMode->intValue() == 2 && gillespieMode->boolValue() == false)
   {
     LOGWARNING("Concentration and Gillespie both desactivited, aborting.");
     return;
@@ -1846,19 +1847,18 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   setRun->setValue(nRuns - 1);
   // runToDraw = nRuns - 1;
 
-  // reset concentrations to their starting value
-  for (auto &e : entities)
-  {
-    e->concent = e->startConcent;
-    e->deterministicConcent = e->startConcent;
-  }
+  // // reset concentrations to their starting value
+  // for (auto &e : entities)
+  // {
+  //   e->concent = e->startConcent;
+  //   e->deterministicConcent = e->startConcent;
+  // }
 
   if (isMultipleRun && isSpace->boolValue())
   {
     LOG("Cannot handle multiple run mode in heterogeneous space for now. Stop.");
     return;
   }
-
 
   // will print dynamics to file
   // if (!Settings::getInstance()->printHistoryToFile->boolValue())
@@ -1886,7 +1886,6 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
   if (!express)
     simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, 0, currentTime, entityValues, {}, entityColors));
 
-
   // init max concentrations with initial conditions of the last run
   map<String, float> lastrun = initConc[initConc.size() - 1];
   // LOGWARNING("TODO ! The piece of code executed below needs to be thought more carefully, because it requires space and multiple run to be able to run together.");
@@ -1911,6 +1910,7 @@ void Simulation::startMultipleRuns(Array<map<String, float>> initConc)
     {
       se->concent.set(0, startconc);
       se->deterministicConcent.set(0, startconc);
+      se->number.set(0, (int)(startconc * volume->floatValue()));
     }
     else
     {
@@ -1959,8 +1959,14 @@ void Simulation::resetForNextRun()
   // reset concentrations to next run initial conditions
   for (auto &[name, startconc] : initialConcentrations[currentRun])
   {
-    getSimEntityForName(name)->concent = startconc;
-    getSimEntityForName(name)->deterministicConcent = startconc;
+    SimEntity *se = getSimEntityForName(name);
+    if (se)
+    {
+      se->concent = startconc;
+      se->deterministicConcent = startconc;
+      se->number.set(0, (int)(startconc * volume->floatValue()));
+    }
+
   }
 
   // if (!express)
@@ -1981,7 +1987,6 @@ void Simulation::resetForNextRun()
   // message to listeners
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun, currentRun));
 }
-
 
 void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
 // void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
@@ -2055,17 +2060,17 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
   juce::Array<float> entityGillespieValues;
   for (auto &ent : entitiesDrawn)
   {
-    entityGillespieValues.add(ent->number[0]/volume->floatValue());
+    entityGillespieValues.add(ent->number[0] / volume->floatValue());
   }
 
   if (curStep == 0)
   {
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid,entityGillespieValues, entityColours, racarray, raclist));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, entityGillespieValues, entityColours, racarray, raclist));
   }
   else
   {
     // cout << "Calling new SimNotifier in redraw" << endl;
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps,currentTime, drawnConcGrid,entityGillespieValues, {}, racarray, raclist));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, entityGillespieValues, {}, racarray, raclist));
   }
 
   curStep++;
@@ -2073,69 +2078,76 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
 
 void Simulation::masterStep()
 {
+  toNextRun = false;
   if (gillespieMode->boolValue())
   {
-    if (currentTime > totalTime->floatValue() && currentRun == nRuns - 1)
+    if (currentTime > totalTime->floatValue())
     {
-      stop();
-      return;
+      toNextRun = true;
+      if (currentRun == nRuns - 1)
+      {
+        stop();
+        return;
+      }
     }
   }
   else
   {
-    if (nSteps == maxSteps && currentRun == nRuns - 1)
+    if (nSteps == maxSteps)
     {
-      stop();
-      return;
+      toNextRun = true;
+      if (currentRun == nRuns - 1)
+      {
+        stop();
+        return;
+      }
     }
   }
- 
 
- if( (!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
- {
-  currentTime+=nextConcStep;
-  if(gillespieMode->boolValue()) 
-    nextGillespieStep-=nextConcStep;
-  nextConcStep=dt->floatValue();
-  nextStep();
- }
- else
- {
-  //cout << "gillespie step: "<< currentTime <<endl;
-  currentTime+=nextGillespieStep;
-    if(concentrationMode->intValue() != 2) nextConcStep-=nextGillespieStep;
-  else{
-    perCent->setValue((int)((currentTime * 100) / (totalTime->floatValue())));
-  }
-  nextGillespieStep=gillespieStep();
-  if(nextGillespieStep < 0)
+  if ((!gillespieMode->boolValue() || nextConcStep < nextGillespieStep) && concentrationMode->intValue() != 2)
   {
-   cancel();
+    currentTime += nextConcStep;
+    if (gillespieMode->boolValue())
+      nextGillespieStep -= nextConcStep;
+    nextConcStep = dt->floatValue();
+    nextStep();
   }
- }
+  else
+  {
+    // cout << "gillespie step: "<< currentTime <<endl;
+    currentTime += nextGillespieStep;
+    if (concentrationMode->intValue() != 2)
+      nextConcStep -= nextGillespieStep;
+    else
+    {
+      perCent->setValue((int)((currentTime * 100) / (totalTime->floatValue())));
+    }
+    nextGillespieStep = gillespieStep();
+    if (nextGillespieStep < 0)
+    {
+      cancel();
+    }
+  }
 }
 
-float Simulation::gillespieStep() //returns the waiting time tau
+float Simulation::gillespieStep() // returns the waiting time tau
 {
   // Implement Gillespie step logic here
-  int patch=0; //only deal with patch 0
-  vector<double> a (2 * reactions.size() + 2 * entities.size()); // propensions
-  vector<double> r(2); // tirages aléatoires
-  float V=volume->floatValue();
+  int patch = 0;                                                // only deal with patch 0
+  vector<double> a(2 * reactions.size() + 2 * entities.size()); // propensions
+  vector<double> r(2);                                          // tirages aléatoires
+  float V = volume->floatValue();
 
   // Calcul des propensions de réaction (vitesses des réactions)
   // On distingue sens direct et sens inverse car on ne peut pas avoir de propensions négatives
-  
-
 
   size_t i;
   for (i = 0; i < reactions.size(); i++)
   { // car on cherche chaque objet dans la liste reactions
     // cout << i <<endl;
-    a[2 * i] = reactions[i]->speed(true,V); // On divise bien par le volume dans les propensions (voir méthode vitesse dans classe Reaction)
+    a[2 * i] = reactions[i]->speed(true, V); // On divise bien par le volume dans les propensions (voir méthode vitesse dans classe Reaction)
 
-    a[2 * i + 1] = reactions[i]->speed(false,V);
-
+    a[2 * i + 1] = reactions[i]->speed(false, V);
   }
 
   // A la fin de cette boucle, i = reaction.size() - 1 cad ici 2
@@ -2145,9 +2157,9 @@ float Simulation::gillespieStep() //returns the waiting time tau
   for (size_t j = 0; j < entities.size(); j++)
   {
     a[2 * i + 2 * j] = entities[j]->creationRate * V; // on parcourt tout le tableau donc on doit repartir à partir de 2*i cad 2*(reactions.size()-1)
- 
-    a[2 * i + 2 * j + 1] = entities[j]->destructionRate* entities[j]->number[patch];    // les Vtot s'annulent
-    if(a[2 * i + 2 * j + 1] < 0)
+
+    a[2 * i + 2 * j + 1] = entities[j]->destructionRate * entities[j]->number[patch]; // les Vtot s'annulent
+    if (a[2 * i + 2 * j + 1] < 0)
     {
       cout << "negative propension for destruction of entity " << entities[j]->name << " : " << entities[j]->destructionRate << " * " << entities[j]->number[patch] << endl;
       cancel();
@@ -2194,26 +2206,26 @@ float Simulation::gillespieStep() //returns the waiting time tau
     int dir = (mu % 2 == 0) ? 1 : -1; // mu pair, dir=1 sinon dir=-1
     int idx = mu / 2;
 
-    for (const auto & reac : reactions[idx]->reactants)
+    for (const auto &reac : reactions[idx]->reactants)
     {
-    
-      reac->number.set(patch,jmax(reac->number[patch]- dir,0)); // si pair, sens direct, donc consommation des réactifs
+
+      reac->number.set(patch, jmax(reac->number[patch] - dir, 0)); // si pair, sens direct, donc consommation des réactifs
     }
 
-    for (const auto & prod: reactions[idx]->products)
+    for (const auto &prod : reactions[idx]->products)
     {
 
-      prod->number.set(patch,jmax(prod->number[patch]+dir,0)); // si impair, sens indirect, donc production des produits
+      prod->number.set(patch, jmax(prod->number[patch] + dir, 0)); // si impair, sens indirect, donc production des produits
     }
   }
   // Si on se trouve dans l'autre partie du segment concernant les créations et destructions
   // On commence donc à mu = 2*reactions.size()
   else
   {
-    int dir = (mu % 2 == 0) ? 1 : -1;           // si pair, création sinon destruction
+    int dir = (mu % 2 == 0) ? 1 : -1;    // si pair, création sinon destruction
     int idx = mu - 2 * reactions.size(); // on reprend à 0 après les réactions
-    idx = idx / 2;                              // on retrouve l'indice de l'entité
-    entities[idx]->number.set(patch,jmax(entities[idx]->number[patch]+ dir,0));
+    idx = idx / 2;                       // on retrouve l'indice de l'entité
+    entities[idx]->number.set(patch, jmax(entities[idx]->number[patch] + dir, 0));
   }
 
   juce::Array<float> entityGillespievalues;
@@ -2222,9 +2234,9 @@ float Simulation::gillespieStep() //returns the waiting time tau
     entityGillespievalues.add(ent->number[patch] / V); // on convertit le nombre d'entités en concentration pour les besoins de l'affichage
   }
 
-simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun,nSteps, currentTime, {}, entityGillespievalues, {}, {}, {} ));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, {}, entityGillespievalues, {}, {}, {}));
 
-return tau;
+  return tau;
 }
 
 void Simulation::nextStep()
@@ -2265,22 +2277,12 @@ void Simulation::nextStep()
 
   nSteps++;
 
-  // check run status : over or not ?
-  int status = checkRunStatus();
-
-  if (status == -1) // all runs are over
-  {
-    stop();
-    return;
-  }
-  else if (status == 1 || requestNewRun.exchange(false, std::memory_order_acquire)) // current run is over, but not simu. Move to next run
+  if (toNextRun || requestNewRun.exchange(false, std::memory_order_acquire)) // current run is over, but not simu. Move to next run
   {
     resetForNextRun();
     return;
   }
-  else // last case is status == 0 : just continue current run.
-  {
-  }
+  // last case is just continue current run.
 
   // is this step a checkpoint step ?
   // bool isCheck = (curStep % checkPoint == 0);
@@ -2292,21 +2294,21 @@ void Simulation::nextStep()
   }
 
   // Start a loop over patches and calculate all reactions rates
-  float tau=-1.;
+  float tau = -1.;
   for (auto &patch : Space::getInstance()->spaceGrid)
   {
     updateSinglePatchRates(patch, isCheck);
   }
-/*
-  if (nSteps>0)
-  {
-    cout << "t = " << nSteps*dt->floatValue() << endl;
-    for (auto & ent : entities)
+  /*
+    if (nSteps>0)
     {
-      cout << ent->name << " : " << ent->concent[0] << endl;
+      cout << "t = " << nSteps*dt->floatValue() << endl;
+      for (auto & ent : entities)
+      {
+        cout << ent->name << " : " << ent->concent[0] << endl;
+      }
     }
-  }
-  */
+    */
 
   // refresh entity concentrations
   float maxVar = 0.;
@@ -2327,7 +2329,6 @@ void Simulation::nextStep()
       }
     }
 
-    // keep this here, but loop over patches
     float variation = abs(ent->concent[0] - ent->previousConcent[0]);
     maxVar = jmax(maxVar, variation);
   }
@@ -2454,8 +2455,7 @@ void Simulation::nextStep()
     }
 
     // cout << "Step " << curStep << ": adding a RAC array of size : " << PACsValues.size() << endl;
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, entityValues,{}, {}, PACsValues, RACList));
-
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, entityValues, {}, {}, PACsValues, RACList));
   }
 }
 
@@ -2765,7 +2765,7 @@ void Simulation::run()
     }
   }
 
-  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, entityValues,{}, {}, {}, {}));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::FINISHED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, entityValues, {}, {}, {}, {}));
 
   if (redrawRun || redrawPatch)
   {
@@ -3181,7 +3181,7 @@ void Simulation::onContainerParameterChanged(Parameter *p)
   {
     maxSteps = (int)(totalTime->floatValue() / dt->floatValue());
     maxSteps = jmax(1, maxSteps);
-   }
+  }
   if (p == detectEquilibrium)
   {
     epsilonEq->hideInEditor = !detectEquilibrium->boolValue();
