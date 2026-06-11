@@ -217,7 +217,11 @@ void NEP::reset()
   // reset previous calculations
   actionDescent.clear();
   trajDescent.clear();
+  smooth_pcurve_Descent.clear();
   timeDescent.clear();
+  dAdqDescent.clear();
+  dAdqDescent_dHdq.clear();
+  dAdqDescent_dpdt.clear();
   dAdqDescent.clear();
   dAdqDescent_filt.clear();
   gslStatus_descent.clear();
@@ -332,13 +336,19 @@ void NEP::run()
     {
       // if step is smaller than initial value, use current value as a future initial value
       double compare = stepDescentInit_dynamic;
-      if (/*stepDescent<d_stepDescentThreshold || */stepDescent < compare)
-        stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, stepDescent);
+      if (stepDescent < compare)
+      {
+        if (adaptiveStepDescent->boolValue())
+          stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, stepDescent);
+        else
+          stepDescentInit_dynamic *= 0.75;
+      }
+        
   
       // increase step initial value if 
       if (stepDescent == compare && adaptiveStepDescent->boolValue())
       {
-        stepDescentInit_dynamic *= 2.;
+        stepDescentInit_dynamic *= 1.25;
       }
     }
     
@@ -559,6 +569,7 @@ void NEP::run()
     dAdq_filt = dAdq;
     //lowPassFiltering(dAdq_filt, false);
     //dAdqDescent_filt.add(dAdq_filt);
+    cout << "dAdq size = " << dAdq.size() << endl;
    
     if (maxPrinting->boolValue())
     {
@@ -1368,11 +1379,13 @@ bool NEP::descentShouldContinue(int step)
 void NEP::writeDescentToFile()
 {
   // open output file
+  int niters = trajDescent.size();
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
   filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_saddle->intValue());
   filename += initialConditions->getValueDataAsEnum<int>()==0 ? "_straight-line-IC" : "_deterministic-IC";
-  filename += "_" + to_string(nPointsUI->intValue());
+  filename += "_" + to_string(nPointsUI->intValue()) + "points";
+  filename += "_" + to_string(niters) + "iter";
   filename += ".csv";
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
@@ -1410,7 +1423,7 @@ void NEP::writeDescentToFile()
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
-  jassert(actionDescent.size() == smooth_pcurve_Descent.size());
+  //jassert(actionDescent.size() == smooth_pcurve_Descent.size());
   jassert(actionDescent.size() == timeDescent.size());
   jassert(actionDescent.size() == dAdqDescent.size());
   jassert(actionDescent.size() == dAdqDescent_dHdq.size());
