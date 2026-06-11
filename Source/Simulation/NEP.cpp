@@ -65,6 +65,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
   
   maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
+
+  adaptiveStepDescent = addBoolParameter("Adaptive step", "Step descent initial guess increased for next iteration if it allowed for a valid descent iteration.", true);
     
   // set options
   updateSteadyStateList();
@@ -323,6 +325,21 @@ void NEP::run()
       LOG("using step = " + to_string(stepDescent));
       //stepDescent = stepDescentInitVal->floatValue();
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
+    }
+
+    // update step descent initial value if a valid step was taken
+    if (liftSuccess)
+    {
+      // if step is smaller than initial value, use current value as a future initial value
+      double compare = stepDescentInit_dynamic;
+      if (/*stepDescent<d_stepDescentThreshold || */stepDescent < compare)
+        stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, stepDescent);
+  
+      // increase step initial value if 
+      if (stepDescent == compare && adaptiveStepDescent->boolValue())
+      {
+        stepDescentInit_dynamic *= 2.;
+      }
     }
     
     if (maxPrinting->boolValue())
@@ -1354,6 +1371,7 @@ void NEP::writeDescentToFile()
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
   filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_saddle->intValue());
+  filename += initialConditions->getValueDataAsEnum<int>()==0 ? "_straight-line-IC" : "_deterministic-IC";
   filename += "_" + to_string(nPointsUI->intValue());
   filename += ".csv";
   ofstream historyFile;
@@ -1572,15 +1590,16 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc, LiftResults & _liftRe
   if (step<d_stepDescentThreshold)
     step = 0.;
 
+  /*
   // if step too small, diminish start step value using current step value
   if (step<d_stepDescentThreshold || step<stepDescentInit_dynamic)
     stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, step);
   
-  if (step == stepDescentInit_dynamic)
+  if (step == stepDescentInit_dynamic && adaptiveStepDescent->boolValue())
   {
     stepDescentInit_dynamic *= 2.;
   }
-  
+  */
   
   //LOGWARNING("backtracking algorithm did not converge to pick a descent step size. Returning 1e-6 as default value. Caution.");
   return step;

@@ -95,6 +95,7 @@ public:
   FloatParameter * stepDescentInitVal;
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
+  BoolParameter * adaptiveStepDescent;
   EnumParameter* initialConditions;
   EnumParameter* solverType;
 
