@@ -2263,7 +2263,7 @@ cout << endl;
 */
 
 
-  
+  /*
   StateVec qi = {0.5*(1.45199+1.4758), 0.5*(1.03513+1.03663)};
   StateVec pi = {0.0231699, 0.00159923};
   StateVec dq = {1.45199-1.4758, 1.03513-1.03663};
@@ -2313,14 +2313,17 @@ cout << endl;
     cout << pv.getUnchecked(i) << comma;
   } 
   cout << endl;
+  */
   
-  /*
+  StateVec qi = {1.58889 ,  1.0429};
+  StateVec pi = {0.0196599 ,  0.00116952};
+  
   pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(qi, pi);
   
   std::system("mkdir -p ./hamilton-eq-of-motion");
   
   ofstream output;
-  output.open("./hamilton-eq-of-motion/hamilton_EoM_2000.csv", ofstream::out | ofstream::trunc);
+  output.open("./hamilton-eq-of-motion/hamilton-EoM_emergens.csv", ofstream::out | ofstream::trunc);
   
   output << "point,isForward,q_X1,q_X2,p_X1,p_X2" << endl;
   
@@ -2348,7 +2351,7 @@ cout << endl;
   }
   
   output.close();
-  */
+  
   
 }
 
