@@ -1594,7 +1594,8 @@ void Simulation::resetBeforeRunning()
   isMultipleRun = false;
   affectSATIds();
 
-  dynHistory = new DynamicsHistory();
+  if (!dynHistory)
+    dynHistory = new DynamicsHistory();
 
   initialConcentrations.clear();
   // for (auto& ent: entities)
@@ -1602,6 +1603,9 @@ void Simulation::resetBeforeRunning()
   // RAChistory.clear();
   dynHistory->concentHistory.clear();
   dynHistory->racHistory.clear();
+
+  dynHistory->concentHistory.resize(nRuns);
+  dynHistory->racHistory.resize(nRuns);
 
   // reset concentrations to their starting value
   for (auto &e : entities)
@@ -1651,27 +1655,20 @@ void Simulation::resetBeforeRunning()
     kinetics->shakeSeedValue();
   }
 
-  // clear space grid
-  // spaceGrid.clear();
-  // clear history dynamics before throwing new simulation
-  dynHistory->concentHistory.clear();
-  dynHistory->racHistory.clear();
-
-  // following will be #obsolete at some point and replaced by the two command lines above
 
   // cout << "in reset nruns = " << PhasePlane::getInstance()->nRuns->intValue() << endl;
   // for (int irun=0; irun<PhasePlane::getInstance()->nRuns->intValue(); irun++)
-  for (int irun = 0; irun < nRuns; irun++)
-  {
-    auto *row = new juce::OwnedArray<RACHist>();
-    for (auto &pac : pacList->cycles)
-    {
+  //for (int irun = 0; irun < nRuns; irun++)
+ // {
+  //  auto *row = new juce::OwnedArray<RACHist>();
+  //  for (auto &pac : pacList->cycles)
+  //  {
       // RAChistory[irun]->add(new RACHist(pac->entities, pac->score));
-      row->add(new RACHist(pac->entities, pac->score));
-    }
+  //    row->add(new RACHist(pac->entities, pac->score));
+  //  }
     // unique_ptr<OwnedArray<RACHist>> urh = rh;
-    RAChistory.add(row);
-  }
+  //  RAChistory.add(row);
+  //}
   // cout << "in reset RAChist size on run axis : " << RAChistory.size() << endl;
 }
 
@@ -1988,34 +1985,14 @@ void Simulation::resetForNextRun()
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWRUN, this, redrawPatch, redrawRun, currentRun));
 }
 
-void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapshot> racSnaps)
-// void Simulation::nextRedrawStep(ConcentrationGrid concGrid, Array<RACSnapshot> racSnaps)
+void Simulation::nextRedrawStep(ConcentrationSnapshot& concSnap, std::unordered_map<int, RACSnapshot>& racSnaps)
 {
+jassert(racSnaps.size() == pacList->cycles.size());
+
   nSteps++;
-  bool isCheckForRedraw = ((nSteps - 1) % checkPoint == 0);
-
-  // cout << "nsteps = " << nSteps << ". rac snap size : " << racSnaps.size() << endl;
-  // cout << pointsDrawn->intValue() << endl;
-  // cout << "ischeck for redraw : " << isCheckForRedraw << endl;
-
-  if (!isCheckForRedraw)
-    return;
-
-  // int idrun = setRun->intValue();
-  // int istep = (nSteps-1) + idrun*maxSteps;
-  // int firststep = idrun*maxSteps;
-  // int laststep = maxSteps+maxSteps*idrun-1;
-
-  // if (istep>=laststep)
-  if (nSteps > maxSteps)
-  {
-    stop();
-    return;
-  }
 
   // Array<float> concarray;
   ConcentrationGrid drawnConcGrid;
-  ;
   Array<Colour> entityColours;
   int ident = -1;
 
@@ -2034,21 +2011,14 @@ void Simulation::nextRedrawStep(ConcentrationSnapshot concSnap, Array<RACSnapsho
     // cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
   }
 
-  // bug to fix around here
-  if (racSnaps.size() != pacList->cycles.size())
-  {
-    cout << "racsnap size : " << racSnaps.size() << " VS pac cycle size : " << pacList->cycles.size() << endl;
-    LOG("array size issue when redrawing RACs, stop.");
-    stop();
-    return;
-  }
-
+  
   // recover RACs values
   Array<float> racarray(racSnaps.size());
-  for (int k = 0; k < racSnaps.size(); k++)
+  for (auto & [pacID, racsnap] : racSnaps)
   {
+    racarray.setUnchecked(pacID, racsnap.rac.getUnchecked(patchToDraw));
     // cout << "setting : " << racSnaps.getUnchecked(k).racID << endl;
-    racarray.set(racSnaps.getUnchecked(k).racID, racSnaps.getUnchecked(k).rac);
+    //racarray.set(racSnaps.getUnchecked(k).racID, racSnaps.getUnchecked(k).rac);
   }
 
   Array<bool> raclist(pacList->cycles.size());
@@ -2241,10 +2211,10 @@ float Simulation::gillespieStep() // returns the waiting time tau
 
 void Simulation::nextStep()
 {
-  if (nSteps == 0) // keep track of first step ( = initial state)
+  if (nSteps == 0) 
   {
-    if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
-    {
+    //if (isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+    //{
       ConcentrationSnapshot concsnap;
       concsnap.step = 0;
       concsnap.runID = 0;
@@ -2257,21 +2227,33 @@ void Simulation::nextStep()
         }
 
         // add null rac snapshots for each PAC
+        std::unordered_map<int, RACSnapshot> racmap;
         for (int k = 0; k < pacList->cycles.size(); k++)
         {
-          Array<float> nullflows(pacList->cycles[k]->entities.size());
-          for (int j = 0; j < nullflows.size(); j++)
-            nullflows.set(j, 0.);
-          RACSnapshot rs(0., nullflows);
+          juce::Array<float> nullracs;
+          nullracs.insertMultiple(0, 0., Space::getInstance()->nPatch);
+          juce::Array<juce::Array<float>> nullflows;
+          for (int p=0; p<Space::getInstance()->nPatch; p++)
+          {
+            juce::Array<float> nullflow;
+            nullflow.insertMultiple(0, 0., pacList->cycles[k]->entities.size());
+            nullflows.add(nullflow);
+          }
+
+
+          RACSnapshot rs(nullracs, nullflows);
           rs.racID = k;
           rs.step = 0;
           rs.patchID = patch.id;
           rs.runID = 0;
-          dynHistory->racHistory.add(rs);
+          racmap.insert_or_assign(k, rs);
         }
-      }
+      //}
       if (!lightMemory)
-        dynHistory->concentHistory.add(concsnap);
+      {
+        dynHistory->concentHistory.getReference(concsnap.runID).add(concsnap);
+        dynHistory->racHistory .getReference(concsnap.runID).add(racmap);
+      }
     }
   }
 
@@ -2372,8 +2354,8 @@ void Simulation::nextStep()
         }
       }
 
-      // We keep track of dynamics in multipleRun and space mode to be able to redraw the dynamics for a given patch/run
-      if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+      //  keep track of dynamics at checkpoints
+      if (isCheck)
       {
         // concsnap.conc[ent] = ent->concent[patch.id];
         pair<int, int> patchent = make_pair(patch.id, ent->idSAT);
@@ -2382,10 +2364,10 @@ void Simulation::nextStep()
     } // end entities loop
   } // end space grid loop
 
-  if (isCheck || isMultipleRun || isSpace->boolValue() || Settings::getInstance()->printHistoryToFile->boolValue())
+  if (isCheck)
   {
     if (!lightMemory)
-      dynHistory->concentHistory.add(concsnap);
+      dynHistory->concentHistory.getReference(currentRun).add(concsnap);
   }
 
   // stop the simulation when steady state is reached in express mode or if detectEquilibrium is true
@@ -2440,7 +2422,6 @@ void Simulation::nextStep()
   // if current step is a checkpoint, call new simulation events for drawing
   if (isCheck)
   {
-    // Array<float> PACsValues = dynHistory->getLastRACSnapshot().flows;
     Array<float> PACsValues;
     for (auto &cycle : pacList->cycles)
     {
@@ -2479,13 +2460,14 @@ void Simulation::updateSinglePatchRates(Patch &patch, bool isCheck)
 void Simulation::computeRACsActivity(bool isCheck)
 {
 
-  for (auto &patch : Space::getInstance()->spaceGrid)
+  int idPAC = 0;
+  std::unordered_map<int, RACSnapshot> racmap;
+  for (auto &cycle : pacList->cycles) // loop over PACs
   {
+    juce::Array<juce::Array<float>> gridflows; // rac entity flows over the space grid
 
-    int idPAC = 0;
-    for (auto &cycle : pacList->cycles) // loop over PACs
+    for (auto &patch : Space::getInstance()->spaceGrid)
     {
-      idPAC++;
       // compute the total cycle flow for each entity of the PAC
       map<SimEntity *, float> flowPerEnt;
       for (auto &ent : entities)
@@ -2509,6 +2491,9 @@ void Simulation::computeRACsActivity(bool isCheck)
       // compute the flow of the cycle: the minimum of the flow of each entity, or 0 if negative
       cycle->flow.set(patch.id, flowPerEnt[cycle->entities[0]]); // initialisation to a potential value, either <=0 or bigger than real value
       cycle->activity.set(patch.id, 0.);
+
+      juce::Array<float> flows;
+
       for (auto &ent : cycle->entities)
       {
         // cout << flowPerEnt[ent] << "  ";
@@ -2528,111 +2513,45 @@ void Simulation::computeRACsActivity(bool isCheck)
           cycle->activity.set(patch.id, cycle->activity[patch.id] + act);
           // cycle->activity[patch.id] += 1./(ent->concent[patch.id] * (float) cycle->entities.size()) * flowPerEnt[ent];
         }
-      }
-
-      /*
-
-       Following contain attempts to define RAC activities based on specificities.
-       Not conclusive and mute it for now.
-
-       // compute flow of cycle entity associated to 'cycle' + 'other', only counting positive contribution of 'other'
-       map<SimEntity *, float> otherPosFlowPerEnt;
-       for (auto &ce : cycle->entities)
-       otherPosFlowPerEnt[ce] = 0.;
-
-       // compute flow of cycle entity associated 'cycle' + 'other', only counting positive contribution of 'other'
-       map<SimEntity *, float> otherNegFlowPerEnt;
-       for (auto &ce : cycle->entities)
-       otherNegFlowPerEnt[ce] = 0.;
-
-       // RAC entity change (absolute value) because of the RAC environment
-       map<SimEntity *, float> nonRACFlowPerEnt;
-       for (auto &ce : cycle->entities)
-       nonRACFlowPerEnt[ce] = 0.;
-
-       for (auto &ce : cycle->entities)
-       {
-       // if (ce->name == "B2" && curStep==13927) cout << "--- entity --- " << ce->name << " step " << curStep << endl;
-       for (auto &r : reactions)
-       {
-       // does this reaction contains current cycle entity ?
-       int stoe = r->stoechiometryOfEntity(ce);
-       if (stoe == 0)
-       continue;
-
-       if (cycle->containsReaction(r)) // if reaction is in the RAC, count
-       {
-       otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
-       // otherNegFlowPerEnt[ce] += (float) stoe * r->flow;
-       }
-       else // if reaction is not in the RAC, distinguish positive and negative contributions
-       {
-       if ((stoe < 0 && r->flow < 0) || (stoe > 0 && r->flow > 0))
-       otherPosFlowPerEnt[ce] += (float)stoe * r->flow;
-       if ((stoe < 0 && r->flow > 0) || (stoe > 0 && r->flow < 0))
-       otherNegFlowPerEnt[ce] += abs((float)stoe * r->flow);
-       nonRACFlowPerEnt[ce] += abs((float) stoe * r->flow);
-       }
-       }
-       }
-       */
-
-      // store RAC activity to dynamics history
-      if (isCheck || Settings::getInstance()->printHistoryToFile->boolValue() || isMultipleRun || isSpace->boolValue())
-      {
-        // update history with flowPerEnt
-        Array<float> RACentflows;
-        // Array<float> RACposSpec;
-        // Array<float> RACnegSpec;
-        // Array<float> RACspec;
-        for (auto &ent : cycle->entities)
+        if (isCheck)
         {
-          RACentflows.add(flowPerEnt[ent]);
-          // RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
-          if (cycle->flow[patch.id] > 0.)
-            dynHistory->wasRAC[cycle] = true;
-          /*
-           //float specpos = 0.;
-           //float specneg = 0.;
-           //float spec = 0.;
-           // positive specificity
-           //if (cycle->flow != 0.) // if cycle is off, +/- specificities are set to 0
-           //{
-           //  if (otherPosFlowPerEnt[ent] != 0.)
-           //    specpos = flowPerEnt[ent] / otherPosFlowPerEnt[ent];
-           //  else
-           //    specpos = 999.; // there shouldn't be a division by 0 above since otherPosFlowPerEnt at least contains flowPerEnt
-           // never too sure, I use dummy value to spot any unexpected behavior
-           // negative specificity
-           //  if (flowPerEnt[ent] != 0.)
-           //    specneg = (flowPerEnt[ent] - otherNegFlowPerEnt[ent]) / flowPerEnt[ent];
-           //  else
-           //    specneg = 999.; // there shouldn't be a division by 0 above since condition cycle->flow != 0 prevents flowPerEnt to be 0
-           // never too sure, I use dummy value to spot any unexpected behavior
-           //}
-           //spec = flowPerEnt[ent] / ( abs(flowPerEnt[ent]) + nonRACFlowPerEnt[ent]);
-           //RACposSpec.add(specpos);
-           //RACnegSpec.add(specneg);
-           //RACspec.add(spec);
-           */
+          flows.add(flowPerEnt[ent]);
         }
-        // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows));
-        // RAChistory[idPAC - 1]->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
-        // RAChistory[currentRun]->getUnchecked(idPAC - 1)->hist.add(new RACSnapshot(cycle->flow, RACentflows, RACposSpec, RACnegSpec, RACspec));
-        RACSnapshot snap(cycle->flow[patch.id], RACentflows);
-        // snap.step = curStep;
-        snap.step = nSteps;
-        snap.patchID = patch.id;
-        snap.runID = currentRun;
-        snap.racID = idPAC - 1;
-        dynHistory->racHistory.add(snap);
-        // if (patch.id == 1)
-        //   cout << "in Dyn rac val : " << snap.rac << endl;
-        // PACsValuesForDrawing.add(cycle->flow(patch.id));
-      }
+      } 
+      if (isCheck && !lightMemory)
+        gridflows.add(flows);     
+    } // end space grid loop 
 
-    } // end PAC loop
-  } // end space grid loop
+  if (isCheck && !lightMemory)
+  {    
+    // flag racs that are on somewhere in the space grid.
+    for (auto &patch : Space::getInstance()->spaceGrid)
+    {
+      for (auto &ent : cycle->entities)
+      {
+        //RACentflows.add(flowPerEnt[ent]);
+        // RAChistory[currentRun]->getUnchecked(idPAC - 1)->wasRAC = true;
+        if (cycle->flow[patch.id] > 0.)
+          dynHistory->wasRAC[cycle] = true;
+      }
+    }
+    RACSnapshot snap(cycle->flow, gridflows);
+    // snap.step = curStep;
+    snap.step = nSteps;
+    //snap.patchID = patch.id;
+    //snap.runID = currentRun;
+    snap.racID = idPAC;
+    //dynHistory->racHistory.getReference(currentRun).add(snap);
+    racmap.insert_or_assign(idPAC, snap);
+  }
+
+    idPAC++;
+  } // end pac loop 
+
+  if (isCheck && !lightMemory)
+    dynHistory->racHistory.getReference(currentRun).add(racmap);
+
+
 }
 
 void Simulation::stop()
@@ -2673,63 +2592,15 @@ void Simulation::run()
   finished->setValue(false);
   if (redrawRun || redrawPatch)
   {
-    // recover dynamics of concentrations and RAC corresponding to run or patch to redraw
-    // Array<ConcentrationSnapshot> concDyn = dynHistory->getConcentrationDynamicsForRunAndPatch(runToDraw, patchToDraw);
-    // cout << "retrieving rac snaps for run #" << runToDraw << " and patch #" << patchToDraw << endl;
-    Array<RACSnapshot> racDyn = dynHistory->getRACDynamicsForRunAndPatch(runToDraw, patchToDraw);
-
-    /*
-    if (concDyn.size() != racDyn.size())
-    {
-      LOG("concentration dynamics and rac dynamics differ in size, cannot redraw run " + String(to_string(currentRun)));
-      return;
-    }
-    */
-
-    // cout << "--- ORDERED CHECK ---" << endl;
-    // for (auto & rs : racDyn)
-    //   cout << rs.step << endl;
-
     int k = 0;
     int flag = 0;
     while (!finished->boolValue() && !threadShouldExit())
     {
-      int corrStep = nSteps + 1; // step in racDyn is made equal to nSteps, but at this stage nSteps has not been updated yet, hence using nSteps+1
-      if (k < maxSteps)
-      {
-        // retrieve all racs values for this step
-        Array<RACSnapshot> thisStepRACs;
-        for (int k2 = flag; k2 < racDyn.size(); k2++)
-        {
-          if (racDyn.getUnchecked(k2).step == corrStep)
-          {
-            thisStepRACs.add(racDyn.getUnchecked(k2));
-          }
-          else
-          {
-            flag = k2;
-            break;
-          }
-        }
-        /*
-        cout << "--- SANITY CHECK ---" << endl;
-        int count=0;
-        for (int k2=0; k2<racDyn.size(); k2++)
-        {
-          //cout << "nSteps = " << nSteps << ". k2 = " << k2 << ". step rac = " << racDyn.getUnchecked(k2).step << endl;
-          if (racDyn.getUnchecked(k2).step == corrStep)
-            count++;
-        }
-        cout << "found " << count << " matching rac snaps at step " << curStep << ". thisSTepRacsize : " << thisStepRACs.size() << endl;
-        cout << "--- ------ ------ ---" << endl;
-        */
-        int kestimate = k + runToDraw * maxSteps; // estimate the position of the snapshot to retrieve to accelerate
-        ConcentrationSnapshot thisStepConc = dynHistory->getConcentrationSnapshotForRunAndStep(runToDraw, corrStep, kestimate);
-        nextRedrawStep(thisStepConc, thisStepRACs);
-        k++;
-      }
-      else
-        finished->setValue(true);
+        nextRedrawStep(dynHistory->concentHistory.getReference(currentRun).getReference(k),
+         dynHistory->racHistory.getReference(currentRun).getReference(k));
+        k++;      
+        if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size())
+          finished->setValue(true);
     }
   }
   else
@@ -2832,42 +2703,43 @@ void Simulation::writeHistory()
   historyFile << endl;
 
   // print dynamics to file
-  // for (int k=0; k<dynHistory->concentHistory.size(); k++)
-  for (int step = 0; step < dynHistory->concentHistory.size(); step++)
-  {
-    for (auto &patch : Space::getInstance()->spaceGrid)
+  jassert(dynHistory->concentHistory.size() == dynHistory->racHistory.size());
+  for (int run=0; run<dynHistory->concentHistory.size(); run++) 
+  { 
+    for (int step = 0; step < dynHistory->concentHistory.size(); step++)
     {
-      if (threadShouldExit())
-        break;
-      historyFile << dynHistory->concentHistory.getUnchecked(step).runID << ",";
-      // historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
-      historyFile << patch.id << ",";
-      historyFile << dynHistory->concentHistory.getUnchecked(step).step << ",";
-
-      // retrieve entity concent in current patch
-      int countent = -1;
-      for (auto &[patchent, c] : dynHistory->concentHistory.getUnchecked(step).conc)
+      for (auto &patch : Space::getInstance()->spaceGrid)
       {
-        if (patchent.first != patch.id)
-          continue;
-        countent++;
-        string comma = ((countent == entities.size() - 1 && pacList->cycles.size() == 0) ? "" : ",");
-        historyFile << c << comma;
-      }
+        if (threadShouldExit())
+          break;
+        historyFile << run << ",";
+        // historyFile << dynHistory->concentHistory.getUnchecked(step).patchID << ",";
+        historyFile << patch.id << ",";
+        historyFile << dynHistory->concentHistory.getReference(run).getUnchecked(step).step << ",";
 
-      // retrieve RACs in current patch
-      int firstindex = step * pacList->cycles.size() * Space::getInstance()->nPatch;
-      Array<RACSnapshot> racs = dynHistory->getRACDynamicsForPatchAndStep(patch.id, step, 0);
-      int countrac = -1;
-      for (auto &rs : racs)
-      {
-        countrac++;
-        string comma = (countrac == pacList->cycles.size() - 1 ? "" : ",");
-        historyFile << rs.rac << comma;
-      }
-      historyFile << endl;
-    }
-  }
+        // retrieve entity concent in current patch
+        int countent = -1;
+        for (auto &[patchent, c] : dynHistory->concentHistory.getReference(run).getUnchecked(step).conc)
+        {
+          if (patchent.first != patch.id)
+            continue;
+          countent++;
+          string comma = ((countent == entities.size() - 1 && pacList->cycles.size() == 0) ? "" : ",");
+          historyFile << c << comma;
+        }
+
+        // save RAC activity
+        for (int pac=0; pac<pacList->cycles.size(); pac++)
+        {
+          RACSnapshot rss = dynHistory->racHistory.getReference(run).getUnchecked(step).at(pac);
+          string comma = (pac == pacList->cycles.size() - 1 ? "" : ",");
+          historyFile << rss.rac.getUnchecked(patch.id) << comma;
+        }
+
+        historyFile << endl;
+      } // end space grid loop
+    } // end time step loop
+  } // end run loop
 }
 
 ///////////////////////////////////////////////////////////////////:
@@ -3107,23 +2979,27 @@ void Simulation::setConcToSteadyState(OwnedArray<SimEntity> &_entities, int idSS
 
 void Simulation::drawConcOfRun(int idrun)
 {
-
   // check if some simulation exists before redrawing
-  if (dynHistory->concentHistory.size() == 0)
+  if (dynHistory->concentHistory.getUnchecked(runToDraw).size() == 0)
   {
     return;
   }
+  if (dynHistory->concentHistory.getUnchecked(runToDraw).size() != dynHistory->racHistory.getUnchecked(runToDraw).size())
+  {
+    LOGWARNING("concent history and rac history have different sizes, cannot redraw");
+  }
 
   // check if number of runs chosen in setRuns and number of runs stored in current simul match
-  if (setRun->intValue() >= RAChistory.size())
+  if (setRun->intValue() >= dynHistory->concentHistory.size())
   {
     LOG("Index of chosen run to draw exceeds numbers of runs currently stored in simul. Can't draw run #" + to_string(setRun->intValue()));
     return;
   }
+//cout << "Redrawing " << dynHistory->concentHistory.getUnchecked(runToDraw).size() << " points" << endl;
 
   // update checkpoint if user changed it since last simu
-  checkPoint = maxSteps / pointsDrawn->intValue();
-  checkPoint = jmax(1, checkPoint);
+  //checkPoint = maxSteps / pointsDrawn->intValue();
+  //checkPoint = jmax(1, checkPoint);
 
   stopThread(100);
   redrawRun = true;

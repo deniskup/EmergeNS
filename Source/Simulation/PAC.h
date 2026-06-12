@@ -51,7 +51,7 @@ public:
     juce::Array<pair<SimReaction *, int>> reacFlows;
 
     //float flow; // min of reactions flows, 0 if one flow is in the wrong direction
-    juce::Array<float> flow; // min of reactions flows, 0 if one flow is in the wrong direction
+    juce::Array<float> flow; // dim = space grid. min of reactions flows, 0 if one flow is in the wrong direction
   
     //float activity = 0.; // sum_{entities}( 1/[e] * d[e]/dt )
     juce::Array<float> activity; // sum_{entities}( 1/[e] * d[e]/dt )

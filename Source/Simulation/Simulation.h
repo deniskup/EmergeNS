@@ -237,7 +237,7 @@ public:
 	void requestProceedingToNextRun(const int);
 	int checkRunStatus();
 	void resetForNextRun();
-	void nextRedrawStep(ConcentrationSnapshot, juce::Array<RACSnapshot>);
+	void nextRedrawStep(ConcentrationSnapshot&, std::unordered_map<int, RACSnapshot>&);
 	void masterStep();
 	float gillespieStep();
 	void nextStep();

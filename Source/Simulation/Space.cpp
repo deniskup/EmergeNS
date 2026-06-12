@@ -196,11 +196,12 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     //cout << "checkpoint = " << checkPoint << endl;
     
     // only keep concentration snapshots consistent with checkpoints calculated
+    int run0 = 0;
     for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.size(); k++)
     {
-      if (k % checkPoint != 0)
-        continue;
-      concMovie.add(Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).conc);
+      //if (k % checkPoint != 0)
+      //  continue;
+      concMovie.add(Simulation::getInstance()->dynHistory->concentHistory.getReference(run0).getUnchecked(k).conc);
       //cout << "added vector conc for step " << Simulation::getInstance()->dynHistory->concentHistory.getUnchecked(k).step << endl;
     }
     
