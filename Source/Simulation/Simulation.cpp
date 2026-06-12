@@ -1602,9 +1602,11 @@ void Simulation::resetBeforeRunning()
   //   ent->concentHistory.clear();
   // RAChistory.clear();
   dynHistory->concentHistory.clear();
+  dynHistory->gillespieConcentHistory.clear();
   dynHistory->racHistory.clear();
 
   dynHistory->concentHistory.resize(nRuns);
+  dynHistory->gillespieConcentHistory.resize(nRuns);
   dynHistory->racHistory.resize(nRuns);
 
   // reset concentrations to their starting value
@@ -2027,24 +2029,59 @@ jassert(racSnaps.size() == pacList->cycles.size());
     bool wasrac = dynHistory->wasRAC[pacList->cycles[ipac]];
     raclist.set(ipac, wasrac);
   }
-  juce::Array<float> entityGillespieValues;
-  for (auto &ent : entitiesDrawn)
-  {
-    entityGillespieValues.add(ent->number[0] / volume->floatValue());
-  }
 
   if (curStep == 0)
   {
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, entityGillespieValues, entityColours, racarray, raclist));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::STARTED, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, {}, entityColours, racarray, raclist));
   }
   else
   {
     // cout << "Calling new SimNotifier in redraw" << endl;
-    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, entityGillespieValues, {}, racarray, raclist));
+    simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWSTEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, drawnConcGrid, {}, {}, racarray, raclist));
   }
 
   curStep++;
 }
+
+
+
+
+void Simulation::nextGillespieRedrawStep(ConcentrationSnapshot& concSnap)
+{
+
+  // Array<float> concarray;
+  Array<Colour> entityColours;
+  juce::Array<float> entityGillespieValues;
+  int ident = -1;
+
+  // recover drawn entity concentrations and colors
+  for (auto &ent : entitiesDrawn)
+  {
+    ident++;
+    entityColours.add(ent->color);
+    // float entconc = ent->concentHistory[istep].second;
+    // float c = concSnap.conc[ent];
+    pair<int, int> patchent = make_pair(patchToDraw, ent->idSAT);
+    float c = concSnap.conc[patchent];
+    if (c > recordDrawn[patchToDraw])
+      recordDrawn.set(patchToDraw, c);
+    entityGillespieValues.add(c);
+    // cout << "istep : " << istep << " on " << ent->concentHistory.size() << endl;
+  }
+
+  
+  //cout << "Calling new SimNotifier in redraw" << endl;
+  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun, concSnap.step, concSnap.time, {}, entityGillespieValues, {}, {}, {}));
+  
+
+
+  curStep++;
+}
+
+
+
+
+
 
 void Simulation::masterStep()
 {
@@ -2204,6 +2241,22 @@ float Simulation::gillespieStep() // returns the waiting time tau
     entityGillespievalues.add(ent->number[patch] / V); // on convertit le nombre d'entités en concentration pour les besoins de l'affichage
   }
 
+  if (!lightMemory)
+  {
+    ConcentrationSnapshot gillespiesnap;
+    ConcentrationGrid gillespieConcGrid;
+    for (const auto & ent : entities)
+    {
+      std::pair<int, int> patchent = std::make_pair(patch, ent->idSAT);
+      gillespieConcGrid[patchent] = entityGillespievalues.getUnchecked(ent->idSAT);
+    }
+    gillespiesnap.conc = gillespieConcGrid;
+    gillespiesnap.step = 0; // dummy value, step is obsolete anyway.
+    gillespiesnap.runID = currentRun;  
+    gillespiesnap.time = currentTime;  
+    dynHistory->gillespieConcentHistory.getReference(currentRun).add(gillespiesnap);
+  }
+
   simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun, nSteps, currentTime, {}, entityGillespievalues, {}, {}, {}));
 
   return tau;
@@ -2218,6 +2271,7 @@ void Simulation::nextStep()
       ConcentrationSnapshot concsnap;
       concsnap.step = 0;
       concsnap.runID = 0;
+      concsnap.time = currentTime;
       for (auto &patch : Space::getInstance()->spaceGrid)
       {
         for (auto &ent : entities)
@@ -2442,7 +2496,7 @@ void Simulation::nextStep()
 
 void Simulation::updateSinglePatchRates(Patch &patch, bool isCheck)
 {
-  bool updateReactionFlows = (isCheck || isMultipleRun);
+  bool updateReactionFlows = isCheck;
 
   // calculate new reaction rates
   kinetics->SteppingReactionRates(reactions, dt->floatValue(), patch.id, updateReactionFlows);
@@ -2593,7 +2647,9 @@ void Simulation::run()
   if (redrawRun || redrawPatch)
   {
     int k = 0;
-    int flag = 0;
+    // redraw deterministic or euler stochastic dynamics
+    cout << "conc history : " << dynHistory->concentHistory.getReference(currentRun).size() << endl;
+    cout << "gillespie conc history : " << dynHistory->gillespieConcentHistory.getReference(currentRun).size() << endl;
     while (!finished->boolValue() && !threadShouldExit())
     {
         nextRedrawStep(dynHistory->concentHistory.getReference(currentRun).getReference(k),
@@ -2602,6 +2658,23 @@ void Simulation::run()
         if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size())
           finished->setValue(true);
     }
+    cout << "flag A" << endl;
+
+    // redraw gillespie dynamics
+    finished->setValue(false);
+    k = 0;
+    while (!finished->boolValue() && !threadShouldExit())
+    {
+      //cout << k << endl;
+        nextGillespieRedrawStep(dynHistory->gillespieConcentHistory.getReference(currentRun).getReference(k));
+        k++;      
+        if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size())
+          finished->setValue(true);
+    }
+
+    cout << "flag B" << endl;
+
+
   }
   else
   {

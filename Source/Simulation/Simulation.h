@@ -238,6 +238,7 @@ public:
 	int checkRunStatus();
 	void resetForNextRun();
 	void nextRedrawStep(ConcentrationSnapshot&, std::unordered_map<int, RACSnapshot>&);
+	void nextGillespieRedrawStep(ConcentrationSnapshot&);
 	void masterStep();
 	float gillespieStep();
 	void nextStep();

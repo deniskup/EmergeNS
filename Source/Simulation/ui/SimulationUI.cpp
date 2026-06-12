@@ -458,7 +458,6 @@ bool SimulationUI::keyPressed(const KeyPress &e)
 			simul->cancelTrigger->trigger();
 		else
 		{
-			cout << "HERE ?" << endl;
 			entityHistory.clear();
 			entityGillespieHistory.clear();
 			times.clear();
@@ -527,7 +526,9 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 		// int maxPoints = simBounds.getWidth();
 		entityHistory.clear();
 		entityGillespieHistory.clear();
+		entityGillespieHistory.resize(simul->nRuns);
 		times.clear();
+		times.resize(simul->nRuns);
 		entityColors.clear();
 		// uiStep = jmax(1, (int)(simul->maxSteps / maxPoints));
 		// resolution decided by ui
@@ -562,11 +563,11 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-		if (ev.run == simul->runToDraw)
-		{
+		//if (ev.run == simul->runToDraw)
+		//{
 			entityGillespieHistory.add(ev.entityGillespievalues);
 			times.add(ev.currentTime);
-		}
+		//}
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 	}

@@ -57,7 +57,8 @@ public:
   //std::map<SimEntity*, float> conc;
   ConcentrationGrid conc;
   int runID = 0; // obsolete
-  int step;
+  int step; // obsolete
+  float time;
 };
 
 // represents the RAC activities over the spacegrid at a given time
@@ -99,6 +100,8 @@ public:
   ~DynamicsHistory(){};
 
   juce::Array<juce::Array<ConcentrationSnapshot>> concentHistory; // 1st dimension = runID | second dimension = time
+  juce::Array<juce::Array<ConcentrationSnapshot>> gillespieConcentHistory; // 1st dimension = runID | second dimension ~ time
+
   juce::Array<juce::Array<std::unordered_map<int, RACSnapshot>>> racHistory; // 1st dimension = runID | second dimension = time. map<pacID, RACSnapShot>
   std::map<PAC*, bool> wasRAC; // true if the PAC is on at some point "on" in the simulation (for drawing)
 
