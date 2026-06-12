@@ -264,9 +264,7 @@ void NEP::stop()
 void NEP::run()
 {
   simul->affectSATIds();
-  cout << "will reset() "<< endl;
   reset();
-  cout << "has reset" << endl;
 
   // has bad behavior for now, trajectory eventually diverges
   // need deeper understanding
@@ -634,6 +632,10 @@ void NEP::run()
   {
     debugfile.close();
   }
+
+  // integrate hamilton equation of motion for current trajectory
+  LOG("Verification using hamilton's equations of motion");
+  hamiltonEoMVerification();
   
   // save descent algorithm results into a file
   LOG("writing descent to file");
@@ -2119,15 +2121,81 @@ pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, State
     if (break_forward && break_backward)
       break;
     
-    nepsolver->nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, dt, true, break_forward, traj_forward);
-    nepsolver->nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, dt, false, break_backward, traj_backward);
+    if (!break_forward)
+      nepsolver->nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, qi, pi, dt, true, break_forward, traj_forward);
+    if (!break_backward)
+      nepsolver->nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, qi, pi, dt, false, break_backward, traj_backward);
     
   }
   
   pair<Trajectory, Trajectory> traj = make_pair(traj_forward, traj_backward); // one backward, one forward
   return traj;
-  
-  
+}
+
+
+
+void NEP::hamiltonEoMVerification()
+{
+  jassert(g_pcurve.size() == g_qcurve.size());
+  if (g_pcurve.size() != g_qcurve.size())
+  {
+    LOGWARNING("q curve and p curve have different sizes. Cannot perform EoM verification");
+    cout << "qcurve size : " << g_qcurve.size() << ". pcurve : " << g_pcurve.size() << endl;
+  }
+
+  juce::Array<pair<Trajectory, Trajectory>> hamiltonEoM;
+  for (int point=1; point<g_qcurve.size()-1; point++) // skip first and last point = fixed points
+  {
+    StateVec q = g_qcurve.getUnchecked(point);
+    StateVec p = g_pcurve.getUnchecked(point);
+
+    pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(q, p);
+    hamiltonEoM.add(eom);
+  }
+
+
+  // write equation of motions to file
+  std::system("mkdir -p ./hamilton-eq-of-motion");
+  std::string file = "./hamilton-eq-of-motion/hamiltonsEoM.csv";
+  std::ofstream eomfile;
+  eomfile.open(file.c_str(), ofstream::out | ofstream::trunc);
+
+  eomfile << "point,forward,step";
+  for (auto & ent : simul->entities)
+    eomfile << ",q_" << ent->name;
+  for (auto & ent : simul->entities)
+    eomfile << ",p_" << ent->name; 
+  eomfile << std::endl;
+
+  for (int point=0; point<hamiltonEoM.size(); point++)
+  {
+    Trajectory forward = hamiltonEoM.getUnchecked(point).first;
+    Trajectory backward = hamiltonEoM.getUnchecked(point).second;
+
+    // print forward trajectory
+    for (int step=0; step<forward.size(); step++)
+    {
+      PhaseSpaceVec qp = forward.getUnchecked(step);
+      eomfile << point+1 << "," << 1 << "," << step;
+      for (auto & coord : qp)
+        eomfile << "," << coord;
+      eomfile << std::endl;
+    }
+
+    // print backward trajectory
+    for (int step=0; step<backward.size(); step++)
+    {
+      PhaseSpaceVec qp = backward.getUnchecked(step);
+      eomfile << point+1 << "," << 1 << "," << step;
+      for (auto & coord : qp)
+        eomfile << "," << coord;
+      eomfile << std::endl;
+    }
+
+
+  } // end loop over points
+
+
 }
 
 

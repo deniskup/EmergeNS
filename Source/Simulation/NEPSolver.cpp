@@ -1312,12 +1312,10 @@ juce::Array<double> NEPSolver::calculateAction(const Curve& qc, const Curve& pc,
 
 
 // using Méthod of Leapfrog / Störmer–Verlet instead of Euler Method
-void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, const bool forward, bool& shouldStop, Trajectory & traj)
+void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, StateVec& pstart, double dt_in, const bool forward, bool& shouldStop, Trajectory & traj)
 {
-  if (shouldStop)
-    return;
   
-  double thrshold = 1000.;
+  double thrshold = 100.;
   double dt = (forward ? dt_in : -1.*dt_in);
   
   // save initial q and p in case that next step should not occur
@@ -1349,7 +1347,15 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, cons
   
   // update q
   for (int m=0; m<q.size(); m++)
-    q.setUnchecked(m, q.getUnchecked(m) + dt*gradpH.getUnchecked(m));
+  {
+    double newq = q.getUnchecked(m) + dt*gradpH.getUnchecked(m);
+    if (newq<0.)
+    {
+      shouldStop = true;
+      return;
+    }
+    q.setUnchecked(m, newq);
+  }
   
   // update gradients w.r.t to q
   gradqH = evalHamiltonianGradientWithQ(q, p);
@@ -1373,6 +1379,13 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, cons
       shouldStop = true;
       return;
     }
+  }
+
+  // check for divergence
+  if (cartesianDistance(q, qstart)>10. || cartesianDistance(p, pstart)>10.)
+  {
+    shouldStop = true;
+    return;
   }
   
   // add new (q ; p) point to the trajectory

@@ -45,7 +45,7 @@ public:
   
   juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
-  void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
+  void nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, StateVec& pstart, double dt, const bool forward, bool & shouldStop, Trajectory&);
 
   void setCRNNormalization(double norm)
   {

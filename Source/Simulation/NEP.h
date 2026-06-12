@@ -196,6 +196,8 @@ private:
   //void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
+
+  void hamiltonEoMVerification();
   
   void heteroclinicStudy();
   
