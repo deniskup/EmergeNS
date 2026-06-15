@@ -365,6 +365,7 @@ void SteadyStateslist::printSteadyStatesToFile()
     }
     out.precision(5);
     out << "\t-- eigenvalues -- " << sst.eigenvalues.size() << endl;
+    //jassert(sst.eigenvalues.size() == sst.eigenvectors.size());
     for (auto& ev : sst.eigenvalues)
     {
       out << ev.real << "\t+ " << ev.imag << " i" << endl;
@@ -1471,16 +1472,17 @@ Eigen::MatrixXd SteadyStateslist::evaluateJacobiMatrix(SteadyState &witness)
 void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globally)
 {
 
-  // as a general info, commands to diagonalize a matrix are :
-  // //init eigen solver objects for current jacobi matrix
-  // Eigen::EigenSolver<Eigen::MatrixXd> es(jm);
-  // if (es.info() == Eigen::Success) // if diagonalization succeeded
-  // {
-  // retrieve eigenvalues :
-  // cout << es.eigenvalues() << endl;
-  // cout << es.eigenvectors() << endl;
-  //   // retrieve eigenvalues if diagonalized
-  //}
+  // diagonalize
+   //init eigen solver objects for current jacobi matrix
+  Eigen::EigenSolver<Eigen::MatrixXd> es_diag(jm);
+  bool isDiag = true;
+  if (es_diag.info() != Eigen::Success) // if diagonalization succeeded
+  {
+    LOGWARNING("Could not diagonalize Jacobian, eigenvectors not stored for this steady state.");
+    isDiag = true;
+   //cout << es.eigenvalues() << endl;
+   //cout << es.eigenvectors() << endl;
+  }
 
 	// jacobi matrix should be always triangularizable on C
 	// so I directly reach this option without bothering on diagonalization
@@ -1513,16 +1515,53 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 	//bool isCertain = true;
   int nPositiveEig = 0; // numer of eigenvalues with positive real parts
   arraySteadyStates.getReference(sst_index).eigenvalues.clear();
-	for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
-	{
-    //cout << "\t" << triang(i, i).real() << endl;
-    if (triang(i, i).real() > 0.) // maybe use epsilon instead of 0 to be more safe ?
-      nPositiveEig++;
-    Eigenvalue ev;
-    ev.real = triang(i, i).real();
-    ev.imag = triang(i, i).imag();
-    arraySteadyStates.getReference(sst_index).eigenvalues.add(ev);
+  arraySteadyStates.getReference(sst_index).eigenvectors.clear();
+
+  // store eigenvalues and eigenvectors
+  arraySteadyStates.getReference(sst_index).isDiagonalized = isDiag;
+
+  if (isDiag)
+  {
+    for (int i=0; i<es_diag.eigenvalues().size(); i++)
+    {
+      // copy eigen value
+      Eigenvalue eigenval;
+      eigenval.real = es_diag.eigenvalues()(i).real();
+      eigenval.imag = es_diag.eigenvalues()(i).imag();
+      arraySteadyStates.getReference(sst_index).eigenvalues.add(eigenval);
+
+      // copy eigenvector
+      Eigenvector eigenvec;
+      auto v = es_diag.eigenvectors().col(i);
+      for (int j=0; j<v.size(); j++)
+      {
+        std::complex<float> c(v(j).real(), v(j).imag());
+        eigenvec.add(c);
+      }
+      arraySteadyStates.getReference(sst_index).eigenvectors.add(eigenvec);
+
+
+    }
+
+  }
+  else
+  {
+    for (unsigned int i = 0; i < triang.rows(); i++) // loop over eigenvalues
+	  {
+      //cout << "\t" << triang(i, i).real() << endl;
+      if (triang(i, i).real() > 0.) // maybe use epsilon instead of 0 to be more safe ?
+        nPositiveEig++;
+      Eigenvalue ev;
+      ev.real = triang(i, i).real();
+      ev.imag = triang(i, i).imag();
+      arraySteadyStates.getReference(sst_index).eigenvalues.add(ev);
 	}
+
+  }
+
+	
+
+
   //cout << "added Neigenvalues = " << arraySteadyStates.getReference(sst_index).eigenvalues.size() << endl;
   witness.postiveEigenVal = nPositiveEig;
   if (nPositiveEig == 0)

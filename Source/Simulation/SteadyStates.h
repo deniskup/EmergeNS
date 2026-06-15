@@ -41,6 +41,8 @@ struct Eigenvalue
   float imag;
 };
 
+typedef juce::Array<std::complex<float>> Eigenvector;
+
 class SteadyState
 {
 public:
@@ -54,7 +56,9 @@ public:
   int postiveEigenVal = 0; // number of positive eigenvalues. 0 -> stable, >0 -> unstable
   bool isStable = true;
   bool isPartiallyStable = false; // for border steady states only
+  bool isDiagonalized = true;
   juce::Array<Eigenvalue> eigenvalues; 
+  juce::Array<Eigenvector> eigenvectors; 
   juce::var toJSONData();
 };
 
