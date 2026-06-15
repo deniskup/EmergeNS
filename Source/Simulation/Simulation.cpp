@@ -2051,7 +2051,7 @@ jassert(racSnaps.size() == pacList->cycles.size());
 
 
 
-/*
+
 void Simulation::nextGillespieRedrawStep(ConcentrationSnapshot& concSnap)
 {
 
@@ -2078,14 +2078,12 @@ void Simulation::nextGillespieRedrawStep(ConcentrationSnapshot& concSnap)
 
   
   //cout << "Calling new SimNotifier in redraw" << endl;
-  //simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun, concSnap.step, concSnap.time, {}, entityGillespieValues, {}, {}, {}));
+  simNotifier.addMessage(new SimulationEvent(SimulationEvent::NEWGILLESPIE_STEP, this, redrawPatch, redrawRun, currentRun, concSnap.step, concSnap.time, {}, entityGillespieValues, {}, {}, {}));
   
 
-
-  curStep++;
 }
 
-*/
+
 
 
 
@@ -2698,7 +2696,7 @@ void Simulation::run()
         if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size())
           finished->setValue(true);
     }
-/*
+
     // redraw gillespie dynamics
     finished->setValue(false);
     k = 0;
@@ -2710,7 +2708,7 @@ void Simulation::run()
         if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size())
           finished->setValue(true);
     }
-*/
+
 
   }
   else
