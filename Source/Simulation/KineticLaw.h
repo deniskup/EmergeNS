@@ -21,38 +21,42 @@ class RandomGausGenerator
 {
   public:
   RandomGausGenerator(float _mu, float _sigma) // constructor
+    : generator(),
+      gausDist(_mu, _sigma)
+      //mu(_mu),
+      //sigma(_sigma)
   {
-    mu = _mu;
-    sigma = _sigma;
-    gausDist = new normal_distribution<float>;
-    normal_distribution<float> dtemp(mu, sigma);
-    gausDist->param(dtemp.param());
-    generator=new default_random_engine;
+    //gausDist = new normal_distribution<float>;
+    //normal_distribution<float> dtemp(mu, sigma);
+    //gausDist->param(dtemp.param());
+    //generator=new default_random_engine;
   };
-  
-  // attributes
-  random_device rd;
-  default_random_engine * generator;
-  normal_distribution<float> * gausDist;
-  float mu = 0.;
-  float sigma = 1.;
-  //unsined long seed;
+
   
   // generate actual random number
   float randomNumber()
   {
-    return (*gausDist)(*generator);
+    return (gausDist)(generator);
   }
   
   void setFixedSeed(unsigned int _seed)
   {
-    generator->seed(_seed);
+    generator.seed(_seed);
   }
   
   void shakeSeedValue()
   {
-    generator->seed(rd());
+    generator.seed(rd());
   }
+
+  private:
+
+    random_device rd;
+    default_random_engine generator;
+    normal_distribution<float> gausDist;
+    //float mu = 0.;
+    //float sigma = 1.;
+    //unsined long seed;
   
 };
 
@@ -83,11 +87,8 @@ public:
   
 private:
   
-  RandomGausGenerator * rgg;
+  RandomGausGenerator rgg;
 
-  
-  
-  
 };
 
 

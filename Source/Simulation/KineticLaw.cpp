@@ -3,11 +3,14 @@ using namespace juce;
 
 
 KineticLaw::KineticLaw(bool _useStochasticity, float _noiseEpsilon)
+: rgg(0.f, 1.f),
+  useStochasticity(_useStochasticity),
+  noiseEpsilon(_noiseEpsilon)
 {
-  useStochasticity = _useStochasticity;
-  noiseEpsilon = _noiseEpsilon;
+  //useStochasticity = _useStochasticity;
+  //noiseEpsilon = _noiseEpsilon;
   //if (useStochasticity)
-    rgg = new RandomGausGenerator(0., 1.); // init random generator
+  //  rgg = new RandomGausGenerator(0., 1.); // init random generator
 }
 
 KineticLaw::~KineticLaw()
@@ -30,18 +33,18 @@ void KineticLaw::fixedSeedMode(const string strSeed)
   if (!correctFormat)
   {
     LOGWARNING("Incorrect random seed format, should contain only digits. Seed set to 1234 instead");
-    rgg->setFixedSeed(1234);
+    rgg.setFixedSeed(1234);
   }
   else
   {
     unsigned int seed = atoi(strSeed.c_str());
-    rgg->setFixedSeed(seed);
+    rgg.setFixedSeed(seed);
   }
 }
 
 void KineticLaw::shakeSeedValue()
 {
-  rgg->shakeSeedValue();
+  rgg.shakeSeedValue();
 }
 
 
@@ -171,7 +174,7 @@ void KineticLaw::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, floa
       
       // random fluctuation of forward reaction associated to current timestep
       float sqrtdt = sqrt(dt);
-      float directWiener = rgg->randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
+      float directWiener = rgg.randomNumber()*sqrtdt; // gaus random in N(0, 1) x sqrt(dt)
       //if (print) cout << "forward wiener : " << directWiener << endl;
       stoc_directIncr *= directWiener;
       
@@ -200,7 +203,7 @@ void KineticLaw::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, floa
       }
       
       // random fluctuation of forward reactions associated to current timestep
-      float reverseWiener = rgg->randomNumber()*sqrtdt;
+      float reverseWiener = rgg.randomNumber()*sqrtdt;
       //if (print) cout << "backward wiener : " << reverseWiener << endl;
       stoc_reverseIncr *= reverseWiener;
       
@@ -253,7 +256,7 @@ void KineticLaw::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, fl
       if (useStochasticity)
       {
         float stocIncr = sqrt(ent->creationRate) * noiseEpsilon;
-        float wiener = rgg->randomNumber() * sqrt(dt);
+        float wiener = rgg.randomNumber() * sqrt(dt);
         stocIncr *= wiener;
         incr -= stocIncr;
       } // end if stochasticity
@@ -273,7 +276,7 @@ void KineticLaw::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, fl
     if (useStochasticity)
     {
       double stocDecr = sqrt(rate) * noiseEpsilon;
-      float wiener = rgg->randomNumber() * sqrt(dt);
+      float wiener = rgg.randomNumber() * sqrt(dt);
       stocDecr *= wiener;
       decr -= stocDecr;
     } // end if stochasticity
