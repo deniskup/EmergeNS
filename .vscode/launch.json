@@ -11,7 +11,11 @@
       "MIMode": "gdb",
       "miDebuggerPath": "/usr/bin/gdb",
       "preLaunchTask": "make",
-      "stopAtEntry": false
+      "stopAtEntry": false,
+      "args": [
+        "-config",
+        "/home/tkosc/Bureau/test/firstEscape/config.txt"
+      ]
     },
 
     {

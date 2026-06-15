@@ -106,7 +106,7 @@ if __name__ == "__main__":
         continue
 
       # only keep points associated to current run
-      df_run = df[df.runID==irun]
+      df_run = df[df.run==irun]
 
       # check that run is non-empty
       if (df_run.shape[0]==0):

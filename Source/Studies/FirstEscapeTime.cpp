@@ -440,7 +440,14 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
         FirstEscapeTimeJob * newJob = new FirstEscapeTimeJob(*this, copyCRN, cg, ev.run, time, studyParams);
         pool->addJob(newJob, true);
         pendingJobs[ev.run]++;
+        if (pool->getNumJobs()>1000)
+        {
+          juce::String njobs(std::to_string(pool->getNumJobs()));
+          LOGWARNING("Many jobs queuing or running : " + njobs);
+        }
       }
+
+      
     }
   break;
       
