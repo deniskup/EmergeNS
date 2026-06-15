@@ -1,3 +1,11 @@
+--- REFACTO ---
+- Separate CRN state (i.e dynamics, such as time, concentration, increments, run...) from CRN structure (reactions, entities, kinetic barriers...) ? 
+In particular would help reducing memory in FirstEscapeStudy, since for the moment all CRN (including static values) are copied to parallel jobs, whilst they only need to COPY its state and READ crn structure.
+
+- Think how to better partition simulation methods. Gillespie and Euler both mixed in Simulation. Shared variables are only read, but risk of overlap between the two. It should be more obvious (more than the name) which state variable belongs to whom.
+
+-------------------
+
 -still problems of links Simentity <-> entity <-> PACs
 stuff is sometimes not imported automatically, e.g. "draw", and list->simuls still necessary, to solve.
 when creating new file, and adding entities manually, we have to import them in the simulation at the beginning. one solution: if no simulation loaded, apply list->simul (when user list mode is enabled)
