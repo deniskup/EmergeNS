@@ -63,9 +63,10 @@ std::map<String, String> EmergeNSEngine::parseConfigFile(String fileArg)
   if (!file.is_open())
   {
     LOGERROR("can't open config file : " << fileArg);
-    std::cerr << "errno = " << errno << std::endl;
-    std::cerr << strerror(errno) << std::endl;
-    JUCEApplication::getInstance()->systemRequestedQuit();
+    throw std::runtime_error("Stop");
+    //std::cerr << "errno = " << errno << std::endl;
+    //std::cerr << strerror(errno) << std::endl;
+    //JUCEApplication::getInstance()->systemRequestedQuit();
   }
   //fileLoaded = true;
   // store content of config file
@@ -131,8 +132,18 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     {
       if (c.command == "config")
       {
-        configs = parseConfigFile(c.args[0]);
-        fileLoaded = true; // #todo change value by properly handling an exception in parseConfigFile
+        try
+        {
+          configs = parseConfigFile(c.args[0]);
+          fileLoaded = true;
+        }
+        catch(const std::exception& e)
+        {
+          std::cerr << e.what() << '\n';
+          JUCEApplication::getInstance()->systemRequestedQuit();
+        }
+        
+        
       }
       else if (c.command == "superRun")
       {
@@ -165,7 +176,13 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     
     // open the .ens file
     juce::File file(network);
-    loadDocumentNoCheck(file);
+    if (file.exists())
+      loadDocumentNoCheck(file);
+    else
+    {
+      LOGWARNING("File " + network + " does not exists");
+      JUCEApplication::getInstance()->systemRequestedQuit();
+    }
     
     
     if (study == "firstEscape")
