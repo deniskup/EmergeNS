@@ -1511,6 +1511,8 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
   //cout << "--------triang. of jacobi matrix---------" << endl;
   //cout << triang << endl;
 
+  //cout << es_diag.eigenvalues() << endl;
+
 	// sparse signs of real part of diagonal elements
 	//bool isCertain = true;
   int nPositiveEig = 0; // numer of eigenvalues with positive real parts
@@ -1529,6 +1531,10 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
       eigenval.real = es_diag.eigenvalues()(i).real();
       eigenval.imag = es_diag.eigenvalues()(i).imag();
       arraySteadyStates.getReference(sst_index).eigenvalues.add(eigenval);
+
+      if (eigenval.real>0.)
+        nPositiveEig++;
+        
 
       // copy eigenvector
       Eigenvector eigenvec;
