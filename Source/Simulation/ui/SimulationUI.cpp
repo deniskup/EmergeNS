@@ -540,7 +540,10 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	{
 		entityColors = ev.entityColors;
 		if (ev.run == simul->runToDraw)
+		{
 			entityHistory.add(ev.entityValues);
+			entityGillespieHistory.add(ev.entityGillespievalues);
+		}
 		// cout << "SimulationEvent::STARTED in UI" << endl;
 		// for (auto & [pair, conc] : ev.entityValues)
 		//   cout << pair.first << " : " << pair.second << " --> " << conc << endl;
@@ -563,11 +566,11 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
 	{
 		// if (ev.curStep % uiStep == 0)
-		//if (ev.run == simul->runToDraw)
-		//{
+		if (ev.run == simul->runToDraw)
+		{
 			entityGillespieHistory.add(ev.entityGillespievalues);
 			times.add(ev.currentTime);
-		//}
+		}
 		// print for debug
 		//   NLOG("Value", ev.entityValues[0]);
 	}
@@ -580,6 +583,7 @@ void SimulationUI::newMessage(const Simulation::SimulationEvent &ev)
 
 	case Simulation::SimulationEvent::FINISHED:
 	{
+		//cout << "entityGillespieHistory size : " << entityGillespieHistory.size() << endl;
 		shouldRepaint = true;
 		resized();
 		repaint();

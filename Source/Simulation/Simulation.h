@@ -108,6 +108,11 @@ public:
 	float nextConcStep;		 // time before next step of concentration simulation
 	float nextGillespieStep; // time before next step of Gillespie simulation
 
+	// in relation to gillespie drawing
+	float nextGillespieCheckpoint; // indicate next time checkpoint value. In correspondance with parameter pointsDrawn
+	juce::Array<float> previousGillespieValues; 
+	float previousGillespieTime;
+
 
 	// for drawing
 	int runToDraw = 0;
