@@ -161,6 +161,12 @@ private:
     
   void setTimeNormalizationFactor();
 
+  Curve deterministicInitialTrajectory(StateVec&, StateVec&, int);
+
+  Curve straightLineInitialTrajectory(StateVec&, StateVec&);
+
+  Curve guessInitialTrajectory(StateVec&, StateVec&, int, int);
+
   void initConcentrationCurve();
   
   void writeDescentToFile();

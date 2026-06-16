@@ -74,6 +74,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   initialConditions->clearOptions();
   initialConditions->addOption("Straigth line", 0);
   initialConditions->addOption("Deterministic trajectory", 1);
+  initialConditions->addOption("Guess", 2);
+
   
   solverType->clearOptions();
   solverType->addOption("GSL Brut force - NLS", 0);
@@ -1110,6 +1112,342 @@ void NEP::setTimeNormalizationFactor()
 
 
 
+Curve NEP::deterministicInitialTrajectory(StateVec& qstable, StateVec& qsaddle, int sstI)
+{
+  Curve outcurve;
+
+  // copy the entities and reactions from simulation instance
+    OwnedArray<SimEntity> entities;
+    OwnedArray<SimReaction> reactions;
+    entities.clear();
+    reactions.clear();
+    
+    // If has not been called yet, the copy will not work properly
+    simul->affectSATIds();
+    
+    // fill entity array with copies of the ones present in the simulation instance
+    for (auto & ent : simul->entities)
+      entities.add(ent->clone().release());
+    
+    for (auto & ent : entities)
+    {
+      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
+      ent->concent.resize(1);
+      ent->previousConcent.resize(1);
+      ent->startConcent.resize(1);
+      ent->deterministicConcent.resize(1);
+    }
+    
+    for (auto & r : simul->reactions)
+    {
+      Array<SimEntity*> reactants;
+      Array<SimEntity*> products;
+      for (auto & e : r->reactants)
+      {
+        reactants.add(entities[e->idSAT]);
+      }
+      for (auto & e : r->products)
+      {
+        products.add(entities[e->idSAT]);
+      }
+      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      reactions.add(copyr);
+    }
+    
+    jassert(entities.size() == simul->entities.size());
+    jassert(reactions.size() == simul->reactions.size());
+    
+    // set first point of qcurve = qsaddle (unstable state)
+    outcurve.add(qsaddle);
+    
+    // set initial concentration of entities to be very close from qF in the direction of qI
+    Curve sl = {qstable, qsaddle};
+    double L = curveLength(sl);
+    jassert(L>0.);
+    for (int i=0; i<qstable.size(); i++)
+    {
+      double ui = qsaddle.getUnchecked(i) + 0.01 * ( qstable.getUnchecked(i)-qsaddle.getUnchecked(i) ) / L;
+      entities[i]->concent.setUnchecked(0, ui);
+      //entities[i]->startConcent.setUnchecked(0, ui);
+    }
+    
+    
+    // deterministic dynamics of the system until a stationnary state is reached
+    double distance = 1000.;
+    double precision = 1e-5;
+    double timeout = (double) simul->dt->floatValue() * 50000;
+    double t = 0.;
+    int count = 0;
+    bool delay = true; // require the deterministic search to run a minimum amount of time
+    // otherwise, too close from an unstable steady state, variation might be too small
+    while (distance>precision || delay)
+    {
+      count++;
+      t += (double) simul->dt->floatValue();
+      if (t>100.) // free the boolean delay
+        delay = false;
+      if (t>timeout)
+        break;
+      // deterministic traj
+      kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
+      kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
+      
+      // update concentration values of entities
+      for (auto & ent : entities)
+      {
+        ent->refresh();
+      }
+      
+      // add new value to global qcurve
+      StateVec qi;
+      for (int k=0; k<entities.size(); k++)
+        qi.add(entities[k]->concent.getUnchecked(0));
+      outcurve.add(qi);
+      
+      // calculate variation in last dt
+      distance = 0.;
+      for (auto & ent : entities)
+      {
+        double deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
+        distance += deltaC*deltaC;
+      }
+      distance = sqrt(distance);
+    } // end while
+    
+    // find in which steady state the system ended
+    int reachedSST = -1;
+    double dmin = 10000.;
+    count = 0;
+    for (auto & sst : simul->steadyStatesList->arraySteadyStates)
+    {
+      double d = 0.;
+      for (auto & p : sst.state)
+      {
+        int entID = p.first->idSAT;
+        SimEntity * se = entities.getUnchecked(entID);
+        double dc = se->concent.getUnchecked(0) - p.second;
+        d += dc*dc;
+      }
+      d = sqrt(d);
+  
+      if (d<dmin)
+      {
+        dmin = d;
+        reachedSST = count;
+      }
+      count++;
+    }
+    
+    if (reachedSST != sstI)
+    {
+      LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
+      throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
+    }
+    
+    // set last point of qcurve = qI
+    outcurve.add(qstable);
+
+    // reverse the direction of concentration curve
+    std::reverse(outcurve.begin(), outcurve.end());
+    
+    // resample qcurve
+    resampleInSpaceUniform(outcurve, nPoints);
+
+    return outcurve;
+
+}
+
+
+Curve NEP::straightLineInitialTrajectory(StateVec& qstable, StateVec& qsaddle)
+{
+  Curve outcurve;
+  double NN = (double) nPoints;
+  for (int point=0; point<nPoints; point++)
+    {
+      StateVec vec;
+      double fpoint = (double) point;
+      for (int k=0; k<qstable.size(); k++)
+      {
+        double qk = qsaddle.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qstable.getUnchecked(k) - qsaddle.getUnchecked(k));
+        vec.add(qk);
+      }
+      outcurve.add(vec);
+    }
+  return outcurve;
+}
+
+
+Curve NEP::guessInitialTrajectory(StateVec& qstable, StateVec& qsaddle, int sst_stable, int sst_saddle)
+{
+  SteadyState stable = simul->steadyStatesList->arraySteadyStates.getUnchecked(sst_stable);
+  SteadyState saddle = simul->steadyStatesList->arraySteadyStates.getUnchecked(sst_saddle);
+
+  cout << sst_stable << " , " << sst_saddle << endl;
+
+  int index = -1;
+  float lessNegative = 0.;
+  cout << "stable has  Neigenvalues : " << stable.eigenvalues.size() << endl;
+  for (int k=0; k<stable.eigenvalues.size(); k++)
+  {
+    auto& ev = stable.eigenvalues.getReference(k);
+    cout << "ev.real = " << ev.real << endl;
+    if (ev.real < lessNegative)
+    {
+      lessNegative = ev.real;
+      index = k;
+    }
+  }
+  if (index==-1)
+  {
+    throw std::runtime_error("Could not retrieve most likely escape direction from stable state. Exit.");
+  }
+  // retrieve eigenvector corresponding to most likely escape direction
+  juce::Array<std::complex<float>> eigenvec = stable.eigenvectors.getUnchecked(index);
+  StateVec dirStart;
+  for (auto & c : eigenvec)
+    dirStart.add(c.real());
+
+  // saddle point
+  index = -1;
+  float lessPositive = 10000.;
+  cout << "saddle has  Neigenvalues : " << saddle.eigenvalues.size() << endl;
+  for (int k=0; k<saddle.eigenvalues.size(); k++)
+  {
+    auto& ev = saddle.eigenvalues.getReference(k);
+    cout << "ev.real = " << ev.real << endl;
+    if (ev.real < lessPositive && ev.real>0.)
+    {
+      lessPositive = ev.real;
+      index = k;
+    }
+  }
+
+  if (index==-1)
+  {
+    throw std::runtime_error("Could not retrieve most likely escape direction to saddle state. Exit.");
+  }
+
+  // retrieve eigenvector corresponding to most likely escape direction
+  eigenvec = stable.eigenvectors.getReference(index);
+  StateVec dirEnd;
+  for (auto & c : eigenvec)
+    dirEnd.add(c.real());
+
+  StateVec stable2saddle;
+  for (int k=0; k<qstable.size(); k++)
+  {
+    stable2saddle.add(qsaddle.getUnchecked(k)-qstable.getUnchecked(k));
+  }
+
+  double spstart = scalarProduct(dirStart, stable2saddle);
+  if (std::abs(spstart)<1e-8)
+  {
+    throw std::runtime_error("Cannot initialize starting trajectory with guess method");
+  }
+  if (spstart < 0.) // reverse start direction
+  {
+    for (int k=0; k<dirStart.size(); k++)
+      dirStart.setUnchecked(k, dirStart.getUnchecked(k)*-1.);
+  }
+
+  double spend = scalarProduct(dirEnd, stable2saddle);
+  cout << "sp end = " << spend << endl;;
+  cout << "v_saddle : ";
+  for (auto & c : dirEnd)
+    cout << c << " ";
+  cout << endl;
+  if (std::abs(spstart)<1e-8)
+  {
+    throw std::runtime_error("Cannot initialize ending trajectory with guess method");
+  }
+  if (spend > 0.) // reverse end direction
+  {
+    for (int k=0; k<dirEnd.size(); k++)
+      dirEnd.setUnchecked(k, dirEnd.getUnchecked(k)*-1.);
+  }
+
+  cout << "v_saddle corrected : ";
+  for (auto & c : dirEnd)
+    cout << c << " ";
+  cout << endl;
+
+
+  double length = cartesianDistance(qstable, qsaddle);
+  double step = 0.01;
+
+  // curve escaping from stable point
+  double l=0.;
+  double lfac = 10.;
+  Curve startCurve;
+  startCurve.add(qstable);
+  int c=0;
+  while(l<length/lfac)
+  {
+    StateVec nextpoint;
+    for (int k=0; k<qstable.size(); k++)
+    {
+      nextpoint.add(startCurve.getUnchecked(c).getUnchecked(k) + step*dirStart.getUnchecked(k));
+    }
+    startCurve.add(nextpoint);
+    l += cartesianDistance(startCurve.getUnchecked(c+1), startCurve.getUnchecked(c));
+    c++;
+  }
+
+  // curve going to saddle point
+  l=0.;
+  Curve endCurve;
+  endCurve.add(qsaddle);
+  c=0;
+  while(l<length/lfac)
+  {
+    StateVec nextpoint;
+    for (int k=0; k<qsaddle.size(); k++)
+    {
+      nextpoint.add(endCurve.getUnchecked(c).getUnchecked(k) + step*dirEnd.getUnchecked(k));
+    }
+    endCurve.add(nextpoint);
+    l += cartesianDistance(endCurve.getUnchecked(c+1), endCurve.getUnchecked(c));
+    c++;
+  }
+  // reverse points
+  std::reverse(endCurve.begin(), endCurve.end());
+
+  // join start and end segments.
+  StateVec p1 = startCurve.getLast();
+  StateVec p2 = endCurve.getFirst();
+  Curve gap;
+  int N = 100;
+  double NN = (double) N;
+  for (int i=0; i<N; i++)
+  {
+    double ii = (double) i;
+    StateVec vec;
+    for (int k=0; k<p1.size(); k++)
+    {
+      double qk = p2.getUnchecked(k) + (1. - ii/(NN-1.)) * (p1.getUnchecked(k) - p2.getUnchecked(k));
+      vec.add(qk);
+    }
+    gap.add(vec);
+  }
+
+  // joining startCurve -- gap -- endCurve
+  Curve totalCurve;
+  for (auto & q : startCurve)
+    totalCurve.add(q);
+  for (auto & q : gap)
+    totalCurve.add(q);
+  for (auto & q : endCurve)
+    totalCurve.add(q);
+
+  // resample
+  resampleInSpaceUniform(totalCurve, nPoints);
+
+  return totalCurve;
+  
+}
+
+
+
 void NEP::initConcentrationCurve()
 {
   // read init and final curve points from enum parameters
@@ -1156,159 +1494,17 @@ void NEP::initConcentrationCurve()
   g_qcurve.clear();
   double NN = (double) nPoints;
   jassert(nPoints>1);
-  
-  if (initialConditions->getValueKey() == "Deterministic trajectory")
+  if (initialConditions->getValueDataAsEnum<int>() == 1)
   {
-    // copy the entities and reactions from simulation instance
-    OwnedArray<SimEntity> entities;
-    OwnedArray<SimReaction> reactions;
-    entities.clear();
-    reactions.clear();
-    
-    // If has not been called yet, the copy will not work properly
-    simul->affectSATIds();
-    
-    // fill entity array with copies of the ones present in the simulation instance
-    for (auto & ent : simul->entities)
-      entities.add(ent->clone().release());
-    
-    for (auto & ent : entities)
-    {
-      ent->entity = nullptr; // just make sure this copied SimEntity will not interfere with Entity object
-      ent->concent.resize(1);
-      ent->previousConcent.resize(1);
-      ent->startConcent.resize(1);
-      ent->deterministicConcent.resize(1);
-    }
-    
-    for (auto & r : simul->reactions)
-    {
-      Array<SimEntity*> reactants;
-      Array<SimEntity*> products;
-      for (auto & e : r->reactants)
-      {
-        reactants.add(entities[e->idSAT]);
-      }
-      for (auto & e : r->products)
-      {
-        products.add(entities[e->idSAT]);
-      }
-      SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
-      reactions.add(copyr);
-    }
-    
-    jassert(entities.size() == simul->entities.size());
-    jassert(reactions.size() == simul->reactions.size());
-    
-    // set first point of qcurve = qF (unstable state)
-    g_qcurve.add(qF);
-    
-    // set initial concentration of entities to be very close from qF in the direction of qI
-    Curve sl = {qI, qF};
-    double L = curveLength(sl);
-    jassert(L>0.);
-    for (int i=0; i<qI.size(); i++)
-    {
-      double ui = qF.getUnchecked(i) + 0.01 * ( qI.getUnchecked(i)-qF.getUnchecked(i) ) / L;
-      entities[i]->concent.setUnchecked(0, ui);
-      //entities[i]->startConcent.setUnchecked(0, ui);
-    }
-    
-    
-    // deterministic dynamics of the system until a stationnary state is reached
-    double distance = 1000.;
-    double precision = 1e-5;
-    double timeout = (double) simul->dt->floatValue() * 50000;
-    double t = 0.;
-    int count = 0;
-    bool delay = true; // require the deterministic search to run a minimum amount of time
-    // otherwise, too close from an unstable steady state, variation might be too small
-    while (distance>precision || delay)
-    {
-      count++;
-      t += (double) simul->dt->floatValue();
-      if (t>100.) // free the boolean delay
-        delay = false;
-      if (t>timeout)
-        break;
-      // deterministic traj
-      kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
-      kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
-      
-      // update concentration values of entities
-      for (auto & ent : entities)
-      {
-        ent->refresh();
-      }
-      
-      // add new value to global qcurve
-      StateVec qi;
-      for (int k=0; k<entities.size(); k++)
-        qi.add(entities[k]->concent.getUnchecked(0));
-      g_qcurve.add(qi);
-      
-      // calculate variation in last dt
-      distance = 0.;
-      for (auto & ent : entities)
-      {
-        double deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
-        distance += deltaC*deltaC;
-      }
-      distance = sqrt(distance);
-    } // end while
-    
-    // find in which steady state the system ended
-    int reachedSST = -1;
-    double dmin = 10000.;
-    count = 0;
-    for (auto & sst : simul->steadyStatesList->arraySteadyStates)
-    {
-      double d = 0.;
-      for (auto & p : sst.state)
-      {
-        int entID = p.first->idSAT;
-        SimEntity * se = entities.getUnchecked(entID);
-        double dc = se->concent.getUnchecked(0) - p.second;
-        d += dc*dc;
-      }
-      d = sqrt(d);
-  
-      if (d<dmin)
-      {
-        dmin = d;
-        reachedSST = count;
-      }
-      count++;
-    }
-    
-    if (reachedSST != sstI)
-    {
-      LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
-      throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
-    }
-    
-    // set last point of qcurve = qI
-    g_qcurve.add(qI);
-
-    // reverse the direction of concentration curve
-    std::reverse(g_qcurve.begin(), g_qcurve.end());
-    
-    // resample qcurve
-    resampleInSpaceUniform(g_qcurve, nPoints);
+    g_qcurve = deterministicInitialTrajectory(qI, qF, sstI);
   }
-  else // use straightline
+  else if (initialConditions->getValueDataAsEnum<int>() == 0) // use straightline
   {
-    for (int point=0; point<nPoints; point++)
-    {
-      StateVec vec;
-      double fpoint = (double) point;
-      for (int k=0; k<qI.size(); k++)
-      {
-        double qk = qF.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qI.getUnchecked(k) - qF.getUnchecked(k));
-        vec.add(qk);
-      }
-      g_qcurve.add(vec);
-    }
+    g_qcurve = straightLineInitialTrajectory(qI, qF);
+  }
+  else if (initialConditions->getValueDataAsEnum<int>() == 2)
+  {
+    g_qcurve = guessInitialTrajectory(qI, qF, sstI, sstF);
   }
   
   // init sample rate
