@@ -8,6 +8,8 @@
 
 
 
+
+
 juce::dsp::Matrix<double> calculateLiftingJacobian_brutforce(EncapsVarForGSL& ev, StateVec p, double mu, const long int dim)
 {
   juce::dsp::Matrix<double> jaco(dim, dim);
@@ -1249,6 +1251,7 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
 NLSresults NEPWorker::findOptimalMomentumAndTime()
 {
   double dt = 1.; // optimal time assigned between each q(i) and q(i+1)
+  double mu = 1.; // optimal time assigned between each q(i) and q(i+1)
   StateVec pstar; // optimal momentum assigned between each q(i) and q(i+1)
   pstar.insertMultiple(0, 0., crn.entities.size());
   
@@ -1313,7 +1316,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     }
     // dt
     double last = gsl_vector_get(s->x, n_local-1);
-    double mu = exp(last);
+    mu = exp(last);
     dt = ev.dq_norm2 / mu;
     if (isnan(dt) || isinf(dt) || dt==0.)
       gslStatus = -1;
@@ -1389,7 +1392,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       pstar.add(gsl_vector_get(s_p->x, m) * ev.pnorm.getUnchecked(m));
     }
     // dt
-    double mu = exp(s_mu->root);
+    mu = exp(s_mu->root);
     double dt = ev.dq_norm2 / mu;
     jassert(!isnan(dt) && !isinf(dt));
     if (isnan(dt) || isinf(dt) || dt==0.)
@@ -1481,7 +1484,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       pstar.add(gsl_vector_get(s_p->x, m)); //* ev.pnorm.getUnchecked(m));
     }
     // deduce dt from mu
-    double mu = exp(s_mu->root);
+    mu = exp(s_mu->root);
     dt = ev.dq_norm2 / mu;
     jassert( !isnan(dt) && !isinf(dt));
     if (isnan(dt) || isinf(dt) || dt==0.)
@@ -1503,11 +1506,170 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     gsl_root_fdfsolver_free(s_mu);
     gsl_vector_free(p);
   }
+  else if (nlsolverType == 3)
+  {
+
+    // proble to solve
+    //Ipopt::SmartPtr<IPOPTProblem> problem = new IPOPTProblem(ev, idx, useChangeOfVariable);
+    //Ipopt::SmartPtr<HamiltonProblem_falseMin> problem = new HamiltonProblem_falseMin(ev, idx);
+    Ipopt::SmartPtr<HamiltonProblem_3> problem = new HamiltonProblem_3(ev, idx);
+
+
+    Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
+
+    if (idx == 13 && ev.maxPrintingAllowed)
+      app->Options()->SetIntegerValue("print_level", 0);
+    else
+      app->Options()->SetIntegerValue("print_level", 0);
+    app->Options()->SetStringValue("output_file", "ipopt.out");
+    
+
+    long double tol4ipopt = tolerance*tolerance * (long double) ev.n;
+
+    app->Options()->SetNumericValue("tol", tolerance);
+    app->Options()->SetNumericValue("constr_viol_tol", tolerance);
+    app->Options()->SetNumericValue("acceptable_constr_viol_tol", 1000.*tolerance);
+
+    app->Options()->SetStringValue("mu_strategy", "adaptive");
+
+    std::string output_file_name = "ipopt_" + std::to_string(ev.iteration) + ".out";
+
+    app->Options()->SetStringValue("output_file", output_file_name.c_str());
+    // The following overwrites the default name (ipopt.opt) of the options file
+    // app->Options()->SetStringValue("option_file_name", "hs071.opt");
+    app->Options()->SetStringValue("hessian_approximation", "exact");
+    app->Options()->SetStringValue("linear_solver", "mumps");
+    app->Options()->SetIntegerValue("max_iter", 500);
+    //app->Options()->SetStringValue("derivative_test","first-order");
+    //app->Options()->SetIntegerValue("maxiter",10);
+
+    // Initialize the IpoptApplication and process the options
+    ApplicationReturnStatus status;
+    status = app->Initialize();
+    if( status != Solve_Succeeded)
+    {
+      std::cout << std::endl << std::endl << "*** Error during initialization!" << std::endl;
+      //return (int) status;
+      
+    }
+ 
+    // Ask Ipopt to solve the problem
+    status = app->OptimizeTNLP(problem);
+
+    // retrieve results
+    pstar = problem->getPstar();
+    //double mu = std::exp(problem->getS());
+    mu = problem->getMu();
+    jassert(mu > 0.);
+    if (mu > 0.)
+      dt = ev.dq_norm2 / mu;
+    else
+      dt = 1.;
+
+    // residuals
+    // H(p,q) = 0
+    //residuals_H = std::abs(ev.solver->evalHamiltonian(ev.q, pstar));
+    residuals_H = problem->getResidualH();
+    residuals_p = problem->getResidualP();
+    // dH/dp = mu • v
+    StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, pstar);
+
+
+    juce::dsp::Matrix<double> hessian = ev.solver->evalHamiltonianHessianWithP(ev.q, pstar);
+    Eigen::MatrixXd jmp_hessian(hessian.getNumRows(), hessian.getNumColumns());
+    Eigen::MatrixXd kkt(hessian.getNumRows()+1, hessian.getNumColumns()+1);
+
+    // fill hessian d2H/dp2 and diagonalize
+    for (int i=0; i<jmp_hessian.rows(); i++)
+    {
+      for (int j=0; j<jmp_hessian.cols(); j++)      
+      {
+        jmp_hessian(i, j) = hessian(i, j);
+      }
+    }
+     //init eigen solver objects for current jacobi matrix
+    Eigen::EigenSolver<Eigen::MatrixXd> es(jmp_hessian);
+    if (es.info() == Eigen::Success) // if diagonalization succeeded
+    {
+    //retrieve eigenvalues :
+  // cout << es.eigenvalues() << endl;
+  // cout << es.eigenvectors() << endl;
+  //   // retrieve eigenvalues if diagonalized
+    }
+
+    // fill kkt  and diagonalize
+    int kkt_dim = kkt.rows();
+    for (int i=0; i<kkt.rows(); i++)
+    {
+      for (int j=0; j<kkt.cols(); j++)      
+      {
+        if (i<kkt_dim-1 && j<kkt_dim-1)
+          kkt(i, j) = hessian(i, j);
+        else if (i==kkt_dim-1 & j<kkt_dim-1)
+          kkt(i, j) = dHdp.getUnchecked(j);
+        else if (i<kkt_dim-1 && j==kkt_dim-1)
+          kkt(i, j) = dHdp.getUnchecked(i);
+        else
+          kkt(i,j) = 0.;
+      }
+    }
+     //init eigen solver objects for current jacobi matrix
+    Eigen::EigenSolver<Eigen::MatrixXd> kkt_es(kkt);
+    if (es.info() == Eigen::Success) // if diagonalization succeeded
+    {
+    //retrieve eigenvalues :
+  // cout << es.eigenvalues() << endl;
+  // cout << es.eigenvectors() << endl;
+  //   // retrieve eigenvalues if diagonalized
+    }
+
+    gslStatus = status;
+
+    StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
+    
+    if (idx == 13 && maxPrintingAllowed)
+    {
+      cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
+      cout << "lambda = " << 1./mu << endl;
+      cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
+      //cout << "dH/dp_end = ";
+      //for (auto & el : dHdp)
+      //  cout << el << " ";      
+      //cout << endl;
+      //cout << "d2h/dp2_end_eigenval = \n" <<  es.eigenvalues() << endl;
+      //cout << "KKT_eigenval = \n" <<  kkt_es.eigenvalues() << endl;
+      double min_eigenval_hess = 1e6;
+      double min_eigenval_kkt = 1e6;
+      for (auto & ev : es.eigenvalues())
+      {
+        StateVec sv = {ev.real(), ev.imag()};
+        double norm = norm2(sv);
+        if (norm < min_eigenval_hess)
+          min_eigenval_hess = norm;
+      }
+      cout << "sigma(d2H/dp2) = " << min_eigenval_hess << endl;
+      for (auto & ev : kkt_es.eigenvalues())
+      {
+        StateVec sv = {ev.real(), ev.imag()};
+        double norm = norm2(sv);
+        if (norm < min_eigenval_kkt)
+          min_eigenval_kkt = norm;
+      }
+      cout << "sigma(kkt) = " << min_eigenval_kkt << endl;
+      cout << endl;
+
+    }
+    
+
+  
+  }
   else
   {
     LOGWARNING("Non-linear solver to use not properly selected.");
     gslStatus = -2;
   }
+
+
   
   // Handle case where residuals are above tolerance :
   // - renormalization & rescaling
@@ -1521,6 +1683,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   // returning results of the
   NLSresults output;
   output.dt = dt;
+  output.mu = mu;
   output.pstar = pstar;
   output.gslStatus = gslStatus;
   output.collinearTest = convergenceSanityCheck;

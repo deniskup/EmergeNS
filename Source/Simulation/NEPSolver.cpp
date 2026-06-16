@@ -8,8 +8,24 @@
 
 
 
-
-
+double nep_power(double x, int pow)
+{
+  if (x == 0.)
+    return 1.;
+  jassert(x > 0.);
+  double result = 1.;
+  if (pow > 0)
+  {
+    for (int i=0; i<pow; i++)
+      result *= x;
+  }
+  else if (pow < 0)
+  {
+    for (int i=0; i<std::abs(pow); i++)
+      result /= x;
+  }
+  return result;
+}
 
  
 
@@ -17,9 +33,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-NEPSolver::NEPSolver()
-{
-}
+//NEPSolver::NEPSolver()
+//{
+//}
 
 NEPSolver::~NEPSolver()
 {
@@ -28,52 +44,92 @@ NEPSolver::~NEPSolver()
 }
 
 
-double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
+double NEPSolver::evalHamiltonian(const StateVec q, const StateVec pu, bool useChangeOfVariable)
 {
   //cout << "--- hamiltonian calculation --- " << endl;
   double H = 0.;
     
-  jassert(p.size() == q.size());
-  if (p.size() != q.size())
+  jassert(pu.size() == q.size());
+  if (pu.size() != q.size())
+  {
+    cout << pu.getUnchecked(1) << endl;
+    cout << "pu, q sizes : " << pu.size() << " " << q.size() << endl; 
     return H;
+  }
   
   juce::Array<double> vecH;
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
     //cout << reaction->name << endl;
     // forward reaction
-    double forward = reaction->assocRate;
-    double sp1 = 0.;
-    double pow1 = 1.;
-    for (auto & ent : reaction->reactants)
+
+
+    if (useChangeOfVariable)
     {
-      sp1 -= p.getUnchecked(ent->idSAT);
-      pow1 *= q.getUnchecked(ent->idSAT);
+      double qfac_forward = 1.;
+      double ufac_forward = 1.;
+      double qfac_backward = 1.;
+      double ufac_backward = 1.;
+      for (auto & ent : reaction->reactants)
+      {
+        // forward reaction
+        qfac_forward *= q.getUnchecked(ent->idSAT);
+        jassert(pu.getUnchecked(ent->idSAT) > 0.);
+        ufac_forward /= pu.getUnchecked(ent->idSAT);
+        // backward reaction
+        ufac_backward *= pu.getUnchecked(ent->idSAT);
+      }
+      for (auto & ent : reaction->products)
+      {
+        // forward reaction
+        ufac_forward *= pu.getUnchecked(ent->idSAT);
+        // backward reaction
+        qfac_backward *= q.getUnchecked(ent->idSAT);
+        jassert(pu.getUnchecked(ent->idSAT) > 0.);
+        ufac_backward /= pu.getUnchecked(ent->idSAT);
+      }
+      H += (ufac_forward - 1.) * qfac_forward * reaction->assocRate;
+      H += (ufac_backward - 1.) * qfac_backward * reaction->dissocRate;
+
     }
-    for (auto & ent : reaction->products)
-      sp1 += p.getUnchecked(ent->idSAT);
-    forward *= (exp(sp1) -1.) * pow1;
-    H += forward;
+    else
+    {
+      double forward = reaction->assocRate;
+      double sp1 = 0.;
+      double pow1 = 1.;
+      for (auto & ent : reaction->reactants)
+      {
+        sp1 -= pu.getUnchecked(ent->idSAT);
+        pow1 *= q.getUnchecked(ent->idSAT);
+      }
+      for (auto & ent : reaction->products)
+        sp1 += pu.getUnchecked(ent->idSAT);
+      forward *= (exp(sp1) -1.) * pow1;
+      H += forward;
     
     //cout << "spforward = " << sp1 << endl;
     //cout << "q^nu forward = " << pow1 << endl;
     //cout << "Hforward = " << forward << endl;
       
-    // backward contribution
-    double backward = reaction->dissocRate;
-    double sp2 = 0.;
-    double pow2 = 1.;
-    for (auto & ent : reaction->reactants)
-      sp2 += p.getUnchecked(ent->idSAT);
-    for (auto & ent : reaction->products)
-    {
-      sp2 -= p.getUnchecked(ent->idSAT);
-      pow2 *= q.getUnchecked(ent->idSAT);
+      // backward contribution
+      double backward = reaction->dissocRate;
+      double sp2 = 0.;
+      double pow2 = 1.;
+      for (auto & ent : reaction->reactants)
+        sp2 += pu.getUnchecked(ent->idSAT);
+      for (auto & ent : reaction->products)
+      {
+        sp2 -= pu.getUnchecked(ent->idSAT);
+        pow2 *= q.getUnchecked(ent->idSAT);
+      }
+      backward *= (exp(sp2) - 1.) * pow2;
+      H += backward;
+
+    vecH.add(H);
     }
-    backward *= (exp(sp2) - 1.) * pow2;
-    H += backward;
+    
     
     //cout << "spbackward = " << sp2 << endl;
     //cout << "q^nu backward = " << pow2 << endl;
@@ -81,19 +137,30 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
     
     //cout << "current H = " << H << endl;
     
-    vecH.add(H);
-    
   } // end loop over reactions
+
   
   // loop over creation/destruction reactions,
   // formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
-    double creat = ent->creationRate * ( exp(p.getUnchecked(ent->idSAT)) - 1. );
-    H += creat;
+    if (useChangeOfVariable)
+    {
+      double creat = ent->creationRate * ( pu.getUnchecked(ent->idSAT) - 1. );
+      H += creat;
     
-    double dest = ent->destructionRate * ( exp(-1.*p.getUnchecked(ent->idSAT)) - 1. ) * q.getUnchecked(ent->idSAT);
-    H += dest;
+      jassert(pu.getUnchecked(ent->idSAT) > 0.);
+      double dest = ent->destructionRate * ( 1./pu.getUnchecked(ent->idSAT) - 1. ) * q.getUnchecked(ent->idSAT);
+      H += dest;
+    }
+    else
+    {
+      double creat = ent->creationRate * ( exp(pu.getUnchecked(ent->idSAT)) - 1. );
+      H += creat;
+    
+      double dest = ent->destructionRate * ( exp(-1.*pu.getUnchecked(ent->idSAT)) - 1. ) * q.getUnchecked(ent->idSAT);
+      H += dest;
+    }
   }
   
   
@@ -106,7 +173,7 @@ double NEPSolver::evalHamiltonian(const StateVec q, const StateVec p)
   cout << "Htot = " << H << endl;
   */
   
-  return crn.timescale_factor * H;
+  return crn->timescale_factor * H;
 }
 
 
@@ -126,7 +193,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   cout << endl;
   */
   // init output and intermediate vectors
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec gradpH;
   gradpH.insertMultiple(0, 0., dim);
   
@@ -140,7 +207,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -226,7 +293,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
@@ -246,18 +313,558 @@ StateVec NEPSolver::evalHamiltonianGradientWithP(const StateVec q, const StateVe
   
   
   for (int m=0; m<gradpH.size(); m++)
-    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*crn.timescale_factor);
+    gradpH.setUnchecked(m, gradpH.getUnchecked(m)*crn->timescale_factor);
   
   return gradpH;
 }
 
 
 
+StateVec NEPSolver::evalUtimesHamiltonianGradientWithU(const StateVec q, const StateVec u)
+{
+  
+  //cout << "--- evalUtimesHamiltonianGradientWithU() ---" << endl;
+
+  /*
+  cout << "q = ";
+  for (auto & qm : q)
+    cout << qm << " ";
+  cout << endl;
+  cout << "u = ";
+  for (auto & um : u)
+    cout << um << " ";
+  cout << endl;
+  */
+  
+  // output gradient vector
+  int dim = crn->entities.size();
+  StateVec graduH;
+  graduH.insertMultiple(0, 0., dim);
+  
+  jassert(u.size() == dim && q.size() == dim);
+  if (u.size() != q.size())
+    return graduH;
+  
+
+  // loop over reactions
+  for (auto & reaction : crn->reactions)
+  {
+    if (!reaction->enabled)
+      continue;
+    //cout << reaction->name << endl;
+
+    double forward = reaction->assocRate;
+    double backward = reaction->dissocRate;
+    juce::Array<int> forward_prevec;
+    juce::Array<int> backward_prevec;
+    forward_prevec.insertMultiple(0, 0, dim);
+    backward_prevec.insertMultiple(0, 0, dim);
+    // loop over reaction reactants
+    for (auto & reactant: reaction->reactants)
+    {
+      // forward reaction
+      forward *= q.getUnchecked(reactant->idSAT);
+      jassert(u.getUnchecked(reactant->idSAT) > 0.);
+      forward /= u.getUnchecked(reactant->idSAT);
+      forward_prevec.setUnchecked(reactant->idSAT, forward_prevec.getUnchecked(reactant->idSAT) - 1);
+      // backwward reaction
+      backward *= u.getUnchecked(reactant->idSAT);
+      backward_prevec.setUnchecked(reactant->idSAT, backward_prevec.getUnchecked(reactant->idSAT) + 1);
+    }
+    for (auto & reactant: reaction->products)
+    {
+      // foward reaction
+      forward *= u.getUnchecked(reactant->idSAT);
+      forward_prevec.setUnchecked(reactant->idSAT, forward_prevec.getUnchecked(reactant->idSAT) + 1);
+      // backward reaction
+      backward *= q.getUnchecked(reactant->idSAT);
+      jassert(u.getUnchecked(reactant->idSAT) > 0.);
+      backward /= u.getUnchecked(reactant->idSAT);
+      backward_prevec.setUnchecked(reactant->idSAT, backward_prevec.getUnchecked(reactant->idSAT) - 1);
+    }
+    
+
+    for (int k=0; k<graduH.size(); k++)
+    {
+      // forward reaction contribution
+      int yk_forward = forward_prevec.getUnchecked(k);
+      if (yk_forward != 0)
+      {
+        double comp = (double) yk_forward * forward;
+        graduH.setUnchecked(k, graduH.getUnchecked(k) + comp);
+        //graduH.setUnchecked(k, graduH.getUnchecked(k) + prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward );
+      }
+      // backward reaction contribution
+      int yk_backward = backward_prevec.getUnchecked(k);
+      if (yk_backward != 0)
+      {
+        double comp = (double) yk_backward * backward;
+        graduH.setUnchecked(k, graduH.getUnchecked(k) + comp);
+        //graduH.setUnchecked(k, graduH.getUnchecked(k) + prevec1.getUnchecked(k)*forward + prevec2.getUnchecked(k)*backward );
+      }
+    }
+    
+  } // end reaction loop
+/*
+  cout << "u x dH'/du after reactions = ";
+  for (auto & ele : graduH)
+    cout << ele << " ";
+  cout << endl;
+  */
+  
+  // creation / destruction reactions, formally treated as 0 <--> entity
+  for (auto & ent : crn->entities)
+  {
+    //cout << "0 <--> " << ent->name << endl;
+    if (ent->creationRate > 0.)
+    {
+      double forward = ent->creationRate * u.getUnchecked(ent->idSAT);
+      graduH.setUnchecked(ent->idSAT, graduH.getUnchecked(ent->idSAT) + forward);
+    }
+
+    // destruction flow prop to qent and 1/uent
+    jassert(u.getUnchecked(ent->idSAT) > 0.);
+    double backward = ent->destructionRate * q.getUnchecked(ent->idSAT) / u.getUnchecked(ent->idSAT);
+    graduH.setUnchecked(ent->idSAT, graduH.getUnchecked(ent->idSAT) - backward);
+    //cout << "kd = " << ent->destructionRate << endl;
+    //cout << "exp factor = " << exp(-1.*p.getUnchecked(ent->idSAT)) - 1. << endl;
+    //cout << "grad coord " << ent->idSAT << " -= " << destfact << endl;
+    /*
+    cout << "dH/dq current = ";
+    for (auto & g : gradqH)
+      cout << g << " ";
+    cout << endl;
+     */
+  }
+/*
+  cout << "u x dH'/du after all = ";
+  for (auto & ele : graduH)
+    cout << ele << " ";
+  cout << endl;
+  */
+  
+  /*
+  cout << "total gradient = " ;
+  for (auto & g : gradqH)
+    cout << g << " " ;
+  cout << endl << endl;
+  */
+  
+  for (int m=0; m<graduH.size(); m++)
+    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn->timescale_factor);
+
+  return graduH;
+  
+}
+
+
+
+
+StateVec NEPSolver::evalHamiltonianGradientWithU(const StateVec q, const StateVec u)
+{
+  
+  //cout << "--- evalHamiltonianGradientWithU() ---" << endl;
+
+  /*
+  cout << "q = ";
+  for (auto & qm : q)
+    cout << qm << " ";
+  cout << endl;
+  cout << "u = ";
+  for (auto & um : u)
+    cout << um << " ";
+  cout << endl;
+  */
+  
+  // output gradient vector
+  //StateVec gradqH(q.size(), 0.);
+  int dim = crn->entities.size();
+  StateVec graduH;
+  graduH.insertMultiple(0, 0., dim);
+  
+  jassert(u.size() == dim && q.size() == dim);
+  if (u.size() != q.size())
+    return graduH;
+  
+  /*
+  cout << "dH/dq init = ";
+  for (auto & g : gradqH)
+    cout << g << " ";
+  cout << endl;
+  */
+  // loop over reactions
+  for (auto & reaction : crn->reactions)
+  {
+    if (!reaction->enabled)
+      continue;
+    //cout << reaction->name << endl;
+    
+    // stoichiometric vector
+    std::map<int, int> ytotal; // <int, int> --> <idSAT, power>
+    for (auto & reactant: reaction->reactants)
+    {
+      ytotal[reactant->idSAT]--;
+    }
+    for (auto & product: reaction->products)
+    {
+      ytotal[product->idSAT]++;
+    }
+    /*
+    cout << "-- stoec vectors --" << endl;
+    cout << "yreactants = ";
+    for (auto & y : yreactants)
+      cout << y << " ";
+    cout << endl;
+    cout << "yproducts = ";
+    for (auto & y : yproducts)
+      cout << y << " ";
+    cout << endl;
+    cout << "forward MAK polynom : ";
+    for (auto & [key, val] : makforward)
+      cout << " q_" << key << "^" << val;
+    cout << endl;
+    cout << "backward MAK polynom : ";
+    for (auto & [key, val] : makbackward)
+      cout << " q_" << key << "^" << val;
+    cout << endl;
+    */
+    
+    // forward prefactor
+    //cout << "-- forward reaction grad calc. --" << endl;
+    double forward_prefactor = reaction->assocRate;
+    // multiply by kin mass action
+    for (auto & reactant : reaction->reactants)
+      forward_prefactor *= q.getUnchecked(reactant->idSAT);
+
+    // backward prefactor
+    double backward_prefactor = reaction->dissocRate;
+    // multiply by kin mass action
+    for (auto & product : reaction->products)
+      backward_prefactor *= q.getUnchecked(product->idSAT);
+
+
+    for (auto & [id, exponent] : ytotal) 
+    {
+      //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
+      double monom_forward = exponent * nep_power(u.getUnchecked(id), exponent-1.); // derivative of q_id
+      double monom_backward = (-1. * exponent) * nep_power(u.getUnchecked(id), (-1.*exponent)-1.); // derivative of q_id
+      for (auto & [id2, exponent2] : ytotal) // multiply by other u_j different from u_id
+      {
+        if (id2==id)
+          continue;
+        //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
+        monom_forward *= nep_power(u.getUnchecked(id2), exponent2);
+        monom_backward *= nep_power(u.getUnchecked(id2), -1*exponent2);
+      }
+      //cout << endl;
+      //cout << "gradH_" << id << " += " << forward_prefactor*monom << endl;
+      graduH.setUnchecked(id, graduH.getUnchecked(id) + forward_prefactor*monom_forward + backward_prefactor*monom_backward);
+/*
+      cout << "dH/dq current = ";
+      for (auto & g : gradqH)
+        cout << g << " ";
+      cout << endl;
+      */
+    }
+  } // end reaction loop
+  
+  /*cout << "u x dH'/du after reactions = ";
+  for (int i=0; i<graduH.size(); i++)
+  {
+    cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
+  }
+  cout << endl;
+  */
+  // creation / destruction reactions, formally treated as 0 <--> entity
+  for (auto & ent : crn->entities)
+  {
+    //cout << "0 <--> " << ent->name << endl;
+    // creation 
+    if (ent->creationRate > 0.)
+    {
+      double creatfact = ent->creationRate;
+      graduH.setUnchecked(ent->idSAT, graduH.getUnchecked(ent->idSAT) + creatfact);
+    }
+    
+    // destruction flow prop to qent
+    //cout << "backward" << endl;
+    jassert(u.getUnchecked(ent->idSAT) > 0.);
+    double destfact = ent->destructionRate * 1. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)) * q.getUnchecked(ent->idSAT);
+    graduH.setUnchecked(ent->idSAT, graduH.getUnchecked(ent->idSAT) - destfact);
+    //cout << "kd = " << ent->destructionRate << endl;
+    //cout << "exp factor = " << exp(-1.*p.getUnchecked(ent->idSAT)) - 1. << endl;
+    //cout << "grad coord " << ent->idSAT << " -= " << destfact << endl;
+    /*
+    cout << "dH/dq current = ";
+    for (auto & g : gradqH)
+      cout << g << " ";
+    cout << endl;
+     */
+  }
+
+  /*cout << "u x dH'/du after all = ";
+  for (int i=0; i<graduH.size(); i++)
+  {
+    cout << u.getUnchecked(i) * graduH.getUnchecked(i) << " ";
+  }
+  cout << endl;*/
+  
+  /*
+  cout << "total gradient = " ;
+  for (auto & g : gradqH)
+    cout << g << " " ;
+  cout << endl << endl;
+  */
+  
+  for (int m=0; m<graduH.size(); m++)
+    graduH.setUnchecked(m, graduH.getUnchecked(m) * crn->timescale_factor);
+
+  return graduH;
+  
+}
+
+
+
+
+
+
+juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithU(const StateVec q, const StateVec u)
+{
+  
+  //cout << "--- evalHamiltonianHessianWithU() ---" << endl;
+
+  /*
+  cout << "q = ";
+  for (auto & qm : q)
+    cout << qm << " ";
+  cout << endl;
+  cout << "u = ";
+  for (auto & um : u)
+    cout << um << " ";
+  cout << endl;
+  */
+  
+   // init hessian as null matrix
+  int dim = crn->entities.size();
+  juce::dsp::Matrix<double> nullmatrix(dim, dim);
+  nullmatrix.clear(); // Fills the contents of the matrix with zeroes.
+  juce::dsp::Matrix<double> hess(nullmatrix);
+  
+  StateVec dHdu = evalHamiltonianGradientWithU(q, u);
+  StateVec uxdHdu = evalUtimesHamiltonianGradientWithU(q, u);
+
+  //cout << "u x dH'/du [1] = ";
+  //for (auto& el : uxdHdu)
+  //  cout << el << " ";
+  //cout << endl << endl;
+
+  
+  jassert(u.size() == q.size());
+  if (u.size() != q.size())
+    return nullmatrix;
+  
+  /*
+  cout << "dH/dq init = ";
+  for (auto & g : gradqH)
+    cout << g << " ";
+  cout << endl;
+  */
+  // loop over reactions
+  for (auto & reaction : crn->reactions)
+  {
+    if (!reaction->enabled)
+      continue;
+    //cout << reaction->name << endl;
+    //cout << "k+ = " << reaction->assocRate << endl;
+    //cout << "k- = " << reaction->dissocRate << endl << endl;
+    
+     // stoichiometric vector
+    std::map<int, int> ytotal; // <int, int> --> <idSAT, power>
+    for (auto & reactant: reaction->reactants)
+    {
+      ytotal[reactant->idSAT]--;
+    }
+    for (auto & product: reaction->products)
+    {
+      ytotal[product->idSAT]++;
+    }
+   
+
+    for (auto & [i, powi] : ytotal) 
+    {
+      for (auto & [j, powj] : ytotal)
+      {
+        if (i==j)
+        {
+          // forward reaction
+          if (powi != 1 && powi != 0) // contribution to hessian for forward reaction
+          {
+            double forward = reaction->assocRate * (double) powi * (double) (powi-1.) * nep_power(u.getUnchecked(i), powi-2.);
+            for (auto& reactant : reaction->reactants)
+              forward *= q.getUnchecked(reactant->idSAT);
+            for (auto & [k, powk] : ytotal)
+            {
+              if (k==i)
+                continue;
+              forward *= nep_power(u.getUnchecked(k), powk);
+            }
+            hess(i, i) += forward;
+            //cout << "(" << i << "," << j << ") hess_forward = " << forward << endl;
+            //cout << "(" << i << "," << j << ") forward = " << forward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
+          }
+          // backward reaction
+          if (powi != -1 && powi != 0) // contribution to hessian for backward reaction
+          {
+            double minuspowi = -1. * powi;
+            double backward = reaction->dissocRate * minuspowi * (minuspowi-1.) * nep_power(u.getUnchecked(i), (int) minuspowi-2);
+            for (auto& product : reaction->products)
+              backward *= q.getUnchecked(product->idSAT);
+            for (auto & [k, powk] : ytotal)
+            {
+              if (k==i)
+                continue;
+              int negpowk = -1 * powk;
+              backward *= nep_power(u.getUnchecked(k), negpowk);
+            }
+            hess(i, i) += backward;
+            //cout << "(" << i << "," << j << ") hess_backward = " << backward << endl;
+            //cout << "(" << i << "," << j << ") backward = " << backward*u.getUnchecked(i)*u.getUnchecked(j) + uxdHdu.getUnchecked(i) << endl;
+          }
+
+        }
+        else // i != j
+        {
+          // forward reaction
+          if (powi != 0 && powj != 0) // contribution to hessian for forward reaction
+          {
+            double forward = reaction->assocRate * (double) powi * (double) powj * nep_power(u.getUnchecked(i), powi-1) * nep_power(u.getUnchecked(j), powj-1);
+            for (auto& reactant : reaction->reactants)
+              forward *= q.getUnchecked(reactant->idSAT);
+            for (auto & [k, powk] : ytotal)
+            {
+              if (k==i || k==j)
+                continue;
+              forward *= nep_power(u.getUnchecked(k), powk);
+            }
+            hess(i, j) += forward;
+          }
+          // backward reaction
+          if (powi != 0 && powj != 0) // contribution to hessian for backward reaction
+          {
+            int negpowi = -1 * powi;
+            int negpowj = -1 * powj;
+            double backward = reaction->dissocRate * (double) negpowi * (double) negpowj * nep_power(u.getUnchecked(i), negpowi-1) * nep_power(u.getUnchecked(j), negpowj-1);
+            for (auto& product : reaction->products)
+              backward *= q.getUnchecked(product->idSAT);
+            for (auto & [k, powk] : ytotal)
+            {
+              if (k==i || k==j)
+                continue;
+              int negpowk = -1 * powk;
+              backward *= nep_power(u.getUnchecked(k), negpowk);
+            }
+            hess(i, j) += backward;
+          }
+        }
+      } 
+    }
+  } // end reaction loop
+
+
+
+/*cout << "hess_u_full = after reactions " << endl;
+for (int i=0; i<hess.getNumRows(); i++)
+{
+  for (int j=0; j<hess.getNumColumns(); j++)  
+  {
+    double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? uxdHdu.getUnchecked(i) : 0.);
+    //double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+
+cout << "hess_u = after reactions " << endl;
+for (int i=0; i<hess.getNumRows(); i++)
+{
+  for (int j=0; j<hess.getNumColumns(); j++)  
+  {
+    double ij = hess(i, j);
+    //double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+*/
+  
+  
+  // creation / destruction reactions, formally treated as 0 <--> entity
+  for (auto & ent : crn->entities)
+  {
+    //cout << "0 <--> " << ent->name << endl;
+    // forward contribution is null since creation term is linear in ui
+    
+    // destruction term is in 1/ui, hence only contribution to hessian is prop to 2/ui^3
+    //cout << "backward" << endl;
+    jassert(u.getUnchecked(ent->idSAT) > 0.);
+    double destfact = ent->destructionRate;
+    destfact *= 2. / (u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)*u.getUnchecked(ent->idSAT)); 
+    destfact *= q.getUnchecked(ent->idSAT);
+    hess(ent->idSAT, ent->idSAT) += destfact;
+    //cout << "kd = " << ent->destructionRate << endl;
+    //cout << "exp factor = " << exp(-1.*p.getUnchecked(ent->idSAT)) - 1. << endl;
+    //cout << "grad coord " << ent->idSAT << " -= " << destfact << endl;
+    /*
+    cout << "dH/dq current = ";
+    for (auto & g : gradqH)
+      cout << g << " ";
+    cout << endl;
+     */
+  }
+  
+  /*
+  cout << "total gradient = " ;
+  for (auto & g : gradqH)
+    cout << g << " " ;
+  cout << endl << endl;
+  */
+
+  /*cout << "hess_u = after all " << endl;
+for (int i=0; i<hess.getNumRows(); i++)
+{
+  for (int j=0; j<hess.getNumColumns(); j++)  
+  {
+    double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? uxdHdu.getUnchecked(i) : 0.);
+    //double ij = hess(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+*/
+  
+  // multiply by timescale factor
+  for (int i=0; i<hess.getSize().getUnchecked(0); i++)
+  {
+    for (int j=0; j<hess.getSize().getUnchecked(0); j++)
+    {
+      hess(i, j) *= crn->timescale_factor;
+    }
+  }
+  return hess;
+  
+}
+
+
+
+
 juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec q, const StateVec p)
 {
-  /*
-    cout << "--- evalHamiltonianHessianWithP() ---" << endl;
-    cout << setprecision(8) << endl;
+  
+    //cout << "--- evalHamiltonianHessianWithP() ---" << endl;
+    /*cout << setprecision(8) << endl;
     cout << "q = ";
     for (auto & f : q)
       cout << f << " ";
@@ -269,7 +876,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     */
   
   // init hessian as null matrix
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   juce::dsp::Matrix<double> nullmatrix(dim, dim);
   nullmatrix.clear(); // Fills the contents of the matrix with zeroes.
   juce::dsp::Matrix hess(nullmatrix);
@@ -281,7 +888,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
     
   
     // loop over reactions
-    for (auto & reaction : crn.reactions)
+    for (auto & reaction : crn->reactions)
     {
       if (!reaction->enabled)
         continue;
@@ -306,6 +913,7 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       }
       forward *= exp(sp1) * pow1;
       
+
 
       /*
       cout << "(ybeta - yalpha) forward = ";
@@ -358,6 +966,12 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
         {
           double el = prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward + prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward;
           //cout << "modyfing element (" << i << "," << j << ") by " << el << endl;
+          //if (i==j)
+         // {
+          //  cout << "(" << i << "," << j << ") forward = " << prevec1.getUnchecked(i)*prevec1.getUnchecked(j)*forward << endl;
+          //  cout << "(" << i << "," << j << ") backward = " << prevec2.getUnchecked(i)*prevec2.getUnchecked(j)*backward << endl;
+          //}
+
           hess(i, j) += el;
         }
       }
@@ -368,10 +982,21 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       cout << endl;
   */
     } // end loop over reactions
-    
+
+    /*cout << "hess after reactions : " << endl;
+    for (int i=0; i<hess.getNumRows(); i++)
+    {
+      for (int j=0; j<hess.getNumColumns();  j++)
+      {
+        cout << hess(i,j) << " ";
+      }
+      cout << endl;
+    }
+    cout << endl;
+    */
     
     // creation / destruction reactions, formally treated as 0 <--> entity
-    for (auto & ent : crn.entities)
+    for (auto & ent : crn->entities)
     {
       // forward reaction = creation
       double creatfact = ent->creationRate * exp(p.getUnchecked(ent->idSAT));
@@ -389,13 +1014,25 @@ juce::dsp::Matrix<double> NEPSolver::evalHamiltonianHessianWithP(const StateVec 
       cout << endl;
       */
     }
-    
+
+    /*cout << "hess after all : " << endl;
+    for (int i=0; i<hess.getNumRows(); i++)
+    {
+      for (int j=0; j<hess.getNumColumns();  j++)
+      {
+        cout << hess(i,j) << " ";
+      }
+      cout << endl;
+    }
+    cout << endl;
+    */
+
     // multiply by timescale factor
     for (int i=0; i<hess.getSize().getUnchecked(0); i++)
     {
       for (int j=0; j<hess.getSize().getUnchecked(0); j++)
       {
-        hess(i, j) *= crn.timescale_factor;
+        hess(i, j) *= crn->timescale_factor;
       }
     }
     
@@ -424,7 +1061,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   
   // output gradient vector
   //StateVec gradqH(q.size(), 0.);
-  int dim = crn.entities.size();
+  int dim = crn->entities.size();
   StateVec gradqH;
   gradqH.insertMultiple(0, 0., dim);
   
@@ -439,7 +1076,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   cout << endl;
   */
   // loop over reactions
-  for (auto & reaction : crn.reactions)
+  for (auto & reaction : crn->reactions)
   {
     if (!reaction->enabled)
       continue;
@@ -500,13 +1137,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
     for (auto & [id, exponent] : makforward)
     {
       //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
-      double monom = exponent * pow(q.getUnchecked(id), exponent-1.); // derivative of q_id
+      double monom = exponent * nep_power(q.getUnchecked(id), exponent-1.); // derivative of q_id
       for (auto & [id2, exponent2] : makforward) // multiply by other q_j different from q_id
       {
         if (id2==id)
           continue;
         //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
-        monom *= pow(q.getUnchecked(id2), exponent2);
+        monom *= nep_power(q.getUnchecked(id2), exponent2);
       }
       //cout << endl;
       //cout << "gradH_" << id << " += " << forward_prefactor*monom << endl;
@@ -535,13 +1172,13 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
     for (auto & [id, exponent] : makbackward)
     {
       //cout << "monom = " << exponent << "*" << q.getUnchecked(id) << "^" << exponent-1;
-      double monom = exponent * pow(q.getUnchecked(id), exponent-1.);
+      double monom = exponent * nep_power(q.getUnchecked(id), exponent-1.);
       for (auto & [id2, exponent2] : makbackward)
       {
         if (id2==id)
           continue;
         //cout << " * " << q.getUnchecked(id2) << "^" << exponent2 << " * ";
-        monom *= pow(q.getUnchecked(id2), exponent2);
+        monom *= nep_power(q.getUnchecked(id2), exponent2);
       }
       //cout << endl;
       //cout << "gradH_" << id << " += " << backward_prefactor*monom << endl;
@@ -558,7 +1195,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   
   
   // creation / destruction reactions, formally treated as 0 <--> entity
-  for (auto & ent : crn.entities)
+  for (auto & ent : crn->entities)
   {
     //cout << "0 <--> " << ent->name << endl;
     // creation flow does not depend on q, so gradient is null
@@ -586,7 +1223,7 @@ StateVec NEPSolver::evalHamiltonianGradientWithQ(const StateVec q, const StateVe
   */
   
   for (int m=0; m<gradqH.size(); m++)
-    gradqH.setUnchecked(m, gradqH.getUnchecked(m) * crn.timescale_factor);
+    gradqH.setUnchecked(m, gradqH.getUnchecked(m) * crn->timescale_factor);
 
   return gradqH;
   
@@ -675,12 +1312,10 @@ juce::Array<double> NEPSolver::calculateAction(const Curve& qc, const Curve& pc,
 
 
 // using Méthod of Leapfrog / Störmer–Verlet instead of Euler Method
-void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, const bool forward, bool& shouldStop, Trajectory & traj)
+void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, StateVec& pstart, double dt_in, const bool forward, bool& shouldStop, Trajectory & traj)
 {
-  if (shouldStop)
-    return;
   
-  double thrshold = 1000.;
+  double thrshold = 100.;
   double dt = (forward ? dt_in : -1.*dt_in);
   
   // save initial q and p in case that next step should not occur
@@ -712,7 +1347,15 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, cons
   
   // update q
   for (int m=0; m<q.size(); m++)
-    q.setUnchecked(m, q.getUnchecked(m) + dt*gradpH.getUnchecked(m));
+  {
+    double newq = q.getUnchecked(m) + dt*gradpH.getUnchecked(m);
+    if (newq<0.)
+    {
+      shouldStop = true;
+      return;
+    }
+    q.setUnchecked(m, newq);
+  }
   
   // update gradients w.r.t to q
   gradqH = evalHamiltonianGradientWithQ(q, p);
@@ -727,6 +1370,23 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt_in, cons
   // update p once more
   for (int m=0; m<q.size(); m++)
     p.setUnchecked(m, p.getUnchecked(m) - 0.5*dt*gradqH.getUnchecked(m));
+
+  // sanity check on q
+  for (auto & qi : q)
+  {
+    if (qi < 0.)
+    {
+      shouldStop = true;
+      return;
+    }
+  }
+
+  // check for divergence
+  if (cartesianDistance(q, qstart)>10. || cartesianDistance(p, pstart)>10.)
+  {
+    shouldStop = true;
+    return;
+  }
   
   // add new (q ; p) point to the trajectory
   PhaseSpaceVec psv;

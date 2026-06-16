@@ -40,9 +40,11 @@ NEP::NEP() : ControllableContainer("NEP"),
   
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
   
-  nPoints_start = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
+  nPointsUI = addIntParameter("Sampling points", "Number of sampling points used for the descent", 10);
   
-  nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
+  //nPoints_max = addIntParameter("Max. sampling", "Maximum number of sampling points used by the descent", 100);
+
+  useChangeOfVariable = addBoolParameter("Use change of variable", "Change variable (p, s) --> (u, mu) with u = exp(p) and mu = exp(s) for the optimization.", false);
   
   initialConditions = addEnumParameter("Initial condition", "Choose how the optimal trajectory is initialized for the descent.");
 
@@ -63,6 +65,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   stepDescentInitVal = addFloatParameter("Initial step descent", "Descent will try proceeding with user indicated step, and will decrease it following the use of a backtracking method if this step is too large.", 1.);
   
   maxPrinting = addBoolParameter("Maximum Printing", "Will print whole descent in a DEBUG.TXT file.", false);
+
+  adaptiveStepDescent = addBoolParameter("Adaptive step", "Step descent initial guess increased for next iteration if it allowed for a valid descent iteration.", true);
     
   // set options
   updateSteadyStateList();
@@ -75,6 +79,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   solverType->addOption("GSL Brut force - NLS", 0);
   solverType->addOption("GSL Decouple t/p - NLS", 1);
   solverType->addOption("GSL Decouple t/p - Minimizer", 2);
+  solverType->addOption("IPOPT", 3);
+
 
   
   // set this class as simulation listener
@@ -87,7 +93,8 @@ NEP::NEP() : ControllableContainer("NEP"),
   d_stepDescentThreshold = convertStringToDouble(stepDescentThreshold->stringValue());
   tolerance = convertStringToDouble(toleranceUI->stringValue());
  
-  nepsolver = new NEPSolver();
+  buildReactionNetworkSnapshot();
+  nepsolver = new NEPSolver(crn);
 }
 
 
@@ -210,6 +217,11 @@ void NEP::reset()
   // reset previous calculations
   actionDescent.clear();
   trajDescent.clear();
+  smooth_pcurve_Descent.clear();
+  timeDescent.clear();
+  dAdqDescent.clear();
+  dAdqDescent_dHdq.clear();
+  dAdqDescent_dpdt.clear();
   dAdqDescent.clear();
   dAdqDescent_filt.clear();
   gslStatus_descent.clear();
@@ -219,6 +231,7 @@ void NEP::reset()
   
   g_qcurve.clear();
   g_pcurve.clear();
+  g_smooth_pcurve.clear();
   g_times.clear();
   dAdq.clear();
   dAdq_filt.clear();
@@ -227,11 +240,13 @@ void NEP::reset()
   stepDescent = stepDescentInitVal->floatValue();
   stepDescentInit_dynamic = stepDescentInitVal->floatValue();
   //cutoffFreq->setValue(0.05);
-  nPoints = nPoints_start->intValue();
+  nPoints = nPointsUI->intValue();
   //tolerance_mu = tolerance_mu_init;
   tolerance = convertStringToDouble(toleranceUI->stringValue());
   
+  cout << "buildReactionNetworkSnapshot()" << endl;
   buildReactionNetworkSnapshot();
+  cout << "setting reaction network to solver" << endl;
   nepsolver->setReactionNetwork(crn);
 }
 
@@ -270,7 +285,7 @@ void NEP::run()
     debugfile.open("./debug/DEBUG.txt", ofstream::out | ofstream::trunc);
     debugfile << "\t\t\t------ DEBUG ------" << endl;
     debugfile << "Descent parameters" << endl;
-    debugfile << "Sampling points : " << nPoints_max->intValue() << endl;
+    debugfile << "Sampling points : " << nPointsUI->intValue() << endl;
     //debugfile << "Max. sampling : " << nPoints_max->intValue() << endl;
   }
   
@@ -289,6 +304,7 @@ void NEP::run()
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
   
   // set normalisation factor in order to have all kinetic constants of order 1
+  cout << "will set time normalization factor" << endl;
   setTimeNormalizationFactor();
   LOG("Using time normalization factor : " + to_string(crn.timescale_factor));
   
@@ -299,13 +315,39 @@ void NEP::run()
   {
     count++;
     LOG("\niteration #" + to_string(count-1));
-    
+
+    LiftResults liftResults;
+    bool liftSuccess = false;
+
     if (count>1)
     {
       LOG("Using backtracking method with initial step " + to_string(stepDescentInit_dynamic));
-      stepDescent = backTrackingMethodForStepSize(g_qcurve);
+      stepDescent = backTrackingMethodForStepSize(g_qcurve, liftResults);
+      liftSuccess = (stepDescent > 0.);
       LOG("using step = " + to_string(stepDescent));
+      //stepDescent = stepDescentInitVal->floatValue();
       updateOptimalConcentrationCurve(g_qcurve, stepDescent);
+    }
+
+    // update step descent initial value if a valid step was taken
+    if (liftSuccess)
+    {
+      // if step is smaller than initial value, use current value as a future initial value
+      double compare = stepDescentInit_dynamic;
+      if (stepDescent < compare)
+      {
+        if (adaptiveStepDescent->boolValue())
+          stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, stepDescent);
+        else
+          stepDescentInit_dynamic *= 0.75;
+      }
+        
+  
+      // increase step initial value if 
+      if (stepDescent == compare && adaptiveStepDescent->boolValue())
+      {
+        stepDescentInit_dynamic *= 1.25;
+      }
     }
     
     if (maxPrinting->boolValue())
@@ -329,10 +371,14 @@ void NEP::run()
     }
     
     // lift current trajectory to full (q ; p; t) space
-    // this function updates global variables g_pcurve and times
-    LOG("lifting trajectory");
     //LiftResults liftoptres = liftCurveToTrajectoryWithNLOPT();
-    LiftResults liftoptres = liftCurveWithGSL(g_qcurve, true);
+    //LOGWARNING("Reseting lift success to false for debugging.");
+    //liftSuccess = false; // just for debugging
+    if (!liftSuccess)
+    {
+      LOG("Lift curve");
+      liftResults = liftCurveWithGSL(g_qcurve, true, count); 
+    }
     
     
     
@@ -340,9 +386,9 @@ void NEP::run()
     double successFrac = 0.;
     double d_npoints = (double) nPoints - 1.;
     jassert(d_npoints>0.);
-    for (int k=0; k<liftoptres.gslStatus.size()-1; k++)
+    for (int k=0; k<liftResults.collinearity.size()-1; k++)
     {
-     if (liftoptres.gslStatus.getUnchecked(k) == 1)
+     if (liftResults.collinearity.getUnchecked(k) == 1)
        successFrac += 1. / d_npoints;
     }
     if (isinf(successFrac) || isnan(successFrac))
@@ -351,8 +397,9 @@ void NEP::run()
     cout << "Convergence Fraction = " << successFrac << "%" << endl;
     
     // update global variable with lift results
-    g_pcurve = liftoptres.pcurve;
-    g_times = liftoptres.times;
+    g_pcurve = liftResults.pcurve;
+    g_smooth_pcurve = liftResults.smooth_pcurve;
+    g_times = liftResults.times;
     
     // keep track of trajectory update in (q ; p) space
     Trajectory newtraj;
@@ -369,14 +416,18 @@ void NEP::run()
     }
     //cout << "adding a trajectory of size : " << newtraj.size() << " = " << g_qcurve.size() << " + " << g_pcurve.size() << endl;
     trajDescent.add(newtraj);
+    smooth_pcurve_Descent.add(g_smooth_pcurve);
+
+    // keep track of times
+    timeDescent.add(g_times);
     
     // keep track of gsl convergence status
-    gslStatus_descent.add(liftoptres.gslStatus);
-    collinearityStatus_descent.add(liftoptres.collinearity);
+    gslStatus_descent.add(liftResults.gslStatus);
+    collinearityStatus_descent.add(liftResults.collinearity);
     
     // Keep track of residuals
-    residuals_H_descent.add(liftoptres.residuals_H);
-    residuals_p_descent.add(liftoptres.residuals_p);
+    residuals_H_descent.add(liftResults.residuals_H);
+    residuals_p_descent.add(liftResults.residuals_p);
     
     /*
     if (maxPrinting->boolValue())
@@ -414,8 +465,11 @@ void NEP::run()
     Array<double> newcumulaction = nepsolver->calculateAction(g_qcurve, g_pcurve, g_times);
     double newaction = newcumulaction.getLast();
     double diffAction = action - newaction;
-    LOG("action = " + to_string(newaction));
+    //LOG("action = " + to_string(newaction));
     //LOG("delta action = " + to_string(diffAction));
+    std::cout << std::scientific << std::setprecision(10) << "action = " << newaction << std::endl;
+    std::cout << "delta action = " << diffAction << endl;
+    std::cout << std::fixed << std::endl;
     
     if (isnan(newaction)|| isnan(diffAction))
     {
@@ -473,6 +527,9 @@ void NEP::run()
     
     
     // functional gradient dA / dq
+    dAdq.clear();
+    dAdq_filt.clear();
+    juce::Array<StateVec> dAdq_H, dAdq_qt;
     for (int point=0; point<nPoints; point++)
     {
       StateVec dHdqk = nepsolver->evalHamiltonianGradientWithQ(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
@@ -482,30 +539,73 @@ void NEP::run()
       {
         for (int m=0; m<dHdqk.size(); m++)
         {
-          double dpm = liftoptres.pstar.getUnchecked(point).getUnchecked(m) - liftoptres.pstar.getUnchecked(point-1.).getUnchecked(m);
-          double dtm = 0.5*(liftoptres.dt.getUnchecked(point) + liftoptres.dt.getUnchecked(point-1));
+          double dpm = liftResults.pstar.getUnchecked(point).getUnchecked(m) - liftResults.pstar.getUnchecked(point-1.).getUnchecked(m);
+          double dtm = 0.5*(liftResults.dt.getUnchecked(point) + liftResults.dt.getUnchecked(point-1));
           dpdtk.setUnchecked(m, dpm/dtm);
         }
       }
       //cout << "point " << point << endl;
       StateVec dAdqk;
+      StateVec dAdqk_H, dAdqk_qt;
       for (int m=0; m<dHdqk.size(); m++)
       {
-        dAdqk.add(-dHdqk.getUnchecked(m) - dpdtk.getUnchecked(m));
+        dAdqk.add(dHdqk.getUnchecked(m) + dpdtk.getUnchecked(m));
+        dAdqk_H.add(dHdqk.getUnchecked(m));
+        dAdqk_qt.add(dpdtk.getUnchecked(m));
         //cout << "\t" << -dHdqk.getUnchecked(m) << " " << - dpdtk.getUnchecked(m) << endl;
       }
       
       dAdq.add(dAdqk);
+      dAdq_H.add(dAdqk_H);
+      dAdq_qt.add(dAdqk_qt);
     }
-    //dAdqDescent.add(dAdq);
+    dAdqDescent.add(dAdq);
+    dAdqDescent_dHdq.add(dAdq_H);
+    dAdqDescent_dpdt.add(dAdq_qt);
     
     // filter gradient
     dAdq_filt = dAdq;
     //lowPassFiltering(dAdq_filt, false);
     //dAdqDescent_filt.add(dAdq_filt);
+    cout << "dAdq size = " << dAdq.size() << endl;
    
     if (maxPrinting->boolValue())
     {
+      debugfile << "-- dAdq_H --" << endl;
+      debugfile << "[ ";
+      for (int p=0; p<nPoints; p++)
+      {
+        debugfile << "(";
+        StateVec dAdqk = dAdq_H.getUnchecked(p);
+        int c=0;
+        for (auto & coord : dAdqk)
+        {
+          string closebracket = (p == nPoints-1 ? ") " : "), ");
+          string comma = ( c==dAdqk.size()-1 ? closebracket : "," );
+          debugfile << coord << comma;
+          c++;
+        }
+      }
+      debugfile << " ]" << endl;
+
+      debugfile << "-- dAdq_qt --" << endl;
+      debugfile << "[ ";
+      for (int p=0; p<nPoints; p++)
+      {
+        debugfile << "(";
+        StateVec dAdqk = dAdq_qt.getUnchecked(p);
+        int c=0;
+        for (auto & coord : dAdqk)
+        {
+          string closebracket = (p == nPoints-1 ? ") " : "), ");
+          string comma = ( c==dAdqk.size()-1 ? closebracket : "," );
+          debugfile << coord << comma;
+          c++;
+        }
+      }
+      debugfile << " ]" << endl;
+
+
       debugfile << "-- dAdq --" << endl;
       debugfile << "[ ";
       for (int p=0; p<nPoints; p++)
@@ -532,6 +632,10 @@ void NEP::run()
   {
     debugfile.close();
   }
+
+  // integrate hamilton equation of motion for current trajectory
+  LOG("Verification using hamilton's equations of motion");
+  hamiltonEoMVerification();
   
   // save descent algorithm results into a file
   LOG("writing descent to file");
@@ -556,13 +660,17 @@ void NEP::run()
 
 
 
-LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed)
+LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool maxPrintingAllowed, const int iteration)
 {
   juce::Array<NLSresults> nlsResults;
   nlsResults.resize(nPoints-1);
   
   // dimension of the non-linear system
   const int n = simul->entities.size() + 1; // number of entities + 1
+
+
+  int nThreads = juce::SystemStats::getNumCpus()-1;
+  juce::ThreadPool pool(nThreads);
 
   // loop over points in concentration space
   // q : q0 -- p*_0 -- q1 -- p*_1 --  .. -- qi -- p*_i -- q(i+1) -- p*_(i+1) -- ...
@@ -594,9 +702,22 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     // equation normalization
     Array<double> eqnorm;
     eqnorm.insertMultiple(0, 1., n);
-    ev.equation_norm = eqnorm;
-    
-    
+    ev.equation_norm = eqnorm;    
+
+    jassert(ev.dq_norm2 > 0.);
+
+    // verbose
+    ev.maxPrintingAllowed = maxPrintingAllowed;
+  
+    // define v = dq / || dq ||
+    StateVec v;
+    for (int m=0; m<deltaq.size(); m++)
+    {
+      double vm = deltaq.getUnchecked(m) / ev.dq_norm2;
+      v.add(vm);
+    }
+    ev.v = v;
+
     double dt_prev = 1.;
     StateVec pstar_prev;
     pstar_prev.insertMultiple(0, 0.1, n-1);
@@ -615,13 +736,28 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
     }
     ev.dt_prev = dt_prev;
     ev.pstar_prev = pstar_prev;
+
+    ev.iteration = iteration;
     
-    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed), true);
+    pool.addJob(new NEPWorker(crn, ev, nlsResults.getReference(point), tolerance, nls, point, maxPrintingAllowed ,useChangeOfVariable->boolValue()), true);
   }
 
+  
+
   // wait until job pool is empty
-  while (pool.getNumJobs() > 0)
-    sleep(100);
+  while (pool.getNumJobs() > 0 && !threadShouldExit())
+  {
+    double jobFinished = 0.;
+    for (int k=0; k<nPoints-1; k++)
+    {
+      if (nlsResults.getUnchecked(k).pstar.size() > 0.)
+        jobFinished ++;
+    }
+    double percent = 100. * jobFinished / (double) (nPoints-1);
+    std::cout << "\rProgress : " << percent << "%" << std::flush;
+    sleep(1000);
+  }
+  std::cout << "\rProgress : " << 100 << "%" << std::endl;
   
   
   
@@ -673,7 +809,7 @@ LiftResults NEP::nonLinearEquationSolving(const Curve& qcurve, int nls, bool max
   
 }
 
-LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
+LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, const int iteration)
 {
   
   
@@ -683,7 +819,34 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
   
   
   // GSL to find optimal momentum and dt associated to qcurve
-  LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed);
+  LiftResults liftResults = nonLinearEquationSolving(qcurve, solverType->getValueDataAsEnum<int>(), maxPrintingAllowed, iteration);
+
+  // measuring noise level in pstar and dt
+  juce::Array<double> pstar_noise;
+  double dt_noise = 0.;
+  for (int i=0; i<simul->entities.size(); i++)
+  {
+    double noise = 0.;
+    double max = 0.;
+    for (int k=0; k<liftResults.pstar.size()-1; k++)
+    {
+      double pm = liftResults.pstar.getUnchecked(k).getUnchecked(i);
+      double pm_next = liftResults.pstar.getUnchecked(k+1).getUnchecked(i);
+      double pm_diff2 = (pm_next - pm)*(pm_next - pm);
+      noise += pm_diff2;
+      max = std::max(max, std::abs(pm));
+    }
+    noise /= (max * (double) (liftResults.pstar.size()-1));
+    pstar_noise.add(noise);
+  }
+  if (maxPrintingAllowed)
+  {
+    //std::cout << "noise level in pstar : " << std::endl;
+    //for (auto& el : pstar_noise)    
+    //  std::cout << el << " ";
+    //std::cout << std::endl;
+  }
+
   
   /*
   if (solverType->getValueDataAsEnum<int>() == 0)
@@ -790,7 +953,7 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
     }
   debugfile << " ]" << endl;
   }
-  /*
+  
   // moving average on pcurve (execpt first and last point that must remain 0)
   int window = 3;
   Trajectory av_pcurve;
@@ -811,15 +974,38 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
       av /= c;
       avp.add(av);
     }
-    jassert(avp.size() == n-1);
+    //jassert(avp.size() == n-1);
     av_pcurve.add(avp);
   }
   
-  
   jassert(av_pcurve.size() == pcurve.size());
+  double pmax = 0.;
+  for (int k=0; k<pcurve.size(); k++)
+  {
+    StateVec pk = pcurve.getUnchecked(k);
+    double norm_pk = norm2(pk);
+    if (norm_pk > pmax)
+      pmax = norm_pk;
+  }
+  jassert(pmax > 0.);
+
+  // normalized distance between pcurve and av_pcurve
+  double totdist = 0.;
+  for (int k=0; k<pcurve.size(); k++)
+  {
+    StateVec pk = pcurve.getUnchecked(k);
+    StateVec avpk = av_pcurve.getUnchecked(k);
+    double dist = cartesianDistance(pk, avpk);
+    totdist += dist;
+  }
+  totdist /= (pmax * (double) pcurve.size());
+  if (maxPrintingAllowed)
+  {
+    //std::cout << "distance between pcurve and av_pcurve = " << totdist << endl;
+  }
   //cout << "average pcurve size : " << av_pcurve.size() << endl;
   
-   */
+   
   /*
   // for debugging
   if (maxPrinting->boolValue() && maxPrintingAllowed)
@@ -861,6 +1047,7 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed)
   //output.times = times;
   
   liftResults.pcurve = pcurve;
+  liftResults.smooth_pcurve = av_pcurve;
   liftResults.times = times;
   
   
@@ -1179,8 +1366,8 @@ bool NEP::descentShouldUpdateParams(double diffAction)
 {
   //cout << diffAction << " " << d_action_threshold << " || " << stepDescent << " " << d_stepDescentThreshold << endl;
   bool b1 = (diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold);
-  bool b2 = nPoints < nPoints_max->intValue();
-  return (b1 && b2);
+  //bool b2 = nPoints < nPoints_max->intValue();
+  return b1;
   //return ((diffAction<d_action_threshold || stepDescent<d_stepDescentThreshold));
 }
 
@@ -1194,10 +1381,13 @@ bool NEP::descentShouldContinue(int step)
 void NEP::writeDescentToFile()
 {
   // open output file
+  int niters = trajDescent.size();
   system("mkdir -p descent");
   string filename = "descent/action-functionnal-descent_";
-  filename += to_string(sst_stable->intValue()) + "->" + to_string(sst_saddle->intValue());
-  filename += "_" + to_string(nPoints_max->intValue());
+  filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_saddle->intValue());
+  filename += initialConditions->getValueDataAsEnum<int>()==0 ? "_straight-line-IC" : "_deterministic-IC";
+  filename += "_" + to_string(nPointsUI->intValue()) + "points";
+  filename += "_" + to_string(niters) + "iter";
   filename += ".csv";
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
@@ -1210,13 +1400,19 @@ void NEP::writeDescentToFile()
   historyFile << "Initial step descent : " << stepDescentInitVal->floatValue() << endl;
   historyFile << "###############" << endl;
   
-  historyFile << "iteration,point,gslStatus,collinearStatus,action";
+  historyFile << "iteration,point,gslStatus,collinearStatus,action,time";
   for (auto & ent : simul->entities)
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
   //for (auto & ent : simul->entities)
+  //  historyFile << ",smooth_p_" << ent->name;
+  //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dHdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dpdt_" << ent->name;
   //for (auto & ent : simul->entities)
   //  historyFile << ",dAdq_filt_" << ent->name;
   historyFile << ",res_H";
@@ -1229,7 +1425,11 @@ void NEP::writeDescentToFile()
   //cout << "grad Descent size :" << dAdqDescent.size() << endl;
   //cout << "filtered grad Descent size :" << dAdqDescent_filt.size() << endl;
   jassert(actionDescent.size() == trajDescent.size());
-  //jassert(actionDescent.size() == dAdqDescent.size());
+  //jassert(actionDescent.size() == smooth_pcurve_Descent.size());
+  jassert(actionDescent.size() == timeDescent.size());
+  jassert(actionDescent.size() == dAdqDescent.size());
+  jassert(actionDescent.size() == dAdqDescent_dHdq.size());
+  jassert(actionDescent.size() == dAdqDescent_dpdt.size());
   //jassert(actionDescent.size() == dAdqDescent_filt.size());
   jassert(actionDescent.size() == gslStatus_descent.size());
   jassert(actionDescent.size() == collinearityStatus_descent.size());
@@ -1249,11 +1449,15 @@ void NEP::writeDescentToFile()
       historyFile << iter << "," << point;
       historyFile << "," << gslStatus_descent.getUnchecked(iter).getUnchecked(point) << "," << collinearityStatus_descent.getUnchecked(iter).getUnchecked(point);
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
-      
+      historyFile << "," << timeDescent.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
-      //StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_local = dAdqDescent.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_dHdq_local = dAdqDescent_dHdq.getUnchecked(iter).getUnchecked(point);
+      StateVec dAdq_dpdt_local = dAdqDescent_dpdt.getUnchecked(iter).getUnchecked(point);
       //StateVec dAdq_filt_local = dAdqDescent_filt.getUnchecked(iter).getUnchecked(point);
       Array<double> resP = residuals_p_descent.getUnchecked(iter).getUnchecked(point);
+
+      StateVec smoothp_local = smooth_pcurve_Descent.getUnchecked(iter).getUnchecked(point);
       
       jassert(resP.size() == simul->entities.size());
       if (resP.size() != simul->entities.size())
@@ -1264,8 +1468,14 @@ void NEP::writeDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
+      //for (int m=0; m<smoothp_local.size(); m++)
+      //  historyFile << "," << smoothp_local.getUnchecked(m);
       //for (int m=0; m<dAdq_local.size(); m++)
       //  historyFile << "," << dAdq_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_dHdq_local.size(); m++)
+      //  historyFile << "," << dAdq_dHdq_local.getUnchecked(m);
+      //for (int m=0; m<dAdq_dpdt_local.size(); m++)
+      //  historyFile << "," << dAdq_dpdt_local.getUnchecked(m);
       //for (int m=0; m<dAdq_filt_local.size(); m++)
       //  historyFile << "," << dAdq_filt_local.getUnchecked(m);
       historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
@@ -1306,7 +1516,7 @@ bool NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
       for (int m=0; m<newqcurve.getUnchecked(k).size(); m++)
       {
         //newqk.add( _qcurve.getUnchecked(k).getUnchecked(m) - step * dAdq_filt.getUnchecked(k).getUnchecked(m) );
-        double q = newqcurve.getUnchecked(k).getUnchecked(m) - step * dAdq.getUnchecked(k).getUnchecked(m);
+        double q = newqcurve.getUnchecked(k).getUnchecked(m) + step * dAdq.getUnchecked(k).getUnchecked(m);
         if (q<0. && updateAllowed)
           updateAllowed = false;
         newqk.add(q);
@@ -1332,36 +1542,19 @@ bool NEP::updateOptimalConcentrationCurve(Curve & _qcurve, double step)
 
 
 //double NEP::backTrackingMethodForStepSize(const Curve& qc, const Curve& dAdq)
-double NEP::backTrackingMethodForStepSize(const Curve& qc)
+double NEP::backTrackingMethodForStepSize(const Curve& qc, LiftResults & _liftResults)
 {
   // init step with previous value of stepDescent
   double step = stepDescentInit_dynamic;
   double minstep = 0.99*d_stepDescentThreshold;
   
-  // time is such that minstep would be reached at last iteration
+  // timeout is such that minstep would be reached at last iteration
   int timeout = round(log(step/minstep) / log(2)) + 1;
   
   //cout << "NEP::backTrackingMethodForStepSize" << endl;
-  //cout << "Init guess : " << step << endl;
   
   Array<double> cumulaction = nepsolver->calculateAction(qc, g_pcurve, g_times);
   double currentaction = cumulaction.getLast();
-  /* debugging
-  cout << "current action = " << currentaction << endl;
-  cout << "current q = " ;
-  for (auto & qm : qc.getUnchecked(nPoints/2))
-    cout << qm << " ";
-  cout << endl;
-  cout << "deltaq = " ;
-  for (auto & qm : deltaqc.getUnchecked(nPoints/2))
-    cout << qm << " ";
-  cout << endl;
-  cout << "p = " ;
-  for (auto & pm : g_pcurve.getUnchecked(nPoints/2))
-    cout << pm << " ";
-  cout << endl;
-  cout << "t = " << g_times.getUnchecked(nPoints/2) << endl;
-  */
   
   StateVec nullvec;
   nullvec.insertMultiple(0, 0., simul->entities.size());
@@ -1369,7 +1562,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
  
   for (int iter=0; iter<timeout; iter++)
   {
-    if (step<1e-5)
+    if (step<d_stepDescentThreshold)
     {
       break;
     }
@@ -1377,7 +1570,7 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     
     //cout << "trying step = " << step << endl;
     
-    // update concentration curve corresponding to current step
+    // Try to update concentration curve with current step (returns false typically if concentrations would reach negative values)
     Curve newcurve = qc;
     bool updateIsValid = updateOptimalConcentrationCurve(newcurve, step);
     //cout << "update is Valid : " << updateIsValid << endl;
@@ -1389,63 +1582,39 @@ double NEP::backTrackingMethodForStepSize(const Curve& qc)
     }
     
     // find the corresponding lifted full trajectory, without updating global variables
-    LiftResults liftResults = liftCurveWithGSL(newcurve, false);
+    LiftResults liftResults = liftCurveWithGSL(newcurve, false, 0);
     
-    /* debugging
-    cout << "new q = ";
-    for (auto & qm : newcurve.getUnchecked(nPoints/2))
-      cout << qm << " ";
-    cout << endl;
-    cout << "new p = " ;
-    for (auto & pm : g_pcurve.getUnchecked(nPoints/2))
-      cout << pm << " ";
-    cout << endl;
-    cout << "new t = " << times.getUnchecked(nPoints/2) << endl;
-    */
-    
-    /*
-    // sanity check
-    for (int point=0; point<nPoints; point++)
-    {
-      StateVec q = qc.getUnchecked(point);
-      StateVec dq = deltaqc.getUnchecked(point);
-      StateVec diff = newcurve.getUnchecked(point);
-      cout << "step = " << step << endl;
-      for (int m=0; m<q.size(); m++)
-      {
-        cout << q.getUnchecked(m) << " - " << dq.getUnchecked(m) << " = " << diff.getUnchecked(m) << endl;
-      }
-    }
-    */
     
     // calculate action that would correspond to new concentration curve
     Array<double> newcumulaction = nepsolver->calculateAction(newcurve, liftResults.pcurve, liftResults.times);
     double newact = newcumulaction.getLast();
     //cout << "iter = " << iter << ". step = " << step << ". new action = " << newact << " vs current action = " << currentaction << endl;
-    if (newact>=currentaction || newact<0.)
+    if (newact>=currentaction || newact<0.) // invalid step
     {
-      //cout << "decreasing step" << endl;
       step *= 0.5; // hardcoded (1/2)^17 = 7.6e-6, should be enough
-      //cout << "new step val = " << step << endl;
     }
     else
     {
       //cout << "exiting loop" << endl;
+      _liftResults = liftResults;
       break;
     }
-  }
-  //cout << "used = " << count << " iterations in backtracking method" << endl;
+  } // end backtracking loop 
 
+  // if step is below threshold, set it to 0
   if (step<d_stepDescentThreshold)
-  {
     step = 0.;
-    stepDescentInit_dynamic *= 0.5;
-  }
-  if (step == stepDescentInit_dynamic)
+
+  /*
+  // if step too small, diminish start step value using current step value
+  if (step<d_stepDescentThreshold || step<stepDescentInit_dynamic)
+    stepDescentInit_dynamic = std::max(d_stepDescentThreshold*1.01, step);
+  
+  if (step == stepDescentInit_dynamic && adaptiveStepDescent->boolValue())
   {
     stepDescentInit_dynamic *= 2.;
   }
-  
+  */
   
   //LOGWARNING("backtracking algorithm did not converge to pick a descent step size. Returning 1e-6 as default value. Caution.");
   return step;
@@ -1952,15 +2121,81 @@ pair<Trajectory, Trajectory>  NEP::integrateHamiltonEquations(StateVec qi, State
     if (break_forward && break_backward)
       break;
     
-    nepsolver->nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, dt, true, break_forward, traj_forward);
-    nepsolver->nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, dt, false, break_backward, traj_backward);
+    if (!break_forward)
+      nepsolver->nextStepHamiltonEoM(qcurrent_forward, pcurrent_forward, qi, pi, dt, true, break_forward, traj_forward);
+    if (!break_backward)
+      nepsolver->nextStepHamiltonEoM(qcurrent_backward, pcurrent_backward, qi, pi, dt, false, break_backward, traj_backward);
     
   }
   
   pair<Trajectory, Trajectory> traj = make_pair(traj_forward, traj_backward); // one backward, one forward
   return traj;
-  
-  
+}
+
+
+
+void NEP::hamiltonEoMVerification()
+{
+  jassert(g_pcurve.size() == g_qcurve.size());
+  if (g_pcurve.size() != g_qcurve.size())
+  {
+    LOGWARNING("q curve and p curve have different sizes. Cannot perform EoM verification");
+    cout << "qcurve size : " << g_qcurve.size() << ". pcurve : " << g_pcurve.size() << endl;
+  }
+
+  juce::Array<pair<Trajectory, Trajectory>> hamiltonEoM;
+  for (int point=1; point<g_qcurve.size()-1; point++) // skip first and last point = fixed points
+  {
+    StateVec q = g_qcurve.getUnchecked(point);
+    StateVec p = g_pcurve.getUnchecked(point);
+
+    pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(q, p);
+    hamiltonEoM.add(eom);
+  }
+
+
+  // write equation of motions to file
+  std::system("mkdir -p ./hamilton-eq-of-motion");
+  std::string file = "./hamilton-eq-of-motion/hamiltonsEoM.csv";
+  std::ofstream eomfile;
+  eomfile.open(file.c_str(), ofstream::out | ofstream::trunc);
+
+  eomfile << "point,forward,step";
+  for (auto & ent : simul->entities)
+    eomfile << ",q_" << ent->name;
+  for (auto & ent : simul->entities)
+    eomfile << ",p_" << ent->name; 
+  eomfile << std::endl;
+
+  for (int point=0; point<hamiltonEoM.size(); point++)
+  {
+    Trajectory forward = hamiltonEoM.getUnchecked(point).first;
+    Trajectory backward = hamiltonEoM.getUnchecked(point).second;
+
+    // print forward trajectory
+    for (int step=0; step<forward.size(); step++)
+    {
+      PhaseSpaceVec qp = forward.getUnchecked(step);
+      eomfile << point+1 << "," << 1 << "," << step;
+      for (auto & coord : qp)
+        eomfile << "," << coord;
+      eomfile << std::endl;
+    }
+
+    // print backward trajectory
+    for (int step=0; step<backward.size(); step++)
+    {
+      PhaseSpaceVec qp = backward.getUnchecked(step);
+      eomfile << point+1 << "," << 1 << "," << step;
+      for (auto & coord : qp)
+        eomfile << "," << coord;
+      eomfile << std::endl;
+    }
+
+
+  } // end loop over points
+
+
 }
 
 
@@ -1972,7 +2207,7 @@ void NEP::heteroclinicStudy()
   initConcentrationCurve();
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
-  liftCurveWithGSL(g_qcurve, true);
+  liftCurveWithGSL(g_qcurve, true, 0);
   /*
   // read stable and unstable fixed points
   int sstI = sst_stable->intValue();
@@ -2048,21 +2283,128 @@ void NEP::heteroclinicStudy()
 void NEP::debuggingFunction()
 {
   simul->affectSATIds();
-  
-  //StateVec qi = {1.58916000, 1.03974000};
-  //StateVec pi = {0.01967720, 0.00082215};
+  buildReactionNetworkSnapshot();
+  crn.timescale_factor = 1.;
+  nepsolver->setReactionNetwork(crn);
   /*
-  StateVec qi = {1.58310479, 1.04183355};
-  StateVec pi = {0.01985969, 0.00110143};
+  StateVec q = {1.58916000, 1.03974000};
+  StateVec p = {0.01967720, 0.00082215};
+  StateVec u = {std::exp(0.01967720), std::exp(0.00082215)};
+
+// debug hamiltonian calculation in new variables
+
+//double Hp = nepsolver->evalHamiltonian(q, p);
+//double Hu = nepsolver->evalHamiltonian(q, u, true);
+
+StateVec dHdp = nepsolver->evalHamiltonianGradientWithP(q, p);
+StateVec uxdHdu = nepsolver->evalUtimesHamiltonianGradientWithU(q, u);
+StateVec dHdu = nepsolver->evalHamiltonianGradientWithU(q, u);
+
+juce::dsp::Matrix<double> hessp = nepsolver->evalHamiltonianHessianWithP(q, p);
+juce::dsp::Matrix<double> hessu = nepsolver->evalHamiltonianHessianWithU(q, u);
+
+
+cout << endl;
+cout << "dH/dp = ";
+for (auto& el : dHdp)
+  cout << el << " ";
+cout << endl << endl;
+
+cout << "u x dH'/du [1] = ";
+for (auto& el : uxdHdu)
+  cout << el << " ";
+cout << endl << endl;
+
+cout << "u x dH'/du [2] = ";
+for (int i=0; i<u.size(); i++)
+  cout << u.getUnchecked(i) * dHdu.getUnchecked(i) << " ";
+cout << endl << endl;
+
+cout << "hess_p = " << endl;
+for (int i=0; i<hessp.getNumRows(); i++)
+{
+  for (int j=0; j<hessp.getNumColumns(); j++)  
+    cout << hessp(i, j) << " ";
+  cout << endl;
+}
+cout << endl;
+
+cout << "hess_u = " << endl;
+for (int i=0; i<hessu.getNumRows(); i++)
+{
+  for (int j=0; j<hessu.getNumColumns(); j++)  
+  {
+    //double ij = hessu(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? dHdu.getUnchecked(i)*u.getUnchecked(i) : 0.);
+    double ij = hessu(i, j)*u.getUnchecked(j)*u.getUnchecked(i) + (i==j ? uxdHdu.getUnchecked(i) : 0.);
+    cout << ij << " ";
+  }
+  cout << endl;
+}
+cout << endl;
+*/
+
+
+  /*
+  StateVec qi = {0.5*(1.45199+1.4758), 0.5*(1.03513+1.03663)};
+  StateVec pi = {0.0231699, 0.00159923};
+  StateVec dq = {1.45199-1.4758, 1.03513-1.03663};
+  double dq_norm2 = norm2(dq);
+  StateVec v;
+  for (int i=0; i<dq.size(); i++)
+    v.add(dq.getUnchecked(i)/sqrt(dq_norm2));
+
+
+  double n = 100;
+  juce::Array<double> p1val; 
+  for (int i=0; i<n; i++)
+  {
+    double ii = (double) i;
+    p1val.add( 0.002 - (0.002-0.001)*ii/(n-1.) );
+  }
+
+  juce::Array<double> H;
+  juce::Array<double> pv;
+
+  for (int i=0; i<n; i++)
+  {
+    StateVec p = {0.0231699, p1val.getUnchecked(i)};
+    double h = nepsolver->evalHamiltonian(qi, p);
+    H.add(std::abs(h));
+    double sp = scalarProduct(p, v);
+    pv.add(sp);
+  }
+
+  cout << "p1 = [";
+  for (int i=0; i<p1val.size(); i++)  {
+    string comma = (i==p1val.size()-1 ? "]" : ", ");
+    cout << p1val.getUnchecked(i) << comma;
+  } 
+  cout << endl;
+
+  cout << "H = [";
+  for (int i=0; i<H.size(); i++)  {
+    string comma = (i==H.size()-1 ? "]" : ", ");
+    cout << H.getUnchecked(i) << comma;
+  } 
+  cout << endl;
+
+  cout << "p.v = [";
+  for (int i=0; i<pv.size(); i++)  {
+    string comma = (i==pv.size()-1 ? "]" : ", ");
+    cout << pv.getUnchecked(i) << comma;
+  } 
+  cout << endl;
+  */
   
-  
+  StateVec qi = {1.58889 ,  1.0429};
+  StateVec pi = {0.0196599 ,  0.00116952};
   
   pair<Trajectory, Trajectory> eom = integrateHamiltonEquations(qi, pi);
   
   std::system("mkdir -p ./hamilton-eq-of-motion");
   
   ofstream output;
-  output.open("./hamilton-eq-of-motion/hamilton_EoM_gagrani.csv", ofstream::out | ofstream::trunc);
+  output.open("./hamilton-eq-of-motion/hamilton-EoM_emergens.csv", ofstream::out | ofstream::trunc);
   
   output << "point,isForward,q_X1,q_X2,p_X1,p_X2" << endl;
   
@@ -2090,7 +2432,7 @@ void NEP::debuggingFunction()
   }
   
   output.close();
-  */
+  
   
 }
 

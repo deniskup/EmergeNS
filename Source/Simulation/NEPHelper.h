@@ -1,9 +1,13 @@
 #pragma once
 
-#include "JuceHeader.h"
+//#include "JuceHeader.h"
 #include "SimEntity.h"
 #include "SimReaction.h"
 //#include "Space.h"
+
+class NEPSolver;
+//class SimEntity;
+//class SimReaction;
 
 // some typedef for readability
 typedef juce::Array<double> StateVec;
@@ -22,13 +26,14 @@ struct CRNSnapshot
   // juce::Array<Patch>
   juce::Array<SimEntity*> entities;
   juce::Array<SimReaction*> reactions;
-  double timescale_factor;
+  double timescale_factor = 1.;
 };
 
 
 struct NLSresults
 {
   double dt;
+  double mu;
   StateVec pstar;
   int gslStatus;
   int collinearTest;
@@ -40,13 +45,53 @@ struct LiftResults
 {
     juce::Array<StateVec> pstar;
     juce::Array<double> dt;
+    juce::Array<double> mu;
     pCurve pcurve;
+    pCurve smooth_pcurve;
     juce::Array<double> times;
     juce::Array<int> gslStatus;
     juce::Array<int> collinearity;
     juce::Array<double> residuals_H;
     juce::Array<juce::Array<double>> residuals_p;
 };
+
+struct EncapsVarForNLOpt {
+  const juce::Array<double>* q; // current concentration point
+  const juce::Array<double>* dq;
+  juce::Array<double>* p; // p variable to pass to t optimisation
+  double t_opt; // t variable that optimizes the lagrangian
+  //juce::Array<double> p_opt; // t variable that optimizes the lagrangian
+};
+
+
+struct EncapsVarForGSL {
+  juce::Array<double> q; // current concentration point
+  juce::Array<double> dq;
+  juce::Array<double> v; // = dq / || dq ||
+  double dq_norm2;
+  double epsilon = 1.;
+  juce::Array<double> pnorm;
+  juce::Array<double> equation_norm;
+  juce::dsp::Matrix<double> B{0, 0}; // elements lines are orthogonal basis of deltaq
+  //double mu;
+  double s;
+  int n;
+  StateVec pstar_prev;
+  double dt_prev;
+  NEPSolver * solver;
+  bool maxPrintingAllowed = false;
+  int iteration;
+};
+
+
+struct EncapsVarForGSL_MU {
+  juce::Array<double> q; // current concentration point
+  juce::Array<double> p;
+  juce::Array<double> dq;
+  double dq_norm2;
+  NEPSolver * solver;
+};
+
 
 
 

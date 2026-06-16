@@ -84,8 +84,9 @@ public:
   EnumParameter* sst_stable;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
-  IntParameter * nPoints_start;
-  IntParameter * nPoints_max;
+  IntParameter * nPointsUI;
+  //IntParameter * nPoints_max;
+  BoolParameter * useChangeOfVariable;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   StringParameter * action_threshold ;
@@ -94,6 +95,7 @@ public:
   FloatParameter * stepDescentInitVal;
   //FloatParameter * timescale_factor;
   BoolParameter * maxPrinting;
+  BoolParameter * adaptiveStepDescent;
   EnumParameter* initialConditions;
   EnumParameter* solverType;
 
@@ -171,9 +173,9 @@ private:
   
   bool descentShouldContinue(int);
   
-  LiftResults nonLinearEquationSolving(const Curve&, int nls, bool);
+  LiftResults nonLinearEquationSolving(const Curve&, int nls, bool, const int);
   
-  LiftResults liftCurveWithGSL(const Curve&, bool);
+  LiftResults liftCurveWithGSL(const Curve&, bool, const int);
   
   void updateOptimalConcentrationCurve_old(const juce::Array<StateVec> popt, const juce::Array<double> deltaTopt);
   
@@ -183,7 +185,7 @@ private:
   //double calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   //juce::Array<double> calculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& t);
   
-  double backTrackingMethodForStepSize(const Curve& c);
+  double backTrackingMethodForStepSize(const Curve& c, LiftResults&);
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
@@ -194,6 +196,8 @@ private:
   //void nextStepHamiltonEoM(StateVec& q, StateVec& p, double dt, const bool forward, bool & shouldStop, Trajectory&);
   
   pair<Trajectory, Trajectory>  integrateHamiltonEquations(StateVec, StateVec);
+
+  void hamiltonEoMVerification();
   
   void heteroclinicStudy();
   
@@ -205,7 +209,7 @@ private:
   KineticLaw * kinetics; // to calculate kinetics
   
   // NEP worker jobs
-  juce::ThreadPool pool;
+  //juce::ThreadPool pool;
   
   // NEP solver for calculations
   NEPSolver * nepsolver;
@@ -213,6 +217,7 @@ private:
   // global variable describing the state of the descent
   Curve g_qcurve;
   pCurve g_pcurve;
+  pCurve g_smooth_pcurve;
   double length_qcurve = 0.;
   juce::Array<double> g_times;
   double action;
@@ -247,9 +252,13 @@ private:
   // for printing history to file
   //Array<double> actionDescent;
   juce::Array<juce::Array<double>> actionDescent;
+  juce::Array<juce::Array<double>> timeDescent;
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
+  juce::Array<Trajectory> smooth_pcurve_Descent; 
   juce::Array<Trajectory> dAdqDescent; // keep track of gradient history
   juce::Array<Trajectory> dAdqDescent_filt; // keep track of filtered gradient history
+  juce::Array<Trajectory> dAdqDescent_dHdq; 
+  juce::Array<Trajectory> dAdqDescent_dpdt; 
   juce::Array<juce::Array<int>> gslStatus_descent;
   juce::Array<juce::Array<int>> collinearityStatus_descent;
   juce::Array<juce::Array<double>> residuals_H_descent;
@@ -261,5 +270,4 @@ private:
 
    
 };
-
 
