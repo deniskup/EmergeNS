@@ -209,6 +209,8 @@ SteadyState::SteadyState(var data)
     return;
   
   state.clear();
+  eigenvalues.clear();
+  eigenvectors.clear();
   
   if (data.getDynamicObject()->hasProperty("isBorder"))
   {
@@ -280,6 +282,40 @@ SteadyState::SteadyState(var data)
     }
   }
 
+
+  if (data.getDynamicObject()->hasProperty("EigenModes"))
+  {
+    if (!data.getDynamicObject()->getProperty("EigenModes").isArray())
+    {
+      LOGWARNING("Wrong Steady State format in JSON file.");
+      return;
+    }
+    
+    Array<var> * arrv = data.getDynamicObject()->getProperty("EigenModes").getArray();
+    
+    for (auto & v : *arrv)
+    {
+      // read eigenvalue
+      int index = v["eigenIndex"];
+      float real = v["eigenValReal"];
+      float imag = v["eigenValImag"];
+      Eigenvalue eigenval = {real, imag};
+      eigenvalues.add(eigenval);
+
+      // read eigenvector
+      Eigenvalue eigenvec;
+
+     // SimEntity * e = Simulation::getInstance()->getSimEntityForName(name);
+      //if (e == nullptr)
+     // {
+     //   LOGWARNING("Entity in JSON file has no correspondance in simul");
+     //   return;
+     // }
+     // float conc = v["conc"];
+     // state.add(make_pair(e, conc));
+    }
+  }
+
   
 }
 
@@ -290,11 +326,13 @@ var SteadyState::toJSONData()
 {
   var data = new DynamicObject();
   
+  // basic information on steady state
   data.getDynamicObject()->setProperty("isBorder", isBorder);
   data.getDynamicObject()->setProperty("isStable", isStable);
   data.getDynamicObject()->setProperty("isPartiallyStable", isPartiallyStable);
   data.getDynamicObject()->setProperty("postiveEigenVal", postiveEigenVal);
   
+  // steady state coordinates
   var vst;
   for (auto st : state)
   {
@@ -304,8 +342,33 @@ var SteadyState::toJSONData()
     v.getDynamicObject()->setProperty("conc", st.second);
     vst.append(v);
   }
-  
   data.getDynamicObject()->setProperty("State", vst);
+
+  // steady state eigenvalues and eigenvectors
+  var vev;
+  for (int k=0; k<eigenvalues.size(); k++)
+  {
+    var v = new DynamicObject();
+    v.getDynamicObject()->setProperty("eigenIndex", k);
+    v.getDynamicObject()->setProperty("eigenValReal", eigenvalues.getUnchecked(k).real);
+    v.getDynamicObject()->setProperty("eigenValImag", eigenvalues.getUnchecked(k).imag);
+
+    // eigenvector
+    Eigenvector evec = eigenvectors.getUnchecked(k);
+    var v2 = new DynamicObject();
+    for (int k2=0; k2<evec.size(); k2++)
+    {
+      var v3 = new DynamicObject();
+      v3.getDynamicObject()->setProperty("coord", state.getUnchecked(k2).first->name);
+      v3.getDynamicObject()->setProperty("real", evec.getUnchecked(k2).real());
+      v3.getDynamicObject()->setProperty("imag", evec.getUnchecked(k2).imag());
+      v2.append(v3);
+    }
+    v.getDynamicObject()->setProperty("Eigenvector", v2);
+    vev.append(v);    
+  }
+  data.getDynamicObject()->setProperty("EigenModes", vev);
+
   return data;
 }
 
