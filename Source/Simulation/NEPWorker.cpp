@@ -1627,7 +1627,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
-    if (idx == 13 && maxPrintingAllowed)
+    /*if (idx == 13 && maxPrintingAllowed)
     {
       cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
       cout << "lambda = " << 1./mu << endl;
@@ -1659,6 +1659,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
       cout << endl;
 
     }
+    */
     
 
   

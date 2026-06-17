@@ -569,7 +569,7 @@ void NEP::run()
     dAdq_filt = dAdq;
     //lowPassFiltering(dAdq_filt, false);
     //dAdqDescent_filt.add(dAdq_filt);
-    cout << "dAdq size = " << dAdq.size() << endl;
+    //cout << "dAdq size = " << dAdq.size() << endl;
    
     if (maxPrinting->boolValue())
     {
@@ -1173,10 +1173,12 @@ Curve NEP::deterministicInitialTrajectory(StateVec& qstable, StateVec& qsaddle, 
       jassert(L>0.);
       for (int i=0; i<qstable.size(); i++)
       {
-        double di = 0.01*std::abs(qstable.getUnchecked(i)-qsaddle.getUnchecked(i)) / L;
-        double ui = qsaddle.getUnchecked(i) + 0.01 * ( qstable.getUnchecked(i)-qsaddle.getUnchecked(i) ) / L;
         rg.shakeSeedValue();
-        ui += rg.randomNumber() * std::sqrt(di);
+        //double di = 0.01*std::abs(qstable.getUnchecked(i)-qsaddle.getUnchecked(i)) / L;
+        //double ui = qsaddle.getUnchecked(i) + 0.01 * ( qstable.getUnchecked(i)-qsaddle.getUnchecked(i) ) / L;
+
+        double di = 0.01*L;
+        double ui = rg.randomNumber() * std::sqrt(di);
         entities[i]->concent.setUnchecked(0, ui);
         //entities[i]->startConcent.setUnchecked(0, ui);
       }
@@ -1253,6 +1255,7 @@ Curve NEP::deterministicInitialTrajectory(StateVec& qstable, StateVec& qsaddle, 
       if (reachedSST != sstI && tr==tries-1)
       {
         LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
+        LOGWARNING("Used " + to_string(tr) + " tries. ");
         throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
       }
       else if (reachedSST == sstI)
