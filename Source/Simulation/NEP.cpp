@@ -1156,96 +1156,114 @@ Curve NEP::deterministicInitialTrajectory(StateVec& qstable, StateVec& qsaddle, 
     
     jassert(entities.size() == simul->entities.size());
     jassert(reactions.size() == simul->reactions.size());
-    
-    // set first point of qcurve = qsaddle (unstable state)
-    outcurve.add(qsaddle);
-    
-    // set initial concentration of entities to be very close from qF in the direction of qI
-    Curve sl = {qstable, qsaddle};
-    double L = curveLength(sl);
-    jassert(L>0.);
-    for (int i=0; i<qstable.size(); i++)
+
+
+    int tries = 10;
+    for (int tr=0; tr<tries; tr++)
     {
-      double ui = qsaddle.getUnchecked(i) + 0.01 * ( qstable.getUnchecked(i)-qsaddle.getUnchecked(i) ) / L;
-      entities[i]->concent.setUnchecked(0, ui);
-      //entities[i]->startConcent.setUnchecked(0, ui);
-    }
+      // set first point of qcurve = qsaddle (unstable state)
+      outcurve.clear();
+      outcurve.add(qsaddle);
+
+      RandomGausGenerator rg(0., 1.);
+    
+      // set initial concentration of entities to be very close from qF in the direction of qI
+      Curve sl = {qstable, qsaddle};
+      double L = curveLength(sl);
+      jassert(L>0.);
+      for (int i=0; i<qstable.size(); i++)
+      {
+        double di = 0.01*std::abs(qstable.getUnchecked(i)-qsaddle.getUnchecked(i)) / L;
+        double ui = qsaddle.getUnchecked(i) + 0.01 * ( qstable.getUnchecked(i)-qsaddle.getUnchecked(i) ) / L;
+        rg.shakeSeedValue();
+        ui += rg.randomNumber() * std::sqrt(di);
+        entities[i]->concent.setUnchecked(0, ui);
+        //entities[i]->startConcent.setUnchecked(0, ui);
+      }
+
+      
     
     
-    // deterministic dynamics of the system until a stationnary state is reached
-    double distance = 1000.;
-    double precision = 1e-5;
-    double timeout = (double) simul->dt->floatValue() * 50000;
-    double t = 0.;
-    int count = 0;
-    bool delay = true; // require the deterministic search to run a minimum amount of time
-    // otherwise, too close from an unstable steady state, variation might be too small
-    while (distance>precision || delay)
-    {
-      count++;
-      t += (double) simul->dt->floatValue();
-      if (t>100.) // free the boolean delay
-        delay = false;
-      if (t>timeout)
-        break;
-      // deterministic traj
-      kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
-      kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
-      
-      // update concentration values of entities
-      for (auto & ent : entities)
+      // deterministic dynamics of the system until a stationnary state is reached
+      double distance = 1000.;
+      double precision = 1e-5;
+      double timeout = (double) simul->dt->floatValue() * 50000;
+      double t = 0.;
+      int count = 0;
+      bool delay = true; // require the deterministic search to run a minimum amount of time
+      // otherwise, too close from an unstable steady state, variation might be too small
+      while (distance>precision || delay)
       {
-        ent->refresh();
-      }
+        count++;
+        t += (double) simul->dt->floatValue();
+        if (t>100.) // free the boolean delay
+          delay = false;
+        if (t>timeout)
+          break;
+        // deterministic traj
+        kinetics->SteppingReactionRates(reactions, simul->dt->floatValue(), 0, false);
+        kinetics->SteppingInflowOutflowRates(entities, simul->dt->floatValue(), 0);
       
-      // add new value to global qcurve
-      StateVec qi;
-      for (int k=0; k<entities.size(); k++)
-        qi.add(entities[k]->concent.getUnchecked(0));
-      outcurve.add(qi);
+        // update concentration values of entities
+        for (auto & ent : entities)
+        {
+          ent->refresh();
+        }
       
-      // calculate variation in last dt
-      distance = 0.;
-      for (auto & ent : entities)
-      {
-        double deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
-        distance += deltaC*deltaC;
-      }
-      distance = sqrt(distance);
-    } // end while
+        // add new value to global qcurve
+        StateVec qi;
+        for (int k=0; k<entities.size(); k++)
+          qi.add(entities[k]->concent.getUnchecked(0));
+        outcurve.add(qi);
+      
+        // calculate variation in last dt
+        distance = 0.;
+        for (auto & ent : entities)
+        {
+          double deltaC = ent->concent.getUnchecked(0)-ent->previousConcent.getUnchecked(0);
+          distance += deltaC*deltaC;
+        }
+        distance = sqrt(distance);
+      } // end while
     
-    // find in which steady state the system ended
-    int reachedSST = -1;
-    double dmin = 10000.;
-    count = 0;
-    for (auto & sst : simul->steadyStatesList->arraySteadyStates)
-    {
-      double d = 0.;
-      for (auto & p : sst.state)
+      // find in which steady state the system ended
+      int reachedSST = -1;
+      double dmin = 10000.;
+      count = 0;
+      for (auto & sst : simul->steadyStatesList->arraySteadyStates)
       {
-        int entID = p.first->idSAT;
-        SimEntity * se = entities.getUnchecked(entID);
-        double dc = se->concent.getUnchecked(0) - p.second;
-        d += dc*dc;
-      }
-      d = sqrt(d);
+        double d = 0.;
+        for (auto & p : sst.state)
+        {
+          int entID = p.first->idSAT;
+          SimEntity * se = entities.getUnchecked(entID);
+          double dc = se->concent.getUnchecked(0) - p.second;
+          d += dc*dc;
+        }
+        d = sqrt(d);
   
-      if (d<dmin)
-      {
-        dmin = d;
-        reachedSST = count;
+        if (d<dmin)
+        {
+          dmin = d;
+          reachedSST = count;
+        }
+        count++;
       }
-      count++;
-    }
     
-    if (reachedSST != sstI)
-    {
-      LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
-      throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
-    }
+      if (reachedSST != sstI && tr==tries-1)
+      {
+        LOGWARNING("System converged to steady state " + to_string(reachedSST) + " while steady state " + to_string(sstI) + " was specified.");
+        throw std::runtime_error("Deterministic trajectory method failed to init. concentration trajectory. System did not converge to the correct steady state.");
+      }
+      else if (reachedSST == sstI)
+      {
+        // set last point of qcurve = qI
+        outcurve.add(qstable);
+        break;
+      }
     
-    // set last point of qcurve = qI
-    outcurve.add(qstable);
+      
+    }
 
     // reverse the direction of concentration curve
     std::reverse(outcurve.begin(), outcurve.end());
