@@ -47,7 +47,7 @@ class SteadyState
 {
 public:
   SteadyState(){};
-  SteadyState(juce::var vsst);
+  SteadyState(juce::var vsst, bool&);
   ~SteadyState(){};
   
   State state;
