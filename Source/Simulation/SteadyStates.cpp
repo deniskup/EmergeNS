@@ -200,16 +200,25 @@ long double evaluate_expression(const string &expr)
 ///////////////////////////////////////////////////////////
 
 
-SteadyState::SteadyState(var data)
+SteadyState::SteadyState(var data, bool& isValid)
 {
   if (data.isVoid())
+  {
+    isValid = false;
     return;
-  
+  }
+
   if (data.getDynamicObject() == nullptr)
+  {
+    isValid = false;
     return;
-  
+  }
+
   state.clear();
+  eigenvalues.clear();
+  eigenvectors.clear();
   
+  // init isBorder
   if (data.getDynamicObject()->hasProperty("isBorder"))
   {
     if (data.getDynamicObject()->getProperty("isBorder").isBool())
@@ -217,10 +226,12 @@ SteadyState::SteadyState(var data)
     else
     {
       LOGWARNING("Wrong Steady State format (boolean isBorder) in JSON file.");
+      isValid = false;
       return;
     }
   }
   
+  // init isStable
   if (data.getDynamicObject()->hasProperty("isStable"))
   {
     if (data.getDynamicObject()->getProperty("isStable").isBool())
@@ -228,10 +239,12 @@ SteadyState::SteadyState(var data)
     else
     {
       LOGWARNING("Wrong Steady State format (boolean isStable) in JSON file.");
+      isValid = false;
       return;
     }
   }
   
+  // init isPartiallyStable
   if (data.getDynamicObject()->hasProperty("isPartiallyStable"))
   {
     if (data.getDynamicObject()->getProperty("isPartiallyStable").isBool())
@@ -239,10 +252,12 @@ SteadyState::SteadyState(var data)
     else
     {
       LOGWARNING("Wrong Steady State format (boolean isPartiallyStable) in JSON file.");
+      isValid = false;
       return;
     }
   }
   
+  // init N positive eigenvalues
   if (data.getDynamicObject()->hasProperty("postiveEigenVal"))
   {
     if (data.getDynamicObject()->getProperty("postiveEigenVal").isInt())
@@ -250,17 +265,19 @@ SteadyState::SteadyState(var data)
     else
     {
       LOGWARNING("Wrong Steady State format (int postiveEigenVal) in JSON file.");
+      isValid = false;
       return;
     }
   }
   
   
-    
+  // init steady state concentration coordinates
   if (data.getDynamicObject()->hasProperty("State"))
   {
     if (!data.getDynamicObject()->getProperty("State").isArray())
     {
       LOGWARNING("Wrong Steady State format in JSON file.");
+      isValid = false;
       return;
     }
     
@@ -273,6 +290,7 @@ SteadyState::SteadyState(var data)
       if (e == nullptr)
       {
         LOGWARNING("Entity in JSON file has no correspondance in simul");
+        isValid = false;
         return;
       }
       float conc = v["conc"];
@@ -280,7 +298,59 @@ SteadyState::SteadyState(var data)
     }
   }
 
-  
+  // init steady state eigen modes
+  if (data.getDynamicObject()->hasProperty("EigenModes"))
+  {
+    if (!data.getDynamicObject()->getProperty("EigenModes").isArray())
+    {
+      LOGWARNING("EigenModes has wrong format in JSON file.");
+      isValid = false;
+      return;
+    }
+    
+    Array<var> * arrv = data.getDynamicObject()->getProperty("EigenModes").getArray();
+    
+    for (auto & vem : *arrv)
+    {
+      // read eigenvalue
+      int index = vem["eigenIndex"];
+      float eigenValReal = vem["eigenValReal"];
+      float eigenValImag = vem["eigenValImag"];
+      Eigenvalue eigenval = {eigenValReal, eigenValImag};
+      eigenvalues.add(eigenval);
+
+      // read eigenvector
+      if (vem.getDynamicObject()->hasProperty("Eigenvector"))
+      {
+        if (!vem.getDynamicObject()->getProperty("Eigenvector").isArray())
+        {
+          LOGWARNING("Eigenvector not properly formatted");
+          isValid = false;
+          return;
+        }
+
+        juce::Array<var> * vev = vem.getDynamicObject()->getProperty("Eigenvector").getArray();
+        Eigenvector eigenvec;
+        for (auto & v : *vev)
+        {
+          String coord = v["coord"];
+          float real = v["real"];
+          float imag = v["imag"];
+          std::complex<float> c(real, imag);
+          eigenvec.add(c);
+        }
+        eigenvectors.add(eigenvec);  
+      }
+    } // end loop over eigen modes
+  } // end reading EigenModes section
+
+  if (eigenvalues.size() != eigenvectors.size())
+  {
+    LOGWARNING("Eigenvalues and eigenvectors cardinals differ. Steady state not added.");
+    isValid = false;
+    return;
+  }
+
 }
 
 
@@ -290,11 +360,13 @@ var SteadyState::toJSONData()
 {
   var data = new DynamicObject();
   
+  // basic information on steady state
   data.getDynamicObject()->setProperty("isBorder", isBorder);
   data.getDynamicObject()->setProperty("isStable", isStable);
   data.getDynamicObject()->setProperty("isPartiallyStable", isPartiallyStable);
   data.getDynamicObject()->setProperty("postiveEigenVal", postiveEigenVal);
   
+  // steady state coordinates
   var vst;
   for (auto st : state)
   {
@@ -304,8 +376,33 @@ var SteadyState::toJSONData()
     v.getDynamicObject()->setProperty("conc", st.second);
     vst.append(v);
   }
-  
   data.getDynamicObject()->setProperty("State", vst);
+
+  // steady state eigenvalues and eigenvectors
+  var vev;
+  for (int k=0; k<eigenvalues.size(); k++)
+  {
+    var v = new DynamicObject();
+    v.getDynamicObject()->setProperty("eigenIndex", k);
+    v.getDynamicObject()->setProperty("eigenValReal", eigenvalues.getUnchecked(k).real);
+    v.getDynamicObject()->setProperty("eigenValImag", eigenvalues.getUnchecked(k).imag);
+
+    // eigenvector
+    Eigenvector evec = eigenvectors.getUnchecked(k);
+    var v2;
+    for (int k2=0; k2<evec.size(); k2++)
+    {
+      var v3 = new DynamicObject();
+      v3.getDynamicObject()->setProperty("coord", state.getUnchecked(k2).first->name);
+      v3.getDynamicObject()->setProperty("real", evec.getUnchecked(k2).real());
+      v3.getDynamicObject()->setProperty("imag", evec.getUnchecked(k2).imag());
+      v2.append(v3);
+    }
+    v.getDynamicObject()->setProperty("Eigenvector", v2);
+    vev.append(v);    
+  }
+  data.getDynamicObject()->setProperty("EigenModes", vev);
+
   return data;
 }
 
@@ -330,6 +427,18 @@ void SteadyStateslist::printOneSteadyState(SteadyState &sst)
   for (auto &c : sst.state)
     out << "[" << c.first->name << "]=" << c.second << ", ";
   out << ")";
+  //out << endl;
+  //out << "Eigenmodes:" << endl;
+  //for (int k=0; k<sst.eigenvalues.size(); k++)
+  //{
+  //  out << "eigenmode #" << k << endl;
+  //  Eigenvalue eval = sst.eigenvalues.getUnchecked(k);
+  //  Eigenvector evec = sst.eigenvectors.getUnchecked(k);
+  //  out << "\tlambda" << " = (" << eval.real << " , " << eval.imag << ")" << endl;
+  //  out << "\t vec : " << endl;
+  //  for (auto & coord : evec)
+  //    out << "\t\t(" << coord.real()  << " , " << coord.imag() << ")" << endl;
+  //}
   LOG(out.str());
 }
 
@@ -1769,11 +1878,15 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     if (sst.warning)
       nwarnings++;
   }
-  plural = (nwarnings > 1) ? "s" : "";
-  LOGWARNING("Found " + to_string(nwarnings) + " steady state" + plural + " that should be taken with caution.");
+
+  if (nwarnings>0)
+  {
+    plural = (nwarnings > 1) ? "s" : "";
+    LOGWARNING("Found " + to_string(nwarnings) + " steady state" + plural + " that should be taken with caution.");
   for (auto &s : arraySteadyStates)
     if (s.warning)
       printOneSteadyState(s);
+  }
   
   
   // print steady states to file ?
@@ -1817,7 +1930,10 @@ void SteadyStateslist::fromJSONData(var data)
   Array<var> * sstData = data["SteadyStates"].getArray();
   for (auto & varsst : *sstData)
   {
-    SteadyState sst(varsst);
+    bool isValid = true;
+    SteadyState sst(varsst, isValid);
+    if (!isValid)
+      continue;
     arraySteadyStates.add(sst);
     if (sst.isPartiallyStable)
       nPartStable++;
@@ -1833,9 +1949,11 @@ void SteadyStateslist::fromJSONData(var data)
   plural = (nGlobStable>1) ? "s" : "";
   LOG("\t" + to_string(nGlobStable) + " globally stable state" + plural);
   plural = (nPartStable>1) ? "s" : "";
-  LOG("\t" + to_string(nPartStable) + " globally stable state" + plural);
-  if ((nPartStable+nGlobStable) != arraySteadyStates.size())
-    LOG("Number of globally stable states + partially stable states may differ. Expected behavior.");
+  LOG("\t" + to_string(nPartStable) + " partially stable state" + plural);
+  //if ((nPartStable+nGlobStable) != arraySteadyStates.size())
+  //  LOG("Number of globally stable states + partially stable states may differ. Expected behavior.");
+
+  //printSteadyStates();
 }
 
 
