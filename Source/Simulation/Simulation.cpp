@@ -2308,7 +2308,7 @@ void Simulation::nextStep()
     //{
       ConcentrationSnapshot concsnap;
       concsnap.step = 0;
-      concsnap.runID = 0;
+      concsnap.runID = currentRun;
       concsnap.time = currentTime;
       for (auto &patch : Space::getInstance()->spaceGrid)
       {
@@ -2814,7 +2814,7 @@ void Simulation::writeHistory()
   jassert(dynHistory->concentHistory.size() == dynHistory->racHistory.size());
   for (int run=0; run<dynHistory->concentHistory.size(); run++) 
   { 
-    for (int step = 0; step < dynHistory->concentHistory.size(); step++)
+    for (int step = 0; step < dynHistory->concentHistory.getReference(run).size(); step++)
     {
       for (auto &patch : Space::getInstance()->spaceGrid)
       {
