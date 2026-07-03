@@ -1087,18 +1087,42 @@ public:
         {
             pstar.add(x[i]);
         }
-        if (lambda[0]<=0.)
-        {
+        //if (lambda[0]<=0.)
+        //{
             //s = 0.;
-            mu = 1.;
-        }
-        else
-        {
+        //    mu = 1.;
+        //}
+        //else
+        //{
             //s = std::log(lambda[0]);
             mu = 1. / lambda[0];
-        }
+        //}
 
         calculateResiduals();
+        if (idx == 10)
+        {
+            cout << "--- finalize solution ---" << endl;
+            cout << "q = ";
+            for (auto & qi : ev.q)
+                cout << qi << " ";
+            cout << endl;
+            cout << "dq_norm2 = " << ev.dq_norm2 << endl;
+            cout << "v = ";
+            for (auto & vi : ev.v)
+                cout << vi << " ";
+            cout << endl;
+            cout << "pstar = ";
+            for (auto & p : pstar)
+                cout << p << " ";
+            cout << endl;
+            cout << "lambda = " << lambda[0] << endl;
+            cout << "mu = " << mu << endl;
+            cout << "residu_H = " << residu_H << endl;
+            cout << "residu_p = ";
+            for (auto & r : residu_p)
+                cout << r << " ";
+            cout << endl;
+        }
     }
 
 private:

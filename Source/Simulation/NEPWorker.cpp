@@ -1517,10 +1517,10 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     Ipopt::SmartPtr<Ipopt::IpoptApplication> app = IpoptApplicationFactory();
 
-    if (idx == 13 && ev.maxPrintingAllowed)
+    if (idx == 10 && ev.maxPrintingAllowed)
       app->Options()->SetIntegerValue("print_level", 0);
     else
-      app->Options()->SetIntegerValue("print_level", 0);
+    app->Options()->SetIntegerValue("print_level", 0);
     app->Options()->SetStringValue("output_file", "ipopt.out");
     
 
