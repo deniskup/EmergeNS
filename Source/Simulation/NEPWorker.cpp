@@ -1560,11 +1560,12 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     pstar = problem->getPstar();
     //double mu = std::exp(problem->getS());
     mu = problem->getMu();
-    jassert(mu > 0.);
-    if (mu > 0.)
-      dt = ev.dq_norm2 / mu;
-    else
-      dt = 1.;
+    //jassert(mu > 0.);
+    //if (mu > 0.)
+      //dt = ev.dq_norm2 / mu;
+    //else
+    //  dt = 1.;
+    dt = ev.dq_norm2 / mu;
 
     // residuals
     // H(p,q) = 0

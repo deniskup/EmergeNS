@@ -1294,7 +1294,7 @@ juce::Array<double> NEPSolver::calculateAction(const Curve& qc, const Curve& pc,
     //cout << "p•dq = " << spdebug << "\tH_i "<< " = " << hamilt.getUnchecked(i) << ". dt = " << deltaTi << ". integrand = " << integrand << endl;
     newaction += integrand;
     cumul_action.add(newaction);
-    //cout << "\tadding " << integrand << endl;
+    //cout << "\tadding integrand " << integrand << endl;
   }
   
   //cout << "action = " << newaction << endl;

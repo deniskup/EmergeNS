@@ -847,7 +847,7 @@ public:
         int dim = ev.n - 1;
 
         n = dim; // number of variables (p)
-        m = 1; // number of constraints
+        m = 1; // number of constraints 
 
         nnz_jac_g = dim; // non-zeros entries of the constraint jacobian g(p,mu)
         nnz_h_lag = dim*dim; // Storage for the number of nonzero entries in the Hessian of the lagrangian
@@ -879,12 +879,11 @@ public:
             x_u[i] =  1e20;
         }
 
-        // equality constraints
-        for(int i=0;i<m;i++)
-        {
-            g_l[i] = 0.0;
-            g_u[i] = 0.0;
-        }
+        // equality + inequality constraints
+        g_l[0] = 0.0;
+        g_u[0] = 0.0;
+    
+        
 
         return true;
     }
@@ -953,15 +952,34 @@ public:
         Number* g)
     {
         StateVec sv_p;
+        StateVec sv_pnorm;
         sv_p.insertMultiple(0, 0., n);
+        sv_pnorm.insertMultiple(0, 0., n);
+        double pmax = 0.;
         for (int i=0; i<n; i++)
+        {
             sv_p.setUnchecked(i, x[i]);
-    
+            if (std::abs(x[i])>pmax)
+                pmax = std::abs(x[i]);
+        }
+
+        /*for (int i=0; i<n; i++)
+        {
+            if (pmax>0.)
+                sv_pnorm.setUnchecked(i, sv_p.getUnchecked(i)/pmax);
+            else
+                sv_pnorm.setUnchecked(i, sv_p.getUnchecked(i));
+        }*/
+        
 
         // useful quantites
         double H = ev.solver->evalHamiltonian(ev.q, sv_p);
-
+        // g0 = H(p,q) =0
         g[0] = H;
+
+        // g1 = 1/2 || x ||^2
+        //double pnorm2 = norm2(sv_p);
+        //g[1] = 0.5 * pnorm2 * pnorm2;
 
         return true;
     }
@@ -978,17 +996,18 @@ public:
         Number* values)
     {
 
-        
-
         if(values == nullptr)
         {
             int idx = 0;
-            for (int i=0; i<n; i++)
-            {
-                iRow[idx] = 0;   // just one constraint
-                jCol[idx] = i;   // derivative with respect to p_i
-                idx++;
-            }
+            //for (int k=0; k<m; k++)
+            //{
+                for (int i=0; i<n; i++)
+                {
+                    iRow[idx] = 0;   
+                    jCol[idx] = i;   // derivative with respect to p_i
+                    idx++;
+                }
+            //}
         }
         else
         {
@@ -996,6 +1015,7 @@ public:
             sv_p.insertMultiple(0, 0., n);
             for (int i=0; i<n; i++)
                 sv_p.setUnchecked(i, x[i]);
+            //double pnorm = norm2(sv_p);
 
             // useful quantites
             StateVec dHdp = ev.solver->evalHamiltonianGradientWithP(ev.q, sv_p);
@@ -1005,10 +1025,17 @@ public:
                 return false;
             }
 
-            for (int i=0; i<n; i++)
-            {
-                values[i] = dHdp.getUnchecked(i); // dH/dp_i
-            }
+            //for (int k=0; k<m; k++)
+           // {
+                for (int i=0; i<n; i++)
+                {
+                    int idx = i;
+               //     if (k==0)
+                    values[idx] = dHdp.getUnchecked(i); // dH/dp_i
+              //      else if (k==1)
+              //          values[idx] = sv_p.getUnchecked(i); 
+                }
+            //}   
         }
 
         return true;
@@ -1049,6 +1076,11 @@ public:
             sv_p.insertMultiple(0, 0., n);
             for (int i=0; i<n; i++)
                 sv_p.setUnchecked(i, x[i]);
+            //double pnorm = norm2(sv_p);
+            //if (pnorm == 0.)
+           // {
+           //     return false;
+           // }
 
             juce::dsp::Matrix<double> hess = ev.solver->evalHamiltonianHessianWithP(ev.q, sv_p);
 
@@ -1058,7 +1090,14 @@ public:
             {
                 for (int j=0; j<n; j++)
                 {
-                    values[idx] = lambda[0] * hess(i, j);
+                    // lagrangian associated to g0 = H(p,q)
+                    double l0 = lambda[0] * hess(i, j);
+
+                    // lagrangian associated to g1  = ||p||
+                    //double dij = (i==j ? 1. : 0.);
+                    //double l1 = lambda[1] / pnorm * (dij - sv_p.getUnchecked(i)*sv_p.getUnchecked(j)/(pnorm*pnorm));
+
+                    values[idx] = l0;
                     idx++;
                 }
             }
@@ -1099,7 +1138,8 @@ public:
         //}
 
         calculateResiduals();
-        if (idx == 10)
+        
+        /*if (idx == 10)
         {
             cout << "--- finalize solution ---" << endl;
             cout << "q = ";
@@ -1122,7 +1162,8 @@ public:
             for (auto & r : residu_p)
                 cout << r << " ";
             cout << endl;
-        }
+        }*/
+        
     }
 
 private:
