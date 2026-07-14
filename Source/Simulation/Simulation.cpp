@@ -2697,33 +2697,39 @@ void Simulation::run()
 
   if (!express)
     LOG("--------- Start thread ---------");
+
   finished->setValue(false);
   if (redrawRun || redrawPatch)
   {
     int k = 0;
     // redraw deterministic or euler stochastic dynamics
-    cout << "conc history : " << dynHistory->concentHistory.getReference(currentRun).size() << endl;
-    cout << "gillespie conc history : " << dynHistory->gillespieConcentHistory.getReference(currentRun).size() << endl;
+
+  bool shouldGo = dynHistory->concentHistory.getUnchecked(currentRun).size()> 0 && dynHistory->racHistory.getUnchecked(currentRun).size() > 0;
+  finished->setValue(!shouldGo);
+
     while (!finished->boolValue() && !threadShouldExit())
     {
         nextRedrawStep(dynHistory->concentHistory.getReference(currentRun).getReference(k),
          dynHistory->racHistory.getReference(currentRun).getReference(k));
         k++;      
-        if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size())
+        if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size()-1)
           finished->setValue(true);
     }
 
+
     // redraw gillespie dynamics
-    finished->setValue(false);
+    shouldGo = dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size()> 0;
+    finished->setValue(!shouldGo);
     k = 0;
     while (!finished->boolValue() && !threadShouldExit())
     {
       //cout << k << endl;
         nextGillespieRedrawStep(dynHistory->gillespieConcentHistory.getReference(currentRun).getReference(k));
         k++;      
-        if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size())
+        if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size()-1)
           finished->setValue(true);
     }
+
 
 
   }
@@ -3150,8 +3156,13 @@ void Simulation::drawConcOfPatch(int idpatch)
     }
   */
 
-  // check if some simulation exists before redrawing
   if (dynHistory->concentHistory.size() == 0)
+  {
+    return;
+  }
+
+  // check if some simulation exists before redrawing
+  if (dynHistory->concentHistory.getUnchecked(0).size() == 0) // assuming run to draw = 0
   {
     return;
   }
