@@ -2561,7 +2561,7 @@ void Simulation::updateSinglePatchRates(Patch &patch, bool isCheck)
   // calculate diffusion rates w.r.t closest patch neighbours
   if (isSpace->boolValue())
   {
-    kinetics->SteppingDiffusionRates(entities, patch);
+    kinetics->SteppingDiffusionRates(entities, dt->floatValue(), patch);
   }
 }
 
