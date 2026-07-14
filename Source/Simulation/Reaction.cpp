@@ -39,6 +39,7 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
 	dissocRate->setValue(r->dissocRate);
 
 	simReac = r;
+	cout << "created reaction from simreaction " << r->name << " with simReac = " << simReac << endl;
 }
 
 Reaction::~Reaction()
@@ -416,5 +417,7 @@ void Reaction::onContainerParameterChanged(Parameter *p)
 	if (p == energy)
 		updateWarnAndRates();
 	if (simReac)
+	{
 		simReac->updateFromReaction(this);
+	}
 }

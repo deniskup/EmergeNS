@@ -482,11 +482,6 @@ void Simulation::importJSONData(var data)
     maxSteps = jmax(1, maxSteps);
   }
 
-  cout << "----- will update entities from sim entities -----" << endl;
-  if (Space::getInstance()->nPatch > 0)
-    updateUserListFromSim(0); // display what is in patch 0 by default
-  cout << "--- updated entities from sim entities ---" << endl;
-
   // reactions
   reactions.clear();
   if (data.getDynamicObject()->hasProperty("reactions"))
@@ -509,6 +504,10 @@ void Simulation::importJSONData(var data)
       reactions.add(r);
     }
   }
+
+  //cout << "----- will update entities/reactions from simulation -----" << endl;
+  if (Space::getInstance()->nPatch > 0)
+    updateUserListFromSim(0); // display what is in patch 0 by default
 
   // PACList
   if (data.getDynamicObject()->hasProperty("pacList"))
@@ -1126,6 +1125,23 @@ void Simulation::updateUserListFromSim(int patchid)
       LOGWARNING("Sim Entity " << se->name << " not found in entity manager, this should not happen in user list mode");
     }
   }
+
+  // load reactions
+  for (auto &sr : reactions)
+  {
+    if (Reaction *r = ReactionManager::getInstance()->getItemWithName(sr->name, true))
+    {
+      r->simReac = sr;
+      r->assocRate->setValue(sr->assocRate);
+      r->dissocRate->setValue(sr->dissocRate);
+      r->energy->setValue(sr->energy);
+    }
+    else
+    {
+      LOGWARNING("Sim Reaction " << sr->name << " not found in reaction manager, this should not happen in user list mode");
+    }
+  }
+
 }
 
 void Simulation::fetchGenerate()

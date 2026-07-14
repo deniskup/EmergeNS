@@ -61,6 +61,7 @@ Entity::Entity(SimEntity *e, int patchid) : Entity(var())
 	id = e->id;
 	simEnt = e;
 	draw->setValue(e->draw);
+	cout << "adding simentity " << e->name << " to entity " << niceName << endl;
 }
 
 void Entity::onContainerParameterChanged(Parameter *p)
