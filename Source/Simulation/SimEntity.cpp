@@ -207,7 +207,7 @@ void SimEntity::updateFromEntity(Entity *e)
   
   // below is a bad way to update correctly simEnt when entity is modified.
   // Simulation::isSpace should be more globally accessible than it is right now.
-  bool isSpace = (concent.size() == 0 ? true : false);
+  bool isSpace = Space::getInstance()->nPatch > 1;
   if (isSpace)
   {
     for (auto& pid : Space::getInstance()->patchSelected)
@@ -227,7 +227,6 @@ void SimEntity::updateFromEntity(Entity *e)
   
   //startConcent.set(e->patchid, e->startConcent->floatValue());
   //concent.set(e->patchid, e->concent->floatValue());
-  
   
 	creationRate = e->creationRate->floatValue();
 	destructionRate = e->destructionRate->floatValue();

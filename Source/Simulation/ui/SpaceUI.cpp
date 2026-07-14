@@ -94,7 +94,7 @@ void SpaceUI::paint(juce::Graphics &g)
   
   if (entityColors.size() != correctEntityDrawn)
   {
-    LOG(String(entityColors.size()) + String(" ") + String(simul->entitiesDrawn.size()));
+    //LOG(String(entityColors.size()) + String(" ") + String(simul->entitiesDrawn.size()));
     entityColors.clear();
     for (auto & ent : simul->entities)
     {
@@ -104,7 +104,6 @@ void SpaceUI::paint(juce::Graphics &g)
     //LOG("ENTITY COLORS UPDATED AND HAS SIZE " + String(entityColors.size()));
   }
   
-
   drawSpaceGrid(g);
   
   // reset bool to true by default

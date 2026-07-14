@@ -219,7 +219,8 @@ void Space::onContainerTriggerTriggered(Trigger *t)
   {
     // retrieve entity colours
     Array<Colour> colours;
-    for (auto & ent : Simulation::getInstance()->entities)
+    //for (auto& ent : EntityManager::getInstance()->items)
+    for (auto& ent : Simulation::getInstance()->entities)
     {
       if (!ent->draw)
         continue;
