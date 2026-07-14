@@ -32,6 +32,8 @@ Space::Space() : ControllableContainer("Space"), Thread("Space"), spaceNotifier(
   nPatch = 1;
   initNewSpaceGrid();
   strPatchSelected->setValue("");
+
+  updateInterface();
 }
 
 /*
@@ -171,6 +173,8 @@ void Space::onContainerParameterChanged(Parameter *p)
   
   else if (p == diffConstant)
   {
+     //diffConstant->setAttributeInternal("stringDecimals", Settings::getInstance()->digitsConc->intValue());
+    //diffConstant->notifyValueChanged();
 
   }
 
@@ -311,6 +315,15 @@ void Space::loadJSONData(juce::var data, bool createIfNotThere)
   ControllableContainer::loadJSONData(data, createIfNotThere);
   strPatchSelected->setValue("");
   patchSelected.clear();
+
+  updateInterface();
+}
+
+
+void Space::updateInterface()
+{
+  diffConstant->setAttributeInternal("stringDecimals", Settings::getInstance()->digitsConc->intValue());
+  diffConstant->notifyValueChanged();
 }
 
 
