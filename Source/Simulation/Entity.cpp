@@ -35,6 +35,7 @@ void Entity::updateInterface()
 	concent->setAttributeInternal("stringDecimals", digitsConc);
 	creationRate->setAttributeInternal("stringDecimals", digitsConc);
 	destructionRate->setAttributeInternal("stringDecimals", digitsConc);
+	freeEnergy->setAttributeInternal("stringDecimals", digitsConc);
 }
 //Entity::Entity(SimEntity *e) : Entity(var())
 Entity::Entity(SimEntity *e, int patchid) : Entity(var())

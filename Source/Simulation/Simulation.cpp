@@ -482,11 +482,6 @@ void Simulation::importJSONData(var data)
     maxSteps = jmax(1, maxSteps);
   }
 
-  cout << "----- will update entities from sim entities -----" << endl;
-  if (Space::getInstance()->nPatch > 0)
-    updateUserListFromSim(0); // display what is in patch 0 by default
-  cout << "--- updated entities from sim entities ---" << endl;
-
   // reactions
   reactions.clear();
   if (data.getDynamicObject()->hasProperty("reactions"))
@@ -509,6 +504,10 @@ void Simulation::importJSONData(var data)
       reactions.add(r);
     }
   }
+
+  //cout << "----- will update entities/reactions from simulation -----" << endl;
+  if (Space::getInstance()->nPatch > 0)
+    updateUserListFromSim(0); // display what is in patch 0 by default
 
   // PACList
   if (data.getDynamicObject()->hasProperty("pacList"))
@@ -1126,6 +1125,23 @@ void Simulation::updateUserListFromSim(int patchid)
       LOGWARNING("Sim Entity " << se->name << " not found in entity manager, this should not happen in user list mode");
     }
   }
+
+  // load reactions
+  for (auto &sr : reactions)
+  {
+    if (Reaction *r = ReactionManager::getInstance()->getItemWithName(sr->name, true))
+    {
+      r->simReac = sr;
+      r->assocRate->setValue(sr->assocRate);
+      r->dissocRate->setValue(sr->dissocRate);
+      r->energy->setValue(sr->energy);
+    }
+    else
+    {
+      LOGWARNING("Sim Reaction " << sr->name << " not found in reaction manager, this should not happen in user list mode");
+    }
+  }
+
 }
 
 void Simulation::fetchGenerate()
@@ -2308,7 +2324,7 @@ void Simulation::nextStep()
     //{
       ConcentrationSnapshot concsnap;
       concsnap.step = 0;
-      concsnap.runID = 0;
+      concsnap.runID = currentRun;
       concsnap.time = currentTime;
       for (auto &patch : Space::getInstance()->spaceGrid)
       {
@@ -2545,7 +2561,7 @@ void Simulation::updateSinglePatchRates(Patch &patch, bool isCheck)
   // calculate diffusion rates w.r.t closest patch neighbours
   if (isSpace->boolValue())
   {
-    kinetics->SteppingDiffusionRates(entities, patch);
+    kinetics->SteppingDiffusionRates(entities, dt->floatValue(), patch);
   }
 }
 
@@ -2681,33 +2697,39 @@ void Simulation::run()
 
   if (!express)
     LOG("--------- Start thread ---------");
+
   finished->setValue(false);
   if (redrawRun || redrawPatch)
   {
     int k = 0;
     // redraw deterministic or euler stochastic dynamics
-    cout << "conc history : " << dynHistory->concentHistory.getReference(currentRun).size() << endl;
-    cout << "gillespie conc history : " << dynHistory->gillespieConcentHistory.getReference(currentRun).size() << endl;
+
+  bool shouldGo = dynHistory->concentHistory.getUnchecked(currentRun).size()> 0 && dynHistory->racHistory.getUnchecked(currentRun).size() > 0;
+  finished->setValue(!shouldGo);
+
     while (!finished->boolValue() && !threadShouldExit())
     {
         nextRedrawStep(dynHistory->concentHistory.getReference(currentRun).getReference(k),
          dynHistory->racHistory.getReference(currentRun).getReference(k));
         k++;      
-        if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size())
+        if (k>=dynHistory->concentHistory.getUnchecked(currentRun).size()-1)
           finished->setValue(true);
     }
 
+
     // redraw gillespie dynamics
-    finished->setValue(false);
+    shouldGo = dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size()> 0;
+    finished->setValue(!shouldGo);
     k = 0;
     while (!finished->boolValue() && !threadShouldExit())
     {
       //cout << k << endl;
         nextGillespieRedrawStep(dynHistory->gillespieConcentHistory.getReference(currentRun).getReference(k));
         k++;      
-        if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size())
+        if (k>=dynHistory->gillespieConcentHistory.getUnchecked(currentRun).size()-1)
           finished->setValue(true);
     }
+
 
 
   }
@@ -2814,7 +2836,7 @@ void Simulation::writeHistory()
   jassert(dynHistory->concentHistory.size() == dynHistory->racHistory.size());
   for (int run=0; run<dynHistory->concentHistory.size(); run++) 
   { 
-    for (int step = 0; step < dynHistory->concentHistory.size(); step++)
+    for (int step = 0; step < dynHistory->concentHistory.getReference(run).size(); step++)
     {
       for (auto &patch : Space::getInstance()->spaceGrid)
       {
@@ -3134,8 +3156,13 @@ void Simulation::drawConcOfPatch(int idpatch)
     }
   */
 
-  // check if some simulation exists before redrawing
   if (dynHistory->concentHistory.size() == 0)
+  {
+    return;
+  }
+
+  // check if some simulation exists before redrawing
+  if (dynHistory->concentHistory.getUnchecked(0).size() == 0) // assuming run to draw = 0
   {
     return;
   }

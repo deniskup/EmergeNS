@@ -79,7 +79,7 @@ public:
   
   void SteppingReactionRates(juce::OwnedArray<SimReaction>&, float, int, bool);
   void SteppingInflowOutflowRates(juce::OwnedArray<SimEntity>&, float, int);
-  void SteppingDiffusionRates(juce::OwnedArray<SimEntity>&, Patch&);
+  void SteppingDiffusionRates(juce::OwnedArray<SimEntity>&, float, Patch&);
   
   bool useStochasticity;
   float noiseEpsilon;

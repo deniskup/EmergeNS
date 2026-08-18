@@ -87,7 +87,8 @@ void Settings::onContainerParameterChanged(Parameter *p)
   else if (p==digitsConc)
   {
     //for all entities of EntityManager, update the stringDecimals attribute of their parameters 
-    for (auto e : EntityManager::getInstance()->items)
+
+    for (auto& e : EntityManager::getInstance()->items)
     {
       e->updateInterface(); //to apply the new precision
       //update the text in the UI with the new precision
@@ -95,7 +96,12 @@ void Settings::onContainerParameterChanged(Parameter *p)
       e->concent->notifyValueChanged();
       e->creationRate->notifyValueChanged();
       e->destructionRate->notifyValueChanged();
+      e->freeEnergy->notifyValueChanged();
     }
+
+    Space::getInstance()->diffConstant->setAttributeInternal("stringDecimals", digitsConc->intValue());
+    Space::getInstance()->diffConstant->notifyValueChanged();
+    
     // refresh the EntityManager UI to reflect updated decimal settings
     //EntityManager::getInstance()->refreshUI();
     

@@ -93,7 +93,7 @@ void KineticLaw::SteppingReactionRates(OwnedArray<SimReaction>& _reactions, floa
     }
 
 
-    // multiply concentrations by froward/backward constant rates
+    // multiply concentrations by forward/backward constant rates
     float directCoef = reacConcent * reac->assocRate;
     float deterministicDirectCoef = deterministicReacConcent * reac->assocRate;
     float reverseCoef = prodConcent * reac->dissocRate;
@@ -293,12 +293,15 @@ void KineticLaw::SteppingInflowOutflowRates(OwnedArray<SimEntity>& _entities, fl
 }
 
 
-void KineticLaw::SteppingDiffusionRates(OwnedArray<SimEntity>& entities, Patch& patch)
+void KineticLaw::SteppingDiffusionRates(OwnedArray<SimEntity>& entities, float dt, Patch& patch)
 {
   
   // loop over neighbour patches of current patch
+  int pid = patch.id;
   for (auto& neighbour : patch.neighbours)
   {
+    if (pid < neighbour)
+      continue; // to avoid double counting, diffusion between patches i<-->j must be considered just once.
     // loop over entities
     for (auto& ent : entities)
     {
@@ -311,13 +314,20 @@ void KineticLaw::SteppingDiffusionRates(OwnedArray<SimEntity>& entities, Patch& 
       
       if (useStochasticity)
       {
-        // *** TODO
+        double rdn = rgg.randomNumber();
+        double wiener = rdn * std::sqrt(dt);
+        double stocIncr = std::sqrt(std::abs(grad)*Space::getInstance()->diffConstant->floatValue()) * noiseEpsilon  * wiener;
+        incr -= stocIncr;
       }
       
-      // increase concentrations of entities
-      ent->increase(patch.id, incr);
-      ent->deterministicIncrease(patch.id, incr);
+      // increase concentrations of entities in current patch and in neighbour patch
+      ent->increase(pid, incr);
+      ent->deterministicIncrease(pid, incr);
+      ent->increase(neighbour, -incr);
+      ent->deterministicIncrease(neighbour, -incr);
     }
   }
+
+
 }
 
