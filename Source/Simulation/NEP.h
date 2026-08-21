@@ -81,12 +81,16 @@ public:
   Trigger * start_heteroclinic_study;
   Trigger * test;
   bool heteroclinic_study = false;
+  BoolParameter * useGradientDescentAscent;
   EnumParameter* sst_stable;
+  EnumParameter* sst_stable2;
   EnumParameter* sst_saddle;
   IntParameter * Niterations;
   IntParameter * nPointsUI;
   //IntParameter * nPoints_max;
   BoolParameter * useChangeOfVariable;
+  FloatParameter * dtau;
+  FloatParameter * alpha;
   FloatParameter * cutoffFreq;
   FloatParameter * maxcutoffFreq;
   StringParameter * action_threshold ;
@@ -167,7 +171,7 @@ private:
 
   Curve guessInitialTrajectory(StateVec&, StateVec&, int, int);
 
-  void initConcentrationCurve();
+  void initConcentrationCurve(int, int, bool useGradientDescentAscent = false);
   
   void writeDescentToFile();
   
@@ -195,7 +199,10 @@ private:
   
   //filtering
   void applyButterworthFilter(juce::Array<double>&, std::vector<juce::dsp::IIR::Filter<double>>&);
-  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int);
+
+  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int); 
+  void resampleInSpaceUniform(juce::Array<StateVec>& signal, int, juce::Array<StateVec>* jointSignal); // overload
+
   void resampleInTimeUniform(juce::Array<StateVec>& signal, int);
   //void lowPassFiltering(Array<StateVec>&, bool);
   
@@ -206,6 +213,10 @@ private:
   void hamiltonEoMVerification();
   
   void heteroclinicStudy();
+
+  void gradientDescentAscent();
+
+  void GDAwriteDescentToFile();
   
   void debuggingFunction();
   

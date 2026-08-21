@@ -296,11 +296,11 @@ void NEPUI::paint(juce::Graphics & g)
   juce::Rectangle<int> r4(x0 + 1*w+innerMargin, y0 + 1*h + innerMargin, w, h);
   
   // draw action evolution in first recangle
-  paintOneMonitoredQuantity(g, r1, "Action", actions);
+  paintOneMonitoredQuantity(g, r3, "Action", actions);
   //paintOneMonitoredQuantity(g, r2, "Cutoff frequency", cutoffFreqs);
-  paintOneMonitoredQuantity(g, r2, "Convergence", convergence);
-  paintOneMonitoredQuantity(g, r3, "nPoints", nPoints);
-  paintOneMonitoredQuantity(g, r4, "Metric", metrics);
+  paintOneMonitoredQuantity(g, r4, "Convergence", convergence);
+  //paintOneMonitoredQuantity(g, r3, "nPoints", nPoints);
+  //paintOneMonitoredQuantity(g, r4, "Metric", metrics);
   
   //g.setColour(NORMAL_COLOR);
   //g.drawRect(r1);

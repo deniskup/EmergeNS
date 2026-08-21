@@ -33,9 +33,13 @@ NEP::NEP() : ControllableContainer("NEP"),
   test = addTrigger("test", "");
   
   //start_heteroclinic_study = addTrigger("Heteroclinic study", "Produces most probable trajectories between two fixed points");
+  useGradientDescentAscent = addBoolParameter("Gradient descent/ascent", "Uswe gradient descent ascent algorithm.", false);
     
   // enum parameters = steady states
   sst_stable = addEnumParameter("Stable steady state", "Choose stable fixed point to start the NEP algorithm from");
+
+  sst_stable2 = addEnumParameter("Stable steady state #2", "Choose stable fixed point to start the NEP algorithm from");
+
   sst_saddle = addEnumParameter("Unstable steady state", "Choose unstable fixed point to start the NEP algorithm from");
   
   Niterations = addIntParameter("Max. iterations", "Maximum of iterations the descent will perform", 10);
@@ -53,6 +57,10 @@ NEP::NEP() : ControllableContainer("NEP"),
   //maxcutoffFreq = addFloatParameter("Max. cutoff frequency", "max. frequency of low-pass filtering, after what descent will stop.", 100.);
   
   solverType = addEnumParameter("Solver type", "Solver lib. and method to use for the descent");
+
+  dtau = addFloatParameter("dtau", "Artificial time step for the gradient descent/ascent algorithm", 0.1);
+
+  alpha = addFloatParameter("alpha", "GDA relative timescales used for descent/ascent algorithm", 1.);
   
   action_threshold = addStringParameter("Action threshold", "Descent will update parameters when action threshold is reached", "1e-5");
   
@@ -112,6 +120,7 @@ void NEP::updateSteadyStateList()
 {
   // set options
   sst_stable->clearOptions();
+  sst_stable2->clearOptions();
   sst_saddle->clearOptions();
   for (int k=0; k<simul->steadyStatesList->arraySteadyStates.size(); k++)
   {
@@ -120,7 +129,10 @@ void NEP::updateSteadyStateList()
       continue;
     
     if (sst.isStable)
+    {
       sst_stable->addOption(String(k), k);
+      sst_stable2->addOption(String(k), k);
+    }
     else if (!sst.isStable)
       sst_saddle->addOption(String(k), k);
   }
@@ -279,6 +291,15 @@ void NEP::run()
     //heteroclinic_study = false;
   }
 
+  if (useGradientDescentAscent->boolValue())
+  {
+    LOG("Launching gradient descent/ascent algorithm");
+    gradientDescentAscent();
+    stop();
+    return;
+  }
+  
+
   
   if (maxPrinting->boolValue())
   {
@@ -295,7 +316,7 @@ void NEP::run()
   LOG("init g_qcurve");
   try
   {
-    initConcentrationCurve();
+    initConcentrationCurve(sst_stable->intValue(), sst_saddle->intValue());
   } catch (const std::exception& e)
   {
     LOGWARNING(e.what());
@@ -1272,6 +1293,7 @@ Curve NEP::deterministicInitialTrajectory(StateVec& qstable, StateVec& qsaddle, 
     std::reverse(outcurve.begin(), outcurve.end());
     
     // resample qcurve
+
     resampleInSpaceUniform(outcurve, nPoints);
 
     return outcurve;
@@ -1469,22 +1491,31 @@ Curve NEP::guessInitialTrajectory(StateVec& qstable, StateVec& qsaddle, int sst_
 
 
 
-void NEP::initConcentrationCurve()
+void NEP::initConcentrationCurve(int sstI, int sstF, bool useGradientDescentAscent)
 {
   // read init and final curve points from enum parameters
-  int sstI = sst_stable->intValue();
-  int sstF = sst_saddle->intValue();
+  //int sstI = sst_stable->intValue();
+  //int sstF = sst_saddle->intValue();
   
   // add guard if initial steady state is unstable or final steady state is stable
-  if (!simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).isStable || simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).isStable)
+  if (!useGradientDescentAscent)
   {
-    SteadyState sI = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI);
-    SteadyState sF = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF);
-    LOG("Initial steady state stability : " + to_string(sI.isStable) + ". Coordonates : ");
-    simul->steadyStatesList->printOneSteadyState(sI);
-    LOG("Final steady state stability : " + to_string(sF.isStable) + ". Coordonates : ");
-    simul->steadyStatesList->printOneSteadyState(sF);
-    throw std::runtime_error("Initial steady state should be stable, and final steady state unstable. Cannot perform descent.");
+    if (!simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI).isStable || simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF).isStable)
+    {
+      SteadyState sI = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstI);
+      SteadyState sF = simul->steadyStatesList->arraySteadyStates.getUnchecked(sstF);
+      LOG("Initial steady state stability : " + to_string(sI.isStable) + ". Coordonates : ");
+      simul->steadyStatesList->printOneSteadyState(sI);
+      LOG("Final steady state stability : " + to_string(sF.isStable) + ". Coordonates : ");
+      simul->steadyStatesList->printOneSteadyState(sF);
+      throw std::runtime_error("Initial steady state should be stable, and final steady state unstable. Cannot perform descent.");
+    }
+  }
+
+  if (initialConditions->getValueDataAsEnum<int>() != 0 && useGradientDescentAscent)
+  {
+    LOGWARNING("For gradient descent ascent algorithm, make sure to pick straight line as initial condition.");
+    throw std::runtime_error("Cannot use deterministic or guess initial trajectory when using gradient descent/ascent. Use straight line initial trajectory instead.");
   }
   
   StateVec qI, qF;
@@ -1867,8 +1898,13 @@ vector<juce::dsp::IIR::Filter<double>> NEP::makeFilters(ReferenceCountedArray<II
 
 */
 
-// #HERE extremely slow, but seems to work though.
-void NEP::resampleInSpaceUniform(Array<StateVec>& signal, int newsize)
+void NEP::resampleInSpaceUniform(juce::Array<StateVec>& signal, int newsize)
+{
+  resampleInSpaceUniform(signal, newsize, nullptr);
+}
+
+
+void NEP::resampleInSpaceUniform(juce::Array<StateVec>& signal, int newsize, juce::Array<StateVec>* jointSignal)
 {
   if (signal.size()<2 || newsize<2)
     return;
@@ -1898,6 +1934,19 @@ for (int i=0; i<signal.size(); i++)
     StateVec nullvec;
     nullvec.insertMultiple(0, 0., dim);
     resampled_signal.setUnchecked(i, nullvec);
+  }
+
+  // same for joint signal
+  Trajectory resampled_jointSignal;
+  if (jointSignal != nullptr)
+  {
+    resampled_jointSignal.resize(newsize);
+    for (int i=0; i<newsize; ++i)
+    {
+      StateVec nullvec;
+      nullvec.insertMultiple(0, 0., dim);
+      resampled_jointSignal.setUnchecked(i, nullvec);
+    }
   }
   
   // cumulative lengths of input signals
@@ -1935,21 +1984,36 @@ for (int i=0; i<signal.size(); i++)
     if (i==0)
     {
       resampled_signal.setUnchecked(i, signal.getFirst());
+      if (jointSignal != nullptr)
+        resampled_jointSignal.setUnchecked(i, jointSignal->getFirst());
     }
     else if (i==newsize-1)
     {
       resampled_signal.setUnchecked(i, signal.getLast());
+      if (jointSignal != nullptr)
+        resampled_jointSignal.setUnchecked(i, jointSignal->getLast());
     }
     else
     {
       // interpolate between q[closest] and q[closest+1]
       for (int m=0; m<dim; m++)
       {
-        double val = signal.getUnchecked(closest).getUnchecked(m) + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
+        double val = signal.getUnchecked(closest).getUnchecked(m) 
+          + alpha*(signal.getUnchecked(closest+1).getUnchecked(m)-signal.getUnchecked(closest).getUnchecked(m));
         resampled_signal.getReference(i).setUnchecked(m, val);
-      } // end loop over dimension of the system
+      } 
+
+      if (jointSignal != nullptr)
+      {
+        for (int m=0; m<dim; m++)
+        {
+          double val = jointSignal->getUnchecked(closest).getUnchecked(m) 
+            + alpha*(jointSignal->getUnchecked(closest+1).getUnchecked(m)-jointSignal->getUnchecked(closest).getUnchecked(m));
+          resampled_jointSignal.getReference(i).setUnchecked(m, val);
+        } 
+      }
     } // end if
-  }
+  } // end loop over points
   
 
   // modify input signal
@@ -1963,6 +2027,21 @@ for (int i=0; i<signal.size(); i++)
       signal.getReference(i).setUnchecked(j, resampled_signal.getUnchecked(i).getUnchecked(j));
     }
   }
+
+  if (jointSignal != nullptr)
+  {
+    jointSignal->resize(newsize);
+    for (int i=0; i<newsize; i++)
+    {
+      jointSignal->getReference(i).clear();
+      jointSignal->getReference(i).insertMultiple(0, 0., dim);
+      for (int j=0; j<jointSignal->getUnchecked(i).size(); j++)
+      {
+        jointSignal->getReference(i).setUnchecked(j, resampled_jointSignal.getUnchecked(i).getUnchecked(j));
+      }
+    }
+  }
+
   /*
   cout << "NEP::resampleInTimeUniform()" << endl;
   cout << "output = ";
@@ -1981,7 +2060,7 @@ for (int i=0; i<signal.size(); i++)
 }
 
 
-void NEP::resampleInTimeUniform(Array<StateVec>& signal, int newsize)
+void NEP::resampleInTimeUniform(juce::Array<StateVec>& signal, int newsize)
 {
   if (signal.size()<2)
     return;
@@ -2421,7 +2500,7 @@ void NEP::heteroclinicStudy()
   reset();
 
   // init concentration curve
-  initConcentrationCurve();
+  initConcentrationCurve(sst_stable->intValue(), sst_saddle->intValue());
   // lift it to full (q ; p) space
   //liftCurveToTrajectoryWithNLOPT_old();
   liftCurveWithGSL(g_qcurve, true, 0);
@@ -2494,6 +2573,250 @@ void NEP::heteroclinicStudy()
       historyFile << endl;
   }
   
+}
+
+
+
+void NEP::gradientDescentAscent()
+{
+  // init with straightline between stable steady states
+  initialConditions->setValueAtIndex(0);
+  try
+  {
+    initConcentrationCurve(sst_stable->intValue(), sst_stable2->intValue(), true);
+  } catch (const std::exception& e)
+  {
+    LOGWARNING(e.what());
+    return;
+  }
+
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+
+  StateVec qstart = g_qcurve.getFirst();
+  StateVec qend = g_qcurve.getLast();
+
+  // p curve init as null vector
+  StateVec nullvec; 
+  nullvec.insertMultiple(0, 0., simul->entities.size()); 
+  g_pcurve.insertMultiple(0, nullvec, nPoints);
+
+  // keep track of initial trajectory
+  Trajectory initialTraj;
+  for (int point=0; point<nPoints; point++)
+  {
+    PhaseSpaceVec qp;
+    StateVec q = g_qcurve.getUnchecked(point);
+    StateVec p = g_pcurve.getUnchecked(point);
+    for (int m=0; m<q.size(); m++)
+      qp.add(q.getUnchecked(m));
+    for (int m=0; m<p.size(); m++)
+      qp.add(p.getUnchecked(m));
+    initialTraj.add(qp);
+  }
+  trajDescent.add(initialTraj);
+
+  cout << "qcurve size : " << g_qcurve.size() << endl;
+  cout << "pcurve size : " << g_pcurve.size() << endl;
+
+  // init u and v from p and q.
+  std::pair<Curve, Curve> uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+  Curve ucurve = uvcurves.first;
+  Curve vcurve = uvcurves.second;
+  cout << "ucurve size : " << ucurve.size() << endl;
+  cout << "vcurve size : " << vcurve.size() << endl;
+
+  double ds = 1./(float)(nPoints-1.);
+  double dx = 1.;
+
+   // calculate action initial value
+  juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
+  juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray);
+  double action = cumulAction.getLast();
+  actionDescent.add(cumulAction);
+
+  /*
+  cout << "qcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_qcurve.getUnchecked(p).size(); m++)
+      cout << g_qcurve.getUnchecked(p).getUnchecked(m) << " , ";
+    cout << ")  ;  " << endl;
+  }
+
+
+  cout << "pcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_pcurve.getUnchecked(p).size(); m++)
+      cout << g_pcurve.getUnchecked(p).getUnchecked(m) << " , ";
+    cout << ")  ;  " << endl;
+  }
+
+
+  cout << "ucurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
+      cout << ucurve.getUnchecked(p).getUnchecked(m) << " , ";
+    cout << ")  ;  " << endl;
+  }
+
+
+  cout << "vcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<vcurve.getUnchecked(p).size(); m++)
+      cout << vcurve.getUnchecked(p).getUnchecked(m) << " , ";
+    cout << ")  ;  " << endl;
+  }
+*/
+
+  int count = 0;
+  while (count < Niterations->intValue()-1 && !threadShouldExit())
+  {
+    count++;
+    cout << "Iteration #" << count << endl;
+    // update u curve and v curve sequentially
+    juce::Array<StateVec> ucurve_update(ucurve);
+    juce::Array<StateVec> vcurve_update(vcurve);
+    nepsolver->GDAupdateUCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
+    nepsolver->GDAupdateVCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
+
+
+    // deduce q and p from u and v
+    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
+    Curve qcurve_update = qpcurves.first;
+    Curve pcurve_update = qpcurves.second;
+
+
+    // enforce boundary conditions on p and q, i.e qfirst = qstart, qlast = qend, pfirst = 0, plast = 0
+    for (int m=0; m<qcurve_update.getFirst().size(); m++)
+      qcurve_update.getReference(0).setUnchecked(m, qstart.getUnchecked(m));
+    for (int m=0; m<qcurve_update.getLast().size(); m++)
+      qcurve_update.getReference(qcurve_update.size()-1).setUnchecked(m, qend.getUnchecked(m));
+    for (int m=0; m<pcurve_update.getFirst().size(); m++)
+      pcurve_update.getReference(0).setUnchecked(m, 0.);
+    for (int m=0; m<pcurve_update.getLast().size(); m++)
+      pcurve_update.getReference(pcurve_update.size()-1).setUnchecked(m, 0.);
+
+
+    // resample q and p in space uniform for q. Beware of what happens for the p curve
+    resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
+
+    // update g_qcurve and g_pcurve
+    g_qcurve = qcurve_update;
+    g_pcurve = pcurve_update;
+
+    // keep track of initial trajectory
+    Trajectory savetraj;
+    for (int point=0; point<nPoints; point++)
+    {
+      PhaseSpaceVec qp;
+      StateVec q = g_qcurve.getUnchecked(point);
+      StateVec p = g_pcurve.getUnchecked(point);
+      for (int m=0; m<q.size(); m++)
+        qp.add(q.getUnchecked(m));
+      for (int m=0; m<p.size(); m++)
+        qp.add(p.getUnchecked(m));
+      savetraj.add(qp);
+    }
+    trajDescent.add(savetraj);
+
+    // set u and v for next iteration
+    std::pair<Curve, Curve> uvcurves2 = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+    ucurve = uvcurves2.first;
+    vcurve = uvcurves2.second;
+
+    // calculate action
+    juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
+    juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray);
+    double action = cumulAction.getLast();
+    actionDescent.add(cumulAction);
+
+    // message to async
+    //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
+  
+  }
+
+
+  GDAwriteDescentToFile();
+
+}
+
+
+
+void NEP::GDAwriteDescentToFile()
+{
+  // open output file
+  int niters = trajDescent.size();
+  system("mkdir -p gda");
+  string filename = "gda/gda_";
+  filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
+  filename += "_" + to_string(nPointsUI->intValue()) + "points";
+  filename += "_" + to_string(niters) + "iter";
+  filename += ".csv";
+  ofstream historyFile;
+  historyFile.open(filename, ofstream::out | ofstream::trunc);
+  
+  /*
+  historyFile << "Descent characteristics used :" << endl;
+  historyFile << "Number of iterations : " << Niterations->intValue() << endl;
+  historyFile << "Initial condition : " << initialConditions->getValueKey() << endl;
+  historyFile << "Action threshold : " << action_threshold->stringValue() << endl;
+  historyFile << "Timescale factor : " << crn.timescale_factor << endl;
+  historyFile << "###############" << endl;
+  */
+  
+  historyFile << "iteration,point,action";
+  for (auto & ent : simul->entities)
+    historyFile << ",q_" << ent->name;
+  for (auto & ent : simul->entities)
+    historyFile << ",p_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",smooth_p_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dHdq_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_dpdt_" << ent->name;
+  //for (auto & ent : simul->entities)
+  //  historyFile << ",dAdq_filt_" << ent->name;
+  //historyFile << ",res_H";
+  historyFile << endl;
+  
+
+  jassert(actionDescent.size() == trajDescent.size());
+//  jassert(actionDescent.size() == residuals_H_descent.size());
+  
+  
+  int nIter_descent = actionDescent.size();
+  
+  for (int iter=0; iter<nIter_descent; iter++) // loop over descent iterations
+  {
+    int npoint_local = trajDescent.getUnchecked(iter).size();
+    for (int point=0; point<npoint_local; point++) // loop over curve points
+    {
+      historyFile << iter << "," << point;
+      historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
+      PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
+
+      for (int m=0; m<trajpq.size()/2; m++)
+        historyFile << "," << trajpq.getUnchecked(m);
+      for (int m=trajpq.size()/2; m<trajpq.size(); m++)
+        historyFile << "," << trajpq.getUnchecked(m);
+      historyFile << endl;
+
+      //historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
+
+    } // end loop over points in current iteration
+    //historyFile << endl;
+  } // end loop over iterations
+
 }
 
 

@@ -53,6 +53,28 @@ public:
       norm = 1.;
     crn->timescale_factor *= norm;
   }
+
+  std::pair<StateVec, StateVec> GDAfg(StateVec u, StateVec v, double alpha);
+
+  std::pair<Curve, Curve> GDAfromQPtoUV(const juce::Array<StateVec>& qcurve, const juce::Array<StateVec>& pcurve, double alpha);
+
+  std::pair<Curve, Curve> GDAfromUVtoQP(const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, double alpha);
+
+  //double GDAlambda(StateVec u, StateVec v, double alpha, double ds);
+
+  juce::Array<double> GDAlambdaArrayFromQP(const juce::Array<StateVec>& qcurve, const juce::Array<StateVec>& pcurve, double alpha, double ds);
+
+  juce::Array<double> GDAlambdaArrayFromUV(const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, double alpha, double ds);
+
+  void GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, juce::Array<StateVec>& vcurve_update, 
+    juce::Array<StateVec>& ucurve, juce::Array<StateVec>& vcurve, double alpha, double ds, double dtau, StateVec qstart, StateVec qend);
+
+
+  void GDAupdateVCurve(juce::Array<StateVec>& ucurve_update, juce::Array<StateVec>& vcurve_update, 
+    juce::Array<StateVec>& ucurve, juce::Array<StateVec>& vcurve, double alpha, double ds, double dtau, StateVec qstart, StateVec qend);
+
+  juce::Array<double> GDAcalculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& lambdaArray);
+  
   
 //private:
   
