@@ -235,6 +235,9 @@ SimReaction::SimReaction(var data)
 	if (data.getDynamicObject()->hasProperty("idSAT"))
 		idSAT = data["idSAT"];
 
+	if (data.getDynamicObject()->hasProperty("energyBarrier"))
+		energy = data["energyBarrier"];
+
 	//if reaction with same name exists, point to it
 	reaction = ReactionManager::getInstance()->getReactionFromName(name);
 }
@@ -265,7 +268,7 @@ var SimReaction::toJSONData()
 	data.getDynamicObject()->setProperty("products", productsData);
 
 	data.getDynamicObject()->setProperty("name", name);
-
+	data.getDynamicObject()->setProperty("energyBarrier", energy);
 	data.getDynamicObject()->setProperty("assocRate", assocRate);
 	data.getDynamicObject()->setProperty("dissocRate", dissocRate);
 	data.getDynamicObject()->setProperty("idSAT", idSAT);
