@@ -2634,6 +2634,21 @@ void NEP::gradientDescentAscent()
   double action = cumulAction.getLast();
   actionDescent.add(cumulAction);
 
+
+  cout << "H = ";
+  for (int point=0; point<nPoints; point++)
+  {
+    cout << nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point),g_pcurve.getUnchecked(point) ) << "\t";
+  }
+  cout << endl;
+
+  cout << "lambda = ";
+  for (auto& l: lambdaArray)
+    cout << l << "\t";
+  cout << endl;
+
+  return;
+
   /*
   cout << "qcurve :" << endl;
   for (int p=0; p<nPoints; p++)

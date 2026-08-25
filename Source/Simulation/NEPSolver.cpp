@@ -1444,48 +1444,6 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
   }
 
 
-/*
-    double NEPSolver::GDAlambda(StateVec u, StateVec v, double alpha, double ds)
-    {
-      cout << "GDAlambda" << endl;
-      jassert(u.size() == v.size());
-      jassert(alpha > 0.);
-
-      // retrieve q and p from u and v
-      StateVec q, p;
-      for (int m=0; m<u.size(); m++)
-      {
-        double qm = 0.5*(u.getUnchecked(m) + v.getUnchecked(m));
-        double pm = 0.5*(u.getUnchecked(m) - v.getUnchecked(m)) / alpha;
-        q.add(qm);
-        p.add(pm);
-      }
-
-      cout << "flag 0.01" << endl;
-
-      double H = evalHamiltonian(q, p);
-      StateVec dHdp = evalHamiltonianGradientWithP(q, p);
-
-      cout << "flag 0.02" << endl;
-
-
-      double scalarProduct = 0.;
-      double dqds_normSqr = 0.;
-      for (int m=0; m<q.size(); m++)
-      {
-        dqds_normSqr += (q.getUnchecked(m+1)  - q.getUnchecked(m)) / ds * (q.getUnchecked(m+1)  - q.getUnchecked(m)) / ds;
-        scalarProduct += (q.getUnchecked(m+1)  - q.getUnchecked(m)) / ds * dHdp.getUnchecked(m);
-      }
-
-      cout << "flag 0.03" << endl;
-
-
-      double lambda = (scalarProduct + std::sqrt(std::max(0., scalarProduct*scalarProduct - 4. * dqds_normSqr * H ))) / (2. * dqds_normSqr);
-
-      return lambda;
-    }
-
-    */
 
   // encode change of variable
   // u = q + alpha * p
@@ -1557,6 +1515,11 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
     juce::Array<double> lambdaArray;
     lambdaArray.insertMultiple(0, 0., qcurve.size());
 
+    StateVec arraySP;
+    StateVec arraydphi;
+    arraySP.insertMultiple(0, 0., qcurve.size());
+    arraydphi.insertMultiple(0, 0., qcurve.size());
+
     // loop over points in the curve
     for (int point=1; point<qcurve.size()-1; point++)
     {
@@ -1579,7 +1542,19 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
 
       double lambda = (scalarProduct + std::sqrt(std::max(0., scalarProduct*scalarProduct - 4. * dqds_normSqr * H ))) / (2. * dqds_normSqr);
       lambdaArray.setUnchecked(point, lambda);
+      arraySP.setUnchecked(point, scalarProduct);
+      arraydphi.setUnchecked(point, dqds_normSqr);
     }
+
+    cout << "|dphi/ds|^2 = ";
+    for (int p=0; p<arraydphi.size(); p++)
+      cout << arraydphi.getUnchecked(p) << "\t";
+    cout << endl;
+    cout << "S.P = ";
+    for (int p=0; p<arraySP.size(); p++)
+      cout << arraySP.getUnchecked(p) << "\t";
+    cout << endl;
+
     return lambdaArray;
   }
 
