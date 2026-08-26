@@ -328,7 +328,7 @@ void NEP::run()
   
   // set normalisation factor in order to have all kinetic constants of order 1
   cout << "will set time normalization factor" << endl;
-  setTimeNormalizationFactor();
+  autoSetTimeNormalizationFactor();
   LOG("Using time normalization factor : " + to_string(crn.timescale_factor));
   
   
@@ -1079,9 +1079,16 @@ LiftResults NEP::liftCurveWithGSL(const Curve& qcurve, bool maxPrintingAllowed, 
   
 }
 
+void NEP::setTimeNormalizationFactor(double _fac)
+{
+  crn.timescale_factor = _fac;
+  nepsolver->setReactionNetwork(crn);
+}
 
 
-void NEP::setTimeNormalizationFactor()
+
+
+void NEP::autoSetTimeNormalizationFactor()
 {
   //LOGWARNING("timescale always set to 1.");
   double tsfac = 1.;
@@ -2590,6 +2597,8 @@ void NEP::gradientDescentAscent()
     return;
   }
 
+  setTimeNormalizationFactor(1.);
+
   nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
 
   StateVec qstart = g_qcurve.getFirst();
@@ -2599,6 +2608,8 @@ void NEP::gradientDescentAscent()
   StateVec nullvec; 
   nullvec.insertMultiple(0, 0., simul->entities.size()); 
   g_pcurve.insertMultiple(0, nullvec, nPoints);
+
+  int dim = simul->entities.size();
 
   // keep track of initial trajectory
   Trajectory initialTraj;
@@ -2635,77 +2646,168 @@ void NEP::gradientDescentAscent()
   actionDescent.add(cumulAction);
 
 
-  cout << "H = ";
-  for (int point=0; point<nPoints; point++)
-  {
-    cout << nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point),g_pcurve.getUnchecked(point) ) << "\t";
-  }
-  cout << endl;
+  //cout << "H = ";
+  //for (int point=0; point<nPoints; point++)
+  //{
+   // cout << nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point),g_pcurve.getUnchecked(point) ) << "\t";
+  //}
+  //cout << endl;
 
-  cout << "lambda = ";
-  for (auto& l: lambdaArray)
-    cout << l << "\t";
-  cout << endl;
+  //cout << "lambda = ";
+  //for (auto& l: lambdaArray)
+  //  cout << l << "\t";
+  //cout << endl;
 
-  return;
+  //return;
 
-  /*
+  /*cout << "At initialization" << endl;
   cout << "qcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
     for (int m=0; m<g_qcurve.getUnchecked(p).size(); m++)
-      cout << g_qcurve.getUnchecked(p).getUnchecked(m) << " , ";
-    cout << ")  ;  " << endl;
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_qcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
   }
-
-
-  cout << "pcurve :" << endl;
+  cout << "\npcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
     for (int m=0; m<g_pcurve.getUnchecked(p).size(); m++)
-      cout << g_pcurve.getUnchecked(p).getUnchecked(m) << " , ";
-    cout << ")  ;  " << endl;
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_pcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
   }
-
-
-  cout << "ucurve :" << endl;
+  cout << "\nucurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
     for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
-      cout << ucurve.getUnchecked(p).getUnchecked(m) << " , ";
-    cout << ")  ;  " << endl;
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << ucurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
   }
-
-
-  cout << "vcurve :" << endl;
+  cout << "\nvcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
     for (int m=0; m<vcurve.getUnchecked(p).size(); m++)
-      cout << vcurve.getUnchecked(p).getUnchecked(m) << " , ";
-    cout << ")  ;  " << endl;
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << vcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
   }
-*/
+  cout << endl;*/
+
 
   int count = 0;
   while (count < Niterations->intValue()-1 && !threadShouldExit())
   {
     count++;
-    cout << "Iteration #" << count << endl;
-    // update u curve and v curve sequentially
+    //cout << "\nIteration #" << count << endl;
+    // update u curve 
     juce::Array<StateVec> ucurve_update(ucurve);
     juce::Array<StateVec> vcurve_update(vcurve);
     nepsolver->GDAupdateUCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
+
+    // deduce q and p from the updated u
+    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
+    Curve qcurve_update = qpcurves.first;
+    Curve pcurve_update = qpcurves.second;
+
+    // enforce boundary conditions on p and q, i.e qfirst = qstart, qlast = qend, pfirst = 0, plast = 0
+    for (int m=0; m<qcurve_update.getFirst().size(); m++)
+      qcurve_update.getReference(0).setUnchecked(m, qstart.getUnchecked(m));
+    for (int m=0; m<qcurve_update.getLast().size(); m++)
+      qcurve_update.getReference(qcurve_update.size()-1).setUnchecked(m, qend.getUnchecked(m));
+    for (int m=0; m<pcurve_update.getFirst().size(); m++)
+      pcurve_update.getReference(0).setUnchecked(m, 0.);
+    for (int m=0; m<pcurve_update.getLast().size(); m++)
+      pcurve_update.getReference(pcurve_update.size()-1).setUnchecked(m, 0.);
+
+    // resample q and p in space uniform for q.
+    resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
+
+    // update g_qcurve and g_pcurve
+    g_qcurve = qcurve_update;
+    g_pcurve = pcurve_update;
+
+    // associated change of U and V
+    uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+    ucurve = uvcurves.first;
+    vcurve = uvcurves.second;
+
+/*
+  cout << std::setprecision(7) << endl;
+  cout << "After U curve" << endl;
+  cout << "qcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_qcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_qcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\npcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_pcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_pcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\nucurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << ucurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\nvcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<vcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << vcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << endl;
+*/
+
+
+
+
+    // update v curve
+    ucurve_update = ucurve;
+    vcurve_update = vcurve;
     nepsolver->GDAupdateVCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
 
 
     // deduce q and p from u and v
-    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
-    Curve qcurve_update = qpcurves.first;
-    Curve pcurve_update = qpcurves.second;
+    qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
+    qcurve_update = qpcurves.first;
+    pcurve_update = qpcurves.second;
 
 
     // enforce boundary conditions on p and q, i.e qfirst = qstart, qlast = qend, pfirst = 0, plast = 0
@@ -2726,7 +2828,61 @@ void NEP::gradientDescentAscent()
     g_qcurve = qcurve_update;
     g_pcurve = pcurve_update;
 
-    // keep track of initial trajectory
+    // set u and v for next iteration
+    uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+    ucurve = uvcurves.first;
+    vcurve = uvcurves.second;
+
+
+
+  /*cout << "After V curve" << endl;
+ cout << "qcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_qcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_qcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\npcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<g_pcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << g_pcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\nucurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << ucurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << "\nvcurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<vcurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << vcurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+  cout << endl;*/
+
+    // keep track of trajectory
     Trajectory savetraj;
     for (int point=0; point<nPoints; point++)
     {
@@ -2740,11 +2896,6 @@ void NEP::gradientDescentAscent()
       savetraj.add(qp);
     }
     trajDescent.add(savetraj);
-
-    // set u and v for next iteration
-    std::pair<Curve, Curve> uvcurves2 = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
-    ucurve = uvcurves2.first;
-    vcurve = uvcurves2.second;
 
     // calculate action
     juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 

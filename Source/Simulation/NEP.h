@@ -163,7 +163,9 @@ public:
   
 private:
     
-  void setTimeNormalizationFactor();
+  void setTimeNormalizationFactor(double);
+
+  void autoSetTimeNormalizationFactor();
 
   Curve deterministicInitialTrajectory(StateVec&, StateVec&, int);
 

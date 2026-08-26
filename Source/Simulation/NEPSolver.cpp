@@ -1519,6 +1519,36 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
     StateVec arraydphi;
     arraySP.insertMultiple(0, 0., qcurve.size());
     arraydphi.insertMultiple(0, 0., qcurve.size());
+/*
+    cout << "q = ";
+    for (int p=0; p<qcurve.size(); p++)
+    {
+      cout << "(";
+      for (int m=0; m<qcurve.getUnchecked(p).size(); m++)
+      {
+        cout << " , " << qcurve.getUnchecked(p).getUnchecked(m);
+      }
+      cout << ")\t";
+    }
+    cout << endl;
+
+    cout << "p = ";
+    for (int p=0; p<pcurve.size(); p++)
+    {
+      cout << "(";
+      for (int m=0; m<pcurve.getUnchecked(p).size(); m++)
+      {
+        cout << " , " << pcurve.getUnchecked(p).getUnchecked(m);
+      }
+      cout << ")\t";
+    }
+    cout << endl;
+
+    */
+    juce::Array<StateVec> arraydHdp;
+    StateVec nullvec;
+    nullvec.insertMultiple(0, 0., qcurve.getFirst().size());
+    arraydHdp.add(nullvec);
 
     // loop over points in the curve
     for (int point=1; point<qcurve.size()-1; point++)
@@ -1531,6 +1561,7 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
       // useful quantities
       double H = evalHamiltonian(q, p);
       StateVec dHdp = evalHamiltonianGradientWithP(q, p);
+      arraydHdp.add(dHdp);
 
       double scalarProduct = 0.;
       double dqds_normSqr = 0.;
@@ -1545,6 +1576,19 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
       arraySP.setUnchecked(point, scalarProduct);
       arraydphi.setUnchecked(point, dqds_normSqr);
     }
+    arraydHdp.add(nullvec);
+  /*
+    cout << "dHdp = ";
+    for (int p=0; p<arraydHdp.size(); p++)
+    {
+    cout << "(";
+      for (int m=0; m<arraydHdp.getUnchecked(p).size(); m++)
+      {
+        cout << " , " << arraydHdp.getUnchecked(p).getUnchecked(m);
+      }
+      cout << ")\t";
+    }
+    cout << endl;
 
     cout << "|dphi/ds|^2 = ";
     for (int p=0; p<arraydphi.size(); p++)
@@ -1554,6 +1598,7 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
     for (int p=0; p<arraySP.size(); p++)
       cout << arraySP.getUnchecked(p) << "\t";
     cout << endl;
+    */
 
     return lambdaArray;
   }
