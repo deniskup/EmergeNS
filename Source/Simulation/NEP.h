@@ -270,6 +270,7 @@ private:
 
   // for printing history to file
   //Array<double> actionDescent;
+  juce::Array<int> iterationDescent;
   juce::Array<juce::Array<double>> actionDescent;
   juce::Array<juce::Array<double>> timeDescent;
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space

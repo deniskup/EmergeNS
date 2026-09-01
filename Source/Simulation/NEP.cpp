@@ -229,6 +229,7 @@ void NEP::buildReactionNetworkSnapshot()
 void NEP::reset()
 {
   // reset previous calculations
+  iterationDescent.clear();
   actionDescent.clear();
   trajDescent.clear();
   smooth_pcurve_Descent.clear();
@@ -2612,6 +2613,8 @@ void NEP::gradientDescentAscent()
   int dim = simul->entities.size();
 
   // keep track of initial trajectory
+  iterationDescent.add(0);
+  juce::Array<double> vecH;
   Trajectory initialTraj;
   for (int point=0; point<nPoints; point++)
   {
@@ -2623,27 +2626,32 @@ void NEP::gradientDescentAscent()
     for (int m=0; m<p.size(); m++)
       qp.add(p.getUnchecked(m));
     initialTraj.add(qp);
+    double h = nepsolver->evalHamiltonian(q, p);
+    vecH.add(h);
   }
   trajDescent.add(initialTraj);
+  residuals_H_descent.add(vecH);
 
-  cout << "qcurve size : " << g_qcurve.size() << endl;
-  cout << "pcurve size : " << g_pcurve.size() << endl;
+  //cout << "qcurve size : " << g_qcurve.size() << endl;
+  //cout << "pcurve size : " << g_pcurve.size() << endl;
 
   // init u and v from p and q.
   std::pair<Curve, Curve> uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
   Curve ucurve = uvcurves.first;
   Curve vcurve = uvcurves.second;
-  cout << "ucurve size : " << ucurve.size() << endl;
-  cout << "vcurve size : " << vcurve.size() << endl;
+  //cout << "ucurve size : " << ucurve.size() << endl;
+  //cout << "vcurve size : " << vcurve.size() << endl;
 
   double ds = 1./(float)(nPoints-1.);
   double dx = 1.;
+  
 
-   // calculate action initial value
-  juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
-  juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray);
-  double action = cumulAction.getLast();
-  actionDescent.add(cumulAction);
+
+  // hardcode number of points to draw to monitor the descent/ascent
+  int nIterMonitor = 100;
+  int checkPoint = std::round(Niterations->intValue() / nIterMonitor);
+  checkPoint = std::max(1, checkPoint);
+  bool isCheck = false;
 
 
   //cout << "H = ";
@@ -2661,6 +2669,7 @@ void NEP::gradientDescentAscent()
   //return;
 
   /*cout << "At initialization" << endl;
+  cout << std::setprecision(7) << endl;
   cout << "qcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
@@ -2707,19 +2716,82 @@ void NEP::gradientDescentAscent()
   }
   cout << endl;*/
 
+  // variables that will be calculated and shared within iterations
+  juce::Array<StateVec> dHdqCurve, dHdpCurve;
+  juce::Array<StateVec> fCurve, gCurve;
+  juce::Array<double> hamiltCurve;
+  juce::Array<double> lambdaArray;
+
+  // init their size properly
+  dHdqCurve.insertMultiple(0, nullvec, nPoints);
+  dHdpCurve.insertMultiple(0, nullvec, nPoints);
+  fCurve.insertMultiple(0, nullvec, nPoints);
+  gCurve.insertMultiple(0, nullvec, nPoints);
+  hamiltCurve.insertMultiple(0, 0., nPoints);
+  lambdaArray.insertMultiple(0, 0., nPoints);
+
+
+   // calculate action initial value
+  lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
+  juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true);
+  double action = cumulAction.getLast();
+  actionDescent.add(cumulAction);
+
+
+  // message to async
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, 0., nPoints, 1., 1.));
+  //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, 0, action, 0., nPoints, 1., 1.));
+
 
   int count = 0;
-  while (count < Niterations->intValue()-1 && !threadShouldExit())
+  while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
+    isCheck = (count % checkPoint == 0);
+
+    // if last iteration, enforce isCheck to be true
+    if (count == Niterations->intValue()-1)
+      isCheck = true;
+
+    // calculate hamiltonian related quantities along the trajectory
+    for (int point=0; point<nPoints; point++)
+    {
+      StateVec q = g_qcurve.getUnchecked(point);
+      StateVec p = g_pcurve.getUnchecked(point);
+      dHdqCurve. setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
+      dHdpCurve. setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
+      hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
+    }
+
+    // calculate lambda along the trajectory
+    lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds);
+
+    // f fonction
+    fCurve = nepsolver->GDAf1(dHdqCurve, dHdpCurve, alpha->floatValue());
+
+
     //cout << "\nIteration #" << count << endl;
     // update u curve 
     juce::Array<StateVec> ucurve_update(ucurve);
-    juce::Array<StateVec> vcurve_update(vcurve);
-    nepsolver->GDAupdateUCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
+    //nepsolver->GDAupdateUCurve(ucurve_update, ucurve, vcurve, lambdaArray, fCurve, alpha->floatValue(), ds, dtau->floatValue(), qend);
+    nepsolver->GDAupdateUCurveSecondOrder(ucurve_update, ucurve, vcurve, lambdaArray, fCurve, alpha->floatValue(), ds, dtau->floatValue(), qend);
+
+    /*cout << "U updated = ";
+    for (int point=0; point<nPoints; point++)
+    {
+      cout << "(";
+      for (int m=0; m<ucurve_update.getUnchecked(point).size(); m++)
+      {
+        std::string comma = (m==dim-1 ? "" : ",");
+        cout << ucurve_update.getUnchecked(point).getUnchecked(m) << comma;    
+      }
+      cout << ")\t";
+    }
+    cout << endl; */
+
 
     // deduce q and p from the updated u
-    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
+    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve, alpha->doubleValue());
     Curve qcurve_update = qpcurves.first;
     Curve pcurve_update = qpcurves.second;
 
@@ -2740,14 +2812,14 @@ void NEP::gradientDescentAscent()
     g_qcurve = qcurve_update;
     g_pcurve = pcurve_update;
 
-    // associated change of U and V
+    // associated changes of U and V
     uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
     ucurve = uvcurves.first;
     vcurve = uvcurves.second;
 
-/*
-  cout << std::setprecision(7) << endl;
-  cout << "After U curve" << endl;
+
+  /*cout << std::setprecision(7) << endl;
+  cout << "After U curve update" << endl;
   cout << "qcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
@@ -2792,20 +2864,112 @@ void NEP::gradientDescentAscent()
     }
     cout << ")\t";
   }
-  cout << endl;
-*/
+  cout << endl;*/
+
+  //cout << "--- V update ---" << endl;
 
 
+    // re-calculate hamiltonian related quantities along the trajectory
+    for (int point=0; point<nPoints; point++)
+    {
+      StateVec q = g_qcurve.getUnchecked(point);
+      StateVec p = g_pcurve.getUnchecked(point);
+      dHdqCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
+      dHdpCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
+      hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
+    }
+
+    // re-calculate lambda along the trajectory
+    lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->doubleValue(), ds);
+
+    /*cout << "lambda = ";
+    for (auto& l: lambdaArray)
+      cout << l << "\t";
+    cout << endl;*/
+
+    // g fonction
+    gCurve = nepsolver->GDAf2(dHdqCurve, dHdpCurve, alpha->floatValue());
+
+    /*cout << "dHdq = ";
+    for (int point=0; point<nPoints; point++)
+    {
+      cout << "(";
+      for (int m=0; m<dHdqCurve.getUnchecked(point).size(); m++)
+      {
+        std::string comma = (m==dim-1 ? "" : ",");
+        cout << dHdqCurve.getUnchecked(point).getUnchecked(m) << comma;
+      }
+      cout << ")\t";
+    }
+    cout << endl;
+
+    cout << "dHdp = ";
+    for (int point=0; point<nPoints; point++)
+    {
+      cout << "(";
+      for (int m=0; m<dHdpCurve.getUnchecked(point).size(); m++)
+      {
+        std::string comma = (m==dim-1 ? "" : ",");
+        cout << dHdpCurve.getUnchecked(point).getUnchecked(m) << comma;
+      }
+      cout << ")\t";
+    }
+    cout << endl;
+
+
+    cout << "g = ";
+    for (int point=0; point<nPoints; point++)
+    {
+      cout << "(";
+      for (int m=0; m<gCurve.getUnchecked(point).size(); m++)
+      {
+        std::string comma = (m==dim-1 ? "" : ",");
+        cout << gCurve.getUnchecked(point).getUnchecked(m) << comma;    
+      }
+      cout << ")\t";
+    }
+    cout << endl; 
+
+    cout << "qstart = ";
+    for (int m=0; m<qstart.size(); m++)
+      cout << qstart.getUnchecked(m) << "\t";
+    cout << endl;*/
 
 
     // update v curve
-    ucurve_update = ucurve;
-    vcurve_update = vcurve;
-    nepsolver->GDAupdateVCurve(ucurve_update, vcurve_update, ucurve, vcurve, alpha->floatValue(), ds, dtau->floatValue(), qstart, qend);
+    juce::Array<StateVec> vcurve_update(vcurve);
+    //nepsolver->GDAupdateVCurve(vcurve_update, ucurve, vcurve, lambdaArray, gCurve, alpha->doubleValue(), ds, dtau->doubleValue(), qstart);
+    nepsolver->GDAupdateVCurveSecondOrder(vcurve_update, ucurve, vcurve, lambdaArray, gCurve, alpha->doubleValue(), ds, dtau->doubleValue(), qstart);
+
+    /*cout << "\nucurve :" << endl;
+  for (int p=0; p<nPoints; p++)
+  {
+    cout << "(";
+    for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
+    {
+      std::string comma = (m==dim-1 ? "" : ",");
+      cout << ucurve.getUnchecked(p).getUnchecked(m) << comma;
+    }
+    cout << ")\t";
+  }
+
+
+    cout << "V updated = ";
+    for (int point=0; point<nPoints; point++)
+    {
+      cout << "(";
+      for (int m=0; m<vcurve_update.getUnchecked(point).size(); m++)
+      {
+        std::string comma = (m==dim-1 ? "" : ",");
+        cout << vcurve_update.getUnchecked(point).getUnchecked(m) << comma;    
+      }
+      cout << ")\t";
+    }
+    cout << endl; */
 
 
     // deduce q and p from u and v
-    qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve_update, alpha->floatValue());
+    qpcurves = nepsolver->GDAfromUVtoQP(ucurve, vcurve_update, alpha->doubleValue());
     qcurve_update = qpcurves.first;
     pcurve_update = qpcurves.second;
 
@@ -2829,13 +2993,13 @@ void NEP::gradientDescentAscent()
     g_pcurve = pcurve_update;
 
     // set u and v for next iteration
-    uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
-    ucurve = uvcurves.first;
-    vcurve = uvcurves.second;
+    std::pair<Curve, Curve> uvcurves2 = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->doubleValue());
+    ucurve = uvcurves2.first;
+    vcurve = uvcurves2.second;
 
 
 
-  /*cout << "After V curve" << endl;
+/*cout << "After V curve" << endl;
  cout << "qcurve :" << endl;
   for (int p=0; p<nPoints; p++)
   {
@@ -2882,29 +3046,44 @@ void NEP::gradientDescentAscent()
   }
   cout << endl;*/
 
-    // keep track of trajectory
-    Trajectory savetraj;
-    for (int point=0; point<nPoints; point++)
+    if (isCheck)
     {
-      PhaseSpaceVec qp;
-      StateVec q = g_qcurve.getUnchecked(point);
-      StateVec p = g_pcurve.getUnchecked(point);
-      for (int m=0; m<q.size(); m++)
-        qp.add(q.getUnchecked(m));
-      for (int m=0; m<p.size(); m++)
-        qp.add(p.getUnchecked(m));
-      savetraj.add(qp);
+      iterationDescent.add(count);
+
+      // keep track of trajectory
+      Trajectory savetraj;
+      for (int point=0; point<nPoints; point++)
+      {
+        PhaseSpaceVec qp;
+        StateVec q = g_qcurve.getUnchecked(point);
+        StateVec p = g_pcurve.getUnchecked(point);
+        for (int m=0; m<q.size(); m++)
+          qp.add(q.getUnchecked(m));
+        for (int m=0; m<p.size(); m++)
+          qp.add(p.getUnchecked(m));
+        savetraj.add(qp);
+      }
+      trajDescent.add(savetraj);
+
+      // calculate action
+      //juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
+      juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true); // flawed : lambdaarray should be recalculated after the v curve update, but it is not.
+      double action = cumulAction.getLast();
+      actionDescent.add(cumulAction);
+
+      // keep track of hamiltonian values along the curve
+      juce::Array<double> vecH;
+      for (int point=0; point<g_qcurve.size(); point++)
+      {
+        double h = nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
+        vecH.add(h);
+      }
+      residuals_H_descent.add(vecH);
+
+
+      // message to async
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
     }
-    trajDescent.add(savetraj);
-
-    // calculate action
-    juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
-    juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray);
-    double action = cumulAction.getLast();
-    actionDescent.add(cumulAction);
-
-    // message to async
-    //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
   
   }
 
@@ -2923,7 +3102,7 @@ void NEP::GDAwriteDescentToFile()
   string filename = "gda/gda_";
   filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
   filename += "_" + to_string(nPointsUI->intValue()) + "points";
-  filename += "_" + to_string(niters) + "iter";
+  filename += "_" + to_string(Niterations->intValue()) + "iter";
   filename += ".csv";
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
@@ -2942,6 +3121,7 @@ void NEP::GDAwriteDescentToFile()
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
     historyFile << ",p_" << ent->name;
+  historyFile << ",H";
   //for (auto & ent : simul->entities)
   //  historyFile << ",smooth_p_" << ent->name;
   //for (auto & ent : simul->entities)
@@ -2957,6 +3137,8 @@ void NEP::GDAwriteDescentToFile()
   
 
   jassert(actionDescent.size() == trajDescent.size());
+  jassert(iterationDescent.size() == trajDescent.size());
+  jassert(residuals_H_descent.size() == trajDescent.size());
 //  jassert(actionDescent.size() == residuals_H_descent.size());
   
   
@@ -2967,7 +3149,7 @@ void NEP::GDAwriteDescentToFile()
     int npoint_local = trajDescent.getUnchecked(iter).size();
     for (int point=0; point<npoint_local; point++) // loop over curve points
     {
-      historyFile << iter << "," << point;
+      historyFile << iterationDescent.getUnchecked(iter) << "," << point;
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
 
@@ -2975,6 +3157,7 @@ void NEP::GDAwriteDescentToFile()
         historyFile << "," << trajpq.getUnchecked(m);
       for (int m=trajpq.size()/2; m<trajpq.size(); m++)
         historyFile << "," << trajpq.getUnchecked(m);
+      historyFile << "," << residuals_H_descent.getUnchecked(iter).getUnchecked(point);
       historyFile << endl;
 
       //historyFile << "," << std::scientific << residuals_H_descent.getUnchecked(iter).getUnchecked(point);

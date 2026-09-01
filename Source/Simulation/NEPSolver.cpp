@@ -1410,36 +1410,52 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
 
 
 
-  std::pair<StateVec, StateVec> NEPSolver::GDAfg(StateVec u, StateVec v, double alpha)
+  juce::Array<StateVec> NEPSolver::GDAf1(const juce::Array<StateVec>& dHdqCurve, const juce::Array<StateVec>& dHdpCurve, double alpha)
   {
-    jassert(u.size() == v.size());
+    jassert(dHdqCurve.size() == dHdpCurve.size());
     jassert(alpha > 0.);
 
-    // retrieve q and p from u and v
-    StateVec q, p;
-    for (int m=0; m<u.size(); m++)
+    juce::Array<StateVec> f1curve;
+
+    for (int point = 0; point < dHdqCurve.size(); point++)
     {
-      double qm = 0.5*(u.getUnchecked(m) + v.getUnchecked(m));
-      double pm = 0.5*(u.getUnchecked(m) - v.getUnchecked(m)) / alpha;
-      q.add(qm);
-      p.add(pm);
+      StateVec f1;
+      StateVec dHdq = dHdqCurve.getUnchecked(point);
+      StateVec dHdp = dHdpCurve.getUnchecked(point);
+      for (int m=0; m<dHdq.size(); m++)
+      {
+        double f1m = alpha * dHdq.getUnchecked(m) - dHdp.getUnchecked(m);
+        f1.add(f1m);
+      }
+      f1curve.add(f1);
     }
 
-    // use ful quantities
-    StateVec dHdq = evalHamiltonianGradientWithQ(q, p);
-    StateVec dHdp = evalHamiltonianGradientWithP(q, p);
+    return f1curve;
 
-    StateVec f, g;
-    for (int m=0; m<q.size(); m++)
+  }
+
+
+  juce::Array<StateVec> NEPSolver::GDAf2(const juce::Array<StateVec>& dHdqCurve, const juce::Array<StateVec>& dHdpCurve, double alpha)
+  {
+    jassert(dHdqCurve.size() == dHdpCurve.size());
+    jassert(alpha > 0.);
+
+    juce::Array<StateVec> f2curve;
+
+    for (int point = 0; point < dHdqCurve.size(); point++)
     {
-      double fm = alpha * dHdq.getUnchecked(m) - dHdp.getUnchecked(m);
-      double gm = alpha * dHdq.getUnchecked(m) + dHdp.getUnchecked(m);
-      f.add(fm);
-      g.add(gm);
+      StateVec f2;
+      StateVec dHdq = dHdqCurve.getUnchecked(point);
+      StateVec dHdp = dHdpCurve.getUnchecked(point);
+      for (int m=0; m<dHdq.size(); m++)
+      {
+        double f2m = alpha * dHdq.getUnchecked(m) + dHdp.getUnchecked(m);
+        f2.add(f2m);
+      }
+      f2curve.add(f2);
     }
 
-    std::pair<StateVec, StateVec> fg = std::make_pair(f, g);
-    return fg;
+    return f2curve;
 
   }
 
@@ -1509,9 +1525,10 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
   }
 
 
-  juce::Array<double> NEPSolver::GDAlambdaArrayFromQP(const juce::Array<StateVec>& qcurve, const juce::Array<StateVec>& pcurve, double alpha, double ds)
+  juce::Array<double> NEPSolver::GDAlambdaArrayFromQP(const juce::Array<StateVec>& qcurve, const juce::Array<StateVec>& pcurve, const juce::Array<double>& hamiltCurve, const juce::Array<StateVec>& dHdpCurve, double alpha, double ds)
   {
     jassert(qcurve.size() == pcurve.size());
+    jassert(qcurve.size() == dHdpCurve.size());
     juce::Array<double> lambdaArray;
     lambdaArray.insertMultiple(0, 0., qcurve.size());
 
@@ -1545,10 +1562,6 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
     cout << endl;
 
     */
-    juce::Array<StateVec> arraydHdp;
-    StateVec nullvec;
-    nullvec.insertMultiple(0, 0., qcurve.getFirst().size());
-    arraydHdp.add(nullvec);
 
     // loop over points in the curve
     for (int point=1; point<qcurve.size()-1; point++)
@@ -1559,9 +1572,8 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
       StateVec pnext = pcurve.getUnchecked(point+1);
 
       // useful quantities
-      double H = evalHamiltonian(q, p);
-      StateVec dHdp = evalHamiltonianGradientWithP(q, p);
-      arraydHdp.add(dHdp);
+      double H = hamiltCurve.getUnchecked(point);
+      StateVec dHdp = dHdpCurve.getUnchecked(point);
 
       double scalarProduct = 0.;
       double dqds_normSqr = 0.;
@@ -1576,7 +1588,6 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
       arraySP.setUnchecked(point, scalarProduct);
       arraydphi.setUnchecked(point, dqds_normSqr);
     }
-    arraydHdp.add(nullvec);
   /*
     cout << "dHdp = ";
     for (int p=0; p<arraydHdp.size(); p++)
@@ -1602,7 +1613,7 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
 
     return lambdaArray;
   }
-
+/*
   juce::Array<double> NEPSolver::GDAlambdaArrayFromUV(const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, double alpha, double ds)
   {
     jassert(ucurve.size() == vcurve.size());
@@ -1616,19 +1627,19 @@ void NEPSolver::nextStepHamiltonEoM(StateVec& q, StateVec& p, StateVec& qstart, 
     return lambdaArray;
 
   }
+  */
 
 
 
 
-void NEPSolver::GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, juce::Array<StateVec>& vcurve_update, 
-    juce::Array<StateVec>& ucurve, juce::Array<StateVec>& vcurve, double alpha, double ds, double dtau, StateVec qstart, StateVec qend)
+void NEPSolver::GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, const juce::Array<double>& lambdaArray, 
+  const juce::Array<StateVec>& fCurve, double alpha, double ds, double dtau, const StateVec& qend)
     {
       jassert(ucurve.size() == vcurve.size());
-      jassert(ucurve_update.size() == vcurve_update.size());
       jassert(ucurve.size() == ucurve_update.size());
+      jassert(ucurve.size() == lambdaArray.size());
+      jassert(ucurve.size() == fCurve.size());
       int npoints = ucurve.size();
-
-      juce::Array<double> lambdaArray = GDAlambdaArrayFromUV(ucurve, vcurve, alpha, ds);
 
       for (int point=npoints-1; point>=0; point--)
       {
@@ -1641,7 +1652,7 @@ void NEPSolver::GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, juce::Arra
         }
         else
         {
-          StateVec f = GDAfg(ucurve.getUnchecked(point), vcurve.getUnchecked(point), alpha).first;
+          StateVec f = fCurve.getUnchecked(point);
           double lambdap = lambdaArray.getUnchecked(point);
           jassert(ucurve.getUnchecked(point).size() == ucurve_update.getUnchecked(point+1).size());
           jassert(f.size() == ucurve_update.getUnchecked(point+1).size());
@@ -1662,28 +1673,28 @@ void NEPSolver::GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, juce::Arra
 
 
 
-    void NEPSolver::GDAupdateVCurve(juce::Array<StateVec>& ucurve_update, juce::Array<StateVec>& vcurve_update, 
-    juce::Array<StateVec>& ucurve, juce::Array<StateVec>& vcurve, double alpha, double ds, double dtau, StateVec qstart, StateVec qend)
+    void NEPSolver::GDAupdateVCurve(juce::Array<StateVec>& vcurve_update, const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, const juce::Array<double>& lambdaArray,
+      const juce::Array<StateVec>& gCurve, double alpha, double ds, double dtau, const StateVec& qstart)
     {
       jassert(ucurve.size() == vcurve.size());
-      jassert(ucurve_update.size() == vcurve_update.size());
-      jassert(ucurve.size() == ucurve_update.size());
+      jassert(ucurve.size() == vcurve_update.size());
+      jassert(ucurve.size() == lambdaArray.size());
+      jassert(ucurve.size() == gCurve.size());
       int npoints = ucurve.size();
 
-      juce::Array<double> lambdaArray = GDAlambdaArrayFromUV(ucurve_update, vcurve, alpha, ds);
-
+      
       for (int point=0; point<npoints; point++)
       {
         if (point == 0)
         {
           for (int m=0; m<vcurve_update.getReference(point).size(); m++)
           {
-            vcurve_update.getReference(point).setUnchecked(m, -1.*ucurve_update.getReference(point).getUnchecked(m) + 2.*qstart.getUnchecked(m));
+            vcurve_update.getReference(point).setUnchecked(m, -1.*ucurve.getReference(point).getUnchecked(m) + 2.*qstart.getUnchecked(m));
           }
         }
         else
         {
-          StateVec g = GDAfg(ucurve_update.getUnchecked(point), vcurve.getUnchecked(point), alpha).second;
+          StateVec g = gCurve.getUnchecked(point);
           double lambdap = lambdaArray.getUnchecked(point);
           jassert(vcurve.getUnchecked(point).size() == vcurve_update.getUnchecked(point-1).size());
           jassert(g.size() == vcurve_update.getUnchecked(point-1).size());
@@ -1704,8 +1715,126 @@ void NEPSolver::GDAupdateUCurve(juce::Array<StateVec>& ucurve_update, juce::Arra
 
 
 
+    void NEPSolver::GDAupdateUCurveSecondOrder(juce::Array<StateVec>& ucurve_update, const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, const juce::Array<double>& lambdaArray, 
+  const juce::Array<StateVec>& fCurve, double alpha, double ds, double dtau, const StateVec& qend)
+    {
+      jassert(ucurve.size() == vcurve.size());
+      jassert(ucurve.size() == ucurve_update.size());
+      jassert(ucurve.size() == lambdaArray.size());
+      jassert(ucurve.size() == fCurve.size());
+      int npoints = ucurve.size();
 
-juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& lambda)
+      for (int point=npoints-1; point>=0; point--)
+      {
+        if (point == npoints-1)
+        {
+          for (int m=0; m<ucurve_update.getUnchecked(point).size(); m++)
+          {
+            ucurve_update.getReference(point).setUnchecked(m, -1.*vcurve.getReference(point).getUnchecked(m) + 2.*qend.getUnchecked(m));
+          }
+        }
+        else if (point == npoints-2) // 1st order
+        {
+          StateVec f = fCurve.getUnchecked(point);
+          double lambdap = lambdaArray.getUnchecked(point);
+          jassert(ucurve.getUnchecked(point).size() == ucurve_update.getUnchecked(point+1).size());
+          jassert(f.size() == ucurve_update.getUnchecked(point+1).size());
+
+          for (int m=0; m<ucurve.getUnchecked(point).size(); m++)
+          {
+            double up = ucurve.getReference(point).getUnchecked(m);
+            double up_update = ucurve_update.getReference(point+1).getUnchecked(m);
+
+            double newval = (up/dtau + lambdap*up_update/ds + f.getUnchecked(m)) / (1/dtau + lambdap/ds);
+            ucurve_update.getReference(point).setUnchecked(m, newval);
+          }
+        }
+        else // 2nd order
+        {
+          StateVec f = fCurve.getUnchecked(point);
+          double lambdap = lambdaArray.getUnchecked(point);
+          jassert(ucurve.getUnchecked(point).size() == ucurve_update.getUnchecked(point+1).size());
+          jassert(f.size() == ucurve_update.getUnchecked(point+1).size());
+
+          for (int m=0; m<ucurve.getUnchecked(point).size(); m++)
+          {
+            double up = ucurve.getReference(point).getUnchecked(m);
+            double upp_update = ucurve_update.getReference(point+1).getUnchecked(m);
+            double uppp_update = ucurve_update.getReference(point+2).getUnchecked(m);
+
+            double newval = (up/dtau + lambdap/(2.*ds) * (-1.*uppp_update + 4.*upp_update) + f.getUnchecked(m)) / (1/dtau + 3.*lambdap/(2.*ds));
+            ucurve_update.getReference(point).setUnchecked(m, newval);
+          }
+
+        }
+
+
+      }
+    }
+
+
+
+    void NEPSolver::GDAupdateVCurveSecondOrder(juce::Array<StateVec>& vcurve_update, const juce::Array<StateVec>& ucurve, const juce::Array<StateVec>& vcurve, const juce::Array<double>& lambdaArray,
+      const juce::Array<StateVec>& gCurve, double alpha, double ds, double dtau, const StateVec& qstart)
+    {
+      jassert(ucurve.size() == vcurve.size());
+      jassert(ucurve.size() == vcurve_update.size());
+      jassert(ucurve.size() == lambdaArray.size());
+      jassert(ucurve.size() == gCurve.size());
+      int npoints = ucurve.size();
+
+      
+      for (int point=0; point<npoints; point++)
+      {
+        if (point == 0)
+        {
+          for (int m=0; m<vcurve_update.getReference(point).size(); m++)
+          {
+            vcurve_update.getReference(point).setUnchecked(m, -1.*ucurve.getReference(point).getUnchecked(m) + 2.*qstart.getUnchecked(m));
+          }
+        }
+        else if (point==1) // 1 st order
+        {
+          StateVec g = gCurve.getUnchecked(point);
+          double lambdap = lambdaArray.getUnchecked(point);
+          jassert(vcurve.getUnchecked(point).size() == vcurve_update.getUnchecked(point-1).size());
+          jassert(g.size() == vcurve_update.getUnchecked(point-1).size());
+
+          for (int m=0; m<vcurve.getUnchecked(point).size(); m++)
+          {
+            double vp = vcurve.getReference(point).getUnchecked(m);
+            double vp_update = vcurve_update.getReference(point-1).getUnchecked(m);
+
+            double newval = (vp/dtau + lambdap*vp_update/ds + g.getUnchecked(m)) / (1/dtau + lambdap/ds);
+            vcurve_update.getReference(point).setUnchecked(m, newval);
+          }
+        }
+        else
+        {
+          StateVec g = gCurve.getUnchecked(point);
+          double lambdap = lambdaArray.getUnchecked(point);
+          jassert(vcurve.getUnchecked(point).size() == vcurve_update.getUnchecked(point-1).size());
+          jassert(g.size() == vcurve_update.getUnchecked(point-1).size());
+
+          for (int m=0; m<vcurve.getUnchecked(point).size(); m++)
+          {
+            double vp = vcurve.getReference(point).getUnchecked(m);
+            double vpp_update = vcurve_update.getReference(point-1).getUnchecked(m);
+            double vppp_update = vcurve_update.getReference(point-2).getUnchecked(m);
+
+            double newval = (vp/dtau - lambdap/(2.*ds) * (-4.*vpp_update + vppp_update) + g.getUnchecked(m)) / (1/dtau + 3.*lambdap/(2.*ds));
+            vcurve_update.getReference(point).setUnchecked(m, newval);
+          }
+        }
+
+
+      }
+    }
+
+
+
+
+juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& pc, const juce::Array<double>& lambda, bool forceStationnarity)
 {
   //cout << "-- GDAcalculateAction() --" << endl;
   // check that pcurve, qcurve and tcurve have the same size
@@ -1749,8 +1878,10 @@ juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& 
   {
     //cout << "\tdelta Ti = " << deltaTi << endl;
     // integrad at i
-    double integrand = -0.5 * (hamilt.getUnchecked(i)/lambda.getUnchecked(i) + hamilt.getUnchecked(i+1)/lambda.getUnchecked(i+1)) * ds;
-    //integrand = 0.;
+    double integrand = 0.;
+    if (!forceStationnarity)
+      integrand = -0.5 * (hamilt.getUnchecked(i)/lambda.getUnchecked(i) + hamilt.getUnchecked(i+1)/lambda.getUnchecked(i+1)) * ds;
+    
     
     jassert(pc.getUnchecked(i).size() == pc.getUnchecked(i+1).size()); // safety check
     jassert(qc.getUnchecked(i).size() == qc.getUnchecked(i+1).size());
