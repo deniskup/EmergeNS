@@ -1313,6 +1313,10 @@ Curve NEP::straightLineInitialTrajectory(StateVec& qstable, StateVec& qsaddle)
 {
   Curve outcurve;
   double NN = (double) nPoints;
+
+  RandomGausGenerator rg(0., 1.);
+
+
   for (int point=0; point<nPoints; point++)
     {
       StateVec vec;
@@ -1320,6 +1324,7 @@ Curve NEP::straightLineInitialTrajectory(StateVec& qstable, StateVec& qsaddle)
       for (int k=0; k<qstable.size(); k++)
       {
         double qk = qsaddle.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qstable.getUnchecked(k) - qsaddle.getUnchecked(k));
+        qk += 0.001 * rg.randomNumber() * std::sqrt(std::abs(qstable.getUnchecked(k)-qsaddle.getUnchecked(k)));
         vec.add(qk);
       }
       outcurve.add(vec);
