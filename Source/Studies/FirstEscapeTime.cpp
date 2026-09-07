@@ -23,11 +23,12 @@ FirstEscapeTime::~FirstEscapeTime()
 
 void FirstEscapeTime::signalEscapeDetected(const Escape& e)
 {
+  const juce::ScopedLock sl(lock);
+
     float t_current = earliestEscape.at(e.run).time;
 
     if (e.time < t_current) // update earliest escape for current run
     {
-      const juce::ScopedLock sl(lock);
       earliestEscape[e.run] = e;
       escapeDetected[e.run] = true;
       escapes.setUnchecked(e.run, e);
@@ -166,6 +167,9 @@ void FirstEscapeTime::copyReactionNetworkFromSimu()
       products.add(copy_simEntities[e->idSAT]);
     }
     SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+    copyr->enabled = r->enabled;
+    copyr->isReversible = r->isReversible;
+    copyr->idSAT = r->idSAT;
     copy_simReactions.add(copyr);
   }
 
@@ -179,7 +183,7 @@ void FirstEscapeTime::copyReactionNetworkFromSimu()
   crn.arraySteadyStates.clear();
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
-    crn.arraySteadyStates.add(sst);   
+    crn.arraySteadyStates.add(sst); 
   }
 }
 

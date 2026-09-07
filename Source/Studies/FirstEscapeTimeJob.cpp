@@ -186,7 +186,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
 
 int FirstEscapeTimeJob::identifyAttractionBasin()
 {
-
+ 
   // set entities to the concentration corresponding to input argument
   for (auto & ent : crn.entities)
   {
@@ -247,7 +247,7 @@ int FirstEscapeTimeJob::identifyAttractionBasin()
   //  cout << ent->concent.getUnchecked(patchid) << " ";
   //cout << endl;
   
-  
+   
   // determine in which steady state the system is
   int reachedSST = -1;
   float dmin = 1000.;

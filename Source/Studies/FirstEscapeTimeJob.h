@@ -137,7 +137,8 @@ public:
       snapConc(cg), run(_run), time(_time), escapeTimePrecision(_studyParams.escapeTimePrecision), 
       startSteadyState(_studyParams.startSteadyState), precision(_studyParams.precision), dt(_studyParams.dt_study)
       {
-        kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
+        //kinetics = new KineticLaw(false, 0.); // input parameters are for stochasticity
+        kinetics = std::make_unique<KineticLaw>(false, 0.);
       }
 
 
@@ -169,7 +170,7 @@ private:
   
     //void writeResultsToFile();
   
-    KineticLaw * kinetics;
+    std::unique_ptr<KineticLaw> kinetics;
     
     bool hasStoredEscapeTime = false;
 
