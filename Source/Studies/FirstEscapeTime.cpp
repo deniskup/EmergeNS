@@ -179,7 +179,7 @@ void FirstEscapeTime::copyReactionNetworkFromSimu()
   crn.arraySteadyStates.clear();
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
-    crn.arraySteadyStates.add(sst);    
+    crn.arraySteadyStates.add(sst);   
   }
 }
 

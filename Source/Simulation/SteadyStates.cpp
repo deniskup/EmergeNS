@@ -200,6 +200,29 @@ long double evaluate_expression(const string &expr)
 ///////////////////////////////////////////////////////////
 
 
+SteadyState::SteadyState(const SteadyState& _sst)
+{
+  state.clear();
+  for (auto & p : _sst.state)
+    state.add(make_pair(p.first, p.second));
+  
+  isBorder = _sst.isBorder;
+  warning = _sst.warning;
+  postiveEigenVal = _sst.postiveEigenVal;
+  isStable = _sst.isStable;
+  isPartiallyStable = _sst.isPartiallyStable;
+  isDiagonalized = _sst.isDiagonalized;
+  
+  eigenvalues.clear();
+  for (auto & ev : _sst.eigenvalues)
+    eigenvalues.add(ev);
+  
+  eigenvectors.clear();
+  for (auto & ev : _sst.eigenvectors)
+    eigenvectors.add(ev);
+}
+
+
 SteadyState::SteadyState(var data, bool& isValid)
 {
   if (data.isVoid())
