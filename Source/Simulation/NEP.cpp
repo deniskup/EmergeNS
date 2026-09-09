@@ -76,6 +76,9 @@ NEP::NEP() : ControllableContainer("NEP"),
 
   adaptiveStepDescent = addBoolParameter("Adaptive step", "Step descent initial guess increased for next iteration if it allowed for a valid descent iteration.", true);
     
+  customInitialConditionFile = addStringParameter("Custom init. traj.", "csv file containing a sampling of the initial trajectory to use", "gda_lastTraj.csv");
+
+
   // set options
   updateSteadyStateList();
   
@@ -83,6 +86,7 @@ NEP::NEP() : ControllableContainer("NEP"),
   initialConditions->addOption("Straigth line", 0);
   initialConditions->addOption("Deterministic trajectory", 1);
   initialConditions->addOption("Guess", 2);
+  initialConditions->addOption("Custom", 3);
 
   
   solverType->clearOptions();
@@ -269,7 +273,7 @@ void NEP::reset()
 void NEP::stop()
 {
   state = Idle;
-  LOG("Descent algorithm stops");
+  LOG("Descent algorithm required to stop, telling the thread to stop...");
   signalThreadShouldExit();
 }
 
@@ -1504,6 +1508,149 @@ Curve NEP::guessInitialTrajectory(StateVec& qstable, StateVec& qsaddle, int sst_
 
 
 
+
+std::pair<Curve, Curve> NEP::customInitialTrajectory(StateVec& qI, StateVec& qF)
+{
+  //input file
+  ifstream inFile;
+  inFile.open(customInitialConditionFile->stringValue().toStdString());
+  if (!inFile)
+  {
+    throw std::runtime_error("Cannot open custom initial trajectory file : " + customInitialConditionFile->stringValue().toStdString());
+  } 
+
+  std::string line; 
+
+  // read first line and retrieve entity names
+  std::getline(inFile, line);
+  std::stringstream ss(line);
+  std::string item;
+  juce::Array<std::string> entityNames;
+  while (std::getline(ss, item, ','))
+  {
+    entityNames.add(item);
+  }
+ 
+  // matching of entity names w.r.t entity stored in emergens
+  juce::Array<int> entityIDs;
+  for (auto & name : entityNames)
+  {
+    if (name.find("p_") != name.npos) // do not consider momentum assignements
+      continue;
+    bool found = false;
+    for (auto & ent : simul->entities)
+    {
+      if (name == ent->name.toStdString())
+      {
+        found = true;
+        entityIDs.add(ent->idSAT);
+        break;
+      }
+    }
+    if (!found)
+    {
+      throw std::runtime_error("Entity " + name + " from custom initial trajectory file not found in simulation entities.");
+    }
+  }
+
+  // some sanity checks
+  if (2*entityIDs.size() != entityNames.size())
+  {
+    throw std::runtime_error("Custom trajectory file in correct, check concentration and momentum variables to be of same dimension.");
+  }
+  if (entityIDs.size() != simul->entities.size())
+  {
+    throw std::runtime_error("Custom trajectory file in correct, check number of entities.");
+  }
+
+  // loop over rest of the file
+  Curve qcurve, pcurve;
+  int linecount = 0;
+  while (std::getline(inFile, line))
+  {
+    linecount++;
+    int c=0;
+    StateVec q, p;
+    std::stringstream ss(line);
+    while (std::getline(ss, item, ',') )
+    {
+      // convert value to double
+      double val;
+      try
+      {
+        val = std::stod(item);
+      }
+      catch(const std::exception& e)
+      {
+        std::cerr << e.what() << '\n';
+        throw std::runtime_error("Error reading custom initial trajectory file at line " + to_string(linecount) +
+         ". Cannot convert value to double : " + item);
+      }
+      
+      // assign it to qcurve or pcurve
+      if (c<simul->entities.size())
+        q.add(std::stod(item));
+      else
+        p.add(std::stod(item));
+      c++;
+    }
+
+    if (p.size() != simul->entities.size())
+    {
+      throw std::runtime_error("pcurve size does not match that of simm entities at line " + to_string(linecount));
+    }
+    if (q.size() != simul->entities.size())
+    {
+      throw std::runtime_error("qcurve size does not match that of simm entities at line " + to_string(linecount));
+    }
+
+    // add point to qcurve and pcurve
+    qcurve.add(q);  
+    pcurve.add(p);
+
+  }
+
+
+  // sort curves to make them match the order of entities in simulation
+  Curve qcurve_sorted, pcurve_sorted;
+  for (int p=0; p<qcurve.size(); p++)
+  {
+    StateVec qpoint_sorted, ppoint_sorted;
+    qpoint_sorted.insertMultiple(0, 0., simul->entities.size());
+    ppoint_sorted.insertMultiple(0, 0., simul->entities.size());
+    for (int k=0; k<entityIDs.size(); k++)
+    {
+      int id = entityIDs.getUnchecked(k);
+      qpoint_sorted.setUnchecked(id, qcurve.getReference(p).getUnchecked(k));
+      ppoint_sorted.setUnchecked(id, pcurve.getReference(p).getUnchecked(k));
+    }
+    qcurve_sorted.add(qpoint_sorted);
+    pcurve_sorted.add(ppoint_sorted);
+  }
+
+
+  // add initial and final points to qcurve 
+  qcurve_sorted.insert(0, qI);
+  qcurve_sorted.add(qF);
+
+  // same for momentum curve
+  StateVec nullP;
+  nullP.insertMultiple(0, 0., simul->entities.size());
+  pcurve_sorted.insert(0, nullP);
+  pcurve_sorted.add(nullP);
+
+
+  // resample qcurve and pcurve
+  resampleInSpaceUniform(qcurve_sorted, nPointsUI->intValue(), &pcurve_sorted);
+
+
+  std::pair<Curve, Curve> output = std::make_pair(qcurve_sorted, pcurve_sorted);
+  return output;
+
+}
+
+
+
 void NEP::initConcentrationCurve(int sstI, int sstF, bool useGradientDescentAscent)
 {
   // read init and final curve points from enum parameters
@@ -1525,9 +1672,11 @@ void NEP::initConcentrationCurve(int sstI, int sstF, bool useGradientDescentAsce
     }
   }
 
-  if (initialConditions->getValueDataAsEnum<int>() != 0 && useGradientDescentAscent)
+  if (initialConditions->getValueDataAsEnum<int>() != 0 
+  && initialConditions->getValueDataAsEnum<int>() != 3  
+  && useGradientDescentAscent)
   {
-    LOGWARNING("For gradient descent ascent algorithm, make sure to pick straight line as initial condition.");
+    LOGWARNING("For gradient descent ascent algorithm, make sure to pick straight line or custom initial condition.");
     throw std::runtime_error("Cannot use deterministic or guess initial trajectory when using gradient descent/ascent. Use straight line initial trajectory instead.");
   }
   
@@ -1571,7 +1720,26 @@ void NEP::initConcentrationCurve(int sstI, int sstF, bool useGradientDescentAsce
   {
     g_qcurve = guessInitialTrajectory(qI, qF, sstI, sstF);
   }
+  else if (initialConditions->getValueDataAsEnum<int>() == 3)
+  {
+    try
+    {
+      std::pair<Curve, Curve> qpcurves = customInitialTrajectory(qI, qF);
+      g_qcurve = qpcurves.first;
+      g_pcurve = qpcurves.second;
+    }
+    catch(const std::exception& e)
+    {
+      std::cerr << e.what() << '\n';
+      throw std::runtime_error("Error while reading custom initial trajectory file. Exit.");
+    }
+    // return, error sent that should prevent the descent to happen.
+    
+    
+  }
   
+
+
   // init sample rate
   length_qcurve = curveLength(g_qcurve);
   if (length_qcurve>0.)
@@ -2593,7 +2761,7 @@ void NEP::heteroclinicStudy()
 void NEP::gradientDescentAscent()
 {
   // init with straightline between stable steady states
-  initialConditions->setValueAtIndex(0);
+  //initialConditions->setValueAtIndex(0);
   try
   {
     initConcentrationCurve(sst_stable->intValue(), sst_stable2->intValue(), true);
@@ -2749,6 +2917,7 @@ void NEP::gradientDescentAscent()
 
 
   int count = 0;
+  bool gdaIsOk = true;
   while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
@@ -2800,6 +2969,7 @@ void NEP::gradientDescentAscent()
     Curve qcurve_update = qpcurves.first;
     Curve pcurve_update = qpcurves.second;
 
+
     // enforce boundary conditions on p and q, i.e qfirst = qstart, qlast = qend, pfirst = 0, plast = 0
     for (int m=0; m<qcurve_update.getFirst().size(); m++)
       qcurve_update.getReference(0).setUnchecked(m, qstart.getUnchecked(m));
@@ -2812,6 +2982,30 @@ void NEP::gradientDescentAscent()
 
     // resample q and p in space uniform for q.
     resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
+
+    // check qcurve validity
+    bool isValid = true;
+    for (auto& qpoint : qcurve_update)
+    {
+      for (auto& qval : qpoint)
+      {
+        if (std::isnan(qval) || std::isinf(qval) || qval<0.)
+        {
+          isValid = false;
+          break;
+        }
+      }
+      if (!isValid)
+        break;
+    }
+
+    if (!isValid)
+    {
+      LOGWARNING("qcurve_update contains invalid values (NaN, Inf or negative). Stopping gradient descent/ascent.");
+      gdaIsOk = false;
+      signalThreadShouldExit();
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+    }
 
     // update g_qcurve and g_pcurve
     g_qcurve = qcurve_update;
@@ -2993,6 +3187,32 @@ void NEP::gradientDescentAscent()
     // resample q and p in space uniform for q. Beware of what happens for the p curve
     resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
 
+
+    // check qcurve validity
+    isValid = true;
+    for (auto& qpoint : qcurve_update)
+    {
+      for (auto& qval : qpoint)
+      {
+        if (std::isnan(qval) || std::isinf(qval) || qval<0.)
+        {
+          isValid = false;
+          break;
+        }
+      }
+      if (!isValid)
+        break;
+    }
+
+    if (!isValid)
+    {
+      LOGWARNING("qcurve_update contains invalid values (NaN, Inf or negative). Stopping gradient descent/ascent.");
+      gdaIsOk = false;
+      signalThreadShouldExit();
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+    }
+
+
     // update g_qcurve and g_pcurve
     g_qcurve = qcurve_update;
     g_pcurve = pcurve_update;
@@ -3092,8 +3312,13 @@ void NEP::gradientDescentAscent()
   
   }
 
-
-  GDAwriteDescentToFile();
+  if (gdaIsOk)
+  {
+    LOG("Wrting gradient descent/ascent results to file...");
+    GDAwriteDescentToFile();
+    LOG("Saving last iteration of gradient descent/ascent to file...");
+    GDAsaveLastIterationToFile();
+  }
 
 }
 
@@ -3172,6 +3397,47 @@ void NEP::GDAwriteDescentToFile()
   } // end loop over iterations
 
 }
+
+
+void NEP::GDAsaveLastIterationToFile()
+{
+  // open output file
+  string filename = "gda_lastTraj.csv";
+  ofstream historyFile;
+  historyFile.open(filename, ofstream::out | ofstream::trunc);
+  
+  int c=0;
+  for (auto & ent : simul->entities)
+  {
+    std::string comma = (c==0 ? "" : ",");
+    historyFile << comma << ent->name;
+    c++;
+  }
+  for (auto & ent : simul->entities)
+    historyFile << ",p_" << ent->name;
+  historyFile << endl;
+  
+
+  Curve lastqcurve = g_qcurve;
+  Curve lastpcurve = g_pcurve;
+    
+    for (int point=0; point<g_qcurve.size(); point++) // loop over curve points
+    {
+      for (int m=0; m<g_qcurve.getUnchecked(point).size(); m++)
+      {
+        string comma = (m==0 ? "" : ",");
+        historyFile << comma << g_qcurve.getReference(point).getUnchecked(m);
+      }
+      for (int m=0; m<g_pcurve.getUnchecked(point).size(); m++)
+        historyFile << "," << g_pcurve.getReference(point).getUnchecked(m);
+      historyFile << endl;
+    } // end loop over points in current iteration
+
+}
+
+
+
+
 
 
 void NEP::debuggingFunction()

@@ -77,6 +77,7 @@ private:
   std::unordered_map<int, bool> escapeDetected;  // <runID, escapeDetected>
   std::unordered_map<int, Escape> earliestEscape;  // <runID, escapeDetected>
   std::unordered_map<int, int> pendingJobs;  // <runID, nJobs>
+  std::unordered_map<int, bool> newRunRequested;  // <runID, bool>
 
   std::atomic<bool> simuHasFinished { false };
   std::atomic<bool> resultsWritten { false };

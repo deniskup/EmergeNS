@@ -24,6 +24,14 @@ FirstEscapeTime::~FirstEscapeTime()
 void FirstEscapeTime::signalEscapeDetected(const Escape& e)
 {
   const juce::ScopedLock sl(lock);
+  
+  //if (pendingJobs.at(e.run)-1 == 0 && !simuSendsMessages.at(e.run) && escapeDetected.at(e.run)) // last job in current run
+  //  {
+  //    std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(escapes.getUnchecked(e.run).time);
+  //    LOG(juce::String(log));      
+  //  }
+
+  //
 
     float t_current = earliestEscape.at(e.run).time;
 
@@ -32,18 +40,32 @@ void FirstEscapeTime::signalEscapeDetected(const Escape& e)
       earliestEscape[e.run] = e;
       escapeDetected[e.run] = true;
       escapes.setUnchecked(e.run, e);
+    }
 
-      if (pendingJobs.at(e.run)-1 == 0) // last job in current run
+    // if an escape is detected, request simulation to proceed to next run
+    if(escapeDetected.at(e.run) && !debugMode && !newRunRequested.at(e.run))
+    {
+      LOG("Request to proceed to next run");
+      simul->requestProceedingToNextRun(e.run);
+      newRunRequested[e.run] = true;
+    }
+
+
+
+
+     /*if (pendingJobs.at(e.run)-1 == 0) // last job in current run
       {
-        std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(e.time);
-        LOG(juce::String(log));
+        //std::string log = "Run " + std::to_string(e.run) + ": escape detected at time " + to_string(e.time);
+        //LOG(juce::String(log));
         if (!debugMode)
         {
           LOG("Proceeding to next run");
           simul->requestProceedingToNextRun(e.run);
         }
       }
-    }
+      */
+  
+    
 
 }
 
@@ -228,6 +250,7 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
       cores = atoi(val.toUTF8());
   }
   printDynamics2File = bool(printDynamics2File);
+
   
   // set simulation instance parameters according to those of config file
   
@@ -298,7 +321,8 @@ void FirstEscapeTime::setSimulationConfig(std::map<String, String> configs)
   simuHasFinished.store(false);
   
   // force simulation thread to not store dynamics 
-  simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
+  //simul->lightMemory.store(!printDynamics2File, std::memory_order_release);
+  simul->lightMemory.store(false, std::memory_order_release);
 }
 
 
@@ -389,9 +413,11 @@ cout << "printResultsToFile()" << endl;
 
 void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
 {
-  if (simul->redrawPatch || simul->redrawRun)
+  if (ev.redrawPatch || ev.redrawRun)
+  {
     return;
-
+  }
+  
   switch (ev.type)
   {
     case Simulation::SimulationEvent::UPDATEPARAMS:
@@ -415,6 +441,10 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
       pendingJobs[0] = 0;
       escapes.clear();
       escapes.insertMultiple(0, {-1, -1., -1, -1}, nruns);
+      newRunRequested.clear();
+      for (int r=0; r<nruns; r++)
+        newRunRequested[r] = false;
+      //LOG("Starting run 0");
     }
   break;
 
@@ -458,16 +488,35 @@ void FirstEscapeTime::newMessage(const Simulation::SimulationEvent &ev)
     case Simulation::SimulationEvent::NEWRUN:
     {
       const juce::ScopedLock sl(lock);
-      //simuSendsMessages[ev.run] = true;
+      //if (ev.run>0)
+      //  simuSendsMessages[ev.run-1] = false;
+      runBeingTreated.store(ev.run);
       escapeDetected[ev.run] = false;
       earliestEscape[ev.run] = {ev.run, std::numeric_limits<float>::max(), startSteadyState, -1};
       pendingJobs[ev.run] = 0;
+      //LOG("Starting run " + juce::String(ev.run));
+      if (!escapeDetected.at(ev.run-1))
+      {
+        LOG("No escape detected at run " + juce::String(ev.run-1));
+      }
+      else
+      {
+        LOG("Escape detected at run " + juce::String(ev.run-1) + " at time " + juce::String(earliestEscape.at(ev.run-1).time));
+      }
     }
   break;
 
     case Simulation::SimulationEvent::FINISHED:
     {
       const juce::ScopedLock sl(lock);
+      if (!escapeDetected.at(ev.run))
+      {
+        LOG("No escape detected at run " + juce::String(ev.run));
+      }
+      else
+      {
+        LOG("Escape detected at run " + juce::String(ev.run) + " at time " + juce::String(earliestEscape.at(ev.run).time));
+      }
       simuHasFinished.store(true);
     }
       

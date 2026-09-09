@@ -375,6 +375,18 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
     }
     break;
 
+    case NEP::NEPEvent::ERROR:
+    {
+      iterations.clear();
+      actions.clear();
+      cutoffFreqs.clear();
+      nPoints.clear();
+      metrics.clear();
+      convergence.clear();
+      repaint();
+    }
+    break;
+
   }
 }
 

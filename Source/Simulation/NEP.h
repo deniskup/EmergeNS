@@ -102,9 +102,10 @@ public:
   BoolParameter * adaptiveStepDescent;
   EnumParameter* initialConditions;
   EnumParameter* solverType;
+  StringParameter * customInitialConditionFile;
 
 
-  // update steady state list when updateParams is calle din SImulation
+  // update steady state list when updateParams is calle din Simulation
   void updateSteadyStateList();
   
   
@@ -134,6 +135,7 @@ public:
     {
       WILL_START,
       NEWSTEP,
+      ERROR
     };
 
     NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0., double _convergenceFraction = 0.)
@@ -172,6 +174,8 @@ private:
   Curve straightLineInitialTrajectory(StateVec&, StateVec&);
 
   Curve guessInitialTrajectory(StateVec&, StateVec&, int, int);
+
+  std::pair<Curve, Curve> customInitialTrajectory(StateVec&, StateVec&);
 
   void initConcentrationCurve(int, int, bool useGradientDescentAscent = false);
   
@@ -219,6 +223,8 @@ private:
   void gradientDescentAscent();
 
   void GDAwriteDescentToFile();
+  
+  void GDAsaveLastIterationToFile();
   
   void debuggingFunction();
   

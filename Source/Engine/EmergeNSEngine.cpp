@@ -125,6 +125,8 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
 
     // map of config parameters and their values
     map<String, String> configs;
+    bool hasSuperRun = false;
+    String superrun = "";
 
 
     // loop over command lines but retrieve only config command
@@ -147,13 +149,20 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       }
       else if (c.command == "superRun")
       {
-        String command = String(c.command);
-        String strval = c.args[0];
-        configs[command] = strval;
-        //cout << "setting super run to " << strval << endl;
+        hasSuperRun = true;
+        //String command = String(c.command);
+        //String strval = c.args[0];
+        superrun = c.args[0];
       }
       
     } // end command loop
+
+    if (hasSuperRun)
+    {
+      configs["superRun"] = superrun;
+    }
+
+    
 
     String model2file = "model.txt";
     String network = "";
