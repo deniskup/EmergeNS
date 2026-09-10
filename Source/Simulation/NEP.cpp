@@ -1628,6 +1628,23 @@ std::pair<Curve, Curve> NEP::customInitialTrajectory(StateVec& qI, StateVec& qF)
     pcurve_sorted.add(ppoint_sorted);
   }
 
+  // check
+  /*for (int p=0; p<qcurve_sorted.size(); p++)
+  {
+    cout << "q = ";
+    for (int k=0; k<qcurve_sorted.getUnchecked(p).size(); k++)
+    {
+      cout << qcurve_sorted.getReference(p).getUnchecked(k) << " ";
+    }
+    cout << "\tp = ";
+    for (int k=0; k<pcurve_sorted.getUnchecked(p).size(); k++)
+    {
+      cout << pcurve_sorted.getReference(p).getUnchecked(k) << " ";
+    }
+    cout << endl;
+  }*/
+
+
 
   // add initial and final points to qcurve 
   qcurve_sorted.insert(0, qI);
@@ -1642,6 +1659,7 @@ std::pair<Curve, Curve> NEP::customInitialTrajectory(StateVec& qI, StateVec& qF)
 
   // resample qcurve and pcurve
   resampleInSpaceUniform(qcurve_sorted, nPointsUI->intValue(), &pcurve_sorted);
+
 
 
   std::pair<Curve, Curve> output = std::make_pair(qcurve_sorted, pcurve_sorted);
@@ -2778,10 +2796,14 @@ void NEP::gradientDescentAscent()
   StateVec qstart = g_qcurve.getFirst();
   StateVec qend = g_qcurve.getLast();
 
-  // p curve init as null vector
+  // null vector useful
   StateVec nullvec; 
   nullvec.insertMultiple(0, 0., simul->entities.size()); 
-  g_pcurve.insertMultiple(0, nullvec, nPoints);
+
+  // p curve init as null vector if not alreadu initialized
+  if (g_pcurve.size() == 0)
+    g_pcurve.insertMultiple(0, nullvec, nPoints);
+  
 
   int dim = simul->entities.size();
 
@@ -2989,7 +3011,7 @@ void NEP::gradientDescentAscent()
     {
       for (auto& qval : qpoint)
       {
-        if (std::isnan(qval) || std::isinf(qval) || qval<0.)
+        if (std::isnan(qval) || std::isinf(qval))
         {
           isValid = false;
           break;
@@ -3001,10 +3023,21 @@ void NEP::gradientDescentAscent()
 
     if (!isValid)
     {
-      LOGWARNING("qcurve_update contains invalid values (NaN, Inf or negative). Stopping gradient descent/ascent.");
+      LOGWARNING("qcurve_update contains invalid values (NaN, Inf). Stopping gradient descent/ascent.");
       gdaIsOk = false;
       signalThreadShouldExit();
       nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+    }
+
+    // set to 0 negative values in concentration curve
+    for (int p=0; p<qcurve_update.size(); p++)
+    {
+      for (int m=0; m<qcurve_update.getUnchecked(p).size(); m++)
+      {
+        double qval = qcurve_update.getUnchecked(p).getUnchecked(m);
+        if (qval < 0.)
+          qcurve_update.getReference(p).setUnchecked(m, 0.);
+      }
     }
 
     // update g_qcurve and g_pcurve
@@ -3194,7 +3227,7 @@ void NEP::gradientDescentAscent()
     {
       for (auto& qval : qpoint)
       {
-        if (std::isnan(qval) || std::isinf(qval) || qval<0.)
+        if (std::isnan(qval) || std::isinf(qval))
         {
           isValid = false;
           break;
@@ -3210,6 +3243,17 @@ void NEP::gradientDescentAscent()
       gdaIsOk = false;
       signalThreadShouldExit();
       nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+    }
+
+    // set to 0 negative values in concentration curve
+    for (int p=0; p<qcurve_update.size(); p++)
+    {
+      for (int m=0; m<qcurve_update.getUnchecked(p).size(); m++)
+      {
+        double qval = qcurve_update.getUnchecked(p).getUnchecked(m);
+        if (qval < 0.)
+          qcurve_update.getReference(p).setUnchecked(m, 0.);
+      }
     }
 
 
