@@ -177,6 +177,8 @@ public:
 	SimulationState state = Idle;
 	std::atomic<bool> requestNewRun{false}; // to request thread (outside from it) to move to next run
 
+	//bool hasSimuLoaded = false;
+
 	void affectSATIds(); // affect idSAT to the entities/reactions if not already done.
 
 	// actually just equal to not generated
