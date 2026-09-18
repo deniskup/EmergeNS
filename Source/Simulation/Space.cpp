@@ -200,7 +200,7 @@ void Space::onContainerTriggerTriggered(Trigger *t)
     //cout << "checkpoint = " << checkPoint << endl;
     
     int run0 = 0;
-    for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.size(); k++)
+    for (int k=0; k<Simulation::getInstance()->dynHistory->concentHistory.getReference(run0).size(); k++)
     {
       concMovie.add(Simulation::getInstance()->dynHistory->concentHistory.getReference(run0).getUnchecked(k).conc);
     }

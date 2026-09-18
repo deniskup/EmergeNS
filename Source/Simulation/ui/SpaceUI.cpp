@@ -117,7 +117,6 @@ void SpaceUI::paint(juce::Graphics &g)
 
 void SpaceUI::drawSpaceGrid(juce::Graphics & g)
 {
-  cout << "useStartConcentrationValues: " << useStartConcentrationValues << endl;
   // start is at upper left corner
   int til = space->tilingSize->intValue();
   float ftil = (float) til;
