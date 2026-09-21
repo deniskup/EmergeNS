@@ -108,7 +108,9 @@ void SpaceUI::paint(juce::Graphics &g)
   
   // reset bool to true by default
   if (!useStartConcentrationValues && !space->isThreadRunning() && entityHistory.size()==0)
+  {
     useStartConcentrationValues = true;
+  }
 
 }
 
@@ -595,7 +597,8 @@ void SpaceUI::newMessage(const Space::SpaceEvent &ev)
   {
     case Space::SpaceEvent::UPDATE_GRID:
     {
-      useStartConcentrationValues = true;
+      if (simul->dynHistory->concentHistory.size() == 0) // if a simulation is loaded, do not use start concenc values to draw the grid
+        useStartConcentrationValues = true;
       entityColors = ev.entityColors;
       gridIsAlreadyDrawn = false;
       shouldRepaint = true;
