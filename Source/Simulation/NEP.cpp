@@ -36,9 +36,9 @@ NEP::NEP() : ControllableContainer("NEP"),
   useGradientDescentAscent = addBoolParameter("Gradient descent/ascent", "Uswe gradient descent ascent algorithm.", false);
     
   // enum parameters = steady states
-  sst_stable = addEnumParameter("Stable steady state", "Choose stable fixed point to start the NEP algorithm from");
+  sst_stable = addEnumParameter("Steady state 1", "Choose fixed point to start the NEP algorithm from");
 
-  sst_stable2 = addEnumParameter("Stable steady state #2", "Choose stable fixed point to start the NEP algorithm from");
+  sst_stable2 = addEnumParameter("Steady state 2", "Choose fixed point to start the NEP algorithm from");
 
   sst_saddle = addEnumParameter("Unstable steady state", "Choose unstable fixed point to start the NEP algorithm from");
   
@@ -131,14 +131,19 @@ void NEP::updateSteadyStateList()
     SteadyState sst = simul->steadyStatesList->arraySteadyStates.getUnchecked(k);
     if (sst.isBorder)
       continue;
+
+    sst_stable->addOption(String(k), k);
+    sst_stable2->addOption(String(k), k);
     
-    if (sst.isStable)
-    {
-      sst_stable->addOption(String(k), k);
-      sst_stable2->addOption(String(k), k);
-    }
-    else if (!sst.isStable)
+    //if (sst.isStable)
+    //{
+    //  sst_stable->addOption(String(k), k);
+    //  sst_stable2->addOption(String(k), k);
+    //}
+    if (!sst.isStable)
       sst_saddle->addOption(String(k), k);
+    //else if (!sst.isStable)
+    //  sst_saddle->addOption(String(k), k);
   }
   
 }
@@ -1328,7 +1333,8 @@ Curve NEP::straightLineInitialTrajectory(StateVec& qstable, StateVec& qsaddle)
       for (int k=0; k<qstable.size(); k++)
       {
         double qk = qsaddle.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qstable.getUnchecked(k) - qsaddle.getUnchecked(k));
-        qk += 0.001 * rg.randomNumber() * std::sqrt(std::abs(qstable.getUnchecked(k)-qsaddle.getUnchecked(k)));
+        if (point>0 && point <nPoints-1)
+          qk += 0.01 * rg.randomNumber() * std::sqrt(std::abs(qstable.getUnchecked(k)-qsaddle.getUnchecked(k)));
         vec.add(qk);
       }
       outcurve.add(vec);
@@ -1342,7 +1348,7 @@ Curve NEP::guessInitialTrajectory(StateVec& qstable, StateVec& qsaddle, int sst_
   SteadyState stable = simul->steadyStatesList->arraySteadyStates.getUnchecked(sst_stable);
   SteadyState saddle = simul->steadyStatesList->arraySteadyStates.getUnchecked(sst_saddle);
 
-  cout << sst_stable << " , " << sst_saddle << endl;
+  //cout << sst_stable << " , " << sst_saddle << endl;
 
   int index = -1;
   float lessNegative = 0.;
@@ -2940,6 +2946,7 @@ void NEP::gradientDescentAscent()
 
   int count = 0;
   bool gdaIsOk = true;
+  double nep = -999.;
   while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
@@ -3339,6 +3346,7 @@ void NEP::gradientDescentAscent()
       juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true); // flawed : lambdaarray should be recalculated after the v curve update, but it is not.
       double action = cumulAction.getLast();
       actionDescent.add(cumulAction);
+      nep = action;
 
       // keep track of hamiltonian values along the curve
       juce::Array<double> vecH;
@@ -3352,12 +3360,15 @@ void NEP::gradientDescentAscent()
 
       // message to async
       nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
+    
+
     }
   
   }
 
   if (gdaIsOk)
   {
+    LOG("NEP = " + String(nep));
     LOG("Wrting gradient descent/ascent results to file...");
     GDAwriteDescentToFile();
     LOG("Saving last iteration of gradient descent/ascent to file...");

@@ -23,8 +23,8 @@ Entity::Entity(var params) : BaseItem(getTypeString() + " 1")
 
 void Entity::updateInterface()
 {
-	creationRate->setControllableFeedbackOnly(chemostat->boolValue() || !primary->boolValue());
-	creationRate->hideInEditor = chemostat->boolValue() || !primary->boolValue();
+	creationRate->setControllableFeedbackOnly(chemostat->boolValue());// || !primary->boolValue());
+	creationRate->hideInEditor = chemostat->boolValue();// || !primary->boolValue();
 	destructionRate->setControllableFeedbackOnly(chemostat->boolValue());
 	destructionRate->hideInEditor = chemostat->boolValue();
 	concent->setControllableFeedbackOnly(chemostat->boolValue());
