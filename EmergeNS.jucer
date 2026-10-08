@@ -20,6 +20,8 @@
               file="Source/Studies/FirstEscapeTimeJob.cpp"/>
         <FILE id="smSm7w" name="FirstEscapeTimeJob.h" compile="0" resource="0"
               file="Source/Studies/FirstEscapeTimeJob.h"/>
+        <FILE id="Z1rZuT" name="NEPSchlogl.cpp" compile="1" resource="0" file="Source/Studies/NEPSchlogl.cpp"/>
+        <FILE id="t7QEBq" name="NEPSchlogl.h" compile="0" resource="0" file="Source/Studies/NEPSchlogl.h"/>
       </GROUP>
       <GROUP id="{0DC77F4D-5B99-1B09-9BDB-7730505ACBFC}" name="Engine">
         <FILE id="mDORRC" name="EmergeNSEngine.cpp" compile="1" resource="0"

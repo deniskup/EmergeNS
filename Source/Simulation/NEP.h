@@ -135,6 +135,7 @@ public:
     {
       WILL_START,
       NEWSTEP,
+      FINISHED,
       ERROR
     };
 

@@ -541,6 +541,11 @@ void SteadyStateslist::cleanLocalFolder()
 }
 
 
+void requestSteadyStateCalculation()
+{
+  computeSteadyStates();
+}
+
 
 
 void SteadyStateslist::computeSteadyStates()
@@ -548,9 +553,15 @@ void SteadyStateslist::computeSteadyStates()
   startThread();
 }
 
+
+
 void SteadyStateslist::run()
 {
+  sstNotifier.addMessage(new SteadyStateEvent(SteadyStateEvent::WILL_START));
+
   // mark beginning of computation
+  state = Calculating;
+
   simul->isComputing = true;
   simul->shouldStop = false;
   // measure time
@@ -578,6 +589,10 @@ void SteadyStateslist::run()
   computeJacobiMatrix(); // formally calculate jacobi matrix of chemical reaction network
 
   evaluateSteadyStatesStability();
+
+  state = Idle;
+  sstNotifier.addMessage(new SteadyStateEvent(SteadyStateEvent::FINISHED));
+
 }
 
 void SteadyStateslist::setZ3path()

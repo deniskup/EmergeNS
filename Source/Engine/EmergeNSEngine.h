@@ -4,6 +4,7 @@
 
 #include "JuceHeader.h"
 #include "Studies/FirstEscapeTime.h"
+#include "Studies/NEPSchlogl.h"
 
 //using namespace juce;
 
@@ -23,6 +24,8 @@ public:
   bool parseCommandline(const juce::String &) override;
   
   void firstEscapeTimeStudy(map<juce::String, juce::String>);
+
+  void NEPSchloglStudy(map<juce::String, juce::String>);
 
   juce::var getJSONData(bool includeNonOverriden = false) override;
   void loadJSONDataInternalEngine(juce::var data, ProgressTask* loadingTask) override;

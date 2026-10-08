@@ -34,6 +34,7 @@
 		62E8E11A62C4C950EB430351 /* PhasePlaneUI.cpp */ = {isa = PBXBuildFile; fileRef = F77C398492396D6464E64DF6; };
 		66A555C2F51D80ACE2D2943C /* FirstEscapeTime.cpp */ = {isa = PBXBuildFile; fileRef = DC033714E4EA0A7DCB5942FC; };
 		6C2F77C121AD3706CFE51CE2 /* include_juce_organicui2.cpp */ = {isa = PBXBuildFile; fileRef = B839AC5419C29F56D15AF22C; };
+		78C892F3FD57D120DE9EE52F /* NEPSchlogl.cpp */ = {isa = PBXBuildFile; fileRef = 0867277B912F4622507F6FC8; };
 		7901AB2D0CDD47E7997BA379 /* Settings.cpp */ = {isa = PBXBuildFile; fileRef = EE17CAEE78682725DB5BBF14; };
 		79864665CA44312AD50D238E /* include_juce_organicui3.cpp */ = {isa = PBXBuildFile; fileRef = B1E31D9C1C0073541A716045; };
 		7BAFE20C075CDBA708F48D0D /* include_juce_organicui.cpp */ = {isa = PBXBuildFile; fileRef = B3FF5146B9527D733EAEFFBC; };
@@ -80,6 +81,7 @@
 
 /* Begin PBXFileReference section */
 		08546C480AA55B55148DA0C9 /* Space.cpp */ /* Space.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Space.cpp; path = ../../Source/Simulation/Space.cpp; sourceTree = SOURCE_ROOT; };
+		0867277B912F4622507F6FC8 /* NEPSchlogl.cpp */ /* NEPSchlogl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPSchlogl.cpp; path = ../../Source/Studies/NEPSchlogl.cpp; sourceTree = SOURCE_ROOT; };
 		086E2A709DB2A17B51F3FF2F /* Util.cpp */ /* Util.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Util.cpp; path = ../../Source/Simulation/Util.cpp; sourceTree = SOURCE_ROOT; };
 		0A3CC5BA63C4CFB8D89F0D2A /* PAC.cpp */ /* PAC.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PAC.cpp; path = ../../Source/Simulation/PAC.cpp; sourceTree = SOURCE_ROOT; };
 		0A7A50722F6E3517F56701A7 /* juce_graphics */ /* juce_graphics */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_graphics; path = ../../JUCE/modules/juce_graphics; sourceTree = SOURCE_ROOT; };
@@ -101,6 +103,7 @@
 		31A9628A815B32BDE4825138 /* OpenGL.framework */ /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		31F714C9454DBBBA98FEA8DB /* include_juce_audio_formats.mm */ /* include_juce_audio_formats.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_audio_formats.mm; path = ../../JuceLibraryCode/include_juce_audio_formats.mm; sourceTree = SOURCE_ROOT; };
 		337EDC1D47699E7B0471A30B /* SettingsUI.h */ /* SettingsUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SettingsUI.h; path = ../../Source/Simulation/ui/SettingsUI.h; sourceTree = SOURCE_ROOT; };
+		33A237CD8C4B3CDC80953D3C /* NEPSchlogl.h */ /* NEPSchlogl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NEPSchlogl.h; path = ../../Source/Studies/NEPSchlogl.h; sourceTree = SOURCE_ROOT; };
 		34775FCE8D79E259E7C2C223 /* GenerationUI.h */ /* GenerationUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GenerationUI.h; path = ../../Source/Simulation/ui/GenerationUI.h; sourceTree = SOURCE_ROOT; };
 		3CE103B6FC49120DB71A055B /* Entity.h */ /* Entity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Entity.h; path = ../../Source/Simulation/Entity.h; sourceTree = SOURCE_ROOT; };
 		3D5690C29AFD8D43233EE051 /* SteadyStates.h */ /* SteadyStates.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SteadyStates.h; path = ../../Source/Simulation/SteadyStates.h; sourceTree = SOURCE_ROOT; };
@@ -419,6 +422,8 @@
 				9956166B4880728035A87C80,
 				FC755F8DE1389FA71694B63B,
 				5CAA0EFC06E1459407656EA0,
+				0867277B912F4622507F6FC8,
+				33A237CD8C4B3CDC80953D3C,
 			);
 			name = Studies;
 			sourceTree = "<group>";
@@ -544,6 +549,7 @@
 			files = (
 				66A555C2F51D80ACE2D2943C,
 				1BBEA4B78CBD942AFD836F52,
+				78C892F3FD57D120DE9EE52F,
 				5884FFF13E5628D9E1A530BD,
 				17DC8E199AA7E3D7C45D537D,
 				62CE9A5FFE46AEFCDB7DB8D8,

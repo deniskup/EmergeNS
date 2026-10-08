@@ -3360,11 +3360,12 @@ void NEP::gradientDescentAscent()
 
       // message to async
       nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
-    
 
     }
-  
   }
+
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, count, action, 0., nPoints, 1., 1.));
+
 
   if (gdaIsOk)
   {

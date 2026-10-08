@@ -120,6 +120,9 @@ public:
 
    // void filterStableStates(); // filter out unstable states
 
+    void requestSteadyStateCalculation();
+
+
 
 
     // save/load to JSON
@@ -127,6 +130,15 @@ public:
     juce::var toJSONData();
 
     void fromJSONData(juce::var data);
+
+
+    enum SteadyStateState
+    {
+      Idle,
+      Calculating
+    };
+
+	  SimulationState state = Idle;
 
 
 
@@ -150,6 +162,36 @@ public:
     double epsilon = 1e-7; // arbitrary small quantity
   
     int ndigits = 7; // number of digits to use when writing polynoms in msolve format.
-                      // N.B terms smaller than 10^(-ndigits) will be set to 0.
+    // N.B: terms smaller than 10^(-ndigits) will be set to 0.
+
+    //juce::CriticalSection lock;
+
+    //bool calculationRequested = false;
+
+
+    // ASYNC
+	class SimulationEvent
+	{
+	public:
+		enum Type
+		{
+			WILL_START,
+			FINISHED
+		};
+
+		SteadyStateEvent(Type t)
+			: type(t)
+		{
+		}
+		Type type;
+	};
+
+	QueuedNotifier<SteadyStateEvent> sstNotifier;
+	typedef QueuedNotifier<SteadyStateEvent>::Listener AsyncSstListener;
+
+	void addAsyncSteadyStateListener(AsyncSimListener *newListener) { simNotifier.addListener(newListener); }
+	void addAsyncCoalescedSimulationListener(AsyncSstListener *newListener) { sstNotifier.addAsyncCoalescedListener(newListener); }
+	void removeAsyncSteadyStateListener(AsyncSstListener *listener) { sstNotifier.removeListener(listener); }
+  
 
 };

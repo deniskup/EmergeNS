@@ -604,6 +604,9 @@
     <ClCompile Include="..\..\Source\Studies\FirstEscapeTimeJob.cpp">
       <Filter>EmergeNS\Source\Studies</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Studies\NEPSchlogl.cpp">
+      <Filter>EmergeNS\Source\Studies</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp">
       <Filter>EmergeNS\Source\Engine</Filter>
     </ClCompile>
@@ -3346,6 +3349,9 @@
       <Filter>EmergeNS\Source\Studies</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Studies\FirstEscapeTimeJob.h">
+      <Filter>EmergeNS\Source\Studies</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Studies\NEPSchlogl.h">
       <Filter>EmergeNS\Source\Studies</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h">

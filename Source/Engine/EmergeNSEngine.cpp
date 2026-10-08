@@ -203,6 +203,10 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
       Settings::getInstance()->printSteadyStatesToFile->setValue(true);
       Simulation::getInstance()->steadyStatesList->computeSteadyStates();
     }
+    else if (study == "NEPSchlogl")
+    {
+
+    }
 /*
     // Generate a reaction network
     //Simulation::Simulation * simu = new Simulation::Simulation();
@@ -252,6 +256,13 @@ void EmergeNSEngine::firstEscapeTimeStudy(map<String, String> configs)
   fet->startStudy();
 }
 
+
+void EmergeNSEngine::NEPSchloglStudy(map<String, String> configs)
+{
+  NEPSchloglStudy * nepss = new NEPSchloglStudy();
+  fet->setConfig(configs);
+  fet->startStudy();
+}
 
 
 var EmergeNSEngine::getJSONData(bool includeNonOverriden)
