@@ -11,6 +11,9 @@
 
 #include "JuceHeader.h"
 #include "Simulation/Simulation.h"
+#include "Simulation/NEP.h"
+#include "Simulation/SteadyStates.h"
+
 
 
 struct thetakdPair
@@ -19,9 +22,16 @@ struct thetakdPair
   double kd;
 };
 
+struct SchloglSteadyState
+{
+  double X1;
+  double X2;
+  int stabilityOrder; // number of positive eigenvalue of jacobian. 0 mean stable, 1 means saddle point, etc.
+  int positionInList; // position in the list of steady states
+};
 
-class NEPSchlogl : public Simulation::AsyncSimListener,
-                    public NEP::AsyncNEPListener,
+
+class NEPSchlogl : public NEP::AsyncNEPListener,
                     public SteadyStateslist::AsyncSstListener
 {
 public:
@@ -38,6 +48,12 @@ public:
   void updateThetaKd();
 
   void requestSteadyStateCalculation();
+
+  void proceedToNextThetaKd();
+
+  bool arrangeSteadyStates();
+
+  void writeCustomIC(const bool);
 
   void launchOneGDA();
     
@@ -59,8 +75,19 @@ private:
   juce::Array<thetakdPair> thetakdpairs;
   int nIterations = 10;
   int nPoints = 10;
+  juce::Array<SchloglSteadyState> stableSteadyStates;
+  juce::Array<SchloglSteadyState> saddleSteadyStates;
 
   juce::CriticalSection lock;
+
+  double current_theta;
+  double current_kd;
+
+  int lowstate;
+  int highstate;
+
+  ofstream logerrorfile;
+
 
   
 };

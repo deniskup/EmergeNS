@@ -205,7 +205,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     }
     else if (study == "NEPSchlogl")
     {
-
+      NEPSchloglStudy(configs);
     }
 /*
     // Generate a reaction network
@@ -259,9 +259,9 @@ void EmergeNSEngine::firstEscapeTimeStudy(map<String, String> configs)
 
 void EmergeNSEngine::NEPSchloglStudy(map<String, String> configs)
 {
-  NEPSchloglStudy * nepss = new NEPSchloglStudy();
-  fet->setConfig(configs);
-  fet->startStudy();
+  NEPSchlogl * nepss = new NEPSchlogl();
+  nepss->setConfig(configs);
+  nepss->startStudy();
 }
 
 

@@ -208,7 +208,7 @@ SteadyState::SteadyState(const SteadyState& _sst)
   
   isBorder = _sst.isBorder;
   warning = _sst.warning;
-  postiveEigenVal = _sst.postiveEigenVal;
+  positiveEigenVal = _sst.positiveEigenVal;
   isStable = _sst.isStable;
   isPartiallyStable = _sst.isPartiallyStable;
   isDiagonalized = _sst.isDiagonalized;
@@ -281,13 +281,13 @@ SteadyState::SteadyState(var data, bool& isValid)
   }
   
   // init N positive eigenvalues
-  if (data.getDynamicObject()->hasProperty("postiveEigenVal"))
+  if (data.getDynamicObject()->hasProperty("positiveEigenVal"))
   {
-    if (data.getDynamicObject()->getProperty("postiveEigenVal").isInt())
-      postiveEigenVal = data.getDynamicObject()->getProperty("postiveEigenVal").operator int();
+    if (data.getDynamicObject()->getProperty("positiveEigenVal").isInt())
+      positiveEigenVal = data.getDynamicObject()->getProperty("positiveEigenVal").operator int();
     else
     {
-      LOGWARNING("Wrong Steady State format (int postiveEigenVal) in JSON file.");
+      LOGWARNING("Wrong Steady State format (int positiveEigenVal) in JSON file.");
       isValid = false;
       return;
     }
@@ -387,7 +387,7 @@ var SteadyState::toJSONData()
   data.getDynamicObject()->setProperty("isBorder", isBorder);
   data.getDynamicObject()->setProperty("isStable", isStable);
   data.getDynamicObject()->setProperty("isPartiallyStable", isPartiallyStable);
-  data.getDynamicObject()->setProperty("postiveEigenVal", postiveEigenVal);
+  data.getDynamicObject()->setProperty("positiveEigenVal", positiveEigenVal);
   
   // steady state coordinates
   var vst;
@@ -488,7 +488,7 @@ void SteadyStateslist::printSteadyStatesToFile()
     out << "\tis stable ? --> " << sst.isStable << endl;
     out << "\tis border ? --> " << sst.isBorder << endl;
     out << "\tis partially stable ? --> " << sst.isPartiallyStable << endl;
-    out << "\tNumber of unstable eigenVec : " << sst.postiveEigenVal << endl;
+    out << "\tNumber of unstable eigenVec : " << sst.positiveEigenVal << endl;
     out << "\tComposition :" << endl;
     out.precision(10);
     for (auto &c : sst.state)
@@ -541,7 +541,7 @@ void SteadyStateslist::cleanLocalFolder()
 }
 
 
-void requestSteadyStateCalculation()
+void SteadyStateslist::requestSteadyStateCalculation()
 {
   computeSteadyStates();
 }
@@ -565,7 +565,9 @@ void SteadyStateslist::run()
   simul->isComputing = true;
   simul->shouldStop = false;
   // measure time
+
   uint32 startTime = Time::getMillisecondCounter();
+
 
   // computeWithZ3(); // search for stationnary points
   bool success = computeWithMSolve(); // search for stationnary points
@@ -1644,7 +1646,7 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 		LOG("Warning : complex schur decomposition of jacobi matrix failed. Can't decide on stability, setting true by default for the following steady state :");
     printOneSteadyState(witness);
     witness.isStable = true;
-    witness.postiveEigenVal = 0;
+    witness.positiveEigenVal = 0;
     arraySteadyStates.setUnchecked(sst_index, witness);
 		return;
 	}
@@ -1716,7 +1718,7 @@ void SteadyStateslist::isStable(Eigen::MatrixXd &jm, int sst_index, bool globall
 
 
   //cout << "added Neigenvalues = " << arraySteadyStates.getReference(sst_index).eigenvalues.size() << endl;
-  witness.postiveEigenVal = nPositiveEig;
+  witness.positiveEigenVal = nPositiveEig;
   if (nPositiveEig == 0)
   {
     if (globally)
@@ -1860,7 +1862,7 @@ void SteadyStateslist::evaluateSteadyStatesStability()
     {
       if (arraySteadyStates.getReference(iw).isStable)
         nGlobStable++;
-      else if (arraySteadyStates.getReference(iw).postiveEigenVal == 1)
+      else if (arraySteadyStates.getReference(iw).positiveEigenVal == 1)
         nSaddle++;
     }
     else // also keep counts for border steady states
@@ -1878,7 +1880,7 @@ void SteadyStateslist::evaluateSteadyStatesStability()
   {
     count++;
     SteadyState witness = arraySteadyStates.getReference(iw);
-    cout << "sst #" << count << " border " << witness.isBorder << ". warning  " << witness.warning << ".  Npositive = " << witness.postiveEigenVal << ". is stable ? -> " << witness.isStable << ". is partially stable = " << witness.isPartiallyStable << endl;
+    cout << "sst #" << count << " border " << witness.isBorder << ". warning  " << witness.warning << ".  Npositive = " << witness.positiveEigenVal << ". is stable ? -> " << witness.isStable << ". is partially stable = " << witness.isPartiallyStable << endl;
   }
   */
   
@@ -1977,7 +1979,7 @@ void SteadyStateslist::fromJSONData(var data)
       nPartStable++;
     if (sst.isStable)
       nGlobStable++;
-    if (sst.postiveEigenVal == 1)
+    if (sst.positiveEigenVal == 1)
       nSaddle++;
   }
   

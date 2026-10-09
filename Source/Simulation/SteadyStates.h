@@ -54,7 +54,7 @@ public:
   State state;
   bool isBorder = false;
   bool warning = false;
-  int postiveEigenVal = 0; // number of positive eigenvalues. 0 -> stable, >0 -> unstable
+  int positiveEigenVal = 0; // number of positive eigenvalues. 0 -> stable, >0 -> unstable
   bool isStable = true;
   bool isPartiallyStable = false; // for border steady states only
   bool isDiagonalized = true;
@@ -68,8 +68,8 @@ class SteadyStateslist : public juce::Thread
 public:
     juce_DeclareSingleton(SteadyStateslist, true);
 
-    SteadyStateslist() : Thread("SteadyStates"){};
-    SteadyStateslist(Simulation *simul) : Thread("SteadyStates"), simul(simul){};
+    SteadyStateslist() : Thread("SteadyStates"), sstNotifier(1000){};
+    SteadyStateslist(Simulation *simul) : Thread("SteadyStates"), simul(simul), sstNotifier(1000){};
     ~SteadyStateslist();
 
     Simulation *simul;
@@ -138,7 +138,33 @@ public:
       Calculating
     };
 
-	  SimulationState state = Idle;
+	  SteadyStateState state = Idle;
+
+
+
+    // ASYNC
+	class SteadyStateEvent
+	{
+	public:
+		enum Type
+		{
+			WILL_START,
+			FINISHED
+		};
+
+		SteadyStateEvent(Type t)
+			: type(t)
+		{
+		}
+		Type type;
+	};
+
+	QueuedNotifier<SteadyStateEvent> sstNotifier;
+	typedef QueuedNotifier<SteadyStateEvent>::Listener AsyncSstListener;
+
+	void addAsyncSteadyStateListener(AsyncSstListener *newListener) { sstNotifier.addListener(newListener); }
+	void addAsyncCoalescedSimulationListener(AsyncSstListener *newListener) { sstNotifier.addAsyncCoalescedListener(newListener); }
+	void removeAsyncSteadyStateListener(AsyncSstListener *listener) { sstNotifier.removeListener(listener); }
 
 
 
@@ -169,29 +195,7 @@ public:
     //bool calculationRequested = false;
 
 
-    // ASYNC
-	class SimulationEvent
-	{
-	public:
-		enum Type
-		{
-			WILL_START,
-			FINISHED
-		};
-
-		SteadyStateEvent(Type t)
-			: type(t)
-		{
-		}
-		Type type;
-	};
-
-	QueuedNotifier<SteadyStateEvent> sstNotifier;
-	typedef QueuedNotifier<SteadyStateEvent>::Listener AsyncSstListener;
-
-	void addAsyncSteadyStateListener(AsyncSimListener *newListener) { simNotifier.addListener(newListener); }
-	void addAsyncCoalescedSimulationListener(AsyncSstListener *newListener) { sstNotifier.addAsyncCoalescedListener(newListener); }
-	void removeAsyncSteadyStateListener(AsyncSstListener *listener) { sstNotifier.removeListener(listener); }
+    
   
 
 };
