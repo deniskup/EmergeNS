@@ -7,34 +7,47 @@ using namespace juce;
 
 juce::Array<double> string2array(String str)
 {
-  juce::Array<double> keys;
-
-
-  StringArray strarr;
-  strarr.addTokens(str, ";", "");
-  for (auto & s : strarr)
-  {
-    keys.add(atof(s.toUTF8()));
-  }
-  if (keys.size() != 3)
-  {
-    throw std::runtime_error("Array must have exactly 3 elements.");
-  }
-
-  double low = keys[0];
-  double high = keys[1];
-  int n = static_cast<int>(keys[2]);
-  if (n < 2)
-  {
-    throw std::runtime_error("Number of points must be at least 2.");
-  }
-
+ 
   juce::Array<double> output;
-  for (int i=0; i<n; i++)
+
+  if (str.contains(";"))
   {
-    double ii = static_cast<double>(i);
-    double val = low + ii * (high - low) / (n - 1);
-    output.add(val);
+     juce::Array<double> keys;
+    StringArray strarr;
+    strarr.addTokens(str, ";", "");
+    for (auto & s : strarr)
+    {
+      keys.add(atof(s.toUTF8()));
+    }
+    if (keys.size() != 3)
+    {
+      throw std::runtime_error("Array must have exactly 3 elements.");
+    }
+
+    double low = keys[0];
+    double high = keys[1];
+    int n = static_cast<int>(keys[2]);
+    if (n < 2)
+    {
+      throw std::runtime_error("Number of points must be at least 2.");
+    }
+
+    
+    for (int i=0; i<n; i++)
+    {
+      double ii = static_cast<double>(i);
+      double val = low + ii * (high - low) / (n - 1);
+      output.add(val);
+   }
+  }
+  else
+  {
+    StringArray strarr;
+    strarr.addTokens(str, ",", "");
+    for (auto & s : strarr)
+    {
+      output.add(atof(s.toUTF8()));
+    }
   }
 
   return output;
@@ -99,6 +112,28 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   {
     kd = string2array(val);
   }
+  else if (key == "dtau")
+  {
+    try
+    {
+        dtau = std::atof(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+        initializationOK = false;
+    }
+  }
+  else if (key == "alpha")
+  {
+    try
+    {
+        alpha = std::atof(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+        initializationOK = false;
+    }
+  }
 }
 
   for (auto & t: theta)
@@ -123,13 +158,15 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->useGradientDescentAscent->setValue(true);
   NEP::getInstance()->initialConditions->setValueAtIndex(3); 
   NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
+  NEP::getInstance()->dtau->setValue(dtau);
+  NEP::getInstance()->alpha->setValue(alpha);
 
   if (!initializationOK)
     LOGWARNING("Error in NEPSchlogl config file. Please check parameters.");
 
 
   // check
-  cout << "theta = ";
+  /*cout << "theta = ";
   for (auto & t : theta)
     cout << t << " ";
   cout << endl;
@@ -137,7 +174,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   for (auto & k : kd)
     cout << k << " ";
   cout << endl;
-
+*/
 
   // create pairs of [theta, kd]
 
@@ -156,7 +193,11 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
     }
   }
 
-  cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
+  simID = 0;
+  low2high = true;
+  nepHasError = false;
+
+  //cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
 
 }
 
@@ -174,14 +215,15 @@ void NEPSchlogl::startStudy()
   }
 
   logerrorfile.open("NEPSchlogl_logs.txt", ios::out | ios::trunc);
+  ofs_metadata.open("metadata.csv", ios::out | ios::trunc);
+  ofs_metadata << "simID,theta,kd,low2high,filename,steadyStatesOK,nepOK" << endl;
+  ofs_metadata.close();
 
-  SteadyStateslist::getInstance()->addAsyncSteadyStateListener(this); // potentially dangerous if  steady states are computed independently 
-  // from this study while it is still running
-  // OK only assuming that this study is always running alone
+  // make this class listen to NEP and SteadyState instances
+  simul->steadyStatesList->addAsyncSteadyStateListener(this);
+  NEP::getInstance()->addAsyncNEPListener(this);
 
-  cout << "1st proceed to next theta KD pairs" << endl;
   proceedToNextThetaKd();
-  
 }
 
 
@@ -190,7 +232,8 @@ void NEPSchlogl::startStudy()
 
 void NEPSchlogl::finishStudy()
 {
-  SteadyStateslist::getInstance()->removeAsyncSteadyStateListener(this);
+  simul->steadyStatesList->removeAsyncSteadyStateListener(this);
+  NEP::getInstance()->removeAsyncNEPListener(this);
 }
 
 
@@ -223,11 +266,8 @@ void NEPSchlogl::updateThetaKd()
   // set diffusion reaction according to kd
   for (auto & sr : simul->reactions)
   {
-    //cout << sr->reactants.size() << " " << sr->products.size() << endl;
-    //cout << sr->reactants.getFirst()->name << " " << sr->products.getFirst()->name << endl;
-    if (sr->reactants.size() == 1 && sr->products.size() == 1)
+    if (sr->reactants.size() == 1 && sr->products.size() == 1) // diffusion reaction
     {
-      cout << "FOUND !" << endl;
       double barrier = -1.* std::log(firstpair.kd);
       sr->energy = barrier;
       sr->reaction->energy->setValue(barrier);
@@ -244,22 +284,25 @@ void NEPSchlogl::updateThetaKd()
 
 void NEPSchlogl::requestSteadyStateCalculation()
 {
-  //SteadyStateslist::getInstance()->requestSteadyStateCalculation();
   simul->steadyStatesList->computeSteadyStates();
-  //SteadyStateslist::getInstance()->computeSteadyStates();
 }
 
 
 
 void NEPSchlogl::proceedToNextThetaKd()
 {
-  // update theta and kd values
-  cout << "updateThetaKd()" << endl;
-  updateThetaKd();
+  if (low2high)
+  {
+    // update theta and kd values
+    updateThetaKd();
 
-  // request steady state calculation for current theta-kd pair
-  cout << "requestSteadyStateCalculation()" << endl;
-  requestSteadyStateCalculation();
+    // request steady state calculation for current theta-kd pair
+    requestSteadyStateCalculation();
+  }
+  else
+  {
+    launchOneGDA();
+  }
 }
 
 
@@ -269,7 +312,7 @@ bool NEPSchlogl::arrangeSteadyStates()
   stableSteadyStates.clear();
   saddleSteadyStates.clear();
   int c=-1;
-  for (auto & ss : SteadyStateslist::getInstance()->getInstance()->arraySteadyStates)
+  for (auto & ss : simul->steadyStatesList->arraySteadyStates)
   {
     c++;
     State state = ss.state;
@@ -282,7 +325,48 @@ bool NEPSchlogl::arrangeSteadyStates()
       stableSteadyStates.add(ssst);
     else if (ssst.stabilityOrder == 1) // reject bi-saddle points
       saddleSteadyStates.add(ssst);
+    
+    //for (auto & p : state)
+  //  {
+  //    cout << "sst order :" << ss.positiveEigenVal << ". Entity " << p.first->name << " concentration = " << p.second << "\t";
+  //  }
+  //  cout << endl;
   }
+
+  /*cout << "Stable steady states :" << endl;
+  for (auto & ss : stableSteadyStates)
+  {
+    cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
+  }
+  cout << "Saddle steady states :" << endl;
+  for (auto & ss : saddleSteadyStates)
+  {
+    cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
+  } 
+*/
+
+   // find low-low and high-high stables states
+  int lowlow = -1;
+  int highhigh = -1;
+  double minC = 999999.;
+  double maxC = 0.;
+  for (int i=0; i<stableSteadyStates.size(); i++)
+  {
+    double sumC = stableSteadyStates.getUnchecked(i).X1 + stableSteadyStates.getUnchecked(i).X2;
+    if (sumC > maxC)
+    {
+      highhigh = i;
+      maxC = sumC;
+    }
+    if (sumC < minC)
+    {
+      lowlow = i;
+      minC = sumC;
+    }
+  }
+
+  //cout << "low-low = " << lowlow << endl;
+  //cout << "high-high = " << highhigh << endl;
 
   // find symmetric steady states
   juce::Array<std::pair<int, int>> symmetricStablePairs;
@@ -310,19 +394,11 @@ bool NEPSchlogl::arrangeSteadyStates()
     }
   }
 
-  cout << "Stable steady states :" << endl;
-  for (auto & ss : stableSteadyStates)
-  {
-    cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
-  }
-  cout << "Saddle steady states :" << endl;
-  for (auto & ss : saddleSteadyStates)
-  {
-    cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
-  } 
+
   
+
   // sanity check
-  cout << "symmetric stable points : " << endl;
+  /*cout << "symmetric stable points : " << endl;
   for (auto& pair : symmetricStablePairs)
   {
     cout << pair.first << " " << pair.second << endl;
@@ -332,10 +408,13 @@ bool NEPSchlogl::arrangeSteadyStates()
   {
     cout << pair.first << " " << pair.second << endl;
   }
-
+*/
   // keep high X2 steady states
   juce::Array<SchloglSteadyState> trimmedStableSteadyStates;
   juce::Array<SchloglSteadyState> trimmedSaddleSteadyStates;
+
+  trimmedStableSteadyStates.add(stableSteadyStates[lowlow]);
+  trimmedStableSteadyStates.add(stableSteadyStates[highhigh]);
   for (auto & p : symmetricStablePairs)
   {
     if (stableSteadyStates[p.first].X2 > stableSteadyStates[p.second].X2)
@@ -360,7 +439,7 @@ bool NEPSchlogl::arrangeSteadyStates()
   }
 
 
-  cout << "Trimmed Stable steady states :" << endl;
+  /*cout << "Trimmed Stable steady states :" << endl;
   for (auto & ss : trimmedStableSteadyStates)
   {
     cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
@@ -369,7 +448,7 @@ bool NEPSchlogl::arrangeSteadyStates()
   for (auto & ss : trimmedSaddleSteadyStates)
   {
     cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
-  } 
+  } */
 
   stableSteadyStates = trimmedStableSteadyStates;
   saddleSteadyStates = trimmedSaddleSteadyStates;
@@ -382,7 +461,7 @@ bool NEPSchlogl::arrangeSteadyStates()
     return a.X1 + a.X2 < b.X1 + b.X2;
   });
 
-  cout << "Trimmed and sorted Stable steady states :" << endl;
+  /*cout << "Trimmed and sorted Stable steady states :" << endl;
   for (auto & ss : stableSteadyStates)
   {
     cout << "X1 = " << ss.X1 << ", X2 = " << ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
@@ -392,7 +471,7 @@ bool NEPSchlogl::arrangeSteadyStates()
   {
     cout << "X1 = " << ss.X1 << ", X2 = " <<  ss.X2 << ", stability order = " << ss.stabilityOrder << endl;
   }
-
+*/
 
   bool steadyStatesOK = true;
   if (stableSteadyStates.size() != 3)
@@ -477,9 +556,6 @@ void NEPSchlogl::launchOneGDA()
   // find a way to pass an outputfile name to NEP
   if (canContinue)
   {
-    for (int k=0; k<2; k++)
-    {
-      bool low2high = (k == 0) ? true : false;
       int start = low2high ? 0 : 2;
       int end = low2high ? 2 : 0;
       
@@ -488,22 +564,40 @@ void NEPSchlogl::launchOneGDA()
 
       writeCustomIC(low2high);
 
+      // outputfile filename
+      outputfile = "./gda/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
+      NEP::getInstance()->setCustomOutputFilename(outputfile);
+
       // launch one gradient descent ascent
-      //NEP::getInstance()->startDescent->trigger();
-    }
+      NEP::getInstance()->startDescent->trigger();
+      
   }
   else
   {
     logerrorfile << "Steady states issue for theta = " << current_theta << ", kd = " << current_kd;
-    logerrorfile << "trimmed stable steady states = " << stableSteadyStates.size() << ", ";
+    logerrorfile << ". Trimmed stable steady states = " << stableSteadyStates.size() << ", ";
     logerrorfile << "trimmed saddle steady states = " << saddleSteadyStates.size() << endl;
+
+    saveToMetadata(false);
 
     // proceed manually to next theta-kd pair
     proceedToNextThetaKd();
   }
+  
+}
 
-  
-  
+
+
+void NEPSchlogl::saveToMetadata(const bool & steadyStateOK)
+{
+  ofs_metadata.open("metadata.csv", ios::ate | ios::app);
+
+  if (!ofs_metadata.is_open())
+    return;
+
+
+  ofs_metadata << simID << "," << current_theta << "," << current_kd << "," << low2high << "," << outputfile << "," << steadyStateOK << "," << !nepHasError << endl;
+  ofs_metadata.close();
 }
 
 
@@ -525,13 +619,23 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
 
     case NEP::NEPEvent::ERROR:
     {  
-      logerrorfile << "Error in gradient descent ascent for theta = " << current_theta << ", kd = " << current_kd << endl; 
-      proceedToNextThetaKd();   
+      string s = low2high ? ". Mode low --> high" : " Mode high --> low";
+      logerrorfile << "Error in gradient descent ascent for theta = " << current_theta << ", kd = " << current_kd << s << endl; 
+      nepHasError = true;
+      //saveToMetadata(true, false);
+      //simID++;
+      //low2high = !low2high;
+      //proceedToNextThetaKd();   
     }
   break;
       
     case NEP::NEPEvent::FINISHED:
     {
+      saveToMetadata(true);
+      // reset some variables
+      simID++;
+      low2high = !low2high;
+      nepHasError = false;
       // update theta and kd values
       proceedToNextThetaKd();
     }
@@ -550,14 +654,12 @@ void NEPSchlogl::newMessage(const SteadyStateslist::SteadyStateEvent &ev)
   {   
     case SteadyStateslist::SteadyStateEvent::WILL_START:
     {
-      cout << "Message Will start steady state calculation received" << endl;
     }
   break;
       
     case SteadyStateslist::SteadyStateEvent::FINISHED:
     {
       // launch next gradient descent ascent
-      cout << "SST finished, launch one GDA" << endl;
       launchOneGDA();
     }
   break;

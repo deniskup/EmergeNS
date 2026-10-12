@@ -3034,6 +3034,7 @@ void NEP::gradientDescentAscent()
       gdaIsOk = false;
       signalThreadShouldExit();
       nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+      break;
     }
 
     // set to 0 negative values in concentration curve
@@ -3250,6 +3251,7 @@ void NEP::gradientDescentAscent()
       gdaIsOk = false;
       signalThreadShouldExit();
       nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+      break;
     }
 
     // set to 0 negative values in concentration curve
@@ -3364,8 +3366,6 @@ void NEP::gradientDescentAscent()
     }
   }
 
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, count, action, 0., nPoints, 1., 1.));
-
 
   if (gdaIsOk)
   {
@@ -3376,6 +3376,8 @@ void NEP::gradientDescentAscent()
     GDAsaveLastIterationToFile();
   }
 
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, count, action, 0., nPoints, 1., 1.));
+
 }
 
 
@@ -3385,14 +3387,28 @@ void NEP::GDAwriteDescentToFile()
   // open output file
   int niters = trajDescent.size();
   system("mkdir -p gda");
-  string filename = "gda/gda_";
-  filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
-  filename += "_" + to_string(nPointsUI->intValue()) + "points";
-  filename += "_" + to_string(Niterations->intValue()) + "iter";
-  filename += ".csv";
+
+  std::string filename = "";
+
+  if (useCustomOutputFilename)
+  {
+    filename = customOutputFilename;
+  }
+  else
+  {
+    string filename = "gda/gda_";
+    filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
+    filename += "_" + to_string(nPointsUI->intValue()) + "points";
+    filename += "_" + to_string(Niterations->intValue()) + "iter";
+    filename += ".csv";
+  }
+
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);
-  
+
+  // reset value of booleen
+  if (useCustomOutputFilename)
+    useCustomOutputFilename = false;
   /*
   historyFile << "Descent characteristics used :" << endl;
   historyFile << "Number of iterations : " << Niterations->intValue() << endl;

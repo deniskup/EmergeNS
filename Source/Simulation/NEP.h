@@ -119,6 +119,12 @@ public:
   void stop();
   void run() override; // thread function
 
+  void setCustomOutputFilename(std::string filename)
+  {
+    customOutputFilename = filename;
+    useCustomOutputFilename = true;
+  }
+
   
   
   
@@ -273,7 +279,9 @@ private:
   
   // normalization parameters
   //double timescale_factor = 1.;
-  
+
+  bool useCustomOutputFilename = false;
+  std::string customOutputFilename;
 
   // for printing history to file
   //Array<double> actionDescent;

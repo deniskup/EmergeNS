@@ -56,6 +56,8 @@ public:
   void writeCustomIC(const bool);
 
   void launchOneGDA();
+
+  void saveToMetadata(const bool&);
     
 private:
     
@@ -75,6 +77,8 @@ private:
   juce::Array<thetakdPair> thetakdpairs;
   int nIterations = 10;
   int nPoints = 10;
+  double dtau = 1.;
+  double alpha = 1.;
   juce::Array<SchloglSteadyState> stableSteadyStates;
   juce::Array<SchloglSteadyState> saddleSteadyStates;
 
@@ -83,10 +87,15 @@ private:
   double current_theta;
   double current_kd;
 
-  int lowstate;
-  int highstate;
+  int simID = 0;
+  bool low2high = true; // NEP from low-low to high-high or reverse
+
+  std::string outputfile = "";
 
   ofstream logerrorfile;
+  ofstream ofs_metadata;
+
+  bool nepHasError = false;
 
 
   
