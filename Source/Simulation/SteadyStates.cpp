@@ -582,15 +582,17 @@ void SteadyStateslist::run()
     simul->shouldStop = false;
   }
   LOG("Execution time: " << String(Time::getMillisecondCounter() - startTime) << " ms");
-  simul->shouldUpdate = true;
-  // update the parameters of the simulation in the UI
-  simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
+  //simul->shouldUpdate = true;
+  //simul->simNotifier.addMessage(new Simulation::SimulationEvent(Simulation::SimulationEvent::UPDATEPARAMS, simul));
 
   // evaluate stability of stationnary points
 
   computeJacobiMatrix(); // formally calculate jacobi matrix of chemical reaction network
 
   evaluateSteadyStatesStability();
+
+  // call update method of simu to include results from steady state calculations
+  simul->updateParams();
 
   state = Idle;
   sstNotifier.addMessage(new SteadyStateEvent(SteadyStateEvent::FINISHED));

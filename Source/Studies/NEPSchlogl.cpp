@@ -169,6 +169,10 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
         initializationOK = false;
     }
   }
+  else if (key == "outputdir")
+  {
+    outputdir = val.toStdString();   
+  }
 }
 
   for (auto & t: theta)
@@ -190,6 +194,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   
   // set some basic NEP configs
   NEP::getInstance()->Niterations->setValue(nIterations);
+  NEP::getInstance()->nPointsUI->setValue(nPoints);
   NEP::getInstance()->useGradientDescentAscent->setValue(true);
   NEP::getInstance()->initialConditions->setValueAtIndex(3); 
   NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
@@ -610,7 +615,8 @@ void NEPSchlogl::launchOneGDA()
       writeCustomIC(low2high);
 
       // outputfile filename
-      outputfile = "./gda/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
+      //outputfile = "./gda/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
+      outputfile = outputdir + "/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
       NEP::getInstance()->setCustomOutputFilename(outputfile);
 
       // launch one gradient descent ascent
@@ -687,6 +693,7 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
       
     case NEP::NEPEvent::FINISHED:
     {
+      //cout << "received NEPEvent::FINISHED" << endl;
       saveToMetadata(true);
       // reset some variables
       //simID++;
@@ -710,6 +717,7 @@ void NEPSchlogl::newMessage(const Simulation::SimulationEvent &ev)
 	{
 	case Simulation::SimulationEvent::UPDATEPARAMS:
 	{
+    //cout << "received SimulationEvent::UPDATEPARAMS" << endl;
 		// launch next gradient descent ascent
     launchOneGDA();
 	}

@@ -2956,10 +2956,11 @@ void NEP::gradientDescentAscent()
   {
     count++;
     gdaNsteps++;
-    isCheck = (count % checkPoint == 0);
+    isCheck = (gdaNsteps % checkPoint == 0);
+
 
     // if last iteration, enforce isCheck to be true
-    if (count == Niterations->intValue()-1)
+    if (gdaNsteps == Niterations->intValue()-1)
       isCheck = true;
 
     // calculate hamiltonian related quantities along the trajectory
@@ -3332,7 +3333,7 @@ void NEP::gradientDescentAscent()
 
     if (isCheck)
     {
-      iterationDescent.add(count);
+      iterationDescent.add(gdaNsteps);
 
       // keep track of trajectory
       Trajectory savetraj;
@@ -3369,26 +3370,36 @@ void NEP::gradientDescentAscent()
       {
         bool converged = GDAhasConverged();
         if (converged)
+        {
           signalThreadShouldExit();
+          LOG("GDA has converged ! ");
+        }
       }
 
       // message to async
       nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
-    }
-  }
+    } // end if isCheck
+  } // end while
 
 
   if (gdaIsOk)
   {
     LOG("NEP = " + String(nep));
-    LOG("Wrting gradient descent/ascent results to file...");
+    LOG("Writing gradient descent/ascent results to file...");
     GDAwriteDescentToFile();
     LOG("Saving last iteration of gradient descent/ascent to file...");
     GDAsaveLastIterationToFile();
   }
 
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, count, action, 0., nPoints, 1., 1.));
+  gdaFinish(action);
 
+}
+
+void NEP::gdaFinish(const double& currentAction)
+{
+  //cout << "NEP::gdaFinish()" << endl;
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, gdaNsteps, currentAction, 0., nPoints, 1., 1.));
+  //stopThread(1);
 }
 
 
@@ -3396,7 +3407,7 @@ void NEP::gradientDescentAscent()
   bool NEP::GDAhasConverged()
   {
     //cout << "NEP::GDAhasConverged(). actionDescent size : " << actionDescent.size() << endl;
-    int N = 10;
+    int N = 15;
     if (actionDescent.size()<N)
       return false;
     
@@ -3455,7 +3466,7 @@ void NEP::GDAwriteDescentToFile()
 
   std::string filename = "";
 
-  std::cout << "useCustomFileName ? " << useCustomOutputFilename << endl;
+  //std::cout << "useCustomFileName ? " << useCustomOutputFilename << endl;
 
   if (useCustomOutputFilename)
   {

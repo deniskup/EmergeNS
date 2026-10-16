@@ -165,6 +165,7 @@ void Simulation::clearParams()
 
 void Simulation::updateParams()
 {
+  //cout << "Simulation::updateParams()" << endl;
   // in principle, we should stack the update params calls and treat them once the simulation state reaches idle
   if (state != SimulationState::Idle)
     return;

@@ -233,6 +233,8 @@ private:
 
   bool GDAhasConverged();
 
+  void gdaFinish(const double&);
+
   void GDAwriteDescentToFile();
   
   void GDAsaveLastIterationToFile();
