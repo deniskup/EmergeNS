@@ -80,6 +80,8 @@ NEP::NEP() : ControllableContainer("NEP"),
 
   GDAdetectConvergence = addBoolParameter("GDA detect convergence", "Stop GDA once convergence is detected", false);
 
+  GDAcheckpoints = addIntParameter("Number of checkpoints", "Number of checkpoints to use in GDA descent", 1000);
+
   // set options
   updateSteadyStateList();
   
@@ -2851,7 +2853,8 @@ void NEP::gradientDescentAscent()
 
   // hardcode number of points to draw to monitor the descent/ascent
   int nIterMonitor = 100;
-  int checkPoint = std::round(Niterations->intValue() / nIterMonitor);
+  //int checkPoint = std::round(Niterations->intValue() / nIterMonitor);
+  int checkPoint = std::round(Niterations->intValue() / GDAcheckpoints->intValue());
   checkPoint = std::max(1, checkPoint);
   bool isCheck = false;
 
@@ -2948,9 +2951,11 @@ void NEP::gradientDescentAscent()
   int count = 0;
   bool gdaIsOk = true;
   double nep = -999.;
+  gdaNsteps = 0;
   while (count < Niterations->intValue() && !threadShouldExit())
   {
     count++;
+    gdaNsteps++;
     isCheck = (count % checkPoint == 0);
 
     // if last iteration, enforce isCheck to be true
@@ -3391,7 +3396,7 @@ void NEP::gradientDescentAscent()
   bool NEP::GDAhasConverged()
   {
     //cout << "NEP::GDAhasConverged(). actionDescent size : " << actionDescent.size() << endl;
-    int N = 20;
+    int N = 10;
     if (actionDescent.size()<N)
       return false;
     
@@ -3461,7 +3466,8 @@ void NEP::GDAwriteDescentToFile()
     filename = "gda/gda_";
     filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
     filename += "_" + to_string(nPointsUI->intValue()) + "points";
-    filename += "_" + to_string(Niterations->intValue()) + "iter";
+    //filename += "_" + to_string(Niterations->intValue()) + "iter";
+    filename += "_" + to_string(gdaNsteps) + "iter";
     filename += ".csv";
   }
 

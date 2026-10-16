@@ -104,6 +104,7 @@ public:
   EnumParameter* solverType;
   StringParameter * customInitialConditionFile;
   BoolParameter * GDAdetectConvergence;
+  IntParameter * GDAcheckpoints;
 
 
   // update steady state list when updateParams is calle din Simulation
@@ -263,6 +264,9 @@ private:
   int nPoints;
   int nPoints_increment = 10;
   bool justUpdatedSampling = false;
+
+  // descent step
+  int gdaNsteps = 0;
   
   // decides whether concentration curve cab be update q^{i+1} = q^{i} - dA/dq
   bool canUpdateConcentrationCurve = true;

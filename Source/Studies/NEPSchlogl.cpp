@@ -121,6 +121,17 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
     }
     detectConvergence = (ival != 0);
   }
+  else if (key == "checkpoints")
+  {
+    try
+    {
+      checkpoints = std::atoi(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+      initializationOK = false;
+    }
+  }
   else if (key == "kd")
   {
     kd = string2array(val);
@@ -141,6 +152,17 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
     try
     {
         alpha = std::atof(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+        initializationOK = false;
+    }
+  }
+  else if (key == "actionThreshold")
+  {
+    try
+    {
+        action_threshold = std::atof(val.toUTF8());
     }
     catch (const std::exception&)
     {
@@ -174,6 +196,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->dtau->setValue(dtau);
   NEP::getInstance()->alpha->setValue(alpha);
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
+  NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
 
   if (!initializationOK)
     LOGWARNING("Error in NEPSchlogl config file. Please check parameters.");

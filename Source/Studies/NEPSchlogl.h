@@ -83,6 +83,8 @@ private:
   double dtau = 1.;
   double alpha = 1.;
   bool detectConvergence = false;
+  int checkpoints = 1000;
+  double action_threshold = 1e-7;
   juce::Array<SchloglSteadyState> stableSteadyStates;
   juce::Array<SchloglSteadyState> saddleSteadyStates;
 
