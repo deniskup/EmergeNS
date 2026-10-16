@@ -82,6 +82,7 @@ private:
   int nPoints = 10;
   double dtau = 1.;
   double alpha = 1.;
+  bool detectConvergence = false;
   juce::Array<SchloglSteadyState> stableSteadyStates;
   juce::Array<SchloglSteadyState> saddleSteadyStates;
 

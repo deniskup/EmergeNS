@@ -103,6 +103,7 @@ public:
   EnumParameter* initialConditions;
   EnumParameter* solverType;
   StringParameter * customInitialConditionFile;
+  BoolParameter * GDAdetectConvergence;
 
 
   // update steady state list when updateParams is calle din Simulation
@@ -228,6 +229,8 @@ private:
   void heteroclinicStudy();
 
   void gradientDescentAscent();
+
+  bool GDAhasConverged();
 
   void GDAwriteDescentToFile();
   

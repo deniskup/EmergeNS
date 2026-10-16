@@ -108,6 +108,19 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   {
     theta = string2array(val);
   }
+  else if (key == "detectConvergence")
+  {
+    int ival;
+    try
+    {
+      ival = std::atoi(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+      initializationOK = false;
+    }
+    detectConvergence = (ival != 0);
+  }
   else if (key == "kd")
   {
     kd = string2array(val);
@@ -160,6 +173,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
   NEP::getInstance()->dtau->setValue(dtau);
   NEP::getInstance()->alpha->setValue(alpha);
+  NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
 
   if (!initializationOK)
     LOGWARNING("Error in NEPSchlogl config file. Please check parameters.");

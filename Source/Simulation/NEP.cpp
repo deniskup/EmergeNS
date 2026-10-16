@@ -78,6 +78,7 @@ NEP::NEP() : ControllableContainer("NEP"),
     
   customInitialConditionFile = addStringParameter("Custom init. traj.", "csv file containing a sampling of the initial trajectory to use", "gda_lastTraj.csv");
 
+  GDAdetectConvergence = addBoolParameter("GDA detect convergence", "Stop GDA once convergence is detected", false);
 
   // set options
   updateSteadyStateList();
@@ -3359,10 +3360,15 @@ void NEP::gradientDescentAscent()
       }
       residuals_H_descent.add(vecH);
 
+      if (GDAdetectConvergence->boolValue())
+      {
+        bool converged = GDAhasConverged();
+        if (converged)
+          signalThreadShouldExit();
+      }
 
       // message to async
       nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
-
     }
   }
 
@@ -3379,6 +3385,60 @@ void NEP::gradientDescentAscent()
   nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, count, action, 0., nPoints, 1., 1.));
 
 }
+
+
+
+  bool NEP::GDAhasConverged()
+  {
+    //cout << "NEP::GDAhasConverged(). actionDescent size : " << actionDescent.size() << endl;
+    int N = 20;
+    if (actionDescent.size()<N)
+      return false;
+    
+    // retrieve last valuess of actions
+    juce::Array<double> lastActions;
+    for (int i=actionDescent.size()-N; i<actionDescent.size(); i++)
+    {
+      lastActions.add(actionDescent.getReference(i).getLast());
+    }
+
+    // differences
+    juce::Array<double> diffActions;
+    for (int i=0; i<lastActions.size()-1; i++)
+    {
+      diffActions.add(lastActions.getUnchecked(i)-lastActions.getUnchecked(i+1));
+    }
+
+
+    // has converged ?
+    bool b1 = true;
+
+    // 1st condition, all diff values are smaller than a threshold
+    for (int i=0; i<diffActions.size(); i++)
+    {
+      if (std::abs(diffActions.getUnchecked(i)) > d_action_threshold)
+      {
+        b1 = false;
+        break;
+      }
+    }
+
+
+    // 2nd condition, 1st value - last smaller than threshold
+    double diff = lastActions.getFirst() - lastActions.getLast();
+    bool b2 = std::abs(diff) < d_action_threshold;
+
+    //cout << "diff action : " << diff << endl;
+
+    bool converged = (b1 && b2);
+
+    //if (converged)
+    //  std::cout << "GDA has converged" << endl;
+
+    return converged;
+    
+  }
+
 
 
 
