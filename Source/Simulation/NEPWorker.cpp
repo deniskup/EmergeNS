@@ -1506,7 +1506,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     gsl_root_fdfsolver_free(s_mu);
     gsl_vector_free(p);
   }
-  else if (nlsolverType == 3)
+  /*else if (nlsolverType == 3)
   {
 
     // proble to solve
@@ -1597,6 +1597,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   // cout << es.eigenvectors() << endl;
   //   // retrieve eigenvalues if diagonalized
     }
+    
 
     // fill kkt  and diagonalize
     int kkt_dim = kkt.rows();
@@ -1628,43 +1629,11 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 
     StateVec dHdp_start = ev.solver->evalHamiltonianGradientWithP(ev.q, ev.pstar_prev);
     
-    /*if (idx == 13 && maxPrintingAllowed)
-    {
-      cout << "Point #" << idx << " : IPOPT status = " << ipoptStatusToString(status) << endl;
-      cout << "lambda = " << 1./mu << endl;
-      cout << ". ||dH/dp||_start = " << norm2(dHdp_start) << ". ||dH/dp||_end = " << norm2(dHdp) << endl;
-      //cout << "dH/dp_end = ";
-      //for (auto & el : dHdp)
-      //  cout << el << " ";      
-      //cout << endl;
-      //cout << "d2h/dp2_end_eigenval = \n" <<  es.eigenvalues() << endl;
-      //cout << "KKT_eigenval = \n" <<  kkt_es.eigenvalues() << endl;
-      double min_eigenval_hess = 1e6;
-      double min_eigenval_kkt = 1e6;
-      for (auto & ev : es.eigenvalues())
-      {
-        StateVec sv = {ev.real(), ev.imag()};
-        double norm = norm2(sv);
-        if (norm < min_eigenval_hess)
-          min_eigenval_hess = norm;
-      }
-      cout << "sigma(d2H/dp2) = " << min_eigenval_hess << endl;
-      for (auto & ev : kkt_es.eigenvalues())
-      {
-        StateVec sv = {ev.real(), ev.imag()};
-        double norm = norm2(sv);
-        if (norm < min_eigenval_kkt)
-          min_eigenval_kkt = norm;
-      }
-      cout << "sigma(kkt) = " << min_eigenval_kkt << endl;
-      cout << endl;
-
-    }
-    */
+    
     
 
   
-  }
+  }*/
   else
   {
     LOGWARNING("Non-linear solver to use not properly selected.");
@@ -1697,204 +1666,3 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
 }
 
 
-// OLD STUFF
-
-/*
-
-// make sure to have dHdp parallel to dq, not anti-parallel.
-// If antiparallel, apply p = p* + dp with dp = Hess-1 ( (v • dHdp) v - dHdp(p*) )
-// and v = dq / ||dq||
-// argument :
-// gsl_vector s->x : current vector state within gsl solver
-// EncapsVarForGSL& ev
-void NEPWorker::correctMomentumDirectionIfFollowingWrongBranch(gsl_vector& x, StateVec q, StateVec dq)
-{
-  //cout << "NEP::correctMomentumDirectionIfFollowingWrongBranch()" << endl;
-  
-  // Retrieve momentum
-  StateVec p;
-  for (int k=0; k<x.size; k++)
-    p.add(gsl_vector_get(&x, k));
-  // calculate dHdp
-  StateVec dHdp = evalHamiltonianGradientWithP(q, p);
-  
-  //cout << "current p = ";
-  //for (auto & el : p)
-  //  cout << el << " ";
-  //cout << endl;
-  
-  double norm2_dq = norm2(dq);
-  if (norm2_dq == 0.)
-    return;
-  
-  // calculate dHdp • v
-  double sp = 0.;
-  for (int k=0; k<dq.size(); k++)
-    sp += dq.getUnchecked(k) * dHdp.getUnchecked(k);
-  sp /= norm2_dq;
-  
-  //cout << "dHdp • v = " << sp << endl;;
-  
-  if (sp < 0.)
-  {
-    // calculate Hessian and invert it
-    dsp::Matrix<double> hessian =evalHamiltonianHessianWithP(q, p);
-    // copy matrix into eigen oriented matrix
-    Eigen::MatrixXd eig_hessian(hessian.getNumRows(), hessian.getNumColumns());
-    for (int i=0; i<eig_hessian.rows(); i++)
-    {
-      for (int j=0; j<eig_hessian.cols(); j++)
-      {
-        eig_hessian(i, j) = hessian(i, j);
-      }
-    }
-    // invert
-    Eigen::MatrixXd eig_inv_hessian = eig_hessian.inverse();
-    
-    // check if some elements of the inverse are nan or inf, in this case the inversion did not work
-    bool isValid = true;
-    for (int i=0; i<eig_inv_hessian.rows(); i++)
-    {
-      for (int j=0; j<eig_inv_hessian.cols(); j++)
-      {
-        if (isinf(eig_inv_hessian(i,j)) || isnan(eig_inv_hessian(i,j)))
-        {
-          isValid = false;
-          break;
-        }
-      }
-    }
-    if (!isValid)
-      return;
-    
-    cout << "hess = " << endl;
-    for (int i=0; i<eig_hessian.rows(); i++)
-    {
-      for (int j=0; j<eig_hessian.cols(); j++)
-      {
-        cout << eig_hessian(i, j) << " ";
-      }
-      cout << endl;
-    }
-    
-    cout << "hess^(-1) = " << endl;
-    for (int i=0; i<eig_inv_hessian.rows(); i++)
-    {
-      for (int j=0; j<eig_inv_hessian.cols(); j++)
-      {
-        cout << eig_inv_hessian(i, j) << " ";
-      }
-      cout << endl;
-    }
-    
-    
-    // calculate dp component wise
-    StateVec dp;
-    dp.insertMultiple(0, 0., p.size());
-    for (int i=0; i<p.size(); i++)
-    {
-      double pi = 0.;
-      for (int j=0; j<p.size(); j++)
-      {
-        pi += eig_inv_hessian(i, j) * ( abs(sp)*dq.getUnchecked(j)/norm2_dq - dHdp.getUnchecked(j));
-      }
-      dp.setUnchecked(i, pi);
-    }
-    
-    //cout << "dp = ";
-    //for (auto & el : dp)
-    //  cout << el << " ";
-    //cout << endl;
-    
-    // update gsl_vector
-    for (int i=0; i<x.size; i++)
-    {
-      gsl_vector_set(&x, i, p.getUnchecked(i) + dp.getUnchecked(i));
-    }
-    
-  } // end if sp < 0
-  
-  return;
-}
-
-*/
-
-/*
-// Performs the actual multivariate solving. Arguments :
-// s : the gsl multiroot solver used
-// fdf : the multivariate vector function for which gsl will attempt to find roots
-// ev : home-made encapsulated variables to pass to gsl for the solving
-int NEPWorker::gslMultirootSolving(gsl_multiroot_fdfsolver * s, gsl_multiroot_function_fdf & fdf, EncapsVarForGSL & ev, bool useContinuation)
-{
-  // continuation of the system
-  // solve H(p, q) = 0 and epsilon * { dH(p,q)/dq - dp/dt } = 0 for increasing values of epsilon
-  double epsilon = 0.1;
-  int status = GSL_CONTINUE;
-  int iter = 0;
-  int maxiter = 100;
-  double tolerance = 1e-6;
-  
-  int emax = 1;
-  if (useContinuation)
-    emax = 9;
-  
-  for (int e=0; e<emax; e++)
-  {
-    if (!useContinuation)
-      epsilon = 1.;
-    
-    // update parameters in multiroot function
-    ev.epsilon = epsilon;
-    fdf.params = &ev;
-    iter = 0;
-    status = GSL_CONTINUE;
-    //cout << "\tepsilon = " << epsilon << endl;
-    
-    // set initial guess to output of previous iteration
-    gsl_vector * xprev = s->x;
-    gsl_multiroot_fdfsolver_set(s, &fdf, xprev);
-    
-    while (status == GSL_CONTINUE && iter <= maxiter)
-    {
-      iter++;
-      
-      correctMomentumDirectionIfFollowingWrongBranch(*s->x, ev.qcenter, ev.deltaq);
-      
-      // make sure to have dHdp parallel to dq
-      StateVec p;
-      for (int k=0; k<s->x->size; k++)
-        p.add(gsl_vector_get(s->x, k));
-      StateVec dHdp = evalHamiltonianGradientWithP(ev.qcenter, p);
-      double sp = 0.;
-      for (int k=0; k<ev.deltaq.size(); k++)
-        sp += ev.deltaq.getUnchecked(k) * dHdp.getUnchecked(k);
-      if (sp>0.)
-      {
-        for (int k=0; k<ev.deltaq.size(); k++)
-          ev.deltaq.setUnchecked(k, -1.*ev.deltaq.getUnchecked(k));
-      }
-      
-      
-      //status = gsl_multiroot_fsolver_iterate(s); // if I'm using the jacobian gsl_multiroot_fdfsolver_iterate
-      status = gsl_multiroot_fdfsolver_iterate(s); // returns GSL_SUCCESS if the iteration went good
-      if (status != GSL_SUCCESS)
-        break;
-      status = gsl_multiroot_test_residual(s->f, tolerance); // returns GSL_SUCCESS if converged, GSL_CONTINUE otherwise
-      //double norm2 = 0.;
-      //for (int k=0; k<s->f->size; k++)
-      //  norm2 += gsl_vector_get(s->f, k)*gsl_vector_get(s->f, k);
-      //norm2 = sqrt(norm2);
-      //cout << "\tresidual : " << norm2 << endl;
-    }
-    //std::cout << "\tstatus = " << gsl_strerror(status) << "\n";
-    if (!useContinuation)
-      break;
-    epsilon += 1./10.;
-  }
-      
-  status = ( status == GSL_SUCCESS? 1 : 0);
-
-  return status;
-}
-
-*/
