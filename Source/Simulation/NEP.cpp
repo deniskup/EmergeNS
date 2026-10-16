@@ -3390,18 +3390,22 @@ void NEP::GDAwriteDescentToFile()
 
   std::string filename = "";
 
+  std::cout << "useCustomFileName ? " << useCustomOutputFilename << endl;
+
   if (useCustomOutputFilename)
   {
     filename = customOutputFilename;
   }
   else
   {
-    string filename = "gda/gda_";
+    filename = "gda/gda_";
     filename += to_string(sst_stable->intValue()) + "-" + to_string(sst_stable2->intValue());
     filename += "_" + to_string(nPointsUI->intValue()) + "points";
     filename += "_" + to_string(Niterations->intValue()) + "iter";
     filename += ".csv";
   }
+
+  std::cout << "filename : " << filename << endl;
 
   ofstream historyFile;
   historyFile.open(filename, ofstream::out | ofstream::trunc);

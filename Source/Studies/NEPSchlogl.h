@@ -32,7 +32,8 @@ struct SchloglSteadyState
 
 
 class NEPSchlogl : public NEP::AsyncNEPListener,
-                    public SteadyStateslist::AsyncSstListener
+                    public Simulation::AsyncSimListener
+                    //public SteadyStateslist::AsyncSstListener
 {
 public:
   juce_DeclareSingleton(NEPSchlogl, true);
@@ -58,14 +59,16 @@ public:
   void launchOneGDA();
 
   void saveToMetadata(const bool&);
+
+  void updateInternalParameters();
+
     
 private:
     
   void newMessage(const NEP::NEPEvent &e) override;
 
-  //void newMessage(const ContainerAsyncEvent &e) override;
-
-  void newMessage(const SteadyStateslist::SteadyStateEvent &e) override;
+  //void newMessage(const SteadyStateslist::SteadyStateEvent &e) override;
+  void newMessage(const Simulation::SimulationEvent &e) override;
 
     
   Simulation * simul;

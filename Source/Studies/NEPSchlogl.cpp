@@ -220,7 +220,8 @@ void NEPSchlogl::startStudy()
   ofs_metadata.close();
 
   // make this class listen to NEP and SteadyState instances
-  simul->steadyStatesList->addAsyncSteadyStateListener(this);
+  //simul->steadyStatesList->addAsyncSteadyStateListener(this);
+  simul->addAsyncSimulationListener(this);
   NEP::getInstance()->addAsyncNEPListener(this);
 
   proceedToNextThetaKd();
@@ -232,7 +233,8 @@ void NEPSchlogl::startStudy()
 
 void NEPSchlogl::finishStudy()
 {
-  simul->steadyStatesList->removeAsyncSteadyStateListener(this);
+  //simul->steadyStatesList->removeAsyncSteadyStateListener(this);
+  simul->removeAsyncSimulationListener(this);
   NEP::getInstance()->removeAsyncNEPListener(this);
 }
 
@@ -477,7 +479,8 @@ bool NEPSchlogl::arrangeSteadyStates()
   if (stableSteadyStates.size() != 3)
   {
     steadyStatesOK = false;
-    LOGWARNING("NEPSchlogl study : number of kept stable steady states is not equal to 3. Study will not be continued.");
+    LOGWARNING("NEPSchlogl study : number of kept stable steady states is not equal to 3. Skipping this gradient descent.");
+    return steadyStatesOK;
   }
   if (saddleSteadyStates.size() != 2)
   {
@@ -499,6 +502,7 @@ void NEPSchlogl::writeCustomIC(const bool low2high)
   if (!icfile.is_open())
   {
     LOGWARNING("Could not open tempIC.csv for writing. NEP study will not be continued.");
+    updateInternalParameters();
     proceedToNextThetaKd();
     return;
   }
@@ -522,6 +526,7 @@ void NEPSchlogl::writeCustomIC(const bool low2high)
   {
     LOGWARNING("NEPSchlogl study : number of kept stable steady states is not equal to 3 or number of kept saddle steady states is not equal to 2. Study will not be continued.");
     icfile.close();
+    updateInternalParameters();
     proceedToNextThetaKd();
     return;
   }
@@ -562,6 +567,9 @@ void NEPSchlogl::launchOneGDA()
       NEP::getInstance()->sst_stable->setValue(stableSteadyStates[start].positionInList);
       NEP::getInstance()->sst_stable2->setValue(stableSteadyStates[end].positionInList);
 
+      cout << "startSST --> endSST = " << stableSteadyStates[start].positionInList;
+      cout << " --> " << stableSteadyStates[end].positionInList << endl;
+
       writeCustomIC(low2high);
 
       // outputfile filename
@@ -581,6 +589,7 @@ void NEPSchlogl::launchOneGDA()
     saveToMetadata(false);
 
     // proceed manually to next theta-kd pair
+    updateInternalParameters();
     proceedToNextThetaKd();
   }
   
@@ -597,7 +606,17 @@ void NEPSchlogl::saveToMetadata(const bool & steadyStateOK)
 
 
   ofs_metadata << simID << "," << current_theta << "," << current_kd << "," << low2high << "," << outputfile << "," << steadyStateOK << "," << !nepHasError << endl;
+
+  
   ofs_metadata.close();
+}
+
+
+void NEPSchlogl::updateInternalParameters()
+{
+  simID++;
+  low2high = !low2high;
+  nepHasError = false;
 }
 
 
@@ -633,9 +652,11 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
     {
       saveToMetadata(true);
       // reset some variables
-      simID++;
-      low2high = !low2high;
-      nepHasError = false;
+      //simID++;
+      //low2high = !low2high;
+      //nepHasError = false;
+      updateInternalParameters();
+
       // update theta and kd values
       proceedToNextThetaKd();
     }
@@ -646,7 +667,50 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
 
 
 
+void NEPSchlogl::newMessage(const Simulation::SimulationEvent &ev)
+{
+	switch (ev.type)
+	{
+	case Simulation::SimulationEvent::UPDATEPARAMS:
+	{
+		// launch next gradient descent ascent
+    launchOneGDA();
+	}
+	case Simulation::SimulationEvent::WILL_START:
+	{
+	}
+	break;
 
+	case Simulation::SimulationEvent::STARTED:
+	{
+	}
+	break;
+
+	case Simulation::SimulationEvent::NEWSTEP:
+	{
+	}
+	break;
+
+	case Simulation::SimulationEvent::NEWGILLESPIE_STEP:
+	{
+	}
+	break;
+
+	case Simulation::SimulationEvent::NEWRUN:
+	{
+	}
+	break;
+
+	case Simulation::SimulationEvent::FINISHED:
+	{
+	}
+
+	} // end switch
+}
+
+
+
+/*
 void NEPSchlogl::newMessage(const SteadyStateslist::SteadyStateEvent &ev)
 {
   
@@ -666,3 +730,4 @@ void NEPSchlogl::newMessage(const SteadyStateslist::SteadyStateEvent &ev)
       
   } // end switch
 }
+*/
