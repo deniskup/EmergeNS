@@ -13,10 +13,10 @@
 #include "NEPSolver.h"
 #include "NEPHelper.h"
 //#include <nlopt.hpp>
-#include <gsl/gsl_roots.h>
-#include <gsl/gsl_multiroots.h>
-#include <gsl/gsl_blas.h>
-#include "gsl/gsl_multimin.h"
+//#include <gsl/gsl_roots.h>
+//#include <gsl/gsl_multiroots.h>
+//#include <gsl/gsl_blas.h>
+//#include "gsl/gsl_multimin.h"
 
 #include <Eigen/Dense>
 
@@ -44,20 +44,20 @@ public:
   
 private:
       
-  void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
+  //void correctMomentumDirectionIfFollowingWrongBranch(gsl_vector&, StateVec, StateVec);
   
-  int gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
+  //int gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
   //int gslMultirootSolving(gsl_multiroot_fdfsolver*, gsl_multiroot_function_fdf &, EncapsVarForGSL &, const bool useContinuation);
   
   double smoothUpdateOnMu(StateVec, StateVec, double);
 
   
-  bool solveForMomentumAtFixedMu_opt(gsl_multiroot_fdfsolver *, EncapsVarForGSL&, double, int);
-  int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  //bool solveForMomentumAtFixedMu_opt(gsl_multiroot_fdfsolver *, EncapsVarForGSL&, double, int);
+  //int gslMultirootSolving_opt(gsl_multiroot_fdfsolver*, gsl_root_fdfsolver*, gsl_multiroot_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
-  bool solveForMomentumAtFixedMu_LF(gsl_multimin_fdfminimizer *, EncapsVarForGSL&, double, int);
-  int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
+  //bool solveForMomentumAtFixedMu_LF(gsl_multimin_fdfminimizer *, EncapsVarForGSL&, double, int);
+  //int gslMultirootSolving_LF(gsl_multimin_fdfminimizer*, gsl_root_fdfsolver*, gsl_multimin_function_fdf &, gsl_function_fdf&, EncapsVarForGSL &, EncapsVarForGSL_MU &);
   
   
   NLSresults findOptimalMomentumAndTime();

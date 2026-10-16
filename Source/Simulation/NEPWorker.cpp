@@ -102,7 +102,7 @@ juce::dsp::Matrix<double> calculateLiftingJacobian(StateVec dHdp, juce::dsp::Mat
 
 
 
-void printLiftingJacobian_brutforce(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
+/*void printLiftingJacobian_brutforce(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
 {
   StateVec p;
   for (int i=0; i<n-1; i++)
@@ -123,8 +123,8 @@ void printLiftingJacobian_brutforce(gsl_multiroot_fdfsolver * s, EncapsVarForGSL
     cout << endl;
   }
 }
-
-void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
+*/
+/*void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n)
 {
   StateVec p;
   for (int i=0; i<n; i++)
@@ -150,7 +150,7 @@ void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n
   }
   
 }
-
+*/
 
 
 
@@ -160,7 +160,7 @@ void printLiftingJacobian(gsl_multiroot_fdfsolver * s, EncapsVarForGSL ev, int n
  //epsilon * ( dH/dp - e^s * dq / || dq || ) = 0
  
 // x size = number of entities in the system + 1
-int residual4GSL_brutforce(const gsl_vector* x, void* params, gsl_vector* f)
+/*int residual4GSL_brutforce(const gsl_vector* x, void* params, gsl_vector* f)
 {
   
   // retrieve q and dq
@@ -211,11 +211,11 @@ int residual4GSL_brutforce(const gsl_vector* x, void* params, gsl_vector* f)
   }
   
   return GSL_SUCCESS;
-}
+}*/
 
 
 // x size = number of entities in the system + 1
-int residual4GSL_df_brutforce(const gsl_vector* x, void* params, gsl_matrix * J)
+/*int residual4GSL_df_brutforce(const gsl_vector* x, void* params, gsl_matrix * J)
 {
   
   // retrieve q and dq
@@ -271,20 +271,20 @@ int residual4GSL_df_brutforce(const gsl_vector* x, void* params, gsl_matrix * J)
   }
   
   return GSL_SUCCESS;
-}
+}*/
 
 
 
 // x size = number of entities in the system + 1
-int residual4GSL_fdf_brutforce(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
+/*int residual4GSL_fdf_brutforce(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
 {
   residual4GSL_brutforce(x, params, f);
   residual4GSL_df_brutforce(x, params, J);
   return GSL_SUCCESS;
-}
+}*/
 
 
-int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
+/*int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
 {
   
   // retrieve q and dq
@@ -338,11 +338,11 @@ int residual4GSL(const gsl_vector* x, void* params, gsl_vector* f)
   }
   
   return GSL_SUCCESS;
-}
+}*/
 
 
 // x size = number of entities in the system + 1
-int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
+/*int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
 {
   
   // retrieve q and dq
@@ -395,22 +395,22 @@ int residual4GSL_df(const gsl_vector* x, void* params, gsl_matrix * J)
   }
   
   return GSL_SUCCESS;
-}
+}*/
 
 
 
 // x size = number of entities in the system + 1
-int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
+/*int residual4GSL_fdf(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
 {
   residual4GSL(x, params, f);
   residual4GSL_df(x, params, J);
   return GSL_SUCCESS;
-}
+}*/
 
 
 ///////////////////////////////////////////
 
-int residual4GSL_opt(const gsl_vector* x, void* params, gsl_vector* f)
+/*int residual4GSL_opt(const gsl_vector* x, void* params, gsl_vector* f)
 {
   
   // retrieve encapsulated variables
@@ -516,23 +516,23 @@ int residual4GSL_df_opt(const gsl_vector* x, void* params, gsl_matrix * J)
   }
   
   return GSL_SUCCESS;
-}
+}*/
 
 
 
 // x size = number of entities in the system + 1
-int residual4GSL_fdf_opt(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
+/*int residual4GSL_fdf_opt(const gsl_vector* x, void* params, gsl_vector* f, gsl_matrix * J)
 {
   residual4GSL_opt(x, params, f);
   residual4GSL_df_opt(x, params, J);
   return GSL_SUCCESS;
   
-}
+}*/
 
 
 
 
-double residual4GSL_mu_opt(double x, void* params)
+/*double residual4GSL_mu_opt(double x, void* params)
 {
   
   // retrieve encapsulated variables
@@ -543,10 +543,10 @@ double residual4GSL_mu_opt(double x, void* params)
   
   return H;
 
-}
+}*/
 
 
-double residual4GSL_mu_df_opt(double x, void* params)
+/*double residual4GSL_mu_df_opt(double x, void* params)
 {
   
   // retrieve encapsulated variables
@@ -586,21 +586,21 @@ double residual4GSL_mu_df_opt(double x, void* params)
   
   return derivative;
   
-}
+}*/
 
 
 
 // x size = number of entities in the system + 1
-void residual4GSL_mu_fdf_opt(double x, void * params, double * y, double * dy)
+/*void residual4GSL_mu_fdf_opt(double x, void * params, double * y, double * dy)
 {
   *y = residual4GSL_mu_opt(x, params);
   *dy = residual4GSL_mu_df_opt(x, params);
-}
+}*/
 
 
 
 // using legendre fetchel inpired method
-double residual4GSL_LF(const gsl_vector *x, void *params)
+/*double residual4GSL_LF(const gsl_vector *x, void *params)
 {
   
   // retrieve encapsulated variables
@@ -655,11 +655,11 @@ double residual4GSL_LF(const gsl_vector *x, void *params)
   
   
   return  (H - sp);
-}
+}*/
 
 
 // x size = number of entities in the system
-void residual4GSL_df_LF(const gsl_vector* x, void* params, gsl_vector *df)
+/*void residual4GSL_df_LF(const gsl_vector* x, void* params, gsl_vector *df)
 {
 
   
@@ -709,16 +709,16 @@ void residual4GSL_df_LF(const gsl_vector* x, void* params, gsl_vector *df)
   
   
   return;
-}
+}*/
 
 
 
 // x size = number of entities in the system
-void residual4GSL_fdf_LF(const gsl_vector *x, void *params, double *f, gsl_vector *df)
+/*void residual4GSL_fdf_LF(const gsl_vector *x, void *params, double *f, gsl_vector *df)
 {
   *f = residual4GSL_LF(x, params);
   residual4GSL_df_LF(x, params, df);
-}
+}*/
 
 
 
@@ -746,7 +746,7 @@ NEPWorker::JobStatus NEPWorker::runJob()
 // fdf : the multivariate gsl function for which gsl will attempt to find roots
 // ev : home-made encapsulated variables to pass to gsl for the solving
 // useContinutation : boolean to use continuation method for the solving
-int NEPWorker::gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver * s, gsl_multiroot_function_fdf & fdf, EncapsVarForGSL & ev, bool useContinuation)
+/*int NEPWorker::gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver * s, gsl_multiroot_function_fdf & fdf, EncapsVarForGSL & ev, bool useContinuation)
 {
   // continuation of the system
   double epsilon = 0.1;
@@ -798,7 +798,7 @@ int NEPWorker::gslMultirootSolving_brutforce(gsl_multiroot_fdfsolver * s, gsl_mu
   int outstatus = (status == GSL_SUCCESS ? 1 : 0);
 
   return outstatus;
-}
+}*/
 
 
 
@@ -817,7 +817,7 @@ double NEPWorker::smoothUpdateOnMu(StateVec dHdp, StateVec dq, double dq_norm2)
   return mu;
 }
 
-
+/*
 bool NEPWorker::solveForMomentumAtFixedMu_opt(gsl_multiroot_fdfsolver * s_p, EncapsVarForGSL& ev_p, double tolerance_p, int maxiter)
 {
   int iter_p = 0;
@@ -852,14 +852,14 @@ bool NEPWorker::solveForMomentumAtFixedMu_opt(gsl_multiroot_fdfsolver * s_p, Enc
   }
   
   return converged;
-}
+}*/
 
 
 // Performs the actual multivariate solving. Arguments :
 // s : the gsl multiroot solver used
 // fdf : the multivariate vector function for which gsl will attempt to find roots
 // ev : home-made encapsulated variables to pass to gsl for the solving
-int NEPWorker::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolver* s_mu, gsl_multiroot_function_fdf & fdf_p, gsl_function_fdf& fdf_mu, EncapsVarForGSL & ev_p, EncapsVarForGSL_MU & ev_mu)
+/*int NEPWorker::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_fdfsolver* s_mu, gsl_multiroot_function_fdf & fdf_p, gsl_function_fdf& fdf_mu, EncapsVarForGSL & ev_p, EncapsVarForGSL_MU & ev_mu)
 {
   
   //cout << "gslMultirootSolving_LF()" << endl;
@@ -987,25 +987,7 @@ int NEPWorker::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_f
     //double epsilon = 1. - ratio;
     //cout << "iter_p : " << iter_p << ". epsilon = " << epsilon << ". statusP : " << gsl_strerror(gslstatus_p) << endl;
   } // end while loop on mu
-  /*
-  cout << "\n--- Convergence status --- " << endl;
-  cout << "Niterations (p, mu) = (" << iter_p << " , " << iter_mu << ")" << endl;
-  cout << "on P : " << gsl_strerror(gslstatus_p) << endl;
-  cout << "on mu : " << gsl_strerror(gslstatus_mu) << endl;
   
-  cout << "--- roots ---" << endl;
-  cout << "p = ";
-  for (int k=0; k<s_p->x->size; k++)
-    cout << gsl_vector_get(s_p->x, k) << " ";
-  cout << endl << "mu = " << exp(s_mu->root) << endl;
-  
-  cout << "--- Residuals --- " << endl;
-  cout << "mu_res = " << residual_mu << endl;
-  cout << "grad_p = ";
-  for (int k=0; k<s_p->gradient->size; k++)
-    cout << " " << gsl_vector_get(s_p->gradient, k);
-  cout << endl;
-  */
   
   // last resolution on p
   //gslstatus_p = solveForMomentumAtFixedMu_LF(s_p, ev_p, tolerance_p);
@@ -1022,7 +1004,7 @@ int NEPWorker::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_f
   }
 
   return globalStatus;
-}
+}*/
 
 
 
@@ -1030,7 +1012,7 @@ int NEPWorker::gslMultirootSolving_opt(gsl_multiroot_fdfsolver * s_p, gsl_root_f
 
 
 
-bool NEPWorker::solveForMomentumAtFixedMu_LF(gsl_multimin_fdfminimizer * s_p, EncapsVarForGSL& ev_p, double tolerance_p, int maxiter)
+/*bool NEPWorker::solveForMomentumAtFixedMu_LF(gsl_multimin_fdfminimizer * s_p, EncapsVarForGSL& ev_p, double tolerance_p, int maxiter)
 {
   int iter_p = 0;
   int gslstatus_p = GSL_CONTINUE;
@@ -1064,14 +1046,14 @@ bool NEPWorker::solveForMomentumAtFixedMu_LF(gsl_multimin_fdfminimizer * s_p, En
   }
   
   return converged;
-}
+}*/
 
 
 // Performs the actual multivariate solving. Arguments :
 // s : the gsl multiroot solver used
 // fdf : the multivariate vector function for which gsl will attempt to find roots
 // ev : home-made encapsulated variables to pass to gsl for the solving
-int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsolver* s_mu, gsl_multimin_function_fdf & fdf_p, gsl_function_fdf& fdf_mu, EncapsVarForGSL & ev_p, EncapsVarForGSL_MU & ev_mu)
+/*int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_fdfsolver* s_mu, gsl_multimin_function_fdf & fdf_p, gsl_function_fdf& fdf_mu, EncapsVarForGSL & ev_p, EncapsVarForGSL_MU & ev_mu)
 {
   
   //cout << "gslMultirootSolving_LF()" << endl;
@@ -1199,25 +1181,7 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
     //double epsilon = 1. - ratio;
     //cout << "iter_p : " << iter_p << ". epsilon = " << epsilon << ". statusP : " << gsl_strerror(gslstatus_p) << endl;
   } // end while loop on mu
-  /*
-  cout << "\n--- Convergence status --- " << endl;
-  cout << "Niterations (p, mu) = (" << iter_p << " , " << iter_mu << ")" << endl;
-  cout << "on P : " << gsl_strerror(gslstatus_p) << endl;
-  cout << "on mu : " << gsl_strerror(gslstatus_mu) << endl;
-  
-  cout << "--- roots ---" << endl;
-  cout << "p = ";
-  for (int k=0; k<s_p->x->size; k++)
-    cout << gsl_vector_get(s_p->x, k) << " ";
-  cout << endl << "mu = " << exp(s_mu->root) << endl;
-  
-  cout << "--- Residuals --- " << endl;
-  cout << "mu_res = " << residual_mu << endl;
-  cout << "grad_p = ";
-  for (int k=0; k<s_p->gradient->size; k++)
-    cout << " " << gsl_vector_get(s_p->gradient, k);
-  cout << endl;
-  */
+ 
   
   // last resolution on p
   //gslstatus_p = solveForMomentumAtFixedMu_LF(s_p, ev_p, tolerance_p);
@@ -1234,7 +1198,7 @@ int NEPWorker::gslMultirootSolving_LF(gsl_multimin_fdfminimizer * s_p, gsl_root_
   }
 
   return globalStatus;
-}
+}*/
 
 
 
@@ -1267,17 +1231,18 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   ev.solver = solver;
     
   // init the gsl function and its derivatives
-  gsl_multiroot_function_fdf fdf; // using jacobian
+  /*gsl_multiroot_function_fdf fdf; // using jacobian
   fdf.params = &ev;
   gsl_multimin_function_fdf fdf_min;
-  fdf_min.params = &ev;
+  fdf_min.params = &ev;*/
   
+
   // Solve in p, s
   // H(p,q) = 0
   // dH/dp = exp(s) v with v = dq / ||dq|| and dt = ||dq|| exp(-s)
   if (nlsolverType == 0)
   {
-    int n_local = ev.n;
+    /*int n_local = ev.n;
     
     fdf.f = residual4GSL_brutforce;
     fdf.df = residual4GSL_df_brutforce;
@@ -1329,7 +1294,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     
     // free
     gsl_multiroot_fdfsolver_free(s);
-    gsl_vector_free(x);
+    gsl_vector_free(x);*/
   }
   // solve separately
   // H(p,q) = 0
@@ -1338,7 +1303,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
   {
     int n_local = ev.n - 1;
     
-    fdf.f = residual4GSL_opt;
+    /*fdf.f = residual4GSL_opt;
     fdf.df = residual4GSL_df_opt;
     fdf.fdf = residual4GSL_fdf_opt; // combines function to evaluate and the jacobian
     fdf.n = n_local;
@@ -1410,11 +1375,11 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // free
     gsl_multiroot_fdfsolver_free(s_p);
     gsl_root_fdfsolver_free(s_mu);
-    gsl_vector_free(p);
+    gsl_vector_free(p);*/
   }
   else if (nlsolverType == 2)
   {
-    int n_local = ev.n - 1;
+    /*int n_local = ev.n - 1;
     
     fdf_min.f = residual4GSL_LF;
     fdf_min.df = residual4GSL_df_LF;
@@ -1504,7 +1469,7 @@ NLSresults NEPWorker::findOptimalMomentumAndTime()
     // free
     gsl_multimin_fdfminimizer_free(s_p);
     gsl_root_fdfsolver_free(s_mu);
-    gsl_vector_free(p);
+    gsl_vector_free(p);*/
   }
   /*else if (nlsolverType == 3)
   {
