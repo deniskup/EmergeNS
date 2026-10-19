@@ -21,7 +21,7 @@ public:
     EscapeListener(){};
     virtual ~EscapeListener(){};
 
-    virtual void signalEscapeDetected(const Escape&) = 0;
+    virtual void signalEscapeDetected(const EscapeEvent&) = 0;
 
     virtual void signalJobFinished(int, int) = 0;
 };
@@ -48,7 +48,7 @@ private:
     
   void newMessage(const Simulation::SimulationEvent &e) override;
 
-  void signalEscapeDetected(const Escape&) override;
+  void signalEscapeDetected(const EscapeEvent&) override;
 
   void signalJobFinished(int runID, int startSST) override;
 
@@ -60,14 +60,14 @@ private:
   
   CRNSimulation crn;
 
-  //juce::Array<Escape> pendingEscapes;
+  //juce::Array<EscapeEvent> pendingEscapes;
   juce::CriticalSection lock;
 
   StudyParameters studyParams;
 
   // to store escape times during this study
   // unique escape time per run
-  juce::Array<Escape> escapes;
+  juce::Array<EscapeEvent> escapes;
 
   std::unordered_map<int, bool> simuSendsMessages; // <runID, true/false> to check whether simulation will still send messages to listeners or not.
   std::unordered_map<int, int> messageCounters; // <runID, Nmessages> count messages received per run
@@ -75,7 +75,7 @@ private:
 
   std::atomic<int> runBeingTreated { 0 };
   std::unordered_map<int, bool> escapeDetected;  // <runID, escapeDetected>
-  std::unordered_map<int, Escape> earliestEscape;  // <runID, escapeDetected>
+  std::unordered_map<int, EscapeEvent> earliestEscape;  // <runID, escapeDetected>
   std::unordered_map<int, int> pendingJobs;  // <runID, nJobs>
 
   std::atomic<bool> simuHasFinished { false };

@@ -133,7 +133,7 @@ FirstEscapeTimeJob::JobStatus FirstEscapeTimeJob::runJob()
   if (reachedSST != startSteadyState && reachedSST >= 0)
   {
     float midtime = time-0.5*escapeTimePrecision;
-    Escape e = {run, midtime, startSteadyState, reachedSST};
+    EscapeEvent e = {run, midtime, startSteadyState, reachedSST};
     listener.signalEscapeDetected(e);
   }
 

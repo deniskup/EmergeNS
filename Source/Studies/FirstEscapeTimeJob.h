@@ -24,7 +24,7 @@ struct Snapshot
   int run;
 };
 
-struct Escape
+struct EscapeEvent
 {
   int run;
   float time;

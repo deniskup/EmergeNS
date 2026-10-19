@@ -21,7 +21,7 @@ FirstEscapeTime::~FirstEscapeTime()
 }
 
 
-void FirstEscapeTime::signalEscapeDetected(const Escape& e)
+void FirstEscapeTime::signalEscapeDetected(const EscapeEvent& e)
 {
   const juce::ScopedLock sl(lock);
 
@@ -75,7 +75,7 @@ void FirstEscapeTime::signalJobFinished(int runID, int startSST)
   //cout << "in run " << runID << ". remaining jobs in run : " << pendingJobs.at(runID) << ". More messages to come : " << simuSendsMessages.at(runID) << ". escape ? " << escapeDetected.at(runID) << endl;
   if (pendingJobs.at(runID) == 0 && !simuSendsMessages.at(runID) && !escapeDetected.at(runID))
   {
-    Escape noescape = {runID, -1., startSST, startSST};
+    EscapeEvent noescape = {runID, -1., startSST, startSST};
     escapes.setUnchecked(runID, noescape);
     LOG("Run " + juce::String(runID) + ": no escape detected");
   }
