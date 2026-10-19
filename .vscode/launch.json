@@ -12,10 +12,10 @@
       "miDebuggerPath": "/usr/bin/gdb",
       "preLaunchTask": "make",
       "stopAtEntry": false,
-      "args": [
+      /*"args": [
         "-config",
         "/home/tkosc/Bureau/test/firstEscape/config.txt"
-      ]
+      ]*/
     },
 
     {

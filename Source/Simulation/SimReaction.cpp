@@ -45,8 +45,9 @@ SimReaction::SimReaction(Array<SimEntity *> mReac, Array<SimEntity *> mProd, flo
 void SimReaction::updateFromReaction(Reaction *r)
 {
 	reaction = r;
+	isReversible = r->reversible->boolValue();
 	assocRate = r->assocRate->floatValue();
-	dissocRate = r->dissocRate->floatValue();
+	dissocRate = isReversible ? r->dissocRate->floatValue() : 0.f;
 	energy = r->energy->floatValue();
 	name = r->niceName; // name from the original reaction
 	enabled = r->enabled->boolValue();
@@ -231,6 +232,11 @@ SimReaction::SimReaction(var data)
 
 	if (data.getDynamicObject()->hasProperty("dissocRate"))
 		dissocRate = data["dissocRate"];
+
+	if (data.getDynamicObject()->hasProperty("isReversible"))
+		isReversible = data["isReversible"];
+	if (!isReversible)
+		dissocRate = 0.f;
   
 	if (data.getDynamicObject()->hasProperty("idSAT"))
 		idSAT = data["idSAT"];
@@ -271,6 +277,7 @@ var SimReaction::toJSONData()
 	data.getDynamicObject()->setProperty("energyBarrier", energy);
 	data.getDynamicObject()->setProperty("assocRate", assocRate);
 	data.getDynamicObject()->setProperty("dissocRate", dissocRate);
+	data.getDynamicObject()->setProperty("isReversible", isReversible);
 	data.getDynamicObject()->setProperty("idSAT", idSAT);
 
 	return data;
@@ -345,12 +352,14 @@ void SimReaction::computeRate(bool noBarrier, bool noFreeEnergy)
 	// k1=exp(GA+GB-G*)
 	assocRate = exp(energyLeft - energyStar);
 	// k2=exp(GAB-G*)
-	dissocRate = exp(energyRight - energyStar);
+	dissocRate = isReversible ? exp(energyRight - energyStar) : 0.f;
   
 }
 
 //for Gillespie
 double SimReaction::speed(bool isForward, double V){
+    if (!isForward && !isReversible)
+        return 0.;
     double s = isForward?assocRate:dissocRate;
     juce::Array<SimEntity *> vecEnt=isForward?reactants:products; // Si réaction forward, vecteur *vecEnt devient le vecteur des réactifs, sinon dans celui des produits
 

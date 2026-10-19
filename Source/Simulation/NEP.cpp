@@ -200,6 +200,7 @@ void NEP::buildReactionNetworkSnapshot()
         products.add(crn.entities[e->idSAT]);
       }
       SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      copyr->isReversible = r->isReversible;
       crn.reactions.add(copyr);
     }
 }
@@ -1007,6 +1008,7 @@ void NEP::initConcentrationCurve()
         products.add(entities[e->idSAT]);
       }
       SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      copyr->isReversible = r->isReversible;
       reactions.add(copyr);
     }
     

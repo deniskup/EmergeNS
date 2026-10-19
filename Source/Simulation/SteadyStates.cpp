@@ -1267,7 +1267,7 @@ vector<Polynom> SteadyStateslist::computeConcentrationRateVector()
     
     if ((double) r->assocRate < std::pow(10., -1.*ndigits))
       LOGWARNING("Reaction " + r->name + " k+ is very small, user should expect complications with msolve.");
-    if ((double) r->dissocRate < std::pow(10., -1.*ndigits))
+    if (r->isReversible && (double) r->dissocRate < std::pow(10., -1.*ndigits))
       LOGWARNING("Reaction " + r->name + " k- is very small, user should expect complications with msolve.");
     
     // build forward and backward monom of current reaction

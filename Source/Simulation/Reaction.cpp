@@ -22,6 +22,8 @@ Reaction::Reaction(SimReaction *r) : BaseItem(r->name)
 {
 	addParams();
 
+	reversible->setValue(r->isReversible);
+
 	for (auto e : r->reactants)
 	{
 		addReactant(e->entity);
@@ -82,6 +84,7 @@ void Reaction::addParams()
 	addChildControllableContainer(products.get());
 
 	energy = addFloatParameter("Energy Barrier", "Additional energy barrier of the reaction", 1.f, 0.f, 100.f);
+	reversible = addBoolParameter("Reversible", "Enable the backwards direction", true);
 
 	assocRate = addFloatParameter("Association rate", "Reaction speed left to right", .5f);
 	dissocRate = addFloatParameter("Dissociation rate", "Reaction speed right to left", .5f);
@@ -333,7 +336,6 @@ void Reaction::updateWarnAndRates()
 {
 	if (isCurrentlyLoadingData)
 		return;
-	bool someWarn = false;
 
 	int disabledReactants = 0;
 	int disabledProducts = 0;
@@ -346,7 +348,7 @@ void Reaction::updateWarnAndRates()
 	{
 		if (e == nullptr || !e->enabled->boolValue())
 			disabledReactants++;
-		else
+		if (e != nullptr)
 			energyLeft += e->freeEnergy->floatValue();
 	}
 
@@ -354,7 +356,6 @@ void Reaction::updateWarnAndRates()
 	if (isSimulating && disabledReactants > 0)
 	{
 		setWarningMessage("Some reactants are disabled or null", "DisabledReactants");
-		someWarn = true;
 	}
 	else
 		clearWarning("DisabledReactants");
@@ -366,27 +367,24 @@ void Reaction::updateWarnAndRates()
 	{
 		if (e == nullptr || !e->enabled->boolValue())
 			disabledProducts++;
-		else
+		if (e != nullptr)
 			energyRight += e->freeEnergy->floatValue();
 	}
 
 	if (isSimulating && disabledProducts > 0)
 	{
 		setWarningMessage("Some products are disabled or null", "DisabledProducts");
-		someWarn = true;
 	}
 	else
 		clearWarning("DisabledProducts");
 
-	if (someWarn)
-		return;
-
+	// Warnings must not leave stale rates when reversibility or energies change.
 	// total energy G* of the reaction: activation + max of GA+GB and GAB.
 	float energyStar = energy->floatValue() + jmax(energyLeft, energyRight);
 	// k1=exp(GA+GB-G*)
 	assocRate->setValue(exp(energyLeft - energyStar));
 	// k2=exp(GAB-G*)
-	float newDissocRate = exp(energyRight - energyStar);
+	float newDissocRate = reversible->boolValue() ? exp(energyRight - energyStar) : 0.f;
 	dissocRate->setValue(newDissocRate);
 }
 
@@ -414,7 +412,7 @@ bool Reaction::shouldIncludeInSimulation()
 
 void Reaction::onContainerParameterChanged(Parameter *p)
 {
-	if (p == energy)
+	if (p == energy || p == reversible)
 		updateWarnAndRates();
 	if (simReac)
 	{

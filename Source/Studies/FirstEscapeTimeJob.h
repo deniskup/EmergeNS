@@ -81,6 +81,7 @@ class CRNSimulation
         products.add(copy_simEntities[e->idSAT]);
      }
       SimReaction * copyr = new SimReaction(reactants, products, r->assocRate ,  r->dissocRate,  r->energy);
+      copyr->isReversible = r->isReversible;
       copy_simReactions.add(copyr);
     }
 

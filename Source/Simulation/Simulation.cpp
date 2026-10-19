@@ -1131,10 +1131,12 @@ void Simulation::updateUserListFromSim(int patchid)
   {
     if (Reaction *r = ReactionManager::getInstance()->getItemWithName(sr->name, true))
     {
+      const bool isReversible = sr->isReversible;
       r->simReac = sr;
       r->assocRate->setValue(sr->assocRate);
       r->dissocRate->setValue(sr->dissocRate);
       r->energy->setValue(sr->energy);
+      r->reversible->setValue(isReversible);
     }
     else
     {

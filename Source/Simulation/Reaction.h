@@ -23,7 +23,9 @@ public:
 
     FloatParameter *assocRate;  // reactants to product
     FloatParameter *dissocRate; // product to reactants
-    
+
+    BoolParameter *reversible;
+
     SimReaction *simReac = nullptr; //point to a simreac in the simulation
 
     void clearItem() override;
