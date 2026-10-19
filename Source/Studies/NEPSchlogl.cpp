@@ -5,7 +5,7 @@ using namespace juce;
 
 
 
-juce::Array<double> string2array(String str)
+juce::Array<double> string2arraystring2array(String str)
 {
  
   juce::Array<double> output;
@@ -173,6 +173,10 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   {
     outputdir = val.toStdString();   
   }
+  else if (key == "msolvePath")
+  {
+    msolvePath = val.toStdString();   
+  }
 }
 
   for (auto & t: theta)
@@ -202,6 +206,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->alpha->setValue(alpha);
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
   NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
+  Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 
   if (!initializationOK)
     LOGWARNING("Error in NEPSchlogl config file. Please check parameters.");
@@ -239,7 +244,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   low2high = true;
   nepHasError = false;
 
-  //cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
+  cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
 
 }
 

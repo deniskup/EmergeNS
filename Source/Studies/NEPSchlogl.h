@@ -86,6 +86,7 @@ private:
   int checkpoints = 1000;
   double action_threshold = 1e-7;
   std::string outputdir = "./gda";
+  std::string msolvePath = "";
   juce::Array<SchloglSteadyState> stableSteadyStates;
   juce::Array<SchloglSteadyState> saddleSteadyStates;
 
