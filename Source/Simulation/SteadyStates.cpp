@@ -478,23 +478,38 @@ void SteadyStateslist::printSteadyStates()
 
 void SteadyStateslist::printSteadyStatesToFile()
 {
-  ofstream out;
+  ofstream out, outCSV;
   out.open("steadyStates.txt", ofstream::out | ofstream::trunc);
+  outCSV.open("steadyStates.csv", ofstream::out | ofstream::trunc);
   out << "----- Steady States list -----\n\n";
-  int c = 0;
+  int count = 0;
+  for (auto& se : simul->entities)
+  {
+    string comma = (count == simul->entities.size()-1) ? "" : ",";
+    outCSV << se->name << comma;
+    count++;
+  }
+  outCSV << ",isStable,isBorder,isPartiallyStable,order" << endl;
+  count=0;
   for (auto & sst : arraySteadyStates)
   {
-    out << "Steady state #" << c << endl;
+    out << "Steady state #" << count << endl;
     out << "\tis stable ? --> " << sst.isStable << endl;
     out << "\tis border ? --> " << sst.isBorder << endl;
     out << "\tis partially stable ? --> " << sst.isPartiallyStable << endl;
     out << "\tNumber of unstable eigenVec : " << sst.positiveEigenVal << endl;
     out << "\tComposition :" << endl;
     out.precision(10);
+    int count2=0;
     for (auto &c : sst.state)
     {
       out << "\t\t[" << c.first->name << "] = " << c.second << endl;
+      std::string comma = count2 == sst.state.size()-1 ? "" : ",";
+      outCSV << c.second << comma;
+      count2++;
     }
+    outCSV << "," << sst.isStable << "," << sst.isBorder << "," << sst.isPartiallyStable;
+    outCSV << "," << sst.positiveEigenVal << std::endl;
     out.precision(5);
     out << "\t-- eigenvalues -- " << sst.eigenvalues.size() << endl;
     //jassert(sst.eigenvalues.size() == sst.eigenvectors.size());
@@ -502,7 +517,7 @@ void SteadyStateslist::printSteadyStatesToFile()
     {
       out << ev.real << "\t+ " << ev.imag << " i" << endl;
     }
-    c++;
+    count++;
     out << endl;
   }
 }

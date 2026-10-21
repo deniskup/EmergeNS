@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		02CC91DA07E6F4D5C1E371A0 /* include_juce_cryptography.mm */ = {isa = PBXBuildFile; fileRef = 581FB50CE9EE4551FB796564; };
+		033AA93829E5BF211ACBD042 /* NEPModel4.cpp */ = {isa = PBXBuildFile; fileRef = 647866039976BD75BB45D028; };
 		03FC72E5065CEF9E0C533385 /* EntityManager.cpp */ = {isa = PBXBuildFile; fileRef = 22B76F4980A22D40C97C8996; };
 		04BEEEBD7B492EBEEC19CF12 /* Util.cpp */ = {isa = PBXBuildFile; fileRef = 086E2A709DB2A17B51F3FF2F; };
 		05AD1EC55D2C6302ED178B97 /* ReactionManager.cpp */ = {isa = PBXBuildFile; fileRef = 74B0702C8DF6E5343D945394; };
@@ -132,6 +133,7 @@
 		5CAA0EFC06E1459407656EA0 /* FirstEscapeTimeJob.h */ /* FirstEscapeTimeJob.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstEscapeTimeJob.h; path = ../../Source/Studies/FirstEscapeTimeJob.h; sourceTree = SOURCE_ROOT; };
 		5D291F1E1539EC1B3DE44F9C /* NEPUI.cpp */ /* NEPUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPUI.cpp; path = ../../Source/Simulation/ui/NEPUI.cpp; sourceTree = SOURCE_ROOT; };
 		5FF4DAD25E1E6CCF2E074C83 /* Generation.h */ /* Generation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Generation.h; path = ../../Source/Simulation/Generation.h; sourceTree = SOURCE_ROOT; };
+		647866039976BD75BB45D028 /* NEPModel4.cpp */ /* NEPModel4.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = NEPModel4.cpp; path = ../../Source/Studies/NEPModel4.cpp; sourceTree = SOURCE_ROOT; };
 		64D238EC76299F98C6150FD1 /* EntityManagerUI.h */ /* EntityManagerUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EntityManagerUI.h; path = ../../Source/Simulation/ui/EntityManagerUI.h; sourceTree = SOURCE_ROOT; };
 		65F597D7CEC8F963C92135A5 /* SimulationHelpers.h */ /* SimulationHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimulationHelpers.h; path = ../../Source/Simulation/SimulationHelpers.h; sourceTree = SOURCE_ROOT; };
 		68BA27A33836DE95C17E37CF /* juce_dsp */ /* juce_dsp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = juce_dsp; path = ../../../JUCE/modules/juce_dsp; sourceTree = SOURCE_ROOT; };
@@ -158,6 +160,7 @@
 		8EAFE4B45B11A7B069C5CA3F /* SimReaction.h */ /* SimReaction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SimReaction.h; path = ../../Source/Simulation/SimReaction.h; sourceTree = SOURCE_ROOT; };
 		94ADA8C705B58B18B65F8620 /* include_juce_graphics.mm */ /* include_juce_graphics.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = include_juce_graphics.mm; path = ../../JuceLibraryCode/include_juce_graphics.mm; sourceTree = SOURCE_ROOT; };
 		979AB46578CDD5433CE6BAB9 /* ReactionManagerUI.cpp */ /* ReactionManagerUI.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReactionManagerUI.cpp; path = ../../Source/Simulation/ui/ReactionManagerUI.cpp; sourceTree = SOURCE_ROOT; };
+		97ECC5C04492971A05052648 /* NEPModel4.h */ /* NEPModel4.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = NEPModel4.h; path = ../../Source/Studies/NEPModel4.h; sourceTree = SOURCE_ROOT; };
 		9956166B4880728035A87C80 /* FirstEscapeTime.h */ /* FirstEscapeTime.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FirstEscapeTime.h; path = ../../Source/Studies/FirstEscapeTime.h; sourceTree = SOURCE_ROOT; };
 		9B8BB62EA5B70E10EE3596B7 /* CoreMIDI.framework */ /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		9C777874D6DDED0AF1A9C0F9 /* Metal.framework */ /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -422,6 +425,8 @@
 				9956166B4880728035A87C80,
 				FC755F8DE1389FA71694B63B,
 				5CAA0EFC06E1459407656EA0,
+				647866039976BD75BB45D028,
+				97ECC5C04492971A05052648,
 				0867277B912F4622507F6FC8,
 				33A237CD8C4B3CDC80953D3C,
 			);
@@ -549,6 +554,7 @@
 			files = (
 				66A555C2F51D80ACE2D2943C,
 				1BBEA4B78CBD942AFD836F52,
+				033AA93829E5BF211ACBD042,
 				78C892F3FD57D120DE9EE52F,
 				5884FFF13E5628D9E1A530BD,
 				17DC8E199AA7E3D7C45D537D,

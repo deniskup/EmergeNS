@@ -147,8 +147,8 @@ public:
       ERROR
     };
 
-    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., double _cutofffreq = 0., int _npoints = 1, double _metric = 0., double _convergenceFraction = 0.)
-      : type(_t), nep(_nep), curStep(_curStep), action(_action), cutofffreq(_cutofffreq), npoints(_npoints), metric(_metric), convergenceFraction(_convergenceFraction)
+    NEPEvent(Type _t, NEP* _nep, int _curStep = 0, double _action = 0., juce::Array<double> _H = {})
+      : type(_t), nep(_nep), curStep(_curStep), action(_action), H(_H)
     {
     }
 
@@ -156,10 +156,7 @@ public:
     NEP* nep;
     int curStep;
     double action;
-    double cutofffreq;
-    int npoints;
-    double metric;
-    double convergenceFraction;
+    juce::Array<double> H;
   };
   
   QueuedNotifier<NEPEvent> nepNotifier;

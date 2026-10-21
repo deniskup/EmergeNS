@@ -5,7 +5,7 @@ using namespace juce;
 
 
 
-juce::Array<double> string2arraystring2array(String str)
+juce::Array<double> string2array(String str)
 {
  
   juce::Array<double> output;
@@ -175,7 +175,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   }
   else if (key == "msolvePath")
   {
-    msolvePath = val.toStdString();   
+    msolvePath = val;   
   }
 }
 

@@ -20,6 +20,8 @@
               file="Source/Studies/FirstEscapeTimeJob.cpp"/>
         <FILE id="smSm7w" name="FirstEscapeTimeJob.h" compile="0" resource="0"
               file="Source/Studies/FirstEscapeTimeJob.h"/>
+        <FILE id="l3GFBx" name="NEPModel4.cpp" compile="1" resource="0" file="Source/Studies/NEPModel4.cpp"/>
+        <FILE id="k8ueIV" name="NEPModel4.h" compile="0" resource="0" file="Source/Studies/NEPModel4.h"/>
         <FILE id="Z1rZuT" name="NEPSchlogl.cpp" compile="1" resource="0" file="Source/Studies/NEPSchlogl.cpp"/>
         <FILE id="t7QEBq" name="NEPSchlogl.h" compile="0" resource="0" file="Source/Studies/NEPSchlogl.h"/>
       </GROUP>

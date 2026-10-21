@@ -207,6 +207,10 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     {
       NEPSchloglStudy(configs);
     }
+    else if (study == "NEPModel4")
+    {
+      NEPModel4Study(configs);
+    }
 /*
     // Generate a reaction network
     //Simulation::Simulation * simu = new Simulation::Simulation();
@@ -257,12 +261,20 @@ void EmergeNSEngine::firstEscapeTimeStudy(map<String, String> configs)
 }
 
 
-void EmergeNSEngine::NEPSchloglStudy(map<String, String> configs)
+void EmergeNSEngine::NEPSchloglStudy(map<juce::String, juce::String> configs)
 {
   NEPSchlogl * nepss = new NEPSchlogl();
   nepss->setConfig(configs);
   nepss->startStudy();
 }
+
+void EmergeNSEngine::NEPModel4Study(map<juce::String, juce::String> configs)
+{
+  NEPModel4 * nepm4 = new NEPModel4();
+  nepm4->setConfig(configs);
+  nepm4->startStudy();
+}
+
 
 
 var EmergeNSEngine::getJSONData(bool includeNonOverriden)

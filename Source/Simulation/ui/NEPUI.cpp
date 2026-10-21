@@ -33,225 +33,333 @@ NEPUI::~NEPUI()
 
 // #HERE
 // tick marks as well as labels do not display correctly in UI
-void NEPUI::paintAxis(juce::Graphics &g, juce::Rectangle<int> r, String type, int nticks, float max, int ndigits)
+void NEPUI::paintAxis(
+    juce::Graphics& g,
+    juce::Rectangle<int> r,
+    String type,
+    int nticks,
+    float min,
+    float max,
+    int ndigits,
+    String scale)
 {
-  g.setColour(NORMAL_COLOR);
-  g.setFont(10.);
-  
-  int markwidth = 4;
-  int markheight = 2;
-  int textboxwidth = 25;
-  int textboxheight = 5;
-  int shiftXaxisLabels = 10;
-  int shiftYaxisLabels = 25;
+    if (nticks <= 0 || min >= max)
+        return;
 
-//  cout << "bounds : " << r.getX() << " " << r.getY() << " " << r.getWidth() << " " << r.getHeight() << endl;
-//  cout << "type = " << type << ". ndigits = " << ndigits << endl;
-  
-  for (int i=0; i<=nticks; i++)
-  //for (int i=0; i<=0; i++)
-  {
-    // Draw the tick marks
-    int markX, markY;
-    if (i>0 && i<nticks)
+    const bool logScale = (scale == "log");
+
+    // Logarithmic axes require positive bounds.
+    if (logScale && (min <= 0.0f || max <= 0.0f))
+        return;
+
+    g.setColour(NORMAL_COLOR);
+    g.setFont(10.0f);
+
+    const int markwidth = 4;
+    const int markheight = 2;
+    const int textboxwidth = 45;
+    const int textboxheight = 15;
+
+    const int shiftXaxisLabels = 10;
+    const int shiftYaxisLabels = 25;
+
+    const double logMin = logScale ? std::log10(min) : 0.0;
+    const double logMax = logScale ? std::log10(max) : 0.0;
+
+    for (int i = 0; i <= nticks; ++i)
     {
-      if (type == "X")
-      {
-        markX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks);
-        markY = r.getY() + r.getHeight();
-        //cout << "tick #" << i << ". xpos : " << markX << ". ypos : " << markY << endl;
-        juce::Rectangle<int> m(markX, markY - markwidth / 2, markheight, markwidth);
-        g.drawRect(m, markheight);
-      }
-      else
-      {
-        markX = r.getX();
-        markY = r.getY() + round((float)r.getHeight() * (float) i / (float)nticks);
-        juce::Rectangle<int> m(markX - markwidth / 2, markY, markwidth, markheight);
-        g.drawRect(m, markheight);
-      }
+        const double fraction = static_cast<double>(i) / nticks;
+
+        int markX;
+        int markY;
+
+        // Draw tick marks, excluding the endpoints.
+        if (i > 0 && i < nticks)
+        {
+            if (type == "X")
+            {
+                markX = r.getX()
+                    + static_cast<int>(std::round(r.getWidth() * fraction));
+
+                markY = r.getBottom();
+
+                juce::Rectangle<int> m(
+                    markX,
+                    markY - markwidth / 2,
+                    markheight,
+                    markwidth);
+
+                g.drawRect(m, markheight);
+            }
+            else
+            {
+                markX = r.getX();
+
+                markY = r.getY()
+                    + static_cast<int>(std::round(r.getHeight() * fraction));
+
+                juce::Rectangle<int> m(
+                    markX - markwidth / 2,
+                    markY,
+                    markwidth,
+                    markheight);
+
+                g.drawRect(m, markheight);
+            }
+        }
+
+        // Draw tick labels.
+        if (type == "X")
+        {
+            juce::String label;
+
+            // Display only the first and last labels.
+            if (i == 0)
+                label = juce::String(min, ndigits);
+
+            if (i == nticks)
+                label = juce::String(max, ndigits);
+
+            const int labelX = r.getX()
+                + static_cast<int>(std::round(r.getWidth() * fraction))
+                - textboxwidth / 2;
+
+            const int labelY = r.getBottom() + shiftXaxisLabels;
+
+            juce::Rectangle<int> labelpos(
+                labelX, labelY, textboxwidth, textboxheight);
+
+            if (i == 0 || i == nticks)
+            {
+                g.drawText(
+                    label,
+                    labelpos,
+                    juce::Justification::centred,
+                    true);
+            }
+        }
+        else if (type == "Y")
+        {
+            // Position from the bottom towards the top.
+            const double axisFraction = 1.0 - fraction;
+
+            const int labelX = r.getX() - shiftYaxisLabels;
+
+            const int labelY = r.getY()
+                + static_cast<int>(
+                    std::round(r.getHeight() * axisFraction))
+                - textboxheight / 2;
+
+            juce::Rectangle<int> labelpos(
+                labelX, labelY, textboxwidth, textboxheight);
+
+            double value;
+
+            if (logScale)
+            {
+                // Interpolate in log-space, then return to linear values.
+                value = std::pow(
+                    10.0,
+                    logMin + fraction * (logMax - logMin));
+            }
+            else
+            {
+                // Linear interpolation.
+                value = min + fraction * (max - min);
+            }
+
+            juce::String label(value, ndigits);
+
+            g.drawText(
+                label,
+                labelpos,
+                juce::Justification::centred,
+                true);
+        }
     }
-    
-  
-    // ticks labels
-    if (type == "X")
+}
+
+void NEPUI::paintOneMonitoredQuantity(
+    juce::Graphics& g,
+    juce::Rectangle<int> r,
+    String title,
+    Array<double> data,
+    String scale = "linear")
+{
+    if (data.isEmpty())
+        return;
+
+    if (title != "H")
     {
-      String label = "";
-      if (i==0)
-        label = String(iterations.getFirst());;
-      if (i==nticks)
-        label = String(iterations.getLast());
-      int labelX = r.getX() + round((float)r.getWidth() * (float) i / (float)nticks) - textboxwidth/2;
-      int labelY = r.getY() + r.getHeight() + shiftXaxisLabels;
-      juce::Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
-      if (i==0 || i==nticks) // only display first and last values for x axis
-        g.drawText(label, labelpos, Justification::centred, true);
+      jassert(data.size() == iterations.size());
+
+      if (iterations.isEmpty() || data.size() != iterations.size())
+        return;
+    }
+
+    const bool logScale = (scale == "log");
+
+    // Une échelle logarithmique nécessite des valeurs strictement positives.
+    if (logScale)
+    {
+        for (double value : data)
+        {
+            if (!std::isfinite(value) || value <= 0.0)
+            {
+                DBG("Cannot use logarithmic scale for " + title
+                    + ": data must be strictly positive and finite.");
+                return;
+            }
+        }
+    }
+
+    // Draw the box.
+    g.setColour(NORMAL_COLOR);
+    g.drawRoundedRectangle(r.toFloat(), 4, 2.0f);
+
+    // Find the bounds.
+    double minX = *std::min_element(iterations.begin(), iterations.end());
+    double maxX = *std::max_element(iterations.begin(), iterations.end());
+
+    double minY = *std::min_element(data.begin(), data.end());
+    double maxY = *std::max_element(data.begin(), data.end());
+
+    if (!std::isfinite(minX) || !std::isfinite(maxX))
+        return;
+
+    if (minX == maxX)
+    {
+        const double margin = std::max(1.0, std::abs(minX) * 0.05);
+        minX -= margin;
+        maxX += margin;
+    }
+
+    if (logScale)
+    {
+        // Work in log10-space.
+        double logMinY = std::log10(minY);
+        double logMaxY = std::log10(maxY);
+
+        // Avoid a zero range when all values are identical.
+        if (logMinY == logMaxY)
+        {
+            logMinY -= 0.5;
+            logMaxY += 0.5;
+        }
+
+        // Add 5% margin in logarithmic space.
+        const double margin = 0.05 * (logMaxY - logMinY);
+        logMinY -= margin;
+        logMaxY += margin;
+
+        minY = std::pow(10.0, logMinY);
+        maxY = std::pow(10.0, logMaxY);
     }
     else
     {
-      // x position of ticks labels
-      int labelX = r.getX() - shiftYaxisLabels;
-      int labelY = r.getY() + round( (float) r.getHeight() * (1. - (float) i / (float) nticks) );
-      juce::Rectangle<int> labelpos(labelX, labelY, textboxwidth, textboxheight);
-      //float val = max * (1. - (float) i / (float) nticks);
-      float val = max * ( (float) i / (float) nticks);
-      stringstream ssval;
-      ssval << fixed << setprecision(ndigits) << val;
-      string label = ssval.str();
-      g.drawText(label, labelpos, Justification::centred, true);
+        // Linear scale: preserve the existing behaviour.
+        double rangeY = maxY - minY;
+
+        if (rangeY == 0.0)
+        {
+            const double margin = std::max(1.0, std::abs(maxY) * 0.05);
+            minY -= margin;
+            maxY += margin;
+        }
+        else
+        {
+            maxY += 0.05 * rangeY;
+
+            if (title == "Action")
+                minY -= 0.05 * rangeY;
+        }
     }
-  } // end loop over ticks
-  
-  
-}
 
+    const double rangeY = logScale
+        ? std::log10(maxY) - std::log10(minY)
+        : maxY - minY;
 
-void NEPUI::paintOneMonitoredQuantity(juce::Graphics &g, juce::Rectangle<int> r, String title, Array<double> data)
-{
-  if (data.size() == 0)
-    return;
-  jassert(data.size() == iterations.size());
-  //cout << "data type : " << title << ". size = " << data.size() << " vs Niter = " << iterations.size() << endl;
-  
-  //cout << "data " << title << " : ";
-  //for (auto & el : data)
-  //  cout << el << " ";
-  //cout << endl;
-  
-  
-  // retrieve max from array data
-  /*auto max_it = max_element(data.begin(), data.end());
-  float max = (max_it != data.end() ? *max_it : 1.0);
-  cout << "title : " << title << ". max = " << max << endl;
-  jassert(max>0.);
-  */
-  // draw rectagle around the box
-  g.setColour(NORMAL_COLOR);
-  g.drawRoundedRectangle(r.toFloat(), 4, 2.f);
-  
-  // find min and max of data
-  double minX = *min_element(iterations.begin(), iterations.end());
-  double maxX = *max_element(iterations.begin(), iterations.end());
-  double minY = *min_element(data.begin(), data.end());
-  double maxY = *max_element(data.begin(), data.end());
-  double rangeX = maxX - minX;
-  double rangeY = maxY - minY;
-  
-  if (rangeX == 0.)
-  {
-    rangeX = abs(maxX);
-    minX = std::min(0., minX);
-    maxX = std::max(0., maxX);
-  }
-  if (rangeY == 0.)
-  {
-    rangeY = abs(maxY);
-    minY = std::min(0., minY);
-    maxY = std::max(0., maxY);
-    if (rangeY == 0.)
+    const double rangeX = maxX - minX;
+
+    if (rangeX <= 0.0 || rangeY <= 0.0)
+        return;
+
+    // Convert data coordinates to pixel coordinates.
+    auto toPixel = [&](double x, double y) -> juce::Point<float>
     {
-      minY = 0.;
-      minY = 1.;
-      rangeY = 1.;
-    }
-  }
-  
-  /*
-  if (title == "Action")
-  {
-    maxY += 1.1*rangeY;
-    minY -= 1.1*rangeY;
-  }
-  else
-  {
-    minY = 0.;
-    maxY *= 1.1; // little more room for esthetics
-  }
-   */
-  
-  // make little more room for plots
-  maxY += 0.05*rangeY;
-  if (title == "Action")
-    minY -= 0.05*rangeY;
-  rangeY = maxY - minY;
-  //rangeY = maxY
-    
-  if (rangeX<0. || rangeY<0.)
-    return;
-  
-  // convert data point into pixel coordinates
-  auto toPixel = [&](double x, double y) -> Point<float>
-  {
-    float normX = (float)((x - minX) / rangeX);
-    float normY = (float)((y - minY) / rangeY);
-          
-    float pixelX = r.getX() + normX * r.getWidth();
-    float pixelY = r.getBottom() - normY * r.getHeight(); // Inversion Y
-    //float pixelY = r.getY() - normY * r.getHeight(); // Inversion Y
+        const double normX = (x - minX) / rangeX;
 
-    Point<float> pixPoint = {pixelX, pixelY};
-    
-    return pixPoint;
-  };
-  
-  // start a path and init to first value
-  Path * path = new Path();
-  path->startNewSubPath(toPixel(iterations.getUnchecked(0), data.getUnchecked(0)));
-  
-  // add all points
-  for (int k=1; k<data.size(); k++)
-  {
-    path->lineTo(toPixel(iterations.getUnchecked(k), data.getUnchecked(k)));
-    if (title=="Action")
+        const double normY = logScale
+            ? (std::log10(y) - std::log10(minY)) / rangeY
+            : (y - minY) / rangeY;
+
+        const float pixelX =
+            static_cast<float>(r.getX() + normX * r.getWidth());
+
+        const float pixelY =
+            static_cast<float>(r.getBottom() - normY * r.getHeight());
+
+        return { pixelX, pixelY };
+    };
+
+    // Build the path.
+    juce::Path path;
+
+    path.startNewSubPath(
+        toPixel(iterations.getUnchecked(0), data.getUnchecked(0)));
+
+    for (int k = 1; k < data.size(); ++k)
     {
-      //cout << "rangeY : " << rangeY << endl;
-      //cout << "action array = " << endl;
-      //for (auto & el : data)
-      //  cout << el << " ";
-      //cout << endl;
-      //cout << "rectangle coords : " << endl;
-      //cout << r.getX() << " " << r.getRight() << " " << r.getBottom() << " " << r.getY() << endl;
-      //auto pixPoint = toPixel(iterations.getUnchecked(k), data.getUnchecked(k));
-      //cout << "adding point " << pixPoint.x << " " << pixPoint.y << endl;
+        path.lineTo(
+            toPixel(iterations.getUnchecked(k), data.getUnchecked(k)));
     }
-  }
-  
-  // draw the data
-  juce::Colour col = juce::Colours::purple;
-  if (title == "Action")
-    col = juce::Colours::yellow;
-  else if (title == "Cutoff frequency")
-    col = juce::Colours::pink;
-  else if (title == "Convergence")
-    col = juce::Colours::pink;
-  else if (title == "nPoints")
-    col = juce::Colours::powderblue;
-  else if (title == "Metric")
-    col = juce::Colours::orangered;
-  g.setColour(col);
-  g.strokePath(*path, PathStrokeType(1.2));
-  
-  // draw axis
-  int nticksX = 4;
-  int nticksY = 4;
-  int ndigitsX = 0;
-  int ndigitsY = 2;
-  if (title == "nPoints")
-    ndigitsY = 0;
-  
-  paintAxis(g, r, "X", nticksX, iterations.getLast(), ndigitsX);
-  paintAxis(g, r, "Y", nticksY, maxY, ndigitsY);
-  
-  // add plot title
-  g.setFont(15.);
-  int titleboxwidth = 150;
-  int titleX = r.getX() + r.getWidth()/2 - titleboxwidth/2;
-  int titleY = r.getY() - 20;
-  juce::Rectangle<int> titlepos(titleX, titleY, titleboxwidth, 20);
-  g.drawText(title, titlepos, Justification::centred, true);
 
+    // Draw the data.
+    juce::Colour col = juce::Colours::purple;
 
-  
+    if (title == "Action")
+        col = juce::Colours::yellow;
+    else if (title == "Cutoff frequency" || title == "Convergence")
+        col = juce::Colours::pink;
+    else if (title == "nPoints")
+        col = juce::Colours::powderblue;
+    else if (title == "Metric")
+        col = juce::Colours::orangered;
+    else if (title == "H")
+    {
+      col = juce::Colours::orangered;
+      scale = "log";
+    }
+
+    g.setColour(col);
+    g.strokePath(path, juce::PathStrokeType(1.2f));
+
+    // Draw the axes.
+    const int nticksX = 4;
+    const int nticksY = 4;
+
+    const int ndigitsX = 0;
+    const int ndigitsY = (title == "nPoints") ? 0 : 2;
+
+    paintAxis(g, r, "X", nticksX,
+              static_cast<float>(minX),
+              static_cast<float>(maxX),
+              ndigitsX, "linear");
+
+    paintAxis(g, r, "Y", nticksY,
+              static_cast<float>(minY),
+              static_cast<float>(maxY),
+              ndigitsY, scale);
+
+    // Draw the title.
+    g.setFont(15.0f);
+
+    const int titleboxwidth = 150;
+    const int titleX = r.getX() + r.getWidth() / 2 - titleboxwidth / 2;
+    const int titleY = r.getY() - 20;
+
+    juce::Rectangle<int> titlepos(titleX, titleY, titleboxwidth, 20);
+    g.drawText(title, titlepos, juce::Justification::centred, true);
 }
 
 
@@ -298,7 +406,8 @@ void NEPUI::paint(juce::Graphics & g)
   // draw action evolution in first recangle
   paintOneMonitoredQuantity(g, r3, "Action", actions);
   //paintOneMonitoredQuantity(g, r2, "Cutoff frequency", cutoffFreqs);
-  paintOneMonitoredQuantity(g, r4, "Convergence", convergence);
+  //paintOneMonitoredQuantity(g, r4, "Convergence", convergence);
+  paintOneMonitoredQuantity(g, r4, "H", absH, "log");
   //paintOneMonitoredQuantity(g, r3, "nPoints", nPoints);
   //paintOneMonitoredQuantity(g, r4, "Metric", metrics);
   
@@ -360,6 +469,7 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
       nPoints.clear();
       metrics.clear();
       convergence.clear();
+      absH.clear();
     }
     break;
 
@@ -367,10 +477,11 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
     {
       iterations.add(ev.curStep);
       actions.add(ev.action);
-      cutoffFreqs.add(ev.cutofffreq);
-      nPoints.add( (double) ev.npoints);
-      metrics.add(ev.metric);
-      convergence.add(ev.convergenceFraction);
+      //cutoffFreqs.add(ev.cutofffreq);
+      //nPoints.add( (double) ev.npoints);
+      absH = ev.H;
+      //metrics.add(ev.metric);
+      //convergence.add(ev.convergenceFraction);
       repaint();
     }
     break;
@@ -383,6 +494,7 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
       nPoints.clear();
       metrics.clear();
       convergence.clear();
+      absH.clear();
       repaint();
     }
     break;

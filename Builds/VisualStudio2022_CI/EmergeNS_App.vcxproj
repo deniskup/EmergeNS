@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Studies\FirstEscapeTime.cpp"/>
     <ClCompile Include="..\..\Source\Studies\FirstEscapeTimeJob.cpp"/>
+    <ClCompile Include="..\..\Source\Studies\NEPModel4.cpp"/>
     <ClCompile Include="..\..\Source\Studies\NEPSchlogl.cpp"/>
     <ClCompile Include="..\..\Source\Engine\EmergeNSEngine.cpp"/>
     <ClCompile Include="..\..\Source\Simulation\KineticLaw.cpp"/>
@@ -2626,6 +2627,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Studies\FirstEscapeTime.h"/>
     <ClInclude Include="..\..\Source\Studies\FirstEscapeTimeJob.h"/>
+    <ClInclude Include="..\..\Source\Studies\NEPModel4.h"/>
     <ClInclude Include="..\..\Source\Studies\NEPSchlogl.h"/>
     <ClInclude Include="..\..\Source\Engine\EmergeNSEngine.h"/>
     <ClInclude Include="..\..\Source\Simulation\KineticLaw.h"/>

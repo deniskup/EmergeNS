@@ -503,9 +503,9 @@ void NEP::run()
     double diffAction = action - newaction;
     //LOG("action = " + to_string(newaction));
     //LOG("delta action = " + to_string(diffAction));
-    std::cout << std::scientific << std::setprecision(10) << "action = " << newaction << std::endl;
-    std::cout << "delta action = " << diffAction << endl;
-    std::cout << std::fixed << std::endl;
+    //std::cout << std::scientific << std::setprecision(10) << "action = " << newaction << std::endl;
+    //std::cout << "delta action = " << diffAction << endl;
+    //std::cout << std::fixed << std::endl;
     
     if (isnan(newaction)|| isnan(diffAction))
     {
@@ -532,7 +532,12 @@ void NEP::run()
     
     // message to async to monitor the descent
     double dummy_cutoffFreq = 1.;
-    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, dummy_cutoffFreq, nPoints, metric, successFrac));
+    juce::Array<double> absH;
+    for (int p=0; p<g_qcurve.size(); p++)
+    {
+      absH.add(std::abs(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(p), g_pcurve.getUnchecked(p))));
+    }
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, newaction, absH));
     
     
     // check algorithm descent status
@@ -2944,8 +2949,7 @@ void NEP::gradientDescentAscent()
 
 
   // message to async
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, 0., nPoints, 1., 1.));
-  //nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, 0, action, 0., nPoints, 1., 1.));
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, {}));
 
 
   int count = 0;
@@ -3040,7 +3044,7 @@ void NEP::gradientDescentAscent()
       LOGWARNING("qcurve_update contains invalid values (NaN, Inf). Stopping gradient descent/ascent.");
       gdaIsOk = false;
       signalThreadShouldExit();
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this));
       break;
     }
 
@@ -3257,7 +3261,7 @@ void NEP::gradientDescentAscent()
       LOGWARNING("qcurve_update contains invalid values (NaN, Inf or negative). Stopping gradient descent/ascent.");
       gdaIsOk = false;
       signalThreadShouldExit();
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this, 0, 0., 0., 0, 0., 0.));
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this));
       break;
     }
 
@@ -3377,7 +3381,12 @@ void NEP::gradientDescentAscent()
       }
 
       // message to async
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, 0., nPoints, 1., 1.));
+      juce::Array<double> absH;
+      for (int p=0; p<g_qcurve.size(); p++)
+      {
+        absH.add(std::abs(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(p), g_pcurve.getUnchecked(p))));
+      }
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, absH));
     } // end if isCheck
   } // end while
 
@@ -3398,7 +3407,12 @@ void NEP::gradientDescentAscent()
 void NEP::gdaFinish(const double& currentAction)
 {
   //cout << "NEP::gdaFinish()" << endl;
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, gdaNsteps, currentAction, 0., nPoints, 1., 1.));
+  juce::Array<double> absH;
+  for (int p=0; p<g_qcurve.size(); p++)
+  {
+    absH.add(std::abs(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(p), g_pcurve.getUnchecked(p))));
+  }
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::FINISHED, this, gdaNsteps, currentAction));
   //stopThread(1);
 }
 
