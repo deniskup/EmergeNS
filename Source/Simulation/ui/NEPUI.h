@@ -35,10 +35,11 @@ public:
     juce::Array<double> metrics;
     juce::Array<double> convergence;
     juce::Array<double> absH;
+    juce::Array<double> maxabsH;
   
     void paintAxis(juce::Graphics &g, juce::Rectangle<int> bounds, juce::String type, int nticks, float min, float max, int ndigits, juce::String scale);
   
-    void paintOneMonitoredQuantity(juce::Graphics &, juce::Rectangle<int>, juce::String, juce::Array<double>, juce::String);
+    void paintOneMonitoredQuantity(juce::Graphics &, juce::Rectangle<int>, juce::String, juce::Array<int>, juce::Array<double>, juce::String);
 
     void paint(juce::Graphics &) override;
   

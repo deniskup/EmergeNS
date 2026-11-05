@@ -15,7 +15,6 @@
 #include "Simulation/SteadyStates.h"
 
 
-
 struct ThermoKinPair
 {
   double deltaG;
@@ -137,5 +136,11 @@ private:
   Eigen::MatrixXd cycleMatrix;
 
   juce::CriticalSection lock;
+
+  uint32_t startTime;
+  uint32_t endTime;
+  uint32_t simIDStartTime;
+  uint32_t simIDEndTime;
+
 
 };

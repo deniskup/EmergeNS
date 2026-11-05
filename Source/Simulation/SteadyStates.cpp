@@ -1062,7 +1062,7 @@ bool SteadyStateslist::computeWithMSolve()
   string outputFile = "msolveSteadyOutput.ms";
   // string steadyFile= "SteadyStates.txt";
 
-  string msolveCommand = msolvepath + "msolve" + " -p 256 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
+  string msolveCommand = msolvepath + "msolve" + " -p 512 " + " -f " + inputFile + " -o " + outputFile + " > msolvesteadylog.txt";
 
   // std::cout << inputFile << std::endl;  // #erase
   // std::cout << outputFile << std::endl; // #erase

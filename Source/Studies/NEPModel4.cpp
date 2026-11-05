@@ -448,13 +448,15 @@ void NEPModel4::startStudy()
   {
     ofs_metadata << "simID,deltaG,barr,fromA2B,filename,steadyStatesOK,nepOK" << endl;
   }
-  ofs_metadata.close();
-  logerrorfile.close();
+  //ofs_metadata.close();
+  //logerrorfile.close();
 
   // make this class listen to NEP and SteadyState instances
   //simul->steadyStatesList->addAsyncSteadyStateListener(this);
   simul->addAsyncSimulationListener(this);
   NEP::getInstance()->addAsyncNEPListener(this);
+
+  startTime = Time::getMillisecondCounter();
 
   proceedToNext_dGbarr();
 }
@@ -468,6 +470,14 @@ void NEPModel4::finishStudy()
   //simul->steadyStatesList->removeAsyncSteadyStateListener(this);
   if (studytype == STEADYSTATES)
     saveSteadyStatesToFile();
+
+  // total time of study
+  endTime = Time::getMillisecondCounter();
+  logerrorfile << "Total time = " << (endTime - startTime)/(1000.*3600.) << "h" << endl;
+
+  logerrorfile.close();
+  ofs_metadata.close();
+  
   simul->removeAsyncSimulationListener(this);
   NEP::getInstance()->removeAsyncNEPListener(this);
 }
@@ -653,8 +663,8 @@ std::pair<int, int> NEPModel4::arrangeSteadyStates(bool & canContinue)
     return std::pair<int, int>(Adominates, Bdominates);
   }
   
-  cout << "A dominates = " << Adominates << endl;
-  cout << "B dominates = " << Bdominates << endl;
+  //cout << "A dominates = " << Adominates << endl;
+  //cout << "B dominates = " << Bdominates << endl;
 
   return std::pair<int, int>(Adominates, Bdominates);
   
@@ -720,6 +730,8 @@ std::pair<int, int> NEPModel4::arrangeSteadyStates(bool & canContinue)
 
 void NEPModel4::launchOneGDA()
 {
+
+  simIDStartTime = Time::getMillisecondCounter();
 
   // set start SST and endSST of NEP according to results of steady state calculation
   // do not throw NEP if less than 4 stable steady states are found
@@ -792,8 +804,8 @@ void NEPModel4::retrieveSteadyStates()
 
 void NEPModel4::saveToMetadata(const bool & steadyStateOK)
 {
-  std::string completename = outputdir + "/metadata.csv";
-  ofs_metadata.open(completename.c_str(), ios::ate | ios::app);
+  //std::string completename = outputdir + "/metadata.csv";
+  //ofs_metadata.open(completename.c_str(), ios::ate | ios::app);
 
   if (!ofs_metadata.is_open())
     return;
@@ -808,7 +820,7 @@ void NEPModel4::saveToMetadata(const bool & steadyStateOK)
     ofs_metadata << "," << outputfile << "," << steadyStateOK << "," << !nepHasError << endl;
   }
   
-  ofs_metadata.close();
+  //ofs_metadata.close();
 }
 
 
@@ -880,6 +892,12 @@ void NEPModel4::newMessage(const NEP::NEPEvent &ev)
 
       // update relevant parameters
       updateInternalParameters();
+
+      // write exec time
+      simIDEndTime = Time::getMillisecondCounter();
+      logerrorfile << "simID " << simID << " executed in " << (simIDEndTime-simIDStartTime)/(1000.*3600.) << "h" << endl;
+      cout << "simID " << simID << " executed in " << (simIDEndTime-simIDStartTime)/(1000.*3600.) << "h" << endl;
+
 
       // update theta and kd values
       proceedToNext_dGbarr();
