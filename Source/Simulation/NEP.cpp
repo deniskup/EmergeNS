@@ -3354,10 +3354,12 @@ void NEP::gradientDescentAscent()
 
       // keep track of hamiltonian values along the curve
       juce::Array<double> vecH;
+      juce::Array<double> vecabsH;
       for (int point=0; point<g_qcurve.size(); point++)
       {
         double h = nepsolver->evalHamiltonian(g_qcurve.getUnchecked(point), g_pcurve.getUnchecked(point));
         vecH.add(h);
+        vecabsH.add(std::abs(h));
       }
       residuals_H_descent.add(vecH);
 
@@ -3371,13 +3373,28 @@ void NEP::gradientDescentAscent()
         }
       }
 
-      // message to async
-      juce::Array<double> absH;
-      for (int p=0; p<g_qcurve.size(); p++)
+
+      // detect high frequency oscillations
+      bool oscillates = false;
+      if (adaptiveStepDescent->boolValue())
+        oscillates = GDAoscillates();
+
+      if (oscillates)
       {
-        absH.add(std::abs(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(p), g_pcurve.getUnchecked(p))));
+        dtau->setValue(dtau->floatValue()*0.5);
+        String message = "Oscillation pattern detected in descent ascent";
+        message += " decreasing dtau to " + String(dtau->floatValue());
+        LOG(message);
+
+        if (dtau->floatValue() < stepDescentThreshold->floatValue())
+        {
+          LOG("dtau reached threshold. Stopping gradient descent/ascent.");
+          break;
+        }
       }
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, gdaNsteps, action, absH));
+
+      // message to async
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, gdaNsteps, action, vecabsH));
     } // end if isCheck
   } // end while
 
@@ -3564,6 +3581,59 @@ void NEP::GDAresetCurves()
   }
 
 
+bool NEP::GDAoscillates()
+{
+  bool oscillates = false;
+  int testpoints = 20;
+
+  if (actionDescent.size()<testpoints)
+    return oscillates;
+
+  int N = actionDescent.size();
+  
+
+  juce::Array<double> diffAct;
+  juce::Array<double> diffH;
+
+  // get last iterations of descent/ascent
+  for (int k=0; k<testpoints; k++)
+  {
+    // action
+    double Ak = actionDescent.getReference(N-1-k).getLast();
+    double Akminus = actionDescent.getReference(N-1-k-1).getLast();
+    diffAct.add(Ak-Akminus);
+
+    // hamiltonian
+    StateVec Hk = residuals_H_descent.getUnchecked(N-1-k);
+    StateVec Hkminus = residuals_H_descent.getUnchecked(N-1-k-1);
+
+    double maxHk = *std::max_element(Hk.begin(), Hk.end());
+    double minHk = *std::min_element(Hk.begin(), Hk.end());
+    maxHk = std::max(std::abs(maxHk), std::abs(minHk));
+    double maxHkminus = *std::max_element(Hkminus.begin(), Hkminus.end());
+    double minHkminus = *std::min_element(Hkminus.begin(), Hkminus.end());
+    maxHkminus = std::max(std::abs(maxHkminus), std::abs(minHkminus));
+
+    diffH.add(maxHk - maxHkminus);
+  }
+
+  // measure number of sign change flips in last action / H values
+  int nflips_action = 0;
+  int nflips_H = 0;
+  for (int k=0; k<diffAct.size()-1; k++)
+  {
+    if (diffAct.getUnchecked(k)*diffAct.getUnchecked(k+1)<0.)
+      nflips_action++;
+    if (diffH.getUnchecked(k)*diffH.getUnchecked(k+1)<0.)
+      nflips_H++;
+  }
+
+  if (nflips_action > testpoints/2 || nflips_H > testpoints/2)
+    oscillates = true;
+  
+  return oscillates;
+
+}
 
 
 void NEP::GDAwriteDescentToFile()

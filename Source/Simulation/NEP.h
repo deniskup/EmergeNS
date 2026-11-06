@@ -234,6 +234,8 @@ private:
 
   bool GDAhasConverged();
 
+  bool GDAoscillates();
+
   void GDAerror(bool&);
 
   void gdaFinish(const double&);
