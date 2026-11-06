@@ -2792,69 +2792,28 @@ void NEP::heteroclinicStudy()
 
 void NEP::gradientDescentAscent()
 {
-  // init with straightline between stable steady states
-  //initialConditions->setValueAtIndex(0);
-  try
-  {
-    initConcentrationCurve(sst_stable->intValue(), sst_stable2->intValue(), true);
-  } catch (const std::exception& e)
-  {
-    LOGWARNING(e.what());
-    return;
-  }
+  
 
   setTimeNormalizationFactor(1.);
 
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+  //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this));
+
+  GDAresetCurves();
 
   StateVec qstart = g_qcurve.getFirst();
   StateVec qend = g_qcurve.getLast();
 
-  // null vector useful
+   // null vector  useful
   StateVec nullvec; 
   nullvec.insertMultiple(0, 0., simul->entities.size()); 
-
-  // p curve init as null vector if not alreadu initialized
-  if (g_pcurve.size() == 0)
-    g_pcurve.insertMultiple(0, nullvec, nPoints);
   
 
   int dim = simul->entities.size();
 
-  // keep track of initial trajectory
-  iterationDescent.add(0);
-  juce::Array<double> vecH;
-  Trajectory initialTraj;
-  for (int point=0; point<nPoints; point++)
-  {
-    PhaseSpaceVec qp;
-    StateVec q = g_qcurve.getUnchecked(point);
-    StateVec p = g_pcurve.getUnchecked(point);
-    for (int m=0; m<q.size(); m++)
-      qp.add(q.getUnchecked(m));
-    for (int m=0; m<p.size(); m++)
-      qp.add(p.getUnchecked(m));
-    initialTraj.add(qp);
-    double h = nepsolver->evalHamiltonian(q, p);
-    vecH.add(h);
-  }
-  trajDescent.add(initialTraj);
-  residuals_H_descent.add(vecH);
 
-  //cout << "qcurve size : " << g_qcurve.size() << endl;
-  //cout << "pcurve size : " << g_pcurve.size() << endl;
-
-  // init u and v from p and q.
-  std::pair<Curve, Curve> uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
-  Curve ucurve = uvcurves.first;
-  Curve vcurve = uvcurves.second;
-  //cout << "ucurve size : " << ucurve.size() << endl;
-  //cout << "vcurve size : " << vcurve.size() << endl;
-
-  double ds = 1./(float)(nPoints-1.);
-  double dx = 1.;
+  ds = 1./(float)(nPoints-1.);
+  dx = 1.;
   
-
 
   // hardcode number of points to draw to monitor the descent/ascent
   int nIterMonitor = 100;
@@ -2906,10 +2865,10 @@ void NEP::gradientDescentAscent()
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
-    for (int m=0; m<ucurve.getUnchecked(p).size(); m++)
+    for (int m=0; m<g_ucurve.getUnchecked(p).size(); m++)
     {
       std::string comma = (m==dim-1 ? "" : ",");
-      cout << ucurve.getUnchecked(p).getUnchecked(m) << comma;
+      cout << g_ucurve.getUnchecked(p).getUnchecked(m) << comma;
     }
     cout << ")\t";
   }
@@ -2917,10 +2876,10 @@ void NEP::gradientDescentAscent()
   for (int p=0; p<nPoints; p++)
   {
     cout << "(";
-    for (int m=0; m<vcurve.getUnchecked(p).size(); m++)
+    for (int m=0; m<g_vcurve.getUnchecked(p).size(); m++)
     {
       std::string comma = (m==dim-1 ? "" : ",");
-      cout << vcurve.getUnchecked(p).getUnchecked(m) << comma;
+      cout << g_vcurve.getUnchecked(p).getUnchecked(m) << comma;
     }
     cout << ")\t";
   }
@@ -2942,6 +2901,15 @@ void NEP::gradientDescentAscent()
 
 
    // calculate action initial value
+   // calculate hamiltonian related quantities along the trajectory
+  for (int point=0; point<nPoints; point++)
+  {
+    StateVec q = g_qcurve.getUnchecked(point);
+    StateVec p = g_pcurve.getUnchecked(point);
+    dHdqCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
+    dHdpCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
+    hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
+  }
   lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
   juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true);
   double action = cumulAction.getLast();
@@ -2949,46 +2917,46 @@ void NEP::gradientDescentAscent()
 
 
   // message to async
-  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, {}));
+  //nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, {}));
 
 
-  int count = 0;
   bool gdaIsOk = true;
   double nep = -999.;
   gdaNsteps = 0;
-  while (count < Niterations->intValue() && !threadShouldExit())
+  bool hasReset = false;
+  while (gdaNsteps < Niterations->intValue() && !threadShouldExit())
   {
-    count++;
     gdaNsteps++;
     isCheck = (gdaNsteps % checkPoint == 0);
-
-
     // if last iteration, enforce isCheck to be true
     if (gdaNsteps == Niterations->intValue()-1)
       isCheck = true;
 
-    // calculate hamiltonian related quantities along the trajectory
-    for (int point=0; point<nPoints; point++)
+    if (gdaNsteps > 1 || hasReset)
     {
-      StateVec q = g_qcurve.getUnchecked(point);
-      StateVec p = g_pcurve.getUnchecked(point);
-      dHdqCurve. setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
-      dHdpCurve. setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
-      hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
-    }
-
+      // calculate hamiltonian related quantities along the trajectory
+      for (int point=0; point<nPoints; point++)
+      {
+        StateVec q = g_qcurve.getUnchecked(point);
+        StateVec p = g_pcurve.getUnchecked(point);
+        dHdqCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
+        dHdpCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
+        hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
+      }
     // calculate lambda along the trajectory
     lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds);
+    }
+
+    
 
     // f fonction
     fCurve = nepsolver->GDAf1(dHdqCurve, dHdpCurve, alpha->floatValue());
 
 
-    //cout << "\nIteration #" << count << endl;
     // update u curve 
-    juce::Array<StateVec> ucurve_update(ucurve);
+    juce::Array<StateVec> ucurve_update(g_ucurve);
     //nepsolver->GDAupdateUCurve(ucurve_update, ucurve, vcurve, lambdaArray, fCurve, alpha->floatValue(), ds, dtau->floatValue(), qend);
-    nepsolver->GDAupdateUCurveSecondOrder(ucurve_update, ucurve, vcurve, lambdaArray, fCurve, alpha->floatValue(), ds, dtau->floatValue(), qend);
+    nepsolver->GDAupdateUCurveSecondOrder(ucurve_update, g_ucurve, g_vcurve, lambdaArray, fCurve, alpha->floatValue(), ds, dtau->floatValue(), qend);
 
     /*cout << "U updated = ";
     for (int point=0; point<nPoints; point++)
@@ -3005,7 +2973,7 @@ void NEP::gradientDescentAscent()
 
 
     // deduce q and p from the updated u
-    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, vcurve, alpha->doubleValue());
+    std::pair<Curve, Curve> qpcurves = nepsolver->GDAfromUVtoQP(ucurve_update, g_vcurve, alpha->doubleValue());
     Curve qcurve_update = qpcurves.first;
     Curve pcurve_update = qpcurves.second;
 
@@ -3024,31 +2992,41 @@ void NEP::gradientDescentAscent()
     resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
 
     // check qcurve validity
-    bool isValid = true;
-    for (auto& qpoint : qcurve_update)
-    {
-      for (auto& qval : qpoint)
-      {
-        if (std::isnan(qval) || std::isinf(qval))
-        {
-          isValid = false;
-          break;
-        }
-      }
-      if (!isValid)
-        break;
-    }
+    bool isValid = GDAcheckCurveValidity(qcurve_update, pcurve_update);
 
     if (!isValid)
     {
-      LOGWARNING("qcurve_update contains invalid values (NaN, Inf). Stopping gradient descent/ascent.");
-      gdaIsOk = false;
-      signalThreadShouldExit();
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this));
-      break;
+      LOG("invalid qcurve/pcurve detected at step " + String(gdaNsteps) + "-a");
+      if (adaptiveStepDescent->boolValue())
+      {
+        LOG("Decreasing dtau");
+        dtau->setValue(dtau->floatValue() * 0.2);
+        LOG("dtau = " + String(dtau->floatValue()));
+        if (dtau->floatValue() < stepDescentThreshold->floatValue())
+        {
+          GDAerror(gdaIsOk);
+          LOG("dtau reached threshold. Stopping gradient descent/ascent.");
+          break;
+        }
+        else 
+        {
+          // reset qcurves and pcurves to initial value and start again
+          reset();
+          GDAresetCurves();
+          gdaNsteps = 0;
+          hasReset = true;
+          continue;
+        }
+      }
+      else  
+      {
+        GDAerror(gdaIsOk);
+        break;
+      }
     }
 
-    // set to 0 negative values in concentration curve
+
+    // force to 0 negative values in concentration curve
     for (int p=0; p<qcurve_update.size(); p++)
     {
       for (int m=0; m<qcurve_update.getUnchecked(p).size(); m++)
@@ -3064,9 +3042,9 @@ void NEP::gradientDescentAscent()
     g_pcurve = pcurve_update;
 
     // associated changes of U and V
-    uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
-    ucurve = uvcurves.first;
-    vcurve = uvcurves.second;
+    std::pair<Curve, Curve> uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+    g_ucurve = uvcurves.first;
+    g_vcurve = uvcurves.second;
 
 
   /*cout << std::setprecision(7) << endl;
@@ -3188,9 +3166,9 @@ void NEP::gradientDescentAscent()
 
 
     // update v curve
-    juce::Array<StateVec> vcurve_update(vcurve);
+    juce::Array<StateVec> vcurve_update(g_vcurve);
     //nepsolver->GDAupdateVCurve(vcurve_update, ucurve, vcurve, lambdaArray, gCurve, alpha->doubleValue(), ds, dtau->doubleValue(), qstart);
-    nepsolver->GDAupdateVCurveSecondOrder(vcurve_update, ucurve, vcurve, lambdaArray, gCurve, alpha->doubleValue(), ds, dtau->doubleValue(), qstart);
+    nepsolver->GDAupdateVCurveSecondOrder(vcurve_update, g_ucurve, g_vcurve, lambdaArray, gCurve, alpha->doubleValue(), ds, dtau->doubleValue(), qstart);
 
     /*cout << "\nucurve :" << endl;
   for (int p=0; p<nPoints; p++)
@@ -3220,7 +3198,7 @@ void NEP::gradientDescentAscent()
 
 
     // deduce q and p from u and v
-    qpcurves = nepsolver->GDAfromUVtoQP(ucurve, vcurve_update, alpha->doubleValue());
+    qpcurves = nepsolver->GDAfromUVtoQP(g_ucurve, vcurve_update, alpha->doubleValue());
     qcurve_update = qpcurves.first;
     pcurve_update = qpcurves.second;
 
@@ -3239,31 +3217,40 @@ void NEP::gradientDescentAscent()
     // resample q and p in space uniform for q. Beware of what happens for the p curve
     resampleInSpaceUniform(qcurve_update, nPoints, &pcurve_update);
 
-
     // check qcurve validity
-    isValid = true;
-    for (auto& qpoint : qcurve_update)
-    {
-      for (auto& qval : qpoint)
-      {
-        if (std::isnan(qval) || std::isinf(qval))
-        {
-          isValid = false;
-          break;
-        }
-      }
-      if (!isValid)
-        break;
-    }
+    isValid = GDAcheckCurveValidity(qcurve_update, pcurve_update);
 
     if (!isValid)
     {
-      LOGWARNING("qcurve_update contains invalid values (NaN, Inf or negative). Stopping gradient descent/ascent.");
-      gdaIsOk = false;
-      signalThreadShouldExit();
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this));
-      break;
+      LOG("invalid qcurve/pcurve detected at step " + String(gdaNsteps) + "-a");       
+      if (adaptiveStepDescent->boolValue())
+      {
+        LOG("Decreasing dtau");
+        dtau->setValue(dtau->floatValue() * 0.2);
+        LOG("dtau = " + String(dtau->floatValue()));
+        if (dtau->floatValue() < stepDescentThreshold->floatValue())
+        {
+          GDAerror(gdaIsOk);
+          LOG("dtau reached threshold. Stopping gradient descent/ascent.");
+          break;
+        }
+        else 
+        {
+          // reset qcurves and pcurves to previous values and start again
+          reset();
+          GDAresetCurves();
+          gdaNsteps = 0;
+          hasReset = true;
+          continue;
+        }
+      }
+      else  
+      {
+        GDAerror(gdaIsOk);
+        break;
+      }
     }
+
 
     // set to 0 negative values in concentration curve
     for (int p=0; p<qcurve_update.size(); p++)
@@ -3281,10 +3268,14 @@ void NEP::gradientDescentAscent()
     g_qcurve = qcurve_update;
     g_pcurve = pcurve_update;
 
+    // for next iteration
+    //qcurve_prev = g_qcurve;
+    //pcurve_prev = g_pcurve;
+
     // set u and v for next iteration
     std::pair<Curve, Curve> uvcurves2 = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->doubleValue());
-    ucurve = uvcurves2.first;
-    vcurve = uvcurves2.second;
+    g_ucurve = uvcurves2.first;
+    g_vcurve = uvcurves2.second;
 
 
 
@@ -3386,7 +3377,7 @@ void NEP::gradientDescentAscent()
       {
         absH.add(std::abs(nepsolver->evalHamiltonian(g_qcurve.getUnchecked(p), g_pcurve.getUnchecked(p))));
       }
-      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, count, action, absH));
+      nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, gdaNsteps, action, absH));
     } // end if isCheck
   } // end while
 
@@ -3404,6 +3395,16 @@ void NEP::gradientDescentAscent()
 
 }
 
+
+
+  void NEP::GDAerror(bool & gdaIsOk)
+  {
+    //LOG("dtau reached threshold. Stopping gradient descent/ascent.");
+    gdaIsOk = false;
+    signalThreadShouldExit();
+    nepNotifier.addMessage(new NEPEvent(NEPEvent::ERROR, this));
+  }
+
 void NEP::gdaFinish(const double& currentAction)
 {
   //cout << "NEP::gdaFinish()" << endl;
@@ -3416,6 +3417,99 @@ void NEP::gdaFinish(const double& currentAction)
   //stopThread(1);
 }
 
+
+bool NEP::GDAcheckCurveValidity(const Curve& qcurve, const Curve& pcurve)
+{
+  bool isValid = true;
+  
+  for (int p=0; p<qcurve.size(); p++)
+  {
+    StateVec qpoint = qcurve.getUnchecked(p);
+    StateVec ppoint = pcurve.getUnchecked(p);
+    
+    for (int m=0; m<ppoint.size(); m++)
+    {
+      double qval = qpoint.getUnchecked(m);
+      double pval = ppoint.getUnchecked(m);
+
+      if (std::isnan(qval) || std::isinf(qval) || std::isnan(pval) || std::isinf(pval))
+      {
+        isValid = false;
+        break;
+      }
+    }
+    if (!isValid)
+      break;
+  }
+
+  return isValid;
+    
+}
+
+
+void NEP::GDAresetCurves()
+{
+  g_qcurve.clear();
+  g_pcurve.clear();
+  try
+  {
+    initConcentrationCurve(sst_stable->intValue(), sst_stable2->intValue(), true);
+  } catch (const std::exception& e)
+  {
+    LOGWARNING(e.what());
+    return;
+  }
+
+  // null vector 
+  StateVec nullvec; 
+  nullvec.insertMultiple(0, 0., simul->entities.size()); 
+
+  // p curve init as list of null vector
+  g_pcurve.insertMultiple(0, nullvec, nPoints);
+
+  // keep track of initial trajectory
+  iterationDescent.add(0);
+  juce::Array<double> vecH;
+  Trajectory initialTraj;
+  for (int point=0; point<nPoints; point++)
+  {
+    PhaseSpaceVec qp;
+    StateVec q = g_qcurve.getUnchecked(point);
+    StateVec p = g_pcurve.getUnchecked(point);
+    for (int m=0; m<q.size(); m++)
+      qp.add(q.getUnchecked(m));
+    for (int m=0; m<p.size(); m++)
+      qp.add(p.getUnchecked(m));
+    initialTraj.add(qp);
+    double h = nepsolver->evalHamiltonian(q, p);
+    vecH.add(h);
+  }
+  trajDescent.add(initialTraj);
+  residuals_H_descent.add(vecH);
+
+  //cout << "qcurve size : " << g_qcurve.size() << endl;
+  //cout << "pcurve size : " << g_pcurve.size() << endl;
+
+  // init u and v from p and q.
+  g_ucurve.clear();
+  g_vcurve.clear();
+  std::pair<Curve, Curve> uvcurves = nepsolver->GDAfromQPtoUV(g_qcurve, g_pcurve, alpha->floatValue());
+  g_ucurve = uvcurves.first;
+  g_vcurve = uvcurves.second;
+  //cout << "ucurve size : " << ucurve.size() << endl;
+  //cout << "vcurve size : " << vcurve.size() << endl;
+
+
+  // calculate action initial value
+  //lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
+  //juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true);
+  //double action = cumulAction.getLast();
+  //actionDescent.add(cumulAction);
+
+  // message to async
+  nepNotifier.addMessage(new NEPEvent(NEPEvent::WILL_START, this, 0, action, {}));
+ 
+}
 
 
   bool NEP::GDAhasConverged()

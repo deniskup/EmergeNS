@@ -228,7 +228,13 @@ private:
 
   void gradientDescentAscent();
 
+  bool GDAcheckCurveValidity(const Curve& qcurve, const Curve& pcurve);
+
+  void GDAresetCurves();
+
   bool GDAhasConverged();
+
+  void GDAerror(bool&);
 
   void gdaFinish(const double&);
 
@@ -252,6 +258,10 @@ private:
   // global variable describing the state of the descent
   Curve g_qcurve;
   pCurve g_pcurve;
+  Curve g_ucurve;
+  Curve g_vcurve;
+
+  
   pCurve g_smooth_pcurve;
   double length_qcurve = 0.;
   juce::Array<double> g_times;
@@ -282,6 +292,8 @@ private:
   //double tolerance_mu;
   double d_action_threshold = 1e-5;
   double d_stepDescentThreshold = 1e-5;
+
+  double ds, dx;
   
   // normalization parameters
   //double timescale_factor = 1.;
