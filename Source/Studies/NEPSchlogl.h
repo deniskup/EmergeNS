@@ -89,6 +89,7 @@ private:
   juce::String msolvePath = "";
   juce::Array<SchloglSteadyState> stableSteadyStates;
   juce::Array<SchloglSteadyState> saddleSteadyStates;
+  bool adaptiveStepDescent = false;
 
   juce::CriticalSection lock;
 
@@ -99,6 +100,8 @@ private:
   bool low2high = true; // NEP from low-low to high-high or reverse
 
   std::string outputfile = "";
+  std::string logfilename = "";
+  std::string metadatafile = "";
 
   ofstream logerrorfile;
   ofstream ofs_metadata;

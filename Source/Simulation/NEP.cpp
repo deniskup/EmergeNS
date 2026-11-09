@@ -2924,15 +2924,17 @@ void NEP::gradientDescentAscent()
   double nep = -999.;
   gdaNsteps = 0;
   bool hasReset = false;
+  int flagOscillation = 0;
   while (gdaNsteps < Niterations->intValue() && !threadShouldExit())
   {
     gdaNsteps++;
     isCheck = (gdaNsteps % checkPoint == 0);
+    bool wasCheck = (gdaNsteps-1 % checkPoint == 0);
     // if last iteration, enforce isCheck to be true
     if (gdaNsteps == Niterations->intValue()-1)
       isCheck = true;
 
-    if (gdaNsteps > 1 || hasReset)
+    if ( (gdaNsteps > 1 && !wasCheck) || hasReset)
     {
       // calculate hamiltonian related quantities along the trajectory
       for (int point=0; point<nPoints; point++)
@@ -3346,8 +3348,17 @@ void NEP::gradientDescentAscent()
       trajDescent.add(savetraj);
 
       // calculate action
-      //juce::Array<double> lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, alpha->floatValue(), ds); 
-      juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true); // flawed : lambdaarray should be recalculated after the v curve update, but it is not.
+      // re-calculate hamiltonian related quantities along the trajectory
+      for (int point=0; point<nPoints; point++)
+      {
+        StateVec q = g_qcurve.getUnchecked(point);
+        StateVec p = g_pcurve.getUnchecked(point);
+        dHdqCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithQ(q, p));
+        dHdpCurve.setUnchecked(point, nepsolver->evalHamiltonianGradientWithP(q, p));
+        hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
+      }
+      juce::Array<double> newlambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
+      juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, newlambdaArray, false); 
       double action = cumulAction.getLast();
       actionDescent.add(cumulAction);
       nep = action;
@@ -3377,7 +3388,7 @@ void NEP::gradientDescentAscent()
       // detect high frequency oscillations
       bool oscillates = false;
       if (adaptiveStepDescent->boolValue())
-        oscillates = GDAoscillates();
+        oscillates = GDAoscillates(flagOscillation);
 
       if (oscillates)
       {
@@ -3581,12 +3592,15 @@ void NEP::GDAresetCurves()
   }
 
 
-bool NEP::GDAoscillates()
+bool NEP::GDAoscillates(int & flagOscillation)
 {
   bool oscillates = false;
   int testpoints = 20;
 
   if (actionDescent.size()<testpoints)
+    return oscillates;
+
+  if (actionDescent.size()-1-flagOscillation < testpoints)
     return oscillates;
 
   int N = actionDescent.size();
@@ -3595,13 +3609,15 @@ bool NEP::GDAoscillates()
   juce::Array<double> diffAct;
   juce::Array<double> diffH;
 
+
   // get last iterations of descent/ascent
-  for (int k=0; k<testpoints; k++)
+  for (int k=0; k<testpoints-1; k++)
   {
     // action
     double Ak = actionDescent.getReference(N-1-k).getLast();
     double Akminus = actionDescent.getReference(N-1-k-1).getLast();
     diffAct.add(Ak-Akminus);
+
 
     // hamiltonian
     StateVec Hk = residuals_H_descent.getUnchecked(N-1-k);
@@ -3617,6 +3633,7 @@ bool NEP::GDAoscillates()
     diffH.add(maxHk - maxHkminus);
   }
 
+
   // measure number of sign change flips in last action / H values
   int nflips_action = 0;
   int nflips_H = 0;
@@ -3630,6 +3647,9 @@ bool NEP::GDAoscillates()
 
   if (nflips_action > testpoints/2 || nflips_H > testpoints/2)
     oscillates = true;
+
+  if (oscillates)
+    flagOscillation = N-1;
   
   return oscillates;
 

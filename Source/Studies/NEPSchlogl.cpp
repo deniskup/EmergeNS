@@ -15,9 +15,13 @@ juce::Array<double> string2array(String str)
      juce::Array<double> keys;
     StringArray strarr;
     strarr.addTokens(str, ";", "");
-    for (auto & s : strarr)
+    //for (auto & s : strarr)
+    for (int pos=0; pos<strarr.size(); pos++)
     {
-      keys.add(atof(s.toUTF8()));
+      if (pos>2)
+        break;
+      //std::string s = strarr.getReference(pos).toStdString();
+      keys.add(atof(strarr.getReference(pos).toUTF8()));
     }
     if (keys.size() != 3)
     {
@@ -32,11 +36,26 @@ juce::Array<double> string2array(String str)
       throw std::runtime_error("Number of points must be at least 2.");
     }
 
+    bool uselogScale = false;
+    if (strarr.size() == 4)
+    {
+      uselogScale = (strarr[3] == "log") || (strarr[3] == "Log") || (strarr[3] == "LOG");
+    }
+
+    if (uselogScale && (low <= 0. || high <= 0.))
+    {
+      throw std::runtime_error("Logarithmic scale requires positive low and high values for interval");
+    }
+
     
     for (int i=0; i<n; i++)
     {
       double ii = static_cast<double>(i);
-      double val = low + ii * (high - low) / (n - 1);
+      double val;
+      if (uselogScale)
+        val = low * std::pow(10.0, ii*(std::log10(high)-std::log10(low) ) / (n-1) );
+      else
+        val = low + ii * (high - low) / (n - 1);
       output.add(val);
    }
   }
@@ -177,6 +196,19 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   {
     msolvePath = val;   
   }
+   else if (key == "adaptiveStepDescent")
+  {
+    int ival;
+    try
+    {
+      ival = std::atoi(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+      initializationOK = false;
+    }
+    adaptiveStepDescent = (ival != 0);
+  }
 }
 
   for (auto & t: theta)
@@ -206,6 +238,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->alpha->setValue(alpha);
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
   NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
+  NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
   Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 
   if (!initializationOK)
@@ -213,7 +246,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
 
 
   // check
-  /*cout << "theta = ";
+  cout << "theta = ";
   for (auto & t : theta)
     cout << t << " ";
   cout << endl;
@@ -221,7 +254,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   for (auto & k : kd)
     cout << k << " ";
   cout << endl;
-*/
+
 
   // create pairs of [theta, kd]
 
@@ -244,6 +277,9 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   low2high = true;
   nepHasError = false;
 
+  metadatafile  = outputdir + "/metadata.csv";
+  logfilename  = outputdir + "/log-error.txt";
+
   cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
 
 }
@@ -261,10 +297,10 @@ void NEPSchlogl::startStudy()
     return;
   }
 
-  logerrorfile.open("NEPSchlogl_logs.txt", ios::out | ios::trunc);
-  ofs_metadata.open("metadata.csv", ios::out | ios::trunc);
+  logerrorfile.open(logfilename.c_str(), ios::out | ios::trunc);
+  ofs_metadata.open(metadatafile.c_str(), ios::out | ios::trunc);
+
   ofs_metadata << "simID,theta,kd,low2high,filename,steadyStatesOK,nepOK" << endl;
-  ofs_metadata.close();
 
   // make this class listen to NEP and SteadyState instances
   //simul->steadyStatesList->addAsyncSteadyStateListener(this);
@@ -281,6 +317,8 @@ void NEPSchlogl::startStudy()
 void NEPSchlogl::finishStudy()
 {
   //simul->steadyStatesList->removeAsyncSteadyStateListener(this);
+  logerrorfile.close();
+  ofs_metadata.close();
   simul->removeAsyncSimulationListener(this);
   NEP::getInstance()->removeAsyncNEPListener(this);
 }
@@ -647,16 +685,10 @@ void NEPSchlogl::launchOneGDA()
 
 void NEPSchlogl::saveToMetadata(const bool & steadyStateOK)
 {
-  ofs_metadata.open("metadata.csv", ios::ate | ios::app);
-
   if (!ofs_metadata.is_open())
     return;
 
-
   ofs_metadata << simID << "," << current_theta << "," << current_kd << "," << low2high << "," << outputfile << "," << steadyStateOK << "," << !nepHasError << endl;
-
-  
-  ofs_metadata.close();
 }
 
 

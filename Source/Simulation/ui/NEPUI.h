@@ -36,6 +36,9 @@ public:
     juce::Array<double> convergence;
     juce::Array<double> absH;
     juce::Array<double> maxabsH;
+
+    double minAction = 1.;
+    int argminAction = 0;
   
     void paintAxis(juce::Graphics &g, juce::Rectangle<int> bounds, juce::String type, int nticks, float min, float max, int ndigits, juce::String scale);
   

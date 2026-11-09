@@ -110,6 +110,7 @@ private:
   double action_threshold = 1e-7;
   std::string outputdir = "./gda";
   juce::String msolvePath = "";
+  bool adaptiveStepDescent = false;
 
   juce::Array<Model4SteadyState> steadyStates;
   

@@ -508,7 +508,30 @@ void NEPUI::newMessage(const NEP::NEPEvent &ev)
     case NEP::NEPEvent::NEWSTEP:
     {
       iterations.add(ev.curStep);
-      actions.add(ev.action);
+
+      // action sometimes is negative, and this poses problems for UI 
+      if (ev.action < 0.)
+      {
+        double min = *std::min_element(actions.begin(), actions.end());
+        auto it = std::min_element(actions.begin(), actions.end(),
+        [](double a, double b)
+          {
+            if (a <= 0) return false;
+            if (b <= 0) return true;
+            return a < b;
+        });
+        argminAction = (it != actions.end() && *it != 0) ? static_cast<int>(it - actions.begin()): -1;
+
+        if (argminAction >= 0)
+          minAction = actions.getUnchecked(argminAction);
+        else  // if actions contained only 0 values or negative values, add dummy value for UI display
+          minAction = 1.;
+
+        // add corrected value for UI display
+        actions.add(minAction);
+      }
+      else
+        actions.add(ev.action);
       //cutoffFreqs.add(ev.cutofffreq);
       //nPoints = ev.npoints;
       absH = ev.H;

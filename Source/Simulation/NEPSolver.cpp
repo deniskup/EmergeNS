@@ -1866,6 +1866,33 @@ juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& 
     //cout << "H(" << i << ") = " << evalHamiltonian(qc.getUnchecked(i), pc.getUnchecked(i)) << endl;
   }
 
+  // lambda might contain zeros, which would lead to division by zero in the action integral. 
+  juce::Array<double> lambda_corr;
+  juce::Array<double> lambda_abs;
+  for (auto& val : lambda)
+    lambda_abs.add(std::abs(val));
+  // find non-zero minimum
+  int pos = -1;
+  double min = 999999.;
+  for (int i=0; i<lambda_abs.size(); i++)
+  {
+    if (lambda_abs.getUnchecked(i) > 0. && lambda_abs.getUnchecked(i) < min)
+    {
+      min = lambda_abs.getUnchecked(i);
+      pos = i;
+    }
+  }
+  jassert(pos >= 0);
+  double lambda_min = lambda_abs.getUnchecked(pos);
+  // replace zeros by lambda_min
+  for (int i=0; i<lambda.size(); i++)
+  {
+    if (lambda.getUnchecked(i) == 0.)
+      lambda_corr.add(lambda_min);
+    else
+      lambda_corr.add(lambda.getUnchecked(i));
+  }
+
   jassert(qc.size() > 1);
   double ds = 1./(qc.size()-1.);
   jassert(ds > 0.);
@@ -1880,7 +1907,7 @@ juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& 
     // integrad at i
     double integrand = 0.;
     if (!forceStationnarity)
-      integrand = -0.5 * (hamilt.getUnchecked(i)/lambda.getUnchecked(i) + hamilt.getUnchecked(i+1)/lambda.getUnchecked(i+1)) * ds;
+      integrand = -0.5 * (hamilt.getUnchecked(i)/lambda_corr.getUnchecked(i) + hamilt.getUnchecked(i+1)/lambda_corr.getUnchecked(i+1)) * ds;
     
     
     jassert(pc.getUnchecked(i).size() == pc.getUnchecked(i+1).size()); // safety check

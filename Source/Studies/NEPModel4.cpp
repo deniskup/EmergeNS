@@ -210,6 +210,19 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   {
     file_pairs_dGbarr = val;   
   }
+  else if (key == "adaptiveStepDescent")
+  {
+    int ival;
+    try
+    {
+      ival = std::atoi(val.toUTF8());
+    }
+    catch (const std::exception&)
+    {
+      initializationOK = false;
+    }
+    adaptiveStepDescent = (ival != 0);
+  }
 }
 
   for (auto & b: barr)
@@ -231,6 +244,7 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   NEP::getInstance()->alpha->setValue(alpha);
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
   NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
+  NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
   Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 
   if (studytype == NEP1PATCH)
