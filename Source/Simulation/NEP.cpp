@@ -3002,7 +3002,7 @@ void NEP::gradientDescentAscent()
       if (adaptiveStepDescent->boolValue())
       {
         LOG("Decreasing dtau");
-        dtau->setValue(dtau->floatValue() * 0.2);
+        dtau->setValue(dtau->floatValue() * 0.5);
         LOG("dtau = " + String(dtau->floatValue()));
         if (dtau->floatValue() < stepDescentThreshold->floatValue())
         {
@@ -3228,7 +3228,7 @@ void NEP::gradientDescentAscent()
       if (adaptiveStepDescent->boolValue())
       {
         LOG("Decreasing dtau");
-        dtau->setValue(dtau->floatValue() * 0.2);
+        dtau->setValue(dtau->floatValue() * 0.5);
         LOG("dtau = " + String(dtau->floatValue()));
         if (dtau->floatValue() < stepDescentThreshold->floatValue())
         {
@@ -3542,7 +3542,7 @@ void NEP::GDAresetCurves()
 
   bool NEP::GDAhasConverged()
   {
-    //cout << "NEP::GDAhasConverged(). actionDescent size : " << actionDescent.size() << endl;
+    cout << "NEP::GDAhasConverged()" << endl;
     int N = 15;
     if (actionDescent.size()<N)
       return false;
@@ -3580,12 +3580,11 @@ void NEP::GDAresetCurves()
     double diff = lastActions.getFirst() - lastActions.getLast();
     bool b2 = std::abs(diff) < d_action_threshold;
 
-    //cout << "diff action : " << diff << endl;
+    cout << "diff action : " << diff << ". action threshold : " << d_action_threshold << endl;
 
     bool converged = (b1 && b2);
 
-    //if (converged)
-    //  std::cout << "GDA has converged" << endl;
+    std::cout << "Boolean values : " << b1 << ", " << b2 << ", " << converged << endl;
 
     return converged;
     

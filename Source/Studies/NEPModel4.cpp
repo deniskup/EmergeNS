@@ -190,7 +190,7 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   {
     try
     {
-        action_threshold = std::atof(val.toUTF8());
+        action_threshold = val;
     }
     catch (const std::exception&)
     {
@@ -244,6 +244,7 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   NEP::getInstance()->alpha->setValue(alpha);
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
   NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
+  NEP::getInstance()->action_threshold->setValue(action_threshold); 
   NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
   Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 

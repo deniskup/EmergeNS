@@ -107,7 +107,7 @@ private:
   double alpha = 1.;
   bool detectConvergence = false;
   int checkpoints = 1000;
-  double action_threshold = 1e-7;
+  juce::String action_threshold = "1e-7";
   std::string outputdir = "./gda";
   juce::String msolvePath = "";
   bool adaptiveStepDescent = false;

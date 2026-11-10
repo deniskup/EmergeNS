@@ -181,7 +181,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   {
     try
     {
-        action_threshold = std::atof(val.toUTF8());
+        action_threshold = val;
     }
     catch (const std::exception&)
     {
@@ -239,6 +239,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
   NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
   NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
+  NEP::getInstance()->action_threshold->setValue(action_threshold); 
   Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 
   if (!initializationOK)
@@ -246,7 +247,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
 
 
   // check
-  cout << "theta = ";
+  /*cout << "theta = ";
   for (auto & t : theta)
     cout << t << " ";
   cout << endl;
@@ -254,7 +255,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   for (auto & k : kd)
     cout << k << " ";
   cout << endl;
-
+*/
 
   // create pairs of [theta, kd]
 
@@ -280,7 +281,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   metadatafile  = outputdir + "/metadata.csv";
   logfilename  = outputdir + "/log-error.txt";
 
-  cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
+  //cout << "thetakd pairs size = " << thetakdpairs.size() << endl;
 
 }
 
@@ -661,6 +662,9 @@ void NEPSchlogl::launchOneGDA()
       //outputfile = "./gda/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
       outputfile = outputdir + "/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
       NEP::getInstance()->setCustomOutputFilename(outputfile);
+
+      // reset dtau value
+      NEP::getInstance()->dtau->setValue(dtau);
 
       // launch one gradient descent ascent
       NEP::getInstance()->startDescent->trigger();
