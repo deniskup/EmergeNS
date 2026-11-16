@@ -232,7 +232,7 @@ void NEPSchlogl::setConfig(std::map<String, String> configs)
   NEP::getInstance()->Niterations->setValue(nIterations);
   NEP::getInstance()->nPointsUI->setValue(nPoints);
   NEP::getInstance()->useGradientDescentAscent->setValue(true);
-  NEP::getInstance()->initialConditions->setValueAtIndex(3); 
+  //NEP::getInstance()->initialConditions->setValueAtIndex(3); 
   NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
   NEP::getInstance()->dtau->setValue(dtau);
   NEP::getInstance()->alpha->setValue(alpha);
@@ -394,7 +394,8 @@ void NEPSchlogl::proceedToNextThetaKd()
 }
 
 
-bool NEPSchlogl::arrangeSteadyStates()
+//bool NEPSchlogl::arrangeSteadyStates()
+int NEPSchlogl::arrangeSteadyStates()
 {
   // copy steady states from SteadyStateslist 
   stableSteadyStates.clear();
@@ -561,8 +562,22 @@ bool NEPSchlogl::arrangeSteadyStates()
   }
 */
 
-  bool steadyStatesOK = true;
-  if (stableSteadyStates.size() != 3)
+  //bool steadyStatesOK = true;
+  int steadyStatesStatus = -1;
+  if (stableSteadyStates.size() == 3 && saddleSteadyStates.size() == 2)
+  {
+    steadyStatesStatus = 1; // bistable
+  }
+  else if (stableSteadyStates.size() == 2)
+  {
+    steadyStatesStatus = 0; // not bistable
+  }
+  else
+  {
+    steadyStatesStatus = -1; // issue
+  }
+
+  /*if (stableSteadyStates.size() != 3)
   {
     steadyStatesOK = false;
     LOGWARNING("NEPSchlogl study : number of kept stable steady states is not equal to 3. Skipping this gradient descent.");
@@ -572,10 +587,10 @@ bool NEPSchlogl::arrangeSteadyStates()
   {
     steadyStatesOK = false;
     LOGWARNING("NEPSchlogl study : number of kept saddle steady states is not equal to 2. Study will not be continued.");
-  } 
+  } */
 
 
-  return steadyStatesOK;
+  return steadyStatesStatus;
   
 }
 
@@ -638,14 +653,22 @@ void NEPSchlogl::writeCustomIC(const bool low2high)
 
 void NEPSchlogl::launchOneGDA()
 {
-
   // set start SST and endSST of NEP according to results of steady state calculation
-  // do not throw NEP if less than 4 stable steady states are found
   // set initial trajectory accordingly
-  bool canContinue = arrangeSteadyStates();
+  //bool canContinue = arrangeSteadyStates();
+
+  if (low2high)
+    steadyStateStatus = arrangeSteadyStates();
+  
+  bool manualSkipping = false;
+  if (steadyStateStatus == 1)
+  {
+    steadyStateStatus = -1;
+    manualSkipping = true;
+  }
 
   // find a way to pass an outputfile name to NEP
-  if (canContinue)
+  if (steadyStateStatus == 1) // bistable
   {
       int start = low2high ? 0 : 2;
       int end = low2high ? 2 : 0;
@@ -656,6 +679,8 @@ void NEPSchlogl::launchOneGDA()
       cout << "startSST --> endSST = " << stableSteadyStates[start].positionInList;
       cout << " --> " << stableSteadyStates[end].positionInList << endl;
 
+      // custom initial condition
+      NEP::getInstance()->initialConditions->setValueAtIndex(3); 
       writeCustomIC(low2high);
 
       // outputfile filename
@@ -670,15 +695,47 @@ void NEPSchlogl::launchOneGDA()
       NEP::getInstance()->startDescent->trigger();
       
   }
+  else if (steadyStateStatus == 0) // not bistable
+  {
+    int start = low2high ? 0 : 1;
+    int end = low2high ? 1 : 0;
+      
+    NEP::getInstance()->sst_stable->setValue(stableSteadyStates[start].positionInList);
+    NEP::getInstance()->sst_stable2->setValue(stableSteadyStates[end].positionInList);
+
+    cout << "startSST --> endSST = " << stableSteadyStates[start].positionInList;
+    cout << " --> " << stableSteadyStates[end].positionInList << endl;
+
+    // straight line initial condition for NEP
+    NEP::getInstance()->initialConditions->setValueAtIndex(0); 
+
+    // outputfile filename
+    outputfile = outputdir + "/simID-" + to_string(simID) + "_theta_" + to_string(current_theta) + "_kd_" + to_string(current_kd) + (low2high ? "_low-high" : "_high-low") + ".csv";
+    NEP::getInstance()->setCustomOutputFilename(outputfile);
+
+    // reset dtau value
+    NEP::getInstance()->dtau->setValue(dtau);
+
+    // launch one gradient descent ascent
+    NEP::getInstance()->startDescent->trigger();
+  }
   else
   {
-    logerrorfile << "Steady states issue for theta = " << current_theta << ", kd = " << current_kd;
-    logerrorfile << ". Trimmed stable steady states = " << stableSteadyStates.size() << ", ";
-    logerrorfile << "trimmed saddle steady states = " << saddleSteadyStates.size() << endl;
+    if (manualSkipping)
+    {
+      logerrorfile << "Manually skipping case for theta = " << current_theta << ", kd = " << current_kd;
+    }
+    else
+    {
+      logerrorfile << "Steady states issue for theta = " << current_theta << ", kd = " << current_kd;
+      logerrorfile << ". Trimmed stable steady states = " << stableSteadyStates.size() << ", ";
+      logerrorfile << "trimmed saddle steady states = " << saddleSteadyStates.size() << endl;
+    }
+    
 
-    saveToMetadata(false);
+    saveToMetadata();
 
-    // proceed manually to next theta-kd pair
+    // proceed to next theta-kd pair
     updateInternalParameters();
     proceedToNextThetaKd();
   }
@@ -687,12 +744,13 @@ void NEPSchlogl::launchOneGDA()
 
 
 
-void NEPSchlogl::saveToMetadata(const bool & steadyStateOK)
+void NEPSchlogl::saveToMetadata()
 {
   if (!ofs_metadata.is_open())
     return;
 
-  ofs_metadata << simID << "," << current_theta << "," << current_kd << "," << low2high << "," << outputfile << "," << steadyStateOK << "," << !nepHasError << endl;
+  ofs_metadata << simID << "," << current_theta << "," << current_kd << "," << low2high;
+  ofs_metadata << "," << outputfile << "," << steadyStateStatus << "," << !nepHasError << endl;
 }
 
 
@@ -735,7 +793,7 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
     case NEP::NEPEvent::FINISHED:
     {
       //cout << "received NEPEvent::FINISHED" << endl;
-      saveToMetadata(true);
+      saveToMetadata();
       // reset some variables
       //simID++;
       //low2high = !low2high;
@@ -793,27 +851,3 @@ void NEPSchlogl::newMessage(const Simulation::SimulationEvent &ev)
 
 	} // end switch
 }
-
-
-
-/*
-void NEPSchlogl::newMessage(const SteadyStateslist::SteadyStateEvent &ev)
-{
-  
-  switch (ev.type)
-  {   
-    case SteadyStateslist::SteadyStateEvent::WILL_START:
-    {
-    }
-  break;
-      
-    case SteadyStateslist::SteadyStateEvent::FINISHED:
-    {
-      // launch next gradient descent ascent
-      launchOneGDA();
-    }
-  break;
-      
-  } // end switch
-}
-*/

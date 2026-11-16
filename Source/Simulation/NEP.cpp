@@ -3542,7 +3542,7 @@ void NEP::GDAresetCurves()
 
   bool NEP::GDAhasConverged()
   {
-    cout << "NEP::GDAhasConverged()" << endl;
+    //cout << "NEP::GDAhasConverged()" << endl;
     int N = 15;
     if (actionDescent.size()<N)
       return false;
@@ -3580,11 +3580,11 @@ void NEP::GDAresetCurves()
     double diff = lastActions.getFirst() - lastActions.getLast();
     bool b2 = std::abs(diff) < d_action_threshold;
 
-    cout << "diff action : " << diff << ". action threshold : " << d_action_threshold << endl;
+    //cout << "diff action : " << diff << ". action threshold : " << d_action_threshold << endl;
 
     bool converged = (b1 && b2);
 
-    std::cout << "Boolean values : " << b1 << ", " << b2 << ", " << converged << endl;
+    //std::cout << "Boolean values : " << b1 << ", " << b2 << ", " << converged << endl;
 
     return converged;
     

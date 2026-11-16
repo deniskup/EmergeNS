@@ -52,13 +52,18 @@ public:
 
   void proceedToNextThetaKd();
 
-  bool arrangeSteadyStates();
+  //bool arrangeSteadyStates();
+  // return value :
+  // -1 : issue
+  // 0 : not bistable
+  // 1 : bistable
+  int arrangeSteadyStates();
 
   void writeCustomIC(const bool);
 
   void launchOneGDA();
 
-  void saveToMetadata(const bool&);
+  void saveToMetadata();
 
   void updateInternalParameters();
 
@@ -107,6 +112,7 @@ private:
   ofstream ofs_metadata;
 
   bool nepHasError = false;
+  int steadyStateStatus = -1; // -1 : issue, 0 : not bistable, 1 : bistable
 
 
   
