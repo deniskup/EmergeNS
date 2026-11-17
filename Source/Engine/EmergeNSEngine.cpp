@@ -170,7 +170,7 @@ bool EmergeNSEngine::parseCommandline(const String& commandLine)
     // Set model parameters according to config values
     for (auto& [key, val] : configs)
     {
-      cout << "key, val : " << key << " " << val << endl;
+      //cout << "key, val : " << key << " " << val << endl;
       juce::var myvar(val);
       if (key == "z3path")  Settings::getInstance()->pathToz3->setValueInternal(myvar);
       else if (key == "z3timeout")  Settings::getInstance()->z3timeout->setValueInternal(myvar);
