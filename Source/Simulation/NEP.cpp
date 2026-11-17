@@ -243,6 +243,7 @@ void NEP::reset()
   // reset previous calculations
   iterationDescent.clear();
   actionDescent.clear();
+  actionDescent_stat.clear();
   trajDescent.clear();
   smooth_pcurve_Descent.clear();
   timeDescent.clear();
@@ -1611,11 +1612,11 @@ std::pair<Curve, Curve> NEP::customInitialTrajectory(StateVec& qI, StateVec& qF)
 
     if (p.size() != simul->entities.size())
     {
-      throw std::runtime_error("pcurve size does not match that of simm entities at line " + to_string(linecount));
+      throw std::runtime_error("pcurve size does not match that of sim entities at line " + to_string(linecount));
     }
     if (q.size() != simul->entities.size())
     {
-      throw std::runtime_error("qcurve size does not match that of simm entities at line " + to_string(linecount));
+      throw std::runtime_error("qcurve size does not match that of sim entities at line " + to_string(linecount));
     }
 
     // add point to qcurve and pcurve
@@ -2911,9 +2912,12 @@ void NEP::gradientDescentAscent()
     hamiltCurve.setUnchecked(point, nepsolver->evalHamiltonian(q, p));
   }
   lambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
-  juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true);
+  juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, false);
+  juce::Array<double> cumulAction_stat = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, lambdaArray, true);
   double action = cumulAction.getLast();
+  double action_stat = cumulAction_stat.getLast();
   actionDescent.add(cumulAction);
+  actionDescent_stat.add(cumulAction_stat);
 
 
   // message to async
@@ -3359,8 +3363,11 @@ void NEP::gradientDescentAscent()
       }
       juce::Array<double> newlambdaArray = nepsolver->GDAlambdaArrayFromQP(g_qcurve, g_pcurve, hamiltCurve, dHdpCurve, alpha->floatValue(), ds); 
       juce::Array<double> cumulAction = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, newlambdaArray, false); 
+      juce::Array<double> cumulAction_stat = nepsolver->GDAcalculateAction(g_qcurve, g_pcurve, newlambdaArray, true); 
       double action = cumulAction.getLast();
+      double action_stat = cumulAction_stat.getLast();
       actionDescent.add(cumulAction);
+      actionDescent_stat.add(cumulAction_stat);
       nep = action;
 
       // keep track of hamiltonian values along the curve
@@ -3406,6 +3413,8 @@ void NEP::gradientDescentAscent()
 
       // message to async
       nepNotifier.addMessage(new NEPEvent(NEPEvent::NEWSTEP, this, gdaNsteps, action, vecabsH));
+      if (oscillates)
+        nepNotifier.addMessage(new NEPEvent(NEPEvent::NOISY, this, gdaNsteps, action, vecabsH));
     } // end if isCheck
   } // end while
 
@@ -3598,6 +3607,8 @@ bool NEP::GDAoscillates(int & flagOscillation)
 
   if (actionDescent.size()<testpoints)
     return oscillates;
+  
+  //cout << "GDAoscillates()" << endl;
 
   if (actionDescent.size()-1-flagOscillation < testpoints)
     return oscillates;
@@ -3644,8 +3655,16 @@ bool NEP::GDAoscillates(int & flagOscillation)
       nflips_H++;
   }
 
-  if (nflips_action > testpoints/2 || nflips_H > testpoints/2)
+  int maxFlips = 3;
+  bool b1 = nflips_action >= maxFlips;
+  bool b2 = nflips_H >= maxFlips;
+
+  if (b1 || b2)
     oscillates = true;
+
+  //cout << "Bool : " << b1 << "\t";
+  //cout << b2 << "\t";
+  //cout << " --> " << oscillates << endl;
 
   if (oscillates)
     flagOscillation = N-1;
@@ -3696,7 +3715,7 @@ void NEP::GDAwriteDescentToFile()
   historyFile << "###############" << endl;
   */
   
-  historyFile << "iteration,point,action";
+  historyFile << "iteration,point,action,action_stat";
   for (auto & ent : simul->entities)
     historyFile << ",q_" << ent->name;
   for (auto & ent : simul->entities)
@@ -3717,6 +3736,7 @@ void NEP::GDAwriteDescentToFile()
   
 
   jassert(actionDescent.size() == trajDescent.size());
+  jassert(actionDescent_stat.size() == trajDescent.size());
   jassert(iterationDescent.size() == trajDescent.size());
   jassert(residuals_H_descent.size() == trajDescent.size());
 //  jassert(actionDescent.size() == residuals_H_descent.size());
@@ -3731,6 +3751,7 @@ void NEP::GDAwriteDescentToFile()
     {
       historyFile << iterationDescent.getUnchecked(iter) << "," << point;
       historyFile << "," << actionDescent.getUnchecked(iter).getUnchecked(point);
+      historyFile << "," << actionDescent_stat.getUnchecked(iter).getUnchecked(point);
       PhaseSpaceVec trajpq = trajDescent.getUnchecked(iter).getUnchecked(point);
 
       for (int m=0; m<trajpq.size()/2; m++)

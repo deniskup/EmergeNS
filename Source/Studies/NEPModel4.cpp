@@ -778,6 +778,9 @@ void NEPModel4::launchOneGDA()
       + "_dG_" + to_string(current_dg) + (fromA2B ? "_A-B" : "_B-A") + ".csv";
       NEP::getInstance()->setCustomOutputFilename(outputfile);
 
+      // reset dtau value
+      NEP::getInstance()->dtau->setValue(dtau);
+
       // launch one gradient descent ascent
       NEP::getInstance()->startDescent->trigger();
       
@@ -888,6 +891,14 @@ void NEPModel4::newMessage(const NEP::NEPEvent &ev)
 
     case NEP::NEPEvent::NEWSTEP:
     {
+    }
+  break;
+
+    case NEP::NEPEvent::NOISY:
+    {
+      logerrorfile << " detected in gradient descent ascent for barrier = ";
+      logerrorfile << current_barr << ", deltaG = " << current_dg;
+      logerrorfile << (fromA2B ? ". Mode A --> B" : " Mode B --> A") << endl;
     }
   break;
 

@@ -778,6 +778,14 @@ void NEPSchlogl::newMessage(const NEP::NEPEvent &ev)
     }
   break;
 
+  case NEP::NEPEvent::NOISY:
+    {
+      logerrorfile << " detected in gradient descent ascent for theta = ";
+      logerrorfile << current_theta << ", kd = " << current_kd;
+      logerrorfile << (low2high ? ". Mode low --> high" : " Mode high --> low") << endl;
+    }
+  break;
+
     case NEP::NEPEvent::ERROR:
     {  
       string s = low2high ? ". Mode low --> high" : " Mode high --> low";

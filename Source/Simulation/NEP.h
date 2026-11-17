@@ -143,6 +143,7 @@ public:
     {
       WILL_START,
       NEWSTEP,
+      NOISY,
       FINISHED,
       ERROR
     };
@@ -307,6 +308,7 @@ private:
   //Array<double> actionDescent;
   juce::Array<int> iterationDescent;
   juce::Array<juce::Array<double>> actionDescent;
+  juce::Array<juce::Array<double>> actionDescent_stat;
   juce::Array<juce::Array<double>> timeDescent;
   juce::Array<Trajectory> trajDescent; // keep track of descent history in (q ; p) space
   juce::Array<Trajectory> smooth_pcurve_Descent; 
