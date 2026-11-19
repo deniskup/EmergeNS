@@ -169,6 +169,8 @@ public:
   void removeAsyncNEPListener(AsyncNEPListener* listener) {nepNotifier.removeListener(listener);}
 
 
+  bool useNoiseForStraightLineIC = true;
+
   
 private:
     
@@ -303,6 +305,7 @@ private:
 
   bool useCustomOutputFilename = false;
   std::string customOutputFilename;
+
 
   // for printing history to file
   //Array<double> actionDescent;

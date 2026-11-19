@@ -232,6 +232,7 @@ public:
 	void clearParams();
 	void updateParams(); // for display
 	void updateSpaceGridSizeInSimu();
+	void setSteadyStateList(juce::Array<SteadyState>);
 
 	void fetchGenerate();
 

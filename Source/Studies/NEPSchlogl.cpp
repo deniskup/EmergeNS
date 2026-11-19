@@ -81,7 +81,7 @@ juce::Array<double> string2array(String str)
 NEPSchlogl::NEPSchlogl() : simul(Simulation::getInstance())
 {
   if (simul == nullptr)
-    LOGWARNING("SImulation pointer init. to null pointer");
+    LOGWARNING("Simulation pointer init. to null pointer");
 }
 
 // destructor
@@ -723,7 +723,7 @@ void NEPSchlogl::launchOneGDA()
   {
     if (manualSkipping)
     {
-      logerrorfile << "Manually skipping case for theta = " << current_theta << ", kd = " << current_kd;
+      logerrorfile << "Manually skipping case for theta = " << current_theta << ", kd = " << current_kd << endl;
     }
     else
     {

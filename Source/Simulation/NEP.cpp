@@ -1342,7 +1342,7 @@ Curve NEP::straightLineInitialTrajectory(StateVec& qstable, StateVec& qsaddle)
       for (int k=0; k<qstable.size(); k++)
       {
         double qk = qsaddle.getUnchecked(k) + (1. - fpoint/(NN-1.)) * (qstable.getUnchecked(k) - qsaddle.getUnchecked(k));
-        if (point>0 && point <nPoints-1)
+        if (point>0 && point <nPoints-1 && useNoiseForStraightLineIC)
           qk += 0.01 * rg.randomNumber() * std::sqrt(std::abs(qstable.getUnchecked(k)-qsaddle.getUnchecked(k)));
         vec.add(qk);
       }
@@ -3027,6 +3027,7 @@ void NEP::gradientDescentAscent()
       else  
       {
         GDAerror(gdaIsOk);
+        cout << "BREAK 1" << endl;
         break;
       }
     }
@@ -3253,6 +3254,7 @@ void NEP::gradientDescentAscent()
       else  
       {
         GDAerror(gdaIsOk);
+        cout << "BREAK 2" << endl;
         break;
       }
     }

@@ -13,6 +13,8 @@ double nep_power(double x, int pow)
   if (x == 0.)
     return 1.;
   jassert(x > 0.);
+  if (x<=0.)
+    cout << x << endl;
   double result = 1.;
   if (pow > 0)
   {
@@ -1883,7 +1885,9 @@ juce::Array<double> NEPSolver::GDAcalculateAction(const Curve& qc, const Curve& 
     }
   }
   jassert(pos >= 0);
-  double lambda_min = lambda_abs.getUnchecked(pos);
+  double lambda_min = 1e-6;
+  if (pos>=0)
+    lambda_min = lambda_abs.getUnchecked(pos);
   // replace zeros by lambda_min
   for (int i=0; i<lambda.size(); i++)
   {

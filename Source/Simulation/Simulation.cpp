@@ -262,6 +262,12 @@ void Simulation::updateSpaceGridSizeInSimu()
   }
 }
 
+
+void Simulation::setSteadyStateList(juce::Array<SteadyState> _ssts)
+{
+  steadyStatesList->setSteadyStates(_ssts);
+}
+
 // to save additional data, different from getJSONdata()
 var Simulation::toJSONData()
 {

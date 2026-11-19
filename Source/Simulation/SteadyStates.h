@@ -122,6 +122,8 @@ public:
 
     void requestSteadyStateCalculation();
 
+    void setSteadyStates(juce::Array<SteadyState>);
+
 
 
 

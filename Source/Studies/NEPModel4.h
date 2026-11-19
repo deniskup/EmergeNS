@@ -55,7 +55,7 @@ public:
 
   void finishStudy();
 
-  void update_dGbarr();
+  bool update_dGbarr();
 
   CycleFreeEnergies solveFreeEnergies(const double&);
 
@@ -76,6 +76,10 @@ public:
   void saveSteadyStatesToFile();
 
   void updateInternalParameters();
+
+  void loadPrecalculatedSST(const juce::String&);
+
+  bool passSteadyStatesToSimulation();
 
     
 private:
@@ -111,6 +115,8 @@ private:
   std::string outputdir = "./gda";
   juce::String msolvePath = "";
   bool adaptiveStepDescent = false;
+  bool usePrecalculatedSST = false;
+  juce::String precalculatedSSTfile = "";
 
   juce::Array<Model4SteadyState> steadyStates;
   
@@ -143,5 +149,30 @@ private:
   uint32_t simIDStartTime;
   uint32_t simIDEndTime;
 
+  // for pre-calculated steady states
+  //using State = std::array<double, 12>
+  struct Bin 
+  {
+    juce::Array<SteadyState> stationary_states;
+  };
+  struct Parameters 
+  {
+    double deltaG;
+    double barr;
+    bool operator==(const Parameters& other) const {
+        return deltaG == other.deltaG && barr == other.barr;
+    }
+  };
+  struct ParametersHash 
+  {
+    std::size_t operator()(const Parameters& p) const {
+        std::size_t h1 = std::hash<double>{}(p.deltaG);
+        std::size_t h2 = std::hash<double>{}(p.barr);
+
+        return h1 ^ (h2 << 1);
+    }
+  };
+  juce::Array<Bin> bins_dg_barr;
+  std::unordered_map<Parameters, std::size_t, ParametersHash> bin_index_map;
 
 };

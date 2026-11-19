@@ -111,7 +111,7 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   }
   if (key == "studyType")
   {
-    if (val == "steadyStates")
+    if (val == "STEADYSTATES")
       studytype = STEADYSTATES; 
     else if (val == "NEP1PATCH")
       studytype = NEP1PATCH;
@@ -166,7 +166,7 @@ void NEPModel4::setConfig(std::map<String, String> configs)
   {
     try
     {
-        dtau = std::atof(val.toUTF8());
+      dtau = std::atof(val.toUTF8());
     }
     catch (const std::exception&)
     {
@@ -223,6 +223,15 @@ void NEPModel4::setConfig(std::map<String, String> configs)
     }
     adaptiveStepDescent = (ival != 0);
   }
+  else if (key == "usePrecalculatedSST")
+  {
+    int ival = std::atoi(val.toUTF8());
+    usePrecalculatedSST = (ival != 0);
+  }
+  else if (key == "precalculatedSSTfile")
+  {
+    precalculatedSSTfile = val;   
+  }
 }
 
   for (auto & b: barr)
@@ -236,16 +245,21 @@ void NEPModel4::setConfig(std::map<String, String> configs)
 
   
   // set some basic NEP configs
-  NEP::getInstance()->Niterations->setValue(nIterations);
-  NEP::getInstance()->nPointsUI->setValue(nPoints);
-  NEP::getInstance()->useGradientDescentAscent->setValue(true);
-  NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
-  NEP::getInstance()->dtau->setValue(dtau);
-  NEP::getInstance()->alpha->setValue(alpha);
-  NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
-  NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
-  NEP::getInstance()->action_threshold->setValue(action_threshold); 
-  NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
+  if (studytype == NEP1PATCH)
+  {
+    NEP::getInstance()->Niterations->setValue(nIterations);
+    NEP::getInstance()->nPointsUI->setValue(nPoints);
+    NEP::getInstance()->useGradientDescentAscent->setValue(true);
+    NEP::getInstance()->customInitialConditionFile->setValue("tempIC.csv");
+    NEP::getInstance()->dtau->setValue(dtau);
+    NEP::getInstance()->alpha->setValue(alpha);
+    NEP::getInstance()->GDAdetectConvergence->setValue(detectConvergence);
+    NEP::getInstance()->GDAcheckpoints->setValue(checkpoints);
+    NEP::getInstance()->action_threshold->setValue(action_threshold); 
+    NEP::getInstance()->adaptiveStepDescent->setValue(adaptiveStepDescent);
+    NEP::getInstance()->useNoiseForStraightLineIC = false;
+  }
+  
   Settings::getInstance()->pathToMSolve->setValue(msolvePath);
 
   if (studytype == NEP1PATCH)
@@ -293,6 +307,21 @@ void NEPModel4::setConfig(std::map<String, String> configs)
     initializationOK = false;
   }
 
+  if (usePrecalculatedSST)
+  {
+    ifstream test;
+    test.open(precalculatedSSTfile.toUTF8());
+    if (!test.is_open())
+    {
+      LOGWARNING("precalculated file: " + precalculatedSSTfile + " cannot be opened. Please check config file.");
+      initializationOK = false;
+    }
+    if (initializationOK)
+    {
+      loadPrecalculatedSST(precalculatedSSTfile);
+    }
+  }
+
   // set matrix cycle
   cycleMatrix.resize(3,3);
   cycleMatrix(0,0) = -1.;
@@ -309,6 +338,12 @@ void NEPModel4::setConfig(std::map<String, String> configs)
 
   metadatafile  = outputdir + "/metadata.csv";
   logfilename  = outputdir + "/log-error.txt";
+
+  // create output directory if it does not exist
+  String com = "mkdir -p " + outputdir;
+  system(com.toUTF8());
+
+  //LOG("picked study " + String(studytype));
 
   // snaity check
   //for (auto &p : dGbarrpairs)
@@ -449,6 +484,8 @@ void NEPModel4::startStudy()
   if (!initializationOK)
   {
     LOGWARNING("NEPModel4 study not started due to config file errors.");
+    finishStudy();
+    JUCEApplication::getInstance()->systemRequestedQuit();
     return;
   }
 
@@ -498,7 +535,7 @@ void NEPModel4::finishStudy()
 }
 
 
-void NEPModel4::update_dGbarr()
+bool NEPModel4::update_dGbarr()
 {
   
   if (dGbarrpairs.size() == 0)
@@ -506,7 +543,7 @@ void NEPModel4::update_dGbarr()
     LOG("No more deltaG_barrier pair to study. NEPModel4 study finished.");
     finishStudy();
     JUCEApplication::getInstance()->systemRequestedQuit();
-    return;
+    return false;
   }
   
   // get first pair of theta and kd
@@ -573,6 +610,7 @@ void NEPModel4::update_dGbarr()
   current_dg = firstpair.deltaG;
   current_barr = firstpair.barr;
 
+  return true;
   
 }
 
@@ -607,20 +645,44 @@ void NEPModel4::proceedToNext_dGbarr()
   if (studytype == STEADYSTATES)
   {
     // update barrier and deltaG values
-    update_dGbarr();
-
-    // request steady state calculation for current theta-kd pair
-    requestSteadyStateCalculation();
+    if (update_dGbarr())
+    {
+      // request steady state calculation for current theta-kd pair
+      requestSteadyStateCalculation();
+    }
+    else  
+      return;
   }
   else if (studytype == NEP1PATCH)
   {
     if (fromA2B)
     {
       // next value of deltaG and barrier
-      update_dGbarr();
-
-      // request steady state calculation for current theta-kd pair
-      requestSteadyStateCalculation();
+      if  (update_dGbarr())
+      {
+        // request steady state calculation for current theta-kd pair
+        if (usePrecalculatedSST)
+        {
+          bool success = passSteadyStatesToSimulation();
+          cout << "passSteadyStatesToSimulation success : " << success << endl;
+          if (success)
+            launchOneGDA();
+          else
+          {
+            saveToMetadata(false);
+            updateInternalParameters();
+            proceedToNext_dGbarr();
+          }
+        }
+        else
+        {
+          requestSteadyStateCalculation();
+        } 
+      }
+      else
+      {
+        return;
+      }
     }
     else
     {
@@ -634,6 +696,7 @@ std::pair<int, int> NEPModel4::arrangeSteadyStates(bool & canContinue)
 {
   // check bistability
   int nStable = 0;
+  cout << "simul->steadyStatesList->arraySteadyStates.size : " << simul->steadyStatesList->arraySteadyStates.size() << endl;
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
     if (sst.isStable)
@@ -753,6 +816,7 @@ void NEPModel4::launchOneGDA()
   // set initial trajectory accordingly
   bool canContinue = true;
   pair<int, int> cycle_index = arrangeSteadyStates(canContinue);
+  cout << "arrange steady states OK ? " << canContinue << endl;
 
   // find a way to pass an outputfile name to NEP
   if (canContinue)
@@ -781,6 +845,8 @@ void NEPModel4::launchOneGDA()
       // reset dtau value
       NEP::getInstance()->dtau->setValue(dtau);
 
+
+      cout << "Calling GDA start" << endl;
       // launch one gradient descent ascent
       NEP::getInstance()->startDescent->trigger();
       
@@ -805,8 +871,8 @@ void NEPModel4::retrieveSteadyStates()
 {
   for (auto & sst : simul->steadyStatesList->arraySteadyStates)
   {
-    if (sst.isStable)
-    {
+    //if (sst.isStable)
+   // {
       SteadyState copySST(sst);
       Model4SteadyState m4sst;
       m4sst.steadyState = copySST;
@@ -814,7 +880,7 @@ void NEPModel4::retrieveSteadyStates()
       m4sst.deltaG = current_dg;
       m4sst.simID = simID;
       steadyStates.add(m4sst);
-    }
+   // }
   }
 
 }
@@ -850,7 +916,7 @@ void NEPModel4::saveSteadyStatesToFile()
   out.open(outputfile, ios::trunc | ios::out);
 
   // 1st line
-  out << "simID,deltaG,barrier";
+  out << "simID,deltaG,barrier,isStable,isBorder";
   for (auto & se : simul->entities)
   {
     out << "," << se->name;
@@ -860,7 +926,7 @@ void NEPModel4::saveSteadyStatesToFile()
 
   for (auto & m4sst : steadyStates)
   {
-    out << m4sst.simID << "," << m4sst.deltaG << "," << m4sst.barr;
+    out << m4sst.simID << "," << m4sst.deltaG << "," << m4sst.barr << "," << m4sst.steadyState.isStable << "," << m4sst.steadyState.isBorder;
     for (auto & p : m4sst.steadyState.state)
       out << "," << p.second;
     out << std::endl;
@@ -876,6 +942,225 @@ void NEPModel4::updateInternalParameters()
   fromA2B = !fromA2B;
   nepHasError = false;
 }
+
+
+void NEPModel4::loadPrecalculatedSST(const juce::String & filename)
+{
+  //cout << "loadPrecalculatedSST() CALLED : " << endl;
+
+  ifstream f;
+  f.open(filename.toUTF8());
+  if (!f.is_open())
+  {
+    LOGWARNING  ("Cannot open file " + filename);
+    initializationOK = false;
+  } 
+
+  // read first line and 'spot which column is barrier and which is deltaG
+  std::string line;
+  std::getline(f,line);
+  //cout << "first line :\n" << line << endl;
+  std::stringstream          lineStream(line);
+  std::string                cell;
+
+  // read first line of csv file
+  juce::Array<juce::String> entityNames;
+  int c=0;
+  int ibarr, ideltaG, istable, iborder = -1;
+  while(std::getline(lineStream,cell, ','))
+  {
+    //result.push_back(cell);
+    //cout << cell << endl;
+    if (cell == "barrier")
+      ibarr = c;
+    if (cell == "deltaG")
+      ideltaG = c;
+    if (cell == "isStable")
+      istable = c;
+    if (cell == "isBorder")
+      iborder = c;
+    if (cell != "simID" && cell != "barrier" && cell != "deltaG" && cell != "isStable" && cell != "isBorder")
+      entityNames.add(String(cell));
+    c++;
+  }
+
+  //cout << "entity names size : " << entityNames.size() <<endl;
+  //cout << "simul entities size : " << simul->entities.size() <<endl;
+
+  if (ibarr == -1 || ideltaG == -1 || istable == -1 || iborder == -1)
+  {
+    LOGWARNING("One of the columns of input barrier/deltaGisStable/isBorder is not labeled correctly. Please check.");
+    initializationOK = false;
+    return;
+  }
+  if (entityNames.size() != simul->entities.size())
+  {
+    cout << entityNames.size() << "\t" << simul->entities.size() <<endl;
+    LOGWARNING("Number of entities in precalculatedSST file does not match number of entities in model. Please check.");
+    initializationOK = false;
+    return;
+  }
+  int nCols = c;
+
+
+  // clearing previous data
+  bins_dg_barr.clear();
+  bin_index_map.clear();
+
+  // read rest of the file
+  c=0;
+  //cout << "reste of the file" << endl;
+  while(std::getline(f,line))
+  {
+    //cout << line << endl;
+    lineStream.str(line);
+    lineStream.clear();
+    int c2 = 0;
+    double dg, barr;
+    bool isStable, isBorder;
+    std::vector<double> abundances;
+    // read line
+    while(std::getline(lineStream,cell, ','))
+    {
+      //result.push_back(cell);
+      //cout << c2 << endl;
+      if (c2 == ibarr)
+      {
+        barr = std::atof(cell.c_str());
+      }
+      else if (c2 == ideltaG)
+      {
+        dg = std::atof(cell.c_str());
+      }
+      else if (c2 == istable)
+      {
+        isStable = (std::atoi(cell.c_str()) != 0);
+      }
+      else if (c2 == iborder)
+      {
+        isBorder = (std::atoi(cell.c_str()) != 0);
+      }
+      else if (c2 == 0) // simID column, ignore
+      {
+      }
+      else if (c2 >= nCols - entityNames.size() )
+      {
+        abundances.push_back(std::atof(cell.c_str()));
+      }
+      c2++;
+    } // end while to read current line
+
+    // create parameter pair
+    Parameters p{dg, barr};
+
+    // to check whether this pair has been encountered already
+    auto it = bin_index_map.find(p);
+    int index;
+    if (it == bin_index_map.end()) 
+    {
+      // new couple of parameter
+      index = bins_dg_barr.size();
+      bin_index_map[p] = index;
+      Bin newbin;
+      bins_dg_barr.add(newbin);
+    } 
+    else 
+    {
+      // Couple already met
+      index = bin_index_map[p];
+    }
+
+    // get the corresponding bin
+    //Bin bin = bins_dg_barr[index];
+
+    // build seatdy states in the EmergeNS form
+    SteadyState sst;
+    sst.isStable = isStable;
+    sst.isBorder = isBorder;
+    for (int i=0; i<abundances.size(); i++)
+    {
+      juce::String name = entityNames[i];
+      double abundance = abundances[i];
+      SimEntity* se = simul->getSimEntityForName(name);
+      if (se == nullptr)
+      {
+        LOGWARNING("Entity " + name + " not found in model. Please check precalculatedSST file.");
+        initializationOK = false;
+        return;
+      }
+      sst.state.add(std::pair<SimEntity*, double>(se, abundances[i]));
+    }
+    jassert(sst.state.size() == simul->entities.size());
+    if (sst.state.size() != simul->entities.size())
+    {
+      //cout << sst.state.size() << "\t" << simul->entities.size() << endl;
+      LOGWARNING("Steady state size does not match number of entities in simul.");
+      initializationOK = false;
+      return;
+    }
+    bins_dg_barr.getReference(index).stationary_states.add(sst);
+
+    c++;
+  }
+
+  if (bin_index_map.size() !=  bins_dg_barr.size())
+  {
+    LOGWARNING("dg-barr bins and maps differ in size.");
+    initializationOK = false;
+  }
+  
+  
+  // check
+  /*
+  cout << "loadPrecalculatedSST() CHECK : " << endl;
+  cout << "bin index map size : " << bin_index_map.size() << endl;
+  cout << "bins_dg_barr size : " << bins_dg_barr.size() << endl;
+  for (auto & [para, index] : bin_index_map)
+  {
+    cout << para.barr << "\t" << para.deltaG << "\t" << index << endl;
+    Bin bin = bins_dg_barr.getUnchecked(index);
+    for (const auto& sst: bin.stationary_states)
+    {
+      cout << "steady states (" << sst.isStable << "," << sst.isBorder << ")"  << endl;
+      for (const auto& se_abund : sst.state)
+        cout << "\t" << se_abund.first->name << "\t" << se_abund.second << endl;  
+    }
+  }
+  */
+
+
+
+}
+
+
+bool NEPModel4::passSteadyStatesToSimulation()
+{
+  bool success = true;
+
+  Parameters p{current_dg, current_barr};
+
+  // check that parameter pair has a valid index in pre-calculated steady states
+  if (bin_index_map.find(p) == bin_index_map.end())
+  {
+    success = false;
+    LOG("No steady state found for dg = " + juce::String(current_dg) + " and barrier = " + juce::String(current_barr));
+    return success;
+  }
+
+  // get pre-calculated steady states
+  int index = bin_index_map[p];
+  juce::Array<SteadyState> ssts = bins_dg_barr.getUnchecked(index).stationary_states;
+
+  if (ssts.size()<2)
+    success = false;
+
+  simul->setSteadyStateList(ssts);
+
+
+  return success;
+
+}
+
 
 
 void NEPModel4::newMessage(const NEP::NEPEvent &ev)

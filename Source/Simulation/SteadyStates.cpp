@@ -529,6 +529,7 @@ void SteadyStateslist::clear()
   arraySteadyStates.clear();
   nGlobStable = 0;
   nPartStable = 0;
+  nSaddle = 0;
   //stableStates.clear();
   //partiallyStableStates.clear();
 }
@@ -569,6 +570,15 @@ void SteadyStateslist::computeSteadyStates()
 }
 
 
+void SteadyStateslist::setSteadyStates(juce::Array<SteadyState> _ssts)
+{
+  clear();
+  for (auto & sst: _ssts)
+    arraySteadyStates.add(sst);
+  simul->updateParams();
+}
+
+
 
 void SteadyStateslist::run()
 {
@@ -587,8 +597,11 @@ void SteadyStateslist::run()
   // computeWithZ3(); // search for stationnary points
   bool success = computeWithMSolve(); // search for stationnary points
   if (!success)
+  {
+    simul->updateParams();
+    state = Idle;
     return;
-
+  }
   // print z3/msolve execution time
   simul->isComputing = false;
   if (simul->shouldStop)
